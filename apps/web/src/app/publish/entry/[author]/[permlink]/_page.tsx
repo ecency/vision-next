@@ -51,7 +51,7 @@ export default function Publish() {
   }, [entryPoll, setPoll]);
 
   useEntryDetector(
-    (params?.author as string).replace("%40", ""),
+    (params?.author as string).replace(/%40/g, ""),
     params?.permlink as string,
     async (entry) => {
       if (entry) {

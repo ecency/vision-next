@@ -24,8 +24,17 @@ export function WaveFollowsCard() {
     const seen = new Set<string>();
     const result: LeaderBoardItem[] = [];
 
+    // Use CSPRNG for the pick — the username flows into URLs and is treated
+    // as taint by CodeQL when sourced from Math.random; equivalent UX,
+    // satisfies js/insecure-randomness.
+    const pickIndex = (n: number) => {
+      const buf = new Uint32Array(1);
+      crypto.getRandomValues(buf);
+      return buf[0] % n;
+    };
+
     while (result.length < 5 && seen.size < data.length) {
-      const candidate = data[Math.floor(Math.random() * data.length)];
+      const candidate = data[pickIndex(data.length)];
       if (candidate._id === activeUser?.username) continue;
       if (!seen.has(candidate._id)) {
         seen.add(candidate._id);

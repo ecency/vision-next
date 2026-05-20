@@ -18,7 +18,7 @@ export function ProfilePermissions() {
     }
   }, [activeUser?.username, router, username]);
 
-  if (!activeUser || username.replace("%40", "") !== activeUser.username) {
+  if (!activeUser || username.replace(/%40/g, "") !== activeUser.username) {
     return <></>;
   }
 

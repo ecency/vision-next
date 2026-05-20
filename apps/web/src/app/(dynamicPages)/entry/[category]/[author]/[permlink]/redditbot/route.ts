@@ -29,7 +29,7 @@ export async function GET(request: NextRequest, { params }: Props) {
 
     const entryRaw = await prefetchQuery(
       EcencyEntriesCacheManagement.getEntryQueryByPath(
-        author.replace("%40", "").replace("@", ""),
+        author.replace(/%40/g, "").replace("@", ""),
         permlink
       )
     );

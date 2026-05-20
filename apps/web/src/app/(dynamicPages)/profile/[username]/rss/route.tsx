@@ -11,7 +11,7 @@ export async function GET(request: NextRequest, { params }: Props) {
 
   try {
     const xml = (
-      await new AccountRssHandler(request.nextUrl.pathname, username.replace("%40", "")).getFeed()
+      await new AccountRssHandler(request.nextUrl.pathname, username.replace(/%40/g, "")).getFeed()
     ).xml();
     return new Response(xml, {
       headers: { "Content-Type": "text/xml", ...RSS_CACHE_HEADERS }

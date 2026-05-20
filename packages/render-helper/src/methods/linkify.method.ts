@@ -9,7 +9,7 @@ export function linkify(content: string, forApp: boolean, renderOptions?: Render
   content = content.replace(/(^|\s|>)(#[-a-z\d]+)/gi, tag => {
     if (/#[\d]+$/.test(tag)) return tag // do not allow only numbers (like #1)
     const preceding = /^\s|>/.test(tag) ? tag[0] : '' // space or closing tag (>)
-    tag = tag.replace('>', '') // remove closing tag
+    tag = tag.replace(/^>/, '') // strip the leading > we captured as the precursor
     const tag2 = tag.trim().substring(1)
     const tagLower = tag2.toLowerCase()
 

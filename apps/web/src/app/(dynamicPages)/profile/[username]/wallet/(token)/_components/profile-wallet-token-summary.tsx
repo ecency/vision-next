@@ -39,7 +39,7 @@ export function ProfileWalletTokenSummary() {
   const tokenWithFallback =
     (token as string)?.toUpperCase() ?? pathname.split("/")[3]?.toUpperCase();
 
-  const cleanUsername = (username as string).replace("%40", "");
+  const cleanUsername = typeof username === "string" ? username.replace(/%40/g, "") : "";
   const currency = useGlobalStore((state) => state.currency);
 
   const { hasPendingPoints } =
@@ -70,7 +70,7 @@ export function ProfileWalletTokenSummary() {
     getAccountWalletAssetInfoQueryOptions(cleanUsername, tokenWithFallback, { refetch: false, currency: currency || "usd" })
   );
 
-  const logo = useGetTokenLogoImage((username as string).replace("%40", ""), tokenWithFallback);
+  const logo = useGetTokenLogoImage(cleanUsername, tokenWithFallback);
 
   const parts = data?.parts ?? [];
   const liquidBalance =

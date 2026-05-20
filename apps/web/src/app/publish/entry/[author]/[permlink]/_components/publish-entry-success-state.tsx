@@ -22,7 +22,7 @@ export function PublishEntrySuccessState({ entry }: Props) {
   const author = params?.author ?? "";
   const permlink = params?.permlink ?? "";
 
-  const sanitizedAuthor = (author as string).replace("%40", "");
+  const sanitizedAuthor = (author as string).replace(/%40/g, "");
   const category = tags?.[0] ?? entry?.category;
   const entryHref =
     category && sanitizedAuthor && permlink

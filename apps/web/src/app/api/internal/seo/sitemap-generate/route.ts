@@ -424,8 +424,9 @@ export async function POST(req: Request): Promise<Response> {
   } catch (e) {
     // 500 (not 200): the deploy-time prime keys its retry/break on a 2xx
     // here, and monitoring must see a write failure rather than a false ok.
+    console.error("[seo/sitemap-generate] write failed:", e);
     return new Response(
-      JSON.stringify({ error: "write-failed", message: e instanceof Error ? e.message : String(e) }),
+      JSON.stringify({ error: "write-failed" }),
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }

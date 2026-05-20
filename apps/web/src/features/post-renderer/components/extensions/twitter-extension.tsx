@@ -25,7 +25,19 @@ export function TwitterExtension({
     elements
         .filter((el) => {
           const href = el.getAttribute("href") || "";
-          return href.startsWith("https://x.com") || href.startsWith("https://twitter.com");
+          // Hostname-based check; startsWith would accept https://twitter.com.evil.com.
+          try {
+            const u = new URL(href);
+            return (
+              u.protocol === "https:" &&
+              (u.hostname === "x.com" ||
+                u.hostname === "twitter.com" ||
+                u.hostname === "www.x.com" ||
+                u.hostname === "www.twitter.com")
+            );
+          } catch {
+            return false;
+          }
         })
         .forEach((element) => {
           try {

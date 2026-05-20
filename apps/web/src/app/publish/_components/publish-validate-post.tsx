@@ -119,11 +119,17 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
 
     // Only generate description if it's empty or 1-char garbage
     if (!metaDescription || metaDescription.trim().length <= 1) {
-      const plainText = content
-        .replace(/<[^>]+>/g, "")
-        .replace(/\s+/g, " ")
-        .trim();
+      // Strip HTML tags including unclosed forms (`<[^>]*(?:>|$)`) so a
+      // truncated `…<script` substring can't leak into the meta tag.
+      // Loop catches nested payloads like `<scr<script>ipt>`.
+      let stripped = content;
+      let prev: string;
+      do {
+        prev = stripped;
+        stripped = stripped.replace(/<[^>]*(?:>|$)/g, "");
+      } while (stripped !== prev);
 
+      const plainText = stripped.replace(/\s+/g, " ").trim();
       const description = plainText.slice(0, 160);
       setMetaDescription(description);
     }

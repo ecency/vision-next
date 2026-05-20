@@ -10,6 +10,10 @@ interface Props {
     op: string;
 }
 
+// Hive usernames are 3-16 chars, lowercase letters, digits, dot, hyphen.
+// Anything else is rejected before being used in URL paths or rendered.
+const HIVE_USERNAME_RE = /^[a-z][a-z0-9.-]{2,15}$/;
+
 export function HiveOperationRenderer({ op }: Props) {
     const decodedOp = useMemo(() => {
         try {
@@ -25,6 +29,12 @@ export function HiveOperationRenderer({ op }: Props) {
         [decodedOp]
     );
 
+    const safeTo = useMemo(() => {
+        if (!decodedOp || decodedOp[0] !== "transfer") return undefined;
+        const to = decodedOp[1].to;
+        return typeof to === "string" && HIVE_USERNAME_RE.test(to) ? to : undefined;
+    }, [decodedOp]);
+
     return (
         <>
       <span className="er-hive-op-label">
@@ -37,19 +47,19 @@ export function HiveOperationRenderer({ op }: Props) {
                         <div className="er-hive-op-type">
                             {decodedOpType}
                         </div>
-                        {decodedOp[0] === "transfer" && (
+                        {decodedOp[0] === "transfer" && safeTo && (
                             <div className="er-hive-op-transfer">
                 <span className="er-hive-op-transfer-highlight">
                   {String(decodedOp[1].amount)}
                 </span>
                                 <span> to</span>
                                 <img
-                                    src={`${defaults.imageServer}/u/${decodedOp[1].to}/avatar/small`}
+                                    src={`${defaults.imageServer}/u/${safeTo}/avatar/small`}
                                     className="er-hive-op-transfer-image"
                                     alt=""
                                 />
                                 <span className="er-hive-op-transfer-highlight">
-                  {decodedOp[1].to}
+                  {safeTo}
                 </span>
                             </div>
                         )}

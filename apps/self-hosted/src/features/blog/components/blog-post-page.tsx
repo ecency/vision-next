@@ -54,9 +54,17 @@ export function BlogPostPage() {
   const ogDescription = useMemo(() => {
     if (!entry) return undefined;
     const body = entry.original_entry?.body || entry.body || '';
-    // Strip markdown/HTML and take first 200 chars
-    const clean = body
-      .replace(/<[^>]*>/g, '')
+    // Strip HTML tags including unclosed forms (`<[^>]*(?:>|$)`) so a
+    // truncated `…<script` substring can't leak into the meta-description
+    // (head-tag rendering context). Loop handles nested payloads like
+    // `<scr<script>ipt>`.
+    let stripped = body;
+    let prev: string;
+    do {
+      prev = stripped;
+      stripped = stripped.replace(/<[^>]*(?:>|$)/g, '');
+    } while (stripped !== prev);
+    const clean = stripped
       .replace(/!\[.*?\]\(.*?\)/g, '')
       .replace(/\[([^\]]*)\]\(.*?\)/g, '$1')
       .replace(/[#*_~`>]/g, '')

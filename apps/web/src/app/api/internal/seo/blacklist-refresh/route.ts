@@ -114,12 +114,15 @@ export async function POST(req: Request): Promise<Response> {
     // sees it, and record it in META. 200 is reserved for success and the
     // intentional delta-sanity skip; 502/503 cover upstream/redis already.
     const message = e instanceof Error ? e.message : String(e);
+    console.error("[seo/blacklist-refresh] failed:", e);
     try {
+      // Internal META record keeps message for operator debugging via redis-cli;
+      // response body intentionally omits it to avoid leaking internals.
       await redis.set(META, JSON.stringify({ ok: false, reason: "refresh-failed", message, ts }));
     } catch {
       /* best-effort failure record */
     }
-    return jsonResponse(500, { error: "refresh-failed", message });
+    return jsonResponse(500, { error: "refresh-failed" });
   } finally {
     // Drop the temp key on every path: on success rename() already moved
     // it to LIVE (no-op del); on skip/error this clears any partial set.

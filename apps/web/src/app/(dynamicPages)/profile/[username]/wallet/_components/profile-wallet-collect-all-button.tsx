@@ -18,7 +18,7 @@ import { invalidateWalletQueries } from "@/features/wallet/utils/invalidate-wall
 
 export function ProfileWalletCollectAllButton() {
   const { username: rawUsername } = useParams();
-  const username = (rawUsername as string).replace("%40", "");
+  const username = (rawUsername as string).replace(/%40/g, "");
   const { activeUser } = useActiveAccount();
   const queryClient = useQueryClient();
   const isOwnProfile = activeUser?.username === username;

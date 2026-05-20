@@ -11,7 +11,7 @@ export async function generateMetadata(props: Props, parent: ResolvingMetadata):
   if (!permlink || permlink === "undefined") {
     return {};
   }
-  const meta = await generateEntryMetadata(author.replace("%40", ""), permlink);
+  const meta = await generateEntryMetadata(author.replace(/%40/g, ""), permlink);
   return {
     ...meta,
     title: `Edit – ${meta?.title}`
@@ -23,9 +23,9 @@ export default async function EntryEditPage({ params }: Props) {
 
   return (
     <SubmitWithProvidersPage
-      path={`@${username.replace("%40", "")}/${permlink}/edit`}
+      path={`@${username.replace(/%40/g, "")}/${permlink}/edit`}
       permlink={permlink}
-      username={username.replace("%40", "")}
+      username={username.replace(/%40/g, "")}
     />
   );
 }

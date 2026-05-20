@@ -46,7 +46,7 @@ export function ProfileCommunities() {
   ];
 
   const { data: account } = useQuery(
-    getAccountFullQueryOptions((params.username as string).replace("%40", ""))
+    getAccountFullQueryOptions((params.username as string).replace(/%40/g, ""))
   );
   const { data, isFetching } = useQuery(getAccountSubscriptionsQueryOptions(account?.name));
   const communities = useCommunitiesCache(data?.map((item) => item[0]) ?? []);

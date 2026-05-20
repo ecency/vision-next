@@ -33,11 +33,11 @@ export function ProfileWalletSummary() {
   useEffect(() => setHydrated(true), []);
   const detailsVisible = hydrated ? !!showDetails : true;
   const { data } = useQuery(
-    getAccountWalletListQueryOptions((username as string).replace("%40", ""), currency || "usd")
+    getAccountWalletListQueryOptions((username as string).replace(/%40/g, ""), currency || "usd")
   );
   const queriesResult = useQueries({
     queries: (data ?? []).map((item: string) =>
-      getAccountWalletAssetInfoQueryOptions((username as string).replace("%40", ""), item, { refetch: false, currency: currency || "usd" })
+      getAccountWalletAssetInfoQueryOptions((username as string).replace(/%40/g, ""), item, { refetch: false, currency: currency || "usd" })
     )
   });
   const totalBalance = useMemo(

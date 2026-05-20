@@ -21,14 +21,14 @@ export async function generateMetadata(props: Props, parent: ResolvingMetadata):
 export default async function PermissionsPage({ params }: Props) {
   const { username } = await params;
   const { get } = await cookies();
-  const account = await prefetchQuery(getAccountFullQueryOptions(username.replace("%40", "")));
+  const account = await prefetchQuery(getAccountFullQueryOptions(username.replace(/%40/g, "")));
 
   if (!account) {
     return notFound();
   }
 
   if (account.name !== get("active_user")?.value) {
-    return redirect(`/@${username.replace("%40", "")}`);
+    return redirect(`/@${username.replace(/%40/g, "")}`);
   }
 
   return <ProfilePermissions />;

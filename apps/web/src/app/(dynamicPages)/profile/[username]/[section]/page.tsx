@@ -18,14 +18,14 @@ interface Props {
 
 export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
   const { username, section } = await props.params;
-  return generateProfileMetadata(username.replace("%40", ""), section);
+  return generateProfileMetadata(username.replace(/%40/g, ""), section);
 }
 
 export default async function Page({ params, searchParams }: Props) {
   const { username: usernameParam, section } = await params;
   const { query: searchParam } = await searchParams;
 
-  const username = usernameParam.replace("%40", "");
+  const username = usernameParam.replace(/%40/g, "");
   const [account, searchPages, prefetchedFeed] = await Promise.all([
     prefetchQuery(getAccountFullQueryOptions(username)),
     searchParam

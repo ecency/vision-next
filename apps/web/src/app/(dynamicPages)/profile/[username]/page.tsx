@@ -22,12 +22,12 @@ export const revalidate = 300;
 
 export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
   const { username } = await props.params;
-  return generateProfileMetadata(username.replace("%40", ""));
+  return generateProfileMetadata(username.replace(/%40/g, ""));
 }
 
 export default async function Page({ params, searchParams }: Props) {
   const { username: usernameParam } = await params;
-  const username = usernameParam.replace("%40", "");
+  const username = usernameParam.replace(/%40/g, "");
   const { query: searchParam } = await searchParams;
 
   const [account, searchPages, prefetchedFeed] = await Promise.all([

@@ -38,7 +38,7 @@ export function PointsTokenPage() {
 
   const { data } = useQuery(
     getPointsAssetTransactionsQueryOptions(
-      (username as string).replace("%40", ""),
+      (username as string).replace(/%40/g, ""),
       type === "all" ? undefined : +type
     )
   );
@@ -49,7 +49,7 @@ export function PointsTokenPage() {
           <div className="text-sm text-gray-600 dark:text-gray-400">
             {i18next.t("points.earn-points")}
           </div>
-          {activeUser?.username === (username as string).replace("%40", "") && (
+          {activeUser?.username === (username as string).replace(/%40/g, "") && (
             <Button
               target="_blank"
               appearance="gray"

@@ -17,7 +17,7 @@ export function PublishEditorToolbarFragments({ showFragments, setShowFragments,
 
   const onPick = useCallback(
     (e: string) => {
-      if (/<[a-z]+>.*<\/[a-z]+>/gm.test(e)) {
+      if (/<[a-z]+>.*<\/[a-z]+>/gim.test(e)) {
         setShowFragments(false);
         setShowWarning(true);
         return;

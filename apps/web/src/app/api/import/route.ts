@@ -267,32 +267,88 @@ async function fetchPage(url: string, redirectCount = 0): Promise<string> {
  * Many sites (Medium, Substack, etc.) use data-src, srcset, or
  * <noscript> wrappers instead of plain <img src>.
  */
+
+// Attributes copied from a noscript-recovered <img>. Everything else
+// (including on*, style, srcdoc, etc.) is dropped during migration.
+const NOSCRIPT_IMG_ALLOWED_ATTRS = [
+  "src", "alt", "title", "width", "height",
+  "data-src", "data-original", "data-lazy-src", "srcset"
+];
+
+/**
+ * Resolve a candidate image src against the document base, then require
+ * the absolute form be http(s). Returns the normalized URL or null when
+ * the input would resolve to javascript:/data:/file:/etc. or fails to
+ * parse. Accepts absolute, protocol-relative, root-relative and
+ * document-relative inputs — sites Medium/Substack/etc. lazy-load with
+ * any of those forms.
+ */
+function normalizeImgSrc(candidate: string | null | undefined, baseURI: string): string | null {
+  if (!candidate) return null;
+  try {
+    const absolute = new URL(candidate.trim(), baseURI).toString();
+    return /^https?:\/\//i.test(absolute) ? absolute : null;
+  } catch {
+    return null;
+  }
+}
+
 function fixLazyImages(document: Document) {
-  // 1. Unwrap <noscript> images — many sites hide the real <img> inside <noscript>
-  for (const noscript of Array.from(document.querySelectorAll("noscript"))) {
-    const content = noscript.textContent || "";
-    if (/<img\s/i.test(content)) {
+  const baseURI = document.baseURI;
+  // DOMParser sourced from the JSDOM window so we can parse untrusted
+  // noscript fragments without ever touching innerHTML.
+  const view = document.defaultView as (Window & { DOMParser?: typeof DOMParser }) | null;
+  const ParserCtor = view?.DOMParser;
+
+  // 1. Unwrap <noscript> images — many sites hide the real <img> inside <noscript>.
+  // Parse via DOMParser (no script execution) and migrate only the
+  // <img> elements with a whitelisted attribute set. This avoids the
+  // innerHTML sink entirely; any script/style/iframe/on*-handlers in
+  // the noscript payload are dropped because we don't copy them.
+  if (ParserCtor) {
+    for (const noscript of Array.from(document.querySelectorAll("noscript"))) {
+      const content = noscript.textContent || "";
+      if (!/<img\s/i.test(content)) continue;
+
+      const parsed = new ParserCtor().parseFromString(
+        `<!DOCTYPE html><body>${content}</body>`,
+        "text/html"
+      );
+      const sourceImgs = Array.from(parsed.querySelectorAll("img"));
+      if (sourceImgs.length === 0) continue;
+
       const wrapper = document.createElement("div");
-      // Safe: server-side JSDOM with no script execution — recovers real <img> from noscript blocks
-      wrapper.innerHTML = content;
+      for (const sourceImg of sourceImgs) {
+        const safe = document.createElement("img");
+        for (const attr of NOSCRIPT_IMG_ALLOWED_ATTRS) {
+          const v = sourceImg.getAttribute(attr);
+          if (v != null) safe.setAttribute(attr, v);
+        }
+        wrapper.appendChild(safe);
+      }
       noscript.parentNode?.replaceChild(wrapper, noscript);
     }
   }
 
   // 2. Resolve data-src, data-original, data-lazy-src → src
   for (const img of Array.from(document.querySelectorAll("img"))) {
+    const currentSrc = img.getAttribute("src");
+    const needsSrc = !currentSrc || currentSrc.startsWith("data:");
+
     const lazySrc =
       img.getAttribute("data-src") ||
       img.getAttribute("data-original") ||
       img.getAttribute("data-lazy-src");
 
-    if (lazySrc && (!img.getAttribute("src") || img.getAttribute("src")?.startsWith("data:"))) {
-      img.setAttribute("src", lazySrc);
+    const normalizedLazy = normalizeImgSrc(lazySrc, baseURI);
+    if (normalizedLazy && needsSrc) {
+      img.setAttribute("src", normalizedLazy);
     }
 
     // 3. Pick highest-res from srcset if src is missing or a placeholder
     const srcset = img.getAttribute("srcset");
-    if (srcset && (!img.getAttribute("src") || img.getAttribute("src")?.startsWith("data:"))) {
+    const stillNeedsSrc = !img.getAttribute("src") || img.getAttribute("src")?.startsWith("data:");
+    if (srcset && stillNeedsSrc) {
       const best = srcset
         .split(",")
         .map((s) => s.trim().split(/\s+/))
@@ -301,8 +357,9 @@ function fixLazyImages(document: Document) {
           const widthB = parseInt(b[1] || "0");
           return widthB - widthA;
         })[0];
-      if (best?.[0]) {
-        img.setAttribute("src", best[0]);
+      const normalizedBest = normalizeImgSrc(best?.[0], baseURI);
+      if (normalizedBest) {
+        img.setAttribute("src", normalizedBest);
       }
     }
 

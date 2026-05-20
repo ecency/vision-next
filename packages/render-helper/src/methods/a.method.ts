@@ -153,8 +153,19 @@ export function a(el: HTMLElement | null, forApp: boolean, parentDomain: string 
     return
   }
 
-  // Do not allow js hrefs (case-insensitive, with colon)
-  if (href && href.trim().toLowerCase().startsWith('javascript:')) {
+  // Positive scheme whitelist. Anything that isn't http(s)/mailto/hive/
+  // tel/web+ext or a same-document/relative reference is stripped — this
+  // rejects javascript:, data:, vbscript:, file: and also less-common
+  // exploit vectors like ms-its:, mk:, res:, intent:. Case-insensitive
+  // and tolerant of whitespace/control chars browsers ignore inside the
+  // scheme (\t \n \r \f \v \0).
+  const trimmed = href.trim().replace(/[\t\n\r\f\v\0]/g, '').toLowerCase()
+  const isSafeScheme = /^(https?|mailto|hive|tel|web\+[a-z0-9.+-]+):/i.test(trimmed)
+  // `\/[^/]?` matches both bare `/` (site-root link) and `/path…`;
+  // alongside protocol-relative `//host`, fragment `#…`, query `?…`,
+  // and document-relative `name.ext`/`name/`/bare `name`.
+  const isRelative = /^(\/\/|\/[^/]?|#|\?|[a-z0-9._\-]+(\/|$))/i.test(trimmed)
+  if (!isSafeScheme && !isRelative) {
     el.removeAttribute('href')
     return
   }

@@ -264,7 +264,7 @@ export const SelectionPopover = ({ children, postUrl }: any) => {
                   }}
                 />
                 <Link
-                  href={`https://twitter.com/intent/tweet?text=${selectedText} https://ecency.com${postUrl}`}
+                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`${selectedText} https://ecency.com${postUrl}`)}`}
                   target="_external"
                 >
                   <Button
