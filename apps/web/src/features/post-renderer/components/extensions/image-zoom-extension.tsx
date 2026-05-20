@@ -1,6 +1,6 @@
 "use client";
 
-import mediumZoom, { Zoom } from "medium-zoom";
+import type { Zoom } from "medium-zoom";
 import React, { RefObject, useEffect, useRef } from "react";
 
 export function ImageZoomExtension({
@@ -128,7 +128,7 @@ export function ImageZoomExtension({
           });
         });
 
-        Promise.all(imageLoadPromises).then(() => {
+        Promise.all(imageLoadPromises).then(async () => {
           // Bail if component unmounted while waiting for images
           if (!isMounted) {
             return;
@@ -143,20 +143,36 @@ export function ImageZoomExtension({
             }
           });
 
-          if (connectedImages.length > 0) {
-            // Small delay to ensure layout is stable after image load
-            requestAnimationFrame(() => {
-              // Final check before creating zoom instance
-              if (!isMounted) {
-                return;
-              }
-
-              zoomRef.current = mediumZoom(connectedImages, {
-                background: "#131111",
-                margin: 24, // Add margin for better centering
-              });
-            });
+          if (connectedImages.length === 0) {
+            return;
           }
+
+          // Dynamic-import medium-zoom so its bundle is split out of any
+          // SSR-critical client chunk that pulls EcencyRenderer in.
+          let mediumZoom: typeof import("medium-zoom").default;
+          try {
+            ({ default: mediumZoom } = await import("medium-zoom"));
+          } catch (error) {
+            console.warn("Failed to load medium-zoom:", error);
+            return;
+          }
+
+          if (!isMounted) {
+            return;
+          }
+
+          // Small delay to ensure layout is stable after image load
+          requestAnimationFrame(() => {
+            // Final check before creating zoom instance
+            if (!isMounted) {
+              return;
+            }
+
+            zoomRef.current = mediumZoom(connectedImages, {
+              background: "#131111",
+              margin: 24, // Add margin for better centering
+            });
+          });
         }).catch((error) => {
           console.warn("Failed to wait for images to load:", error);
         });
