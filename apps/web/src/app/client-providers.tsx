@@ -25,6 +25,9 @@ const ReactQueryDevtools =
 const AuthUpgradeDialog = lazy(() =>
   import("@/features/shared/auth-upgrade").then((m) => ({ default: m.AuthUpgradeDialog }))
 );
+const MemoKeyDialog = lazy(() =>
+  import("@/features/shared/memo-key").then((m) => ({ default: m.MemoKeyDialog }))
+);
 const Tracker = lazy(() =>
   import("@/features/monitoring").then((m) => ({ default: m.Tracker }))
 );
@@ -71,6 +74,7 @@ export function ClientProviders(props: PropsWithChildren) {
           <DeferredRender>
             <Suspense>
               <AuthUpgradeDialog />
+              <MemoKeyDialog />
               <EcencyConfigManager.Conditional
                 condition={({ visionFeatures }) => visionFeatures.userActivityTracking.enabled}
               >

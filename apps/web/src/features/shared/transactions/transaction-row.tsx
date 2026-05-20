@@ -21,6 +21,7 @@ import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
 import { getDynamicPropsQueryOptions } from "@ecency/sdk";
 import { Transaction } from "@/entities";
 import { useQuery } from "@tanstack/react-query";
+import { MemoDisplay } from "@/features/shared/memo-display";
 
 interface Props {
   transaction: Transaction;
@@ -142,9 +143,11 @@ export function TransactionRow({ entry, transaction: item }: Props) {
     details = (
       <span>
         {tr.memo ? (
-          <>
-            {tr.memo} <br /> <br />
-          </>
+          tr.memo.startsWith("#") ? (
+            <><MemoDisplay memo={tr.memo} /><br /><br /></>
+          ) : (
+            <>{tr.memo} <br /> <br /></>
+          )
         ) : null}
         <>
           <strong>@{tr.from}</strong> -&gt; <strong>@{tr.to}</strong>
@@ -179,9 +182,11 @@ export function TransactionRow({ entry, transaction: item }: Props) {
     details = (
       <span>
         {tr.memo ? (
-          <>
-            {tr.memo} <br /> <br />
-          </>
+          tr.memo.startsWith("#") ? (
+            <><MemoDisplay memo={tr.memo} /><br /><br /></>
+          ) : (
+            <>{tr.memo} <br /> <br /></>
+          )
         ) : null}
         {tr.type === "recurrent_transfer" ? (
           <>

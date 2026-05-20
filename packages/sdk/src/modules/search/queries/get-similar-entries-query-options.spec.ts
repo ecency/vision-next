@@ -115,7 +115,9 @@ describe("getSimilarEntriesQueryOptions", () => {
     expect(params.result_limit).toBe(12);
     expect(params.full_posts).toBe(12);
     expect(params.full_posts).toBe(params.result_limit);
-    expect(params).toMatchObject({ author: "alice", permlink: "my-post", truncate: 200 });
+    // truncate:0 — the suggestions strip renders title + thumbnail only,
+    // so body text is intentionally not hydrated.
+    expect(params).toMatchObject({ author: "alice", permlink: "my-post", truncate: 0 });
   });
 
   it("excludes the source post and nsfw, dedupes by author, caps at 3", async () => {
@@ -174,6 +176,34 @@ describe("getSimilarEntriesQueryOptions", () => {
     const fresh = result.find((r) => r.author === "hs1")!;
     expect(fresh.title).toBe("Fresh One");
     expect(fresh.tags).toEqual([]);
+  });
+
+  it("extracts the HiveSense thumbnail from json_metadata.image into img_url", async () => {
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      json: async () => searchResponse([{ author: "c", permlink: "p2" }]),
+    });
+    mockCallREST.mockResolvedValueOnce([
+      // image present → first non-empty entry becomes img_url
+      {
+        author: "hs1",
+        permlink: "h1",
+        created: freshIso(),
+        json_metadata: { tags: ["nature"], image: ["https://img.test/a.jpg"] },
+      },
+      // no image → img_url stays "" (web falls back to the no-image tile)
+      { author: "hs2", permlink: "h2", created: freshIso() },
+    ]);
+
+    const options = getSimilarEntriesQueryOptions(entry);
+    const result = (await (options.queryFn as QueryFn)({
+      signal: undefined,
+    })) as SearchResponse["results"];
+
+    const withImg = result.find((r) => r.author === "hs1")!;
+    expect(withImg.img_url).toBe("https://img.test/a.jpg");
+    const noImg = result.find((r) => r.author === "hs2")!;
+    expect(noImg.img_url).toBe("");
   });
 
   it("tolerates a HiveSense failure as long as primary succeeds", async () => {

@@ -8,6 +8,8 @@ import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
 import { getDynamicPropsQueryOptions } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { invalidateWalletQueries } from "@/features/wallet/utils/invalidate-wallet-queries";
+import { encryptMemo } from "@/utils/memo-crypto";
+import { getLoginType } from "@/utils/user-token";
 import {
   useTransferMutation,
   useTransferPointMutation,
@@ -86,31 +88,55 @@ export function useSignTransfer(mode: TransferMode, asset: TransferAsset) {
     isPending,
     mutateAsync: async ({ to, amount, memo, asset: overrideAsset }: SignTransferPayload) => {
       const effectiveAsset = overrideAsset ?? asset;
+
+      // Only encrypt for flows that actually carry a memo on-chain. SPK/LARYNX
+      // transfers and convert/power-up/power-down/delegate don't, so skip the
+      // (interactive) encryption step there — otherwise users would be
+      // prompted for a memo key for nothing.
+      const memoSupported =
+        mode === "transfer-saving" ||
+        mode === "withdraw-saving" ||
+        mode === "claim-interest" ||
+        (mode === "transfer" &&
+          effectiveAsset !== "SPK" &&
+          effectiveAsset !== "LARYNX");
+
+      let processedMemo = memo;
+      if (memoSupported && memo.startsWith("#") && to && activeUser) {
+        const loginType = getLoginType(activeUser.username);
+        processedMemo = await encryptMemo(
+          loginType,
+          activeUser.username,
+          to,
+          memo.slice(1)
+        );
+      }
+
       const fullAmount = `${(+amount).toFixed(3)} ${effectiveAsset}`;
       const requestId = Date.now() >>> 0;
 
       switch (mode) {
         case "transfer":
           if (effectiveAsset === "POINT") {
-            await transferPoint.mutateAsync({ to, amount: fullAmount, memo });
+            await transferPoint.mutateAsync({ to, amount: fullAmount, memo: processedMemo });
           } else if (effectiveAsset === "SPK") {
             await transferSpk.mutateAsync({ to, amount: parseFloat(amount) * 1000 });
           } else if (effectiveAsset === "LARYNX") {
             await transferLarynx.mutateAsync({ to, amount: parseFloat(amount) * 1000 });
           } else if (effectiveAsset !== "HIVE" && effectiveAsset !== "HBD") {
             // Hive Engine token
-            await transferEngine.mutateAsync({ to, quantity: amount, symbol: effectiveAsset, memo });
+            await transferEngine.mutateAsync({ to, quantity: amount, symbol: effectiveAsset, memo: processedMemo });
           } else {
-            await transfer.mutateAsync({ to, amount: fullAmount, memo });
+            await transfer.mutateAsync({ to, amount: fullAmount, memo: processedMemo });
           }
           break;
 
         case "transfer-saving":
-          await toSavings.mutateAsync({ to, amount: fullAmount, memo });
+          await toSavings.mutateAsync({ to, amount: fullAmount, memo: processedMemo });
           break;
 
         case "withdraw-saving":
-          await fromSavings.mutateAsync({ to, amount: fullAmount, memo, requestId });
+          await fromSavings.mutateAsync({ to, amount: fullAmount, memo: processedMemo, requestId });
           break;
 
         case "convert":
@@ -122,7 +148,7 @@ export function useSignTransfer(mode: TransferMode, asset: TransferAsset) {
           break;
 
         case "claim-interest":
-          await claimInterest.mutateAsync({ to, amount: fullAmount, memo, requestId });
+          await claimInterest.mutateAsync({ to, amount: fullAmount, memo: processedMemo, requestId });
           break;
 
         case "power-up":
