@@ -3,6 +3,9 @@ on:
   push:
     branches:
       - 'develop'
+# Build-only smoke test — no writes back to GitHub.
+permissions:
+  contents: read
 jobs:
   build:
     if: github.ref_name != 'main'

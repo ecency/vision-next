@@ -6,6 +6,10 @@ on:
     paths-ignore:
       - 'apps/self-hosted/hosting/**'
       - '.github/workflows/self-hosted.yml'
+# Default to read-only GITHUB_TOKEN. Build pushes to Docker Hub (external);
+# deploy uses SSH; neither needs write access to the GitHub repo.
+permissions:
+  contents: read
 jobs:
   tests:
     runs-on: ubuntu-latest

@@ -12,6 +12,11 @@ on:
       - 'packages/wallets/**'
       - 'packages/ui/**'
 
+# Default to read-only GITHUB_TOKEN. Build pushes to Docker Hub (external);
+# deploy jobs SCP/SSH to servers — neither path needs GitHub write access.
+permissions:
+  contents: read
+
 jobs:
   tests:
     runs-on: ubuntu-latest
