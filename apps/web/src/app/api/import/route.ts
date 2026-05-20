@@ -4,7 +4,20 @@ import { NextRequest } from "next/server";
 import Turndown from "turndown";
 import { Resolver } from "node:dns/promises";
 import { isIP } from "node:net";
+import { Agent } from "undici";
 import { getPost } from "@ecency/sdk";
+
+// Undici dispatcher accepts a custom lookup. We pre-resolve and validate
+// every hop's IP via Node's DNS resolver, then pin the TCP connection to
+// the IP we approved — closing the DNS-rebinding TOCTOU window between
+// resolution and connect. The original hostname rides on the request so
+// TLS SNI and certificate validation continue to verify against the
+// legitimate host.
+type LookupCallback = (
+  err: NodeJS.ErrnoException | null,
+  address: string,
+  family: number
+) => void;
 
 interface ArticleData {
   title: string;
@@ -100,19 +113,26 @@ function assertPublicIP(ip: string) {
   }
 }
 
+interface ResolvedTarget {
+  /** IP literal to pin the TCP connection to. */
+  ip: string;
+  /** Address family for the lookup callback (4 or 6). */
+  family: 4 | 6;
+}
+
 /**
- * Validate a URL by resolving its hostname via DNS and checking that every
- * returned IP (A + AAAA) is public. This catches private-IP hostnames,
- * IPv4-mapped IPv6, and domains that have any record pointing to an internal
- * address. Throws on failure.
+ * Resolve a URL's hostname, validate every returned A+AAAA record against
+ * the private/reserved-range blocklist, and return the IP to pin the
+ * subsequent fetch to. Throws on any validation failure.
  *
- * Note: we intentionally fetch with the original hostname (not a pinned IP)
- * to preserve TLS certificate validation and SNI on HTTPS targets. This
- * leaves a small theoretical TOCTOU window for DNS rebinding, which is an
- * accepted trade-off — the attacker would need to control the target domain's
- * DNS and trick a user into importing from that domain.
+ * Returning the pinned IP closes the DNS-rebinding TOCTOU window: between
+ * this resolution and the actual TCP connect, a malicious DNS server could
+ * otherwise flip the answer to an internal IP. By pinning the dispatcher's
+ * `lookup` to the IP we just validated, the connect can only land on a
+ * public address. The URL's hostname is preserved on the request so TLS
+ * SNI and certificate validation still verify against the legitimate host.
  */
-async function validateUrl(url: string): Promise<void> {
+async function resolveAndValidate(url: string): Promise<ResolvedTarget> {
   const parsed = new URL(url);
 
   if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
@@ -126,9 +146,10 @@ async function validateUrl(url: string): Promise<void> {
   }
 
   // If hostname is already an IP literal, validate directly
-  if (isIP(hostname)) {
+  const literalFamily = isIP(hostname);
+  if (literalFamily === 4 || literalFamily === 6) {
     assertPublicIP(hostname);
-    return;
+    return { ip: hostname, family: literalFamily };
   }
 
   // Resolve ALL DNS records and validate every one
@@ -147,6 +168,12 @@ async function validateUrl(url: string): Promise<void> {
   for (const ip of allIPs) {
     assertPublicIP(ip);
   }
+
+  // Prefer the first A record; fall back to AAAA. Both are already validated.
+  if (v4Records.length > 0) {
+    return { ip: v4Records[0], family: 4 };
+  }
+  return { ip: v6Records[0], family: 6 };
 }
 
 function parseHiveUrl(url: string): { author: string; permlink: string } | null {
@@ -203,63 +230,91 @@ async function fetchPage(url: string, redirectCount = 0): Promise<string> {
     throw new Error("FETCH_FAILED");
   }
 
-  await validateUrl(url);
+  const { ip, family } = await resolveAndValidate(url);
 
-  const response = await fetch(url, {
-    headers: {
-      "User-Agent":
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-      Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-      "Accept-Language": "en-US,en;q=0.9",
-      "Cache-Control": "no-cache"
-    },
-    redirect: "manual",
-    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS)
+  // Per-request dispatcher pinning the TCP connection to the IP we just
+  // validated. The lookup callback ignores the hostname argument and
+  // returns the pinned IP for every connect attempt this dispatcher makes.
+  const dispatcher = new Agent({
+    connect: {
+      // Undici passes a ConnectOptions object (port, servername, timeout)
+      // here; we don't need any of it but typing as Record<string, unknown>
+      // documents what's available rather than erasing the parameter shape.
+      lookup: (_hostname: string, _options: Record<string, unknown>, callback: LookupCallback) => {
+        callback(null, ip, family);
+      }
+    }
   });
 
-  // Handle redirects manually to validate each hop
-  if ([301, 302, 303, 307, 308].includes(response.status)) {
-    const location = response.headers.get("location");
-    if (!location) {
+  try {
+    const response = await fetch(url, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Cache-Control": "no-cache"
+      },
+      redirect: "manual",
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+      // `dispatcher` is an undici-specific option on the global fetch; it
+      // isn't in lib.dom.d.ts so we cast through the augmented RequestInit.
+      ...({ dispatcher } as { dispatcher: Agent })
+    } as RequestInit);
+
+    // Handle redirects manually so each hop is re-resolved AND re-pinned.
+    if ([301, 302, 303, 307, 308].includes(response.status)) {
+      const location = response.headers.get("location");
+      if (!location) {
+        throw new Error("FETCH_FAILED");
+      }
+      const redirectUrl = new URL(location, url).toString();
+      // Drop the redirect response body before recursing — otherwise the
+      // socket stays open against the current dispatcher until finally{}
+      // fires, which on a server that streams a long redirect body could
+      // hold the connection for the full recursive chain.
+      await response.body?.cancel();
+      return await fetchPage(redirectUrl, redirectCount + 1);
+    }
+
+    if (!response.ok) {
       throw new Error("FETCH_FAILED");
     }
-    const redirectUrl = new URL(location, url).toString();
-    return fetchPage(redirectUrl, redirectCount + 1);
-  }
 
-  if (!response.ok) {
-    throw new Error("FETCH_FAILED");
-  }
-
-  const contentType = response.headers.get("content-type") || "";
-  if (!contentType.includes("text/html") && !contentType.includes("text/plain")) {
-    throw new Error("NOT_HTML");
-  }
-
-  // Stream body with size cap
-  const reader = response.body?.getReader();
-  if (!reader) {
-    throw new Error("FETCH_FAILED");
-  }
-
-  const chunks: Uint8Array[] = [];
-  let totalBytes = 0;
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-
-    totalBytes += value.byteLength;
-    if (totalBytes > MAX_RESPONSE_BYTES) {
-      reader.cancel();
-      throw new Error("RESPONSE_TOO_LARGE");
+    const contentType = response.headers.get("content-type") || "";
+    if (!contentType.includes("text/html") && !contentType.includes("text/plain")) {
+      throw new Error("NOT_HTML");
     }
-    chunks.push(value);
-  }
 
-  const decoder = new TextDecoder();
-  return chunks.map((chunk) => decoder.decode(chunk, { stream: true })).join("") +
-    decoder.decode();
+    // Stream body with size cap
+    const reader = response.body?.getReader();
+    if (!reader) {
+      throw new Error("FETCH_FAILED");
+    }
+
+    const chunks: Uint8Array[] = [];
+    let totalBytes = 0;
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      totalBytes += value.byteLength;
+      if (totalBytes > MAX_RESPONSE_BYTES) {
+        reader.cancel();
+        throw new Error("RESPONSE_TOO_LARGE");
+      }
+      chunks.push(value);
+    }
+
+    const decoder = new TextDecoder();
+    return chunks.map((chunk) => decoder.decode(chunk, { stream: true })).join("") +
+      decoder.decode();
+  } finally {
+    // Drain sockets in the background; we don't await because we want the
+    // import handler to return as soon as the body is consumed.
+    void dispatcher.close().catch(() => { /* best-effort cleanup */ });
+  }
 }
 
 /**
@@ -467,7 +522,10 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      await validateUrl(url);
+      // Early reject of obviously-bad URLs (private IP, non-http(s) scheme,
+      // localhost, unresolvable host). fetchPage will re-resolve and pin
+      // for the actual request, including each redirect hop.
+      await resolveAndValidate(url);
     } catch {
       return Response.json({ error: "import-error-invalid-url" }, { status: 400 });
     }
