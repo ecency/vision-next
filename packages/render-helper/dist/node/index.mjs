@@ -527,11 +527,11 @@ function proxifyImageSrc(url, width = 0, height = 0, _format = "match") {
 var SRCSET_WIDTHS = [320, 600, 800, 1024, 1280];
 function buildSrcSet(url) {
   if (!url || typeof url !== "string") return "";
-  const escapedBase = proxyBase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const proxyPattern = new RegExp(`^${escapedBase}/p/([^?]+)`);
-  const match = url.match(proxyPattern);
-  if (match) {
-    const phash = extractPHash(url) || match[1];
+  const proxyPrefix = `${proxyBase}/p/`;
+  if (url.startsWith(proxyPrefix)) {
+    const rest = url.slice(proxyPrefix.length);
+    const q = rest.indexOf("?");
+    const phash = extractPHash(url) || (q >= 0 ? rest.slice(0, q) : rest);
     return SRCSET_WIDTHS.map((w) => `${proxyBase}/p/${phash}?format=match&mode=fit&width=${w} ${w}w`).join(", ");
   }
   return SRCSET_WIDTHS.map((w) => {

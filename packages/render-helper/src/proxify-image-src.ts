@@ -112,13 +112,15 @@ const SRCSET_WIDTHS = [320, 600, 800, 1024, 1280];
 export function buildSrcSet(url?: string): string {
   if (!url || typeof url !== 'string') return '';
 
-  // For already-proxied URLs, extract the hash and rebuild with widths
-  const escapedBase = proxyBase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const proxyPattern = new RegExp(`^${escapedBase}/p/([^?]+)`);
-  const match = url.match(proxyPattern);
-
-  if (match) {
-    const phash = extractPHash(url) || match[1];
+  // For already-proxied URLs, extract the hash and rebuild with widths.
+  // Use plain string operations rather than RegExp(`^${proxyBase}/p/...`)
+  // so proxyBase (a user-settable hostname) never reaches a regex compile
+  // path — keeps CodeQL's hostname-regex analysis clean.
+  const proxyPrefix = `${proxyBase}/p/`;
+  if (url.startsWith(proxyPrefix)) {
+    const rest = url.slice(proxyPrefix.length);
+    const q = rest.indexOf('?');
+    const phash = extractPHash(url) || (q >= 0 ? rest.slice(0, q) : rest);
     return SRCSET_WIDTHS
       .map(w => `${proxyBase}/p/${phash}?format=match&mode=fit&width=${w} ${w}w`)
       .join(', ');
