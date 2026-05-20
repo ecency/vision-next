@@ -169,7 +169,7 @@
     "@types/tus-js-client": "^2.1.0",
     "@types/webscopeio__react-textarea-autocomplete": "^4.7.5",
     "@types/ws": "^8.18.1",
-    "@vitejs/plugin-react": "^4.5.0",
+    "@vitejs/plugin-react": "^5.2.0",
     "@vitest/ui": "^3.0.0",
     "autoprefixer": "^10.0.1",
     "baseline-browser-mapping": "^2.9.11",
