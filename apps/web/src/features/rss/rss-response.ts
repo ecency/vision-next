@@ -38,9 +38,12 @@ export function emptyRssResponse(): Response {
 // Report only the errors that aren't part of the known transient-upstream
 // noise pattern, then return the empty-feed fallback. Lets the route
 // remain a one-liner in the catch while still surfacing real regressions.
+// `route` is the templated path (e.g. "profile/[username]/rss") — we
+// intentionally avoid the resolved pathname so dynamic segments like
+// usernames/tags aren't tagged as searchable Sentry telemetry.
 export function emptyRssResponseWithReport(
   e: unknown,
-  context: { route: string; pathname: string }
+  context: { route: string }
 ): Response {
   if (!isTransientUpstreamError(e)) {
     Sentry.captureException(e, { extra: context });

@@ -17,8 +17,7 @@ export async function GET(request: NextRequest, { params }: Props) {
     });
   } catch (e) {
     return emptyRssResponseWithReport(e, {
-      route: "community/[community]/[tag]/rss",
-      pathname: request.nextUrl.pathname
+      route: "community/[community]/[tag]/rss"
     });
   }
 }
