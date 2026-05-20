@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.5.5
+
+### Patch Changes
+
+- build(deps): bump the npm_and_yarn group across 2 directories with 16 updates (#806)
+
 ## 2.5.4
 
 ### Patch Changes
