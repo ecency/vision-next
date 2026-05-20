@@ -168,10 +168,30 @@ export function ImageZoomExtension({
               return;
             }
 
-            zoomRef.current = mediumZoom(connectedImages, {
-              background: "#131111",
-              margin: 24, // Add margin for better centering
+            // Re-filter after the dynamic-import gap — the parent can re-render
+            // (EcencyRenderer uses dangerouslySetInnerHTML) and disconnect these
+            // nodes while isMounted stays true. medium-zoom walks parentNode on
+            // every input, so a stale snapshot would throw or attach partially.
+            const stillConnected = connectedImages.filter((img) => {
+              try {
+                return img.isConnected && img.parentNode !== null;
+              } catch {
+                return false;
+              }
             });
+
+            if (stillConnected.length === 0) {
+              return;
+            }
+
+            try {
+              zoomRef.current = mediumZoom(stillConnected, {
+                background: "#131111",
+                margin: 24, // Add margin for better centering
+              });
+            } catch (error) {
+              console.warn("Failed to initialize medium-zoom:", error);
+            }
           });
         }).catch((error) => {
           console.warn("Failed to wait for images to load:", error);

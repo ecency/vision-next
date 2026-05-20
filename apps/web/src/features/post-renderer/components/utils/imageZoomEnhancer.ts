@@ -175,11 +175,33 @@ export function applyImageZoom(container: HTMLElement): Promise<Zoom | null> {
 
                 // Small delay to ensure layout is stable after image load
                 requestAnimationFrame(() => {
-                    const zoom = mediumZoom(connectedImages, {
-                        background: "#131111",
-                        margin: 24, // Add margin for better centering
+                    // Re-filter after the dynamic-import gap — nodes can be
+                    // disconnected during the async chunk fetch. medium-zoom
+                    // walks parentNode on every input, so a stale snapshot
+                    // would throw or attach partially.
+                    const stillConnected = connectedImages.filter((img) => {
+                        try {
+                            return img.isConnected && img.parentNode !== null;
+                        } catch {
+                            return false;
+                        }
                     });
-                    resolveZoom(zoom);
+
+                    if (stillConnected.length === 0) {
+                        resolveZoom(null);
+                        return;
+                    }
+
+                    try {
+                        const zoom = mediumZoom(stillConnected, {
+                            background: "#131111",
+                            margin: 24, // Add margin for better centering
+                        });
+                        resolveZoom(zoom);
+                    } catch (error) {
+                        console.warn("Failed to initialize medium-zoom:", error);
+                        resolveZoom(null);
+                    }
                 });
             }).catch((error) => {
                 console.warn("Failed to wait for images to load:", error);
