@@ -672,7 +672,7 @@ function a(el, forApp, parentDomain = "ecency.com", seoContext, renderOptions) {
   }
   const trimmed = href.trim().replace(/[\t\n\r\f\v\0]/g, "").toLowerCase();
   const isSafeScheme = /^(https?|mailto|hive|tel|web\+[a-z0-9.+-]+):/i.test(trimmed);
-  const isRelative = /^(\/\/|\/[^/]|#|\?|[a-z0-9._\-]+(\/|$))/i.test(trimmed);
+  const isRelative = /^(\/\/|\/[^/]?|#|\?|[a-z0-9._\-]+(\/|$))/i.test(trimmed);
   if (!isSafeScheme && !isRelative) {
     el.removeAttribute("href");
     return;

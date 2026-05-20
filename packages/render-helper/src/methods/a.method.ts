@@ -161,7 +161,10 @@ export function a(el: HTMLElement | null, forApp: boolean, parentDomain: string 
   // scheme (\t \n \r \f \v \0).
   const trimmed = href.trim().replace(/[\t\n\r\f\v\0]/g, '').toLowerCase()
   const isSafeScheme = /^(https?|mailto|hive|tel|web\+[a-z0-9.+-]+):/i.test(trimmed)
-  const isRelative = /^(\/\/|\/[^/]|#|\?|[a-z0-9._\-]+(\/|$))/i.test(trimmed)
+  // `\/[^/]?` matches both bare `/` (site-root link) and `/path…`;
+  // alongside protocol-relative `//host`, fragment `#…`, query `?…`,
+  // and document-relative `name.ext`/`name/`/bare `name`.
+  const isRelative = /^(\/\/|\/[^/]?|#|\?|[a-z0-9._\-]+(\/|$))/i.test(trimmed)
   if (!isSafeScheme && !isRelative) {
     el.removeAttribute('href')
     return

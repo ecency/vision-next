@@ -14,21 +14,19 @@ export function getPurePostText(text: string) {
   // Remove inline Markdown formatting (**bold**, *italic*, _italic_)
   text = text.replace(/(\*\*|__|\*|_)(.*?)\1/g, "$2");
 
-  // Remove HTML tags & comments, including attributes. Loop until idempotent
-  // so adversarial inputs like `<scr<script>ipt>` can't leak a tag fragment
-  // through a single-pass strip. This function feeds previews and word-count
-  // (not HTML rendering) but we still want a hardened strip for safety.
+  // Remove HTML tags & comments. Patterns intentionally match unclosed
+  // forms via `(?:>|$)` / `(?:-->|$)` so an input ending mid-tag like
+  // `…<script` or `…<!--abc` is fully stripped in a single pass (without
+  // this, CodeQL's incomplete-multi-character-sanitization rule fires
+  // because the regex is judged locally and doesn't see downstream
+  // cleanup). Loop until idempotent to also catch nested payloads like
+  // `<scr<script>ipt>`.
   let prev: string;
   do {
     prev = text;
-    text = text.replace(/<[^>]+>/g, "");
-    text = text.replace(/<!--[\s\S]*?-->/g, "");
+    text = text.replace(/<!--[\s\S]*?(?:-->|$)/g, "");
+    text = text.replace(/<[^>]*(?:>|$)/g, "");
   } while (text !== prev);
-  // Strip any residual `<` or `>` left over from unclosed/truncated tags
-  // (e.g. an input ending mid-tag like `…<script`) so the output can't
-  // contain `<script` or `<!--` substrings that downstream consumers
-  // might misinterpret.
-  text = text.replace(/[<>]/g, "");
 
   // Remove URLs (http:// or https://)
   text = text.replace(/https?:\/\/[^\s/$.?#].[^\s]*/g, "");
