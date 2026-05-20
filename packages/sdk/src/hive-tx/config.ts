@@ -73,8 +73,12 @@ export const config = {
 
   /**
    * Number of retry attempts for failed API calls before throwing an error.
+   * Total attempts = retry + 1. With ~7 nodes in the list, a budget of 5
+   * means callRPC iterates through 6 distinct nodes before giving up, so a
+   * single sick node (or two) can't surface as an unhandled error to the
+   * caller while the rest of the list is healthy.
    */
-  retry: 1
+  retry: 5
 }
 
 /**
