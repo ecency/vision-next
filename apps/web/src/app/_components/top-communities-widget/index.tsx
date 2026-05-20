@@ -20,10 +20,14 @@ export const TopCommunitiesWidget = () => {
     }
 
     // CSPRNG pick — the picked community flows into URLs and CodeQL treats
-    // it as taint when sourced from Math.random.
+    // it as taint when sourced from Math.random. Rejection-sample to drop
+    // any draw that would introduce modulo bias.
     const pickIndex = (n: number) => {
+      const limit = Math.floor(0x1_0000_0000 / n) * n;
       const buf = new Uint32Array(1);
-      crypto.getRandomValues(buf);
+      do {
+        crypto.getRandomValues(buf);
+      } while (buf[0] >= limit);
       return buf[0] % n;
     };
 

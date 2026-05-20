@@ -10,6 +10,10 @@ export function deepClone<T>(obj: T): T {
   return JSON.parse(JSON.stringify(obj));
 }
 
+function isForbiddenKey(key: string): boolean {
+  return key === '__proto__' || key === 'constructor' || key === 'prototype';
+}
+
 /**
  * Update a nested object path with a new value
  */
@@ -18,16 +22,25 @@ export function updateNestedPath(
   path: string,
   value: ConfigValue,
 ): Record<string, ConfigValue> {
-  const newObj = deepClone(obj);
   const keys = path.split('.');
+  // Upfront whole-path rejection: an adversarial path like
+  // `network.__proto__.polluted` must NOT create the intermediate
+  // `network = {}` node before the guard fires later in the loop —
+  // doing so silently overwrites legitimate config under "rejected"
+  // input. So bail out before we touch the clone at all.
+  if (keys.some(isForbiddenKey)) {
+    return deepClone(obj);
+  }
+
+  const newObj = deepClone(obj);
   let current: Record<string, ConfigValue> = newObj;
 
   for (let i = 0; i < keys.length - 1; i++) {
     const key = keys[i];
-    // In-loop prototype-pollution guard. Each write key is checked
-    // explicitly against the dangerous identifiers so CodeQL's data-flow
-    // analysis sees the sanitiser on the exact assignment line.
-    if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+    // Inline guard at each sink line so CodeQL's data-flow analysis sees
+    // a sanitiser on the exact assignment (the upfront check above is
+    // for correctness; this is what closes the prototype-pollution alert).
+    if (isForbiddenKey(key)) {
       return newObj;
     }
     if (
@@ -41,7 +54,7 @@ export function updateNestedPath(
   }
 
   const finalKey = keys[keys.length - 1]!;
-  if (finalKey === '__proto__' || finalKey === 'constructor' || finalKey === 'prototype') {
+  if (isForbiddenKey(finalKey)) {
     return newObj;
   }
   current[finalKey] = value;
