@@ -3,6 +3,12 @@ on:
   push:
     branches:
       - main
+# Default to read-only access for GITHUB_TOKEN. Deploy jobs use SSH and
+# don't need any GitHub API access; the build job pushes only to Docker
+# Hub (external). Per-job overrides can be added if a step ever needs
+# write access on GitHub itself.
+permissions:
+  contents: read
 jobs:
   tests:
     runs-on: ubuntu-latest
