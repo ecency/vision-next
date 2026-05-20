@@ -167,7 +167,6 @@
     "@types/speakingurl": "^13.0.6",
     "@types/turndown": "^5.0.5",
     "@types/tus-js-client": "^2.1.0",
-    "@types/uuid": "^9.0.8",
     "@types/webscopeio__react-textarea-autocomplete": "^4.7.5",
     "@types/ws": "^8.18.1",
     "@vitejs/plugin-react": "^4.5.0",
