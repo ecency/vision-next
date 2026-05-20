@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { FeedRssHandler } from "@/features/rss";
+import { RSS_CACHE_HEADERS, emptyRssResponseWithReport } from "@/features/rss";
 
 interface Props {
   params: Promise<{ filter: string; tag: string }>;
@@ -7,8 +8,16 @@ interface Props {
 
 export async function GET(request: NextRequest, { params }: Props) {
   const { filter, tag } = await params;
-  return new Response(
-    (await new FeedRssHandler(request.nextUrl.pathname, filter, tag).getFeed()).xml(),
-    { headers: { "Content-Type": "text/xml" } }
-  );
+  try {
+    const xml = (
+      await new FeedRssHandler(request.nextUrl.pathname, filter, tag).getFeed()
+    ).xml();
+    return new Response(xml, {
+      headers: { "Content-Type": "text/xml", ...RSS_CACHE_HEADERS }
+    });
+  } catch (e) {
+    return emptyRssResponseWithReport(e, {
+      route: "feed/[filter]/[tag]/rss.xml"
+    });
+  }
 }

@@ -43,10 +43,49 @@ const SENTRY_CONFIG: Sentry.BrowserOptions = {
   ],
 
   beforeSend(event) {
+    const exceptionType = event.exception?.values?.[0]?.type ?? "";
     const message = event.exception?.values?.[0]?.value ?? "";
     const stackStr = JSON.stringify(
       event.exception?.values?.[0]?.stacktrace?.frames ?? []
     );
+
+    // AbortController-induced timeouts (TimeoutError / AbortError) ship
+    // with no stack frames, so we can't tell which fetch is at fault.
+    // Walk recent breadcrumbs for the last in-flight fetch URL and tag
+    // the event so we can correlate timeouts to specific endpoints.
+    // Trigger only on the canonical AbortController error names plus the
+    // standard "signal timed out" phrase — a broader /aborted/i match
+    // would also tag unrelated paths (transaction aborts, stream aborts).
+    if (
+      (exceptionType === "TimeoutError" ||
+        exceptionType === "AbortError" ||
+        /signal timed out/i.test(message)) &&
+      !event.tags?.timeoutUrl
+    ) {
+      const crumbs = event.breadcrumbs ?? [];
+      for (let i = crumbs.length - 1; i >= 0; i--) {
+        const c = crumbs[i];
+        const rawUrl = (c.data as { url?: string } | undefined)?.url;
+        if (
+          (c.category === "fetch" || c.category === "xhr") &&
+          typeof rawUrl === "string"
+        ) {
+          // Strip query/hash before tagging — request URLs can carry
+          // tokens or identifiers we don't want as searchable telemetry.
+          let safeUrl: string;
+          try {
+            const parsed = new URL(rawUrl, window.location.origin);
+            safeUrl = `${parsed.origin}${parsed.pathname}`;
+          } catch {
+            safeUrl = rawUrl.split(/[?#]/)[0] ?? "";
+          }
+          if (safeUrl) {
+            event.tags = { ...event.tags, timeoutUrl: safeUrl.slice(0, 200) };
+          }
+          break;
+        }
+      }
+    }
 
     // React SSR streaming hydration issue triggered by browser extensions
     // ($RS is React's internal resumable script marker)
