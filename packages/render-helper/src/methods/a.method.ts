@@ -153,8 +153,13 @@ export function a(el: HTMLElement | null, forApp: boolean, parentDomain: string 
     return
   }
 
-  // Do not allow js hrefs (case-insensitive, with colon)
-  if (href && href.trim().toLowerCase().startsWith('javascript:')) {
+  // Block dangerous URL schemes (javascript:, data:, vbscript:, file:) —
+  // anything that isn't a safe scheme like http(s):/mailto:/hive:/web+ext:
+  // gets its href stripped. Case-insensitive, leading-whitespace tolerant
+  // (browsers ignore leading/trailing whitespace and tab/newline characters
+  // inside the scheme).
+  const trimmed = href.trim().replace(/[\t\n\r]/g, '').toLowerCase()
+  if (/^(javascript|data|vbscript|file):/i.test(trimmed)) {
     el.removeAttribute('href')
     return
   }

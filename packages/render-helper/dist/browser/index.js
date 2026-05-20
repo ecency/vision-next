@@ -64,14 +64,14 @@ var INTERNAL_POST_TAG_REGEX = /^(.+?)\/(@[\w.\d-]+)\/(.*)$/i;
 var INTERNAL_POST_REGEX = /^\/(@[\w.\d-]+)\/(.*)$/i;
 var CUSTOM_COMMUNITY_REGEX = /^https?:\/\/(.*)\/c\/(hive-\d+)(.*)/i;
 var YOUTUBE_REGEX = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|shorts\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
-var YOUTUBE_EMBED_REGEX = /^(https?:)?\/\/www.youtube.com\/(embed|shorts)\/.*/i;
+var YOUTUBE_EMBED_REGEX = /^(https?:)?\/\/www\.youtube\.com\/(embed|shorts)\/.*/i;
 var VIMEO_REGEX = /(https?:\/\/)?(www\.)?(?:vimeo)\.com.*(?:videos|video|channels|)\/([\d]+)/i;
 var VIMEO_EMBED_REGEX = /https:\/\/player\.vimeo\.com\/video\/([0-9]+)(?:$|[?#])/;
-var BITCHUTE_REGEX = /^(?:https?:\/\/)?(?:www\.)?bitchute.com\/(?:video|embed)\/([a-z0-9]+)/i;
+var BITCHUTE_REGEX = /^(?:https?:\/\/)?(?:www\.)?bitchute\.com\/(?:video|embed)\/([a-z0-9]+)/i;
 var D_TUBE_REGEX = /(https?:\/\/d\.tube\/#!\/v\/)(\w+)\/(\w+)/g;
 var D_TUBE_REGEX2 = /(https?:\/\/d\.tube\/v\/)(\w+)\/(\w+)/g;
 var D_TUBE_EMBED_REGEX = /^https:\/\/emb.d.tube\/#!\/[^/?#]+\/[^/?#]+(?:$|[?#])/i;
-var TWITCH_REGEX = /https?:\/\/(?:www.)?twitch.tv\/(?:(videos)\/)?([a-zA-Z0-9][\w]{3,24})/i;
+var TWITCH_REGEX = /https?:\/\/(?:www\.)?twitch\.tv\/(?:(videos)\/)?([a-zA-Z0-9][\w]{3,24})/i;
 var DAPPLR_REGEX = /^(https?:)?\/\/[a-z]*\.dapplr.in\/file\/dapplr-videos\/.*/i;
 var TRUVVL_REGEX = /^https?:\/\/embed.truvvl.com\/(@[\w.\d-]+)\/(.*)/i;
 var LBRY_REGEX = /^(https?:)?\/\/lbry.tv\/\$\/embed\/[^?#]+(?:$|[?#])/i;
@@ -84,15 +84,15 @@ var SPEAK_AUDIO_REGEX = /https?:\/\/audio\.3speak\.tv\/play\?[^\s]+/i;
 var SPEAK_AUDIO_EMBED_REGEX = /^https?:\/\/audio\.3speak\.tv\/play\?.+$/i;
 var TWITTER_REGEX = /(?:https?:\/\/(?:(?:twitter\.com\/(.*?)\/status\/(.*))))/gi;
 var SPOTIFY_REGEX = /^https:\/\/open\.spotify\.com\/playlist\/(.*)?$/gi;
-var RUMBLE_REGEX = /^https:\/\/rumble.com\/embed\/([a-zA-Z0-9-]+)\/\?pub=\w+/;
+var RUMBLE_REGEX = /^https:\/\/rumble\.com\/embed\/([a-zA-Z0-9-]+)\/\?pub=\w+/;
 var BRIGHTEON_REGEX = /^https?:\/\/(www\.)?brighteon\.com\/(?:embed\/)?(.*[0-9].*)/i;
-var VIMM_EMBED_REGEX = /^https:\/\/www.vimm.tv\/[^?#]+(?:$|[?#])/i;
+var VIMM_EMBED_REGEX = /^https:\/\/www\.vimm\.tv\/[^?#]+(?:$|[?#])/i;
 var SPOTIFY_EMBED_REGEX = /^https:\/\/open\.spotify\.com\/(embed|embed-podcast)\/(playlist|show|episode|track|album)\/([^/?#]+)(?:$|[?#])/i;
-var SOUNDCLOUD_EMBED_REGEX = /^https:\/\/w.soundcloud.com\/player\/\?[^#]+$/i;
-var TWITCH_EMBED_REGEX = /^(https?:)?\/\/player.twitch.tv\/(?:\?[^/]+)?$/i;
+var SOUNDCLOUD_EMBED_REGEX = /^https:\/\/w\.soundcloud\.com\/player\/\?[^#]+$/i;
+var TWITCH_EMBED_REGEX = /^(https?:)?\/\/player\.twitch\.tv\/(?:\?[^/]+)?$/i;
 var BRAND_NEW_TUBE_REGEX = /^https:\/\/brandnewtube\.com\/embed\/[a-z0-9]+$/i;
-var LOOM_REGEX = /^(https?:)?\/\/www.loom.com\/share\/([^/?#]+)(?:$|[?#])/i;
-var LOOM_EMBED_REGEX = /^(https?:)?\/\/www.loom.com\/embed\/([^/?#]+)(?:$|[?#])/i;
+var LOOM_REGEX = /^(https?:)?\/\/www\.loom\.com\/share\/([^/?#]+)(?:$|[?#])/i;
+var LOOM_EMBED_REGEX = /^(https?:)?\/\/www\.loom\.com\/embed\/([^/?#]+)(?:$|[?#])/i;
 var AUREAL_EMBED_REGEX = /^(https?:)?\/\/(www\.)?(?:aureal-embed)\.web\.app\/([0-9]+)(?:$|[?#])/i;
 var ENTITY_REGEX = /&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-fA-F]{1,6});/ig;
 var SECTION_REGEX = /\B(\#[\da-zA-Z-_]+\b)(?!;)/i;
@@ -444,12 +444,12 @@ function sanitizeHtml(html) {
       const decoded = decodeEntities(value.trim());
       const decodedLower = decoded.toLowerCase();
       if (name.startsWith("on")) return "";
-      if (tag === "img" && name === "src" && (!/^https?:\/\//.test(decodedLower) || decodedLower.startsWith("javascript:"))) return "";
+      if (tag === "img" && name === "src" && !/^https?:\/\//.test(decodedLower)) return "";
       if (tag === "img" && name === "srcset") {
         const candidates = decoded.split(",").map((c) => c.trim().split(/\s+/)[0]);
-        if (candidates.some((url) => !/^https?:\/\//.test(url))) return "";
+        if (candidates.some((url) => !/^https?:\/\//i.test(url))) return "";
       }
-      if (tag === "video" && ["src", "poster"].includes(name) && (!/^https?:\/\//.test(decodedLower) || decodedLower.startsWith("javascript:"))) return "";
+      if (tag === "video" && ["src", "poster"].includes(name) && !/^https?:\/\//.test(decodedLower)) return "";
       if (tag === "img" && ["dynsrc", "lowsrc"].includes(name)) return "";
       if (tag === "span" && name === "class" && decoded.toLowerCase().trim() === "wr") return "";
       if (name === "id") {
@@ -670,7 +670,8 @@ function a(el, forApp, parentDomain = "ecency.com", seoContext, renderOptions) {
   if (className && (["markdown-author-link", "markdown-tag-link"].includes(className) || className.includes("er-author") || className.includes("er-tag"))) {
     return;
   }
-  if (href && href.trim().toLowerCase().startsWith("javascript:")) {
+  const trimmed = href.trim().replace(/[\t\n\r]/g, "").toLowerCase();
+  if (/^(javascript|data|vbscript|file):/i.test(trimmed)) {
     el.removeAttribute("href");
     return;
   }
@@ -1445,7 +1446,7 @@ function linkify(content, forApp, renderOptions) {
   content = content.replace(/(^|\s|>)(#[-a-z\d]+)/gi, (tag) => {
     if (/#[\d]+$/.test(tag)) return tag;
     const preceding = /^\s|>/.test(tag) ? tag[0] : "";
-    tag = tag.replace(">", "");
+    tag = tag.replace(/^>/, "");
     const tag2 = tag.trim().substring(1);
     const tagLower = tag2.toLowerCase();
     if (!forApp) {

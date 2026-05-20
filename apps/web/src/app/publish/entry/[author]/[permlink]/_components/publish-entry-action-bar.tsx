@@ -43,7 +43,7 @@ export function PublishEntryActionBar({ onEdit, entry }: Props) {
   const permlink = params?.permlink ?? "";
   const { tags } = usePublishState();
 
-  const sanitizedAuthor = (author as string).replace("%40", "");
+  const sanitizedAuthor = (author as string).replace(/%40/g, "");
   const category = tags?.[0] ?? entry?.category;
   const entryHref =
     category && sanitizedAuthor && permlink

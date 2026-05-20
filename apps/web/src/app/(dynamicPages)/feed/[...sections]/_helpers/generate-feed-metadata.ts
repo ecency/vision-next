@@ -12,9 +12,9 @@ export async function generateFeedMetadata(filter: string, tag: string) {
   let rss = "";
 
   if (tag?.startsWith("%40")) {
-    title = `${tag.replace("%40", "@")} ${filter} on decentralized web – Ecency`;
+    title = `${tag.replace(/%40/g, "@")} ${filter} on decentralized web – Ecency`;
     description = i18next.t("entry-index.description-user-feed", {
-      u: tag.replace("%40", "@"),
+      u: tag.replace(/%40/g, "@"),
     });
   } else if (tag) {
     title = `latest #${tag} ${filter} topics on internet`;

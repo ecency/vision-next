@@ -46,7 +46,7 @@ export function useHiveEngineClaimRewardsState(
 
   const sanitizedTokenSymbol = tokenSymbol?.toUpperCase();
   const sanitizedUsername =
-    typeof username === "string" ? username.replace("%40", "") : undefined;
+    typeof username === "string" ? username.replace(/%40/g, "") : undefined;
 
   const shouldQuery =
     enabled &&
@@ -126,7 +126,7 @@ export function HiveEngineClaimRewardsButton({
     typeof token === "string" ? token.toUpperCase() : undefined;
   const usernameFromParams =
     typeof username === "string"
-      ? username.replace("%40", "")
+      ? username.replace(/%40/g, "")
       : undefined;
 
   const {

@@ -15,7 +15,7 @@ interface Props extends PropsWithChildren {
 
 export default async function ProfileLayout({ children, params }: Props) {
   const { username: usernameParam } = await params;
-  const username = usernameParam.replace("%40", "");
+  const username = usernameParam.replace(/%40/g, "");
 
   const account = await prefetchQuery(getAccountFullQueryOptions(username));
 

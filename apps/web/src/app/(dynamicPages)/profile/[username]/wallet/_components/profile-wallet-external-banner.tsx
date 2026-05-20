@@ -22,7 +22,7 @@ const THIRTY_DAYS_IN_MS = 1000 * 60 * 60 * 24 * 30;
 export function ProfileWalletExternalBanner() {
   const { username } = useParams();
   const usernameParam = typeof username === "string" ? username : "";
-  const cleanUsername = usernameParam.replace("%40", "");
+  const cleanUsername = usernameParam.replace(/%40/g, "");
   const storageKey = `${EXTERNAL_BANNER_STORAGE_KEY_PREFIX}:${cleanUsername || "unknown"}`;
 
   const [dismissedAt, setDismissedAt, removeDismissedAt] = useLocalStorage<number | null>(

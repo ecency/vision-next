@@ -16,7 +16,7 @@ import {
 } from "@/app/communities/create/_components";
 import { useGlobalStore } from "@/core/global-store";
 import { CommunityTypes } from "@/enums";
-import { delay, getAccessToken, parseAsset, random } from "@/utils";
+import { delay, getAccessToken, parseAsset } from "@/utils";
 import {
   EcencyAnalytics,
   getChainPropertiesQueryOptions,
@@ -45,7 +45,11 @@ function generateUsername(type: CommunityTypes) {
 }
 
 function generateWif() {
-  return "P" + base58.encode(sha256(random()));
+  // 256-bit seed from a CSPRNG. Math.random() is ~32 bits and predictable;
+  // this key controls a freshly created community account.
+  const seed = new Uint8Array(32);
+  crypto.getRandomValues(seed);
+  return "P" + base58.encode(sha256(seed));
 }
 
 export function CreateCommunityPage() {

@@ -36,7 +36,7 @@ export async function generateMetadata(
   if (!permlink || permlink === "undefined") {
     return {};
   }
-  return generateEntryMetadata(author.replace("%40", ""), permlink);
+  return generateEntryMetadata(author.replace(/%40/g, ""), permlink);
 }
 
 export default async function EntryPage({ params, searchParams }: Props) {
@@ -44,7 +44,7 @@ export default async function EntryPage({ params, searchParams }: Props) {
   const sParams = await searchParams;
   const isRawContent = sParams.raw !== undefined;
 
-  const author = username.replace("%40", "");
+  const author = username.replace(/%40/g, "");
   const [entry] = await Promise.all([
     prefetchQuery(EcencyEntriesCacheManagement.getEntryQueryByPath(author, permlink)),
     // Warm the query cache for child components that read account data.

@@ -11,7 +11,7 @@ interface Props {
 
 export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
   const { username } = await props.params;
-  return generateProfileMetadata(username.replace("%40", ""), "wallet");
+  return generateProfileMetadata(username.replace(/%40/g, ""), "wallet");
 }
 
 export default async function TokenPage({ params }: Props) {

@@ -41,7 +41,7 @@ export function ProfileWalletTokenActions() {
 
   const tokenSymbol =
     (token as string)?.toUpperCase() ?? pathname.split("/")[3]?.toUpperCase();
-  const cleanUsername = (username as string).replace("%40", "");
+  const cleanUsername = (username as string).replace(/%40/g, "");
 
   const { data: operations } = useQuery({
     ...getTokenOperationsQueryOptions(

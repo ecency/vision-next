@@ -17,7 +17,7 @@ import { ProfileWalletCollectAllButton } from "./profile-wallet-collect-all-butt
 
 export function ProfileWalletPendingEarnings() {
   const { username: rawUsername } = useParams();
-  const username = (rawUsername as string).replace("%40", "");
+  const username = (rawUsername as string).replace(/%40/g, "");
 
   const { data: accountData } = useQuery({
     ...getAccountFullQueryOptions(username),

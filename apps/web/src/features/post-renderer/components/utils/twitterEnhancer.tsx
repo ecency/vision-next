@@ -15,12 +15,12 @@ export function applyTwitterEmbeds(
         )
     ).filter((el) => {
         const href = el.getAttribute("href") || "";
-        if (!href.startsWith("https://x.com") && !href.startsWith("https://twitter.com")) {
-            return false;
-        }
-
         try {
             const url = new URL(href);
+            // Hostname-based check, not substring — startsWith("https://twitter.com")
+            // also matches https://twitter.com.evil.com.
+            if (url.protocol !== "https:") return false;
+            if (url.hostname !== "x.com" && url.hostname !== "twitter.com") return false;
             const parts = url.pathname.split("/").filter(Boolean);
             // Must look like /{username}/status/{tweetId}[/*]
             return (

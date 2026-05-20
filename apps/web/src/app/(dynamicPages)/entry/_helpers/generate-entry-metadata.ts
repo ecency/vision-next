@@ -23,7 +23,7 @@ export async function generateEntryMetadata(
     return {};
   }
   try {
-    const cleanAuthor = username.replace("%40", "");
+    const cleanAuthor = username.replace(/%40/g, "");
 
     // Source from condenser_api.get_content first: it returns root_author /
     // root_permlink (needed to canonical replies to their discussion root and

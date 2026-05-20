@@ -12,20 +12,20 @@ interface Props {
 
 export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
   const { username } = await props.params;
-  return generateProfileMetadata(username.replace("%40", ""), "settings");
+  return generateProfileMetadata(username.replace(/%40/g, ""), "settings");
 }
 
 export default async function SettingsPage({ params }: Props) {
   const { username } = await params;
   const { get } = await cookies();
-  const account = await prefetchQuery(getAccountFullQueryOptions(username.replace("%40", "")));
+  const account = await prefetchQuery(getAccountFullQueryOptions(username.replace(/%40/g, "")));
 
   if (!account) {
     return notFound();
   }
 
   if (account.name !== get("active_user")?.value) {
-    return redirect(`/@${username.replace("%40", "")}`);
+    return redirect(`/@${username.replace(/%40/g, "")}`);
   }
 
   return <ProfileSettings />;

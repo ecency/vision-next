@@ -14,11 +14,16 @@ export function getPurePostText(text: string) {
   // Remove inline Markdown formatting (**bold**, *italic*, _italic_)
   text = text.replace(/(\*\*|__|\*|_)(.*?)\1/g, "$2");
 
-  // Remove HTML tags, including attributes (e.g., <div class="abc">)
-  text = text.replace(/<[^>]+>/g, "");
-
-  // Remove comments
-  text = text.replace(/<!--[\s\S]*?-->/g, "");
+  // Remove HTML tags & comments, including attributes. Loop until idempotent
+  // so adversarial inputs like `<scr<script>ipt>` can't leak a tag fragment
+  // through a single-pass strip. This function feeds previews and word-count
+  // (not HTML rendering) but we still want a hardened strip for safety.
+  let prev: string;
+  do {
+    prev = text;
+    text = text.replace(/<[^>]+>/g, "");
+    text = text.replace(/<!--[\s\S]*?-->/g, "");
+  } while (text !== prev);
 
   // Remove URLs (http:// or https://)
   text = text.replace(/https?:\/\/[^\s/$.?#].[^\s]*/g, "");

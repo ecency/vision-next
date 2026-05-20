@@ -244,8 +244,8 @@ export async function followMattermostThreadForUser(
     });
   } catch (error) {
     console.error(
-      `Unable to update Mattermost thread following for user ${userId} and thread ${threadId}`,
-      error
+      "Unable to update Mattermost thread following",
+      { userId, threadId, error }
     );
   }
 }

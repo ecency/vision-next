@@ -359,8 +359,8 @@ export async function POST(
                   await ensureUserInChannel(user.id, channel.id);
                 } catch (error) {
                   console.error(
-                    `Unable to ensure mentioned user ${username} in channel`,
-                    error
+                    "Unable to ensure mentioned user in channel",
+                    { username, error }
                   );
                 }
               })

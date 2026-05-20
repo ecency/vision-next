@@ -71,7 +71,7 @@ export function PromotePostSetup({ onSuccess, isPending }: Props) {
             <FormControl
               type="text"
               value={pathQuery}
-              onChange={(e) => setPathQuery(e.target.value.replace("@", "").replace("%40", ""))}
+              onChange={(e) => setPathQuery(e.target.value.replace("@", "").replace(/%40/g, ""))}
               placeholder={i18next.t("redeem-common.post-placeholder")}
               disabled={isPricesLoading}
             />

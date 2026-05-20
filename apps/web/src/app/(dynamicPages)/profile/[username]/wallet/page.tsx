@@ -17,14 +17,14 @@ interface Props {
 
 export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
   const { username } = await props.params;
-  return generateProfileMetadata(username.replace("%40", ""), "wallet");
+  return generateProfileMetadata(username.replace(/%40/g, ""), "wallet");
 }
 
 export default async function WalletPage(props: Props) {
   const { username } = await props.params;
 
   // Prefetch account data to avoid waterfall
-  await prefetchQuery(getAccountFullQueryOptions(username.replace("%40", "")));
+  await prefetchQuery(getAccountFullQueryOptions(username.replace(/%40/g, "")));
 
   return (
     <>

@@ -50,7 +50,7 @@ export async function prefetchGetPostsFeedQuery(
   if (isUser) {
     return prefetchInfiniteQuery(
       getAccountPostsInfiniteQueryOptions(
-        tag.replace("@", "").replace("%40", ""),
+        tag.replace("@", "").replace(/%40/g, ""),
         what,
         limit,
         observer ?? "",
@@ -93,7 +93,7 @@ export function getPostsFeedQueryData(
   if (isUser) {
     return getInfiniteQueryData(
       getAccountPostsInfiniteQueryOptions(
-        tag.replace("@", "").replace("%40", ""),
+        tag.replace("@", "").replace(/%40/g, ""),
         what,
         limit,
         observer ?? "",
@@ -134,7 +134,7 @@ export function usePostsFeedQuery(
           ? getPromotedEntriesInfiniteQuery()
           : isUser
               ? getAccountPostsInfiniteQueryOptions(
-                  tag.replace("@", "").replace("%40", ""),
+                  tag.replace("@", "").replace(/%40/g, ""),
                   what,
                   limit,
                   observer ?? "",

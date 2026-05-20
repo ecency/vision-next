@@ -54,9 +54,16 @@ export function BlogPostPage() {
   const ogDescription = useMemo(() => {
     if (!entry) return undefined;
     const body = entry.original_entry?.body || entry.body || '';
-    // Strip markdown/HTML and take first 200 chars
-    const clean = body
-      .replace(/<[^>]*>/g, '')
+    // Strip markdown/HTML and take first 200 chars. The HTML-tag strip is
+    // looped to idempotency so payloads like `<scr<script>ipt>` can't leak a
+    // remnant into the meta-description (head-tag rendering context).
+    let stripped = body;
+    let prev: string;
+    do {
+      prev = stripped;
+      stripped = stripped.replace(/<[^>]*>/g, '');
+    } while (stripped !== prev);
+    const clean = stripped
       .replace(/!\[.*?\]\(.*?\)/g, '')
       .replace(/\[([^\]]*)\]\(.*?\)/g, '$1')
       .replace(/[#*_~`>]/g, '')

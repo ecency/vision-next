@@ -10,8 +10,13 @@ const MemoEcencyRenderer = memo(EcencyRenderer);
 
 // Matches a Hive post URL and preserves any trailing query parameters.
 // Supports both /@user/permlink and /category/@user/permlink (and deeper paths).
+//
+// Each `(?:\/[^@\s/]+)*` segment excludes `/` so partition between the outer
+// repetition and the next slash is unambiguous — keeps matching linear and
+// avoids the exponential backtracking previous form had on inputs like
+// http://./!/!/!/... (no `@` present).
 export const HIVE_POST_PURE_REGEX =
-  /^https?:\/\/[^/]+(?:\/[^@\s]+)*\/(@[\w.\d-]+)\/([^?\s]+)(?:\?[^\s]*)?/gi;
+  /^https?:\/\/[^/\s]+(?:\/[^@\s/]+)*\/(@[\w.\d-]+)\/([^?\s]+)(?:\?[^\s]*)?/gi;
 
 function PostViewer({
   node: {
