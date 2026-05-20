@@ -19,9 +19,17 @@ export const TopCommunitiesWidget = () => {
       return [];
     }
 
+    // CSPRNG pick — the picked community flows into URLs and CodeQL treats
+    // it as taint when sourced from Math.random.
+    const pickIndex = (n: number) => {
+      const buf = new Uint32Array(1);
+      crypto.getRandomValues(buf);
+      return buf[0] % n;
+    };
+
     const result: Community[] = [];
-    while (result.length < 5) {
-      const index = Math.floor(Math.random() * (data.length - 1));
+    while (result.length < 5 && result.length < data.length) {
+      const index = pickIndex(data.length);
       if (result.every((item) => data[index].id !== item.id)) {
         result.push(data[index]);
       }

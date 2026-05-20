@@ -10,10 +10,6 @@ export function deepClone<T>(obj: T): T {
   return JSON.parse(JSON.stringify(obj));
 }
 
-// Reject keys that would mutate the prototype chain. Without this guard,
-// a path like "__proto__.polluted" would assign onto Object.prototype.
-const FORBIDDEN_KEYS = new Set(["__proto__", "constructor", "prototype"]);
-
 /**
  * Update a nested object path with a new value
  */
@@ -24,13 +20,16 @@ export function updateNestedPath(
 ): Record<string, ConfigValue> {
   const newObj = deepClone(obj);
   const keys = path.split('.');
-  if (keys.some((k) => FORBIDDEN_KEYS.has(k))) {
-    return newObj;
-  }
   let current: Record<string, ConfigValue> = newObj;
 
   for (let i = 0; i < keys.length - 1; i++) {
     const key = keys[i];
+    // In-loop prototype-pollution guard. Each write key is checked
+    // explicitly against the dangerous identifiers so CodeQL's data-flow
+    // analysis sees the sanitiser on the exact assignment line.
+    if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+      return newObj;
+    }
     if (
       !current[key] ||
       typeof current[key] !== 'object' ||
@@ -41,7 +40,11 @@ export function updateNestedPath(
     current = current[key] as Record<string, ConfigValue>;
   }
 
-  current[keys[keys.length - 1]!] = value;
+  const finalKey = keys[keys.length - 1]!;
+  if (finalKey === '__proto__' || finalKey === 'constructor' || finalKey === 'prototype') {
+    return newObj;
+  }
+  current[finalKey] = value;
   return newObj;
 }
 
