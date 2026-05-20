@@ -37,10 +37,10 @@ export function HiveOperationRenderer({ op }: Props) {
                         <div className="er-hive-op-type">
                             {decodedOpType}
                         </div>
-                        {decodedOpType === "transfer" && (
+                        {decodedOp[0] === "transfer" && (
                             <div className="er-hive-op-transfer">
                 <span className="er-hive-op-transfer-highlight">
-                  {decodedOp[1].amount}
+                  {String(decodedOp[1].amount)}
                 </span>
                                 <span> to</span>
                                 <img
