@@ -53,9 +53,13 @@ const SENTRY_CONFIG: Sentry.BrowserOptions = {
     // with no stack frames, so we can't tell which fetch is at fault.
     // Walk recent breadcrumbs for the last in-flight fetch URL and tag
     // the event so we can correlate timeouts to specific endpoints.
+    // Trigger only on the canonical AbortController error names plus the
+    // standard "signal timed out" phrase — a broader /aborted/i match
+    // would also tag unrelated paths (transaction aborts, stream aborts).
     if (
-      (exceptionType === "TimeoutError" || exceptionType === "AbortError" ||
-        /signal timed out/i.test(message) || /aborted/i.test(message)) &&
+      (exceptionType === "TimeoutError" ||
+        exceptionType === "AbortError" ||
+        /signal timed out/i.test(message)) &&
       !event.tags?.timeoutUrl
     ) {
       const crumbs = event.breadcrumbs ?? [];
