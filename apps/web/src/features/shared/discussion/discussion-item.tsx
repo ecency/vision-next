@@ -30,7 +30,8 @@ import {
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@ui/button";
 import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
-import { deleteForeverSvg, dotsHorizontal, pencilOutlineSvg, pinSvg } from "@ui/svg";
+import { alertCircleSvg, deleteForeverSvg, dotsHorizontal, pencilOutlineSvg, pinSvg } from "@ui/svg";
+import { StyledTooltip } from "@ui/tooltip";
 import i18next from "i18next";
 import { memo, useEffect, useMemo, useState, type ReactNode } from "react";
 import appPackage from "../../../../package.json";
@@ -140,12 +141,6 @@ export const DiscussionItem = memo(function DiscussionItem({
           <span />
         </Tsx>
       )
-    });
-  }
-  if (isHidden) {
-    warningMessages.push({
-      key: "hidden",
-      content: <span>{i18next.t("entry.hidden-warning")}</span>
     });
   }
   if (isLowReputation) {
@@ -275,6 +270,17 @@ export const DiscussionItem = memo(function DiscussionItem({
                 </span>
               </EntryLink>
               {isPinned && <div className="w-3.5 h-3.5 ml-3 flex">{pinSvg}</div>}
+              {isHidden && (
+                <StyledTooltip content={i18next.t("entry.hidden-warning")}>
+                  <span
+                    className="w-3.5 h-3.5 ml-3 flex text-warning cursor-help"
+                    role="img"
+                    aria-label={i18next.t("entry.hidden-warning")}
+                  >
+                    {alertCircleSvg}
+                  </span>
+                </StyledTooltip>
+              )}
             </div>
           </div>
 
