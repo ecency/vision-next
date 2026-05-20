@@ -22,14 +22,34 @@ export abstract class RssHandler<T> {
       const data = await this.fetchData();
       data.forEach((item) => feed.item(this.convertItem(item, base)));
     } catch (e) {
-      Sentry.captureException(e,{
-        extra: {
-          pathname: this.pathname,
-          handlerClass: this.constructor.name
-        }
-      });
+      if (!isTransientUpstreamError(e)) {
+        Sentry.captureException(e, {
+          extra: {
+            pathname: this.pathname,
+            handlerClass: this.constructor.name
+          }
+        });
+      }
     }
 
     return feed;
   }
+}
+
+// Hive RPC and upstream HTTP layers regularly emit transient connection
+// errors when crawlers fan out across many feed paths. They aren't bugs
+// in our code, but capturing them drowns out real issues in Sentry.
+function isTransientUpstreamError(e: unknown): boolean {
+  if (!e || typeof e !== "object") return false;
+  const err = e as { name?: string; code?: string; message?: string };
+  if (err.code === "ECONNRESET" || err.code === "ETIMEDOUT" || err.code === "UND_ERR_SOCKET")
+    return true;
+  if (err.name === "AbortError" || err.name === "TimeoutError") return true;
+  const msg = String(err.message ?? "");
+  return (
+    /Unable to parse endpoint data/i.test(msg) ||
+    /HTTP 50[234]/.test(msg) ||
+    /fetch failed/i.test(msg) ||
+    /aborted/i.test(msg)
+  );
 }

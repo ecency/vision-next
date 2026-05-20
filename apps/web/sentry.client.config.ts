@@ -43,10 +43,31 @@ const SENTRY_CONFIG: Sentry.BrowserOptions = {
   ],
 
   beforeSend(event) {
+    const exceptionType = event.exception?.values?.[0]?.type ?? "";
     const message = event.exception?.values?.[0]?.value ?? "";
     const stackStr = JSON.stringify(
       event.exception?.values?.[0]?.stacktrace?.frames ?? []
     );
+
+    // AbortController-induced timeouts (TimeoutError / AbortError) ship
+    // with no stack frames, so we can't tell which fetch is at fault.
+    // Walk recent breadcrumbs for the last in-flight fetch URL and tag
+    // the event so we can correlate timeouts to specific endpoints.
+    if (
+      (exceptionType === "TimeoutError" || exceptionType === "AbortError" ||
+        /signal timed out/i.test(message) || /aborted/i.test(message)) &&
+      !event.tags?.timeoutUrl
+    ) {
+      const crumbs = event.breadcrumbs ?? [];
+      for (let i = crumbs.length - 1; i >= 0; i--) {
+        const c = crumbs[i];
+        const url = (c.data as { url?: string } | undefined)?.url;
+        if ((c.category === "fetch" || c.category === "xhr") && typeof url === "string") {
+          event.tags = { ...event.tags, timeoutUrl: url.slice(0, 200) };
+          break;
+        }
+      }
+    }
 
     // React SSR streaming hydration issue triggered by browser extensions
     // ($RS is React's internal resumable script marker)
