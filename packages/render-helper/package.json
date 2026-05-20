@@ -1,7 +1,7 @@
 {
   "name": "@ecency/render-helper",
   "private": false,
-  "version": "2.5.4",
+  "version": "2.5.5",
   "description": "Markdown+Html Render helper",
   "repository": {
     "type": "git",
@@ -55,7 +55,7 @@
     "vitest": "^2.0.0"
   },
   "dependencies": {
-    "@xmldom/xmldom": "^0.9.6",
+    "@xmldom/xmldom": "^0.9.10",
     "dom-serializer": "^2.0.0",
     "he": "^1.2.0",
     "htmlparser2": "^10.0.0",
