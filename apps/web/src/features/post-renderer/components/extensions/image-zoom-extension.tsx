@@ -12,6 +12,7 @@ export function ImageZoomExtension({
 
   useEffect(() => {
     let isMounted = true; // Track mount state to prevent post-unmount zoom attachment
+    let rafId = 0;
 
     const elements = Array.from(
         containerRef.current?.querySelectorAll<HTMLElement>(
@@ -162,7 +163,8 @@ export function ImageZoomExtension({
           }
 
           // Small delay to ensure layout is stable after image load
-          requestAnimationFrame(() => {
+          rafId = requestAnimationFrame(() => {
+            rafId = 0;
             // Final check before creating zoom instance
             if (!isMounted) {
               return;
@@ -204,6 +206,10 @@ export function ImageZoomExtension({
 
     return () => {
       isMounted = false; // Mark as unmounted to prevent async operations
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = 0;
+      }
       zoomRef.current?.detach();
     };
   }, [containerRef]);
