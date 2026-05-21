@@ -442,20 +442,31 @@ async function createToken(userId: string, signal?: AbortSignal): Promise<string
   return result.token;
 }
 
-export async function ensurePersonalToken(userId: string, signal?: AbortSignal): Promise<string> {
+export async function ensurePersonalToken(
+  userId: string,
+  signal?: AbortSignal
+): Promise<{ token: string; user: MattermostUserWithProps }> {
   // Try to retrieve a previously stored PAT from user props.
   // Only fall through to createToken on auth errors (401/403).
   // Rethrow other errors (5xx, network) so they surface upstream.
+  //
+  // Returns the user alongside the token because the bootstrap caller also
+  // needs the user's props (for getUserLeftChannels). Folding it in here
+  // saves one extra GET /users/{id} on the hot path that used to run
+  // sequentially after this call.
   const user = await getMattermostUserWithProps(userId, signal);
   const storedToken = user.props?.[CHAT_PAT_PROP];
   if (storedToken) {
     // isTokenValid rethrows non-auth errors
     if (await isTokenValid(storedToken, signal)) {
-      return storedToken;
+      return { token: storedToken, user };
     }
-    // Token exists but is invalid (revoked/expired) — fall through to create
+    // Token exists but is invalid (revoked/expired) — fall through to create.
+    // The user.props we return here predates createToken's PUT to merge in
+    // the new PAT, but the only consumer (left-channels) doesn't care.
   }
-  return await createToken(userId, signal);
+  const token = await createToken(userId, signal);
+  return { token, user };
 }
 
 export function withMattermostTokenCookie(response: NextResponse, token: string) {
