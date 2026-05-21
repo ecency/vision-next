@@ -1996,6 +1996,7 @@
     "sort-relevance": "Relevance",
     "sort-newest": "Recent",
     "hide-low": "Hide low payout content",
+    "include-nsfw": "Show NSFW content",
     "show-more": "show more"
   },
   "search-people": {
