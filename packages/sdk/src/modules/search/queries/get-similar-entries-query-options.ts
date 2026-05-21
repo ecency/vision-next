@@ -11,17 +11,28 @@ const SIMILAR_ENTRIES_SINCE_MS = 182 * 24 * 60 * 60 * 1000;
 // How many results the suggestions strip renders at most.
 const SIMILAR_ENTRIES_TARGET = 3;
 
-// Fetch breadth from each source. CRITICAL: HiveSense's `full_posts` is the
-// number of results it *hydrates* (created/title/body/json_metadata) — it is
-// NOT a boolean. The remainder come back as author/permlink stubs the
-// recency/map logic must drop. So `full_posts` MUST equal `result_limit`;
-// the old `full_posts: 1` made HiveSense usable for exactly ONE of
-// `result_limit` results, so it ~never backfilled. Bumped to 50 because the
-// 6-month recency filter drops most semantic neighbours (HiveSense ranks by
-// embedding similarity with no recency bias), and the search-api primary
-// path is currently producing 0 hits for tag-filtered queries, leaving
-// HiveSense as the sole source.
-const SIMILAR_ENTRIES_LIMIT = 50;
+// HiveSense fetch breadth. `full_posts` is the number of results it
+// *hydrates* (created/title/body/json_metadata) — NOT a boolean — and must
+// equal `result_limit` since unhydrated stubs are dropped. HiveSense is only
+// consulted when search-api returns fewer than SIMILAR_ENTRIES_TARGET
+// usable results, so we just need enough to backfill 1-2 slots after the
+// 6-month recency cutoff (HiveSense has no recency bias) culls most.
+const SIMILAR_ENTRIES_LIMIT = 15;
+
+// Overly broad primary tags worth skipping when there are more specific
+// alternatives. The 2-tag filter is far more permissive than the old 3-tag
+// AND, so dropping these only matters when a post lists e.g. `hive` first
+// followed by something specific.
+const GENERIC_TAGS = new Set([
+  "hive",
+  "blog",
+  "life",
+  "blogger",
+  "dailyblog",
+  "post",
+  "ecency",
+  "esteem",
+]);
 
 // The strip is hidden below this many results. A lone suggestion looks
 // sparse, and the previous all-or-nothing-at-exactly-3 hid it on most posts.
@@ -51,20 +62,24 @@ interface HivesenseSimilarPost {
   json_metadata?: { tags?: string[]; image?: string[] };
 }
 
-function buildQuery(entry: Entry, retry = 3) {
+function buildQuery(entry: Entry) {
   const { json_metadata, permlink } = entry;
 
   let q = "*";
-  q += ` -dporn type:post`;
+  q += ` type:post`;
   let tags;
 
-  // 3 tags and decrease until there is enough relevant posts
+  // Pick up to 2 specific tags. Two AND-filtered tags is enough overlap to
+  // surface topically-similar posts without being so restrictive that the
+  // result set collapses (the old 3-tag AND often returned <20 hits for
+  // niche tag combinations).
   if (json_metadata && json_metadata.tags && Array.isArray(json_metadata.tags)) {
-    tags = json_metadata.tags
-      .filter((tag) => tag && tag !== "" && typeof tag === "string")
-      .filter((tag) => !tag.startsWith("hive-")) // filter out communities
-      .filter((_tag, ind) => ind < +retry)
-      .join(",");
+    const cleaned = json_metadata.tags
+      .filter((tag): tag is string => typeof tag === "string" && tag !== "")
+      .filter((tag) => !tag.startsWith("hive-")); // drop community tags
+    const specific = cleaned.filter((tag) => !GENERIC_TAGS.has(tag));
+    const chosen = (specific.length > 0 ? specific : cleaned).slice(0, 2);
+    tags = chosen.join(",");
   }
 
   // check to make sure tags are not empty
@@ -77,6 +92,7 @@ function buildQuery(entry: Entry, retry = 3) {
       .filter((part: string) => part !== "")
       .filter((part: string) => !/^-?\d+$/.test(part))
       .filter((part: string) => part.length > 2)
+      .slice(0, 2)
       .join(",");
     q += ` tag:${tags}`;
   }
@@ -139,82 +155,10 @@ export function getSimilarEntriesQueryOptions(entry: Entry) {
       // immaterial for a coarse recency cutoff.
       const since = new Date(sinceMs).toISOString().slice(0, 19);
 
-      // Primary: Ecency search-api (hivesearcher). `since` constrains recency
-      // server-side. Throws on a non-2xx so a real outage surfaces (distinct
-      // from a legitimately empty result set).
-      const primary = (async (): Promise<SearchResult[]> => {
-        const response = await fetch(CONFIG.privateApiHost + "/search-api/search", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ q: query, sort: "newest", hide_low: false, since }),
-          signal: withTimeoutSignal(INTERNAL_API_TIMEOUT_MS, signal),
-        });
-        if (!response.ok) {
-          throw new Error(`Search failed: ${response.status}`);
-        }
-        return ((await response.json()) as SearchResponse).results;
-      })();
-
-      // Secondary: HiveSense semantic similarity (decentralized; callREST
-      // fails over nodes serving /hivesense-api — a hivesense-scoped node
-      // list keeps it on the ~2 hosts that actually serve it). No recency
-      // bias, so apply the same ~6-month window client-side. `full_posts`
-      // MUST equal `result_limit` — see SIMILAR_ENTRIES_LIMIT.
-      const hivesense = (async (): Promise<SearchResult[]> => {
-        const hs = await callREST(
-          "hivesense",
-          "/posts/{author}/{permlink}/similar",
-          {
-            author: entry.author,
-            permlink: entry.permlink,
-            result_limit: SIMILAR_ENTRIES_LIMIT,
-            full_posts: SIMILAR_ENTRIES_LIMIT,
-            // The suggestions strip renders title + thumbnail only (body is
-            // never displayed), so don't pay to hydrate body text. We still
-            // need json_metadata (for the thumbnail/tags), which full_posts
-            // hydrates independently of truncate.
-            truncate: 0,
-          },
-          undefined,
-          undefined,
-          signal
-        );
-        const list: HivesenseSimilarPost[] = Array.isArray(hs) ? hs : [];
-        const out: SearchResult[] = [];
-        for (const p of list) {
-          if (!p || !p.created) continue;
-          if (p.stats && (p.stats.gray || p.stats.hide)) continue;
-          const createdMs = new Date(
-            p.created.endsWith("Z") ? p.created : `${p.created}Z`
-          ).getTime();
-          if (!Number.isFinite(createdMs) || createdMs < sinceMs) continue;
-          out.push(mapHivesensePost(p));
-        }
-        return out;
-      })();
-
-      // Query both in parallel and MERGE — primary (relevance) first, then
-      // HiveSense (semantic) as backfill. Each source is independent: one
-      // failing still yields the other; only a total failure throws so React
-      // Query retries instead of silently rendering nothing.
-      const [primaryRes, hivesenseRes] = await Promise.allSettled([
-        primary,
-        hivesense,
-      ]);
-
-      if (
-        primaryRes.status === "rejected" &&
-        hivesenseRes.status === "rejected"
-      ) {
-        throw primaryRes.reason instanceof Error
-          ? primaryRes.reason
-          : new Error("similar-entries: all sources failed");
-      }
-
       const collected: SearchResult[] = [];
       const seenAuthors = new Set<string>();
       // Excludes the source post, nsfw, and same-author duplicates; preserves
-      // insertion order so primary (relevance) results stay first.
+      // insertion order so search-api (primary) results stay first.
       const addUnique = (r: SearchResult) => {
         if (collected.length >= SIMILAR_ENTRIES_TARGET) return;
         if (r.permlink === entry.permlink) return;
@@ -224,14 +168,84 @@ export function getSimilarEntriesQueryOptions(entry: Entry) {
         collected.push(r);
       };
 
-      if (primaryRes.status === "fulfilled") {
-        for (const r of primaryRes.value) addUnique(r);
-      }
-      if (hivesenseRes.status === "fulfilled") {
-        for (const r of hivesenseRes.value) addUnique(r);
+      // Primary: Ecency search-api. `popularity` sort returns posts ranked
+      // by engagement weighted by recency, which is what we want for
+      // "read next" recommendations.
+      let primaryError: unknown = null;
+      try {
+        const response = await fetch(CONFIG.privateApiHost + "/search-api/search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ q: query, sort: "popularity", hide_low: false, since }),
+          signal: withTimeoutSignal(INTERNAL_API_TIMEOUT_MS, signal),
+        });
+        if (!response.ok) {
+          throw new Error(`Search failed: ${response.status}`);
+        }
+        const data = (await response.json()) as SearchResponse;
+        for (const r of data.results) addUnique(r);
+      } catch (err) {
+        primaryError = err;
       }
 
-      return collected.slice(0, SIMILAR_ENTRIES_TARGET);
+      // Fallback: HiveSense semantic similarity. Only consulted if search-api
+      // didn't fill the target (or it failed outright). HiveSense is slower
+      // (full-post hydration over a decentralized network) and has no recency
+      // bias, so we filter client-side; with `popularity` returning more
+      // results from search-api this path is rarely taken now.
+      if (collected.length < SIMILAR_ENTRIES_TARGET) {
+        try {
+          const hs = await callREST(
+            "hivesense",
+            "/posts/{author}/{permlink}/similar",
+            {
+              author: entry.author,
+              permlink: entry.permlink,
+              result_limit: SIMILAR_ENTRIES_LIMIT,
+              full_posts: SIMILAR_ENTRIES_LIMIT,
+              // The suggestions strip renders title + thumbnail only (body is
+              // never displayed), so don't pay to hydrate body text. We still
+              // need json_metadata (for the thumbnail/tags), which full_posts
+              // hydrates independently of truncate.
+              truncate: 0,
+            },
+            undefined,
+            undefined,
+            signal
+          );
+          const list: HivesenseSimilarPost[] = Array.isArray(hs) ? hs : [];
+          for (const p of list) {
+            if (collected.length >= SIMILAR_ENTRIES_TARGET) break;
+            if (!p || !p.created) continue;
+            if (p.stats && (p.stats.gray || p.stats.hide)) continue;
+            const createdMs = new Date(
+              p.created.endsWith("Z") ? p.created : `${p.created}Z`
+            ).getTime();
+            if (!Number.isFinite(createdMs) || createdMs < sinceMs) continue;
+            addUnique(mapHivesensePost(p));
+          }
+        } catch (hsErr) {
+          // Only throw if BOTH sources failed AND we have nothing to show.
+          // Surface the primary error since search-api is the load-bearing
+          // source — HiveSense is fallback.
+          if (primaryError && collected.length === 0) {
+            throw primaryError instanceof Error
+              ? primaryError
+              : new Error("similar-entries: all sources failed");
+          }
+        }
+      }
+
+      // Edge case: primary failed AND HiveSense wasn't called (only happens
+      // if we somehow got entries from a hypothetical third source, which
+      // doesn't exist today, so this is defensive).
+      if (collected.length === 0 && primaryError) {
+        throw primaryError instanceof Error
+          ? primaryError
+          : new Error("similar-entries: all sources failed");
+      }
+
+      return collected;
     },
   });
 }

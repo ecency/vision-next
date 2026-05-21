@@ -69,11 +69,11 @@ describe("getSimilarEntriesQueryOptions", () => {
       "similar-entries",
       "alice",
       "my-post",
-      "* -dporn type:post tag:nature,photography",
+      "* type:post tag:nature,photography",
     ]);
   });
 
-  it("sends a ~6 month since window + boolean hide_low; ALWAYS queries HiveSense with full_posts === result_limit", async () => {
+  it("sends popularity sort + ~6 month since + boolean hide_low, and skips HiveSense once the target is filled", async () => {
     fetchMock.mockResolvedValueOnce({
       ok: true,
       json: async () =>
@@ -83,11 +83,6 @@ describe("getSimilarEntriesQueryOptions", () => {
           { author: "e", permlink: "p4" },
         ]),
     });
-    // Hivesense is now queried in parallel even when primary fills the cap;
-    // its extras are merged-then-dropped by the 3-cap (primary stays first).
-    mockCallREST.mockResolvedValueOnce([
-      { author: "z", permlink: "hz", created: freshIso() },
-    ]);
 
     const options = getSimilarEntriesQueryOptions(entry);
     const result = (await (options.queryFn as QueryFn)({
@@ -96,7 +91,7 @@ describe("getSimilarEntriesQueryOptions", () => {
 
     const [, init] = fetchMock.mock.calls[0];
     const payload = JSON.parse((init as RequestInit).body as string);
-    expect(payload.sort).toBe("newest");
+    expect(payload.sort).toBe("popularity");
     expect(payload.hide_low).toBe(false);
     expect(typeof payload.hide_low).toBe("boolean");
     expect(payload.since).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/);
@@ -105,15 +100,31 @@ describe("getSimilarEntriesQueryOptions", () => {
     );
     expect(drift).toBeLessThan(60_000);
 
-    // primary fills the cap; merged hivesense extra is dropped by the 3-cap
+    // primary fills the cap
     expect(result.map((r) => r.author)).toEqual(["c", "d", "e"]);
 
-    // P0 regression: full_posts MUST equal result_limit (both 50), else
-    // HiveSense returns author/permlink stubs without created/title/body.
+    // HiveSense is the slow fallback — must NOT be called when primary
+    // already filled SIMILAR_ENTRIES_TARGET.
+    expect(mockCallREST).not.toHaveBeenCalled();
+  });
+
+  it("calls HiveSense with full_posts === result_limit when primary is short", async () => {
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      json: async () => searchResponse([{ author: "c", permlink: "p2" }]),
+    });
+    mockCallREST.mockResolvedValueOnce([
+      { author: "hs1", permlink: "h1", created: freshIso() },
+      { author: "hs2", permlink: "h2", created: freshIso() },
+    ]);
+
+    const options = getSimilarEntriesQueryOptions(entry);
+    await (options.queryFn as QueryFn)({ signal: undefined });
+
+    // P0 regression: full_posts MUST equal result_limit, else HiveSense
+    // returns author/permlink stubs without created/title/body.
     expect(mockCallREST).toHaveBeenCalledTimes(1);
     const [, , params] = mockCallREST.mock.calls[0];
-    expect(params.result_limit).toBe(50);
-    expect(params.full_posts).toBe(50);
     expect(params.full_posts).toBe(params.result_limit);
     // truncate:0 — the suggestions strip renders title + thumbnail only,
     // so body text is intentionally not hydrated.
