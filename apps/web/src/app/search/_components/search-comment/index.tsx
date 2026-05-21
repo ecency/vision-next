@@ -66,7 +66,7 @@ export function SearchComment({ disableResults }: Props) {
       params?.get("hd") !== "0",
       since,
       undefined,
-      params?.get("nsfw") === "1"
+      params?.get("nsfw") === "1" || undefined
     ),
     initialData: { pages: [], pageParams: [] }
   });
