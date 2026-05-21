@@ -1996,6 +1996,7 @@
     "sort-relevance": "Релевантность",
     "sort-newest": "Недавние",
     "hide-low": "Скрыть контент с низкой выплатой",
+    "include-nsfw": "Показать NSFW контент",
     "show-more": "показать ещё"
   },
   "search-people": {
