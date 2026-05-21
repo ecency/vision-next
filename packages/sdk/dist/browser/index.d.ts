@@ -1280,7 +1280,7 @@ declare const QueryKeys: {
         readonly results: (q: string, sort: string, hideLow: boolean | string, since?: string, scrollId?: string, votes?: number) => readonly ["search", string, string, boolean, string | undefined, string | undefined, number | undefined];
         readonly controversialRising: (what: string, tag: string) => string[];
         readonly similarEntries: (author: string, permlink: string, query: string) => string[];
-        readonly api: (q: string, sort: string, hideLow: boolean, since?: string, votes?: number) => (string | number | boolean | undefined)[];
+        readonly api: (q: string, sort: string, hideLow: boolean, since?: string, votes?: number, includeNsfw?: boolean) => unknown[];
     };
     readonly witnesses: {
         readonly list: (limit: number) => (string | number)[];
@@ -7704,10 +7704,10 @@ declare function getSearchTopicsQueryOptions(q: string, limit?: number): _tansta
     };
 };
 
-declare function getSearchApiInfiniteQueryOptions(q: string, sort: string, hideLow: boolean, since?: string, votes?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<SearchResponse, Error, _tanstack_react_query.InfiniteData<SearchResponse, unknown>, (string | number | boolean | undefined)[], string | undefined>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<SearchResponse, (string | number | boolean | undefined)[], string | undefined> | undefined;
+declare function getSearchApiInfiniteQueryOptions(q: string, sort: string, hideLow: boolean, since?: string, votes?: number, includeNsfw?: boolean): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<SearchResponse, Error, _tanstack_react_query.InfiniteData<SearchResponse, unknown>, unknown[], string | undefined>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<SearchResponse, unknown[], string | undefined> | undefined;
 } & {
-    queryKey: (string | number | boolean | undefined)[] & {
+    queryKey: unknown[] & {
         [dataTagSymbol]: _tanstack_react_query.InfiniteData<SearchResponse, unknown>;
         [dataTagErrorSymbol]: Error;
     };

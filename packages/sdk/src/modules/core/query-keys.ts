@@ -331,8 +331,9 @@ export const QueryKeys = {
       sort: string,
       hideLow: boolean,
       since?: string,
-      votes?: number
-    ) => ["search", "api", q, sort, hideLow, since, votes],
+      votes?: number,
+      includeNsfw?: boolean
+    ) => key("search", "api", q, sort, hideLow, since, votes, includeNsfw),
   },
 
   // ===========================================================================

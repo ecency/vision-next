@@ -64,7 +64,9 @@ export function SearchComment({ disableResults }: Props) {
       params?.get("q") ?? "",
       params?.get("sort") ?? SearchSort.NEWEST,
       params?.get("hd") !== "0",
-      since
+      since,
+      undefined,
+      params?.get("nsfw") === "1"
     ),
     initialData: { pages: [], pageParams: [] }
   });
