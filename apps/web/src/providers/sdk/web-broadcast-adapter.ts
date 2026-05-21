@@ -6,6 +6,7 @@ import {
   getAccountFullQueryOptions,
   broadcastOperations,
   callRPC,
+  callRPCBroadcast,
   buildGrantPostingPermissionOp,
   usrActivity,
 } from '@ecency/sdk';
@@ -179,7 +180,10 @@ async function broadcastWithMetaMaskSnap(
     signatures: result.signatures
   };
 
-  const broadcastResult = await callRPC("condenser_api.broadcast_transaction_synchronous", [signedTx]) as TransactionConfirmation;
+  // Use callRPCBroadcast (15s timeout, broadcast-safe failover) instead of callRPC
+  // (5s timeout, read-path retry) so a slow node doesn't get cut off mid-flight and
+  // the request isn't ping-pong-cancelled across nodes on every 4.9s abort.
+  const broadcastResult = await callRPCBroadcast("condenser_api.broadcast_transaction_synchronous", [signedTx]) as TransactionConfirmation;
   return broadcastResult;
 }
 
