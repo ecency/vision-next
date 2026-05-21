@@ -117,4 +117,22 @@ describe("callRPCBroadcast — browser-style failover", () => {
     // Tried each node exactly once — no wrap-around for broadcasts.
     expect(fetchSpy).toHaveBeenCalledTimes(3);
   });
+
+  // Timeouts are the genuinely ambiguous case: the node may have received the
+  // tx and started processing it. Failing over a timed-out broadcast risks a
+  // second node accepting the dup and surfacing an RPCError that masks the
+  // original success. So timeouts must NOT trigger failover — only RPCErrors
+  // from the *next* attempt are ever the duplicate-rejection problem; if we
+  // never make a next attempt, we can never produce that false negative.
+  it("does NOT fail over on an AbortError/TimeoutError (broadcast may have been processed)", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async () => {
+      const err = new Error("The operation was aborted") as Error & { name: string };
+      err.name = "AbortError";
+      throw err;
+    });
+    await expect(
+      callRPCBroadcast("condenser_api.broadcast_transaction_synchronous", [{}])
+    ).rejects.toThrow(/aborted/i);
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+  });
 });

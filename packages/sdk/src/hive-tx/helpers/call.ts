@@ -408,7 +408,7 @@ function mergeSignals(
 
 /**
  * Low-level JSON-RPC call to a single node. No failover.
- * Throws RPCError for blockchain rejections, NodeError for HTTP 429/503,
+ * Throws RPCError for blockchain rejections, NodeError for HTTP 429/5xx,
  * and generic Error for other transport failures.
  * @param shouldRetry - If true, retries once on the same node for transient errors.
  */
