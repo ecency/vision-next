@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.2.20
+
+### Patch Changes
+
+- fix(sdk): broadcast failover for browser errors + similar-entries limit (#817)
+
 ## 2.2.19
 
 ### Patch Changes
