@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 import { catchPostImage } from "@ecency/render-helper";
 import { dateToFullRelative } from "@/utils";
-import { EntryLink } from "@/features/shared";
 import React, { useMemo, useRef } from "react";
 import { SearchResult } from "@/entities";
 interface Props {
@@ -18,7 +18,7 @@ export function SimilarEntryItem({ entry, i }: Props) {
   );
 
   return (
-    <EntryLink entry={entry}>
+    <Link href={`/@${entry.author}/${entry.permlink}`} className="no-style">
       <motion.div
         ref={ref}
         className="similar-entries-list-item bg-gray-100 hover:bg-blue-dark-sky-040 dark:bg-gray-900 rounded-2xl overflow-hidden transform transition-transform duration-200 hover:rotate-[1.5deg]"
@@ -55,6 +55,6 @@ export function SimilarEntryItem({ entry, i }: Props) {
           <span className="item-footer-date">{dateToFullRelative(entry.created_at)}</span>
         </div>
       </motion.div>
-    </EntryLink>
+    </Link>
   );
 }

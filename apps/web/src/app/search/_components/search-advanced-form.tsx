@@ -20,6 +20,7 @@ export function SearchAdvancedForm() {
   const [date, setDate] = useLocalStorage<DateOpt>("recent_date", DateOpt.Y);
   const [sort, setSort] = useState<SearchSort>(SearchSort.NEWEST);
   const [hideLow, setHideLow] = useState(false);
+  const [includeNsfw, setIncludeNsfw] = useState(false);
 
   useEffect(() => {
     const q = params?.get("q");
@@ -34,6 +35,7 @@ export function SearchAdvancedForm() {
 
     setSort((params?.get("sort") as SearchSort) ?? SearchSort.NEWEST);
     setHideLow(params?.get("hd") !== "0");
+    setIncludeNsfw(params?.get("nsfw") === "1");
     const urlDate = params?.get("date") as DateOpt | null;
     if (urlDate) {
       setDate(urlDate);
@@ -93,6 +95,7 @@ export function SearchAdvancedForm() {
     params.append("sort", sort);
     params.append("adv", "1");
     if (!hideLow) params.append("hd", "0");
+    if (includeNsfw) params.append("nsfw", "1");
     router.push(`?${params.toString()}`);
   };
 
@@ -173,13 +176,22 @@ export function SearchAdvancedForm() {
         </div>
       </div>
       <div className="flex justify-between items-center">
-        <FormControl
-          id="hide-low"
-          type="checkbox"
-          label={i18next.t("search-comment.hide-low")}
-          checked={hideLow}
-          onChange={(v) => setHideLow(v)}
-        />
+        <div className="flex items-center gap-4">
+          <FormControl
+            id="hide-low"
+            type="checkbox"
+            label={i18next.t("search-comment.hide-low")}
+            checked={hideLow}
+            onChange={(v) => setHideLow(v)}
+          />
+          <FormControl
+            id="include-nsfw"
+            type="checkbox"
+            label={i18next.t("search-comment.include-nsfw")}
+            checked={includeNsfw}
+            onChange={(v) => setIncludeNsfw(v)}
+          />
+        </div>
 
         <Button onClick={apply}>{i18next.t("g.apply")}</Button>
       </div>

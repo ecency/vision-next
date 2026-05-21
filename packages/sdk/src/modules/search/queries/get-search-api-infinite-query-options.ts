@@ -7,10 +7,11 @@ export function getSearchApiInfiniteQueryOptions(
   sort: string,
   hideLow: boolean,
   since?: string,
-  votes?: number
+  votes?: number,
+  includeNsfw?: boolean
 ) {
   return infiniteQueryOptions({
-    queryKey: QueryKeys.search.api(q, sort, hideLow, since, votes),
+    queryKey: QueryKeys.search.api(q, sort, hideLow, since, votes, includeNsfw),
     queryFn: async ({ pageParam, signal }: { pageParam: string | undefined; signal: AbortSignal }) => {
       interface SearchApiPayload {
         q: string;
@@ -19,6 +20,7 @@ export function getSearchApiInfiniteQueryOptions(
         since?: string;
         scroll_id?: string;
         votes?: number;
+        include_nsfw?: number;
       }
 
       const payload: SearchApiPayload = { q, sort, hide_low: hideLow };
@@ -31,6 +33,9 @@ export function getSearchApiInfiniteQueryOptions(
       }
       if (votes !== undefined) {
         payload.votes = votes;
+      }
+      if (includeNsfw) {
+        payload.include_nsfw = 1;
       }
 
       const response = await fetch(CONFIG.privateApiHost + "/search-api/search", {
