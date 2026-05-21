@@ -108,12 +108,12 @@ describe("getSimilarEntriesQueryOptions", () => {
     // primary fills the cap; merged hivesense extra is dropped by the 3-cap
     expect(result.map((r) => r.author)).toEqual(["c", "d", "e"]);
 
-    // P0 regression: full_posts MUST equal result_limit (both 12), else
+    // P0 regression: full_posts MUST equal result_limit (both 50), else
     // HiveSense returns author/permlink stubs without created/title/body.
     expect(mockCallREST).toHaveBeenCalledTimes(1);
     const [, , params] = mockCallREST.mock.calls[0];
-    expect(params.result_limit).toBe(12);
-    expect(params.full_posts).toBe(12);
+    expect(params.result_limit).toBe(50);
+    expect(params.full_posts).toBe(50);
     expect(params.full_posts).toBe(params.result_limit);
     // truncate:0 — the suggestions strip renders title + thumbnail only,
     // so body text is intentionally not hydrated.
