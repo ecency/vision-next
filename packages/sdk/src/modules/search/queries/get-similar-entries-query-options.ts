@@ -16,8 +16,12 @@ const SIMILAR_ENTRIES_TARGET = 3;
 // NOT a boolean. The remainder come back as author/permlink stubs the
 // recency/map logic must drop. So `full_posts` MUST equal `result_limit`;
 // the old `full_posts: 1` made HiveSense usable for exactly ONE of
-// `result_limit` results, so it ~never backfilled.
-const SIMILAR_ENTRIES_LIMIT = 12;
+// `result_limit` results, so it ~never backfilled. Bumped to 50 because the
+// 6-month recency filter drops most semantic neighbours (HiveSense ranks by
+// embedding similarity with no recency bias), and the search-api primary
+// path is currently producing 0 hits for tag-filtered queries, leaving
+// HiveSense as the sole source.
+const SIMILAR_ENTRIES_LIMIT = 50;
 
 // The strip is hidden below this many results. A lone suggestion looks
 // sparse, and the previous all-or-nothing-at-exactly-3 hid it on most posts.

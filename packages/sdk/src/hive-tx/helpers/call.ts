@@ -37,23 +37,69 @@ class NodeError extends Error {
 /** Errors that indicate the request definitely never reached the server. */
 const PRE_CONNECTION_ERRORS = ['ECONNREFUSED', 'ENOTFOUND', 'EHOSTUNREACH', 'EAI_AGAIN']
 
+/** Browser fetch network-failure messages — emitted by Chromium/Firefox/Safari
+ *  when CORS preflight fails, DNS fails, TLS fails, or the response is blocked.
+ *  These map to scenarios where retrying the same signed broadcast is safe: the
+ *  request either never reached the node, or its response was blocked but a
+ *  re-broadcast of the *same* signed tx will be deduped by Hive (same trx_id). */
+const BROWSER_NETWORK_ERRORS = [
+  'Failed to fetch',                       // Chromium
+  'NetworkError when attempting to fetch', // Firefox
+  'Load failed',                           // Safari
+  'fetch failed'                           // Node 18+ undici / Bun — also covered via cause chain
+]
+
 /**
- * Check if an error is a pre-connection error (request never reached server).
- *
- * Node.js fetch wraps connection failures as TypeError('fetch failed') with
- * the real error code nested in the cause chain: e.cause.code, e.cause.cause.code, etc.
- * We walk up to 5 levels deep to find the actual code.
+ * Concatenate the error's surface text + the messages/codes from up to 5
+ * levels of nested `cause`. Node.js fetch wraps connection failures as
+ * `TypeError('fetch failed')` with the real `code` (ECONNREFUSED, etc.)
+ * nested in the cause chain. Browser fetch failures have no cause but
+ * carry their identifier in `message`.
  */
-function isPreConnectionError(e: any): boolean {
-  if (!e) return false
-  const parts: string[] = [String(e.message || ''), String(e.code || '')]
+function flattenErrorText(e: any): string {
+  if (!e) return ''
+  const parts: string[] = [String(e.name || ''), String(e.message || ''), String(e.code || '')]
   let cause = e.cause
   for (let depth = 0; cause && depth < 5; depth++) {
     parts.push(String(cause.code || ''), String(cause.message || ''))
     cause = cause.cause
   }
-  const combined = parts.join(' ')
-  return PRE_CONNECTION_ERRORS.some((code) => combined.includes(code))
+  return parts.join(' ')
+}
+
+/**
+ * Decide whether a broadcast attempt can safely be retried on another node.
+ *
+ * Safe to retry (same signed tx → Hive dedupes by trx_id at the mempool layer):
+ *  - Pre-connection failures (ECONNREFUSED, ENOTFOUND, etc.) — request never sent.
+ *  - Browser fetch network failures (CORS block, TLS error, DNS) — TypeError with
+ *    a well-known message string.
+ *  - JSON parse failures — node returned an HTML error page (typical for
+ *    Cloudflare 1033 tunnel-down / 5xx interstitials), so the request never
+ *    reached the Hive RPC layer.
+ *  - NodeError (HTTP 429/5xx surfaced from jsonRPCCall) — already known transient.
+ *
+ * NOT safe to retry:
+ *  - RPCError — the node accepted the request and the blockchain rejected it.
+ *    Retrying on another node would either get the same rejection or accept
+ *    a different one; surface the original error instead.
+ */
+function isBroadcastSafeToRetry(e: any): boolean {
+  if (!e) return false
+  if (e instanceof NodeError) return true
+  if (e instanceof RPCError) return false
+
+  const text = flattenErrorText(e)
+  if (PRE_CONNECTION_ERRORS.some((code) => text.includes(code))) return true
+  if (BROWSER_NETWORK_ERRORS.some((msg) => text.includes(msg))) return true
+
+  // res.json() against an HTML body (Cloudflare/proxy interstitials) throws
+  // SyntaxError. The Hive RPC layer never saw the tx, so failover is safe.
+  if (e instanceof SyntaxError) return true
+  // Some runtimes surface JSON parse errors as plain Error with this text.
+  if (/Unexpected token|JSON\.parse|Unexpected end of JSON/i.test(text)) return true
+
+  return false
 }
 
 // ── Node Health Tracker ─────────────────────────────────────────────────────
@@ -362,7 +408,7 @@ function mergeSignals(
 
 /**
  * Low-level JSON-RPC call to a single node. No failover.
- * Throws RPCError for blockchain rejections, NodeError for HTTP 429/503,
+ * Throws RPCError for blockchain rejections, NodeError for HTTP 429/5xx,
  * and generic Error for other transport failures.
  * @param shouldRetry - If true, retries once on the same node for transient errors.
  */
@@ -407,8 +453,16 @@ const jsonRPCCall = async (
       const cooldownMs = retryAfter ? parseInt(retryAfter, 10) * 1000 : 10_000
       throw new NodeError(url, `HTTP 429 Rate Limited`, cooldownMs)
     }
-    if (res.status === 503) {
-      throw new NodeError(url, `HTTP 503 Service Unavailable`)
+    // Any other 5xx is a node-level failure. Common cases:
+    //   502 Bad Gateway       — upstream HAF/jussi down
+    //   503 Service Unavail   — node draining / maintenance
+    //   504 Gateway Timeout   — slow upstream
+    //   520-530               — Cloudflare interstitials (1033 tunnel error → 530)
+    // Without this branch, the HTML error-page body would fall into res.json()
+    // and throw a generic SyntaxError downstream, making failover guess at
+    // whether the request reached the node.
+    if (res.status >= 500 && res.status < 600) {
+      throw new NodeError(url, `HTTP ${res.status} from ${url}`)
     }
 
     const result = (await res.json()) as CallResponse
@@ -604,10 +658,12 @@ export const callRPCBroadcast = async <T = any>(
       recordError(rpcHealthTracker, node, e, api)
       lastError = e
 
-      // Only retry broadcasts on pre-connection errors where the request
-      // definitely never reached the server. On timeouts or HTTP errors,
-      // the server may have received and processed the transaction.
-      if (!isPreConnectionError(e)) {
+      // Broadcast safety: only fail over when the request is safe to re-send.
+      // `broadcastOperations` signs the tx exactly once and `callRPCBroadcast`
+      // reuses that signed payload across nodes, so any case where the next
+      // node would dedupe by trx_id is fine. RPCErrors (real blockchain
+      // rejections) propagate immediately — see isBroadcastSafeToRetry.
+      if (!isBroadcastSafeToRetry(e)) {
         throw e
       }
     }
