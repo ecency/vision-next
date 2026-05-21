@@ -1996,6 +1996,7 @@
     "sort-relevance": "相关性",
     "sort-newest": "最近",
     "hide-low": "隐藏低收入的内容",
+    "include-nsfw": "显示 NSFW 内容",
     "show-more": "显示更多"
   },
   "search-people": {
