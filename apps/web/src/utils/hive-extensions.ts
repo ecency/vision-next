@@ -14,7 +14,7 @@
 
 import { AuthorityTypes, KeyChainImpl, TxResponse } from "@/types";
 import type { PeakVaultApi } from "@/types/app-window";
-import { extensionErrorMessage, isUserCancellation } from "./extension-error";
+import { extensionErrorMessage, isUserCancellation, isRetryableNodeError } from "./extension-error";
 import publicNodes from "../../public/public-nodes.json";
 
 // ---------------------------------------------------------------------------
@@ -367,19 +367,24 @@ function broadcastViaKeychain(
       return response.result;
     }
 
-    // The user's own Keychain node failed to broadcast. If this wasn't a user
-    // cancellation, retry once through a known-good node so a flaky/outaged
-    // default node (e.g. the common api.hive.blog default during maintenance)
-    // doesn't block the user. Only when the caller didn't pin a node (rpc ==
-    // null) — i.e. Keychain used the user's own setting. This re-opens the
-    // confirmation popup, so it is gated to genuine broadcast failures.
+    // The user's own Keychain node failed to broadcast. Retry once through a
+    // known-good node so a flaky/outaged default node (e.g. the common
+    // api.hive.blog default during maintenance) doesn't block the user. Gated to:
+    //  - rpc == null (Keychain used the user's own node, not a caller-pinned one)
+    //  - a node/transport failure (isRetryableNodeError) — NOT a user cancel and
+    //    NOT a deterministic chain error (missing authority, RC, already
+    //    broadcasted), which fail identically on any node and would only re-open
+    //    the confirmation popup for nothing.
     const fallbackNode = rpc == null ? getKeychainFallbackRpc() : null;
-    if (fallbackNode && !isUserCancellation(response)) {
+    if (fallbackNode && !isUserCancellation(response) && isRetryableNodeError(response)) {
       return attempt(fallbackNode).then((retry) => {
         if (retry.success) {
           return retry.result;
         }
-        throw new Error(extensionErrorMessage(retry, "Extension broadcast failed"));
+        // Retry also failed: surface the FIRST attempt's error — it's the most
+        // semantically relevant (e.g. lets the SDK detect missing-authority and
+        // trigger the auth-upgrade flow) rather than the fallback node's error.
+        throw new Error(extensionErrorMessage(response, "Extension broadcast failed"));
       });
     }
 

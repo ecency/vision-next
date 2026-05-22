@@ -1,4 +1,8 @@
-import { extensionErrorMessage, isUserCancellation } from "../../utils/extension-error";
+import {
+  extensionErrorMessage,
+  isUserCancellation,
+  isRetryableNodeError
+} from "../../utils/extension-error";
 
 describe("extensionErrorMessage", () => {
   it("falls back to the provided default when nothing is present", () => {
@@ -40,6 +44,9 @@ describe("isUserCancellation", () => {
     [{ error: "user_cancel" }],
     [{ message: "Request was canceled by the user." }],
     [{ message: "User declined the transaction" }],
+    // object-shaped errors (e.g. EIP-1193 / wallet code 4001)
+    [{ error: { code: 4001, message: "User rejected request" } }],
+    [{ error: { message: "user_cancel" } }],
   ])("treats %o as a cancellation", (resp) => {
     expect(isUserCancellation(resp)).toBe(true);
   });
@@ -48,7 +55,30 @@ describe("isUserCancellation", () => {
     [{}],
     [{ message: "missing required active authority" }],
     [{ error: { code: -32000, message: "insufficient resource credits" } }],
-  ])("treats %o as a real failure (retryable)", (resp) => {
+  ])("treats %o as NOT a cancellation", (resp) => {
     expect(isUserCancellation(resp)).toBe(false);
+  });
+});
+
+describe("isRetryableNodeError", () => {
+  it.each([
+    [{ message: "Request failed with status code 502" }],
+    [{ message: "All origin servers are unavailable" }],
+    [{ error: "ETIMEDOUT" }],
+    [{ message: "timeout of 30000ms exceeded" }],
+    [{ error: { message: "connect ECONNREFUSED 1.2.3.4:443" } }],
+    [{ message: "bad gateway" }],
+  ])("retries node/transport failure %o", (resp) => {
+    expect(isRetryableNodeError(resp)).toBe(true);
+  });
+
+  it.each([
+    [{}], // no signal → don't blindly re-prompt
+    [{ message: "missing required active authority" }],
+    [{ message: "insufficient resource credits" }],
+    [{ error: "user_cancel" }],
+    [{ message: "Transaction already in the blockchain" }],
+  ])("does NOT retry deterministic/cancel failure %o", (resp) => {
+    expect(isRetryableNodeError(resp)).toBe(false);
   });
 });

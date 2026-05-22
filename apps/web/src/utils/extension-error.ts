@@ -9,6 +9,25 @@ function safeStringify(value: unknown): string {
 }
 
 /**
+ * Normalizes an extension `error` field to a lowercased string for matching.
+ * Extensions return `error` either as a string code or as an object
+ * (e.g. `{ code: 4001, message: "User rejected request" }`), so we pull the
+ * common message-bearing fields before falling back to a serialized form.
+ */
+function normalizeErrorText(error: unknown): string {
+  if (error == null) return "";
+  if (typeof error === "string") return error.toLowerCase();
+  if (typeof error === "object") {
+    const e = error as Record<string, unknown>;
+    const fields = [e.message, e.error, e.reason, e.type]
+      .filter((v): v is string => typeof v === "string")
+      .join(" ");
+    return (fields || safeStringify(error)).toLowerCase();
+  }
+  return String(error).toLowerCase();
+}
+
+/**
  * Builds a meaningful error message from a Keychain-style failure response.
  *
  * Keychain-compatible extensions return the human-readable reason in `message`
@@ -39,17 +58,55 @@ export function extensionErrorMessage(
 /**
  * True when a Keychain-style failure represents the user declining/cancelling
  * the request (rather than a node, network, or validation error). Used to avoid
- * pointless broadcast retries that would re-open the extension popup.
+ * pointless broadcast retries that would re-open the extension popup. Handles
+ * both string and object-shaped `error` fields (e.g. `{ code: 4001, message:
+ * "User rejected request" }`).
  */
 export function isUserCancellation(
   resp: Pick<TxResponse, "message" | "error">
 ): boolean {
-  const error = typeof resp.error === "string" ? resp.error.toLowerCase() : "";
-  const message = (resp.message ?? "").toLowerCase();
+  const haystack = `${normalizeErrorText(resp.error)} ${(resp.message ?? "").toLowerCase()}`;
   return (
-    error === "user_cancel" ||
-    error.includes("cancel") ||
-    message.includes("cancel") ||
-    message.includes("declined")
+    haystack.includes("cancel") || // user_cancel, cancelled, canceled
+    haystack.includes("declined") ||
+    haystack.includes("reject") // "User rejected request" (code 4001)
   );
+}
+
+/**
+ * True when a failure looks like a node/transport/connectivity problem, so
+ * retrying the broadcast through a different RPC node could plausibly succeed.
+ * Deterministic chain errors (missing authority, insufficient RC, invalid op,
+ * already broadcasted) fail identically on any node, so they return false —
+ * retrying them would only re-open the extension popup for no benefit. With no
+ * usable signal at all we return false rather than blindly re-prompting.
+ */
+export function isRetryableNodeError(
+  resp: Pick<TxResponse, "message" | "error">
+): boolean {
+  const text = `${normalizeErrorText(resp.error)} ${(resp.message ?? "").toLowerCase()}`.trim();
+  if (!text) return false;
+  return [
+    "timeout",
+    "timed out",
+    "etimedout",
+    "connection refused",
+    "econnrefused",
+    "enotfound",
+    "eai_again",
+    "econnreset",
+    "socket hang up",
+    "network",
+    "failed to fetch",
+    "fetch failed",
+    "bad gateway",
+    "gateway timeout",
+    "service unavailable",
+    "temporarily unavailable",
+    "origin servers are unavailable",
+    "internal server error",
+    "could not connect",
+    "unable to connect",
+    "status code 50", // axios "Request failed with status code 500/502/503/504"
+  ].some((sig) => text.includes(sig));
 }
