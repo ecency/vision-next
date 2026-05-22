@@ -36,14 +36,14 @@ describe('getAccountPostsInfiniteQueryOptions', () => {
 
   it('should return [] when pageParam.hasNextPage is false', async () => {
     const options = getAccountPostsInfiniteQueryOptions('testuser')
-    const result = await options.queryFn(makeInfiniteContext(options, { hasNextPage: false }))
+    const result = await (options.queryFn as any)(makeInfiniteContext(options, { hasNextPage: false }))
     expect(result).toEqual([])
     expect(mockGetAccountPosts).not.toHaveBeenCalled()
   })
 
   it('should return [] when username is undefined', async () => {
     const options = getAccountPostsInfiniteQueryOptions(undefined)
-    const result = await options.queryFn(makeInfiniteContext(options, { hasNextPage: true }))
+    const result = await (options.queryFn as any)(makeInfiniteContext(options, { hasNextPage: true }))
     expect(result).toEqual([])
   })
 
@@ -55,7 +55,7 @@ describe('getAccountPostsInfiniteQueryOptions', () => {
     mockGetAccountPosts.mockResolvedValue(mockEntries)
 
     const options = getAccountPostsInfiniteQueryOptions('testuser', 'posts', 20, 'obs')
-    const result = await options.queryFn(makeInfiniteContext(options, { hasNextPage: true }))
+    const result = await (options.queryFn as any)(makeInfiniteContext(options, { hasNextPage: true }))
 
     expect(mockGetAccountPosts).toHaveBeenCalledWith('posts', 'testuser', '', '', 20, 'obs', expect.any(Object))
     expect(result).toEqual(mockEntries)
@@ -65,7 +65,7 @@ describe('getAccountPostsInfiniteQueryOptions', () => {
     mockGetAccountPosts.mockResolvedValue(null)
 
     const options = getAccountPostsInfiniteQueryOptions('testuser')
-    const result = await options.queryFn(makeInfiniteContext(options, { hasNextPage: true }))
+    const result = await (options.queryFn as any)(makeInfiniteContext(options, { hasNextPage: true }))
 
     expect(result).toEqual([])
   })
@@ -75,7 +75,7 @@ describe('getAccountPostsInfiniteQueryOptions', () => {
 
     const options = getAccountPostsInfiniteQueryOptions('testuser')
     await expect(
-      options.queryFn(makeInfiniteContext(options, { hasNextPage: true }))
+      (options.queryFn as any)(makeInfiniteContext(options, { hasNextPage: true }))
     ).rejects.toThrow('RPC timeout')
   })
 
@@ -83,7 +83,7 @@ describe('getAccountPostsInfiniteQueryOptions', () => {
     mockGetAccountPosts.mockResolvedValue([])
 
     const options = getAccountPostsInfiniteQueryOptions('testuser', 'blog', 10, 'obs')
-    await options.queryFn(makeInfiniteContext(options, {
+    await (options.queryFn as any)(makeInfiniteContext(options, {
       author: 'prev-author',
       permlink: 'prev-permlink',
       hasNextPage: true
@@ -110,7 +110,7 @@ describe('getAccountPostsQueryOptions', () => {
 
   it('should return [] when username is undefined', async () => {
     const options = getAccountPostsQueryOptions(undefined)
-    const result = await options.queryFn()
+    const result = await (options.queryFn as any)()
     expect(result).toEqual([])
     expect(mockGetAccountPosts).not.toHaveBeenCalled()
   })
@@ -120,7 +120,7 @@ describe('getAccountPostsQueryOptions', () => {
     mockGetAccountPosts.mockResolvedValue(mockEntries)
 
     const options = getAccountPostsQueryOptions('user', 'posts', 'sa', 'sp', 20, 'obs')
-    const result = await options.queryFn()
+    const result = await (options.queryFn as any)()
 
     expect(mockGetAccountPosts).toHaveBeenCalledWith('posts', 'user', 'sa', 'sp', 20, 'obs', undefined)
     expect(result).toEqual(mockEntries)
@@ -130,7 +130,7 @@ describe('getAccountPostsQueryOptions', () => {
     mockGetAccountPosts.mockResolvedValue(null)
 
     const options = getAccountPostsQueryOptions('user')
-    const result = await options.queryFn()
+    const result = await (options.queryFn as any)()
 
     expect(result).toEqual([])
   })

@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { getPostsRankedInfiniteQueryOptions, getPostsRankedQueryOptions } from './get-posts-ranked-query-options'
-import { CONFIG } from '@/modules/core'
 
 const mockCallRPC = vi.hoisted(() => vi.fn());
 const mockGetPostsRanked = vi.hoisted(() => vi.fn());
@@ -52,7 +51,7 @@ describe('getPostsRankedInfiniteQueryOptions', () => {
 
   it('should return [] when pageParam.hasNextPage is false', async () => {
     const options = getPostsRankedInfiniteQueryOptions('created', 'hive')
-    const result = await options.queryFn(makeInfiniteContext(options, { hasNextPage: false }))
+    const result = await (options.queryFn as any)(makeInfiniteContext(options, { hasNextPage: false }))
     expect(result).toEqual([])
   })
 
@@ -60,7 +59,7 @@ describe('getPostsRankedInfiniteQueryOptions', () => {
     mockCallRPC.mockResolvedValue(null)
 
     const options = getPostsRankedInfiniteQueryOptions('created', 'hive')
-    const result = await options.queryFn(makeInfiniteContext(options, { hasNextPage: true }))
+    const result = await (options.queryFn as any)(makeInfiniteContext(options, { hasNextPage: true }))
 
     expect(result).toEqual([])
   })
@@ -70,7 +69,7 @@ describe('getPostsRankedInfiniteQueryOptions', () => {
 
     const options = getPostsRankedInfiniteQueryOptions('created', 'hive')
     await expect(
-      options.queryFn(makeInfiniteContext(options, { hasNextPage: true }))
+      (options.queryFn as any)(makeInfiniteContext(options, { hasNextPage: true }))
     ).rejects.toThrow('[SDK] get_ranked_posts returned string')
   })
 
@@ -84,7 +83,7 @@ describe('getPostsRankedInfiniteQueryOptions', () => {
     mockCallRPC.mockResolvedValue(mockEntries)
 
     const options = getPostsRankedInfiniteQueryOptions('created', 'hive')
-    const result = await options.queryFn(makeInfiniteContext(options, { hasNextPage: true }))
+    const result = await (options.queryFn as any)(makeInfiniteContext(options, { hasNextPage: true }))
 
     expect(result).toHaveLength(3)
     // Pinned entry should be first regardless of date
@@ -102,7 +101,7 @@ describe('getPostsRankedInfiniteQueryOptions', () => {
     mockCallRPC.mockResolvedValue(mockEntries)
 
     const options = getPostsRankedInfiniteQueryOptions('hot', 'hive')
-    const result = await options.queryFn(makeInfiniteContext(options, { hasNextPage: true }))
+    const result = await (options.queryFn as any)(makeInfiniteContext(options, { hasNextPage: true }))
 
     // "hot" preserves original order
     expect(result[0].permlink).toBe('p1')
@@ -114,7 +113,7 @@ describe('getPostsRankedInfiniteQueryOptions', () => {
 
     const options = getPostsRankedInfiniteQueryOptions('created', 'hive')
     await expect(
-      options.queryFn(makeInfiniteContext(options, { hasNextPage: true }))
+      (options.queryFn as any)(makeInfiniteContext(options, { hasNextPage: true }))
     ).rejects.toThrow('network')
   })
 })
@@ -129,7 +128,7 @@ describe('getPostsRankedQueryOptions', () => {
     mockGetPostsRanked.mockResolvedValue(mockEntries)
 
     const options = getPostsRankedQueryOptions('created', '', '', 20, 'hive', 'obs')
-    const result = await options.queryFn()
+    const result = await (options.queryFn as any)()
 
     expect(mockGetPostsRanked).toHaveBeenCalledWith('created', '', '', 20, 'hive', 'obs', undefined)
     expect(result).toEqual(mockEntries)
@@ -139,7 +138,7 @@ describe('getPostsRankedQueryOptions', () => {
     mockGetPostsRanked.mockResolvedValue(null)
 
     const options = getPostsRankedQueryOptions('created')
-    const result = await options.queryFn()
+    const result = await (options.queryFn as any)()
 
     expect(result).toEqual([])
   })
@@ -148,6 +147,6 @@ describe('getPostsRankedQueryOptions', () => {
     mockGetPostsRanked.mockRejectedValue(new Error('timeout'))
 
     const options = getPostsRankedQueryOptions('created')
-    await expect(options.queryFn()).rejects.toThrow('timeout')
+    await expect((options.queryFn as any)()).rejects.toThrow('timeout')
   })
 })

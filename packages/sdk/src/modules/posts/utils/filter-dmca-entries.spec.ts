@@ -1,7 +1,6 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { filterDmcaEntry } from './filter-dmca-entries'
 import { Entry } from '../types'
-import { CONFIG } from '@/modules/core'
 
 // Mock the CONFIG
 vi.mock('@/modules/core', () => ({

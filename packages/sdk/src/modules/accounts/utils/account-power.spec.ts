@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { powerRechargeTime, votingRshares, votingValue } from './account-power'
 import { FullAccount } from '../types'
 import { DynamicProps } from '@/modules/core/types'

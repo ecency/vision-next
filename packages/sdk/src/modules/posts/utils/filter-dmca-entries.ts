@@ -11,7 +11,8 @@ export function filterDmcaEntry(entry: Entry): Entry | null | undefined;
 export function filterDmcaEntry(entries: Entry[]): Entry[];
 export function filterDmcaEntry(entryOrEntries: Entry | Entry[] | null | undefined): Entry | Entry[] | null | undefined {
   if (Array.isArray(entryOrEntries)) {
-    return entryOrEntries.map((entry) => applyFilter(entry));
+    // Array elements are non-null Entries, so applyFilter never returns nullish here.
+    return entryOrEntries.map((entry) => applyFilter(entry)) as Entry[];
   }
   return applyFilter(entryOrEntries);
 }

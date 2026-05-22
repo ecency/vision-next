@@ -67,16 +67,8 @@ const StringSerializer = (buffer: ByteBuffer, data: string) => {
   buffer.writeVString(data)
 }
 
-const Int8Serializer = (buffer: ByteBuffer, data: number) => {
-  buffer.writeInt8(data)
-}
-
 const Int16Serializer = (buffer: ByteBuffer, data: number) => {
   buffer.writeInt16(data)
-}
-
-const Int32Serializer = (buffer: ByteBuffer, data: number) => {
-  buffer.writeInt32(data)
 }
 
 const Int64Serializer = (buffer: ByteBuffer, data: number | bigint) => {

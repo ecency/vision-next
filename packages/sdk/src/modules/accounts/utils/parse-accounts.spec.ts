@@ -57,11 +57,11 @@ describe('parseAccounts', () => {
       const result = parseAccounts([rawAccount])
 
       expect(result).toHaveLength(1)
-      expect(result[0].name).toBe('testuser')
-      expect(result[0].profile).toBeDefined()
-      expect(result[0].profile.name).toBe('Test User')
-      expect(result[0].profile.about).toBe('Test bio')
-      expect(result[0].profile.profile_image).toBe('https://example.com/avatar.jpg')
+      expect(result[0]!.name).toBe('testuser')
+      expect(result[0]!.profile).toBeDefined()
+      expect(result[0]!.profile!.name).toBe('Test User')
+      expect(result[0]!.profile!.about).toBe('Test bio')
+      expect(result[0]!.profile!.profile_image).toBe('https://example.com/avatar.jpg')
     })
 
     it('should fallback to json_metadata if posting_json_metadata has no profile', () => {
@@ -80,9 +80,9 @@ describe('parseAccounts', () => {
 
       const result = parseAccounts([rawAccount] as any)
 
-      expect(result[0].profile).toBeDefined()
-      expect(result[0].profile.name).toBe('Fallback Name')
-      expect(result[0].profile.about).toBe('Fallback bio')
+      expect(result[0]!.profile).toBeDefined()
+      expect(result[0]!.profile!.name).toBe('Fallback Name')
+      expect(result[0]!.profile!.about).toBe('Fallback bio')
     })
 
     it('should use empty profile if no metadata available', () => {
@@ -96,13 +96,13 @@ describe('parseAccounts', () => {
 
       const result = parseAccounts([rawAccount] as any)
 
-      expect(result[0].profile).toBeDefined()
-      expect(result[0].profile.name).toBe('')
-      expect(result[0].profile.about).toBe('')
-      expect(result[0].profile.profile_image).toBe('')
-      expect(result[0].profile.cover_image).toBe('')
-      expect(result[0].profile.website).toBe('')
-      expect(result[0].profile.location).toBe('')
+      expect(result[0]!.profile).toBeDefined()
+      expect(result[0]!.profile!.name).toBe('')
+      expect(result[0]!.profile!.about).toBe('')
+      expect(result[0]!.profile!.profile_image).toBe('')
+      expect(result[0]!.profile!.cover_image).toBe('')
+      expect(result[0]!.profile!.website).toBe('')
+      expect(result[0]!.profile!.location).toBe('')
     })
 
     it('should handle invalid JSON in metadata gracefully', () => {
@@ -116,8 +116,8 @@ describe('parseAccounts', () => {
 
       const result = parseAccounts([rawAccount] as any)
 
-      expect(result[0].profile).toBeDefined()
-      expect(result[0].profile.name).toBe('')
+      expect(result[0]!.profile).toBeDefined()
+      expect(result[0]!.profile!.name).toBe('')
     })
 
     it('should parse multiple accounts', () => {
@@ -151,9 +151,9 @@ describe('parseAccounts', () => {
       const result = parseAccounts(rawAccounts as any)
 
       expect(result).toHaveLength(3)
-      expect(result[0].profile.name).toBe('User One')
-      expect(result[1].profile.name).toBe('User Two')
-      expect(result[2].profile.name).toBe('User Three')
+      expect(result[0]!.profile!.name).toBe('User One')
+      expect(result[1]!.profile!.name).toBe('User Two')
+      expect(result[2]!.profile!.name).toBe('User Three')
     })
   })
 
@@ -174,8 +174,8 @@ describe('parseAccounts', () => {
 
       const result = parseAccounts([rawAccount] as any)
 
-      expect(result[0].profile).toBeDefined()
-      expect(result[0].profile.name).toBe('')
+      expect(result[0]!.profile).toBeDefined()
+      expect(result[0]!.profile!.name).toBe('')
     })
 
     it('should preserve all account fields', () => {
@@ -222,12 +222,12 @@ describe('parseAccounts', () => {
 
       const result = parseAccounts([rawAccount])
 
-      expect(result[0].post_count).toBe(42)
-      expect(result[0].reputation).toBe(70)
-      expect(result[0].balance).toBe('100.000 HIVE')
-      expect(result[0].vesting_shares).toBe('1000000.000000 VESTS')
-      expect(result[0].witness_votes).toEqual(['witness1', 'witness2'])
-      expect(result[0].pending_claimed_accounts).toBe(5)
+      expect(result[0]!.post_count).toBe(42)
+      expect(result[0]!.reputation).toBe(70)
+      expect(result[0]!.balance).toBe('100.000 HIVE')
+      expect(result[0]!.vesting_shares).toBe('1000000.000000 VESTS')
+      expect(result[0]!.witness_votes).toEqual(['witness1', 'witness2'])
+      expect(result[0]!.pending_claimed_accounts).toBe(5)
     })
   })
 })
