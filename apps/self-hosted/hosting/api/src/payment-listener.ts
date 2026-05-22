@@ -5,7 +5,7 @@
  * and processes subscription payments automatically.
  */
 
-import { callRPC, config as hiveTxConfig } from '@ecency/sdk/hive';
+import { callRPC, setNodes } from '@ecency/sdk/hive';
 import { db } from './db/client';
 import { TenantService } from './services/tenant-service';
 import { ConfigService } from './services/config-service';
@@ -21,8 +21,9 @@ const CONFIG = {
   POLL_INTERVAL_MS: 3000, // 3 seconds (1 block)
 };
 
-// Configure hive-tx nodes
-hiveTxConfig.nodes = CONFIG.HIVE_API_NODES;
+// Configure hive-tx nodes. setNodes() trims/validates entries and no-ops on an
+// empty list, so a misconfigured HIVE_API_URL can't wipe the built-in fallbacks.
+setNodes(CONFIG.HIVE_API_NODES);
 
 class PaymentListener {
   private lastProcessedBlock: number = 0;
