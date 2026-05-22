@@ -56,7 +56,7 @@ export function Promote({ onHide, entry }: Props) {
   });
   const { data: paths } = useQuery(getSearchPathQueryOptions(debouncedPathQuery));
 
-  const { mutateAsync: promote, isPending: isPromoting } = usePromoteMutation();
+  const { mutateAsync: promote, isPending: isPromoting, error: promoteError } = usePromoteMutation();
   const { mutateAsync: preCheck, error: postError, isPending: isPreCheckPending } = usePreCheckPromote(() => {});
 
   const inProgress = useMemo(
@@ -110,10 +110,16 @@ export function Promote({ onHide, entry }: Props) {
   }, []);
 
   const handleSubmit = useCallback(async () => {
-    await preCheck(path);
-    const [author, permlink] = path.replace("@", "").split("/");
-    await promote({ author, permlink, duration });
-    setStep(2);
+    try {
+      await preCheck(path);
+      const [author, permlink] = path.replace("@", "").split("/");
+      await promote({ author, permlink, duration });
+      setStep(2);
+    } catch (e) {
+      // preCheck and promote surface their failures via postError / promoteError
+      // state; swallow here so a rejected sign/broadcast (e.g. cancelled in the
+      // extension) doesn't bubble up as an unhandled promise rejection.
+    }
   }, [preCheck, duration, path, promote]);
 
   const finish = () => onHide();
@@ -201,6 +207,9 @@ export function Promote({ onHide, entry }: Props) {
                     <Button onClick={handleSubmit} disabled={!canSubmit || inProgress}>
                       {i18next.t("g.next")}
                     </Button>
+                    {promoteError && (
+                      <small className="block pl-3 text-red">{promoteError.message}</small>
+                    )}
                   </div>
                 </div>
               </div>

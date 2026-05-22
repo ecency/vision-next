@@ -3,6 +3,10 @@ import { Symbol } from "@/utils";
 export interface TxResponse {
   success: boolean;
   result: string;
+  /** Human-readable message returned by the extension (e.g. cancel reason, node error summary). */
+  message?: string;
+  /** Underlying error returned by the extension — a string code or the raw RPC error object. */
+  error?: unknown;
 }
 
 export type AuthorityTypes = "Owner" | "Active" | "Posting" | "Memo";

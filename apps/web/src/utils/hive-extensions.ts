@@ -14,6 +14,8 @@
 
 import { AuthorityTypes, KeyChainImpl, TxResponse } from "@/types";
 import type { PeakVaultApi } from "@/types/app-window";
+import { extensionErrorMessage, isUserCancellation } from "./extension-error";
+import publicNodes from "../../public/public-nodes.json";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -306,7 +308,7 @@ function signBufferViaKeychain(
         settled = true;
         clearTimeout(timeoutId);
         if (!resp.success) {
-          reject(new Error("Operation cancelled"));
+          reject(new Error(extensionErrorMessage(resp, "Operation cancelled")));
           return;
         }
         resolve(resp);
@@ -316,6 +318,16 @@ function signBufferViaKeychain(
   });
 }
 
+/**
+ * A known-good Hive RPC node to retry a failed broadcast through — the first
+ * (preferred) entry of Ecency's curated public-nodes.json. Used only as a
+ * one-shot fallback when the user's own Keychain node fails (see
+ * broadcastViaKeychain). Returns null if the list is empty.
+ */
+function getKeychainFallbackRpc(): string | null {
+  return (publicNodes as string[])[0] ?? null;
+}
+
 function broadcastViaKeychain(
   keychain: KeyChainImpl,
   account: string,
@@ -323,34 +335,55 @@ function broadcastViaKeychain(
   keyType: string,
   rpc: string | null
 ): Promise<any> {
-  return new Promise((resolve, reject) => {
-    let settled = false;
-    const timeoutId = setTimeout(() => {
-      if (!settled) {
-        settled = true;
-        reject(new Error("Extension request timed out. Please try again."));
-      }
-    }, 60000);
+  // Map SDK key types to Keychain authority types (capitalized)
+  const authorityType = (keyType.charAt(0).toUpperCase() + keyType.slice(1)) as AuthorityTypes;
 
-    // Map SDK key types to Keychain authority types (capitalized)
-    const authorityType = (keyType.charAt(0).toUpperCase() + keyType.slice(1)) as AuthorityTypes;
-
-    keychain.requestBroadcast(
-      account,
-      operations,
-      authorityType,
-      (response: TxResponse) => {
-        if (settled) return;
-        settled = true;
-        clearTimeout(timeoutId);
-        if (response.success) {
-          resolve(response.result);
-        } else {
-          reject(new Error("Extension broadcast failed"));
+  const attempt = (node: string | null): Promise<TxResponse> =>
+    new Promise((resolve, reject) => {
+      let settled = false;
+      const timeoutId = setTimeout(() => {
+        if (!settled) {
+          settled = true;
+          reject(new Error("Extension request timed out. Please try again."));
         }
-      },
-      rpc
-    );
+      }, 60000);
+
+      keychain.requestBroadcast(
+        account,
+        operations,
+        authorityType,
+        (response: TxResponse) => {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timeoutId);
+          resolve(response);
+        },
+        node
+      );
+    });
+
+  return attempt(rpc).then((response) => {
+    if (response.success) {
+      return response.result;
+    }
+
+    // The user's own Keychain node failed to broadcast. If this wasn't a user
+    // cancellation, retry once through a known-good node so a flaky/outaged
+    // default node (e.g. the common api.hive.blog default during maintenance)
+    // doesn't block the user. Only when the caller didn't pin a node (rpc ==
+    // null) — i.e. Keychain used the user's own setting. This re-opens the
+    // confirmation popup, so it is gated to genuine broadcast failures.
+    const fallbackNode = rpc == null ? getKeychainFallbackRpc() : null;
+    if (fallbackNode && !isUserCancellation(response)) {
+      return attempt(fallbackNode).then((retry) => {
+        if (retry.success) {
+          return retry.result;
+        }
+        throw new Error(extensionErrorMessage(retry, "Extension broadcast failed"));
+      });
+    }
+
+    throw new Error(extensionErrorMessage(response, "Extension broadcast failed"));
   });
 }
 

@@ -1,5 +1,6 @@
 import { Symbol } from "./parse-asset";
 import { AppWindow, AuthorityTypes, Keys, TxResponse } from "@/types";
+import { extensionErrorMessage } from "./extension-error";
 
 declare var window: AppWindow;
 
@@ -33,7 +34,7 @@ export const signBuffer = (
       authType,
       (resp) => {
         if (!resp.success) {
-          reject(new Error("Operation cancelled"));
+          reject(new Error(extensionErrorMessage(resp, "Operation cancelled")));
           return;
         }
 
@@ -63,7 +64,7 @@ export const addAccountAuthority = (
       weight,
       (resp) => {
         if (!resp.success) {
-          reject(new Error("Operation cancelled"));
+          reject(new Error(extensionErrorMessage(resp, "Operation cancelled")));
           return;
         }
 
@@ -91,7 +92,7 @@ export const removeAccountAuthority = (
       "Posting",
       (resp) => {
         if (!resp.success) {
-          reject(new Error("Operation cancelled"));
+          reject(new Error(extensionErrorMessage(resp, "Operation cancelled")));
           return;
         }
 
@@ -124,7 +125,7 @@ export const transfer = (
       currency,
       (resp) => {
         if (!resp.success) {
-          reject(new Error("Operation cancelled"));
+          reject(new Error(extensionErrorMessage(resp, "Operation cancelled")));
           return;
         }
 
@@ -157,7 +158,7 @@ export const customJson = (
       display_msg,
       (resp) => {
         if (!resp.success) {
-          reject(new Error("Operation cancelled"));
+          reject(new Error(extensionErrorMessage(resp, "Operation cancelled")));
           return;
         }
         resolve(resp);
@@ -195,7 +196,7 @@ export const broadcast = (
         finished = true;
         clearTimeout(timeout);
         if (!resp.success) {
-          reject(new Error("Operation cancelled"));
+          reject(new Error(extensionErrorMessage(resp, "Operation cancelled")));
           return;
         }
 
@@ -214,7 +215,7 @@ export const addAccount = (username: string, keys: Keys): Promise<TxResponse> =>
     }
     keychain.requestAddAccount(username, keys, (resp) => {
       if (!resp.success) {
-        reject(new Error("Operation cancelled"));
+        reject(new Error(extensionErrorMessage(resp, "Operation cancelled")));
         return;
       }
 
@@ -240,7 +241,7 @@ export const witnessVote = (
       vote,
       (resp) => {
         if (!resp.success) {
-          reject(new Error("Operation cancelled"));
+          reject(new Error(extensionErrorMessage(resp, "Operation cancelled")));
           return;
         }
 
@@ -266,7 +267,7 @@ export const witnessProxy = (
       proxy,
       (resp) => {
         if (!resp.success) {
-          reject(new Error("Operation cancelled"));
+          reject(new Error(extensionErrorMessage(resp, "Operation cancelled")));
           return;
         }
 
