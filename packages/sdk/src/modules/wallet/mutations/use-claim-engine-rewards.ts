@@ -1,4 +1,4 @@
-import { useBroadcastMutation } from "@/modules/core/mutations";
+import { useBroadcastMutation, invalidateAfterBroadcast } from "@/modules/core/mutations";
 import type { BroadcastMode } from "@/modules/core/mutations";
 import { QueryKeys } from "@/modules/core";
 import type { AuthContextV2 } from "@/modules/core/types";
@@ -24,18 +24,11 @@ export function useClaimEngineRewards(username: string | undefined, auth?: AuthC
       }] as Operation];
     },
     async () => {
-      if (auth?.adapter?.invalidateQueries) {
-        const keys = [
-          QueryKeys.accounts.full(username),
-          ["ecency-wallets", "asset-info", username],
-          ["wallet", "portfolio", "v2", username]
-        ];
-        if (broadcastMode === 'async') {
-          setTimeout(() => auth.adapter!.invalidateQueries!(keys), 4000);
-        } else {
-          await auth.adapter.invalidateQueries(keys);
-        }
-      }
+      await invalidateAfterBroadcast(auth?.adapter, broadcastMode, [
+        QueryKeys.accounts.full(username),
+        ["ecency-wallets", "asset-info", username],
+        ["wallet", "portfolio", "v2", username]
+      ]);
     },
     auth,
     'posting',
