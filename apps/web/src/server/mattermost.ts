@@ -1,7 +1,7 @@
 import { cookies, headers } from "next/headers";
 import { randomBytes } from "crypto";
 import { NextResponse } from "next/server";
-import { bridgeApiCall } from "@ecency/sdk";
+import { bridgeApiCall, getProfiles } from "@ecency/sdk";
 import { CommunityRole, ROLES } from "@ecency/sdk";
 
 const MATTERMOST_BASE_URL = process.env.MATTERMOST_BASE_URL;
@@ -31,6 +31,12 @@ export interface MattermostChannel {
   name: string;
   display_name: string;
   type: string;
+}
+
+interface MmChannelPost {
+  id: string;
+  user_id: string;
+  channel_id: string;
 }
 
 class MattermostError extends Error {
@@ -780,23 +786,35 @@ export async function deleteMattermostDmPostsByUserAsAdmin(username: string, tim
 
     while (shouldContinue()) {
       // Get posts in this channel
-      const posts = await mmFetch<
-        Array<{ id: string; user_id: string; channel_id: string }>
-      >(`/channels/${channel.id}/posts?page=${page}&per_page=${perPage}`, {
-        headers: getAdminHeaders()
-      }).catch(() => ({ order: [], posts: {} }));
-
-      // Extract posts array from the response
-      const postsArray = Array.isArray(posts)
-        ? posts
-        : Object.values((posts as any).posts || {});
-
-      // Filter to only posts by the target user
-      const userPosts = postsArray.filter((post: any) => post.user_id === targetUser.id);
-
-      if (userPosts.length === 0) {
-        break; // No more posts by this user in this channel
+      // Don't silently treat a fetch failure as an empty page (that would
+      // under-delete while reporting success); but one channel's transient error
+      // shouldn't abort deletion for all the others — log it and skip this channel.
+      let posts: MmChannelPost[] | { order: string[]; posts: Record<string, MmChannelPost> };
+      try {
+        posts = await mmFetch<
+          MmChannelPost[] | { order: string[]; posts: Record<string, MmChannelPost> }
+        >(`/channels/${channel.id}/posts?page=${page}&per_page=${perPage}`, {
+          headers: getAdminHeaders()
+        });
+      } catch (err) {
+        console.error("MM DM cleanup: failed to fetch channel posts page", {
+          channelId: channel.id,
+          page,
+          error: err
+        });
+        break;
       }
+
+      // Extract posts array from the response (MM returns an object keyed by id)
+      const postsArray: MmChannelPost[] = Array.isArray(posts)
+        ? posts
+        : Object.values(posts.posts || {});
+
+      // Delete only this user's posts on this page. A page can legitimately have
+      // none from the target user while older pages still do, so keep paging until
+      // the channel itself is exhausted (the postsArray.length check below) instead
+      // of stopping on an empty filtered page.
+      const userPosts = postsArray.filter((post) => post.user_id === targetUser.id);
 
       // Delete posts in parallel batches for speed
       const BATCH_SIZE = 10;
@@ -1007,43 +1025,6 @@ export async function nukeUserCompletelyAsAdmin(username: string) {
   return result;
 }
 
-async function hiveGetProfiles(
-  usernames: string[]
-): Promise<Array<{ name: string; active: string; created: string }>> {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 10000);
-
-  let resp: Response;
-  try {
-    resp = await fetch("https://api.hive.blog", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        jsonrpc: "2.0",
-        id: 1,
-        method: "bridge.get_profiles",
-        params: { accounts: usernames }
-      }),
-      signal: controller.signal
-    });
-  } finally {
-    clearTimeout(timeout);
-  }
-
-  if (!resp.ok) {
-    const body = await resp.text();
-    throw new Error(`Hive API request failed (${resp.status}): ${body}`);
-  }
-
-  const data = await resp.json();
-
-  if (!data.result) {
-    throw new Error(`Hive API returned no result: ${data.error?.message || JSON.stringify(data.error) || "unknown error"}`);
-  }
-
-  return data.result;
-}
-
 export async function cleanupInactiveMattermostUsers(
   inactiveDays: number = 60
 ): Promise<{ deactivated: number; checked: number; skipped: number; errors: number }> {
@@ -1086,7 +1067,7 @@ export async function cleanupInactiveMattermostUsers(
     if (usernames.length > 0) {
       // Batch Hive lookup using bridge.get_profiles for accurate activity data
       try {
-        const accounts = await hiveGetProfiles(usernames);
+        const accounts = await getProfiles(usernames);
         for (const account of accounts) {
           checked++;
 

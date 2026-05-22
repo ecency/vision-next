@@ -2,8 +2,11 @@
  * x402 Payment Protocol - Browser Client
  *
  * Browser-compatible utilities for the x402 payment protocol.
- * No Node.js dependencies — uses Web Crypto and direct RPC calls.
+ * Uses Web Crypto for nonce generation and the @ecency/sdk RPC client
+ * (multi-node failover) for chain reads.
  */
+
+import { callRPC } from '@ecency/sdk/hive';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -72,17 +75,9 @@ export async function parseRequirementsFromResponse(
 
 // ─── Build Payment Transaction ──────────────────────────────────────────────
 
-const HIVE_API_NODES = [
-  'https://api.hive.blog',
-  'https://api.deathwing.me',
-  'https://techcoderx.com',
-  'https://rpc.ausbit.dev',
-  'https://hive-api.arcange.eu',
-];
-
 /**
  * Build an unsigned Hive HBD transfer transaction for x402 payment.
- * Uses Web Crypto + direct JSON-RPC — no dhive dependency.
+ * Uses Web Crypto for the nonce and the SDK RPC client for chain reads.
  */
 export async function buildPaymentTx(
   account: string,
@@ -183,41 +178,22 @@ interface DynamicGlobalProperties {
   head_block_id: string;
 }
 
-const NODE_TIMEOUT_MS = 8000;
-
 async function fetchDynamicGlobalProperties(): Promise<DynamicGlobalProperties> {
-  let lastError: Error | undefined;
-  for (const node of HIVE_API_NODES) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), NODE_TIMEOUT_MS);
-    try {
-      const res = await fetch(node, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          jsonrpc: '2.0',
-          method: 'condenser_api.get_dynamic_global_properties',
-          params: [],
-          id: 1,
-        }),
-        signal: controller.signal,
-      });
-      clearTimeout(timer);
-      const json = (await res.json()) as { result?: DynamicGlobalProperties };
-      const r = json.result;
-      if (
-        r &&
-        typeof r.head_block_id === 'string' &&
-        r.head_block_id.length > 0 &&
-        typeof r.head_block_number === 'number' &&
-        Number.isInteger(r.head_block_number)
-      ) {
-        return r;
-      }
-    } catch (err) {
-      clearTimeout(timer);
-      lastError = err instanceof Error ? err : new Error(String(err));
-    }
+  // callRPC handles node failover, per-node health tracking, and timeouts.
+  const r = (await callRPC(
+    'condenser_api.get_dynamic_global_properties',
+    []
+  )) as DynamicGlobalProperties;
+  if (
+    !r ||
+    typeof r.head_block_id !== 'string' ||
+    r.head_block_id.length < 16 ||
+    r.head_block_id.length % 2 !== 0 ||
+    !/^[0-9a-fA-F]+$/.test(r.head_block_id) ||
+    typeof r.head_block_number !== 'number' ||
+    !Number.isInteger(r.head_block_number)
+  ) {
+    throw new Error('Invalid dynamic global properties from Hive API');
   }
-  throw lastError ?? new Error('All Hive API nodes failed');
+  return r;
 }
