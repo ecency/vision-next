@@ -96,7 +96,8 @@ export function isRetryableNodeError(
     "eai_again",
     "econnreset",
     "socket hang up",
-    "network",
+    "network error", // axios ERR_NETWORK
+    "networkerror", // browser "NetworkError when attempting to fetch"
     "failed to fetch",
     "fetch failed",
     "bad gateway",
@@ -104,9 +105,12 @@ export function isRetryableNodeError(
     "service unavailable",
     "temporarily unavailable",
     "origin servers are unavailable",
-    "internal server error",
     "could not connect",
     "unable to connect",
-    "status code 50", // axios "Request failed with status code 500/502/503/504"
+    // gateway/upstream statuses only — NOT 500, which can wrap deterministic
+    // chain rejections (missing authority, RC) that fail identically on retry.
+    "status code 502",
+    "status code 503",
+    "status code 504",
   ].some((sig) => text.includes(sig));
 }

@@ -24,10 +24,10 @@ export function invalidateAfterBroadcast(
   broadcastMode: BroadcastMode | undefined,
   keys: any[][]
 ): void | Promise<void> {
-  const invalidate = adapter?.invalidateQueries;
-  if (!invalidate) return;
+  if (!adapter?.invalidateQueries) return;
   if (broadcastMode === "sync") {
-    return invalidate(keys);
+    // Method call (not an extracted reference) so `this` stays bound to adapter.
+    return adapter.invalidateQueries(keys);
   }
-  setTimeout(() => invalidate(keys), BROADCAST_INCLUSION_DELAY_MS);
+  setTimeout(() => adapter.invalidateQueries?.(keys), BROADCAST_INCLUSION_DELAY_MS);
 }

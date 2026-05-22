@@ -78,6 +78,11 @@ describe("isRetryableNodeError", () => {
     [{ message: "insufficient resource credits" }],
     [{ error: "user_cancel" }],
     [{ message: "Transaction already in the blockchain" }],
+    // tightened: bare "network" and 500/"internal server error" must NOT retry —
+    // they can wrap deterministic chain rejections
+    [{ message: "broadcast to network failed: missing authority" }],
+    [{ message: "Request failed with status code 500" }],
+    [{ message: "Internal Server Error" }],
   ])("does NOT retry deterministic/cancel failure %o", (resp) => {
     expect(isRetryableNodeError(resp)).toBe(false);
   });
