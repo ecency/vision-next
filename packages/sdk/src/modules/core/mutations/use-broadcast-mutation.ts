@@ -15,15 +15,13 @@ import hs from "hivesigner";
 /**
  * Broadcast mode controls whether the SDK waits for block inclusion.
  *
- * - `'sync'` (default): Uses `broadcast_transaction_synchronous` — waits for
- *   the transaction to be included in a block and returns `block_num`/`trx_num`.
- *   **Use for:** transfers, account updates, key changes, delegations, conversions.
- *
- * - `'async'`: Uses `broadcast_transaction` — returns as soon as the node
+ * - `'async'` (default): Uses `broadcast_transaction` — returns once the node
  *   accepts the transaction into its mempool. Transport and RPC errors are
- *   still thrown immediately; the only thing skipped is the block-inclusion wait.
- *   **Use for:** votes, follows/unfollows, reblogs, community subscribe/unsubscribe,
- *   custom_json social operations where faster response matters more than confirmation.
+ *   still thrown immediately; only the block-inclusion wait is skipped.
+ *
+ * - `'sync'`: Uses `broadcast_transaction_synchronous` — waits for block
+ *   inclusion and returns `block_num`/`trx_num`. Deprecated; prefer `'async'`
+ *   and poll `transaction_status_api` if you need block confirmation.
  */
 export type BroadcastMode = 'sync' | 'async';
 
@@ -49,7 +47,7 @@ async function broadcastWithMethod(
   authority: AuthorityLevel = 'posting',
   fetchedKey?: string | null,
   fetchedToken?: string | null,
-  broadcastMode: BroadcastMode = 'sync'
+  broadcastMode: BroadcastMode = 'async'
 ): Promise<TransactionConfirmation | BroadcastResult> {
   const adapter = auth?.adapter;
 
@@ -220,7 +218,7 @@ async function broadcastWithFallback(
   ops: Operation[],
   auth?: AuthContextV2,
   authority: AuthorityLevel = 'posting',
-  broadcastMode: BroadcastMode = 'sync'
+  broadcastMode: BroadcastMode = 'async'
 ): Promise<TransactionConfirmation | BroadcastResult> {
   const adapter = auth?.adapter;
 
@@ -554,16 +552,16 @@ export function useBroadcastMutation<T>(
     /**
      * Controls whether to wait for block inclusion or just mempool acceptance.
      *
-     * - `'sync'` (default): Waits for block inclusion, returns block_num/trx_num.
-     *   Use for transfers, delegations, account updates, key changes.
+     * - `'async'` (default): Returns after mempool acceptance. Recommended for
+     *   all operations; errors are still thrown immediately.
      *
-     * - `'async'`: Returns after mempool acceptance. Faster but no block confirmation.
-     *   Use for votes, follows, reblogs, community subscribes, custom_json social ops.
+     * - `'sync'`: Waits for block inclusion, returns block_num/trx_num.
+     *   Deprecated; prefer `'async'`.
      */
     broadcastMode?: BroadcastMode;
   }
 ) {
-  const broadcastMode = options?.broadcastMode ?? 'sync';
+  const broadcastMode = options?.broadcastMode ?? 'async';
 
   return useMutation({
     onSuccess,

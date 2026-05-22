@@ -124,6 +124,10 @@ export function isWif(key: string): boolean {
  * Uses broadcast_transaction_synchronous so the response includes block_num/trx_num,
  * matching the shape that the rest of the codebase expects from dhive's
  * `client.broadcast.sendOperations()`.
+ *
+ * @deprecated Prefer {@link broadcastOperationsAsync} (the default for
+ * `useBroadcastMutation`); poll `transaction_status_api` if you need block
+ * confirmation. Kept only for explicit `broadcastMode: 'sync'` opt-ins.
  */
 export async function broadcastOperations(
   ops: Operation[],
