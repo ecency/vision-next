@@ -127,7 +127,7 @@ export function OnboardingFrame({ step }: Props) {
           break;
       }
     },
-    [animate, scope, step]
+    [animate, step]
   );
 
   useEffect(() => {
