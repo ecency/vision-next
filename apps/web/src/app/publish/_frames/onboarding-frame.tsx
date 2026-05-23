@@ -9,7 +9,7 @@ import {
 } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
 import { AnimatePresence, motion, useAnimate } from "framer-motion";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect } from "react";
 
 interface Props {
   step: string;
@@ -18,111 +18,125 @@ interface Props {
 export function OnboardingFrame({ step }: Props) {
   const [scope, animate] = useAnimate();
 
+  const handleAnimation = useCallback(
+    async (cancelled: () => boolean) => {
+      const safeAnimate = async (
+        ...args: Parameters<typeof animate>
+      ): Promise<void> => {
+        if (cancelled() || !scope.current) return;
+        await animate(...args);
+      };
+
+      switch (step) {
+        case "single-view":
+          await safeAnimate("#onboarding-frame-page", {
+            opacity: 1,
+            scale: 1,
+            width: 300,
+            height: 300
+          });
+          await safeAnimate("#onboarding-frame-action-bar", {
+            opacity: 1,
+            width: 300
+          });
+          await safeAnimate("#onboarding-frame-toolbar", {
+            y: 0,
+            height: 32
+          });
+          await safeAnimate("#onboarding-frame-community-picker", {
+            opacity: 1,
+            height: 16
+          });
+          await safeAnimate("#onboarding-frame-publish", {
+            opacity: 1,
+            height: 16
+          });
+          await safeAnimate("#onboarding-frame-settings", {
+            opacity: 1,
+            height: 16,
+            width: 16
+          });
+          break;
+        case "toolbar":
+          await safeAnimate("#onboarding-frame-page", {
+            width: "100%",
+            opacity: 1,
+            scale: 1,
+            height: 100
+          });
+          await safeAnimate("#onboarding-frame-action-bar", {
+            opacity: 1,
+            width: "100%"
+          });
+          await safeAnimate("#onboarding-frame-toolbar", {
+            y: 0,
+            height: 64
+          });
+          break;
+        case "settings":
+          await safeAnimate("#onboarding-frame-toolbar", {
+            opacity: 1,
+            height: 32
+          });
+          await safeAnimate("#onboarding-frame-publish", {
+            opacity: 1,
+            height: 32,
+            width: 100
+          });
+          await safeAnimate("#onboarding-frame-settings", {
+            opacity: 1,
+            width: 32,
+            height: 32
+          });
+          break;
+        case "posting":
+          await safeAnimate("#onboarding-frame-page", {
+            scale: 1,
+            width: 300,
+            height: 300,
+            opacity: 0.5
+          });
+          await safeAnimate("#onboarding-frame-action-bar", {
+            opacity: 0.5,
+            width: 300
+          });
+          await safeAnimate("#onboarding-frame-toolbar", {
+            y: 0,
+            height: 32
+          });
+          await safeAnimate("#onboarding-frame-community-picker", {
+            opacity: 1,
+            height: 16
+          });
+          await safeAnimate("#onboarding-frame-publish", {
+            opacity: 1,
+            height: 16
+          });
+          await safeAnimate("#onboarding-frame-settings", {
+            opacity: 1,
+            height: 16,
+            width: 16
+          });
+
+          await safeAnimate("#onboarding-frame-posting", {
+            opacity: 1,
+            scale: 1
+          });
+          break;
+        default:
+          break;
+      }
+    },
+    [animate, step]
+  );
+
   useEffect(() => {
-    handleAnimation();
-  }, [step]);
-
-  const handleAnimation = useCallback(async () => {
-    switch (step) {
-      case "single-view":
-        await animate("#onboarding-frame-page", {
-          opacity: 1,
-          scale: 1,
-          width: 300,
-          height: 300
-        });
-        await animate("#onboarding-frame-action-bar", {
-          opacity: 1,
-          width: 300
-        });
-        await animate("#onboarding-frame-toolbar", {
-          y: 0,
-          height: 32
-        });
-        await animate("#onboarding-frame-community-picker", {
-          opacity: 1,
-          height: 16
-        });
-        await animate("#onboarding-frame-publish", {
-          opacity: 1,
-          height: 16
-        });
-        await animate("#onboarding-frame-settings", {
-          opacity: 1,
-          height: 16,
-          width: 16
-        });
-        break;
-      case "toolbar":
-        await animate("#onboarding-frame-page", {
-          width: "100%",
-          opacity: 1,
-          scale: 1,
-          height: 100
-        });
-        await animate("#onboarding-frame-action-bar", {
-          opacity: 1,
-          width: "100%"
-        });
-        await animate("#onboarding-frame-toolbar", {
-          y: 0,
-          height: 64
-        });
-        break;
-      case "settings":
-        await animate("#onboarding-frame-toolbar", {
-          opacity: 1,
-          height: 32
-        });
-        await animate("#onboarding-frame-publish", {
-          opacity: 1,
-          height: 32,
-          width: 100
-        });
-        await animate("#onboarding-frame-settings", {
-          opacity: 1,
-          width: 32,
-          height: 32
-        });
-        break;
-      case "posting":
-        await animate("#onboarding-frame-page", {
-          scale: 1,
-          width: 300,
-          height: 300,
-          opacity: 0.5
-        });
-        await animate("#onboarding-frame-action-bar", {
-          opacity: 0.5,
-          width: 300
-        });
-        await animate("#onboarding-frame-toolbar", {
-          y: 0,
-          height: 32
-        });
-        await animate("#onboarding-frame-community-picker", {
-          opacity: 1,
-          height: 16
-        });
-        await animate("#onboarding-frame-publish", {
-          opacity: 1,
-          height: 16
-        });
-        await animate("#onboarding-frame-settings", {
-          opacity: 1,
-          height: 16,
-          width: 16
-        });
-
-        await animate("#onboarding-frame-posting", {
-          opacity: 1,
-          scale: 1
-        });
-        break;
-      default:
-        null;
-    }
-  }, [step]);
+    let cancelled = false;
+    handleAnimation(() => cancelled);
+    return () => {
+      cancelled = true;
+    };
+  }, [handleAnimation]);
 
   return (
     <div className="relative" ref={scope}>
