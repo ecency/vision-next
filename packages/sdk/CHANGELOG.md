@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.2.22
+
+### Patch Changes
+
+- fix(keychain): surface real broadcast errors and retry via a known-good node (#823)
+
 ## 2.2.20
 
 ### Patch Changes
