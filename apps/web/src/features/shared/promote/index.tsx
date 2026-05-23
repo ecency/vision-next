@@ -56,7 +56,12 @@ export function Promote({ onHide, entry }: Props) {
   });
   const { data: paths } = useQuery(getSearchPathQueryOptions(debouncedPathQuery));
 
-  const { mutateAsync: promote, isPending: isPromoting } = usePromoteMutation();
+  const {
+    mutateAsync: promote,
+    isPending: isPromoting,
+    error: promoteError,
+    reset: resetPromote
+  } = usePromoteMutation();
   const { mutateAsync: preCheck, error: postError, isPending: isPreCheckPending } = usePreCheckPromote(() => {});
 
   const inProgress = useMemo(
@@ -110,11 +115,20 @@ export function Promote({ onHide, entry }: Props) {
   }, []);
 
   const handleSubmit = useCallback(async () => {
-    await preCheck(path);
-    const [author, permlink] = path.replace("@", "").split("/");
-    await promote({ author, permlink, duration });
-    setStep(2);
-  }, [preCheck, duration, path, promote]);
+    // Clear any stale promote error before a new attempt so a fresh preCheck
+    // failure isn't shown alongside a previous (now irrelevant) promote error.
+    resetPromote();
+    try {
+      await preCheck(path);
+      const [author, permlink] = path.replace("@", "").split("/");
+      await promote({ author, permlink, duration });
+      setStep(2);
+    } catch (e) {
+      // preCheck and promote surface their failures via postError / promoteError
+      // state; swallow here so a rejected sign/broadcast (e.g. cancelled in the
+      // extension) doesn't bubble up as an unhandled promise rejection.
+    }
+  }, [preCheck, duration, path, promote, resetPromote]);
 
   const finish = () => onHide();
 
@@ -201,6 +215,9 @@ export function Promote({ onHide, entry }: Props) {
                     <Button onClick={handleSubmit} disabled={!canSubmit || inProgress}>
                       {i18next.t("g.next")}
                     </Button>
+                    {promoteError && !postError && (
+                      <small className="block pl-3 text-red">{promoteError.message}</small>
+                    )}
                   </div>
                 </div>
               </div>

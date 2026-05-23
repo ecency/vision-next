@@ -1,4 +1,4 @@
-import { useBroadcastMutation, QueryKeys } from "@/modules/core";
+import { useBroadcastMutation, invalidateAfterBroadcast, QueryKeys } from "@/modules/core";
 import type { BroadcastMode } from "@/modules/core";
 import { buildDelegateRcOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
@@ -20,14 +20,12 @@ export function useDelegateRc(
       buildDelegateRcOp(username!, to, maxRc)
     ],
     async (_result, variables) => {
-      if (auth?.adapter?.invalidateQueries) {
-        await auth.adapter.invalidateQueries([
-          QueryKeys.accounts.full(username),
-          QueryKeys.accounts.full(variables.to),
-          QueryKeys.resourceCredits.account(username!),
-          QueryKeys.resourceCredits.account(variables.to),
-        ]);
-      }
+      await invalidateAfterBroadcast(auth?.adapter, broadcastMode, [
+        QueryKeys.accounts.full(username),
+        QueryKeys.accounts.full(variables.to),
+        QueryKeys.resourceCredits.account(username!),
+        QueryKeys.resourceCredits.account(variables.to),
+      ]);
     },
     auth,
     'active',

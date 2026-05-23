@@ -1,4 +1,4 @@
-import { useBroadcastMutation, QueryKeys } from "@/modules/core";
+import { useBroadcastMutation, invalidateAfterBroadcast, QueryKeys } from "@/modules/core";
 import type { BroadcastMode } from "@/modules/core";
 import type { AuthContextV2 } from "@/modules/core/types";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -118,11 +118,9 @@ export function useAccountUpdate(
       );
 
       // Invalidate cache to refetch from blockchain
-      if (auth?.adapter?.invalidateQueries) {
-        await auth.adapter.invalidateQueries([
-          QueryKeys.accounts.full(username)
-        ]);
-      }
+      await invalidateAfterBroadcast(auth?.adapter, broadcastMode, [
+        QueryKeys.accounts.full(username)
+      ]);
     },
     auth,
     undefined,

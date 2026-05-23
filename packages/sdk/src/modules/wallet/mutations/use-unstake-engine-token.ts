@@ -1,4 +1,4 @@
-import { useBroadcastMutation } from "@/modules/core/mutations";
+import { useBroadcastMutation, invalidateAfterBroadcast } from "@/modules/core/mutations";
 import type { BroadcastMode } from "@/modules/core/mutations";
 import { QueryKeys } from "@/modules/core";
 import type { AuthContextV2 } from "@/modules/core/types";
@@ -34,13 +34,11 @@ export function useUnstakeEngineToken(username: string | undefined, auth?: AuthC
       }] as Operation];
     },
     async () => {
-      if (auth?.adapter?.invalidateQueries) {
-        await auth.adapter.invalidateQueries([
-          QueryKeys.accounts.full(username),
-          ["ecency-wallets", "asset-info", username],
-          ["wallet", "portfolio", "v2", username]
-        ]);
-      }
+      await invalidateAfterBroadcast(auth?.adapter, broadcastMode, [
+        QueryKeys.accounts.full(username),
+        ["ecency-wallets", "asset-info", username],
+        ["wallet", "portfolio", "v2", username]
+      ]);
     },
     auth,
     'active',

@@ -1,4 +1,4 @@
-import { useBroadcastMutation } from "@/modules/core/mutations";
+import { useBroadcastMutation, invalidateAfterBroadcast } from "@/modules/core/mutations";
 import type { BroadcastMode } from "@/modules/core/mutations";
 import { QueryKeys } from "@/modules/core";
 import type { AuthContextV2 } from "@/modules/core/types";
@@ -88,13 +88,11 @@ export function useSetWithdrawVestingRoute(
     ],
     async (_result, variables) => {
       // Cache invalidation
-      if (auth?.adapter?.invalidateQueries) {
-        await auth.adapter.invalidateQueries([
-          QueryKeys.wallet.withdrawRoutes(username!),
-          QueryKeys.accounts.full(username),
-          QueryKeys.accounts.full(variables.toAccount)
-        ]);
-      }
+      await invalidateAfterBroadcast(auth?.adapter, broadcastMode, [
+        QueryKeys.wallet.withdrawRoutes(username!),
+        QueryKeys.accounts.full(username),
+        QueryKeys.accounts.full(variables.toAccount)
+      ]);
     },
     auth,
     'active', // IMPORTANT: Active authority required

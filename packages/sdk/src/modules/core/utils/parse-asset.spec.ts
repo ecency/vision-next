@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseAsset, Symbol, NaiMap } from './parse-asset'
+import { parseAsset, Symbol } from './parse-asset'
 
 describe('parseAsset', () => {
   describe('with string input', () => {
@@ -52,7 +52,7 @@ describe('parseAsset', () => {
   describe('with SMTAsset input', () => {
     it('should parse HIVE NAI asset', () => {
       const result = parseAsset({
-        amount: 100000,
+        amount: "100000",
         precision: 3,
         nai: '@@000000021'
       })
@@ -63,7 +63,7 @@ describe('parseAsset', () => {
 
     it('should parse HBD NAI asset', () => {
       const result = parseAsset({
-        amount: 50500,
+        amount: "50500",
         precision: 3,
         nai: '@@000000013'
       })
@@ -74,7 +74,7 @@ describe('parseAsset', () => {
 
     it('should parse VESTS NAI asset', () => {
       const result = parseAsset({
-        amount: 123456789012,
+        amount: "123456789012",
         precision: 6,
         nai: '@@000000037'
       })
@@ -85,7 +85,7 @@ describe('parseAsset', () => {
 
     it('should handle zero precision', () => {
       const result = parseAsset({
-        amount: 100,
+        amount: "100",
         precision: 0,
         nai: '@@000000021'
       })
@@ -95,7 +95,7 @@ describe('parseAsset', () => {
 
     it('should handle high precision', () => {
       const result = parseAsset({
-        amount: 123456789,
+        amount: "123456789",
         precision: 6,
         nai: '@@000000037'
       })

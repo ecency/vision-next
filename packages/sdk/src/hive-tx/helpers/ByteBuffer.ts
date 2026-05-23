@@ -635,7 +635,7 @@ export class ByteBuffer {
     offset += lenLength
 
     // TextDecoder can take Uint8Array view directly
-    const str = getDecoder().decode(new Uint8Array(this.buffer, offset, lenValue))
+    const str = getDecoder().decode(new Uint8Array(this.buffer as ArrayBuffer, offset, lenValue))
     offset += lenValue
 
     if (relative) {
@@ -658,7 +658,7 @@ export class ByteBuffer {
     // Faster to view if Shared? No, Decoder takes buffer or view.
     // Making a view is cheap.
     // But DataView vs Uint8Array. TextDecoder takes BufferSource (ArrayBuffer or ArrayBufferView).
-    const str = getDecoder().decode(new Uint8Array(this.buffer, offset, length))
+    const str = getDecoder().decode(new Uint8Array(this.buffer as ArrayBuffer, offset, length))
 
     if (relative) {
       this.offset += length

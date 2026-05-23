@@ -1,4 +1,4 @@
-import { useBroadcastMutation, QueryKeys } from "@/modules/core";
+import { useBroadcastMutation, invalidateAfterBroadcast, QueryKeys } from "@/modules/core";
 import type { BroadcastMode } from "@/modules/core";
 import { buildGrantPostingPermissionOp, type Authority } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
@@ -30,11 +30,9 @@ export function useGrantPostingPermission(
       )
     ],
     async () => {
-      if (auth?.adapter?.invalidateQueries) {
-        await auth.adapter.invalidateQueries([
-          QueryKeys.accounts.full(username),
-        ]);
-      }
+      await invalidateAfterBroadcast(auth?.adapter, broadcastMode, [
+        QueryKeys.accounts.full(username),
+      ]);
     },
     auth,
     'active',

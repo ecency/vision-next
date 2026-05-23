@@ -95,7 +95,7 @@ describe('getPostQueryOptions', () => {
   describe('queryFn behavior', () => {
     it('should return null for empty permlink after trim', async () => {
       const options = getPostQueryOptions('testauthor', '   ')
-      const result = await options.queryFn()
+      const result = await (options.queryFn as any)()
 
       expect(result).toBeNull()
       expect(mockCallRPC).not.toHaveBeenCalled()
@@ -103,7 +103,7 @@ describe('getPostQueryOptions', () => {
 
     it('should return null for permlink "undefined"', async () => {
       const options = getPostQueryOptions('testauthor', 'undefined')
-      const result = await options.queryFn()
+      const result = await (options.queryFn as any)()
 
       expect(result).toBeNull()
       expect(mockCallRPC).not.toHaveBeenCalled()
@@ -119,7 +119,7 @@ describe('getPostQueryOptions', () => {
       mockCallRPC.mockResolvedValue(mockResponse)
 
       const options = getPostQueryOptions('testauthor', 'test-permlink', 'observer')
-      await options.queryFn()
+      await (options.queryFn as any)()
 
       expect(mockCallRPC).toHaveBeenCalledWith('bridge.get_post', {
         author: 'testauthor',
@@ -133,7 +133,7 @@ describe('getPostQueryOptions', () => {
       mockCallRPC.mockResolvedValue(mockResponse)
 
       const options = getPostQueryOptions('testauthor', 'test-permlink')
-      await options.queryFn()
+      await (options.queryFn as any)()
 
       expect(mockCallRPC).toHaveBeenCalledWith('bridge.get_post', {
         author: 'testauthor',
@@ -147,7 +147,7 @@ describe('getPostQueryOptions', () => {
       vi.mocked(verifyPostOnAlternateNode).mockResolvedValue(null)
 
       const options = getPostQueryOptions('testauthor', 'test-permlink')
-      const result = await options.queryFn()
+      const result = await (options.queryFn as any)()
 
       expect(result).toBeNull()
       expect(verifyPostOnAlternateNode).toHaveBeenCalledWith('testauthor', 'test-permlink', '')
@@ -164,7 +164,7 @@ describe('getPostQueryOptions', () => {
       vi.mocked(verifyPostOnAlternateNode).mockResolvedValue(verifiedEntry as any)
 
       const options = getPostQueryOptions('testauthor', 'test-permlink')
-      const result = await options.queryFn()
+      const result = await (options.queryFn as any)()
 
       expect(result).toEqual(verifiedEntry)
       expect(verifyPostOnAlternateNode).toHaveBeenCalledWith('testauthor', 'test-permlink', '')
@@ -175,7 +175,7 @@ describe('getPostQueryOptions', () => {
       mockCallRPC.mockResolvedValue(mockResponse)
 
       const options = getPostQueryOptions('testauthor', 'test-permlink')
-      await options.queryFn()
+      await (options.queryFn as any)()
 
       expect(verifyPostOnAlternateNode).not.toHaveBeenCalled()
     })
@@ -188,7 +188,7 @@ describe('getPostQueryOptions', () => {
       mockCallRPC.mockResolvedValue(mockResponse)
 
       const options = getPostQueryOptions('testauthor', 'test-permlink', '', 5)
-      const result = await options.queryFn()
+      const result = await (options.queryFn as any)()
 
       expect(result).toBeDefined()
       expect(result?.num).toBe(5)
@@ -202,7 +202,7 @@ describe('getPostQueryOptions', () => {
       mockCallRPC.mockResolvedValue(mockResponse)
 
       const options = getPostQueryOptions('testauthor', 'test-permlink')
-      const result = await options.queryFn()
+      const result = await (options.queryFn as any)()
 
       expect(result).toBeDefined()
       expect(result).not.toHaveProperty('num')

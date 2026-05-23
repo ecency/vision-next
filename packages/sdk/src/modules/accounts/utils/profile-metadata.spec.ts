@@ -2,8 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   parseProfileMetadata,
   extractAccountProfile,
-  buildProfileMetadata,
-  ProfileTokens
+  buildProfileMetadata
 } from './profile-metadata'
 import { AccountProfile, FullAccount } from '../types'
 
@@ -122,7 +121,7 @@ describe('profile-metadata utilities', () => {
         name: 'Old Name',
         about: 'Old bio',
         profile_image: 'old-image.jpg'
-      } as AccountProfile
+      } as unknown as AccountProfile
 
       const result = buildProfileMetadata({
         existingProfile,
@@ -137,7 +136,7 @@ describe('profile-metadata utilities', () => {
     })
 
     it('should handle tokens from profile', () => {
-      const tokens: ProfileTokens = [
+      const tokens: any = [
         { chain: 'ethereum', address: '0x123', meta: {} }
       ]
 
@@ -152,7 +151,7 @@ describe('profile-metadata utilities', () => {
     })
 
     it('should handle tokens as separate parameter', () => {
-      const tokens: ProfileTokens = [
+      const tokens: any = [
         { chain: 'bitcoin', address: 'bc1...', meta: {} }
       ]
 
@@ -165,7 +164,7 @@ describe('profile-metadata utilities', () => {
     })
 
     it('should sanitize sensitive data from tokens', () => {
-      const tokens: ProfileTokens = [
+      const tokens: any = [
         {
           chain: 'ethereum',
           address: '0x123',
@@ -189,7 +188,7 @@ describe('profile-metadata utilities', () => {
     })
 
     it('should handle tokens with non-object meta', () => {
-      const tokens: ProfileTokens = [
+      const tokens: any = [
         { chain: 'ethereum', address: '0x123', meta: 'string' as any }
       ]
 
@@ -225,7 +224,7 @@ describe('profile-metadata utilities', () => {
       const existingProfile: AccountProfile = {
         name: 'Test',
         tokens: [{ chain: 'ethereum', address: '0xabc' }]
-      } as AccountProfile
+      } as unknown as AccountProfile
 
       const result = buildProfileMetadata({
         existingProfile,
@@ -241,7 +240,7 @@ describe('profile-metadata utilities', () => {
         name: 'Test',
         about: 'Bio',
         location: 'City1'
-      } as AccountProfile
+      } as unknown as AccountProfile
 
       const result = buildProfileMetadata({
         existingProfile,
