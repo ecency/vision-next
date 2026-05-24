@@ -113,7 +113,14 @@ export class NotificationsWebSocket {
     this.isConnecting = true;
 
     if ("Notification" in window) {
-      await requestNotificationPermission();
+      try {
+        await requestNotificationPermission();
+      } catch {
+        // The permission prompt can throw in some environments (sandboxed
+        // iframe, extension conflicts). Permission isn't required for the
+        // socket, and swallowing here keeps the rejection from leaving
+        // isConnecting stuck true — which would block every future connect().
+      }
     }
 
     // Re-check after the async permission prompt: the user may have logged out,
@@ -286,10 +293,10 @@ export class NotificationsWebSocket {
         ? messages[0]
         : i18next.t("notifications.new-notifications-batch", { count: messages.length });
 
-    playNotificationSound();
-
     // `new Notification` can throw on some mobile browsers (requires a service
-    // worker); the caller's `.catch` handles that gracefully.
+    // worker); the caller's `.catch` handles that gracefully. Construct it
+    // before playing the sound so we never play a sound without a visible
+    // notification.
     const notification = new Notification(i18next.t("notification.popup-title"), {
       body: toastBody,
       icon: logo
@@ -300,6 +307,8 @@ export class NotificationsWebSocket {
         this.toggleUiProp("notifications");
       }
     };
+
+    playNotificationSound();
   }
 
   private queueNotification(msg: string) {
