@@ -11,7 +11,7 @@
   "base": "https://ecency.com",
   "chatBase": "https://chat.ecency.com",
   "imageServer": "https://i.ecency.com",
-  "nwsServer": "wss://enotify.esteem.app",
+  "nwsServer": "wss://enotify.ecency.com",
   "name": "Ecency",
   "title": "Ecency - smart, decentralized, rewarding social network without limits",
   "description": "Discover and build a community, niche and be rewarded for blogs, votes, contributions and reward esteemed friends and followers.",
