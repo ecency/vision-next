@@ -3,51 +3,12 @@
 import { Entry } from "@/entities";
 import { SelectionPopover } from "./selection-popover";
 import { EntryPageViewerManager } from "./entry-page-viewer-manager";
-import dynamic from "next/dynamic";
 import { useContext, useEffect, useState } from "react";
+import { SafeTweet } from "@/features/shared/safe-tweet";
 import TransactionSigner from "@/features/shared/transactions/transaction-signer";
 import { EntryPageContext } from "./context";
 import { EntryPageEdit } from "./entry-page-edit";
 import { makeEntryPath } from "@/utils";
-
-// Twitter embed component with error handling for ChunkLoadError
-const Tweet = dynamic(
-  () =>
-    import("react-tweet")
-      .then((m) => m.Tweet)
-      .catch((error) => {
-        // Handle ChunkLoadError gracefully (network issues, CDN problems, iOS Safari strict policies)
-        console.error("Failed to load react-tweet component:", error);
-        // Return a proper fallback component
-        return {
-          default: ({ id }: { id: string }) => (
-            <div
-              style={{
-                padding: "16px",
-                border: "1px solid #e1e8ed",
-                borderRadius: "8px",
-                backgroundColor: "#f7f9fa",
-                color: "#657786",
-                textAlign: "center",
-              }}
-            >
-              Failed to load tweet. View on Twitter:{" "}
-              <a
-                href={`https://twitter.com/i/status/${id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ color: "#1da1f2" }}
-              >
-                https://twitter.com/i/status/{id}
-              </a>
-            </div>
-          ),
-        };
-      }),
-  {
-    ssr: false,
-  }
-);
 
 interface Props {
   entry: Entry;
@@ -136,7 +97,7 @@ export function EntryPageBodyViewer({ entry }: Props) {
             onHiveOperationClick: (op) => {
               setSigningOperation(op);
             },
-            TwitterComponent: Tweet,
+            TwitterComponent: SafeTweet,
             images: entry.json_metadata?.image,
           });
         } catch (e) {

@@ -3,7 +3,7 @@
 import { EcencyRenderer } from "@/features/post-renderer";
 import type { RenderOptions, SeoContext } from "@ecency/render-helper";
 import { HTMLProps, memo, useCallback, useMemo, useState } from "react";
-import { Tweet } from "react-tweet";
+import { SafeTweet } from "./safe-tweet";
 import TransactionSigner from "./transactions/transaction-signer";
 
 const MemoizedEcencyRenderer = memo(EcencyRenderer);
@@ -84,7 +84,7 @@ export function PostContentRenderer({
         {...(restProps as any)}
         onClick={handleClick}
         onHiveOperationClick={handleHiveOperationClick}
-        TwitterComponent={Tweet}
+        TwitterComponent={SafeTweet}
       />
       <TransactionSigner
         show={!!signingOperation}
