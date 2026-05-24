@@ -93,6 +93,8 @@ export function FeedbackMessage({ feedback, onClose }: Props) {
             <button
               type="button"
               className="block w-full text-left text-gray-600 dark:text-gray-400 hover:underline cursor-pointer"
+              onFocus={() => clearTimeout(timeoutRef.current)}
+              onBlur={() => initTimeout()}
               onClick={() => {
                 handleClose();
                 router.push(link);

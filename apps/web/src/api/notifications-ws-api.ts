@@ -103,32 +103,36 @@ export class NotificationsWebSocket {
    * recipient (the logged-in user), `source` is the actor.
    */
   private static getLink(data: WsNotification): string | undefined {
-    const toEntry = (author: string, permlink: string) => {
-      // Canonical entry URL is category-less: /@author/permlink.
+    // Canonical entry URL is category-less: /@author/permlink. The helpers
+    // guard their inputs so a malformed/empty field never produces a bad route
+    // (e.g. "/@" or "/@/wallet"); `extra` is read with optional chaining so a
+    // malformed message can't throw and abort notification handling.
+    const toEntry = (author?: string, permlink?: string) => {
       if (!author || !permlink || permlink.trim().length === 0 || permlink === "undefined") {
         return undefined;
       }
       return `/@${author}/${permlink.trim()}`;
     };
+    const toProfile = (username?: string, suffix = "") =>
+      username ? `/@${username}${suffix}` : undefined;
 
     switch (data.type) {
       case "vote":
       case "favorites":
       case "bookmarks":
       case "reblog":
+      case "payouts":
         // Action on the user's own content — author is the recipient (target).
-        return toEntry(data.target, data.extra.permlink);
+        return toEntry(data.target, data.extra?.permlink);
       case "mention":
       case "reply":
         // The mentioning/reply content is authored by the actor (source).
-        return toEntry(data.source, data.extra.permlink);
-      case "payouts":
-        return data.extra?.permlink ? toEntry(data.target, data.extra.permlink) : undefined;
+        return toEntry(data.source, data.extra?.permlink);
       case "follow":
-        return `/@${data.source}`;
+        return toProfile(data.source);
       case "transfer":
       case "delegations":
-        return `/@${data.target}/wallet`;
+        return toProfile(data.target, "/wallet");
       default:
         // checkins, monthly-posts, weekly_earnings, etc. have no specific
         // destination.
