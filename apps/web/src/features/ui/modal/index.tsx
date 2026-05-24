@@ -42,6 +42,10 @@ export function Modal(props: Omit<HTMLProps<HTMLDivElement>, "size"> & Props) {
   const showRef = useRef(show);
   showRef.current = show;
 
+  // Holds the previous internal `show` so onHide() fires only on a genuine
+  // open→close transition (see the effect below). Updated inside that effect.
+  const prevShowRef = useRef(show);
+
   useEffect(() => {
     const onKeyUp = (e: KeyboardEvent) => {
       if (e.key === "Escape" && showRef.current === true) {
@@ -59,10 +63,18 @@ export function Modal(props: Omit<HTMLProps<HTMLDivElement>, "size"> & Props) {
   }, [props.show]);
 
   useEffect(() => {
-    if (typeof show === "boolean") {
-      if (!show) {
-        props.onHide();
-      }
+    const prevShow = prevShowRef.current;
+    prevShowRef.current = show;
+
+    // Notify the parent only when the modal actually transitions from open to
+    // closed (backdrop click, ESC, or the parent clearing `show`). Previously
+    // this fired whenever `show` was false — including the initial
+    // undefined→false settle — so onHide() ran on mount for every closed modal,
+    // resetting state in parents whose onHide has side effects (e.g. the
+    // notifications dialog toggling its global store flag, which made the
+    // navbar bell need a second click).
+    if (prevShow === true && show === false) {
+      props.onHide();
     }
   }, [show]);
 
