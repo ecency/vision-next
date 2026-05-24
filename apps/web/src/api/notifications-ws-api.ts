@@ -305,8 +305,14 @@ export class NotificationsWebSocket {
     // — the in-app toast doesn't need OS permission, it's in-page feedback.
     const inBackground = typeof document !== "undefined" && document.hidden;
 
-    if (permissionGranted && inBackground) {
-      // `new Notification` can throw on some mobile browsers (requires a service
+    if (!inBackground) {
+      // Foreground: the in-app toast renders reliably in-page.
+      info(toastBody);
+    } else if (permissionGranted) {
+      // Backgrounded tab with OS permission: the OS notification is the only
+      // thing the user can actually see right now. (An in-app toast would fire
+      // into the hidden tab and auto-dismiss before they return.) `new
+      // Notification` can throw on some mobile browsers (requires a service
       // worker); the caller's `.catch` handles that gracefully.
       const notification = new Notification(i18next.t("notification.popup-title"), {
         body: toastBody,
@@ -318,9 +324,10 @@ export class NotificationsWebSocket {
           this.toggleUiProp("notifications");
         }
       };
-    } else {
-      info(toastBody);
     }
+    // Backgrounded tab without OS permission: nothing useful to show now — an
+    // in-app toast would expire unseen. The unread-count badge already
+    // refreshed, so the count is correct when the user returns.
 
     // Play the sound only when OS permission was granted, so we don't add sound
     // for users who declined notifications at the browser level.
