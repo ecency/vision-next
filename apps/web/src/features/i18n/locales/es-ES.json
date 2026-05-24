@@ -1,4 +1,8 @@
 {
+  "tweet": {
+    "load-failed": "No se pudo cargar esta entrada en X.",
+    "view-on-x": "Ver en X"
+  },
   "g": {
     "now": "Ahora",
     "all": "Todo",
