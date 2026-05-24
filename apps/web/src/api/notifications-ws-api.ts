@@ -22,7 +22,7 @@ export class NotificationsWebSocket {
   private isConnecting = false;
   private socket: WebSocket | null = null;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
-  private pendingMessages: string[] = [];
+  private pendingMessages: { body: string; link?: string }[] = [];
   private burstTimer: ReturnType<typeof setTimeout> | null = null;
 
   private static getBody(data: WsNotification) {
@@ -94,6 +94,49 @@ export class NotificationsWebSocket {
       }
       default:
         return "";
+    }
+  }
+
+  /**
+   * The in-app destination for a notification, or undefined when there's no
+   * specific target (clicking then just opens the panel). `target` is the
+   * recipient (the logged-in user), `source` is the actor.
+   */
+  private static getLink(data: WsNotification): string | undefined {
+    // Canonical entry URL is category-less: /@author/permlink. The helpers
+    // guard their inputs so a malformed/empty field never produces a bad route
+    // (e.g. "/@" or "/@/wallet"); `extra` is read with optional chaining so a
+    // malformed message can't throw and abort notification handling.
+    const toEntry = (author?: string, permlink?: string) => {
+      if (!author || !permlink || permlink.trim().length === 0 || permlink === "undefined") {
+        return undefined;
+      }
+      return `/@${author}/${permlink.trim()}`;
+    };
+    const toProfile = (username?: string, suffix = "") =>
+      username ? `/@${username}${suffix}` : undefined;
+
+    switch (data.type) {
+      case "vote":
+      case "favorites":
+      case "bookmarks":
+      case "reblog":
+      case "payouts":
+        // Action on the user's own content — author is the recipient (target).
+        return toEntry(data.target, data.extra?.permlink);
+      case "mention":
+      case "reply":
+        // The mentioning/reply content is authored by the actor (source).
+        return toEntry(data.source, data.extra?.permlink);
+      case "follow":
+        return toProfile(data.source);
+      case "transfer":
+      case "delegations":
+        return toProfile(data.target, "/wallet");
+      default:
+        // checkins, monthly-posts, weekly_earnings, etc. have no specific
+        // destination.
+        return undefined;
     }
   }
 
@@ -288,10 +331,13 @@ export class NotificationsWebSocket {
     const messages = this.pendingMessages.splice(0);
     if (messages.length === 0) return;
 
+    const single = messages.length === 1 ? messages[0] : undefined;
     const toastBody =
-      messages.length === 1
-        ? messages[0]
-        : i18next.t("notifications.new-notifications-batch", { count: messages.length });
+      single?.body ??
+      i18next.t("notifications.new-notifications-batch", { count: messages.length });
+    // Only a single notification has an unambiguous destination; a batch has no
+    // single link, so its toast/notification just opens the panel on click.
+    const link = single?.link;
 
     const permissionGranted =
       "Notification" in window && Notification.permission === "granted";
@@ -306,8 +352,9 @@ export class NotificationsWebSocket {
     const inBackground = typeof document !== "undefined" && document.hidden;
 
     if (!inBackground) {
-      // Foreground: the in-app toast renders reliably in-page.
-      info(toastBody);
+      // Foreground: the in-app toast renders reliably in-page. Pass the link so
+      // clicking it navigates to the related content.
+      info(toastBody, link);
     } else if (permissionGranted) {
       // Backgrounded tab with OS permission: the OS notification is the only
       // thing the user can actually see right now. (An in-app toast would fire
@@ -320,7 +367,9 @@ export class NotificationsWebSocket {
       });
       notification.onclick = () => {
         window.focus();
-        if (!this.hasUiNotifications) {
+        if (link) {
+          window.location.href = link;
+        } else if (!this.hasUiNotifications) {
           this.toggleUiProp("notifications");
         }
       };
@@ -336,8 +385,8 @@ export class NotificationsWebSocket {
     }
   }
 
-  private queueNotification(msg: string) {
-    this.pendingMessages.push(msg);
+  private queueNotification(msg: string, link?: string) {
+    this.pendingMessages.push({ body: msg, link });
 
     // Start a fixed-window timer on the first message only.
     // Subsequent messages within the window are batched without resetting the timer.
@@ -384,6 +433,6 @@ export class NotificationsWebSocket {
       return;
     }
 
-    this.queueNotification(msg);
+    this.queueNotification(msg, NotificationsWebSocket.getLink(data));
   }
 }
