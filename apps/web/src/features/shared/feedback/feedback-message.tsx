@@ -13,6 +13,7 @@ import { Button } from "@ui/button";
 import clsx from "clsx";
 import i18next from "i18next";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useRef, useState } from "react";
 import { useMount, useUnmount } from "react-use";
 import * as Sentry from "@sentry/nextjs";
@@ -29,9 +30,11 @@ export function FeedbackMessage({ feedback, onClose }: Props) {
   // Use global store directly instead of useActiveAccount() to avoid QueryClient dependency
   // We only need the username for the purchase link, not the full account data
   const activeUser = useGlobalStore((s) => s.activeUser);
+  const router = useRouter();
 
   const [showDialog, setShowDialog] = useState(false);
   const errorType = (feedback as ErrorFeedbackObject).errorType;
+  const link = feedback.link;
 
   const handleClose = useCallback(() => {
     if (timeoutRef.current) {
@@ -86,7 +89,20 @@ export function FeedbackMessage({ feedback, onClose }: Props) {
               aria-label={i18next.t("g.close", { defaultValue: "Close" })}
             />
           </div>
-          <div className="text-gray-600 dark:text-gray-400">{feedback.message}</div>
+          {link ? (
+            <button
+              type="button"
+              className="block w-full text-left text-gray-600 dark:text-gray-400 hover:underline cursor-pointer"
+              onClick={() => {
+                handleClose();
+                router.push(link);
+              }}
+            >
+              {feedback.message}
+            </button>
+          ) : (
+            <div className="text-gray-600 dark:text-gray-400">{feedback.message}</div>
+          )}
           {errorType === ErrorTypes.INSUFFICIENT_RESOURCE_CREDITS && (
             <div className="mt-2 flex flex-col gap-2">
               <Link

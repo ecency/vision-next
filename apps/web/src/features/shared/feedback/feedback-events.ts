@@ -54,11 +54,12 @@ export const success = (message: string) => {
   window.dispatchEvent(ev);
 };
 
-export const info = (message: string) => {
+export const info = (message: string, link?: string) => {
   const detail: FeedbackObject = {
     id: random(),
     type: "info",
-    message
+    message,
+    link
   };
   const ev = new CustomEvent("ecency-feedback", { detail });
   window.dispatchEvent(ev);
@@ -70,6 +71,8 @@ export interface FeedbackObject {
   id: string;
   type: FeedbackType;
   message: string;
+  /** Optional in-app destination; when set, the toast message is clickable. */
+  link?: string;
 }
 
 export interface ErrorFeedbackObject extends FeedbackObject {
