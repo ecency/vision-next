@@ -131,7 +131,17 @@ export class NotificationsWebSocket {
       return;
     }
 
-    const socket = new WebSocket(`${defaults.nwsServer}/ws?user=${user.username}`);
+    let socket: WebSocket;
+    try {
+      socket = new WebSocket(`${defaults.nwsServer}/ws?user=${user.username}`);
+    } catch (error) {
+      // The constructor can throw synchronously (e.g. a malformed URL). Reset
+      // the flag so a later attempt can still reconnect instead of being
+      // short-circuited by the isConnecting guard.
+      this.isConnecting = false;
+      console.error("nws failed to connect", error);
+      return;
+    }
     // Track the socket this instance created so disconnect() only ever tears
     // down its own connection — never another wrapper's (e.g. NotificationHandler).
     this.socket = socket;
@@ -345,11 +355,13 @@ export class NotificationsWebSocket {
 
     const msg = NotificationsWebSocket.getBody(data);
     const messageNotifyType = this.getNotificationType(data.type);
-    // For a type the user can toggle, notify only if it's in their enabled set
-    // — so an empty set means "none", not "all". Types without a toggle
-    // (messageNotifyType === null) have no per-type opt-out and are allowed.
+    // For a toggle-able type, notify only when it's in the user's enabled set.
+    // An empty/unset list means "not configured" → allow all (a full opt-out is
+    // handled by the global toggle via hasNotifications), so existing users
+    // whose saved notify_types is still [] aren't silenced. Types without a
+    // toggle (messageNotifyType === null) have no per-type opt-out and pass.
     const allowedToNotify =
-      messageNotifyType !== null
+      messageNotifyType !== null && this.enabledNotifyTypes.length > 0
         ? this.enabledNotifyTypes.includes(messageNotifyType)
         : true;
 

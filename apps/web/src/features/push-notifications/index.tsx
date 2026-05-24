@@ -32,6 +32,12 @@ export function PushNotificationsProvider({ children }: PropsWithChildren) {
       wasMutedPreviously
     )
   );
+  // Latest settings snapshot for the FCM callback, which is registered once
+  // inside init() and would otherwise read a stale closure (ignoring later type
+  // toggles or the global allows_notify switch).
+  const notificationSettingsRef = useRef(notificationsSettingsQuery.data);
+  notificationSettingsRef.current = notificationsSettingsQuery.data;
+
   const notificationUnreadCountQuery = useQuery(
     getNotificationsUnreadCountQueryOptions(
       activeUser?.username,
@@ -92,12 +98,17 @@ export function PushNotificationsProvider({ children }: PropsWithChildren) {
 
       if (isFbMessagingSupported && permission === "granted") {
         listenFCM((payload: MessagePayload) => {
+          const settings = notificationSettingsRef.current;
           const notifyType = wsRef.current.getNotificationType(payload.data?.type ?? "");
-          const allowed =
-            typeof notifyType === "number" && notificationsSettingsQuery.data?.notify_types
-              ? notificationsSettingsQuery.data.notify_types.includes(notifyType)
+          const typeAllowed =
+            typeof notifyType === "number" &&
+            settings?.notify_types &&
+            settings.notify_types.length > 0
+              ? settings.notify_types.includes(notifyType)
               : true;
-          if (allowed) {
+          // Mirror the websocket gating: respect the global switch and the
+          // latest per-type set (empty/unset → allow all).
+          if (Boolean(settings?.allows_notify) && typeAllowed) {
             playNotificationSound();
           }
           notificationUnreadCountQuery.refetch();
