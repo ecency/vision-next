@@ -1,6 +1,6 @@
 "use client";
 
-import { Component, ReactNode } from "react";
+import { Component, ErrorInfo, ReactNode } from "react";
 import dynamic from "next/dynamic";
 import i18next from "i18next";
 
@@ -46,11 +46,11 @@ class TweetErrorBoundary extends Component<BoundaryProps, { hasError: boolean }>
     return { hasError: true };
   }
 
-  componentDidCatch(error: Error) {
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     // react-tweet throws inside its own render when X's syndication data shape
     // shifts (a field it iterates becomes undefined). Catch it so one
     // unavailable/changed tweet degrades to a link instead of crashing the post.
-    console.error("react-tweet render failed:", error);
+    console.error("react-tweet render failed:", error, errorInfo);
   }
 
   render() {

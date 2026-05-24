@@ -1,6 +1,6 @@
 {
   "tweet": {
-    "load-failed": "Couldn't load this post.",
+    "load-failed": "Couldn't load this X post.",
     "view-on-x": "View on X"
   },
   "g": {
