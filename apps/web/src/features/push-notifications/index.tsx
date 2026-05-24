@@ -20,6 +20,8 @@ export function PushNotificationsProvider({ children }: PropsWithChildren) {
   const { activeUser } = useActiveAccount();
   const wsRef = useRef(new NotificationsWebSocket());
   const setFbSupport = useGlobalStore((state) => state.setFbSupport);
+  const toggleUiProp = useGlobalStore((state) => state.toggleUiProp);
+  const uiNotifications = useGlobalStore((state) => state.uiNotifications);
 
   // Safely check if notifications were muted previously
   // Returns true if muted, false if not muted or if localStorage is unavailable
@@ -114,12 +116,10 @@ export function PushNotificationsProvider({ children }: PropsWithChildren) {
           notificationUnreadCountQuery.refetch();
         });
       } else {
-        const hasUi = permission !== "granted";
         await wsRef.current
           .withActiveUser(activeUser)
           .setEnabledNotificationsTypes(settingsData?.notify_types ?? [])
           .setHasNotifications(Boolean(settingsData?.allows_notify))
-          .setHasUiNotifications(hasUi)
           .withCallbackOnMessage(() => notificationUnreadCountQuery.refetch())
           .connect();
       }
@@ -178,6 +178,14 @@ export function PushNotificationsProvider({ children }: PropsWithChildren) {
       )
       .setHasNotifications(Boolean(notificationsSettingsQuery.data?.allows_notify));
   }, [notificationsSettingsQuery.data]);
+
+  // Keep the panel-toggle wiring and the live panel-open state on the socket
+  // instance. This provider's instance owns the live socket on the websocket
+  // path, so without this an OS notification's onclick would be a no-op — and a
+  // stale open-state would close the panel instead of opening it.
+  useEffect(() => {
+    wsRef.current.withToggleUi(toggleUiProp).setHasUiNotifications(uiNotifications);
+  }, [toggleUiProp, uiNotifications]);
 
   return children;
 }
