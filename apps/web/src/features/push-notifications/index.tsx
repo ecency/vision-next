@@ -19,6 +19,10 @@ import { PropsWithChildren, useCallback, useEffect, useRef } from "react";
 export function PushNotificationsProvider({ children }: PropsWithChildren) {
   const { activeUser } = useActiveAccount();
   const wsRef = useRef(new NotificationsWebSocket());
+  // Always-current active user, read inside init()'s async continuation to
+  // detect a logout/switch that happened while its awaits were in flight.
+  const activeUserRef = useRef(activeUser);
+  activeUserRef.current = activeUser;
   const setFbSupport = useGlobalStore((state) => state.setFbSupport);
   const toggleUiProp = useGlobalStore((state) => state.toggleUiProp);
   const uiNotifications = useGlobalStore((state) => state.uiNotifications);
@@ -98,6 +102,15 @@ export function PushNotificationsProvider({ children }: PropsWithChildren) {
         });
       }
 
+      // If the user logged out or switched accounts during the awaits above,
+      // bail instead of wiring up notifications for a stale user. The logout/
+      // switch effect has already disconnected; resuming here would otherwise
+      // re-set the stale user and reconnect as them.
+      const currentUser = activeUserRef.current;
+      if (!currentUser || currentUser.username !== username) {
+        return;
+      }
+
       if (isFbMessagingSupported && permission === "granted") {
         listenFCM((payload: MessagePayload) => {
           const settings = notificationSettingsRef.current;
@@ -117,7 +130,7 @@ export function PushNotificationsProvider({ children }: PropsWithChildren) {
         });
       } else {
         await wsRef.current
-          .withActiveUser(activeUser)
+          .withActiveUser(currentUser)
           .setEnabledNotificationsTypes(settingsData?.notify_types ?? [])
           .setHasNotifications(Boolean(settingsData?.allows_notify))
           .withCallbackOnMessage(() => notificationUnreadCountQuery.refetch())
