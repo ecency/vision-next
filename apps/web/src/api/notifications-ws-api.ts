@@ -3,6 +3,7 @@ import { ActiveUser, WsNotification } from "@/entities";
 import { NotifyTypes } from "@/enums";
 import i18next from "i18next";
 import { playNotificationSound, requestNotificationPermission } from "@/utils";
+import { info } from "@/features/shared/feedback/feedback-events";
 import logo from "@/assets/img/logo-circle.svg";
 
 declare var window: Window & {
@@ -287,38 +288,45 @@ export class NotificationsWebSocket {
     const messages = this.pendingMessages.splice(0);
     if (messages.length === 0) return;
 
-    // Respect the browser notification permission. If the user hasn't granted
-    // it, stay completely silent — no popup, no sound, no auto-opening the
-    // notifications panel. The unread-count badge already refreshed in the
-    // background via the on-message callback. Forcing in-app toasts or sounds
-    // on people who declined notifications would annoy exactly the users who
-    // opted out. We read the current permission here (set once at connect time)
-    // rather than re-requesting it, so a message never triggers a prompt.
-    if (!("Notification" in window) || Notification.permission !== "granted") {
-      return;
-    }
-
     const toastBody =
       messages.length === 1
         ? messages[0]
         : i18next.t("notifications.new-notifications-batch", { count: messages.length });
 
-    // `new Notification` can throw on some mobile browsers (requires a service
-    // worker); the caller's `.catch` handles that gracefully. Construct it
-    // before playing the sound so we never play a sound without a visible
-    // notification.
-    const notification = new Notification(i18next.t("notification.popup-title"), {
-      body: toastBody,
-      icon: logo
-    });
+    const permissionGranted =
+      "Notification" in window && Notification.permission === "granted";
 
-    notification.onclick = () => {
-      if (!this.hasUiNotifications) {
-        this.toggleUiProp("notifications");
-      }
-    };
+    // The websocket only fires while the tab is open, and desktop browsers/OSes
+    // routinely suppress page-created OS notifications for a focused tab — so an
+    // OS notification here would fire into the void. Use it only when the tab is
+    // actually backgrounded; in the foreground show the in-app toast, which
+    // renders reliably. Delivery is already gated upstream by the user's
+    // settings (allows_notify + per-type), so reaching here means they opted in
+    // — the in-app toast doesn't need OS permission, it's in-page feedback.
+    const inBackground = typeof document !== "undefined" && document.hidden;
 
-    playNotificationSound();
+    if (permissionGranted && inBackground) {
+      // `new Notification` can throw on some mobile browsers (requires a service
+      // worker); the caller's `.catch` handles that gracefully.
+      const notification = new Notification(i18next.t("notification.popup-title"), {
+        body: toastBody,
+        icon: logo
+      });
+      notification.onclick = () => {
+        window.focus();
+        if (!this.hasUiNotifications) {
+          this.toggleUiProp("notifications");
+        }
+      };
+    } else {
+      info(toastBody);
+    }
+
+    // Play the sound only when OS permission was granted, so we don't add sound
+    // for users who declined notifications at the browser level.
+    if (permissionGranted) {
+      playNotificationSound();
+    }
   }
 
   private queueNotification(msg: string) {
