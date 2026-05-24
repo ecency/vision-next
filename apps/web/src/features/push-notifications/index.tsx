@@ -5,7 +5,7 @@ import { useUpdateNotificationsSettings } from "@/api/mutations";
 import { NotificationsWebSocket } from "@/api/notifications-ws-api";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
-import { ALL_NOTIFY_TYPES } from "@/enums";
+import { ALL_NOTIFY_TYPES, NotifyTypes } from "@/enums";
 import { getAccessToken, playNotificationSound } from "@/utils";
 import * as ls from "@/utils/local-storage";
 import {
@@ -15,13 +15,17 @@ import {
 import { isSupported, MessagePayload } from "@firebase/messaging";
 import { useQuery } from "@tanstack/react-query";
 import { PropsWithChildren, useCallback, useEffect, useRef } from "react";
-import usePrevious from "react-use/lib/usePrevious";
 
 export function PushNotificationsProvider({ children }: PropsWithChildren) {
   const { activeUser } = useActiveAccount();
-  const previousActiveUsr = usePrevious(activeUser);
   const wsRef = useRef(new NotificationsWebSocket());
+  // Always-current active user, read inside init()'s async continuation to
+  // detect a logout/switch that happened while its awaits were in flight.
+  const activeUserRef = useRef(activeUser);
+  activeUserRef.current = activeUser;
   const setFbSupport = useGlobalStore((state) => state.setFbSupport);
+  const toggleUiProp = useGlobalStore((state) => state.toggleUiProp);
+  const uiNotifications = useGlobalStore((state) => state.uiNotifications);
 
   // Safely check if notifications were muted previously
   // Returns true if muted, false if not muted or if localStorage is unavailable
@@ -34,6 +38,12 @@ export function PushNotificationsProvider({ children }: PropsWithChildren) {
       wasMutedPreviously
     )
   );
+  // Latest settings snapshot for the FCM callback, which is registered once
+  // inside init() and would otherwise read a stale closure (ignoring later type
+  // toggles or the global allows_notify switch).
+  const notificationSettingsRef = useRef(notificationsSettingsQuery.data);
+  notificationSettingsRef.current = notificationsSettingsQuery.data;
+
   const notificationUnreadCountQuery = useQuery(
     getNotificationsUnreadCountQueryOptions(
       activeUser?.username,
@@ -92,25 +102,37 @@ export function PushNotificationsProvider({ children }: PropsWithChildren) {
         });
       }
 
+      // If the user logged out or switched accounts during the awaits above,
+      // bail instead of wiring up notifications for a stale user. The logout/
+      // switch effect has already disconnected; resuming here would otherwise
+      // re-set the stale user and reconnect as them.
+      const currentUser = activeUserRef.current;
+      if (!currentUser || currentUser.username !== username) {
+        return;
+      }
+
       if (isFbMessagingSupported && permission === "granted") {
         listenFCM((payload: MessagePayload) => {
+          const settings = notificationSettingsRef.current;
           const notifyType = wsRef.current.getNotificationType(payload.data?.type ?? "");
-          const allowed =
-            typeof notifyType === "number" && notificationsSettingsQuery.data?.notify_types
-              ? notificationsSettingsQuery.data.notify_types.includes(notifyType)
+          const typeAllowed =
+            typeof notifyType === "number" &&
+            settings?.notify_types &&
+            settings.notify_types.length > 0
+              ? settings.notify_types.includes(notifyType)
               : true;
-          if (allowed) {
+          // Mirror the websocket gating: respect the global switch and the
+          // latest per-type set (empty/unset → allow all).
+          if (Boolean(settings?.allows_notify) && typeAllowed) {
             playNotificationSound();
           }
           notificationUnreadCountQuery.refetch();
         });
       } else {
-        const hasUi = permission !== "granted";
         await wsRef.current
-          .withActiveUser(activeUser)
+          .withActiveUser(currentUser)
           .setEnabledNotificationsTypes(settingsData?.notify_types ?? [])
-          .setHasNotifications(true)
-          .setHasUiNotifications(hasUi)
+          .setHasNotifications(Boolean(settingsData?.allows_notify))
           .withCallbackOnMessage(() => notificationUnreadCountQuery.refetch())
           .connect();
       }
@@ -125,23 +147,58 @@ export function PushNotificationsProvider({ children }: PropsWithChildren) {
     ]
   );
 
+  // Keep the latest `init` in a ref so the connection lifecycle effect below
+  // does NOT depend on `init`'s identity. `init` is recreated on every
+  // react-query refetch (its deps include the query result objects), so if the
+  // effect depended on it, the 60s unread-count poll — and even the socket's
+  // own on-message refetch — would re-run the effect, fire its cleanup, and
+  // tear the socket down with no reconnect for the same user. Browsers without
+  // FCM (e.g. Brave) rely on this socket staying alive, so this keeps it up.
+  const initRef = useRef(init);
+  initRef.current = init;
+
   useEffect(() => {
     const ws = wsRef.current;
-    if (!activeUser?.username && previousActiveUsr?.username) {
-      ws.disconnect();
-    }
-    if (activeUser && activeUser.username !== previousActiveUsr?.username) {
-      ws.disconnect();
+    const username = activeUser?.username;
 
+    // Runs only when the username actually changes (login / logout / switch).
+    // The cleanup disconnects the previous user's socket before we connect the
+    // next one, and on unmount.
+    if (username) {
       (async () => {
-        await init(activeUser.username);
+        await initRef.current(username);
       })();
+    } else {
+      // Logged out: clear the active user so a pending reconnect timer can't
+      // revive the socket, then close it.
+      ws.withActiveUser(null).disconnect();
     }
 
     return () => {
       ws.disconnect();
     };
-  }, [activeUser?.username, previousActiveUsr?.username, init]);
+  }, [activeUser?.username]);
+
+  // Keep the live socket's gating in sync when the user changes notification
+  // settings WITHOUT reconnecting. The lifecycle effect above only runs on
+  // username change, so without this a toggled type — or the global on/off —
+  // wouldn't take effect until reload/account switch. onMessageReceive reads
+  // these fields on each incoming message, so updating them in place is enough.
+  useEffect(() => {
+    wsRef.current
+      .setEnabledNotificationsTypes(
+        (notificationsSettingsQuery.data?.notify_types as NotifyTypes[]) ?? []
+      )
+      .setHasNotifications(Boolean(notificationsSettingsQuery.data?.allows_notify));
+  }, [notificationsSettingsQuery.data]);
+
+  // Keep the panel-toggle wiring and the live panel-open state on the socket
+  // instance. This provider's instance owns the live socket on the websocket
+  // path, so without this an OS notification's onclick would be a no-op — and a
+  // stale open-state would close the panel instead of opening it.
+  useEffect(() => {
+    wsRef.current.withToggleUi(toggleUiProp).setHasUiNotifications(uiNotifications);
+  }, [toggleUiProp, uiNotifications]);
 
   return children;
 }

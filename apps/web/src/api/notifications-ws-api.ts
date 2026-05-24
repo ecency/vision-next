@@ -3,7 +3,6 @@ import { ActiveUser, WsNotification } from "@/entities";
 import { NotifyTypes } from "@/enums";
 import i18next from "i18next";
 import { playNotificationSound, requestNotificationPermission } from "@/utils";
-import { info } from "@/features/shared/feedback/feedback-events";
 import logo from "@/assets/img/logo-circle.svg";
 
 declare var window: Window & {
@@ -19,6 +18,9 @@ export class NotificationsWebSocket {
   private onMessageCallback: (() => void) | null = null;
   private enabledNotifyTypes: NotifyTypes[] = [];
   private isConnected = false;
+  private isConnecting = false;
+  private socket: WebSocket | null = null;
+  private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private pendingMessages: string[] = [];
   private burstTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -95,7 +97,7 @@ export class NotificationsWebSocket {
   }
 
   public async connect() {
-    if (this.isConnected) {
+    if (this.isConnected || this.isConnecting) {
       return;
     }
 
@@ -108,30 +110,79 @@ export class NotificationsWebSocket {
       return;
     }
 
+    this.isConnecting = true;
+
     if ("Notification" in window) {
-      await requestNotificationPermission();
+      try {
+        await requestNotificationPermission();
+      } catch {
+        // The permission prompt can throw in some environments (sandboxed
+        // iframe, extension conflicts). Permission isn't required for the
+        // socket, and swallowing here keeps the rejection from leaving
+        // isConnecting stuck true — which would block every future connect().
+      }
     }
 
-    window.nws = new WebSocket(`${defaults.nwsServer}/ws?user=${this.activeUser.username}`);
-    window.nws.onopen = () => {
+    // Re-check after the async permission prompt: the user may have logged out,
+    // or another connect() call may have already created the socket.
+    const user = this.activeUser;
+    if (!user || window.nws !== undefined) {
+      this.isConnecting = false;
+      return;
+    }
+
+    let socket: WebSocket;
+    try {
+      socket = new WebSocket(`${defaults.nwsServer}/ws?user=${user.username}`);
+    } catch (error) {
+      // The constructor can throw synchronously (e.g. a malformed URL). Reset
+      // the flag so a later attempt can still reconnect instead of being
+      // short-circuited by the isConnecting guard.
+      this.isConnecting = false;
+      console.error("nws failed to connect", error);
+      return;
+    }
+    // Track the socket this instance created so disconnect() only ever tears
+    // down its own connection — never another wrapper's (e.g. NotificationHandler).
+    this.socket = socket;
+    window.nws = socket;
+    socket.onopen = () => {
       console.log("nws connected");
+      this.isConnecting = false;
       this.isConnected = true;
     };
-    window.nws.onmessage = (e) => this.onMessageReceive(e);
-    window.nws.onclose = (evt: CloseEvent) => {
+    socket.onmessage = (e) => this.onMessageReceive(e);
+    socket.onclose = () => {
       console.log("nws disconnected");
 
-      window.nws = undefined;
+      this.isConnected = false;
+      this.isConnecting = false;
+      if (this.socket === socket) {
+        this.socket = null;
+      }
+      if (window.nws === socket) {
+        window.nws = undefined;
+      }
 
-      if (!evt.wasClean) {
-        // Disconnected due connection error
-        console.log("nws trying to reconnect");
-
-        setTimeout(() => {
-          this.connect();
-        }, 2000);
+      // A deliberate disconnect() detaches this handler, so reaching here always
+      // means an unintended close — a network drop or a server-side close,
+      // including a clean close frame on server restart. Reconnect while we
+      // still have an active user; logout/switch clears it so this won't fire.
+      if (this.activeUser) {
+        this.scheduleReconnect();
       }
     };
+  }
+
+  private scheduleReconnect() {
+    if (this.reconnectTimer) {
+      return;
+    }
+    console.log("nws trying to reconnect");
+    this.reconnectTimer = setTimeout(() => {
+      this.reconnectTimer = null;
+      this.connect();
+    }, 2000);
   }
 
   public disconnect() {
@@ -139,13 +190,37 @@ export class NotificationsWebSocket {
       clearTimeout(this.burstTimer);
       this.burstTimer = null;
     }
-    this.pendingMessages.length = 0;
-
-    if (window.nws !== undefined && this.isConnected) {
-      window.nws.close();
-      window.nws = undefined;
-      this.isConnected = false;
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
     }
+    this.pendingMessages.length = 0;
+    this.isConnecting = false;
+
+    const socket = this.socket;
+    if (socket) {
+      // Only tear down the socket THIS instance created. A secondary wrapper
+      // (e.g. NotificationHandler) never owns `this.socket`, so it can no longer
+      // close the global provider's live connection. Detaching the handlers
+      // first stops this deliberate close from triggering the reconnect path,
+      // and clearing the shared ref keeps a socket caught mid-CONNECTING from
+      // being orphaned (an orphaned `window.nws` would block every future
+      // connect()).
+      socket.onopen = null;
+      socket.onmessage = null;
+      socket.onclose = null;
+      socket.onerror = null;
+      try {
+        socket.close();
+      } catch {
+        // ignore — socket may already be closing/closed
+      }
+      if (window.nws === socket) {
+        window.nws = undefined;
+      }
+      this.socket = null;
+    }
+    this.isConnected = false;
   }
 
   public withActiveUser(activeUser: ActiveUser | null) {
@@ -194,56 +269,56 @@ export class NotificationsWebSocket {
         return NotifyTypes.RE_BLOG;
       case "transfer":
         return NotifyTypes.TRANSFERS;
+      case "favorites":
+        return NotifyTypes.FAVORITES;
+      case "bookmarks":
+        return NotifyTypes.BOOKMARKS;
       default:
+        // Types without a user-facing settings toggle (delegations, checkins,
+        // payouts, monthly-posts, weekly-earnings) have no per-type opt-out, so
+        // they're treated as always-allowed — still gated by the global toggle.
         return null;
     }
   }
 
   private toggleUiProp: (type: "login" | "notifications", value?: boolean) => void = () => {};
 
-  private async requestPermissionAndPlaySound(): Promise<NotificationPermission | "unsupported"> {
-    if (!("Notification" in window)) {
-      // Still play sound even without Notification API support
-      playNotificationSound();
-      return "unsupported";
-    }
-    const permission = await requestNotificationPermission();
-    if (permission === "granted") {
-      playNotificationSound();
-    }
-    return permission;
-  }
-
   private async flushPendingNotifications() {
     const messages = this.pendingMessages.splice(0);
     if (messages.length === 0) return;
 
-    const toastBody = messages.length === 1
-      ? messages[0]
-      : i18next.t("notifications.new-notifications-batch", { count: messages.length });
+    // Respect the browser notification permission. If the user hasn't granted
+    // it, stay completely silent — no popup, no sound, no auto-opening the
+    // notifications panel. The unread-count badge already refreshed in the
+    // background via the on-message callback. Forcing in-app toasts or sounds
+    // on people who declined notifications would annoy exactly the users who
+    // opted out. We read the current permission here (set once at connect time)
+    // rather than re-requesting it, so a message never triggers a prompt.
+    if (!("Notification" in window) || Notification.permission !== "granted") {
+      return;
+    }
 
-    const permission = await this.requestPermissionAndPlaySound();
-    if (permission === "granted") {
-      // Browser Notification API - no in-app toast to avoid duplication
-      const notification = new Notification(i18next.t("notification.popup-title"), {
-        body: toastBody,
-        icon: logo,
-      });
+    const toastBody =
+      messages.length === 1
+        ? messages[0]
+        : i18next.t("notifications.new-notifications-batch", { count: messages.length });
 
-      notification.onclick = () => {
-        if (!this.hasUiNotifications) {
-          this.toggleUiProp("notifications");
-        }
-      };
-    } else {
-      // No browser permission - show in-app toast instead
-      info(toastBody);
+    // `new Notification` can throw on some mobile browsers (requires a service
+    // worker); the caller's `.catch` handles that gracefully. Construct it
+    // before playing the sound so we never play a sound without a visible
+    // notification.
+    const notification = new Notification(i18next.t("notification.popup-title"), {
+      body: toastBody,
+      icon: logo
+    });
 
-      // Open the notifications panel if it's not already visible
+    notification.onclick = () => {
       if (!this.hasUiNotifications) {
         this.toggleUiProp("notifications");
       }
-    }
+    };
+
+    playNotificationSound();
   }
 
   private queueNotification(msg: string) {
@@ -280,8 +355,13 @@ export class NotificationsWebSocket {
 
     const msg = NotificationsWebSocket.getBody(data);
     const messageNotifyType = this.getNotificationType(data.type);
+    // For a toggle-able type, notify only when it's in the user's enabled set.
+    // An empty/unset list means "not configured" → allow all (a full opt-out is
+    // handled by the global toggle via hasNotifications), so existing users
+    // whose saved notify_types is still [] aren't silenced. Types without a
+    // toggle (messageNotifyType === null) have no per-type opt-out and pass.
     const allowedToNotify =
-      messageNotifyType && this.enabledNotifyTypes.length > 0
+      messageNotifyType !== null && this.enabledNotifyTypes.length > 0
         ? this.enabledNotifyTypes.includes(messageNotifyType)
         : true;
 

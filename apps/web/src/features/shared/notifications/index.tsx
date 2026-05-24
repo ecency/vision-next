@@ -1,6 +1,5 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
 import { NotificationsContent } from "@/features/shared/notifications/notifications-content";
 import "./_index.scss";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
@@ -19,11 +18,12 @@ export function NotificationsDialog({ openLinksInNewTab = false }: Props) {
   const showNotifications = useGlobalStore((state) => state.uiNotifications);
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
 
-  const [show, setShow] = useState(false);
-
-  useEffect(() => {
-    setShow(showNotifications && !!activeUser);
-  }, [showNotifications, activeUser]);
+  // Drive the modal directly from the global store — the single source of
+  // truth. A mirrored local `show` (synced via effect) leaves a one-render
+  // window where it's still stale `false`; the base Modal then fires its
+  // `onHide` effect and resets `uiNotifications` right after the bell set it,
+  // so the click appears to do nothing and a second click is needed.
+  const show = showNotifications && !!activeUser;
 
   return (
     <EcencyConfigManager.Conditional
@@ -32,10 +32,7 @@ export function NotificationsDialog({ openLinksInNewTab = false }: Props) {
       <ModalSidebar
         className={`notifications-modal min-w-[90%] md:min-w-[32rem] [&_.ecency-sidebar]:overflow-hidden ${openLinksInNewTab ? "in-decks-page" : ""}`}
         show={show}
-        setShow={(v) => {
-          setShow(v);
-          toggleUIProp("notifications", v);
-        }}
+        setShow={(v) => toggleUIProp("notifications", v)}
         placement="right"
       >
         <NotificationsContent openLinksInNewTab={openLinksInNewTab} />

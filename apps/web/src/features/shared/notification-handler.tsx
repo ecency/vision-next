@@ -20,7 +20,6 @@ export function NotificationHandler() {
 
   const { activeUser } = useActiveAccount();
   const uiNotifications = useGlobalStore((state) => state.uiNotifications);
-  const globalNotifications = useGlobalStore((state) => state.globalNotifications);
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
   const fbSupport = useGlobalStore((state) => state.fbSupport);
 
@@ -54,8 +53,8 @@ export function NotificationHandler() {
       .withCallbackOnMessage(() => refetchAllRef.current())
       .withToggleUi(toggleUIProp)
       .setHasUiNotifications(uiNotifications)
-      .setHasNotifications(globalNotifications);
-  }, [activeUser, globalNotifications, toggleUIProp, uiNotifications]);
+      .setHasNotifications(Boolean(notificationsSettingsQuery.data?.allows_notify));
+  }, [activeUser, notificationsSettingsQuery.data, toggleUIProp, uiNotifications]);
 
   useEffect(() => {
     nws.current.setEnabledNotificationsTypes(
