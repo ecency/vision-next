@@ -19,6 +19,8 @@ export class NotificationsWebSocket {
   private enabledNotifyTypes: NotifyTypes[] = [];
   private isConnected = false;
   private isConnecting = false;
+  private socket: WebSocket | null = null;
+  private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private pendingMessages: string[] = [];
   private burstTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -123,6 +125,9 @@ export class NotificationsWebSocket {
     }
 
     const socket = new WebSocket(`${defaults.nwsServer}/ws?user=${user.username}`);
+    // Track the socket this instance created so disconnect() only ever tears
+    // down its own connection — never another wrapper's (e.g. NotificationHandler).
+    this.socket = socket;
     window.nws = socket;
     socket.onopen = () => {
       console.log("nws connected");
@@ -130,25 +135,37 @@ export class NotificationsWebSocket {
       this.isConnected = true;
     };
     socket.onmessage = (e) => this.onMessageReceive(e);
-    socket.onclose = (evt: CloseEvent) => {
+    socket.onclose = () => {
       console.log("nws disconnected");
 
       this.isConnected = false;
       this.isConnecting = false;
+      if (this.socket === socket) {
+        this.socket = null;
+      }
       if (window.nws === socket) {
         window.nws = undefined;
       }
 
-      // A deliberate disconnect() detaches these handlers first, so reaching
-      // here always means an unexpected close (network drop) — try to reconnect.
-      if (!evt.wasClean) {
-        console.log("nws trying to reconnect");
-
-        setTimeout(() => {
-          this.connect();
-        }, 2000);
+      // A deliberate disconnect() detaches this handler, so reaching here always
+      // means an unintended close — a network drop or a server-side close,
+      // including a clean close frame on server restart. Reconnect while we
+      // still have an active user; logout/switch clears it so this won't fire.
+      if (this.activeUser) {
+        this.scheduleReconnect();
       }
     };
+  }
+
+  private scheduleReconnect() {
+    if (this.reconnectTimer) {
+      return;
+    }
+    console.log("nws trying to reconnect");
+    this.reconnectTimer = setTimeout(() => {
+      this.reconnectTimer = null;
+      this.connect();
+    }, 2000);
   }
 
   public disconnect() {
@@ -156,16 +173,22 @@ export class NotificationsWebSocket {
       clearTimeout(this.burstTimer);
       this.burstTimer = null;
     }
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
     this.pendingMessages.length = 0;
     this.isConnecting = false;
 
-    const socket = window.nws;
-    if (socket !== undefined) {
-      // Detach handlers first so this deliberate close does not trigger the
-      // reconnect path in onclose, and clear the global ref unconditionally so
-      // a socket caught mid-CONNECTING can't be orphaned — an orphaned ref
-      // would block every future connect() via the `window.nws !== undefined`
-      // guard.
+    const socket = this.socket;
+    if (socket) {
+      // Only tear down the socket THIS instance created. A secondary wrapper
+      // (e.g. NotificationHandler) never owns `this.socket`, so it can no longer
+      // close the global provider's live connection. Detaching the handlers
+      // first stops this deliberate close from triggering the reconnect path,
+      // and clearing the shared ref keeps a socket caught mid-CONNECTING from
+      // being orphaned (an orphaned `window.nws` would block every future
+      // connect()).
       socket.onopen = null;
       socket.onmessage = null;
       socket.onclose = null;
@@ -175,7 +198,10 @@ export class NotificationsWebSocket {
       } catch {
         // ignore — socket may already be closing/closed
       }
-      window.nws = undefined;
+      if (window.nws === socket) {
+        window.nws = undefined;
+      }
+      this.socket = null;
     }
     this.isConnected = false;
   }
@@ -226,7 +252,14 @@ export class NotificationsWebSocket {
         return NotifyTypes.RE_BLOG;
       case "transfer":
         return NotifyTypes.TRANSFERS;
+      case "favorites":
+        return NotifyTypes.FAVORITES;
+      case "bookmarks":
+        return NotifyTypes.BOOKMARKS;
       default:
+        // Types without a user-facing settings toggle (delegations, checkins,
+        // payouts, monthly-posts, weekly-earnings) have no per-type opt-out, so
+        // they're treated as always-allowed — still gated by the global toggle.
         return null;
     }
   }
@@ -303,8 +336,11 @@ export class NotificationsWebSocket {
 
     const msg = NotificationsWebSocket.getBody(data);
     const messageNotifyType = this.getNotificationType(data.type);
+    // For a type the user can toggle, notify only if it's in their enabled set
+    // — so an empty set means "none", not "all". Types without a toggle
+    // (messageNotifyType === null) have no per-type opt-out and are allowed.
     const allowedToNotify =
-      messageNotifyType && this.enabledNotifyTypes.length > 0
+      messageNotifyType !== null
         ? this.enabledNotifyTypes.includes(messageNotifyType)
         : true;
 

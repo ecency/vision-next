@@ -5,7 +5,7 @@ import { useUpdateNotificationsSettings } from "@/api/mutations";
 import { NotificationsWebSocket } from "@/api/notifications-ws-api";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
-import { ALL_NOTIFY_TYPES } from "@/enums";
+import { ALL_NOTIFY_TYPES, NotifyTypes } from "@/enums";
 import { getAccessToken, playNotificationSound } from "@/utils";
 import * as ls from "@/utils/local-storage";
 import {
@@ -107,7 +107,7 @@ export function PushNotificationsProvider({ children }: PropsWithChildren) {
         await wsRef.current
           .withActiveUser(activeUser)
           .setEnabledNotificationsTypes(settingsData?.notify_types ?? [])
-          .setHasNotifications(true)
+          .setHasNotifications(Boolean(settingsData?.allows_notify))
           .setHasUiNotifications(hasUi)
           .withCallbackOnMessage(() => notificationUnreadCountQuery.refetch())
           .connect();
@@ -144,12 +144,29 @@ export function PushNotificationsProvider({ children }: PropsWithChildren) {
       (async () => {
         await initRef.current(username);
       })();
+    } else {
+      // Logged out: clear the active user so a pending reconnect timer can't
+      // revive the socket, then close it.
+      ws.withActiveUser(null).disconnect();
     }
 
     return () => {
       ws.disconnect();
     };
   }, [activeUser?.username]);
+
+  // Keep the live socket's gating in sync when the user changes notification
+  // settings WITHOUT reconnecting. The lifecycle effect above only runs on
+  // username change, so without this a toggled type — or the global on/off —
+  // wouldn't take effect until reload/account switch. onMessageReceive reads
+  // these fields on each incoming message, so updating them in place is enough.
+  useEffect(() => {
+    wsRef.current
+      .setEnabledNotificationsTypes(
+        (notificationsSettingsQuery.data?.notify_types as NotifyTypes[]) ?? []
+      )
+      .setHasNotifications(Boolean(notificationsSettingsQuery.data?.allows_notify));
+  }, [notificationsSettingsQuery.data]);
 
   return children;
 }
