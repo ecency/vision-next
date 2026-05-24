@@ -15,11 +15,9 @@ import {
 import { isSupported, MessagePayload } from "@firebase/messaging";
 import { useQuery } from "@tanstack/react-query";
 import { PropsWithChildren, useCallback, useEffect, useRef } from "react";
-import usePrevious from "react-use/lib/usePrevious";
 
 export function PushNotificationsProvider({ children }: PropsWithChildren) {
   const { activeUser } = useActiveAccount();
-  const previousActiveUsr = usePrevious(activeUser);
   const wsRef = useRef(new NotificationsWebSocket());
   const setFbSupport = useGlobalStore((state) => state.setFbSupport);
 
@@ -125,23 +123,33 @@ export function PushNotificationsProvider({ children }: PropsWithChildren) {
     ]
   );
 
+  // Keep the latest `init` in a ref so the connection lifecycle effect below
+  // does NOT depend on `init`'s identity. `init` is recreated on every
+  // react-query refetch (its deps include the query result objects), so if the
+  // effect depended on it, the 60s unread-count poll — and even the socket's
+  // own on-message refetch — would re-run the effect, fire its cleanup, and
+  // tear the socket down with no reconnect for the same user. Browsers without
+  // FCM (e.g. Brave) rely on this socket staying alive, so this keeps it up.
+  const initRef = useRef(init);
+  initRef.current = init;
+
   useEffect(() => {
     const ws = wsRef.current;
-    if (!activeUser?.username && previousActiveUsr?.username) {
-      ws.disconnect();
-    }
-    if (activeUser && activeUser.username !== previousActiveUsr?.username) {
-      ws.disconnect();
+    const username = activeUser?.username;
 
+    // Runs only when the username actually changes (login / logout / switch).
+    // The cleanup disconnects the previous user's socket before we connect the
+    // next one, and on unmount.
+    if (username) {
       (async () => {
-        await init(activeUser.username);
+        await initRef.current(username);
       })();
     }
 
     return () => {
       ws.disconnect();
     };
-  }, [activeUser?.username, previousActiveUsr?.username, init]);
+  }, [activeUser?.username]);
 
   return children;
 }

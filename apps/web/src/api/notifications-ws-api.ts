@@ -3,7 +3,6 @@ import { ActiveUser, WsNotification } from "@/entities";
 import { NotifyTypes } from "@/enums";
 import i18next from "i18next";
 import { playNotificationSound, requestNotificationPermission } from "@/utils";
-import { info } from "@/features/shared/feedback/feedback-events";
 import logo from "@/assets/img/logo-circle.svg";
 
 declare var window: Window & {
@@ -19,6 +18,7 @@ export class NotificationsWebSocket {
   private onMessageCallback: (() => void) | null = null;
   private enabledNotifyTypes: NotifyTypes[] = [];
   private isConnected = false;
+  private isConnecting = false;
   private pendingMessages: string[] = [];
   private burstTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -95,7 +95,7 @@ export class NotificationsWebSocket {
   }
 
   public async connect() {
-    if (this.isConnected) {
+    if (this.isConnected || this.isConnecting) {
       return;
     }
 
@@ -108,23 +108,40 @@ export class NotificationsWebSocket {
       return;
     }
 
+    this.isConnecting = true;
+
     if ("Notification" in window) {
       await requestNotificationPermission();
     }
 
-    window.nws = new WebSocket(`${defaults.nwsServer}/ws?user=${this.activeUser.username}`);
-    window.nws.onopen = () => {
+    // Re-check after the async permission prompt: the user may have logged out,
+    // or another connect() call may have already created the socket.
+    const user = this.activeUser;
+    if (!user || window.nws !== undefined) {
+      this.isConnecting = false;
+      return;
+    }
+
+    const socket = new WebSocket(`${defaults.nwsServer}/ws?user=${user.username}`);
+    window.nws = socket;
+    socket.onopen = () => {
       console.log("nws connected");
+      this.isConnecting = false;
       this.isConnected = true;
     };
-    window.nws.onmessage = (e) => this.onMessageReceive(e);
-    window.nws.onclose = (evt: CloseEvent) => {
+    socket.onmessage = (e) => this.onMessageReceive(e);
+    socket.onclose = (evt: CloseEvent) => {
       console.log("nws disconnected");
 
-      window.nws = undefined;
+      this.isConnected = false;
+      this.isConnecting = false;
+      if (window.nws === socket) {
+        window.nws = undefined;
+      }
 
+      // A deliberate disconnect() detaches these handlers first, so reaching
+      // here always means an unexpected close (network drop) — try to reconnect.
       if (!evt.wasClean) {
-        // Disconnected due connection error
         console.log("nws trying to reconnect");
 
         setTimeout(() => {
@@ -140,12 +157,27 @@ export class NotificationsWebSocket {
       this.burstTimer = null;
     }
     this.pendingMessages.length = 0;
+    this.isConnecting = false;
 
-    if (window.nws !== undefined && this.isConnected) {
-      window.nws.close();
+    const socket = window.nws;
+    if (socket !== undefined) {
+      // Detach handlers first so this deliberate close does not trigger the
+      // reconnect path in onclose, and clear the global ref unconditionally so
+      // a socket caught mid-CONNECTING can't be orphaned — an orphaned ref
+      // would block every future connect() via the `window.nws !== undefined`
+      // guard.
+      socket.onopen = null;
+      socket.onmessage = null;
+      socket.onclose = null;
+      socket.onerror = null;
+      try {
+        socket.close();
+      } catch {
+        // ignore — socket may already be closing/closed
+      }
       window.nws = undefined;
-      this.isConnected = false;
     }
+    this.isConnected = false;
   }
 
   public withActiveUser(activeUser: ActiveUser | null) {
@@ -201,49 +233,40 @@ export class NotificationsWebSocket {
 
   private toggleUiProp: (type: "login" | "notifications", value?: boolean) => void = () => {};
 
-  private async requestPermissionAndPlaySound(): Promise<NotificationPermission | "unsupported"> {
-    if (!("Notification" in window)) {
-      // Still play sound even without Notification API support
-      playNotificationSound();
-      return "unsupported";
-    }
-    const permission = await requestNotificationPermission();
-    if (permission === "granted") {
-      playNotificationSound();
-    }
-    return permission;
-  }
-
   private async flushPendingNotifications() {
     const messages = this.pendingMessages.splice(0);
     if (messages.length === 0) return;
 
-    const toastBody = messages.length === 1
-      ? messages[0]
-      : i18next.t("notifications.new-notifications-batch", { count: messages.length });
+    // Respect the browser notification permission. If the user hasn't granted
+    // it, stay completely silent — no popup, no sound, no auto-opening the
+    // notifications panel. The unread-count badge already refreshed in the
+    // background via the on-message callback. Forcing in-app toasts or sounds
+    // on people who declined notifications would annoy exactly the users who
+    // opted out. We read the current permission here (set once at connect time)
+    // rather than re-requesting it, so a message never triggers a prompt.
+    if (!("Notification" in window) || Notification.permission !== "granted") {
+      return;
+    }
 
-    const permission = await this.requestPermissionAndPlaySound();
-    if (permission === "granted") {
-      // Browser Notification API - no in-app toast to avoid duplication
-      const notification = new Notification(i18next.t("notification.popup-title"), {
-        body: toastBody,
-        icon: logo,
-      });
+    const toastBody =
+      messages.length === 1
+        ? messages[0]
+        : i18next.t("notifications.new-notifications-batch", { count: messages.length });
 
-      notification.onclick = () => {
-        if (!this.hasUiNotifications) {
-          this.toggleUiProp("notifications");
-        }
-      };
-    } else {
-      // No browser permission - show in-app toast instead
-      info(toastBody);
+    playNotificationSound();
 
-      // Open the notifications panel if it's not already visible
+    // `new Notification` can throw on some mobile browsers (requires a service
+    // worker); the caller's `.catch` handles that gracefully.
+    const notification = new Notification(i18next.t("notification.popup-title"), {
+      body: toastBody,
+      icon: logo
+    });
+
+    notification.onclick = () => {
       if (!this.hasUiNotifications) {
         this.toggleUiProp("notifications");
       }
-    }
+    };
   }
 
   private queueNotification(msg: string) {
