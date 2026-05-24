@@ -1,4 +1,8 @@
 {
+  "tweet": {
+    "load-failed": "Nie można załadować tego posta X.",
+    "view-on-x": "Zobacz na X"
+  },
   "g": {
     "now": "Teraz",
     "all": "Wszystkie",
