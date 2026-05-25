@@ -838,30 +838,6 @@ export const promote = (
   return broadcastOperations([["custom_json", op]], key);
 };
 
-export const boost = (
-  key: PrivateKey,
-  user: string,
-  author: string,
-  permlink: string,
-  amount: string
-): Promise<TransactionConfirmation> => {
-  const json = JSON.stringify({
-    user,
-    author,
-    permlink,
-    amount
-  });
-
-  const op = {
-    id: "ecency_boost",
-    json,
-    required_auths: [user],
-    required_posting_auths: []
-  };
-
-  return broadcastOperations([["custom_json", op]], key);
-};
-
 export const updateProfile = (
   account: Account,
   newProfile: any

@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.3.0
+
+### Minor Changes
+
+- [#830](https://github.com/ecency/vision-next/pull/830) [`0b0c8c6`](https://github.com/ecency/vision-next/commit/0b0c8c6cc1fa8b286fe679f73599ac5cb14eb349) Thanks [@feruzm](https://github.com/feruzm)! - Remove discontinued post-boost operation builders (`buildBoostOp`, `buildBoostOpWithPoints`). The post-boost feature (paying points to get a post upvoted) was discontinued; the backend no longer processes the `ecency_boost` custom_json, so these builders were dead code. Account Boost+ (`buildBoostPlusOp`) and Promote (`buildPromoteOp`) are unaffected.
+
+### Patch Changes
+
+- chore: remove discontinued post-boost operations (#830)
+
 ## 2.2.22
 
 ### Patch Changes
