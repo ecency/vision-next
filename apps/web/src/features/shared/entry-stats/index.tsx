@@ -28,24 +28,38 @@ export function EntryStats({ entry }: Props) {
   );
   const createdDate = useMemo(() => dayjs(entry.created).format("DD MMM YYYY"), [entry.created]);
 
+  // "Views" uses Plausible `visits` (sessions), not `pageviews`: a single user
+  // refreshing the post inflates pageviews but not visits, so visits is the
+  // reload-proof view count. It stays distinct from `visitors` (unique people).
   const { data: stats } = useQuery(
     getStatsQueryOptions({
       url: pathname,
+      metrics: ["visitors", "visits"],
       enabled: !!activeUser
     })
   );
-  const totalViews = useMemo(() => stats?.results?.[0].metrics[1] || 1, [stats?.results]);
-  const totalVisitors = useMemo(() => stats?.results?.[0].metrics[0] || 0, [stats?.results]);
-  // Plausible's `visit_duration` is already an average (in seconds), so it must
-  // be displayed as-is — dividing it by pageviews/visitors collapses it to a
-  // meaningless sub-second value. Note this is session-level visit duration, not
-  // per-page time (Plausible CE does not expose a `time_on_page` metric).
+  const totalVisitors = useMemo(() => stats?.results?.[0]?.metrics?.[0] || 0, [stats?.results]);
+  const totalViews = useMemo(() => stats?.results?.[0]?.metrics?.[1] || 1, [stats?.results]);
+
+  // Average visit duration for sessions that *landed* on this post
+  // (`visit:entry_page`) — reflects time spent after arriving here rather than
+  // the whole multi-page session. Plausible's `visit_duration` is already an
+  // average in seconds, so it's displayed as-is (still session-level, not
+  // per-page: Plausible CE has no `time_on_page` metric).
+  const { data: durationStats } = useQuery(
+    getStatsQueryOptions({
+      url: pathname,
+      metrics: ["visit_duration"],
+      filterBy: "visit:entry_page",
+      enabled: !!activeUser
+    })
+  );
   const avgVisitDuration = useMemo(() => {
-    const seconds = Math.round(stats?.results?.[0]?.metrics?.[2] ?? 0);
+    const seconds = Math.round(durationStats?.results?.[0]?.metrics?.[0] ?? 0);
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return minutes > 0 ? `${minutes}m ${String(secs).padStart(2, "0")}s` : `${secs}s`;
-  }, [stats?.results]);
+  }, [durationStats?.results]);
 
   if (!activeUser) return null;
 

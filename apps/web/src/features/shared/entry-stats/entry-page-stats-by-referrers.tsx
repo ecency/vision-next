@@ -13,6 +13,7 @@ export function EntryPageStatsByReferrers({ totalViews, cleanedPathname }: Props
   const { data: stats } = useQuery(
     getStatsQueryOptions({
       url: cleanedPathname,
+      metrics: ["visitors", "visits"],
       dimensions: ["visit:source"]
     })
   );

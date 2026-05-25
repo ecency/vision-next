@@ -4930,9 +4930,15 @@ interface UseStatsQueryOptions {
     url: string;
     dimensions?: string[];
     metrics?: string[];
+    /**
+     * Which dimension the `url` is matched against. `event:page` (default) matches
+     * any visit that viewed the page; `visit:entry_page` matches only visits that
+     * landed on it. The API route validates this against an allow-list.
+     */
+    filterBy?: string;
     enabled?: boolean;
 }
-declare function getStatsQueryOptions({ url, dimensions, metrics, enabled, }: UseStatsQueryOptions): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<StatsResponse, Error, StatsResponse, (string | string[])[]>, "queryFn"> & {
+declare function getStatsQueryOptions({ url, dimensions, metrics, filterBy, enabled, }: UseStatsQueryOptions): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<StatsResponse, Error, StatsResponse, (string | string[])[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<StatsResponse, (string | string[])[], never> | undefined;
 } & {
     queryKey: (string | string[])[] & {

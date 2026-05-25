@@ -10,11 +10,23 @@ export async function POST(request: NextRequest) {
     return Response.json({ status: 404 });
   }
 
-  const { url, date_range: dateRange = "all", metrics, dimensions } = await request.json();
+  const {
+    url,
+    date_range: dateRange = "all",
+    metrics,
+    dimensions,
+    filterBy = "event:page"
+  } = await request.json();
 
   if (!url) {
     return Response.json({ status: 400 });
   }
+
+  // Restrict the filter dimension to a known allow-list — `event:page` (viewed
+  // the page anywhere in the visit) or `visit:entry_page` (landed on it).
+  const filterDimension = ["event:page", "visit:entry_page"].includes(filterBy)
+    ? filterBy
+    : "event:page";
 
   const statsHost = EcencyConfigManager.getConfigValue(
     ({ visionFeatures }) => visionFeatures.plausible.host
@@ -35,7 +47,7 @@ export async function POST(request: NextRequest) {
           ({ visionFeatures }) => visionFeatures.plausible.siteId
         ),
         metrics,
-        filters: [["contains", "event:page", [safeDecodeURIComponent(url)]]],
+        filters: [["contains", filterDimension, [safeDecodeURIComponent(url)]]],
         dimensions,
         date_range: dateRange
       }),
