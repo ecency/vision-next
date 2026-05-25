@@ -39,7 +39,7 @@ export function EntryStats({ entry }: Props) {
     })
   );
   const totalVisitors = useMemo(() => stats?.results?.[0]?.metrics?.[0] || 0, [stats?.results]);
-  const totalViews = useMemo(() => stats?.results?.[0]?.metrics?.[1] || 1, [stats?.results]);
+  const totalViews = useMemo(() => stats?.results?.[0]?.metrics?.[1] ?? 0, [stats?.results]);
 
   // Average visit duration for sessions that *landed* on this post
   // (`visit:entry_page`) — reflects time spent after arriving here rather than

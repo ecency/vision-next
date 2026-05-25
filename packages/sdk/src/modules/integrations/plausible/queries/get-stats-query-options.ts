@@ -24,7 +24,7 @@ interface UseStatsQueryOptions {
    * any visit that viewed the page; `visit:entry_page` matches only visits that
    * landed on it. The API route validates this against an allow-list.
    */
-  filterBy?: string;
+  filterBy?: "event:page" | "visit:entry_page";
   enabled?: boolean;
 }
 

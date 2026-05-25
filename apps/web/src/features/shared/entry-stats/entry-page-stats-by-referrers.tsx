@@ -13,7 +13,7 @@ export function EntryPageStatsByReferrers({ totalViews, cleanedPathname }: Props
   const { data: stats } = useQuery(
     getStatsQueryOptions({
       url: cleanedPathname,
-      metrics: ["visitors", "visits"],
+      metrics: ["visits"],
       dimensions: ["visit:source"]
     })
   );
@@ -21,7 +21,7 @@ export function EntryPageStatsByReferrers({ totalViews, cleanedPathname }: Props
     () =>
       stats?.results?.reduce<Record<string, number>>((acc, result) => {
         const country = result.dimensions[0];
-        const views = +result.metrics[1];
+        const views = +result.metrics[0];
         return { ...acc, [country]: (acc[country] ?? 0) + views };
       }, {}) ?? {},
     [stats?.results]
@@ -45,7 +45,7 @@ export function EntryPageStatsByReferrers({ totalViews, cleanedPathname }: Props
           >
             <motion.div
               initial={{ width: 0 }}
-              animate={{ width: `${(views * 100) / totalViews}%` }}
+              animate={{ width: `${totalViews > 0 ? (views * 100) / totalViews : 0}%` }}
               transition={{ delay: 0.3 }}
               className="absolute h-full bg-gray-200 dark:bg-dark-default"
             />
