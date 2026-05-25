@@ -935,7 +935,7 @@
       "update-info": "Actualizando cada minuto",
       "visitors": "Visitas",
       "views": "Vistas",
-      "reads": "Tiempo de lectura",
+      "avg-visit-duration": "Visita media",
       "countries": "Países",
       "devices": "Dispositivos",
       "referrers": "Referentes",
