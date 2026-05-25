@@ -1,5 +1,12 @@
 # @ecency/wallets
 
+## 5.0.0
+
+### Patch Changes
+
+- Updated dependencies [[`0b0c8c6`](https://github.com/ecency/vision-next/commit/0b0c8c6cc1fa8b286fe679f73599ac5cb14eb349)]:
+  - @ecency/sdk@2.3.0
+
 ## 4.0.19
 
 ### Patch Changes
