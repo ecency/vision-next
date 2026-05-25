@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.1
+
+### Patch Changes
+
+- feat(entry-stats): reload-proof Views (visits) + entry-page avg visit duration (#832)
+
 ## 2.3.0
 
 ### Minor Changes
