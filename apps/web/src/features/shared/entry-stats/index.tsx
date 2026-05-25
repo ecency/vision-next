@@ -36,10 +36,15 @@ export function EntryStats({ entry }: Props) {
   );
   const totalViews = useMemo(() => stats?.results?.[0].metrics[1] || 1, [stats?.results]);
   const totalVisitors = useMemo(() => stats?.results?.[0].metrics[0] || 0, [stats?.results]);
-  const averageReadTime = useMemo(
-    () => ((stats?.results?.[0].metrics[2] ?? 0) / totalViews).toFixed(1),
-    [stats?.results, totalViews]
-  );
+  // Plausible's `visit_duration` is already an average (in seconds), so it must
+  // be displayed as-is — dividing it by pageviews/visitors collapses it to a
+  // meaningless sub-second value. Note this is session-level visit duration, not
+  // per-page time (Plausible CE does not expose a `time_on_page` metric).
+  const avgVisitDuration = useMemo(() => {
+    const seconds = Math.round(stats?.results?.[0]?.metrics?.[2] ?? 0);
+    const minutes = Math.floor(seconds / 60);
+    return `${minutes}m ${String(seconds % 60).padStart(2, "0")}s`;
+  }, [stats?.results]);
 
   if (!activeUser) return null;
 
@@ -69,8 +74,8 @@ export function EntryStats({ entry }: Props) {
             <EntryPageStatsItem count={totalViews} label={i18next.t("entry.stats.views")} />
             <EntryPageStatsItem count={totalVisitors} label={i18next.t("entry.stats.visitors")} />
             <EntryPageStatsItem
-              count={`${averageReadTime}s`}
-              label={i18next.t("entry.stats.reads")}
+              count={avgVisitDuration}
+              label={i18next.t("entry.stats.avg-visit-duration")}
             />
           </div>
 
