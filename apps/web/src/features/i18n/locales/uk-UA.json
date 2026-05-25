@@ -935,7 +935,7 @@
       "update-info": "Оновлення кожної хвилини",
       "visitors": "Відвідувачі",
       "views": "Перегляди",
-      "reads": "Час читання",
+      "avg-visit-duration": "Середній візит",
       "countries": "Країни",
       "devices": "Пристрої",
       "referrers": "Рефери",
