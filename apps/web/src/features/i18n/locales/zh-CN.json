@@ -935,7 +935,7 @@
       "update-info": "每分钟更新",
       "visitors": "访客数",
       "views": "视图",
-      "reads": "读取时间",
+      "avg-visit-duration": "平均访问",
       "countries": "国家",
       "devices": "设备",
       "referrers": "推荐人",
