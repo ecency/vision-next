@@ -43,7 +43,8 @@ export function EntryStats({ entry }: Props) {
   const avgVisitDuration = useMemo(() => {
     const seconds = Math.round(stats?.results?.[0]?.metrics?.[2] ?? 0);
     const minutes = Math.floor(seconds / 60);
-    return `${minutes}m ${String(seconds % 60).padStart(2, "0")}s`;
+    const secs = seconds % 60;
+    return minutes > 0 ? `${minutes}m ${String(secs).padStart(2, "0")}s` : `${secs}s`;
   }, [stats?.results]);
 
   if (!activeUser) return null;
