@@ -6,62 +6,6 @@ import type { Operation } from "../../../hive-tx";
  */
 
 /**
- * Builds an Ecency boost operation (custom_json with active authority).
- * @param user - User account
- * @param author - Post author
- * @param permlink - Post permlink
- * @param amount - Amount to boost (e.g., "1.000 POINT")
- * @returns Custom JSON operation for boost
- */
-export function buildBoostOp(
-  user: string,
-  author: string,
-  permlink: string,
-  amount: string
-): Operation {
-  if (!user || !author || !permlink || !amount) {
-    throw new Error("[SDK][buildBoostOp] Missing required parameters");
-  }
-
-  return [
-    "custom_json",
-    {
-      id: "ecency_boost",
-      json: JSON.stringify({
-        user,
-        author,
-        permlink,
-        amount,
-      }),
-      required_auths: [user],
-      required_posting_auths: [],
-    },
-  ];
-}
-
-/**
- * Builds an Ecency boost operation with numeric point value.
- * @param user - User account
- * @param author - Post author
- * @param permlink - Post permlink
- * @param points - Points to spend (will be formatted as "X.XXX POINT", must be a valid finite number)
- * @returns Custom JSON operation for boost
- */
-export function buildBoostOpWithPoints(
-  user: string,
-  author: string,
-  permlink: string,
-  points: number
-): Operation {
-  // Validate required parameters and ensure points is a finite number (reject NaN, Infinity)
-  if (!user || !author || !permlink || !Number.isFinite(points)) {
-    throw new Error("[SDK][buildBoostOpWithPoints] Missing required parameters");
-  }
-
-  return buildBoostOp(user, author, permlink, `${points.toFixed(3)} POINT`);
-}
-
-/**
  * Builds an Ecency Boost Plus subscription operation (custom_json).
  * @param user - User account
  * @param account - Account to subscribe
