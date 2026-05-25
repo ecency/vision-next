@@ -935,7 +935,7 @@
       "update-info": "毎分更新中",
       "visitors": "ビジター",
       "views": "ビュー",
-      "reads": "読み取り時間",
+      "avg-visit-duration": "平均訪問",
       "countries": "国",
       "devices": "デバイス",
       "referrers": "リファラー",
