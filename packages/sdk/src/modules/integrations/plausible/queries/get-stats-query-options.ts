@@ -19,6 +19,12 @@ interface UseStatsQueryOptions {
   url: string;
   dimensions?: string[];
   metrics?: string[];
+  /**
+   * Which dimension the `url` is matched against. `event:page` (default) matches
+   * any visit that viewed the page; `visit:entry_page` matches only visits that
+   * landed on it. The API route validates this against an allow-list.
+   */
+  filterBy?: "event:page" | "visit:entry_page";
   enabled?: boolean;
 }
 
@@ -26,10 +32,11 @@ export function getStatsQueryOptions({
   url,
   dimensions = [],
   metrics = ["visitors", "pageviews", "visit_duration"],
+  filterBy = "event:page",
   enabled = true,
 }: UseStatsQueryOptions) {
   return queryOptions({
-    queryKey: ["integrations", "plausible", url, dimensions, metrics],
+    queryKey: ["integrations", "plausible", url, dimensions, metrics, filterBy],
     queryFn: async () => {
       const fetchApi = getBoundFetch();
       const response = await fetchApi(`${CONFIG.privateApiHost}/api/stats`, {
@@ -38,6 +45,7 @@ export function getStatsQueryOptions({
           metrics,
           url: encodeURIComponent(url),
           dimensions,
+          filterBy,
         }),
         headers: {
           "Content-Type": "application/json",

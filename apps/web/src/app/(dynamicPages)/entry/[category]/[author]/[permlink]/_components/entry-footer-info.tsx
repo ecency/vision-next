@@ -3,6 +3,7 @@ import i18next from "i18next";
 import { Tsx } from "@/features/i18n/helper";
 import { Entry } from "@/entities";
 import { accountReputation, appName, parseDate } from "@/utils";
+import Image from "next/image";
 import React from "react";
 
 interface Props {
@@ -12,6 +13,7 @@ interface Props {
 export function EntryFooterInfo({ entry }: Props) {
   const app = appName(entry.json_metadata?.app);
   const appShort = app.split("/")[0].split(" ")[0];
+  const isEcency = app.toLowerCase().includes("ecency");
   const reputation = accountReputation(entry.author_reputation ?? 0);
 
   return (
@@ -36,10 +38,19 @@ export function EntryFooterInfo({ entry }: Props) {
             <Tsx k="entry.via-app" args={{ app: appShort }}>
               <a href="/faq#source-label" />
             </Tsx>
+            {isEcency && (
+              <Image
+                className="ecency-source-badge inline-block align-text-bottom ml-1"
+                src="/assets/logo-circle.svg"
+                alt=""
+                width={14}
+                height={14}
+              />
+            )}
           </div>
         </>
       )}
-        {app && app.indexOf('ecency')==-1 && (
+        {app && !isEcency && (
             <div className="post-disclaimer-print">
                 <Tsx k="entry.disclaimer" args={{ appName: appShort }}>
                     <a href="/faq#source-label" />
