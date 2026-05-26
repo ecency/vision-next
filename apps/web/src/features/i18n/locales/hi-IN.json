@@ -1959,7 +1959,8 @@
     "header-score-tip": "उपयोगकर्ता द्वारा चयनित अवधि के लिए पोस्ट + टिप्पणियाँ",
     "header-reward": "इनाम",
     "header-votes": "वोटस",
-    "header-votes-tip": "इस अवधि में वोटों की संख्या"
+    "header-votes-tip": "इस अवधि में वोटों की संख्या",
+    "quests-done": "Completed all daily quests today"
   },
   "discover": {
     "title": "खोजिए",
