@@ -5,3 +5,5 @@ export * from "./perks-points-card";
 export * from "./perks-promote-card";
 export * from "./perks-basic-card";
 export * from "./perks-points-spin-banner";
+export * from "./perks-quest-item";
+export * from "./perks-quests-section";

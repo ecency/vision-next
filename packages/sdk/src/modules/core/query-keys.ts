@@ -537,6 +537,10 @@ export const QueryKeys = {
       ["games", "status-check", gameType, username],
   },
 
+  quests: {
+    status: (username: string | undefined) => ["quests", "status", username],
+  },
+
   // ===========================================================================
   // Bad Actors
   // ===========================================================================

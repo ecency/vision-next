@@ -7,6 +7,7 @@ export * from "./modules/analytics";
 export * from "./modules/integrations";
 export * from "./modules/resource-credits";
 export * from "./modules/games";
+export * from "./modules/quests";
 export * from "./modules/communities";
 export * from "./modules/notifications";
 export * from "./modules/proposals";

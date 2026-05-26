@@ -13,7 +13,8 @@ import {
   PerksBasicCard,
   PerksPointsCard,
   PerksPointsSpinBanner,
-  PerksPromoteCard
+  PerksPromoteCard,
+  PerksQuestsSection
 } from "./components";
 
 export function PerksPage() {
@@ -21,7 +22,12 @@ export function PerksPage() {
   const [showQrDialog, setShowQrDialog] = useState(false);
 
   return (
-    <div className="grid grid-cols-12 grid-rows-4 gap-4">
+    <div className="flex flex-col gap-4">
+      <LoginRequired>
+        <PerksQuestsSection />
+      </LoginRequired>
+
+      <div className="grid grid-cols-12 grid-rows-4 gap-4">
       <motion.div
         initial={{ opacity: 0, x: -16 }}
         animate={{ opacity: 1, x: 0 }}
@@ -105,6 +111,7 @@ export function PerksPage() {
       </EcencyConfigManager.Conditional>
 
       <motion.div
+        id="perks-spin"
         initial={{ opacity: 0, x: 16 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.3 }}
@@ -116,6 +123,7 @@ export function PerksPage() {
       </motion.div>
       {showBoost && <BoostDialog onHide={() => setShowBoost(false)} />}
       <PurchaseQrDialog show={showQrDialog} setShow={(v) => setShowQrDialog(v)} />
+      </div>
     </div>
   );
 }
