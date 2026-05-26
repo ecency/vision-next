@@ -2775,7 +2775,37 @@
     "want-more-spins": "Quer mais giros?",
     "spin-success": "Os pontos foram transferidos para sua conta. Aproveite com igualdade!",
     "spins-left": "giros restantes",
-    "next-spin": "Próximo giro grátis"
+    "next-spin": "Próximo giro grátis",
+    "quests": {
+      "title": "Missões",
+      "subtitle": "Complete metas diárias, ganhe pontos e mantenha sua sequência viva",
+      "daily": "Diariamente",
+      "weekly": "Semanalmente",
+      "monthly": "Mensual",
+      "resets-in": "Redefine em {{time}}",
+      "streak": "{{n}}-dia consecutivo",
+      "streak-at-risk": "Faça o check-in hoje para manter a sua sequência viva!",
+      "available": "Disponível agora",
+      "max-rewards": "recompensa máxima de hoje",
+      "checkin": {
+        "title": "Fazer check-in"
+      },
+      "post": {
+        "title": "Publicar uma publicação"
+      },
+      "comment": {
+        "title": "Deixar comentários"
+      },
+      "vote": {
+        "title": "Curtir publicações"
+      },
+      "reblog": {
+        "title": "Repostar uma postagem"
+      },
+      "spin": {
+        "title": "Giro Diário"
+      }
+    }
   },
   "boost-plus": {
     "title": "Impulso+",
