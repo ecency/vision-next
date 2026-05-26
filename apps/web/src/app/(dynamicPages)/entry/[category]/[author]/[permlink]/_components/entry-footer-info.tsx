@@ -42,7 +42,7 @@ export function EntryFooterInfo({ entry }: Props) {
               <Image
                 className="ecency-source-badge inline-block align-text-bottom ml-1"
                 src="/assets/logo-circle.svg"
-                alt="Ecency"
+                alt=""
                 width={14}
                 height={14}
               />
@@ -50,7 +50,7 @@ export function EntryFooterInfo({ entry }: Props) {
           </div>
         </>
       )}
-        {app && app.indexOf('ecency')==-1 && (
+        {app && !isEcency && (
             <div className="post-disclaimer-print">
                 <Tsx k="entry.disclaimer" args={{ appName: appShort }}>
                     <a href="/faq#source-label" />
