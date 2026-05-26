@@ -26,10 +26,9 @@ interface Props {
 
 export default function LeaderboardPage({ searchParams }: Props) {
   const params = useSearchParams();
+  const period = (params.get("period") as LeaderBoardDuration) ?? "day";
 
-  const { data } = useQuery(
-    getDiscoverLeaderboardQueryOptions((params.get("period") as LeaderBoardDuration) ?? "day")
-  );
+  const { data } = useQuery(getDiscoverLeaderboardQueryOptions(period));
 
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>
@@ -77,7 +76,7 @@ export default function LeaderboardPage({ searchParams }: Props) {
                   i={i}
                   key={i}
                 >
-                  {r.quests_done && (
+                  {period === "day" && r.quests_done && (
                     <Tooltip content={i18next.t("leaderboard.quests-done")}>
                       <UilCheckCircle className="w-4 h-4 text-green-600" />
                     </Tooltip>
