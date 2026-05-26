@@ -37,14 +37,19 @@ self.addEventListener('notificationclick', function (event) {
   const data = event.notification.data;
   let url = 'https://ecency.com';
   const fullPermlink = data.permlink1 + data.permlink2 + data.permlink3;
-  if (['vote', 'unvote', 'spin', 'inactive'].includes(data.type)) {
-    url += '/@' + data.target;
+  if (data.target_page) {
+    // e.g. the perks/quests reminder -> open the perks page directly
+    url += '/' + data.target_page;
   } else {
-    // delegation, mention, transfer, follow, unfollow, ignore, blacklist, reblog
-    url += '/@' + data.source;
-  }
-  if (fullPermlink) {
-    url += '/' + fullPermlink;
+    if (['vote', 'unvote', 'spin', 'inactive'].includes(data.type)) {
+      url += '/@' + data.target;
+    } else {
+      // delegation, mention, transfer, follow, unfollow, ignore, blacklist, reblog
+      url += '/@' + data.source;
+    }
+    if (fullPermlink) {
+      url += '/' + fullPermlink;
+    }
   }
 
   clients.openWindow(url, '_blank');
