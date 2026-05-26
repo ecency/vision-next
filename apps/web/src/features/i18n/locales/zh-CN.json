@@ -2775,7 +2775,37 @@
     "want-more-spins": "想要更多溢出？",
     "spin-success": "点已转到您的帐户。与生态一起愉快！",
     "spins-left": "还剩拼图",
-    "next-spin": "下次免费旋转"
+    "next-spin": "下次免费旋转",
+    "quests": {
+      "title": "任务",
+      "subtitle": "完成每日目标, 赚取积分并保持您的连续记录",
+      "daily": "每天",
+      "weekly": "每周的",
+      "monthly": "每月的",
+      "resets-in": "Resets in {{time}}",
+      "streak": "{{n}}-day streak",
+      "streak-at-risk": "今天检查以保持您的街道生命值！",
+      "available": "现在可用",
+      "max-rewards": "今天最大奖励",
+      "checkin": {
+        "title": "签入"
+      },
+      "post": {
+        "title": "发布帖子"
+      },
+      "comment": {
+        "title": "留下评论"
+      },
+      "vote": {
+        "title": "管理帖子"
+      },
+      "reblog": {
+        "title": "重新发布文章"
+      },
+      "spin": {
+        "title": "每日拼写"
+      }
+    }
   },
   "boost-plus": {
     "title": "提升+",
