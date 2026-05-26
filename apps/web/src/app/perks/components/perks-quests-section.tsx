@@ -21,7 +21,7 @@ import {
 import clsx from "clsx";
 import { motion } from "framer-motion";
 import i18next from "i18next";
-import { ReactNode, useEffect, useMemo, useState } from "react";
+import { ReactNode, useMemo, useState } from "react";
 import { PerksQuestItem } from "./perks-quest-item";
 
 // Map the SDK catalog's icon hints to confirmed-available Unicons.
@@ -36,6 +36,16 @@ const ICONS: Record<string, ReactNode> = {
 
 const TIERS: QuestTier[] = ["daily", "weekly", "monthly"];
 
+// Seeded with the real reset time (the parent key-remounts it when the value arrives) so the
+// interval ticks down correctly. Seeding useCountdown with 0 + a deferred setTime races its
+// self-terminating interval on slow loads and freezes the timer.
+function QuestsResetCountdown({ seconds }: { seconds: number }) {
+  const [time] = useCountdown(seconds);
+  const h = Math.floor(time / 3600);
+  const m = Math.floor((time % 3600) / 60);
+  return <>{i18next.t("perks.quests.resets-in", { time: `${h}h ${m}m` })}</>;
+}
+
 export function PerksQuestsSection() {
   const { activeUser } = useActiveAccount();
   const username = activeUser?.username;
@@ -45,14 +55,6 @@ export function PerksQuestsSection() {
   const { data: spin } = useQuery(getGameStatusCheckQueryOptions(username, code, "spin"));
 
   const [tier, setTier] = useState<QuestTier>("daily");
-
-  const [time, setTime] = useCountdown(0);
-  useEffect(() => {
-    const secs = quests?.period.day_resets_in_secs;
-    if (secs != null && secs >= 0) {
-      setTime(secs);
-    }
-  }, [quests, setTime]);
 
   // Index the backend progress arrays by quest id, per tier.
   const byTier = useMemo(
@@ -67,11 +69,6 @@ export function PerksQuestsSection() {
   const entries = useMemo(() => QUEST_CATALOG.filter((q) => q.tier === tier), [tier]);
 
   const streak = quests?.streak;
-  const resetLabel = useMemo(() => {
-    const h = Math.floor(time / 3600);
-    const m = Math.floor((time % 3600) / 60);
-    return `${h}h ${m}m`;
-  }, [time]);
 
   const scrollToSpin = () =>
     document.getElementById("perks-spin")?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -118,11 +115,14 @@ export function PerksQuestsSection() {
             />
           ))}
         </div>
-        {tier === "daily" && time > 0 && (
+        {tier === "daily" && quests?.period?.day_resets_in_secs ? (
           <div className="text-xs text-gray-500 pr-2">
-            {i18next.t("perks.quests.resets-in", { time: resetLabel })}
+            <QuestsResetCountdown
+              key={quests.period.day_resets_in_secs}
+              seconds={quests.period.day_resets_in_secs}
+            />
           </div>
-        )}
+        ) : null}
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4">
