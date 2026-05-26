@@ -2775,7 +2775,37 @@
     "want-more-spins": "Vuoi più spins?",
     "spin-success": "I punti sono stati trasferiti sul tuo account. Goditi con Ecency!",
     "spins-left": "giri a sinistra",
-    "next-spin": "Prossimo giro gratis"
+    "next-spin": "Prossimo giro gratis",
+    "quests": {
+      "title": "Missioni",
+      "subtitle": "Completa gli obiettivi giornalieri, guadagna punti e mantieni viva la tua serie",
+      "daily": "Giornaliero",
+      "weekly": "Settimanale",
+      "monthly": "Mensile",
+      "resets-in": "Ripristina in {{time}}",
+      "streak": "{{n}}-day streak",
+      "streak-at-risk": "Accedi oggi per mantenere viva la tua striscia!",
+      "available": "Disponibile ora",
+      "max-rewards": "premi max oggi",
+      "checkin": {
+        "title": "Check in"
+      },
+      "post": {
+        "title": "Pubblica un post"
+      },
+      "comment": {
+        "title": "Lascia commenti"
+      },
+      "vote": {
+        "title": "Messaggi curati"
+      },
+      "reblog": {
+        "title": "Reblog un post"
+      },
+      "spin": {
+        "title": "Spin giornaliero"
+      }
+    }
   },
   "boost-plus": {
     "title": "Potenziamento+",
