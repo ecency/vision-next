@@ -1959,7 +1959,8 @@
     "header-score-tip": "Objave + komentari korisnika za izabrani period",
     "header-reward": "Nagrada",
     "header-votes": "Votes",
-    "header-votes-tip": "Number of votes in this period"
+    "header-votes-tip": "Number of votes in this period",
+    "quests-done": "Completed all daily quests today"
   },
   "discover": {
     "title": "Otkrijte",
