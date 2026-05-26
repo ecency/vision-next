@@ -1959,7 +1959,8 @@
     "header-score-tip": "选定时间内用户发表的文章+评论",
     "header-reward": "奖励",
     "header-votes": "票",
-    "header-votes-tip": "在此期间的投票数"
+    "header-votes-tip": "在此期间的投票数",
+    "quests-done": "今天完成了所有每日任务"
   },
   "discover": {
     "title": "发现",
