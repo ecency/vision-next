@@ -1959,7 +1959,8 @@
     "header-score-tip": "Seçilen dönem için kullanıcı tarafından yazılan yazı + yorumlar",
     "header-reward": "Ödül",
     "header-votes": "Oylar",
-    "header-votes-tip": "Bu dönemdeki oy sayısı"
+    "header-votes-tip": "Bu dönemdeki oy sayısı",
+    "quests-done": "Completed all daily quests today"
   },
   "discover": {
     "title": "Keşfet",
