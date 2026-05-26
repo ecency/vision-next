@@ -1959,7 +1959,8 @@
     "header-score-tip": "Ma'lum vaqt davomida foydalanuvchi tomonidan yozilgan post + izohlar",
     "header-reward": "Mukofot",
     "header-votes": "Ovozlar",
-    "header-votes-tip": "Shu vaqt davomidan berilgan ovozlar"
+    "header-votes-tip": "Shu vaqt davomidan berilgan ovozlar",
+    "quests-done": "Completed all daily quests today"
   },
   "discover": {
     "title": "Kashf qilish",
