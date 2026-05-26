@@ -1959,7 +1959,8 @@
     "header-score-tip": "Publicaciones + comentarios realizados por un usuario en el período seleccionado",
     "header-reward": "Recompensa",
     "header-votes": "Votos",
-    "header-votes-tip": "Número de votos en este período"
+    "header-votes-tip": "Número de votos en este período",
+    "quests-done": "Completadas todas las misiones diarias hoy"
   },
   "discover": {
     "title": "Descubrir",
