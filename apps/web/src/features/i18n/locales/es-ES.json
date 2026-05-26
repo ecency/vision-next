@@ -261,7 +261,7 @@
     "boost": "Impulsar",
     "submit": "Crear una publicación",
     "chats": "Chats",
-    "perks": "Perks"
+    "perks": "Ventajas"
   },
   "intro": {
     "title": "Aspira a la grandeza",
@@ -2784,7 +2784,7 @@
       "weekly": "Semanal",
       "monthly": "Mensual",
       "resets-in": "Restablece en {{time}}",
-      "streak": "Racha de {{n}}días",
+      "streak": "Racha de {{n}} días",
       "streak-at-risk": "¡Regístrate hoy para mantener tu racha con vida!",
       "available": "Disponible ahora",
       "max-rewards": "recompensas máximas hoy",
@@ -2798,7 +2798,7 @@
         "title": "Dejar comentarios"
       },
       "vote": {
-        "title": "Curar mensajes"
+        "title": "Curar publicaciones"
       },
       "reblog": {
         "title": "Rebloguear un post"
