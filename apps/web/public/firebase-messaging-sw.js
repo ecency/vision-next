@@ -37,7 +37,10 @@ self.addEventListener('notificationclick', function (event) {
   const data = event.notification.data;
   let url = 'https://ecency.com';
   const fullPermlink = data.permlink1 + data.permlink2 + data.permlink3;
-  if (data.target_page) {
+  // Allowlist target pages so a forged/misconfigured push can't route to an arbitrary
+  // ecency.com path. Add new deep-link targets here as they're introduced.
+  const ALLOWED_TARGET_PAGES = ['perks'];
+  if (data.target_page && ALLOWED_TARGET_PAGES.includes(data.target_page)) {
     // e.g. the perks/quests reminder -> open the perks page directly
     url += '/' + data.target_page;
   } else {
