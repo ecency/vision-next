@@ -15,7 +15,7 @@ import {
   UserTableListHeader
 } from "@/app/discover/_components";
 import { Badge } from "@ui/badge";
-import { UilInfoCircle } from "@tooni/iconscout-unicons-react";
+import { UilCheckCircle, UilInfoCircle } from "@tooni/iconscout-unicons-react";
 import { medalSvg } from "@ui/svg";
 import { classNameObject } from "@ui/util";
 import { useParams, useSearchParams } from "next/navigation";
@@ -26,10 +26,9 @@ interface Props {
 
 export default function LeaderboardPage({ searchParams }: Props) {
   const params = useSearchParams();
+  const period = (params.get("period") as LeaderBoardDuration) ?? "day";
 
-  const { data } = useQuery(
-    getDiscoverLeaderboardQueryOptions((params.get("period") as LeaderBoardDuration) ?? "day")
-  );
+  const { data } = useQuery(getDiscoverLeaderboardQueryOptions(period));
 
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>
@@ -77,6 +76,11 @@ export default function LeaderboardPage({ searchParams }: Props) {
                   i={i}
                   key={i}
                 >
+                  {period === "day" && r.quests_done && (
+                    <Tooltip content={i18next.t("leaderboard.quests-done")}>
+                      <UilCheckCircle className="w-4 h-4 text-green-600" />
+                    </Tooltip>
+                  )}
                   <div className="text-blue-dark-sky text-sm font-semibold">
                     {r.points !== "0.000" && `${r.points} POINTS`}
                   </div>

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.3
+
+### Patch Changes
+
+- Leaderboard: badge for completing all daily quests (#839)
+
 ## 2.3.1
 
 ### Patch Changes
