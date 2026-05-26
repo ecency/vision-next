@@ -2775,7 +2775,37 @@
     "want-more-spins": "Willst du mehr Drehen?",
     "spin-success": "Punkte wurden auf dein Konto übertragen. Viel Spaß mit Ecency!",
     "spins-left": "links dreht",
-    "next-spin": "Nächste freie Drehung"
+    "next-spin": "Nächste freie Drehung",
+    "quests": {
+      "title": "Quests",
+      "subtitle": "Erledige tägliche Ziele, sammle Punkte und halte deine Streak am Leben",
+      "daily": "Täglich",
+      "weekly": "Wöchentlich",
+      "monthly": "Monatlich",
+      "resets-in": "Zurücksetzen in {{time}}",
+      "streak": "{{n}}-Tagesserie",
+      "streak-at-risk": "Heute einchecken, um deine Serie am Leben zu halten!",
+      "available": "Jetzt verfügbar",
+      "max-rewards": "max. Belohnungen heute",
+      "checkin": {
+        "title": "Einchecken"
+      },
+      "post": {
+        "title": "Einen Beitrag veröffentlichen"
+      },
+      "comment": {
+        "title": "Kommentare hinterlassen"
+      },
+      "vote": {
+        "title": "Kuriere Beiträge"
+      },
+      "reblog": {
+        "title": "Beitrag neu eintragen"
+      },
+      "spin": {
+        "title": "Tägliche Drehung"
+      }
+    }
   },
   "boost-plus": {
     "title": "Boost+",
