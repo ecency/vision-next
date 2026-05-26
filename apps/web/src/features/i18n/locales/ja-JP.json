@@ -1959,7 +1959,8 @@
     "header-score-tip": "投稿+ユーザーが選択した期間のコメント",
     "header-reward": "Recompensa",
     "header-votes": "投票",
-    "header-votes-tip": "この期間の投票数"
+    "header-votes-tip": "この期間の投票数",
+    "quests-done": "今日すべての毎日の探求を完了しました"
   },
   "discover": {
     "title": "Discover",
