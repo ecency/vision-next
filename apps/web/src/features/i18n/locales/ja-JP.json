@@ -2775,7 +2775,37 @@
     "want-more-spins": "もっとスピンが欲しいですか？",
     "spin-success": "ポイントがアカウントに移転しました。Ecencyでお楽しみください！",
     "spins-left": "左にスピンする",
-    "next-spin": "次のフリースピン（フリースピン）"
+    "next-spin": "次のフリースピン（フリースピン）",
+    "quests": {
+      "title": "クエスト",
+      "subtitle": "毎日の目標を達成し、ポイントを獲得し、連勝を保ちましょう",
+      "daily": "毎日",
+      "weekly": "Weekly",
+      "monthly": "月ごと",
+      "resets-in": "{{time}} でリセット",
+      "streak": "{{n}}日連続記録",
+      "streak-at-risk": "今日チェックインして、連続記録を維持しましょう！",
+      "available": "今すぐ利用可能です",
+      "max-rewards": "本日の最大報酬は",
+      "checkin": {
+        "title": "チェックインする"
+      },
+      "post": {
+        "title": "投稿を公開"
+      },
+      "comment": {
+        "title": "コメントを残す"
+      },
+      "vote": {
+        "title": "投稿をキュレートする"
+      },
+      "reblog": {
+        "title": "投稿をリブログする"
+      },
+      "spin": {
+        "title": "毎日スピンする"
+      }
+    }
   },
   "boost-plus": {
     "title": "ブースト+",
