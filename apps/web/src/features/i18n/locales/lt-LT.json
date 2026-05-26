@@ -1959,7 +1959,8 @@
     "header-score-tip": "Irašas + komentarai padaryti vartotojo per tam tikrą laikotarpį",
     "header-reward": "Atlygis",
     "header-votes": "Balsai",
-    "header-votes-tip": "Balsų skaičius per šį laikotarpį"
+    "header-votes-tip": "Balsų skaičius per šį laikotarpį",
+    "quests-done": "Completed all daily quests today"
   },
   "discover": {
     "title": "Atraskite",
