@@ -2775,7 +2775,37 @@
     "want-more-spins": "Chcesz więcej szpin?",
     "spin-success": "Punkty zostały przeniesione do Twojego konta. Ciesz się z Ecencją!",
     "spins-left": "kręci w lewo",
-    "next-spin": "Następna wolna gałąź"
+    "next-spin": "Następna wolna gałąź",
+    "quests": {
+      "title": "Zadania",
+      "subtitle": "Ukończ codzienne cele, zarabiaj punkty i utrzymuj swoją serię przy życiu",
+      "daily": "Codziennie",
+      "weekly": "Tygodniowo",
+      "monthly": "Miesięczny",
+      "resets-in": "Resetuje w {{time}}",
+      "streak": "Seria {{n}}",
+      "streak-at-risk": "Sprawdź dzisiaj, aby utrzymać swoją serię przy życiu!",
+      "available": "Dostępne teraz",
+      "max-rewards": "maksymalna liczba nagród dzisiaj",
+      "checkin": {
+        "title": "Sprawdź"
+      },
+      "post": {
+        "title": "Opublikuj post"
+      },
+      "comment": {
+        "title": "Pozostaw komentarze"
+      },
+      "vote": {
+        "title": "Curate posty"
+      },
+      "reblog": {
+        "title": "Reblog posta"
+      },
+      "spin": {
+        "title": "Codzienne krępanie"
+      }
+    }
   },
   "boost-plus": {
     "title": "Wzmocnie+",
