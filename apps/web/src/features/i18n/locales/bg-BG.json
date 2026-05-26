@@ -2775,7 +2775,37 @@
     "want-more-spins": "Want more spins?",
     "spin-success": "Points has transferred to your account. Enjoy with Ecency!",
     "spins-left": "spins left",
-    "next-spin": "Next free spin"
+    "next-spin": "Next free spin",
+    "quests": {
+      "title": "Quests",
+      "subtitle": "Complete daily goals, earn points and keep your streak alive",
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "resets-in": "Resets in {{time}}",
+      "streak": "{{n}}-day streak",
+      "streak-at-risk": "Check in today to keep your streak alive!",
+      "available": "Available now",
+      "max-rewards": "max rewards today",
+      "checkin": {
+        "title": "Check in"
+      },
+      "post": {
+        "title": "Publish a post"
+      },
+      "comment": {
+        "title": "Leave comments"
+      },
+      "vote": {
+        "title": "Curate posts"
+      },
+      "reblog": {
+        "title": "Reblog a post"
+      },
+      "spin": {
+        "title": "Daily spin"
+      }
+    }
   },
   "boost-plus": {
     "title": "Boost+",
