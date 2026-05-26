@@ -1959,7 +1959,8 @@
     "header-score-tip": "Пост + коментари направени от потребителя за избрания период",
     "header-reward": "Награда",
     "header-votes": "Votes",
-    "header-votes-tip": "Number of votes in this period"
+    "header-votes-tip": "Number of votes in this period",
+    "quests-done": "Completed all daily quests today"
   },
   "discover": {
     "title": "Открийте",
