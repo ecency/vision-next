@@ -24,7 +24,10 @@ services:
     image: ecency/vision-next:develop
     stop_grace_period: 30s
     deploy:
-      replicas: 4
+      # Staging runs a single web replica — the staging environment serves
+      # low traffic and 4 replicas added unnecessary memory/CPU pressure.
+      # Production replica count lives in docker-compose.production.yml.
+      replicas: 1
       update_config:
         parallelism: 1
         delay: 15s
