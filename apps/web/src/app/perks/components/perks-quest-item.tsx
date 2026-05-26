@@ -3,6 +3,7 @@
 import { UilCheckCircle } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
 import { motion } from "framer-motion";
+import i18next from "i18next";
 import { ReactNode } from "react";
 
 interface Props {
@@ -39,6 +40,18 @@ export function PerksQuestItem({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
       onClick={onClick}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={
+        onClick
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onClick();
+              }
+            }
+          : undefined
+      }
       className={clsx(
         "flex items-center gap-3 rounded-xl border p-3 bg-white dark:bg-gray-900 transition-colors",
         completed
@@ -70,16 +83,12 @@ export function PerksQuestItem({
             initial={{ width: 0 }}
             animate={{ width: `${pct}%` }}
             transition={{ duration: 0.5, ease: "easeOut" }}
-            className={clsx(
-              "h-full rounded-full",
-              completed ? "bg-green-500" : "bg-blue-dark-sky"
-            )}
+            className={clsx("h-full rounded-full", completed ? "bg-green-500" : "bg-blue-dark-sky")}
           />
         </div>
         {typeof cap === "number" && progress >= cap && (
           <span className="text-[11px] text-gray-500">
-            {/* full rewards used up today */}
-            ✓ max rewards today
+            ✓ {i18next.t("perks.quests.max-rewards")}
           </span>
         )}
       </div>

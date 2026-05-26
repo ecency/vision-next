@@ -2786,6 +2786,7 @@
       "streak": "{{n}}-day streak",
       "streak-at-risk": "Check in today to keep your streak alive!",
       "available": "Available now",
+      "max-rewards": "max rewards today",
       "checkin": { "title": "Check in" },
       "post": { "title": "Publish a post" },
       "comment": { "title": "Leave comments" },

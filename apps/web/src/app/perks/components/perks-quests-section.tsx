@@ -48,8 +48,9 @@ export function PerksQuestsSection() {
 
   const [time, setTime] = useCountdown(0);
   useEffect(() => {
-    if (quests?.period.day_resets_in_secs) {
-      setTime(quests.period.day_resets_in_secs);
+    const secs = quests?.period.day_resets_in_secs;
+    if (secs != null && secs >= 0) {
+      setTime(secs);
     }
   }, [quests, setTime]);
 
@@ -117,7 +118,7 @@ export function PerksQuestsSection() {
             />
           ))}
         </div>
-        {tier === "daily" && (
+        {tier === "daily" && time > 0 && (
           <div className="text-xs text-gray-500 pr-2">
             {i18next.t("perks.quests.resets-in", { time: resetLabel })}
           </div>
