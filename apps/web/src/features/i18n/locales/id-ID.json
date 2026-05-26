@@ -1959,7 +1959,8 @@
     "header-score-tip": "Posting + komentar yang dibuat oleh pengguna untuk periode yang dipilih",
     "header-reward": "Imbalan",
     "header-votes": "Vote",
-    "header-votes-tip": "Jumlah vote dalam periode ini"
+    "header-votes-tip": "Jumlah vote dalam periode ini",
+    "quests-done": "Completed all daily quests today"
   },
   "discover": {
     "title": "Jelajahi",
