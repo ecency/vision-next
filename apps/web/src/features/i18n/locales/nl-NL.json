@@ -2775,7 +2775,37 @@
     "want-more-spins": "Wil je meer draaien?",
     "spin-success": "Punten zijn overgemaakt naar je account. Geniet van Ecency!",
     "spins-left": "draaien links",
-    "next-spin": "Volgende gratis draai"
+    "next-spin": "Volgende gratis draai",
+    "quests": {
+      "title": "Opdrachten",
+      "subtitle": "Voltooi dagelijkse doelen, verdien punten en houd uw reeks levend",
+      "daily": "Dagelijks",
+      "weekly": "wekelijks",
+      "monthly": "maandelijks",
+      "resets-in": "Reset in {{time}}",
+      "streak": "{{n}}-dagen reeks",
+      "streak-at-risk": "Check in vandaag om je reeks in leven te houden!",
+      "available": "Nu beschikbaar",
+      "max-rewards": "maximale beloningen vandaag",
+      "checkin": {
+        "title": "Check in"
+      },
+      "post": {
+        "title": "Publiceer een bericht"
+      },
+      "comment": {
+        "title": "Laat reacties achter"
+      },
+      "vote": {
+        "title": "Berichten opvolgen"
+      },
+      "reblog": {
+        "title": "Herblogg een bericht"
+      },
+      "spin": {
+        "title": "Dagelijks draaien"
+      }
+    }
   },
   "boost-plus": {
     "title": "Boost+",
