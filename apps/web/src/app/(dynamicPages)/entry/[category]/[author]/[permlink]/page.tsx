@@ -102,7 +102,7 @@ export default async function EntryPage({ params, searchParams }: Props) {
   // carry no headline of their own and would emit an invalid Article.
   // Use the canonical bare /@author/permlink URL (matches generateEntryMetadata)
   // rather than the category-prefixed path, which only 307-redirects to it.
-  const base = await getServerAppBase();
+  const base = (await getServerAppBase()).replace(/\/+$/, "");
   const entryUrl = entryCanonical(entry, base) ?? `${base}/@${entry.author}/${entry.permlink}`;
   const structuredData = entry.parent_author
     ? null

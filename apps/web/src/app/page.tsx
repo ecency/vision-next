@@ -16,7 +16,12 @@ import { JsonLd, buildWebsiteJsonLd } from "@/features/structured-data";
 // posts RPC is throttled by the edge "home" cache tier (s-maxage=300, set in
 // next-middleware/cache-policy) and streamed via <Suspense>, so the hero (LCP)
 // flushes without waiting on it.
-const APP_BASE = process.env.NEXT_PUBLIC_APP_BASE || process.env.APP_BASE || defaults.base;
+// Trim any trailing slash so concatenations never emit `//og.jpg` / `//#website`.
+const APP_BASE = (
+  process.env.NEXT_PUBLIC_APP_BASE ||
+  process.env.APP_BASE ||
+  defaults.base
+).replace(/\/+$/, "");
 
 export async function generateMetadata(): Promise<Metadata> {
   const base = APP_BASE;

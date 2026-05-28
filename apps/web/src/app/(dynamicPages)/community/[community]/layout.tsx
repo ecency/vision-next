@@ -37,7 +37,13 @@ export default async function CommunityPageLayout({ children, params }: PropsWit
           )}
         </div>
         {communityData && (
-          <JsonLd data={buildCommunityJsonLd({ community: communityData, path: metaUrl, base })} />
+          <JsonLd
+            data={buildCommunityJsonLd({
+              community: communityData,
+              path: metaUrl,
+              base: base.replace(/\/+$/, "")
+            })}
+          />
         )}
         <div className="content-side">
           {communityData && <CommunityMenu community={communityData} />}
