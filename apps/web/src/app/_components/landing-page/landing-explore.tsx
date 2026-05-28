@@ -21,7 +21,7 @@ const TOPICS = [
 
 export function LandingExplore() {
   return (
-    <section className="sections landing-explore relative z-[2]" aria-labelledby="explore-heading">
+    <section className="landing-explore relative z-[2] w-full" aria-labelledby="explore-heading">
       <div className="inner max-w-[1200px] mx-auto w-full px-4 py-10">
         <h2 id="explore-heading" className="text-2xl md:text-3xl font-bold mb-6">
           {i18next.t("landing-page.explore-topics")}

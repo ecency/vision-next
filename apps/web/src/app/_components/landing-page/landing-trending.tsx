@@ -33,7 +33,7 @@ export async function LandingTrending() {
   }
 
   return (
-    <section className="sections landing-trending relative z-[2]" aria-labelledby="trending-heading">
+    <section className="landing-trending relative z-[2] w-full" aria-labelledby="trending-heading">
       <div className="inner max-w-[1200px] mx-auto w-full px-4 py-10">
         <div className="flex items-end justify-between gap-4 mb-6">
           <div>
@@ -96,7 +96,7 @@ export async function LandingTrending() {
  */
 export function LandingTrendingSkeleton() {
   return (
-    <section className="sections landing-trending relative z-[2]" aria-hidden="true">
+    <section className="landing-trending relative z-[2] w-full" aria-hidden="true">
       <div className="inner max-w-[1200px] mx-auto w-full px-4 py-10">
         <div className="h-8 w-48 rounded bg-gray-200 dark:bg-dark-200 mb-6 animate-pulse" />
         <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-0 m-0 list-none">

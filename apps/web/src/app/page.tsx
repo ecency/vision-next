@@ -7,17 +7,16 @@ import { Metadata } from "next";
 import defaults from "@/defaults.json";
 import { JsonLd, buildWebsiteJsonLd } from "@/features/structured-data";
 
-// Static canonical base. The homepage is the same WebSite entity regardless of
-// which host served the bytes, and using getServerAppBase() (which reads
-// headers()) would opt this route into dynamic rendering and defeat the ISR
-// revalidate below. Env override stays available for non-prod deployments.
+// Canonical site base. The homepage represents the ecency.com WebSite entity
+// regardless of which host served it, so use a stable base (env override for
+// non-prod) rather than getServerAppBase(), which reads headers().
+//
+// NOTE on freshness: this route is dynamic (the root layout reads the theme
+// cookie), so it is not statically prerendered. The trending strip's ranked-
+// posts RPC is throttled by the edge "home" cache tier (s-maxage=300, set in
+// next-middleware/cache-policy) and streamed via <Suspense>, so the hero (LCP)
+// flushes without waiting on it.
 const APP_BASE = process.env.NEXT_PUBLIC_APP_BASE || process.env.APP_BASE || defaults.base;
-
-// ISR: the marketing shell is static, but the trending strip pulls live ranked
-// posts. Revalidate on the same cadence as the "home" edge-cache tier (s-maxage
-// 300) so the homepage stays fast (served static) without freezing trending at
-// build time.
-export const revalidate = 300;
 
 export async function generateMetadata(): Promise<Metadata> {
   const base = APP_BASE;
