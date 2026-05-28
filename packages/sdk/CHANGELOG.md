@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.4
+
+### Patch Changes
+
+- Read next: Elasticsearch More Like This + SSR prefetch (#841)
+
 ## 2.3.3
 
 ### Patch Changes
