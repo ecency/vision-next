@@ -56,13 +56,21 @@ describe("getSimilarEntriesQueryOptions", () => {
     vi.unstubAllGlobals();
   });
 
-  it("builds an author/permlink query key", () => {
-    expect(getSimilarEntriesQueryOptions(entry).queryKey).toEqual([
-      "search",
-      "similar-entries",
-      "alice",
-      "my-post",
-    ]);
+  it("builds a content-fingerprinted query key", () => {
+    const key = getSimilarEntriesQueryOptions(entry).queryKey;
+    expect(key.slice(0, 4)).toEqual(["search", "similar-entries", "alice", "my-post"]);
+    expect(typeof key[4]).toBe("string");
+  });
+
+  it("changes the query key when the post content changes (edited posts refetch)", () => {
+    const base = getSimilarEntriesQueryOptions(entry).queryKey;
+    const editedTitle = getSimilarEntriesQueryOptions({ ...entry, title: "A new title" }).queryKey;
+    const editedTags = getSimilarEntriesQueryOptions({
+      ...entry,
+      json_metadata: { tags: ["something", "else"] },
+    }).queryKey;
+    expect(base[4]).not.toBe(editedTitle[4]);
+    expect(base[4]).not.toBe(editedTags[4]);
   });
 
   it("POSTs to /search-api/similar with title, tags, a truncated body and ~6 month since", async () => {
@@ -89,7 +97,7 @@ describe("getSimilarEntriesQueryOptions", () => {
     expect(payload.title).toBe("Nature photography at dawn");
     expect(payload.tags).toEqual(["nature", "photography"]);
     // body is truncated to the excerpt limit
-    expect(payload.body.length).toBe(2000);
+    expect(payload.body.length).toBe(3000);
     expect(payload.since).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/);
     const drift = Math.abs(
       Date.now() - 182 * 24 * 60 * 60 * 1000 - new Date(`${payload.since}Z`).getTime()
@@ -97,6 +105,25 @@ describe("getSimilarEntriesQueryOptions", () => {
     expect(drift).toBeLessThan(60_000);
 
     expect(result.map((r) => r.author)).toEqual(["c", "d", "e"]);
+  });
+
+  it("strips markdown image links and URLs from the body excerpt", async () => {
+    fetchMock.mockResolvedValueOnce({ ok: true, json: async () => searchResponse([]) });
+
+    const e = {
+      author: "a",
+      permlink: "p",
+      title: "t",
+      body: "![pic](https://images.hive.blog/DQm-big-hash.png) Real prose about nature and hiking https://x.test/y",
+      json_metadata: { tags: [] },
+    };
+    await (getSimilarEntriesQueryOptions(e).queryFn as QueryFn)({ signal: undefined });
+
+    const [, init] = fetchMock.mock.calls[0];
+    const payload = JSON.parse((init as RequestInit).body as string);
+    expect(payload.body).not.toContain("images.hive.blog");
+    expect(payload.body).not.toContain("http");
+    expect(payload.body).toContain("Real prose about nature and hiking");
   });
 
   it("excludes the source post and nsfw, dedupes by author, caps at 3", async () => {
