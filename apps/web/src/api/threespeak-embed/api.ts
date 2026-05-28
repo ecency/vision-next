@@ -100,7 +100,7 @@ const MB = 1024 * 1024;
  * throughput gain and it avoids zero-length parts. Chunk size is kept modest
  * so peak in-flight memory stays around chunkSize × parallelUploads.
  */
-function getUploadTuning(size: number): { chunkSize: number; parallelUploads: number } {
+export function getUploadTuning(size: number): { chunkSize: number; parallelUploads: number } {
   if (size <= 10 * MB) return { chunkSize: 5 * MB, parallelUploads: 1 };
   if (size <= 500 * MB) return { chunkSize: 10 * MB, parallelUploads: 3 };
   return { chunkSize: 20 * MB, parallelUploads: 3 };
@@ -153,6 +153,16 @@ export async function uploadVideoEmbed(
       },
       onSuccess() {
         const resolvedUrl = finalEmbedUrl || embedUrl;
+        // In parallel mode we expect the canonical URL on the final concat
+        // response. If it never arrived we fall back to a partial-response URL,
+        // whose permlink may be wrong — surface it so the failure is observable.
+        if (parallelUploads > 1 && !finalEmbedUrl && resolvedUrl) {
+          console.warn(
+            "[3Speak Embed] Parallel upload completed without an X-Embed-URL on the final " +
+              "concatenation response; falling back to a partial-response URL. The resulting " +
+              "permlink may be incorrect — verify the concat response carries X-Embed-URL."
+          );
+        }
         if (resolvedUrl) {
           const permlink = extractPermlink(resolvedUrl);
           if (!permlink) {

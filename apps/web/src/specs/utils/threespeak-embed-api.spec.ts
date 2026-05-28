@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { extractPermlink } from "@/api/threespeak-embed/api";
+import { extractPermlink, getUploadTuning } from "@/api/threespeak-embed/api";
 
 // The 3Speak proxy now requires a HiveSigner OAuth token resolved from
 // localStorage + user-token. These tests exercise fetch error propagation,
@@ -76,5 +76,26 @@ describe("requestUploadToken error handling", () => {
     } catch (e: any) {
       expect(e.status).toBe(401);
     }
+  });
+});
+
+describe("getUploadTuning", () => {
+  const MB = 1024 * 1024;
+
+  it("keeps small files (<= 10 MB) sequential", () => {
+    expect(getUploadTuning(0)).toEqual({ chunkSize: 5 * MB, parallelUploads: 1 });
+    expect(getUploadTuning(1024)).toEqual({ chunkSize: 5 * MB, parallelUploads: 1 });
+    expect(getUploadTuning(10 * MB)).toEqual({ chunkSize: 5 * MB, parallelUploads: 1 });
+  });
+
+  it("uses 10 MB x 3 parallel above 10 MB up to 500 MB", () => {
+    expect(getUploadTuning(10 * MB + 1)).toEqual({ chunkSize: 10 * MB, parallelUploads: 3 });
+    expect(getUploadTuning(100 * MB)).toEqual({ chunkSize: 10 * MB, parallelUploads: 3 });
+    expect(getUploadTuning(500 * MB)).toEqual({ chunkSize: 10 * MB, parallelUploads: 3 });
+  });
+
+  it("uses 20 MB x 3 parallel above 500 MB", () => {
+    expect(getUploadTuning(500 * MB + 1)).toEqual({ chunkSize: 20 * MB, parallelUploads: 3 });
+    expect(getUploadTuning(2 * 1024 * MB)).toEqual({ chunkSize: 20 * MB, parallelUploads: 3 });
   });
 });
