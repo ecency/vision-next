@@ -1,7 +1,6 @@
 import { Entry } from "@/entities";
 import { PollWidget, useEntryPollExtractor } from "@/features/polls";
-import { useEntryLocation, makeEntryPath } from "@/utils";
-import { catchPostImage, postBodySummary } from "@ecency/render-helper";
+import { useEntryLocation } from "@/utils";
 import { UilMapPinAlt } from "@tooni/iconscout-unicons-react";
 import Link from "next/link";
 import { EntryFooterControls } from "./entry-footer-controls";
@@ -22,30 +21,7 @@ interface Props {
 export function EntryPageContentSSR({ entry, isRawContent }: Props) {
   const location = useEntryLocation(entry);
   const postPoll = useEntryPollExtractor(entry);
-  const path = makeEntryPath(entry.category, entry.author, entry.permlink);
   const isComment = !!entry.parent_author;
-  const urlParts = path.split("#");
-  const fullUrl =
-    path !== "#"
-      ? isComment && urlParts[1]
-        ? `https://ecency.com/${urlParts[1]}`
-        : `https://ecency.com${path}`
-      : undefined;
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: entry.title,
-    author: {
-      "@type": "Person",
-      name: entry.author,
-      url: `https://ecency.com/@${entry.author}`
-    },
-    datePublished: entry.created,
-    dateModified: entry.updated ?? entry.created,
-    image: catchPostImage(entry, 600, 500, "match") ?? undefined,
-    description: entry.json_metadata?.description || postBodySummary(entry.body, 140),
-    mainEntityOfPage: fullUrl
-  };
   return (
     <>
       <div className="entry-header">
@@ -93,10 +69,6 @@ export function EntryPageContentSSR({ entry, isRawContent }: Props) {
         <EntryFooterControls entry={entry} />
       </div>
       <EntryPageSimilarEntries entry={entry} />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
-      />
     </>
   );
 }

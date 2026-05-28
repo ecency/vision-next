@@ -18,7 +18,6 @@ export function EntryPageStaticBody({ entry }: Props) {
     <div
       id="post-body"
       className="entry-body markdown-view user-selectable client"
-      itemProp="articleBody"
       dangerouslySetInnerHTML={{ __html: renderPostBody(entry.body, false, false, 'ecency.com', seoContext) }}
     />
   );

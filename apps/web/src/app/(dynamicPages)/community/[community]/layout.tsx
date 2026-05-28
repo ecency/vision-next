@@ -9,6 +9,7 @@ import "./community.scss";
 import { getServerAppBase } from "@/utils/server-app-base";
 import { prefetchQuery } from "@/core/react-query";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
+import { JsonLd, buildCommunityJsonLd } from "@/features/structured-data";
 
 interface Props {
   params: Promise<{ tag: string; community: string }>;
@@ -35,15 +36,15 @@ export default async function CommunityPageLayout({ children, params }: PropsWit
             <CommunityCard account={account} community={communityData} />
           )}
         </div>
-        <span itemScope={true} itemType="http://schema.org/Organization">
-          {communityData && (
-            <meta itemProp="name" content={communityData.title.trim() || communityData.name} />
-          )}
-          <span itemProp="logo" itemScope={true} itemType="http://schema.org/ImageObject">
-            <meta itemProp="url" content={metaUrl} />
-          </span>
-          <meta itemProp="url" content={`${base}${metaUrl}`} />
-        </span>
+        {communityData && (
+          <JsonLd
+            data={buildCommunityJsonLd({
+              community: communityData,
+              path: metaUrl,
+              base: base.replace(/\/+$/, "")
+            })}
+          />
+        )}
         <div className="content-side">
           {communityData && <CommunityMenu community={communityData} />}
           {communityData && account && <CommunityCover account={account} community={communityData} />}

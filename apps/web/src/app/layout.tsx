@@ -10,6 +10,7 @@ import Script from "next/script";
 import { Inter, Lora } from "next/font/google";
 import { Metadata, Viewport } from "next";
 import defaults from "@/defaults.json";
+import { JsonLd, buildOrganizationJsonLd } from "@/features/structured-data";
 
 export const metadata: Metadata = {
   metadataBase: new URL(defaults.base),
@@ -86,6 +87,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <link rel="preconnect" href="https://i.ecency.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://ecency.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://hapi.ecency.com" crossOrigin="anonymous" />
+        <JsonLd data={buildOrganizationJsonLd()} />
       </head>
       <Script defer data-domain="ecency.com" data-api="/pl/api/event" src="/pl/js/script.js" />
       <body className={theme === Theme.night ? "dark" : ""}>

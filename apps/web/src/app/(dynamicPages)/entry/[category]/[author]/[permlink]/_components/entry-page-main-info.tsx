@@ -31,13 +31,8 @@ export function EntryPageMainInfo({ entry }: Props) {
           </ProfileLink>
           <div className="flex flex-col">
             <ProfileLink username={entry.author}>
-              <div
-                className="text-lg notranslate"
-                itemProp="author"
-                itemScope={true}
-                itemType="http://schema.org/Person"
-              >
-                <span itemProp="name">{entry.author}</span>
+              <div className="text-lg notranslate">
+                <span>{entry.author}</span>
                 <span className="author-reputation" title={i18next.t("entry.author-reputation")}>
                   ({reputation})
                 </span>

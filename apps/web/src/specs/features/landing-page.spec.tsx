@@ -36,6 +36,13 @@ vi.mock("@ui/svg", async (importOriginal) => {
   return { ...actual, scrollDown: "<svg data-testid='scroll-down-icon' />" };
 });
 
+// LandingTrending is an async server component that fetches ranked posts via
+// prefetchQuery; stub it so the test drives the rendered output deterministically.
+const mockPrefetchQuery = vi.fn();
+vi.mock("@/core/react-query", () => ({
+  prefetchQuery: (...args: any[]) => mockPrefetchQuery(...args)
+}));
+
 // Extend the global @/utils mock with landing-page-specific exports
 vi.mock("@/utils", async (importOriginal) => {
   const actual = await importOriginal<any>();
@@ -50,6 +57,8 @@ import { LandingHeroActions } from "@/app/_components/landing-page/landing-hero-
 import { LandingSubscribeForm } from "@/app/_components/landing-page/landing-subscribe-form";
 import { LandingSignInLink } from "@/app/_components/landing-page/landing-sign-in-link";
 import { LandingDownloadLinks } from "@/app/_components/landing-page/landing-download-links";
+import { LandingExplore } from "@/app/_components/landing-page/landing-explore";
+import { LandingTrending } from "@/app/_components/landing-page/landing-trending";
 import { success, error as errorFn } from "@/features/shared/feedback";
 
 describe("LandingHeroActions", () => {
@@ -61,21 +70,78 @@ describe("LandingHeroActions", () => {
 
   it("renders accessible scroll button", () => {
     render(<LandingHeroActions />);
-    const scrollBtn = screen.getByRole("button", { name: "Scroll to Earn Money" });
+    const scrollBtn = screen.getByRole("button", { name: "landing-page.scroll-down" });
     expect(scrollBtn).toBeInTheDocument();
     expect(scrollBtn).toHaveClass("scroll-down");
   });
 
-  it("scrolls to earn-money section on click", () => {
-    const mockScrollIntoView = vi.fn();
-    const mockElement = { scrollIntoView: mockScrollIntoView };
-    const spy = vi.spyOn(document, "getElementById").mockReturnValue(mockElement as any);
+  it("smooth-scrolls down on click", () => {
+    const scrollBySpy = vi.spyOn(window, "scrollBy").mockImplementation(() => {});
 
     render(<LandingHeroActions />);
-    fireEvent.click(screen.getByRole("button", { name: "Scroll to Earn Money" }));
-    expect(mockScrollIntoView).toHaveBeenCalledWith({ behavior: "smooth" });
+    fireEvent.click(screen.getByRole("button", { name: "landing-page.scroll-down" }));
+    expect(scrollBySpy).toHaveBeenCalledWith(
+      expect.objectContaining({ behavior: "smooth" })
+    );
 
-    spy.mockRestore();
+    scrollBySpy.mockRestore();
+  });
+});
+
+describe("LandingExplore", () => {
+  it("renders topic hub links and discovery links with canonical hrefs", () => {
+    render(<LandingExplore />);
+    expect(screen.getByRole("link", { name: "#hive" })).toHaveAttribute(
+      "href",
+      "/trending/hive"
+    );
+    expect(
+      screen.getByRole("link", { name: "landing-page.popular-communities" })
+    ).toHaveAttribute("href", "/communities");
+    expect(screen.getByRole("link", { name: "landing-page.discover" })).toHaveAttribute(
+      "href",
+      "/discover"
+    );
+  });
+});
+
+describe("LandingTrending", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("renders bare /@author/permlink links and filters NSFW posts", async () => {
+    mockPrefetchQuery.mockResolvedValue([
+      {
+        author: "alice",
+        permlink: "hello-world",
+        title: "Hello World",
+        category: "life",
+        community_title: "Life",
+        body: "",
+        json_metadata: { tags: ["life"] },
+        created: "2024-01-01T00:00:00"
+      },
+      {
+        author: "bob",
+        permlink: "adult-post",
+        title: "Adult thing",
+        category: "hive-125278", // curated NSFW community
+        body: "",
+        json_metadata: { tags: [] },
+        created: "2024-01-01T00:00:00"
+      }
+    ]);
+
+    render(await LandingTrending());
+
+    const link = screen.getByRole("link", { name: /Hello World/ });
+    expect(link).toHaveAttribute("href", "/@alice/hello-world");
+    // NSFW community post must not appear on the anonymous homepage.
+    expect(screen.queryByText("Adult thing")).not.toBeInTheDocument();
+  });
+
+  it("renders nothing when there are no trending posts", async () => {
+    mockPrefetchQuery.mockResolvedValue([]);
+    expect(await LandingTrending()).toBeNull();
   });
 });
 
