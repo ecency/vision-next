@@ -5,8 +5,13 @@ import { Navbar } from "@/features/shared/navbar";
 import { LandingPage } from "@/app/_components/landing-page";
 import { Metadata } from "next";
 import defaults from "@/defaults.json";
-import { getServerAppBase } from "@/utils/server-app-base";
 import { JsonLd, buildWebsiteJsonLd } from "@/features/structured-data";
+
+// Static canonical base. The homepage is the same WebSite entity regardless of
+// which host served the bytes, and using getServerAppBase() (which reads
+// headers()) would opt this route into dynamic rendering and defeat the ISR
+// revalidate below. Env override stays available for non-prod deployments.
+const APP_BASE = process.env.NEXT_PUBLIC_APP_BASE || process.env.APP_BASE || defaults.base;
 
 // ISR: the marketing shell is static, but the trending strip pulls live ranked
 // posts. Revalidate on the same cadence as the "home" edge-cache tier (s-maxage
@@ -15,7 +20,7 @@ import { JsonLd, buildWebsiteJsonLd } from "@/features/structured-data";
 export const revalidate = 300;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const base = await getServerAppBase();
+  const base = APP_BASE;
 
   return {
     title: defaults.title,
@@ -51,11 +56,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Home() {
-  const base = await getServerAppBase();
   return (
     <>
       {/*<Meta {...metaProps} />*/}
-      <JsonLd data={buildWebsiteJsonLd(base)} />
+      <JsonLd data={buildWebsiteJsonLd(APP_BASE)} />
       <ScrollToTop />
       <Theme />
       <Feedback />
