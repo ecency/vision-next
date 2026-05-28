@@ -8,6 +8,7 @@ import { ScrollToTop } from "@/features/shared/scroll-to-top";
 import { Theme } from "@/features/shared/theme";
 import { ProfileCardLoading } from "./_components/profile-card/profile-card-loading";
 import { prefetchQuery } from "@/core/react-query";
+import { JsonLd, buildProfileJsonLd } from "@/features/structured-data";
 
 interface Props extends PropsWithChildren {
   params: Promise<{ username: string }>;
@@ -33,9 +34,7 @@ export default async function ProfileLayout({ children, params }: Props) {
         >
           {account ? <ProfileCard account={account} /> : <ProfileCardLoading />}
 
-          <span itemScope={true} itemType="http://schema.org/Person">
-            <meta itemProp="name" content={account?.profile?.name || account?.name} />
-          </span>
+          <JsonLd data={buildProfileJsonLd({ account, username })} />
         </div>
         <div className="w-full min-w-0">
           <ProfileMenu username={username} />

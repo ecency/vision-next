@@ -6,12 +6,12 @@ export function isIndexRedirect(request: NextRequest) {
 
 export function handleIndexRedirect(request: NextRequest) {
   const url = request.nextUrl.clone();
-  url.pathname = `/hot`;
 
+  // Only logged-in "/" requests reach here (see isIndexRedirect). A 307 redirect
+  // (not a rewrite) keeps the URL honest so the feed route applies its own cache
+  // policy, analytics records the real path, and usePathname matches the content.
+  // Crawler-neutral: bots are anonymous and never trigger this branch.
   const activeUser = request.cookies.get("active_user")?.value;
-  if (activeUser) {
-    url.pathname = `/@${activeUser}/feed`;
-    return NextResponse.rewrite(url);
-  }
-  return NextResponse.rewrite(url);
+  url.pathname = activeUser ? `/@${activeUser}/feed` : `/hot`;
+  return NextResponse.redirect(url, 307);
 }

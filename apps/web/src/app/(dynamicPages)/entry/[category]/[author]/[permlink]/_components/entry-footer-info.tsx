@@ -31,9 +31,6 @@ export function EntryFooterInfo({ entry }: Props) {
       {app && (
         <>
           <span className="separator circle-separator" />
-          <span itemProp="publisher" itemScope={true} itemType="http://schema.org/Person">
-            <meta itemProp="name" content={entry.author} />
-          </span>
           <div className="app" title={app}>
             <Tsx k="entry.via-app" args={{ app: appShort }}>
               <a href="/faq#source-label" />

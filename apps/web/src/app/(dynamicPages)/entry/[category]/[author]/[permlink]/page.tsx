@@ -8,6 +8,9 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata, ResolvingMetadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { generateEntryMetadata } from "../../../_helpers";
+import { makeEntryPath } from "@/utils";
+import defaults from "@/defaults.json";
+import { JsonLd, buildArticleJsonLd, buildBreadcrumbJsonLd } from "@/features/structured-data";
 import {
   EntryPageContextProvider,
   EntryPageCrossPostHeader,
@@ -45,7 +48,7 @@ export default async function EntryPage({ params, searchParams }: Props) {
   const isRawContent = sParams.raw !== undefined;
 
   const author = username.replace(/%40/g, "");
-  const [entry] = await Promise.all([
+  const [entry, account] = await Promise.all([
     prefetchQuery(EcencyEntriesCacheManagement.getEntryQueryByPath(author, permlink)),
     // Warm the query cache for child components that read account data.
     // Use author from URL params so this runs in parallel with the entry fetch.
@@ -94,6 +97,24 @@ export default async function EntryPage({ params, searchParams }: Props) {
   const lcpImage = catchPostImage(entry, 600, 500, "match");
   const lcpImageSrcSet = lcpImage ? buildSrcSet(lcpImage) : "";
 
+  // Structured data: only top-level posts get Article + breadcrumb. Comments
+  // carry no headline of their own and would emit an invalid Article.
+  const entryPath = makeEntryPath(entry.category, entry.author, entry.permlink);
+  const entryUrl = `${defaults.base}${entryPath}`;
+  const structuredData = entry.parent_author
+    ? null
+    : [
+        buildArticleJsonLd({ entry, account, url: entryUrl }),
+        buildBreadcrumbJsonLd([
+          { name: defaults.name, url: defaults.base },
+          {
+            name: entry.community_title || `#${entry.category}`,
+            url: `${defaults.base}/trending/${entry.category}`
+          },
+          { name: entry.title, url: entryUrl }
+        ])
+      ];
+
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>
       {lcpImage && (
@@ -111,14 +132,10 @@ export default async function EntryPage({ params, searchParams }: Props) {
         <div className="app-content entry-page bg-fixed bg-contain bg-gradient-to-tr from-blue-dark-sky/20 to-white dark:from-dark-default dark:to-black">
           <div className="the-entry">
             <EntryPageCrossPostHeader entry={entry} />
-            <span itemScope itemType="http://schema.org/Article">
-              <EntryPageContentSSR entry={entry} isRawContent={isRawContent} />
-              <EntryPageContentClient entry={entry} />
-              <EntryPageDiscussionsWrapper
-                entry={entry}
-                category={category}
-              />
-            </span>
+            {structuredData && <JsonLd data={structuredData} />}
+            <EntryPageContentSSR entry={entry} isRawContent={isRawContent} />
+            <EntryPageContentClient entry={entry} />
+            <EntryPageDiscussionsWrapper entry={entry} category={category} />
           </div>
         </div>
         <EntryPageEditHistory entry={entry} />

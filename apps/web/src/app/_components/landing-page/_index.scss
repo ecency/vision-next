@@ -76,51 +76,6 @@
       display: none !important;
     }
   }
-  .tob-bg-algae {
-    display: none;
-    @include themify(night) {
-      background-image: url("https://ecency.com/assets/hero-algae-dark.svg");
-    }
-    @include themify(day) {
-      background-image: url("https://ecency.com/assets/hero-algae-light.svg");
-    }
-    background-position: 100% 100%;
-    background-size: contain;
-    background-repeat: no-repeat;
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    height: 29%;
-    @media (max-width: $md-break) {
-      display: block;
-    }
-  }
-  .tob-bg-fishes {
-    display: none;
-    z-index: 1;
-    @include themify(night) {
-      background-image: url("https://ecency.com/assets/hero-fishes-dark.png");
-    }
-    @include themify(day) {
-      background-image: url("https://ecency.com/assets/hero-fishes.svg");
-    }
-    background-position: 100% 100%;
-    background-size: contain;
-    background-repeat: no-repeat;
-    position: absolute;
-    left: 34%;
-    bottom: 10px;
-    width: 200px;
-    height: 280px;
-    @media (max-width: $md-break) {
-      display: block;
-    }
-    @media (max-width: $sm-break) {
-      left: 23%;
-    }
-  }
   h1 {
     font-weight: 800;
     font-size: 76px;
@@ -247,8 +202,18 @@
       align-items: center;
       @apply text-white;
       border-radius: 30px;
-      border: none;
+      border: 2px solid $blue;
       outline: none;
+      font-weight: 600;
+      transition: opacity 0.15s ease;
+      &:hover {
+        opacity: 0.9;
+      }
+      // Secondary CTA: outlined, lets the filled primary dominate the hierarchy.
+      &.secondary {
+        background-color: transparent;
+        @apply text-blue-dark-sky;
+      }
     }
     .link-btn {
       @apply text-white;
@@ -929,75 +894,6 @@
         align-items: center;
         position: relative;
       }
-      .fish-container {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: unset;
-        bottom: o;
-        width: 200px;
-        height: 100%;
-        margin: 0;
-        padding: 0;
-        background-color: transparent;
-        &:last-of-type {
-          right: 0;
-          left: unset;
-        }
-        .fish {
-          width: 152px;
-          height: auto;
-          position: absolute;
-        }
-        .one {
-          width: 79px;
-          height: auto;
-          right: 40%;
-          top: 110px;
-        }
-        .two {
-          width: 152px;
-          height: auto;
-          right: 23%;
-          bottom: 3px;
-        }
-        .three {
-          width: 108px;
-          height: auto;
-          left: 30%;
-          top: 70px;
-        }
-        .four {
-          width: 110px;
-          height: auto;
-          left: 10%;
-          bottom: 100px;
-        }
-        .five {
-          width: 66px;
-          height: auto;
-          left: 10%;
-          bottom: 50%;
-        }
-        @media (max-width: $lg-break) {
-          .fish {
-            display: none;
-          }
-          .five {
-            display: inline-block;
-          }
-        }
-        @media (min-width: $lg-break) {
-          .five {
-            display: none;
-          }
-        }
-        @media (max-width: $sm-break) {
-          -webkit-transform: scale(0.7);
-          -ms-transform: scale(0.7);
-          transform: scale(0.7);
-        }
-      }
       .mask {
         @include themify(night) {
           display: none;
@@ -1099,150 +995,8 @@
       }
       position: relative;
 
-      .download-fishes {
-        display: inline-block;
-        position: absolute;
-        &.left-fishes {
-          left: -18%;
-          top: 14%;
-          @media (max-width: $lg-break) {
-            left: -22%;
-            top: 9%;
-            -webkit-transform: scale(0.5);
-                -ms-transform: scale(0.5);
-                    transform: scale(0.5);
-          }
-        }
-        &.right-big {
-          -webkit-transform: rotate(-23deg);
-              -ms-transform: rotate(-23deg);
-                  transform: rotate(-23deg);
-          bottom: 0;
-          @media (max-width: $lg-break) {
-            -webkit-transform: rotate(-23deg) scale(0.5);
-                -ms-transform: rotate(-23deg) scale(0.5);
-                    transform: rotate(-23deg) scale(0.5);
-          }
-        }
-        &.right-small {
-          bottom: 150px;
-          right: 110px;
-          @media (max-width: $lg-break) {
-            -webkit-transform: scale(0.5);
-                -ms-transform: scale(0.5);
-                    transform: scale(0.5);
-            bottom: 103px;
-            right: 59px;
-          }
-        }
-        &.right-dark-fishes {
-          display: none;
-          bottom: 5%;
-          -webkit-transform: scale(1.5);
-              -ms-transform: scale(1.5);
-                  transform: scale(1.5);
-          @media (max-width: $lg-break) {
-            -webkit-transform: scale(1);
-                -ms-transform: scale(1);
-                    transform: scale(1);
-            right: 5%;
-          }
-        }
-        @include themify(night) {
-          &.right-small, &.right-big {
-            display: none;
-          }
-          &.right-dark-fishes {
-            display: inline-block;
-            @media (max-width: 766px) {
-              display: none;
-            }
-          }
-        }
-      }
-
-      .phone-bg {
-        position: absolute;
-        height: 740px;
-        width: 375px;
-        display: none;
-        left:100px;
-        top:auto;
-        bottom:auto;
-        z-index: 1;
-        @include themify(day) {
-          @media (min-width: $lg-break) {
-            &.phone-light-pc {
-              display: block;
-            }
-          }
-          @media (max-width: $lg-break) {
-            &.phone-light-tablet {
-              display: block;
-            }
-          }
-        }
-        @include themify(night) {
-          @media (min-width: $lg-break) {
-            &.phone-dark-pc {
-              display: block;
-            }
-          }
-          @media (max-width: $lg-break) {
-            &.phone-dark-tablet {
-              display: block;
-            }
-          }
-        }
-
-        @media (max-width: $lg-break) {
-          height: 450px;
-          width: auto;
-          padding: 3rem 1rem;
-          left: 130px;
-        }
-        @media (max-width: 766px) {
-          display: none !important;
-        }
-
-      }
-
-      .bubble-bg {
-        position: absolute;
-        max-height: 59px;
-        max-width: 59px;
-        display: inline-block;
-        z-index: 0;
-        &.bubble-left-top {
-          top: -5%;
-          left: -15%;
-        }
-        &.bubble-left-bottom {
-          bottom: 25%;
-          left: -15%;
-        }
-        &.bubble-center {
-          top: -7%;
-          left: 62%;
-        }
-        &.bubble-right-bottom {
-          bottom: -7%;
-          right: -12%;
-        }
-        &.bubble-right-top {
-          top: 6%;
-          right: -12%;
-        }
-        @include themify(night) {
-          display: none;
-        }
-      }
-
       @media (max-width: 766px) {
         height: 500px;
-        .phone-bg, .bubble-bg, .download-fishes {
-          display: none;
-        }
         @include themify(night) {
           background: rgb(23,30,38);
           background: -o-linear-gradient(273deg, rgba(23,30,38,1) 0%, rgba(71,77,84,1) 100%);
@@ -1831,30 +1585,6 @@
       background-size: 100% 100%;
       background-position: center;
       position: relative;
-      .left-fishes {
-        position: absolute;
-        top: 90px;
-        left: 50px;
-        background-image: url("https://ecency.com/assets/left-fishes.png");
-        background-repeat: no-repeat;
-        background-position: center;
-        background-size: contain;
-        height: 270px;
-        width: 270px;
-        @media (max-width: $xxxl-break) {
-          display: none;
-        }
-      }
-      .main-fish {
-        position: absolute;
-        right: 0px;
-        bottom: 10px;
-        background-repeat: no-repeat;
-        background-position: center;
-        background-size: contain;
-        width: 484px;
-        height: 575px;
-      }
       .inner {
         -webkit-box-pack: center;
         -ms-flex-pack: center;

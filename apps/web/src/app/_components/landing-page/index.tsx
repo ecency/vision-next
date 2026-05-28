@@ -9,6 +9,8 @@ import { LandingHeroActions } from "./landing-hero-actions";
 import { LandingSubscribeForm } from "./landing-subscribe-form";
 import { LandingSignInLink } from "./landing-sign-in-link";
 import { LandingDownloadLinks } from "./landing-download-links";
+import { LandingTrending } from "./landing-trending";
+import { LandingExplore } from "./landing-explore";
 
 /**
  * Helper to build a <picture> element that serves webp with png/jpeg fallback.
@@ -94,8 +96,6 @@ export async function LandingPage() {
   return (
     <div className="landing-wrapper" id="landing-wrapper">
       <div className="top-bg" />
-      <div className="tob-bg-algae" />
-      <div className="tob-bg-fishes" />
 
       {/* Hero Section */}
       <div className="sections first-section">
@@ -108,6 +108,10 @@ export async function LandingPage() {
         </div>
       </div>
 
+      {/* Real content first: trending posts + topic hubs for click-through + crawl discovery */}
+      <LandingTrending />
+      <LandingExplore />
+
       {/* Earn Money & True Ownership */}
       <div className="sections second-section" id="earn-money">
         <div className="part-top">
@@ -117,7 +121,6 @@ export async function LandingPage() {
               alt={t("landing-page.earn-money")}
               width={373}
               height={442}
-              priority
               sizes="(max-width: 640px) 280px, (max-width: 768px) 320px, (max-width: 1024px) 360px, 373px"
               className="mx-auto sm:m-0"
             />
@@ -211,15 +214,6 @@ export async function LandingPage() {
       <div className="sections fourth-section">
         <div className="part-top">
           <div className="inner">
-            <div className="fish-container">
-              <AssetPicture basePath="fish-3" alt="" className="fish three" />
-              <AssetPicture basePath="fish-5" alt="" className="fish five" />
-              <AssetPicture basePath="fish-4" alt="" className="fish four" />
-            </div>
-            <div className="fish-container">
-              <AssetPicture basePath="fish-1" alt="" className="fish one" />
-              <AssetPicture basePath="fish-2" alt="" className="fish two" />
-            </div>
             <ul>
               <li>
                 <h3>130M+</h3>
@@ -244,24 +238,6 @@ export async function LandingPage() {
         </div>
         <div className="part-bottom" id="download">
           <div className="inner">
-            <span />
-            <span />
-            <AssetPicture basePath="phone-download-tiny" alt="" className="phone-bg phone-dark-pc" />
-            <AssetPicture basePath="phone-download-tiny" alt="" className="phone-bg phone-dark-tablet" />
-            <AssetPicture basePath="phone-download-tiny" alt="" className="phone-bg phone-light-pc" />
-            <AssetPicture basePath="phone-download-tiny" alt="" className="phone-bg phone-light-tablet" />
-
-            <AssetPicture basePath="bubble-left-top" alt="" className="bubble-bg bubble-left-top" />
-            <AssetPicture basePath="bubble-left-bottom" alt="" className="bubble-bg bubble-left-bottom" />
-            <AssetPicture basePath="bubble-center" alt="" className="bubble-bg bubble-center" />
-            <AssetPicture basePath="bubble-right-top" alt="" className="bubble-bg bubble-right-top" />
-            <AssetPicture basePath="bubble-right-bottom" alt="" className="bubble-bg bubble-right-bottom" />
-
-            <AssetPicture basePath="left-fishes" alt="" className="download-fishes left-fishes" />
-            <AssetPicture basePath="download-dark-fishes" alt="" className="download-fishes right-dark-fishes" />
-            <AssetPicture basePath="fish-1" alt="" className="download-fishes right-small" />
-            <AssetPicture basePath="fish-2" alt="" className="download-fishes right-big" />
-
             <div className="text-group">
               <h2>{t("landing-page.download-our-application")}</h2>
               <p className="mt-4">{t("landing-page.download-our-application-desc-1")}</p>
@@ -324,14 +300,10 @@ export async function LandingPage() {
 
             <div className="image-container">
               <AssetPicture basePath="our-team" alt={t("landing-page.our-team")} className="our-team together" />
-              <AssetPicture basePath="fish-senior" alt="" className="our-team senior" />
-              <AssetPicture basePath="fish-junior" alt="" className="our-team junior" />
             </div>
           </div>
         </div>
         <div className="part-bottom sm:pt-5 lg:pt-[auto]">
-          <span className="left-fishes" />
-          <AssetPicture basePath="footer-main-fish" alt="" className="main-fish" />
           <div className="inner">
             <div className="links-and-form">
               <div className="links">

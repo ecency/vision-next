@@ -1,0 +1,188 @@
+import { catchPostImage, postBodySummary } from "@ecency/render-helper";
+import defaults from "@/defaults.json";
+import { Entry, FullAccount, Community } from "@/entities";
+
+/**
+ * Single source of truth for schema.org JSON-LD across the app.
+ *
+ * The site-wide Organization is emitted once in the root layout under a stable
+ * @id (`<base>/#organization`); every other graph node (Article publisher,
+ * WebSite publisher, …) references it by @id rather than re-describing it, so
+ * Google merges them into one entity without duplication.
+ */
+
+const ORG_ID = `${defaults.base}/#organization`;
+const ORG_LOGO = `${defaults.base}/assets/logo-512x512.png`;
+
+// Brand profiles, mirrored from the landing-page footer. Used as Organization
+// sameAs so Google can tie the social accounts to the brand entity.
+const ORG_SAME_AS = [
+  "https://twitter.com/ecency_official",
+  "https://youtube.com/ecency",
+  "https://t.me/ecency",
+  "https://discord.me/ecency"
+];
+
+const HEADLINE_MAX = 110;
+
+type JsonLdData = Record<string, unknown>;
+
+export function JsonLd({ data }: { data: JsonLdData | JsonLdData[] }) {
+  return (
+    <script
+      type="application/ld+json"
+      // Escape `<` so a `</script>` sequence inside any string can't break out.
+      // Values originate from on-chain/post data, so this guard matters.
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(data).replace(/</g, "\\u003c") }}
+    />
+  );
+}
+
+function avatar(username: string, size: "small" | "medium" | "large" = "medium") {
+  return `${defaults.imageServer}/u/${username}/avatar/${size}`;
+}
+
+export function buildOrganizationJsonLd(base: string = defaults.base): JsonLdData {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": ORG_ID,
+    name: defaults.name,
+    url: base,
+    logo: { "@type": "ImageObject", url: ORG_LOGO, width: 512, height: 512 },
+    sameAs: ORG_SAME_AS
+  };
+}
+
+export function buildWebsiteJsonLd(base: string = defaults.base): JsonLdData {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": `${base}/#website`,
+    name: defaults.name,
+    url: base,
+    publisher: { "@id": ORG_ID },
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: `${base}/search/?q={search_term_string}`
+      },
+      "query-input": "required name=search_term_string"
+    }
+  };
+}
+
+export function buildBreadcrumbJsonLd(items: { name: string; url: string }[]): JsonLdData {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: item.name,
+      item: item.url
+    }))
+  };
+}
+
+export function buildArticleJsonLd({
+  entry,
+  account,
+  url,
+  base = defaults.base
+}: {
+  entry: Entry;
+  account?: FullAccount | null;
+  url: string;
+  base?: string;
+}): JsonLdData {
+  const authorName = account?.profile?.name?.trim() || entry.author;
+  const headline = (entry.title ?? "").slice(0, HEADLINE_MAX);
+  const image = catchPostImage(entry, 1200, 630, "match") || undefined;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline,
+    description: entry.json_metadata?.description || postBodySummary(entry.body, 140),
+    image: image ? [image] : undefined,
+    datePublished: entry.created,
+    dateModified: entry.updated ?? entry.created,
+    author: {
+      "@type": "Person",
+      name: authorName,
+      url: `${base}/@${entry.author}`,
+      image: avatar(entry.author)
+    },
+    publisher: { "@id": ORG_ID },
+    mainEntityOfPage: { "@type": "WebPage", "@id": url },
+    url,
+    commentCount: entry.children,
+    interactionStatistic: entry.children
+      ? {
+          "@type": "InteractionCounter",
+          interactionType: "https://schema.org/CommentAction",
+          userInteractionCount: entry.children
+        }
+      : undefined
+  };
+}
+
+export function buildProfileJsonLd({
+  account,
+  username,
+  base = defaults.base
+}: {
+  account?: FullAccount | null;
+  username: string;
+  base?: string;
+}): JsonLdData {
+  const displayName = account?.profile?.name?.trim() || username;
+  const about = account?.profile?.about?.trim();
+  const website = account?.profile?.website?.trim();
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    dateCreated: account?.created,
+    mainEntity: {
+      "@type": "Person",
+      name: displayName,
+      alternateName: `@${username}`,
+      identifier: username,
+      url: `${base}/@${username}`,
+      image: avatar(username, "large"),
+      description: about || undefined,
+      sameAs: website ? [website] : undefined,
+      interactionStatistic: account?.follow_stats
+        ? [
+            {
+              "@type": "InteractionCounter",
+              interactionType: "https://schema.org/FollowAction",
+              userInteractionCount: account.follow_stats.follower_count
+            }
+          ]
+        : undefined
+    }
+  };
+}
+
+export function buildCommunityJsonLd({
+  community,
+  path,
+  base = defaults.base
+}: {
+  community: Community;
+  path: string;
+  base?: string;
+}): JsonLdData {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: community.title?.trim() || community.name,
+    url: `${base}${path}`,
+    logo: { "@type": "ImageObject", url: avatar(community.name, "large") },
+    description: community.about?.trim() || community.description?.trim() || undefined
+  };
+}

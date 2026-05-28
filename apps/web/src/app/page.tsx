@@ -6,6 +6,7 @@ import { LandingPage } from "@/app/_components/landing-page";
 import { Metadata } from "next";
 import defaults from "@/defaults.json";
 import { getServerAppBase } from "@/utils/server-app-base";
+import { JsonLd, buildWebsiteJsonLd } from "@/features/structured-data";
 
 export async function generateMetadata(): Promise<Metadata> {
   const base = await getServerAppBase();
@@ -47,6 +48,7 @@ export default async function Home() {
   return (
     <>
       {/*<Meta {...metaProps} />*/}
+      <JsonLd data={buildWebsiteJsonLd()} />
       <ScrollToTop />
       <Theme />
       <Feedback />

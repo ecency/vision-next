@@ -25,11 +25,7 @@ export const EntryInfo = ({ entry }: Props) => {
         <div className="info-line-1">
           <ProfileLink username={entry.author}>
             <div className="author notranslate">
-              <span className="author-name">
-                <span itemProp="author" itemScope={true} itemType="http://schema.org/Person">
-                  <span itemProp="name">{entry.author}</span>
-                </span>
-              </span>
+              <span className="author-name">{entry.author}</span>
               <span className="author-reputation" title={i18next.t("entry.author-reputation")}>
                 ({reputation})
               </span>
