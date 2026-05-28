@@ -8,6 +8,12 @@ import defaults from "@/defaults.json";
 import { getServerAppBase } from "@/utils/server-app-base";
 import { JsonLd, buildWebsiteJsonLd } from "@/features/structured-data";
 
+// ISR: the marketing shell is static, but the trending strip pulls live ranked
+// posts. Revalidate on the same cadence as the "home" edge-cache tier (s-maxage
+// 300) so the homepage stays fast (served static) without freezing trending at
+// build time.
+export const revalidate = 300;
+
 export async function generateMetadata(): Promise<Metadata> {
   const base = await getServerAppBase();
 
@@ -45,10 +51,11 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Home() {
+  const base = await getServerAppBase();
   return (
     <>
       {/*<Meta {...metaProps} />*/}
-      <JsonLd data={buildWebsiteJsonLd()} />
+      <JsonLd data={buildWebsiteJsonLd(base)} />
       <ScrollToTop />
       <Theme />
       <Feedback />

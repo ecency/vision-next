@@ -8,8 +8,9 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata, ResolvingMetadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { generateEntryMetadata } from "../../../_helpers";
-import { makeEntryPath } from "@/utils";
 import defaults from "@/defaults.json";
+import { getServerAppBase } from "@/utils/server-app-base";
+import { entryCanonical } from "@/utils/entry-canonical";
 import { JsonLd, buildArticleJsonLd, buildBreadcrumbJsonLd } from "@/features/structured-data";
 import {
   EntryPageContextProvider,
@@ -99,17 +100,19 @@ export default async function EntryPage({ params, searchParams }: Props) {
 
   // Structured data: only top-level posts get Article + breadcrumb. Comments
   // carry no headline of their own and would emit an invalid Article.
-  const entryPath = makeEntryPath(entry.category, entry.author, entry.permlink);
-  const entryUrl = `${defaults.base}${entryPath}`;
+  // Use the canonical bare /@author/permlink URL (matches generateEntryMetadata)
+  // rather than the category-prefixed path, which only 307-redirects to it.
+  const base = await getServerAppBase();
+  const entryUrl = entryCanonical(entry, base) ?? `${base}/@${entry.author}/${entry.permlink}`;
   const structuredData = entry.parent_author
     ? null
     : [
-        buildArticleJsonLd({ entry, account, url: entryUrl }),
+        buildArticleJsonLd({ entry, account, url: entryUrl, base }),
         buildBreadcrumbJsonLd([
-          { name: defaults.name, url: defaults.base },
+          { name: defaults.name, url: base },
           {
             name: entry.community_title || `#${entry.category}`,
-            url: `${defaults.base}/trending/${entry.category}`
+            url: `${base}/trending/${entry.category}`
           },
           { name: entry.title, url: entryUrl }
         ])

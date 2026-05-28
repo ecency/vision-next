@@ -18,7 +18,7 @@ export function LandingHeroActions() {
       <button
         type="button"
         className="scroll-down cursor-pointer"
-        aria-label="Scroll down"
+        aria-label={i18next.t("landing-page.scroll-down")}
         onClick={() =>
           window.scrollBy({ top: Math.round(window.innerHeight * 0.9), behavior: "smooth" })
         }

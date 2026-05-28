@@ -42,6 +42,13 @@ function avatar(username: string, size: "small" | "medium" | "large" = "medium")
   return `${defaults.imageServer}/u/${username}/avatar/${size}`;
 }
 
+// Hive timestamps come back without a timezone ("2021-01-01T00:00:00"); schema.org
+// validators read that as ambiguous local time. Tag bare timestamps as UTC.
+function toUtcIso(ts?: string): string | undefined {
+  if (!ts) return undefined;
+  return /[zZ]|[+-]\d{2}:?\d{2}$/.test(ts) ? ts : `${ts}Z`;
+}
+
 export function buildOrganizationJsonLd(base: string = defaults.base): JsonLdData {
   return {
     "@context": "https://schema.org",
@@ -107,8 +114,8 @@ export function buildArticleJsonLd({
     headline,
     description: entry.json_metadata?.description || postBodySummary(entry.body, 140),
     image: image ? [image] : undefined,
-    datePublished: entry.created,
-    dateModified: entry.updated ?? entry.created,
+    datePublished: toUtcIso(entry.created),
+    dateModified: toUtcIso(entry.updated ?? entry.created),
     author: {
       "@type": "Person",
       name: authorName,
@@ -145,7 +152,7 @@ export function buildProfileJsonLd({
   return {
     "@context": "https://schema.org",
     "@type": "ProfilePage",
-    dateCreated: account?.created,
+    dateCreated: toUtcIso(account?.created),
     mainEntity: {
       "@type": "Person",
       name: displayName,

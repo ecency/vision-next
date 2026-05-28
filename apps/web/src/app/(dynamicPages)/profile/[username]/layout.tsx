@@ -34,7 +34,7 @@ export default async function ProfileLayout({ children, params }: Props) {
         >
           {account ? <ProfileCard account={account} /> : <ProfileCardLoading />}
 
-          <JsonLd data={buildProfileJsonLd({ account, username })} />
+          {account && <JsonLd data={buildProfileJsonLd({ account, username })} />}
         </div>
         <div className="w-full min-w-0">
           <ProfileMenu username={username} />

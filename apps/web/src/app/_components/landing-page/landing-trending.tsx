@@ -3,7 +3,7 @@ import i18next from "i18next";
 import { getPostsRankedQueryOptions } from "@ecency/sdk";
 import { catchPostImage } from "@ecency/render-helper";
 import { prefetchQuery } from "@/core/react-query";
-import { makeEntryPath } from "@/utils";
+import { isNsfwEntry } from "@/utils/nsfw-detection";
 import { Entry } from "@/entities";
 
 const LIMIT = 8;
@@ -25,7 +25,7 @@ export async function LandingTrending() {
   )) as Entry[] | undefined;
 
   const entries = (data ?? [])
-    .filter((e) => e.title && !e.json_metadata?.tags?.includes("nsfw"))
+    .filter((e) => e.title && !isNsfwEntry(e))
     .slice(0, LIMIT);
 
   if (entries.length === 0) {
@@ -33,7 +33,7 @@ export async function LandingTrending() {
   }
 
   return (
-    <section className="sections landing-trending" aria-labelledby="trending-heading">
+    <section className="sections landing-trending relative z-[2]" aria-labelledby="trending-heading">
       <div className="inner max-w-[1200px] mx-auto w-full px-4 py-10">
         <div className="flex items-end justify-between gap-4 mb-6">
           <div>
@@ -49,7 +49,9 @@ export async function LandingTrending() {
 
         <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-0 m-0 list-none">
           {entries.map((entry) => {
-            const href = makeEntryPath(entry.category, entry.author, entry.permlink);
+            // Canonical entry URL is the bare /@author/permlink form; the
+            // category-prefixed path 307-redirects to it, so link direct.
+            const href = `/@${entry.author}/${entry.permlink}`;
             const thumb = catchPostImage(entry, 320, 180, "match");
             const tag = entry.community_title || `#${entry.category}`;
             return (
@@ -81,6 +83,29 @@ export async function LandingTrending() {
               </li>
             );
           })}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Suspense fallback. Reserves the strip's height so streaming the real content
+ * in does not shift the hero/marketing layout (CLS), while the shell (hero =
+ * the LCP element) flushes immediately without waiting on the trending RPC.
+ */
+export function LandingTrendingSkeleton() {
+  return (
+    <section className="sections landing-trending relative z-[2]" aria-hidden="true">
+      <div className="inner max-w-[1200px] mx-auto w-full px-4 py-10">
+        <div className="h-8 w-48 rounded bg-gray-200 dark:bg-dark-200 mb-6 animate-pulse" />
+        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-0 m-0 list-none">
+          {Array.from({ length: LIMIT }).map((_, i) => (
+            <li
+              key={i}
+              className="h-[232px] rounded-xl bg-gray-100 dark:bg-dark-200 animate-pulse"
+            />
+          ))}
         </ul>
       </div>
     </section>

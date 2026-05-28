@@ -9,7 +9,8 @@ import { LandingHeroActions } from "./landing-hero-actions";
 import { LandingSubscribeForm } from "./landing-subscribe-form";
 import { LandingSignInLink } from "./landing-sign-in-link";
 import { LandingDownloadLinks } from "./landing-download-links";
-import { LandingTrending } from "./landing-trending";
+import { Suspense } from "react";
+import { LandingTrending, LandingTrendingSkeleton } from "./landing-trending";
 import { LandingExplore } from "./landing-explore";
 
 /**
@@ -108,8 +109,12 @@ export async function LandingPage() {
         </div>
       </div>
 
-      {/* Real content first: trending posts + topic hubs for click-through + crawl discovery */}
-      <LandingTrending />
+      {/* Real content first: trending posts + topic hubs for click-through + crawl discovery.
+          Trending streams via Suspense so the hero (LCP) flushes immediately and the
+          blocking ranked-posts RPC never delays first paint. */}
+      <Suspense fallback={<LandingTrendingSkeleton />}>
+        <LandingTrending />
+      </Suspense>
       <LandingExplore />
 
       {/* Earn Money & True Ownership */}
