@@ -81,7 +81,8 @@ export async function similar(
     tags?: string[];
     since?: string;
   },
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  timeoutMs: number = INTERNAL_API_TIMEOUT_MS
 ): Promise<SearchResponse> {
   const fetchApi = getBoundFetch();
   const response = await fetchApi(CONFIG.privateApiHost + "/search-api/similar", {
@@ -90,7 +91,7 @@ export async function similar(
       "Content-Type": "application/json",
     },
     body: JSON.stringify(params),
-    signal: withTimeoutSignal(INTERNAL_API_TIMEOUT_MS, signal),
+    signal: withTimeoutSignal(timeoutMs, signal),
   });
 
   return parseJsonResponse<SearchResponse>(response);
