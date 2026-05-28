@@ -324,8 +324,8 @@ export const QueryKeys = {
     },
     controversialRising: (what: string, tag: string) =>
       ["search", "controversial-rising", what, tag],
-    similarEntries: (author: string, permlink: string, query: string) =>
-      ["search", "similar-entries", author, permlink, query],
+    similarEntries: (author: string, permlink: string) =>
+      ["search", "similar-entries", author, permlink],
     api: (
       q: string,
       sort: string,
