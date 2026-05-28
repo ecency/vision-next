@@ -5,16 +5,11 @@ import {
 } from "./get-similar-entries-query-options";
 import type { SearchResponse } from "../types/search-response";
 
-const mockCallREST = vi.hoisted(() => vi.fn());
-
-vi.mock("@/modules/core/hive-tx", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/modules/core/hive-tx")>();
-  return { ...actual, callREST: mockCallREST };
-});
-
 const entry = {
   author: "alice",
   permlink: "my-post",
+  title: "Nature photography at dawn",
+  body: "x".repeat(5000),
   json_metadata: { tags: ["nature", "photography"] },
 };
 
@@ -46,34 +41,39 @@ function searchResponse(
   };
 }
 
-function freshIso(msAgo = 1000) {
-  return new Date(Date.now() - msAgo).toISOString().slice(0, 19);
-}
-
 describe("getSimilarEntriesQueryOptions", () => {
-  let fetchMock: ReturnType<typeof vi.fn>;
+  // getBoundFetch() caches the bound fetch on first call, so reuse one stable
+  // mock and reset it per test rather than recreating it (a fresh mock each
+  // test wouldn't be picked up by the cached binding).
+  const fetchMock = vi.fn();
 
   beforeEach(() => {
-    fetchMock = vi.fn();
+    fetchMock.mockReset();
     vi.stubGlobal("fetch", fetchMock);
-    mockCallREST.mockReset();
   });
 
   afterEach(() => {
     vi.unstubAllGlobals();
   });
 
-  it("builds a tag-scoped query key", () => {
-    expect(getSimilarEntriesQueryOptions(entry).queryKey).toEqual([
-      "search",
-      "similar-entries",
-      "alice",
-      "my-post",
-      "* type:post tag:nature,photography",
-    ]);
+  it("builds a content-fingerprinted query key", () => {
+    const key = getSimilarEntriesQueryOptions(entry).queryKey;
+    expect(key.slice(0, 4)).toEqual(["search", "similar-entries", "alice", "my-post"]);
+    expect(typeof key[4]).toBe("string");
   });
 
-  it("sends popularity sort + ~6 month since + boolean hide_low, and skips HiveSense once the target is filled", async () => {
+  it("changes the query key when the post content changes (edited posts refetch)", () => {
+    const base = getSimilarEntriesQueryOptions(entry).queryKey;
+    const editedTitle = getSimilarEntriesQueryOptions({ ...entry, title: "A new title" }).queryKey;
+    const editedTags = getSimilarEntriesQueryOptions({
+      ...entry,
+      json_metadata: { tags: ["something", "else"] },
+    }).queryKey;
+    expect(base[4]).not.toBe(editedTitle[4]);
+    expect(base[4]).not.toBe(editedTags[4]);
+  });
+
+  it("POSTs to /search-api/similar with title, tags, a truncated body and ~6 month since", async () => {
     fetchMock.mockResolvedValueOnce({
       ok: true,
       json: async () =>
@@ -89,46 +89,41 @@ describe("getSimilarEntriesQueryOptions", () => {
       signal: undefined,
     })) as SearchResponse["results"];
 
-    const [, init] = fetchMock.mock.calls[0];
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(String(url)).toContain("/search-api/similar");
     const payload = JSON.parse((init as RequestInit).body as string);
-    expect(payload.sort).toBe("popularity");
-    expect(payload.hide_low).toBe(false);
-    expect(typeof payload.hide_low).toBe("boolean");
+    expect(payload.author).toBe("alice");
+    expect(payload.permlink).toBe("my-post");
+    expect(payload.title).toBe("Nature photography at dawn");
+    expect(payload.tags).toEqual(["nature", "photography"]);
+    // body is truncated to the excerpt limit
+    expect(payload.body.length).toBe(3000);
     expect(payload.since).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/);
     const drift = Math.abs(
       Date.now() - 182 * 24 * 60 * 60 * 1000 - new Date(`${payload.since}Z`).getTime()
     );
     expect(drift).toBeLessThan(60_000);
 
-    // primary fills the cap
     expect(result.map((r) => r.author)).toEqual(["c", "d", "e"]);
-
-    // HiveSense is the slow fallback — must NOT be called when primary
-    // already filled SIMILAR_ENTRIES_TARGET.
-    expect(mockCallREST).not.toHaveBeenCalled();
   });
 
-  it("calls HiveSense with full_posts === result_limit when primary is short", async () => {
-    fetchMock.mockResolvedValueOnce({
-      ok: true,
-      json: async () => searchResponse([{ author: "c", permlink: "p2" }]),
-    });
-    mockCallREST.mockResolvedValueOnce([
-      { author: "hs1", permlink: "h1", created: freshIso() },
-      { author: "hs2", permlink: "h2", created: freshIso() },
-    ]);
+  it("strips markdown image links and URLs from the body excerpt", async () => {
+    fetchMock.mockResolvedValueOnce({ ok: true, json: async () => searchResponse([]) });
 
-    const options = getSimilarEntriesQueryOptions(entry);
-    await (options.queryFn as QueryFn)({ signal: undefined });
+    const e = {
+      author: "a",
+      permlink: "p",
+      title: "t",
+      body: "![pic](https://images.hive.blog/DQm-big-hash.png) Real prose about nature and hiking https://x.test/y",
+      json_metadata: { tags: [] },
+    };
+    await (getSimilarEntriesQueryOptions(e).queryFn as QueryFn)({ signal: undefined });
 
-    // P0 regression: full_posts MUST equal result_limit, else HiveSense
-    // returns author/permlink stubs without created/title/body.
-    expect(mockCallREST).toHaveBeenCalledTimes(1);
-    const [, , params] = mockCallREST.mock.calls[0];
-    expect(params.full_posts).toBe(params.result_limit);
-    // truncate:0 — the suggestions strip renders title + thumbnail only,
-    // so body text is intentionally not hydrated.
-    expect(params).toMatchObject({ author: "alice", permlink: "my-post", truncate: 0 });
+    const [, init] = fetchMock.mock.calls[0];
+    const payload = JSON.parse((init as RequestInit).body as string);
+    expect(payload.body).not.toContain("images.hive.blog");
+    expect(payload.body).not.toContain("http");
+    expect(payload.body).toContain("Real prose about nature and hiking");
   });
 
   it("excludes the source post and nsfw, dedupes by author, caps at 3", async () => {
@@ -145,7 +140,6 @@ describe("getSimilarEntriesQueryOptions", () => {
           { author: "f", permlink: "p6", tags: [] }, // beyond cap of 3
         ]),
     });
-    mockCallREST.mockResolvedValueOnce([]);
 
     const options = getSimilarEntriesQueryOptions(entry);
     const result = (await (options.queryFn as QueryFn)({
@@ -155,144 +149,32 @@ describe("getSimilarEntriesQueryOptions", () => {
     expect(result.map((r) => r.author)).toEqual(["c", "d", "e"]);
   });
 
-  it("merges HiveSense (recency-filtered, deduped) when primary is short — primary first", async () => {
-    fetchMock.mockResolvedValueOnce({
-      ok: true,
-      json: async () => searchResponse([{ author: "c", permlink: "p2" }]),
-    });
+  it("handles a post with no tags or body", async () => {
+    fetchMock.mockResolvedValueOnce({ ok: true, json: async () => searchResponse([]) });
 
-    mockCallREST.mockResolvedValueOnce([
-      // too old → excluded by the 6-month recency filter (kept at 6mo)
-      { author: "old", permlink: "o1", created: "2018-05-15T16:38:15" },
-      // muted/low-quality → excluded
-      { author: "gray", permlink: "g1", created: freshIso(), stats: { gray: true } },
-      // same author as a primary result → deduped
-      { author: "c", permlink: "dupe", created: freshIso() },
-      // fresh + valid → included
-      { author: "hs1", permlink: "h1", created: freshIso(), title: "Fresh One" },
-      { author: "hs2", permlink: "h2", created: freshIso() },
-      { author: "hs3", permlink: "h3", created: freshIso() }, // beyond cap
-    ]);
-
-    const options = getSimilarEntriesQueryOptions(entry);
+    const options = getSimilarEntriesQueryOptions({ author: "a", permlink: "p" });
     const result = (await (options.queryFn as QueryFn)({
       signal: undefined,
     })) as SearchResponse["results"];
 
-    // primary ("c") first, HiveSense backfills the rest
-    expect(result.map((r) => r.author)).toEqual(["c", "hs1", "hs2"]);
-    const [, , params] = mockCallREST.mock.calls[0];
-    expect(params.full_posts).toBe(params.result_limit);
-    // adapter maps HiveSense → SearchResult
-    const fresh = result.find((r) => r.author === "hs1")!;
-    expect(fresh.title).toBe("Fresh One");
-    expect(fresh.tags).toEqual([]);
+    const [, init] = fetchMock.mock.calls[0];
+    const payload = JSON.parse((init as RequestInit).body as string);
+    expect(payload.tags).toEqual([]);
+    expect(payload.title).toBe("");
+    expect(payload.body).toBe("");
+    expect(result).toEqual([]);
   });
 
-  it("extracts the HiveSense thumbnail from json_metadata.image into img_url", async () => {
-    fetchMock.mockResolvedValueOnce({
-      ok: true,
-      json: async () => searchResponse([{ author: "c", permlink: "p2" }]),
-    });
-    mockCallREST.mockResolvedValueOnce([
-      // image present → first non-empty entry becomes img_url
-      {
-        author: "hs1",
-        permlink: "h1",
-        created: freshIso(),
-        json_metadata: { tags: ["nature"], image: ["https://img.test/a.jpg"] },
-      },
-      // no image → img_url stays "" (web falls back to the no-image tile)
-      { author: "hs2", permlink: "h2", created: freshIso() },
-    ]);
-
-    const options = getSimilarEntriesQueryOptions(entry);
-    const result = (await (options.queryFn as QueryFn)({
-      signal: undefined,
-    })) as SearchResponse["results"];
-
-    const withImg = result.find((r) => r.author === "hs1")!;
-    expect(withImg.img_url).toBe("https://img.test/a.jpg");
-    const noImg = result.find((r) => r.author === "hs2")!;
-    expect(noImg.img_url).toBe("");
-  });
-
-  it("tolerates a HiveSense failure as long as primary succeeds", async () => {
-    fetchMock.mockResolvedValueOnce({
-      ok: true,
-      json: async () => searchResponse([{ author: "c", permlink: "p2" }]),
-    });
-    mockCallREST.mockRejectedValueOnce(new Error("no node serves /hivesense-api"));
-
-    const options = getSimilarEntriesQueryOptions(entry);
-    const result = (await (options.queryFn as QueryFn)({
-      signal: undefined,
-    })) as SearchResponse["results"];
-
-    expect(result.map((r) => r.author)).toEqual(["c"]);
-  });
-
-  it("is resilient: primary fails but HiveSense succeeds → returns HiveSense", async () => {
-    fetchMock.mockResolvedValueOnce({ ok: false, status: 502, json: async () => ({}) });
-    mockCallREST.mockResolvedValueOnce([
-      { author: "hs1", permlink: "h1", created: freshIso(), title: "Fresh One" },
-      { author: "hs2", permlink: "h2", created: freshIso() },
-    ]);
-
-    const options = getSimilarEntriesQueryOptions(entry);
-    const result = (await (options.queryFn as QueryFn)({
-      signal: undefined,
-    })) as SearchResponse["results"];
-
-    expect(result.map((r) => r.author)).toEqual(["hs1", "hs2"]);
-  });
-
-  it("throws only when BOTH sources fail (so React Query can retry)", async () => {
+  it("throws when the request fails so React Query can retry", async () => {
     fetchMock.mockResolvedValueOnce({ ok: false, status: 500, json: async () => ({}) });
-    mockCallREST.mockRejectedValueOnce(new Error("hivesense down"));
 
     const options = getSimilarEntriesQueryOptions(entry);
     await expect(
       (options.queryFn as QueryFn)({ signal: undefined })
-    ).rejects.toThrow("Search failed: 500");
+    ).rejects.toThrow(/500/);
   });
 
   it("exposes a shared min-render threshold of 2", () => {
     expect(SIMILAR_ENTRIES_MIN_RENDER).toBe(2);
-  });
-
-  it("excludes nsfw HiveSense results (json_metadata tag or category) and maps real tags", async () => {
-    fetchMock.mockResolvedValueOnce({
-      ok: true,
-      json: async () => searchResponse([{ author: "c", permlink: "p2" }]),
-    });
-    mockCallREST.mockResolvedValueOnce([
-      // nsfw via json_metadata.tags → excluded
-      {
-        author: "x",
-        permlink: "x1",
-        created: freshIso(),
-        json_metadata: { tags: ["art", "nsfw"] },
-      },
-      // nsfw via category → excluded
-      { author: "y", permlink: "y1", created: freshIso(), category: "nsfw" },
-      // clean → included, tags threaded through
-      {
-        author: "z",
-        permlink: "z1",
-        created: freshIso(),
-        category: "photography",
-        json_metadata: { tags: ["photography", "nature"] },
-      },
-    ]);
-
-    const options = getSimilarEntriesQueryOptions(entry);
-    const result = (await (options.queryFn as QueryFn)({
-      signal: undefined,
-    })) as SearchResponse["results"];
-
-    expect(result.map((r) => r.author)).toEqual(["c", "z"]);
-    const z = result.find((r) => r.author === "z")!;
-    expect(z.tags).toEqual(["photography", "nature"]);
   });
 });

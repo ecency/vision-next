@@ -1,5 +1,5 @@
 import { prefetchQuery, getQueryClient } from "@/core/react-query";
-import { getAccountFullQueryOptions } from "@ecency/sdk";
+import { getAccountFullQueryOptions, getSimilarEntriesQueryOptions } from "@ecency/sdk";
 import { buildSrcSet, catchPostImage, IMAGE_SIZES } from "@ecency/render-helper";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { EntryPageContentClient } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-client";
@@ -86,6 +86,22 @@ export default async function EntryPage({ params, searchParams }: Props) {
           </div>
         </div>
       </EntryPageContextProvider>
+    );
+  }
+
+  // Server-prefetch "Read next" so the strip is in the SSR HTML (discoverable
+  // by crawlers) and renders instantly after hydration. Top-level posts only —
+  // comments don't show the strip. Degrades gracefully: the prefetch is bounded
+  // by the SSR timeout, and the client refetches if it doesn't resolve in time.
+  if (!entry.parent_author) {
+    await prefetchQuery(
+      getSimilarEntriesQueryOptions({
+        author: entry.author,
+        permlink: entry.permlink,
+        title: entry.title,
+        body: entry.body,
+        json_metadata: { tags: entry.json_metadata?.tags }
+      })
     );
   }
 

@@ -72,6 +72,30 @@ export async function search(
   return parseJsonResponse<SearchResponse>(response);
 }
 
+export async function similar(
+  params: {
+    author: string;
+    permlink: string;
+    title?: string;
+    body?: string;
+    tags?: string[];
+    since?: string;
+  },
+  signal?: AbortSignal
+): Promise<SearchResponse> {
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/search-api/similar", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(params),
+    signal: withTimeoutSignal(INTERNAL_API_TIMEOUT_MS, signal),
+  });
+
+  return parseJsonResponse<SearchResponse>(response);
+}
+
 export async function searchPath(q: string, signal?: AbortSignal): Promise<string[]> {
   const fetchApi = getBoundFetch();
   const response = await fetchApi(CONFIG.privateApiHost + "/search-api/search-path", {

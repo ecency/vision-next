@@ -77,6 +77,8 @@ export function SimilarEntries({ entry }: Props) {
         getSimilarEntriesQueryOptions({
             author: entry.author,
             permlink: entry.permlink,
+            title: entry.title,
+            body: entry.body,
             json_metadata: { tags: entry.json_metadata?.tags }
         })
     );
