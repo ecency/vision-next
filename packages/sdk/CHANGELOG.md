@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.5
+
+### Patch Changes
+
+- Read-next: short SSR timeout for /similar (#844)
+
 ## 2.3.4
 
 ### Patch Changes

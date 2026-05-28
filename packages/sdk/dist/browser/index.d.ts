@@ -7840,7 +7840,7 @@ declare function similar(params: {
     body?: string;
     tags?: string[];
     since?: string;
-}, signal?: AbortSignal): Promise<SearchResponse>;
+}, signal?: AbortSignal, timeoutMs?: number): Promise<SearchResponse>;
 declare function searchPath(q: string, signal?: AbortSignal): Promise<string[]>;
 
 interface PromotePrice {
