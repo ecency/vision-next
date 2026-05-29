@@ -165,6 +165,32 @@ describe("getSimilarEntriesQueryOptions", () => {
     expect(result).toEqual([]);
   });
 
+  it("tolerates a non-array tags value without throwing (Hive json_metadata can be a bare string)", async () => {
+    // Regression for Sentry ECENCY-NEXT-1FMA: some posts store
+    // json_metadata.tags as a bare string rather than an array. `?? []` only
+    // guarded null/undefined, so `.filter` threw and crashed the entry-page
+    // SSR prefetch. The call must not throw and the bad tags become [].
+    fetchMock.mockResolvedValueOnce({ ok: true, json: async () => searchResponse([]) });
+
+    const e = {
+      author: "a",
+      permlink: "p",
+      title: "t",
+      body: "b",
+      json_metadata: { tags: "photography" },
+    };
+
+    let options!: ReturnType<typeof getSimilarEntriesQueryOptions>;
+    expect(() => {
+      options = getSimilarEntriesQueryOptions(e);
+    }).not.toThrow();
+
+    await (options.queryFn as QueryFn)({ signal: undefined });
+    const [, init] = fetchMock.mock.calls[0];
+    const payload = JSON.parse((init as RequestInit).body as string);
+    expect(payload.tags).toEqual([]);
+  });
+
   it("throws when the request fails so React Query can retry", async () => {
     fetchMock.mockResolvedValueOnce({ ok: false, status: 500, json: async () => ({}) });
 

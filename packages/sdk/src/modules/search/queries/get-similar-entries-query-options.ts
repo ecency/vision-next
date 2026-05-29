@@ -59,13 +59,22 @@ interface Entry {
   title?: string;
   body?: string;
   json_metadata?: {
-    tags?: string[];
+    // Hive's json_metadata is user-controlled and untyped on-chain: `tags` is
+    // usually a string[] but some posts store it as a bare string (or other
+    // junk). Typed as unknown on purpose so callers can't assume an array —
+    // it's narrowed with a runtime guard below.
+    tags?: unknown;
   };
 }
 
 export function getSimilarEntriesQueryOptions(entry: Entry) {
   const title = entry.title ?? "";
-  const tags = (entry.json_metadata?.tags ?? []).filter(
+  // `?? []` only guards null/undefined; a non-array tags value (e.g. a bare
+  // string from json_metadata) slips through and crashes `.filter` — which
+  // took down the entry-page SSR prefetch (Sentry ECENCY-NEXT-1FMA). Guard on
+  // Array.isArray so only real arrays reach the filter.
+  const rawTags = entry.json_metadata?.tags;
+  const tags = (Array.isArray(rawTags) ? rawTags : []).filter(
     (tag): tag is string => typeof tag === "string" && tag !== ""
   );
   const body = toMltExcerpt(entry.body ?? "", SIMILAR_ENTRIES_BODY_LIMIT);
