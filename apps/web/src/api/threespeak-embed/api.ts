@@ -89,6 +89,23 @@ export function extractPermlink(embedUrl: string): string {
   return lastSegment.split("?")[0].split("#")[0];
 }
 
+const MB = 1024 * 1024;
+
+/**
+ * Choose chunk size and parallelism based on the file size.
+ *
+ * Parallel uploads use the TUS Concatenation extension (supported by the
+ * 3Speak tusd backend): the file is split into N parts uploaded concurrently,
+ * then stitched server-side. Small files skip parallelism — there is no
+ * throughput gain and it avoids zero-length parts. Chunk size is kept modest
+ * so peak in-flight memory stays around chunkSize × parallelUploads.
+ */
+export function getUploadTuning(size: number): { chunkSize: number; parallelUploads: number } {
+  if (size <= 10 * MB) return { chunkSize: 5 * MB, parallelUploads: 1 };
+  if (size <= 500 * MB) return { chunkSize: 10 * MB, parallelUploads: 3 };
+  return { chunkSize: 20 * MB, parallelUploads: 3 };
+}
+
 /**
  * Upload a video file via the TUS resumable upload protocol.
  * Obtains a short-lived upload token from the backend, then uploads directly to 3Speak.
@@ -105,12 +122,21 @@ export async function uploadVideoEmbed(
   // Fall back to config endpoint if upload_url not provided
   const endpoint = upload_url || `${getEmbedEndpoint()}/uploads`;
 
+  // Adaptive chunking + parallelism (TUS Concatenation extension)
+  const { chunkSize, parallelUploads } = getUploadTuning(file.size);
+
   return new Promise<VideoUploadResult>((resolve, reject) => {
+    // With parallelUploads the partial creation responses each carry their own
+    // X-Embed-URL; the canonical one is on the final concatenation request
+    // (Upload-Concat: final). Prefer it, falling back to the last-seen URL so
+    // the sequential path (parallelUploads = 1) keeps its previous behaviour.
     let embedUrl = "";
+    let finalEmbedUrl = "";
 
     const upload = new tus.Upload(file, {
       endpoint,
-      chunkSize: 50 * 1024 * 1024, // 50MB — each PATCH completes quickly; retries resume from last chunk
+      chunkSize,
+      parallelUploads,
       retryDelays: [0, 3000, 5000, 10000, 20000],
       headers: {
         Authorization: `Bearer ${token}`
@@ -126,8 +152,24 @@ export async function uploadVideoEmbed(
         progressCallback(percentage);
       },
       onSuccess() {
-        if (embedUrl) {
-          const permlink = extractPermlink(embedUrl);
+        // The canonical embed URL is the one returned by the final
+        // concatenation request (Upload-Concat: final). In parallel mode we
+        // REQUIRE it: partial creation responses carry their own non-canonical
+        // URLs, so falling back to one would link the post to a transient
+        // partial resource. The sequential path has no concat step, so the
+        // last-seen URL (the final PATCH) is canonical and used as the fallback.
+        if (parallelUploads > 1 && !finalEmbedUrl) {
+          reject(
+            new Error(
+              "[3Speak Embed] Parallel upload finished without an X-Embed-URL on the final " +
+                "concatenation response; refusing to fall back to a partial-upload URL."
+            )
+          );
+          return;
+        }
+        const resolvedUrl = finalEmbedUrl || embedUrl;
+        if (resolvedUrl) {
+          const permlink = extractPermlink(resolvedUrl);
           if (!permlink) {
             reject(
               new Error("[3Speak Embed] Upload succeeded but the permlink could not be extracted")
@@ -135,18 +177,25 @@ export async function uploadVideoEmbed(
             return;
           }
           resolve({
-            embedUrl,
+            embedUrl: resolvedUrl,
             permlink
           });
         } else {
           reject(new Error("[3Speak Embed] Upload succeeded but no embed URL was returned"));
         }
       },
-      onAfterResponse(_req: any, res: any) {
+      onAfterResponse(req: any, res: any) {
         const headerUrl = res.getHeader?.("x-embed-url") || res.getHeader?.("X-Embed-URL");
-        if (headerUrl) {
-          embedUrl = headerUrl;
+        if (!headerUrl) {
+          return;
         }
+        // Prefer the embed URL from the final concatenation request; partial
+        // creation responses (Upload-Concat: partial) may carry their own.
+        const concat = String(req.getHeader?.("Upload-Concat") ?? "");
+        if (concat.startsWith("final")) {
+          finalEmbedUrl = headerUrl;
+        }
+        embedUrl = headerUrl;
       }
     });
 
