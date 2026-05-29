@@ -107,12 +107,28 @@ export function buildArticleJsonLd({
   const authorName = account?.profile?.name?.trim() || entry.author;
   const headline = (entry.title ?? "").slice(0, HEADLINE_MAX);
   const image = catchPostImage(entry, 1200, 630, "match") || undefined;
+  // json_metadata is untrusted on-chain data: guard that `tags` is actually an
+  // array before filtering to non-empty strings — a truthy non-array value
+  // would otherwise throw here, on the entry-page SSR path. (Matches the
+  // Array.isArray(tags) guard used elsewhere in the entry components.)
+  const rawTags = entry.json_metadata?.tags;
+  const keywords = (Array.isArray(rawTags) ? rawTags : []).filter(
+    (t): t is string => typeof t === "string" && t.length > 0
+  );
+  // The community/category is the post's section. `community_title` is a
+  // bridge-only field; when it's absent for a community post, `category` is a
+  // raw machine id ("hive-12345") that's meaningless as a section signal, so
+  // omit it in that case rather than leak the id.
+  const articleSection =
+    entry.community_title ||
+    (/^hive-\d+$/.test(entry.category ?? "") ? undefined : entry.category) ||
+    undefined;
 
   return {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     headline,
-    description: entry.json_metadata?.description || postBodySummary(entry.body, 140),
+    description: entry.json_metadata?.description || postBodySummary(entry.body, 160),
     image: image ? [image] : undefined,
     datePublished: toUtcIso(entry.created),
     dateModified: toUtcIso(entry.updated ?? entry.created),
@@ -125,6 +141,9 @@ export function buildArticleJsonLd({
     publisher: { "@id": ORG_ID },
     mainEntityOfPage: { "@type": "WebPage", "@id": url },
     url,
+    articleSection,
+    // schema.org `keywords` is Text — emit the conventional comma-separated form.
+    keywords: keywords.length ? keywords.join(", ") : undefined,
     commentCount: entry.children,
     interactionStatistic: entry.children
       ? {
