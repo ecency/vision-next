@@ -26,6 +26,9 @@ vi.mock("tus-js-client", () => ({
     start() {
       tusMock.runUpload(this.options);
     }
+    abort() {
+      return Promise.resolve();
+    }
   }
 }));
 
