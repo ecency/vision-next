@@ -272,12 +272,13 @@ const config = {
       // of /@x/@y/z matching. Edit URLs (/:cat/@a/p/edit) and sub-path URLs
       // (/:cat/@a/p/:sub) are 4 segments and don't match this 3-segment rule —
       // their existing rewrites in rewrites() handle them.
-      // Starts as 302 (temporary) so the change is reversible while we
-      // verify in production; can flip to permanent: true once confident.
+      // 308 (permanent): consolidation verified — community-prefixed URLs
+      // converge onto the bare canonical with no traffic regression, so the
+      // redirect is now permanent for full SEO signal transfer.
       {
         source: "/:category((?!@)[^/]+)/:author(@[^/]+)/:permlink",
         destination: "/:author/:permlink",
-        permanent: false
+        permanent: true
       }
     ];
   },
