@@ -57,8 +57,10 @@ export async function generateEntryMetadata(
       title = `@${entry.author}: ${rawCommentTitle}`;
     }
 
+    // Cap at 160 chars to use Google's full desktop snippet width (~155-160);
+    // it truncates responsively on narrower viewports.
     const summary =
-      entry.json_metadata?.description || truncate(postBodySummary(entry.body, 210), 140);
+      entry.json_metadata?.description || truncate(postBodySummary(entry.body, 210), 160);
 
     const image = catchPostImage(entry, 1200, 630, "match");
     // Bare /@author/permlink form for this exact page.
@@ -100,7 +102,10 @@ export async function generateEntryMetadata(
 
     return {
       title,
-      description: `${summary} by @${entry.author}`,
+      // Authorship is conveyed via the Article JSON-LD author + og/article:author;
+      // a bare "@handle" in the SERP snippet spends characters without earning
+      // clicks, so the description is the post summary alone (matches og/twitter).
+      description: summary,
       robots,
       openGraph: {
         title,

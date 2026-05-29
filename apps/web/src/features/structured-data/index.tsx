@@ -107,12 +107,19 @@ export function buildArticleJsonLd({
   const authorName = account?.profile?.name?.trim() || entry.author;
   const headline = (entry.title ?? "").slice(0, HEADLINE_MAX);
   const image = catchPostImage(entry, 1200, 630, "match") || undefined;
+  // Post tags → keywords; the community/category is the section the post sits
+  // in. Both are optional Article properties that strengthen topical/section
+  // signals. Filter to non-empty strings so a malformed json_metadata can't
+  // emit null/empty keyword entries.
+  const keywords = (entry.json_metadata?.tags ?? []).filter(
+    (t): t is string => typeof t === "string" && t.length > 0
+  );
 
   return {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     headline,
-    description: entry.json_metadata?.description || postBodySummary(entry.body, 140),
+    description: entry.json_metadata?.description || postBodySummary(entry.body, 160),
     image: image ? [image] : undefined,
     datePublished: toUtcIso(entry.created),
     dateModified: toUtcIso(entry.updated ?? entry.created),
@@ -125,6 +132,8 @@ export function buildArticleJsonLd({
     publisher: { "@id": ORG_ID },
     mainEntityOfPage: { "@type": "WebPage", "@id": url },
     url,
+    articleSection: entry.community_title || entry.category || undefined,
+    keywords: keywords.length ? keywords : undefined,
     commentCount: entry.children,
     interactionStatistic: entry.children
       ? {
