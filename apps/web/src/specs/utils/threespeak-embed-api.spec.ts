@@ -11,6 +11,33 @@ vi.mock("@/utils/user-token", () => ({
   getAccessToken: vi.fn(() => "valid-hs-token")
 }));
 
+// Drive tus-js-client's upload callbacks deterministically. `runUpload` is set
+// per-test to simulate the sequence of onAfterResponse / onSuccess calls.
+const tusMock = vi.hoisted(() => ({
+  runUpload: (_options: any) => {}
+}));
+
+vi.mock("tus-js-client", () => ({
+  Upload: class {
+    options: any;
+    constructor(_file: unknown, options: any) {
+      this.options = options;
+    }
+    start() {
+      tusMock.runUpload(this.options);
+    }
+  }
+}));
+
+// A tus response whose getHeader returns `embedUrl` for the X-Embed-URL header.
+function mockRes(embedUrl: string | null) {
+  return { getHeader: (h: string) => (/^x-embed-url$/i.test(h) ? embedUrl : null) };
+}
+// A tus request whose getHeader returns `uploadConcat` for Upload-Concat.
+function mockReq(uploadConcat?: string) {
+  return { getHeader: (h: string) => (h === "Upload-Concat" ? uploadConcat : undefined) };
+}
+
 describe("extractPermlink", () => {
   it("extracts permlink from ?v=user/permlink format", () => {
     expect(extractPermlink("https://play.3speak.tv/embed?v=alice/abcd1234")).toBe("abcd1234");
@@ -97,5 +124,71 @@ describe("getUploadTuning", () => {
   it("uses 20 MB x 3 parallel above 500 MB", () => {
     expect(getUploadTuning(500 * MB + 1)).toEqual({ chunkSize: 20 * MB, parallelUploads: 3 });
     expect(getUploadTuning(2 * 1024 * MB)).toEqual({ chunkSize: 20 * MB, parallelUploads: 3 });
+  });
+});
+
+describe("uploadVideoEmbed embed-url resolution", () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ token: "tok", upload_url: "https://embed.example/uploads" })
+      })
+    );
+  });
+
+  // > 10 MB so getUploadTuning selects parallelUploads = 3.
+  const bigFile = () =>
+    new File([new Uint8Array(11 * 1024 * 1024)], "big.mp4", { type: "video/mp4" });
+  // <= 10 MB so getUploadTuning selects parallelUploads = 1 (sequential).
+  const smallFile = () => new File(["x"], "small.mp4", { type: "video/mp4" });
+
+  it("rejects a parallel upload that never returns a final-concat embed URL", async () => {
+    tusMock.runUpload = (options) => {
+      // Only a partial-creation response carries an embed URL — no final concat.
+      options.onAfterResponse(
+        mockReq("partial"),
+        mockRes("https://play.3speak.tv/embed?v=a/PART01")
+      );
+      options.onSuccess();
+    };
+    const { uploadVideoEmbed } = await import("@/api/threespeak-embed/api");
+    await expect(uploadVideoEmbed(bigFile(), "a", false, () => {})).rejects.toThrow(
+      /concatenation/i
+    );
+  });
+
+  it("resolves a parallel upload to the final-concat embed URL", async () => {
+    tusMock.runUpload = (options) => {
+      options.onAfterResponse(
+        mockReq("partial"),
+        mockRes("https://play.3speak.tv/embed?v=a/PART01")
+      );
+      options.onAfterResponse(
+        mockReq("final;https://embed.example/a https://embed.example/b"),
+        mockRes("https://play.3speak.tv/embed?v=a/FINAL567")
+      );
+      options.onSuccess();
+    };
+    const { uploadVideoEmbed } = await import("@/api/threespeak-embed/api");
+    await expect(uploadVideoEmbed(bigFile(), "a", false, () => {})).resolves.toEqual({
+      embedUrl: "https://play.3speak.tv/embed?v=a/FINAL567",
+      permlink: "FINAL567"
+    });
+  });
+
+  it("uses the last-seen embed URL for a sequential upload (no concat step)", async () => {
+    tusMock.runUpload = (options) => {
+      // Sequential path: requests carry no Upload-Concat header.
+      options.onAfterResponse(mockReq(), mockRes("https://play.3speak.tv/embed?v=a/SEQ12345"));
+      options.onSuccess();
+    };
+    const { uploadVideoEmbed } = await import("@/api/threespeak-embed/api");
+    await expect(uploadVideoEmbed(smallFile(), "a", false, () => {})).resolves.toEqual({
+      embedUrl: "https://play.3speak.tv/embed?v=a/SEQ12345",
+      permlink: "SEQ12345"
+    });
   });
 });
