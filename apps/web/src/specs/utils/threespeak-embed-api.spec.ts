@@ -145,19 +145,26 @@ describe("uploadVideoEmbed embed-url resolution", () => {
   // <= 10 MB so getUploadTuning selects parallelUploads = 1 (sequential).
   const smallFile = () => new File(["x"], "small.mp4", { type: "video/mp4" });
 
-  it("rejects a parallel upload that never returns a final-concat embed URL", async () => {
+  it("falls back to sequential when the parallel attempt has no final-concat URL", async () => {
     tusMock.runUpload = (options) => {
-      // Only a partial-creation response carries an embed URL — no final concat.
-      options.onAfterResponse(
-        mockReq("partial"),
-        mockRes("https://play.3speak.tv/embed?v=a/PART01")
-      );
-      options.onSuccess();
+      if (options.parallelUploads > 1) {
+        // Parallel attempt: only a partial-creation URL, no final concat -> rejects.
+        options.onAfterResponse(
+          mockReq("partial"),
+          mockRes("https://play.3speak.tv/embed?v=a/PART01")
+        );
+        options.onSuccess();
+      } else {
+        // Sequential retry: backend returns a usable embed URL.
+        options.onAfterResponse(mockReq(), mockRes("https://play.3speak.tv/embed?v=a/SEQFALL01"));
+        options.onSuccess();
+      }
     };
     const { uploadVideoEmbed } = await import("@/api/threespeak-embed/api");
-    await expect(uploadVideoEmbed(bigFile(), "a", false, () => {})).rejects.toThrow(
-      /concatenation/i
-    );
+    await expect(uploadVideoEmbed(bigFile(), "a", false, () => {})).resolves.toEqual({
+      embedUrl: "https://play.3speak.tv/embed?v=a/SEQFALL01",
+      permlink: "SEQFALL01"
+    });
   });
 
   it("resolves a parallel upload to the final-concat embed URL", async () => {
@@ -190,5 +197,13 @@ describe("uploadVideoEmbed embed-url resolution", () => {
       embedUrl: "https://play.3speak.tv/embed?v=a/SEQ12345",
       permlink: "SEQ12345"
     });
+  });
+
+  it("propagates the error when both the parallel and sequential attempts fail", async () => {
+    tusMock.runUpload = (options) => {
+      options.onError(new Error("network down"));
+    };
+    const { uploadVideoEmbed } = await import("@/api/threespeak-embed/api");
+    await expect(uploadVideoEmbed(bigFile(), "a", false, () => {})).rejects.toThrow(/network down/);
   });
 });

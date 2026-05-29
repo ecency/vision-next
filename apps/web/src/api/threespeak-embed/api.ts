@@ -108,7 +108,12 @@ export function getUploadTuning(size: number): { chunkSize: number; parallelUplo
 
 /**
  * Upload a video file via the TUS resumable upload protocol.
- * Obtains a short-lived upload token from the backend, then uploads directly to 3Speak.
+ *
+ * Tries the size-tuned settings first (parallel for files > 10MB). Parallel
+ * uploads depend on the 3Speak tusd backend supporting the Concatenation
+ * extension AND returning X-Embed-URL on the final concat response; if that
+ * assumption doesn't hold the parallel attempt fails, so we retry once on the
+ * proven sequential path (with a fresh token) rather than failing outright.
  */
 export async function uploadVideoEmbed(
   file: File,
@@ -116,14 +121,37 @@ export async function uploadVideoEmbed(
   isShort: boolean,
   progressCallback: (percentage: number) => void
 ): Promise<VideoUploadResult> {
+  const { chunkSize, parallelUploads } = getUploadTuning(file.size);
+
+  try {
+    return await uploadOnce(file, owner, isShort, chunkSize, parallelUploads, progressCallback);
+  } catch (err) {
+    if (parallelUploads > 1) {
+      console.warn("[3Speak Embed] Parallel upload failed; retrying sequentially.", err);
+      progressCallback(0);
+      return uploadOnce(file, owner, isShort, chunkSize, 1, progressCallback);
+    }
+    throw err;
+  }
+}
+
+/**
+ * Perform a single TUS upload attempt with an explicit chunk size / parallelism.
+ * Obtains a fresh short-lived upload token, then uploads directly to 3Speak.
+ */
+async function uploadOnce(
+  file: File,
+  owner: string,
+  isShort: boolean,
+  chunkSize: number,
+  parallelUploads: number,
+  progressCallback: (percentage: number) => void
+): Promise<VideoUploadResult> {
   // Get upload token from our server (API key stays server-side)
   const { token, upload_url } = await requestUploadToken(owner, isShort);
 
   // Fall back to config endpoint if upload_url not provided
   const endpoint = upload_url || `${getEmbedEndpoint()}/uploads`;
-
-  // Adaptive chunking + parallelism (TUS Concatenation extension)
-  const { chunkSize, parallelUploads } = getUploadTuning(file.size);
 
   return new Promise<VideoUploadResult>((resolve, reject) => {
     // With parallelUploads the partial creation responses each carry their own
