@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.6
+
+### Patch Changes
+
+- Sequential fallback for parallel 3Speak uploads (#847)
+
 ## 2.3.5
 
 ### Patch Changes
