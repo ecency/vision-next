@@ -7784,7 +7784,7 @@ interface Entry {
     title?: string;
     body?: string;
     json_metadata?: {
-        tags?: string[];
+        tags?: unknown;
     };
 }
 declare function getSimilarEntriesQueryOptions(entry: Entry): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<SearchResult[], Error, SearchResult[], string[]>, "queryFn"> & {
