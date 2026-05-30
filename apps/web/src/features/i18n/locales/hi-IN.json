@@ -646,6 +646,37 @@
     "choose-one": "एक का चयन",
     "user": "उपयोगकर्ता",
     "search-query": "प्रश्न खोजना",
+    "intro": {
+      "title": "Decks — your personalized dashboard",
+      "description": "Follow feeds, communities, Waves, notifications and your wallet side by side, updating in real time. Sign in to build and save your own deck.",
+      "login": "Log in to build your deck",
+      "browse-communities": "Browse communities instead",
+      "features": {
+        "columns-title": "Live columns",
+        "columns-description": "Watch multiple feeds update next to each other, in real time.",
+        "anything-title": "Anything you follow",
+        "anything-description": "Add columns for people, communities, Waves, trending, search, notifications and your wallet.",
+        "arrange-title": "Arrange your way",
+        "arrange-description": "Drag columns to reorder them and shape your own workspace.",
+        "saved-title": "Saved to your account",
+        "saved-description": "Sign in and your decks sync with you across every device."
+      }
+    },
+    "onboarding": {
+      "title": "Welcome to Decks",
+      "button": "Get started",
+      "skip": "Skip",
+      "finish": "Build my deck",
+      "build-title": "Build your deck",
+      "tips": {
+        "add-title": "Add a column",
+        "add-description": "Pick a column type to follow a feed, community, person, your notifications and more.",
+        "drag-title": "Arrange them",
+        "drag-description": "Drag columns by their header to reorder your workspace any way you like.",
+        "save-title": "Save your deck",
+        "save-description": "Save a deck to your account from its settings to keep it across devices."
+      }
+    },
     "columns": {
       "view-full-post": "पूरी पोस्ट देखें",
       "user": "उपयोगकर्ता",
