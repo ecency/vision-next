@@ -646,6 +646,37 @@
     "choose-one": "Wybierz jeden",
     "user": "Użytkownik",
     "search-query": "Szukaj zapytania",
+    "intro": {
+      "title": "Tablice — Twój spersonalizowany panel",
+      "description": "Obserwuj kanały, społeczności, Waves, powiadomienia i portfel po boku, aktualizując w czasie rzeczywistym. Zaloguj się, aby zbudować i zapisać własną talię.",
+      "login": "Zaloguj się, aby zbudować talię",
+      "browse-communities": "Zamiast tego przeglądaj społeczności",
+      "features": {
+        "columns-title": "Kolumny na żywo",
+        "columns-description": "Oglądaj wiele kanałów informacyjnych aktualizowanych obok siebie, w czasie rzeczywistym.",
+        "anything-title": "Wszystko, co obserwujesz",
+        "anything-description": "Dodaj kolumny dla ludzi, społeczności, Faves, trendy, wyszukiwanie, powiadomienia i portfel.",
+        "arrange-title": "Ułóż swój sposób",
+        "arrange-description": "Przeciągnij kolumny, aby zmienić ich kolejność i kształtować swój własny obszar roboczy.",
+        "saved-title": "Zapisano na Twoim koncie",
+        "saved-description": "Zaloguj się i zsynchronizuj talie z Tobą na każdym urządzeniu."
+      }
+    },
+    "onboarding": {
+      "title": "Witamy na talii",
+      "button": "Zacznij",
+      "skip": "Pomiń",
+      "finish": "Zbuduj moją talię",
+      "build-title": "Zbuduj swoją talię",
+      "tips": {
+        "add-title": "Dodaj kolumnę",
+        "add-description": "Wybierz typ kolumny, aby śledzić kanał, społeczność, osobę, powiadomienia i więcej.",
+        "drag-title": "Uporządkuj je",
+        "drag-description": "Przeciągnij kolumny przez ich nagłówek, aby zmienić kolejność obszaru roboczego w dowolny sposób.",
+        "save-title": "Zapisz swoją talię",
+        "save-description": "Zapisz talię na swoim koncie w ustawieniach, aby zachować ją pomiędzy urządzeniami."
+      }
+    },
     "columns": {
       "view-full-post": "Zobacz pełny post",
       "user": "Użytkownik",
