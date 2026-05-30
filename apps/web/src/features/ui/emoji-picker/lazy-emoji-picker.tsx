@@ -6,6 +6,9 @@ export const EmojiPicker = dynamic(
   () => import("./index").then((m) => ({ default: m.EmojiPicker })),
   {
     ssr: false,
-    loading: () => <div className="emoji-picker-loading">Loading emojis...</div>
+    // No loading placeholder: the picker is a fixed-position popover opened on
+    // demand, so a text node in the toolbar flow would shift controls / show
+    // stray text while the chunk loads. Render nothing until the popover is ready.
+    loading: () => null
   }
 );
