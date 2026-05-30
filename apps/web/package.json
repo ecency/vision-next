@@ -68,7 +68,7 @@
     "@vis.gl/react-google-maps": "^1.5.3",
     "@wallet-standard/app": "^1.1.0",
     "@webscopeio/react-textarea-autocomplete": "^4.9.2",
-    "axios": "1.15.2",
+    "axios": "1.16.0",
     "bip39": "^3.1.0",
     "bs58": "^4.0.1",
     "clsx": "^2.1.1",
