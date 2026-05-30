@@ -654,27 +654,27 @@
       "features": {
         "columns-title": "Columnas en vivo",
         "columns-description": "Múltiples Feeds se actualizan unos junto a otros, en tiempo real.",
-        "anything-title": "Anything you follow",
-        "anything-description": "Add columns for people, communities, Waves, trending, search, notifications and your wallet.",
-        "arrange-title": "Arrange your way",
-        "arrange-description": "Drag columns to reorder them and shape your own workspace.",
-        "saved-title": "Saved to your account",
-        "saved-description": "Sign in and your decks sync with you across every device."
+        "anything-title": "Cualquier cosa que sigas",
+        "anything-description": "Añade columnas para personas, comunidades, ondas, tendencias, búsqueda, notificaciones y tu cartera.",
+        "arrange-title": "Organiza tu camino",
+        "arrange-description": "Arrastra las columnas para reordenarlas y dar forma a tu propio espacio de trabajo.",
+        "saved-title": "Guardado en tu cuenta",
+        "saved-description": "Inicia sesión y tus mazos se sincronizan contigo en todos los dispositivos."
       }
     },
     "onboarding": {
-      "title": "Welcome to Decks",
-      "button": "Get started",
-      "skip": "Skip",
-      "finish": "Build my deck",
-      "build-title": "Build your deck",
+      "title": "Bienvenido a mazos",
+      "button": "Empezar",
+      "skip": "Saltar",
+      "finish": "Construir mi mazo",
+      "build-title": "Construye tu mazo",
       "tips": {
-        "add-title": "Add a column",
-        "add-description": "Pick a column type to follow a feed, community, person, your notifications and more.",
-        "drag-title": "Arrange them",
-        "drag-description": "Drag columns by their header to reorder your workspace any way you like.",
-        "save-title": "Save your deck",
-        "save-description": "Save a deck to your account from its settings to keep it across devices."
+        "add-title": "Añadir una columna",
+        "add-description": "Elige un tipo de columna para seguir un feed, comunidad, persona, tus notificaciones y más.",
+        "drag-title": "Organizarlos",
+        "drag-description": "Arrastre las columnas por su cabecera para reordenar su espacio de trabajo de la manera que desee.",
+        "save-title": "Guarda tu mazo",
+        "save-description": "Guarda un mazo en tu cuenta desde su configuración para mantenerlo entre dispositivos."
       }
     },
     "columns": {
