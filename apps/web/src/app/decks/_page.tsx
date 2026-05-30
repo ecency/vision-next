@@ -8,20 +8,22 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useHydrated } from "@/api/queries";
 import { DecksIntro } from "@/app/decks/_components/decks-intro";
 
-const decksLoader = () => (
-  <div className="flex items-center justify-center min-h-screen">
-    <div className="text-center">
-      <div className="spinner mb-4" />
-      <p>Loading Decks...</p>
+function DecksLoader() {
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="text-center">
+        <div className="spinner mb-4" />
+        <p>Loading Decks...</p>
+      </div>
     </div>
-  </div>
-);
+  );
+}
 
 const Decks = dynamic(
   () => import("@/app/decks/_components").then((m) => ({ default: m.Decks })),
   {
     ssr: false,
-    loading: decksLoader
+    loading: DecksLoader
   }
 );
 
@@ -36,7 +38,7 @@ export function DecksPage() {
       <div id="deck-media-view-container" />
       {/* Avoid flashing the logged-out intro to logged-in users before the
           client store hydrates; the deck surface is client-only anyway. */}
-      {!hydrated ? decksLoader() : activeUser ? <Decks /> : <DecksIntro />}
+      {!hydrated ? <DecksLoader /> : activeUser ? <Decks /> : <DecksIntro />}
     </div>
   );
 }
