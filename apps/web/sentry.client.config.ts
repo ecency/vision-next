@@ -90,11 +90,13 @@ const SENTRY_CONFIG: Sentry.BrowserOptions = {
 
     // React SSR streaming hydration issue triggered by browser extensions
     // ($RS is React's internal resumable script marker)
-    // Covers Chrome ("Cannot read properties of null (reading 'parentNode')"),
+    // Covers old Chrome ≤116 ("Cannot read property 'parentNode' of null"),
+    // new Chrome 117+ ("Cannot read properties of null (reading 'parentNode')"),
     // Firefox ("can't access property \"parentNode\", a is null"), and
     // Safari ("null is not an object (evaluating 'a.parentNode')") phrasings.
     const isParentNodeNull =
       message.includes("reading 'parentNode'") ||
+      message.includes("property 'parentNode'") ||
       message.includes('"parentNode"') ||
       /null is not an object \(evaluating '[a-z]\.parentNode'\)/.test(message);
     if (isParentNodeNull && stackStr.includes("$RS")) {
