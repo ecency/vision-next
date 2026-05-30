@@ -5,7 +5,7 @@ import { useCreateReply } from "@/api/mutations";
 import { createReplyPermlink, makeJsonMetaDataReply } from "@/utils";
 import appPackage from "../../../../../../package.json";
 import i18next from "i18next";
-import { Comment } from "@/features/shared";
+import { Comment } from "@/features/shared/comment";
 import { useActiveAccount } from "@/core/hooks";
 
 interface Props {

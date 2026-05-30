@@ -26,7 +26,8 @@ const GalleryDialog = dynamic(
   { ssr: false }
 );
 import { VideoUpload } from "@/features/shared/video-upload-threespeak";
-import { EmojiPicker, StyledTooltip } from "@/features/ui";
+import { StyledTooltip } from "@/features/ui";
+import { EmojiPicker } from "@ui/emoji-picker/lazy-emoji-picker";
 import { useEditorState } from "@tiptap/react";
 import { YOUTUBE_REGEX } from "@/features/tiptap-editor";
 import {

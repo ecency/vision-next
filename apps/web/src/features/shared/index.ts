@@ -40,7 +40,11 @@ export * from "./entry-info";
 export * from "./bookmark-btn";
 export * from "./discussion";
 export * from "./entry-delete-btn";
-export * from "./comment";
+// NOTE: ./comment (the reply/edit composer) is intentionally NOT re-exported from
+// this barrel. It pulls the markdown editor toolbar, emoji/GIF pickers, textarea
+// autocomplete, polls and video upload (~80KB) — importing any unrelated symbol
+// from this barrel dragged all of that into pages that never render a composer.
+// Import it directly: `import { Comment } from "@/features/shared/comment"`.
 export * from "./transactions";
 export * from "./click-away-listener";
 export * from "./available-credits";
@@ -56,7 +60,8 @@ export * from "./gallery";
 export * from "./boost";
 export * from "./static-navbar";
 export * from "./edit-history";
-export * from "./editor-toolbar";
+// NOTE: ./editor-toolbar is intentionally NOT re-exported here — see the ./comment
+// note above. Import directly from "@/features/shared/editor-toolbar".
 export * from "./redirect";
 export * from "./entry-stats";
 export * from "./post-content-renderer";

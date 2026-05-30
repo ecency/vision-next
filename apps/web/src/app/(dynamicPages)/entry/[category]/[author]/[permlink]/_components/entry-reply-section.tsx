@@ -1,6 +1,6 @@
 "use client";
 
-import { Comment } from "@/features/shared";
+import { Comment } from "@/features/shared/comment";
 import i18next from "i18next";
 import { Entry } from "@/entities";
 import { createReplyPermlink, makeJsonMetaDataReply } from "@/utils";

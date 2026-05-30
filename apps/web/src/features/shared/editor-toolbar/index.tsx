@@ -29,7 +29,7 @@ import { insertOrReplace, replace } from "@/utils";
 import { convertHeicToJpeg } from "@/utils/convert-heic";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
-import { EmojiPicker } from "@/features/ui";
+import { EmojiPicker } from "@ui/emoji-picker/lazy-emoji-picker";
 import { GifPicker } from "@ui/gif-picker";
 import { classNameObject } from "@ui/util";
 import { GalleryDialog } from "@/features/shared/gallery";
