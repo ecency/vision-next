@@ -3,21 +3,10 @@
 import React from "react";
 import i18next from "i18next";
 import { useRouter } from "next/navigation";
-import {
-  UilCloudComputing,
-  UilColumns,
-  UilUsersAlt,
-  UilWindow
-} from "@tooni/iconscout-unicons-react";
+import { UilColumns } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
 import { useGlobalStore } from "@/core/global-store";
-
-const FEATURES = [
-  { icon: <UilColumns className="opacity-50" />, key: "columns" },
-  { icon: <UilUsersAlt className="opacity-50" />, key: "anything" },
-  { icon: <UilWindow className="opacity-50" />, key: "arrange" },
-  { icon: <UilCloudComputing className="opacity-50" />, key: "saved" }
-];
+import { DECKS_INTRO_FEATURES } from "./decks-intro-features";
 
 /**
  * Logged-out landing for /decks. A logged-out visitor cannot save decks or use
@@ -43,7 +32,7 @@ export function DecksIntro() {
           </p>
         </div>
         <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-6 text-left">
-          {FEATURES.map(({ icon, key }) => (
+          {DECKS_INTRO_FEATURES.map(({ icon, key }) => (
             <div
               className="grid gap-4 items-start"
               key={key}

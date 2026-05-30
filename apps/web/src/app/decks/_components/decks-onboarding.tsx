@@ -5,22 +5,13 @@ import i18next from "i18next";
 import {
   UilArrowRight,
   UilCloudComputing,
-  UilColumns,
   UilDraggabledots,
-  UilPlusCircle,
-  UilUsersAlt,
-  UilWindow
+  UilPlusCircle
 } from "@tooni/iconscout-unicons-react";
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "@/features/ui";
 import { useSynchronizedLocalStorage } from "@/utils";
 import { PREFIX } from "@/utils/local-storage";
-
-const FEATURES = [
-  { icon: <UilColumns className="opacity-50" />, key: "columns" },
-  { icon: <UilUsersAlt className="opacity-50" />, key: "anything" },
-  { icon: <UilWindow className="opacity-50" />, key: "arrange" },
-  { icon: <UilCloudComputing className="opacity-50" />, key: "saved" }
-];
+import { DECKS_INTRO_FEATURES } from "./decks-intro-features";
 
 const TIPS = [
   { icon: <UilPlusCircle className="opacity-50" />, key: "add" },
@@ -49,10 +40,7 @@ export function DecksOnboarding() {
     <Modal
       centered={true}
       show={!!show}
-      onHide={() => {
-        setShow(false);
-        setStep("intro");
-      }}
+      onHide={() => setShow(false)}
     >
       <ModalHeader closeButton={true}>
         {step === "build" && i18next.t("decks.onboarding.build-title")}
@@ -65,7 +53,7 @@ export function DecksOnboarding() {
                 {i18next.t("decks.onboarding.title")}
               </div>
               <div className="flex flex-col gap-6">
-                {FEATURES.map(({ icon, key }) => (
+                {DECKS_INTRO_FEATURES.map(({ icon, key }) => (
                   <div
                     className="grid gap-4 items-start"
                     key={key}
