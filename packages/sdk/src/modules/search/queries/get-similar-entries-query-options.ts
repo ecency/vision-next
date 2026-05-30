@@ -17,11 +17,20 @@ const SIMILAR_ENTRIES_TARGET = 3;
 const SIMILAR_ENTRIES_BODY_LIMIT = 3000;
 
 // On the server the prefetch sits on the entry-page render path, and the search
-// backend is single-region (EU) — so a slow cross-region call (US/SG origins)
-// would stall SSR. Cap the server-side call short and let the strip fall back to
-// a client fetch (only that render misses the in-HTML strip; it's ISR-cached
-// anyway). The client keeps the normal timeout since its fetch doesn't block.
+// backend is single-region (EU) — so anything slower than this stalls SSR for a
+// non-essential "related posts" strip. Keep the SSR cap short and let the strip
+// fall back to a client fetch (only that render misses the in-HTML strip; it's
+// ISR-cached anyway). Do NOT raise this — 2s is the SSR budget.
 const SIMILAR_ENTRIES_SSR_TIMEOUT_MS = 2000;
+
+// The client fetch doesn't block paint, so it previously had no cap and fell
+// through to the SDK's generic INTERNAL_API_TIMEOUT_MS (10s; CF's worker further
+// truncates at ~8s). Combined with React Query's default client retry (3×), a
+// /search-api/similar outage turned this best-effort strip into a multi-second
+// post-onload tail (observed as a ~29s "fully loaded" in GTmetrix). Cap the
+// client call short and disable retry (below) so a degraded backend just hides
+// the strip quickly instead of churning.
+const SIMILAR_ENTRIES_CLIENT_TIMEOUT_MS = 4000;
 
 // The strip is hidden below this many results. A lone suggestion looks
 // sparse. Exported so the web component shares one threshold (filter == render).
@@ -102,8 +111,11 @@ export function getSimilarEntriesQueryOptions(entry: Entry) {
         },
         signal,
         // Short cap server-side so a slow cross-region call can't stall SSR;
-        // the client keeps the default (non-blocking, can wait for results).
-        typeof window === "undefined" ? SIMILAR_ENTRIES_SSR_TIMEOUT_MS : undefined
+        // a slightly longer (but still bounded) cap client-side so a degraded
+        // backend can't hang the request on the SDK's generic 8s timeout.
+        typeof window === "undefined"
+          ? SIMILAR_ENTRIES_SSR_TIMEOUT_MS
+          : SIMILAR_ENTRIES_CLIENT_TIMEOUT_MS
       );
 
       // Light client guard mirroring the render contract: never the source
@@ -120,6 +132,10 @@ export function getSimilarEntriesQueryOptions(entry: Entry) {
       }
 
       return collected;
-    }
+    },
+    // Best-effort suggestions strip — never retry-storm a degraded backend.
+    // The web QueryClient sets retry:false globally, but other SDK consumers
+    // (e.g. mobile) may not, so pin it here too.
+    retry: false
   });
 }

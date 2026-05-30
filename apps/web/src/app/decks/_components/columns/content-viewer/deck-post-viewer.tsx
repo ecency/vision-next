@@ -9,12 +9,12 @@ import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { arrowLeftSvg } from "@ui/svg";
 import i18next from "i18next";
 import {
-  Discussion,
   EntryInfo,
   EntryVoteBtn,
   EntryVotes,
   PostContentRenderer
 } from "@/features/shared";
+import { Discussion } from "@/features/shared/discussion";
 import { makeEntryPath } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 

@@ -35,12 +35,20 @@ import { StyledTooltip } from "@ui/tooltip";
 import i18next from "i18next";
 import { memo, useEffect, useMemo, useState, type ReactNode } from "react";
 import appPackage from "../../../../package.json";
+import dynamic from "next/dynamic";
 import { Tsx } from "../../i18n/helper";
-import { Comment } from "../comment";
 import { EntryLink } from "../entry-link";
 import { DiscussionBots } from "./discussion-bots";
 import { DiscussionItemBody } from "./discussion-item-body";
 import { DiscussionList } from "./discussion-list";
+
+// The reply/edit composer (markdown editor toolbar, emoji/GIF pickers, textarea
+// autocomplete, polls/video upload) only renders behind the reply/edit toggles
+// below. Load it lazily so the SSR'd comment list doesn't pull the whole
+// composer into the post page's first-load bundle.
+const Comment = dynamic(() => import("../comment").then((m) => ({ default: m.Comment })), {
+  ssr: false
+});
 
 interface Props {
   entry: Entry;

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.7
+
+### Patch Changes
+
+- perf(web): bound similar-entries client fetch, lazy comment composer, fix emoji loading (#852)
+
 ## 2.3.6
 
 ### Patch Changes
