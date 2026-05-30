@@ -191,13 +191,21 @@ describe("getSimilarEntriesQueryOptions", () => {
     expect(payload.tags).toEqual([]);
   });
 
-  it("throws when the request fails so React Query can retry", async () => {
+  it("throws on a failed request so the error surfaces (the strip then hides)", async () => {
     fetchMock.mockResolvedValueOnce({ ok: false, status: 500, json: async () => ({}) });
 
     const options = getSimilarEntriesQueryOptions(entry);
     await expect(
       (options.queryFn as QueryFn)({ signal: undefined })
     ).rejects.toThrow(/500/);
+  });
+
+  it("disables retry so a degraded backend can't retry-storm into a long tail", () => {
+    // Regression: the client path had no per-request timeout (fell through to the
+    // SDK's INTERNAL_API_TIMEOUT_MS) and React Query's default client retry (3×)
+    // turned a /search-api/similar outage into a ~29s post-onload tail. This is a
+    // best-effort strip — one attempt, then hide.
+    expect(getSimilarEntriesQueryOptions(entry).retry).toBe(false);
   });
 
   it("exposes a shared min-render threshold of 2", () => {

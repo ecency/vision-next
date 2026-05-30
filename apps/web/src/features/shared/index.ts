@@ -38,7 +38,11 @@ export * from "./entry-reblog-btn";
 export * from "./message-no-data";
 export * from "./entry-info";
 export * from "./bookmark-btn";
-export * from "./discussion";
+// NOTE: ./discussion is intentionally NOT re-exported from this barrel. The
+// Discussion tree (DiscussionList -> DiscussionItem) imports the reply/edit
+// composer, so re-exporting it here dragged that whole path into any page that
+// imports an unrelated symbol from this barrel. Import it directly:
+// `import { Discussion } from "@/features/shared/discussion"`.
 export * from "./entry-delete-btn";
 // NOTE: ./comment (the reply/edit composer) is intentionally NOT re-exported from
 // this barrel. It pulls the markdown editor toolbar, emoji/GIF pickers, textarea
