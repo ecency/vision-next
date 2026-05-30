@@ -8,9 +8,18 @@ import { Entry, Community } from "@/entities";
 import { Discussion } from "@/features/shared/discussion";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
-import { EntryReplySection } from "./entry-reply-section";
+import dynamic from "next/dynamic";
 import { isCommunity } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
+
+// The reply composer (markdown editor toolbar, emoji/GIF pickers, textarea
+// autocomplete, polls/video upload) only renders for logged-in users via the
+// `activeUser &&` gate below. Load it lazily so the SSR'd post page doesn't ship
+// the composer to logged-out readers and crawlers.
+const EntryReplySection = dynamic(
+  () => import("./entry-reply-section").then((m) => ({ default: m.EntryReplySection })),
+  { ssr: false }
+);
 
 interface Props {
   entry: Entry;
