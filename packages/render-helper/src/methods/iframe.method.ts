@@ -177,8 +177,9 @@ export function iframe(el: HTMLElement | null, parentDomain: string = 'ecency.co
 
   // Skatehype
   if (src.match(SKATEHYPE_EMBED_REGEX)) {
-    // Normalize protocol-relative URLs to https://
-    const normalizedSrc = src.startsWith('//') ? `https:${src}` : src;
+    // Force https:// for http:// and protocol-relative URLs so the embed
+    // isn't blocked as mixed content on the https app.
+    const normalizedSrc = src.replace(/^(https?:)?\/\//i, 'https://');
     el.setAttribute('src', normalizedSrc);
     el.setAttribute('frameborder', '0');
     el.setAttribute('allowfullscreen', 'true');
