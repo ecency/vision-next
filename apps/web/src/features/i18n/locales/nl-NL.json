@@ -646,6 +646,37 @@
     "choose-one": "Kies er een",
     "user": "Gebruiker",
     "search-query": "Zoek query",
+    "intro": {
+      "title": "Decks — uw gepersonaliseerde dashboard",
+      "description": "Volg feeds, gemeenschappen, Waves, meldingen en uw portemonnee kant aan zijde, bijwerken in real time. Log in om uw eigen dek te bouwen en op te slaan.",
+      "login": "Log in om je dek te bouwen",
+      "browse-communities": "Bekijk gemeenschappen in plaats daarvan",
+      "features": {
+        "columns-title": "Live kolommen",
+        "columns-description": "Bekijk in real time meerdere feeds updates naast elkaar.",
+        "anything-title": "Alles wat je volgt",
+        "anything-description": "Voeg kolommen toe voor mensen, gemeenschappen, Waves, trending, zoeken, meldingen en uw portemonnee.",
+        "arrange-title": "Rangschikken op jouw weg",
+        "arrange-description": "Sleep kolommen om ze te herordenen en vorm te geven aan je eigen werkruimte.",
+        "saved-title": "Opgeslagen in je account",
+        "saved-description": "Meld u aan en synchroniseer uw decks met u op elk apparaat."
+      }
+    },
+    "onboarding": {
+      "title": "Welkom bij Decks",
+      "button": "Aan de slag",
+      "skip": "Overslaan",
+      "finish": "Mijn dek bouwen",
+      "build-title": "Maak je dek",
+      "tips": {
+        "add-title": "Voeg een kolom toe",
+        "add-description": "Kies een kolomtype om een feed, community, persoon, je meldingen en meer te volgen.",
+        "drag-title": "Rangschik ze",
+        "drag-description": "Sleep kolommen met hun koptekst om uw werkruimte op de een of andere manier te herordenen.",
+        "save-title": "Sla je deck op",
+        "save-description": "Een dek opslaan in uw account vanuit de instellingen om het op alle apparaten te houden."
+      }
+    },
     "columns": {
       "view-full-post": "Volledig bericht bekijken",
       "user": "Gebruiker",
