@@ -818,6 +818,82 @@ describe('iframe() method - Iframe Sanitization', () => {
     })
   })
 
+  describe('Skatehype Iframes', () => {
+    it('should allow Skatehype embed', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('iframe')
+      el.setAttribute('src', 'https://www.skatehype.com/ifplay.php?v=33426')
+      parent.appendChild(el)
+
+      iframe(el)
+
+      expect(hasChildWithTag(parent, 'iframe')).toBe(true)
+      expect(el.getAttribute('src')).toBe('https://www.skatehype.com/ifplay.php?v=33426')
+      expect(el.getAttribute('frameborder')).toBe('0')
+      expect(el.getAttribute('allowfullscreen')).toBe('true')
+    })
+
+    it('should allow Skatehype embed without www', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('iframe')
+      el.setAttribute('src', 'https://skatehype.com/ifplay.php?v=33426')
+      parent.appendChild(el)
+
+      iframe(el)
+
+      expect(hasChildWithTag(parent, 'iframe')).toBe(true)
+      expect(el.getAttribute('allowfullscreen')).toBe('true')
+    })
+
+    it('should normalize protocol-relative Skatehype URLs', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('iframe')
+      el.setAttribute('src', '//www.skatehype.com/ifplay.php?v=33426')
+      parent.appendChild(el)
+
+      iframe(el)
+
+      expect(el.getAttribute('src')).toBe('https://www.skatehype.com/ifplay.php?v=33426')
+      expect(el.getAttribute('frameborder')).toBe('0')
+      expect(el.getAttribute('allowfullscreen')).toBe('true')
+    })
+
+    it('should upgrade http Skatehype URLs to https (avoid mixed content)', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('iframe')
+      el.setAttribute('src', 'http://www.skatehype.com/ifplay.php?v=33426')
+      parent.appendChild(el)
+
+      iframe(el)
+
+      expect(el.getAttribute('src')).toBe('https://www.skatehype.com/ifplay.php?v=33426')
+    })
+
+    it('should allow Skatehype embed with trailing query params', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('iframe')
+      el.setAttribute('src', 'https://www.skatehype.com/ifplay.php?v=33426&autoplay=1')
+      parent.appendChild(el)
+
+      iframe(el)
+
+      expect(hasChildWithTag(parent, 'iframe')).toBe(true)
+      expect(el.getAttribute('allowfullscreen')).toBe('true')
+    })
+
+    it('should not match Skatehype URLs with a non-numeric id', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('iframe')
+      el.setAttribute('src', 'https://www.skatehype.com/ifplay.php?v=123abc')
+      parent.appendChild(el)
+
+      iframe(el)
+
+      expect(hasChildWithTag(parent, 'iframe')).toBe(false)
+      expect(hasChildWithClass(parent, 'unsupported-iframe')).toBeTruthy()
+    })
+  })
+
   describe('Archive.org Iframes', () => {
     it('should allow archive.org embed', () => {
       const parent = doc.createElement('div')
