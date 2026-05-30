@@ -646,6 +646,37 @@
     "choose-one": "选择一个",
     "user": "用户",
     "search-query": "搜索查询",
+    "intro": {
+      "title": "牌组 — — 您的个人化仪表板",
+      "description": "跟随订阅源、社区、Waves、通知和你的钱包并实时更新。登录以建立和保存你自己的牌组。",
+      "login": "登录以构建您的牌组",
+      "browse-communities": "浏览社区",
+      "features": {
+        "columns-title": "实时列",
+        "columns-description": "实时观看多个源的更新。",
+        "anything-title": "您关注的任何内容",
+        "anything-description": "为人们、社区、Waves、趋势、 搜索、 通知和您的钱包添加列数。",
+        "arrange-title": "安排您的道路",
+        "arrange-description": "拖动列来重新排序和形成您自己的工作区。",
+        "saved-title": "保存到您的帐户",
+        "saved-description": "登录并与您的牌组在每个设备上同您同步。"
+      }
+    },
+    "onboarding": {
+      "title": "欢迎来到牌组",
+      "button": "开始使用",
+      "skip": "跳过",
+      "finish": "构建我的牌组",
+      "build-title": "构建您的牌组",
+      "tips": {
+        "add-title": "添加列",
+        "add-description": "选择列类型来关注种子、 社区、人员、您的通知等等。",
+        "drag-title": "安排他们的工作",
+        "drag-description": "由他们的头部拖动列来按你喜欢的方式重新排序工作区。",
+        "save-title": "保存您的牌组",
+        "save-description": "从设置保存牌组到您的帐户以便在设备上保持它。"
+      }
+    },
     "columns": {
       "view-full-post": "查看完整帖子",
       "user": "用户",
