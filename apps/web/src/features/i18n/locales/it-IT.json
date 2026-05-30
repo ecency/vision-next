@@ -646,6 +646,37 @@
     "choose-one": "Scegli un'opzione",
     "user": "Utente",
     "search-query": "Chiave di ricerca",
+    "intro": {
+      "title": "Mazzi — il cruscotto personalizzato",
+      "description": "Segui feed, comunità, Onde, notifiche e il tuo portafoglio fianco a fianco, aggiornando in tempo reale. Accedi per costruire e salvare il tuo mazzo.",
+      "login": "Accedi per costruire il tuo mazzo",
+      "browse-communities": "Sfoglia invece le comunità",
+      "features": {
+        "columns-title": "Colonne dal vivo",
+        "columns-description": "Guarda l'aggiornamento di feed multipli uno accanto all'altro, in tempo reale.",
+        "anything-title": "Qualsiasi cosa tu segua",
+        "anything-description": "Aggiungi colonne per persone, comunità, Onde, tendenza, ricerca, notifiche e il tuo portafoglio.",
+        "arrange-title": "Organizza la tua strada",
+        "arrange-description": "Trascina le colonne per riordinarle e modellare il proprio spazio di lavoro.",
+        "saved-title": "Salvato nel tuo account",
+        "saved-description": "Accedi e i tuoi mazzi si sincronizzano con te su ogni dispositivo."
+      }
+    },
+    "onboarding": {
+      "title": "Benvenuto nei mazzi",
+      "button": "Per iniziare",
+      "skip": "Salta",
+      "finish": "Costruisci il mio mazzo",
+      "build-title": "Costruisci il tuo mazzo",
+      "tips": {
+        "add-title": "Aggiungi colonna",
+        "add-description": "Scegli un tipo di colonna per seguire un feed, una comunità, una persona, le tue notifiche e altro ancora.",
+        "drag-title": "Organizzali",
+        "drag-description": "Trascina le colonne dalla loro intestazione per riordinare il tuo spazio di lavoro in qualsiasi modo ti piace.",
+        "save-title": "Salva il tuo mazzo",
+        "save-description": "Salva un mazzo sul tuo account dalle sue impostazioni per tenerlo attraverso i dispositivi."
+      }
+    },
     "columns": {
       "view-full-post": "Visualizza post intero",
       "user": "Utente",
