@@ -39,7 +39,13 @@ export const dynamic = "force-dynamic";
 const BASE = defaults.base;
 const LIVE_BL = `${SEO_REDIS_PREFIX}blacklist:authors`;
 const K = (s: string) => `${SEO_REDIS_PREFIX}sitemap:${s}`;
-const TIME_BUDGET_MS = 50_000;
+// Wall-clock backstop on the post walk, checked each page. 90s (was 50s): on
+// slower upstream RPC nodes the 50s budget could truncate the walk before the
+// 48h cutoff (reachedCutoff:false → only a partial freshness window published).
+// 90s lets the walk reach the cutoff while staying inside the scheduler's
+// curl --max-time even with a worst-case retrying trailing page
+// (RPC_TIMEOUT_MS × (RPC_RETRY+1)).
+const TIME_BUDGET_MS = 90_000;
 // bridge.get_ranked_posts hard-caps `limit` at 20 — the RPC *rejects*
 // anything higher with "limit = N outside valid range [1:20]" (confirmed
 // against api.hive.blog; see packages/render-helper/scan-post-corpus.mjs).
@@ -333,8 +339,14 @@ export async function POST(req: Request): Promise<Response> {
     ...hubPaths.map((p) => ({ loc: p ? `${BASE}/${p}` : `${BASE}/`, lastmod: nowDay })),
     ...infoPaths.map((p) => ({ loc: `${BASE}/${p}` }))
   ];
+  // Emit the CANONICAL profile URL. Profile pages canonicalize /@a → /@a/posts,
+  // so listing the bare /@a made Google report every author entry as "Alternate
+  // page with proper canonical tag" — the canonical /@a/posts indexes fine, but
+  // the sitemap'd URL itself doesn't, and a crawl is spent resolving the
+  // canonical. A sitemap must list canonical URLs — the same rule posts.xml
+  // already follows via canonicalTarget.
   const authorUrls = Array.from(authors).map((a) => ({
-    loc: `${BASE}/@${a}`,
+    loc: `${BASE}/@${a}/posts`,
     lastmod: nowDay
   }));
   // Cached/weekly name list + free hourly post-derived lastmod. A community
