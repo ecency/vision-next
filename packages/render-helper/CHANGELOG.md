@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.5.7
+
+### Patch Changes
+
+- feat(render-helper): support Skatehype video embeds (#851)
+
 ## 2.5.6
 
 ### Patch Changes

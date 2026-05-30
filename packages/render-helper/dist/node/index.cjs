@@ -106,6 +106,7 @@ var TRUVVL_REGEX = /^https?:\/\/embed.truvvl.com\/(@[\w.\d-]+)\/(.*)/i;
 var LBRY_REGEX = /^(https?:)?\/\/lbry.tv\/\$\/embed\/[^?#]+(?:$|[?#])/i;
 var ODYSEE_REGEX = /^(https?:)?\/\/odysee\.com\/(?:\$|%24)\/embed\/[^?#]+(?:$|[?#])/i;
 var SKATEHIVE_IPFS_REGEX = /^https?:\/\/ipfs\.skatehive\.app\/ipfs\/([^/?#]+)/i;
+var SKATEHYPE_EMBED_REGEX = /^(https?:)?\/\/(www\.)?skatehype\.com\/ifplay\.php\?v=\d+(?:$|[&#])/i;
 var ARCH_REGEX = /^(https?:)?\/\/archive.org\/embed\/[^/?#]+(?:$|[?#])/i;
 var SPEAK_REGEX = /(?:https?:\/\/(?:(?:play\.)?3speak\.([a-z]+)\/watch\?v=)|(?:(?:play\.)?3speak\.([a-z]+)\/embed\?v=))([A-Za-z0-9_\-\.\/]+)(&.*)?/i;
 var SPEAK_EMBED_REGEX = /^(https?:)?\/\/(?:play\.)?3speak\.([a-z]+)\/(?:embed|watch)\?.+$/i;
@@ -1422,6 +1423,13 @@ function iframe(el, parentDomain = "ecency.com", forApp = false) {
   }
   if (src.match(SKATEHIVE_IPFS_REGEX)) {
     el.setAttribute("src", src);
+    el.setAttribute("allowfullscreen", "true");
+    return;
+  }
+  if (src.match(SKATEHYPE_EMBED_REGEX)) {
+    const normalizedSrc = src.replace(/^(https?:)?\/\//i, "https://");
+    el.setAttribute("src", normalizedSrc);
+    el.setAttribute("frameborder", "0");
     el.setAttribute("allowfullscreen", "true");
     return;
   }
