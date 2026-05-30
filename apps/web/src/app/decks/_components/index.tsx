@@ -15,6 +15,7 @@ import { DeckFloatingToolbarActivator } from "./deck-toolbar/deck-floating-toolb
 import { useNav } from "@/utils";
 import { PollsManager } from "@/features/polls";
 import { classNameObject } from "@ui/util";
+import { DecksOnboarding } from "./decks-onboarding";
 
 export const Decks = () => {
   const { setNavShow } = useNav();
@@ -54,6 +55,7 @@ export const Decks = () => {
                     setOpen={(v) => setIsCollapsed(!v)}
                   />
                   <DeckToolbar isExpanded={isExpanded} setIsExpanded={setIsExpanded} />
+                  <DecksOnboarding />
                   <DeckThreadsForm className={showThreadsForm ? "show" : ""} persistable={true} />
                   {isDecksLoading ? (
                     <DeckLoader />

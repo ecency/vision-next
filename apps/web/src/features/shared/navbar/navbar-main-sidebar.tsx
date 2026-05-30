@@ -140,16 +140,20 @@ export function NavbarMainSidebar({ show, setShow, setStepOne }: Props) {
             dot={unread?.truncated ? false : Boolean(unread?.totalUnread)}
           />
         </EcencyConfigManager.Conditional>
-        <EcencyConfigManager.Conditional
-          condition={({ visionFeatures }) => visionFeatures.decks.enabled}
-        >
-          <NavbarSideMainMenuItem
-            label={i18next.t("navbar.decks")}
-            to="/decks"
-            onClick={() => setShow(false)}
-            icon={<UilColumns size={16} />}
-          />
-        </EcencyConfigManager.Conditional>
+        {/* Decks only pays off once logged in (saved decks, account columns);
+            logged-out users already have the Communities entry above. */}
+        {activeUser && hydrated && (
+          <EcencyConfigManager.Conditional
+            condition={({ visionFeatures }) => visionFeatures.decks.enabled}
+          >
+            <NavbarSideMainMenuItem
+              label={i18next.t("navbar.decks")}
+              to="/decks"
+              onClick={() => setShow(false)}
+              icon={<UilColumns size={16} />}
+            />
+          </EcencyConfigManager.Conditional>
+        )}
 
         <NavbarSideMainMenuItem
           label={i18next.t("proposals.page-title")}
