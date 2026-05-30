@@ -646,6 +646,37 @@
     "choose-one": "Choisir un",
     "user": "Utilisateur",
     "search-query": "Requête de recherche",
+    "intro": {
+      "title": "Decks — votre tableau de bord personnalisé",
+      "description": "Suivez les flux, les communautés, les Waves, les notifications et votre portefeuille côte à côte, la mise à jour en temps réel. Connectez-vous pour construire et enregistrer votre propre deck.",
+      "login": "Connectez-vous pour construire votre deck",
+      "browse-communities": "Parcourir les communautés à la place",
+      "features": {
+        "columns-title": "Colonnes en direct",
+        "columns-description": "Regardez la mise à jour de plusieurs flux les uns à côté des autres, en temps réel.",
+        "anything-title": "Tout ce que vous suivez",
+        "anything-description": "Ajouter des colonnes pour les personnes, les communautés, les vagues, les tendances, la recherche, les notifications et votre portefeuille.",
+        "arrange-title": "Organiser votre chemin",
+        "arrange-description": "Faites glisser les colonnes pour les réorganiser et façonner votre propre espace de travail.",
+        "saved-title": "Enregistré dans votre compte",
+        "saved-description": "Connectez-vous et vos decks synchronisent avec vous sur tous les appareils."
+      }
+    },
+    "onboarding": {
+      "title": "Bienvenue sur Decks",
+      "button": "Commencer",
+      "skip": "Ignorer",
+      "finish": "Construire mon deck",
+      "build-title": "Construire votre deck",
+      "tips": {
+        "add-title": "Ajouter une colonne",
+        "add-description": "Choisissez un type de colonne pour suivre un flux, une communauté, une personne, vos notifications et plus encore.",
+        "drag-title": "Organisez-les",
+        "drag-description": "Faites glisser les colonnes par leur en-tête pour réorganiser votre espace de travail comme vous le souhaitez.",
+        "save-title": "Enregistrez votre deck",
+        "save-description": "Enregistrez un deck dans votre compte à partir de ses paramètres pour le garder sur tous les appareils."
+      }
+    },
     "columns": {
       "view-full-post": "Voir la publication complète",
       "user": "Utilisateur",
