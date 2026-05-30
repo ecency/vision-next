@@ -646,6 +646,37 @@
     "choose-one": "Escoge uno",
     "user": "Usuario",
     "search-query": "Consulta de búsqueda",
+    "intro": {
+      "title": "Decks — tu panel de control personalizado",
+      "description": "Sigue feeds, comunidades, ondas, notificaciones y tu monedero codo con codo, actualizando en tiempo real. Inicia sesión para crear y guardar tu propio mazo.",
+      "login": "Inicia sesión para construir tu mazo",
+      "browse-communities": "Examinar comunidades en su lugar",
+      "features": {
+        "columns-title": "Columnas en vivo",
+        "columns-description": "Múltiples Feeds se actualizan unos junto a otros, en tiempo real.",
+        "anything-title": "Anything you follow",
+        "anything-description": "Add columns for people, communities, Waves, trending, search, notifications and your wallet.",
+        "arrange-title": "Arrange your way",
+        "arrange-description": "Drag columns to reorder them and shape your own workspace.",
+        "saved-title": "Saved to your account",
+        "saved-description": "Sign in and your decks sync with you across every device."
+      }
+    },
+    "onboarding": {
+      "title": "Welcome to Decks",
+      "button": "Get started",
+      "skip": "Skip",
+      "finish": "Build my deck",
+      "build-title": "Build your deck",
+      "tips": {
+        "add-title": "Add a column",
+        "add-description": "Pick a column type to follow a feed, community, person, your notifications and more.",
+        "drag-title": "Arrange them",
+        "drag-description": "Drag columns by their header to reorder your workspace any way you like.",
+        "save-title": "Save your deck",
+        "save-description": "Save a deck to your account from its settings to keep it across devices."
+      }
+    },
     "columns": {
       "view-full-post": "Ver post completo",
       "user": "Usuario",
