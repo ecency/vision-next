@@ -646,6 +646,37 @@
     "choose-one": "1つ選択してください",
     "user": "ユーザー",
     "search-query": "検索クエリ",
+    "intro": {
+      "title": "デッキ — 自分用のダッシュボード",
+      "description": "フィード、コミュニティ、Waves、通知、ウォレットを並んでリアルタイムに更新してください。サインインして自分のデッキを保存してください。",
+      "login": "ログインしてデッキを構築する",
+      "browse-communities": "代わりにコミュニティを参照",
+      "features": {
+        "columns-title": "ライブ列",
+        "columns-description": "リアルタイムで、お互いの隣に複数のフィードが更新されるのを見ます。",
+        "anything-title": "あなたがフォローしているもの",
+        "anything-description": "人、コミュニティ、波、トレンド、検索、通知、ウォレット用の列を追加します。",
+        "arrange-title": "道を整理する",
+        "arrange-description": "列をドラッグして並び替え、独自のワークスペースを形成します。",
+        "saved-title": "アカウントに保存しました",
+        "saved-description": "サインインすると、すべてのデバイス間でデッキが同期します。"
+      }
+    },
+    "onboarding": {
+      "title": "デッキへようこそ",
+      "button": "始めよう",
+      "skip": "スキップ",
+      "finish": "デッキを作る",
+      "build-title": "デッキを作る",
+      "tips": {
+        "add-title": "カラムを追加",
+        "add-description": "フィード、コミュニティ、連絡先、通知などに従うカラムタイプを選択します。",
+        "drag-title": "整列させる",
+        "drag-description": "任意の方法でワークスペースの順序を変更するには、ヘッダーの横に列をドラッグします。",
+        "save-title": "デッキを保存",
+        "save-description": "デバイス間で保管するために、設定からアカウントにデッキを保存します。"
+      }
+    },
     "columns": {
       "view-full-post": "全ての投稿を表示",
       "user": "ユーザー",
