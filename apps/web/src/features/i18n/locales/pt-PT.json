@@ -646,6 +646,37 @@
     "choose-one": "Escolha um",
     "user": "Utilizador",
     "search-query": "Procurar",
+    "intro": {
+      "title": "Decks — seu painel personalizado",
+      "description": "Siga feeds, comunidades, ondas, notificações e sua carteira lado a lado, atualizando em tempo real. Faça o login para criar e salvar seu próprio deck.",
+      "login": "Faça login para montar seu deck",
+      "browse-communities": "Procurar comunidades no lugar",
+      "features": {
+        "columns-title": "Colunas ao vivo",
+        "columns-description": "Assista a atualizações de vários feeds lado a lado, em tempo real.",
+        "anything-title": "Qualquer coisa que você segue",
+        "anything-description": "Adicionar colunas para pessoas, comunidades, ondas, tendência, pesquisa, notificações e sua carteira.",
+        "arrange-title": "Organize seu caminho",
+        "arrange-description": "Arraste colunas para reordená-las e moldar seu próprio espaço de trabalho.",
+        "saved-title": "Salvo na sua conta",
+        "saved-description": "Entre e seus decks sincronizam com você em todos os dispositivos."
+      }
+    },
+    "onboarding": {
+      "title": "Bem-vindo ao Decks",
+      "button": "Vamos começar",
+      "skip": "Ignorar",
+      "finish": "Construa meu deck",
+      "build-title": "Construa seu deck",
+      "tips": {
+        "add-title": "Adicionar uma coluna",
+        "add-description": "Escolha um tipo de coluna para seguir um feed, comunidade, pessoa, suas notificações e muito mais.",
+        "drag-title": "Organizar o dispositivo",
+        "drag-description": "Arraste colunas pelo cabeçalho deles para reordenar sua área de trabalho da maneira que quiser.",
+        "save-title": "Salve seu deck",
+        "save-description": "Salve um deck em sua conta nas configurações para mantê-lo entre dispositivos."
+      }
+    },
     "columns": {
       "view-full-post": "Ver post completo",
       "user": "Usuário",
