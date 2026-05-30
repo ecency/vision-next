@@ -646,6 +646,37 @@
     "choose-one": "Wählen Sie eine",
     "user": "Benutzer",
     "search-query": "Suchanfrage",
+    "intro": {
+      "title": "Decks — Ihr personalisiertes Dashboard",
+      "description": "Folgen Sie Feeds, Communities, Waves, Benachrichtigungen und Ihre Wallet Seite an Seite und aktualisieren Sie in Echtzeit. Melden Sie sich an, um Ihr eigenes Deck zu erstellen und zu speichern.",
+      "login": "Melde dich an, um dein Deck zu erstellen",
+      "browse-communities": "Communities durchsuchen",
+      "features": {
+        "columns-title": "Live Spalten",
+        "columns-description": "Beobachten Sie mehrere Feeds nebeneinander, in Echtzeit.",
+        "anything-title": "Alles, was du folgst",
+        "anything-description": "Fügen Sie Spalten für Personen, Gemeinschaften, Wellen, Trends, Suche, Benachrichtigungen und Ihre Brieftasche hinzu.",
+        "arrange-title": "Arrangieren Sie Ihren Weg",
+        "arrange-description": "Ziehen Sie Spalten um sie neu zu ordnen und Ihren eigenen Arbeitsbereich zu formen.",
+        "saved-title": "In Ihrem Konto gespeichert",
+        "saved-description": "Melden Sie sich an und synchronisieren Sie Ihre Stapel mit Ihnen auf allen Geräten."
+      }
+    },
+    "onboarding": {
+      "title": "Willkommen bei Decks",
+      "button": "Los geht's",
+      "skip": "Überspringen",
+      "finish": "Baue mein Stapel",
+      "build-title": "Baue dein Stapel",
+      "tips": {
+        "add-title": "Spalte hinzufügen",
+        "add-description": "Wählen Sie einen Spaltentyp, um einem Feed, einer Gemeinschaft, einer Person, Ihren Benachrichtigungen und mehr zu folgen.",
+        "drag-title": "Anordnen",
+        "drag-description": "Ziehen Sie Spalten nach der Kopfzeile, um Ihren Arbeitsbereich nach Belieben neu zu ordnen.",
+        "save-title": "Speichere dein Stapel",
+        "save-description": "Speichern Sie ein Deck in Ihrem Konto aus seinen Einstellungen, um es auf allen Geräten zu halten."
+      }
+    },
     "columns": {
       "view-full-post": "Vollständigen Beitrag anzeigen",
       "user": "Benutzer",
