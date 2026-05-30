@@ -5,7 +5,7 @@ import { CommentEngagement } from "@/app/(dynamicPages)/entry/[category]/[author
 import { EcencyConfigManager } from "@/config";
 import { EcencyEntriesCacheManagement, getCommunityCache } from "@/core/caches";
 import { Entry, Community } from "@/entities";
-import { Discussion } from "@/features/shared";
+import { Discussion } from "@/features/shared/discussion";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { EntryReplySection } from "./entry-reply-section";
