@@ -1,5 +1,5 @@
 import { KeyboardEvent } from "react";
-import { detectEvent } from "@/features/shared";
+import { detectEvent } from "@/features/shared/editor-toolbar";
 
 export function handleShortcuts(e: KeyboardEvent<HTMLDivElement>) {
   if (!e.altKey) {
