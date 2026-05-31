@@ -37,8 +37,11 @@ function reloadAfterChunkError() {
     }
     sessionStorage.setItem(CHUNK_RELOAD_FLAG, "1");
   } catch {
-    // sessionStorage can throw (private mode / quota); a single reload without
-    // the guard is still preferable to a stuck page.
+    // sessionStorage unusable (private mode / quota) — without a persisted guard
+    // we can't prove we haven't already reloaded this session, so do NOT reload.
+    // A stuck page (the React error boundary renders its fallback) is far better
+    // than an infinite reload loop.
+    return;
   }
   window.location.reload();
 }
@@ -58,7 +61,12 @@ function reloadAfterChunkError() {
  */
 export function ServiceWorkerRecovery() {
   useEffect(() => {
-    const hasServiceWorker = typeof navigator !== "undefined" && "serviceWorker" in navigator;
+    // Capture the container up front so cleanup detaches from the same object,
+    // not whatever `navigator.serviceWorker` happens to be later.
+    const swContainer =
+      typeof navigator !== "undefined" && "serviceWorker" in navigator
+        ? navigator.serviceWorker
+        : null;
 
     const onControllerChange = () => {
       if (controllerReloadStarted) {
@@ -68,9 +76,12 @@ export function ServiceWorkerRecovery() {
       window.location.reload();
     };
 
-    const armedForController = hasServiceWorker && !!navigator.serviceWorker.controller;
+    // Only arm when the page already has a controller — otherwise the upcoming
+    // controllerchange is just the initial clientsClaim on a first visit and a
+    // reload would be spurious.
+    const armedForController = !!swContainer && !!swContainer.controller;
     if (armedForController) {
-      navigator.serviceWorker.addEventListener("controllerchange", onControllerChange);
+      swContainer!.addEventListener("controllerchange", onControllerChange);
     }
 
     const onError = (event: ErrorEvent) => {
@@ -89,8 +100,8 @@ export function ServiceWorkerRecovery() {
     window.addEventListener("unhandledrejection", onRejection);
 
     return () => {
-      if (armedForController) {
-        navigator.serviceWorker.removeEventListener("controllerchange", onControllerChange);
+      if (armedForController && swContainer) {
+        swContainer.removeEventListener("controllerchange", onControllerChange);
       }
       window.removeEventListener("error", onError);
       window.removeEventListener("unhandledrejection", onRejection);
