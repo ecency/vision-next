@@ -504,9 +504,11 @@ function setProxyBase(p2) {
 function getProxyBase() {
   return proxyBase;
 }
+var PROXY_P_PREFIXES = () => [`${proxyBase}/p/`, "https://images.ecency.com/p/"];
 function extractPHash(url) {
-  if (url.startsWith(`${proxyBase}/p/`)) {
-    const [hash] = url.split("/p/")[1].split("?");
+  const prefix = PROXY_P_PREFIXES().find((p2) => url.startsWith(p2));
+  if (prefix) {
+    const [hash] = url.slice(prefix.length).split("?");
     return hash.replace(/\.(webp|png)$/, "");
   }
   return null;

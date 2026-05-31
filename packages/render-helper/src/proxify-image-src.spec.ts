@@ -36,6 +36,13 @@ describe('extractPHash', () => {
 
     expect(extractPHash(input)).toBe(null)
   })
+
+  it('should extract pHash from a legacy images.ecency.com/p/ URL', () => {
+    setProxyBase('https://i.ecency.com')
+    const hash = '2bP4pJr4wVimqCWjYimXJe2cnCgnJdyHYxb4dfF6gmC'
+
+    expect(extractPHash(`https://images.ecency.com/p/${hash}?format=match&mode=fit`)).toBe(hash)
+  })
 })
 
 describe('proxifyImageSrc', () => {
@@ -246,6 +253,27 @@ describe('proxifyImageSrc transform-aware unwind (images.ecency.com uploads)', (
   it('should still direct-serve an unsized upload without forceProxy (OG/social path)', () => {
     expect(proxifyImageSrc(upload)).toBe(
       'https://i.ecency.com/DQmfEjdTaDpofgAtbPjUjkT9uNKK3gR7n1PeHT3QJAYeXwq/img_0402.jpg'
+    )
+  })
+
+  it('should reuse the hash of a legacy images.ecency.com/p/ URL instead of double-proxying (forceProxy)', () => {
+    // Old content can embed images.ecency.com/p/<hash> (the pre-SNI proxy base).
+    // forceProxy makes routeThroughProxy true, so the early hostname-swap is
+    // skipped — the hash must still be reused, not re-encoded into a new /p/ hash.
+    const hash = '2bP4pJr4wVimqCWjYimXJe2cnCgnJdyHYxb4dfF6gmC'
+    const legacy = `https://images.ecency.com/p/${hash}?format=match&mode=fit`
+
+    expect(proxifyImageSrc(legacy, 0, 0, 'match', { forceProxy: true })).toBe(
+      `https://i.ecency.com/p/${hash}?format=match&mode=fit`
+    )
+  })
+
+  it('should reuse the hash of a legacy images.ecency.com/p/ URL when resizing', () => {
+    const hash = '2bP4pJr4wVimqCWjYimXJe2cnCgnJdyHYxb4dfF6gmC'
+    const legacy = `https://images.ecency.com/p/${hash}?format=match&mode=fit`
+
+    expect(proxifyImageSrc(legacy, 600)).toBe(
+      `https://i.ecency.com/p/${hash}?format=match&mode=fit&width=600`
     )
   })
 })

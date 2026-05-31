@@ -26,9 +26,16 @@ export function getProxyBase(): string {
   return proxyBase
 }
 
+// The image proxy's own /p/ route, on the active base and the legacy
+// images.ecency.com origin (the base before the i.ecency.com SNI migration).
+// Recognizing both lets a transform on an already-proxified URL reuse the
+// existing hash instead of re-encoding the whole URL into a proxy-of-a-proxy.
+const PROXY_P_PREFIXES = (): string[] => [`${proxyBase}/p/`, 'https://images.ecency.com/p/']
+
 export function extractPHash(url: string): string | null {
-  if (url.startsWith(`${proxyBase}/p/`)) {
-    const [hash] = url.split('/p/')[1].split('?')
+  const prefix = PROXY_P_PREFIXES().find((p) => url.startsWith(p))
+  if (prefix) {
+    const [hash] = url.slice(prefix.length).split('?')
     return hash.replace(/\.(webp|png)$/,'')
   }
   return null
@@ -48,23 +55,32 @@ export function getLatestUrl(str: string): string {
   return last
 }
 
+export interface ProxifyOptions {
+  /**
+   * Request a tiny blurred LQIP placeholder. The proxy resizes to ~20px and
+   * gaussian-blurs it (a few hundred bytes), for use behind the real image
+   * while it loads.
+   */
+  blur?: boolean
+  /**
+   * Route on-host uploads through the /p/ proxy even when no width/height is
+   * requested, so the server still negotiates WebP/AVIF via the Accept header
+   * (instead of streaming the original bytes from direct-serve). Use for
+   * displayed `<img>` sources; leave off for OG/social images, where the
+   * original format is safest.
+   */
+  forceProxy?: boolean
+}
+
 /**
  * @param _format - @deprecated Ignored. Always uses 'match' — format is handled server-side via Accept header.
- * @param opts.blur - Request a tiny blurred LQIP placeholder. The proxy resizes
- *   to ~20px and gaussian-blurs it (a few hundred bytes), for use behind the
- *   real image while it loads.
- * @param opts.forceProxy - Route on-host uploads through the /p/ proxy even when
- *   no width/height is requested, so the server still negotiates WebP/AVIF via
- *   the Accept header (instead of streaming the original bytes from direct-serve).
- *   Use for displayed `<img>` sources; leave off for OG/social images, where the
- *   original format is safest.
  */
 export function proxifyImageSrc(
   url?: string,
   width = 0,
   height = 0,
   _format = 'match',
-  opts: { blur?: boolean; forceProxy?: boolean } = {}
+  opts: ProxifyOptions = {}
 ) {
   if (!url || typeof url !== 'string' || !isValidUrl(url)) {
     return ''

@@ -2,6 +2,7 @@ import { markdown2Html as renderPostBody, setSlowRenderThresholdMs } from './mar
 import { catchPostImage } from './catch-post-image'
 import { getPostBodySummary as postBodySummary } from './post-body-summary'
 import { setProxyBase, proxifyImageSrc, buildSrcSet } from './proxify-image-src'
+import type { ProxifyOptions } from './proxify-image-src'
 import { IMAGE_SIZES } from './methods/img.method'
 import { setCacheSize } from './cache'
 import { SECTION_LIST } from './consts'
@@ -26,4 +27,4 @@ export {
   simpleMarkdownToHTML
 }
 
-export type { Entry, RenderOptions, SeoContext }
+export type { Entry, RenderOptions, SeoContext, ProxifyOptions }
