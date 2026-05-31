@@ -16,6 +16,7 @@ import {
   EntryPageContextProvider,
   EntryPageCrossPostHeader,
   EntryPageEditHistory,
+  EntryRenderBoundary,
   MdHandler
 } from "./_components";
 import { EntryNotFoundFallback } from "./_components/entry-not-found-fallback";
@@ -79,10 +80,7 @@ export default async function EntryPage({ params, searchParams }: Props) {
       <EntryPageContextProvider>
         <div className="app-content entry-page">
           <div className="the-entry">
-            <EntryNotFoundFallback
-              username={author}
-              permlink={permlink}
-            />
+            <EntryNotFoundFallback username={author} permlink={permlink} />
           </div>
         </div>
       </EntryPageContextProvider>
@@ -152,9 +150,11 @@ export default async function EntryPage({ params, searchParams }: Props) {
           <div className="the-entry">
             <EntryPageCrossPostHeader entry={entry} />
             {structuredData && <JsonLd data={structuredData} />}
-            <EntryPageContentSSR entry={entry} isRawContent={isRawContent} />
-            <EntryPageContentClient entry={entry} />
-            <EntryPageDiscussionsWrapper entry={entry} category={category} />
+            <EntryRenderBoundary>
+              <EntryPageContentSSR entry={entry} isRawContent={isRawContent} />
+              <EntryPageContentClient entry={entry} />
+              <EntryPageDiscussionsWrapper entry={entry} category={category} />
+            </EntryRenderBoundary>
           </div>
         </div>
         <EntryPageEditHistory entry={entry} />

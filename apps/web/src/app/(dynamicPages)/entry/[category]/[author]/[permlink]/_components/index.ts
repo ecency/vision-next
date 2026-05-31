@@ -18,3 +18,4 @@ export * from "./entry-page-discussions";
 export * from "./entry-page-edit-history";
 export * from "./context";
 export * from "./entry-reply-section";
+export * from "./entry-render-boundary";

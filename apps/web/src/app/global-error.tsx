@@ -7,6 +7,8 @@ import Link from "next/link";
 import { Button } from "@ui/button";
 import { SentryIssueReporterDialog } from "@/features/issue-reporter";
 import defaults from "@/defaults";
+import * as Sentry from "@sentry/nextjs";
+import { useEffect, useState } from "react";
 
 export default function GlobalError({
   error,
@@ -15,6 +17,16 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const [eventId, setEventId] = useState<string>();
+
+  // Report the crash to Sentry as soon as the fallback renders, so we always
+  // get an event — even when the user never opens the report dialog. The
+  // optional user feedback (via SentryIssueReporterDialog) is then attached to
+  // THIS event id instead of capturing a second, separate exception.
+  useEffect(() => {
+    setEventId(Sentry.captureException(error));
+  }, [error]);
+
   return (
     // global-error must include html and body tags
     <html>
@@ -38,7 +50,7 @@ export default function GlobalError({
                 <Link href="/">
                   <Button>{i18next.t("not-found.back-home")}</Button>
                 </Link>
-                <SentryIssueReporterDialog error={error} />
+                <SentryIssueReporterDialog error={error} eventId={eventId} />
               </div>
             </div>
             <Image src="/assets/illustration-open-source.png" alt="logo" width={571} height={460} />

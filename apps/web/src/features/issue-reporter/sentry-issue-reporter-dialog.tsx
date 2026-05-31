@@ -10,9 +10,13 @@ import { getQueryClient } from "@/core/react-query";
 
 interface Props {
   error?: any;
+  // Event id of an exception already captured by the caller (e.g. global-error
+  // auto-capture). When provided, the feedback is attached to it instead of
+  // capturing the exception again.
+  eventId?: string;
 }
 
-export function SentryIssueReporterDialog({ error }: Props) {
+export function SentryIssueReporterDialog({ error, eventId }: Props) {
   const [show, setShow] = useState(false);
 
   const onHide = useCallback(() => setShow(false), []);
@@ -25,7 +29,7 @@ export function SentryIssueReporterDialog({ error }: Props) {
       <Modal centered={true} show={show} onHide={() => setShow(false)}>
         <ModalHeader closeButton={true}>{i18next.t("issue-reporter.report-issue")}</ModalHeader>
         <ModalBody>
-          <SentryIssueReporter error={error} onHide={onHide} />
+          <SentryIssueReporter error={error} eventId={eventId} onHide={onHide} />
         </ModalBody>
       </Modal>
     </QueryClientProvider>
