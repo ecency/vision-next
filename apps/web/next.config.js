@@ -7,11 +7,19 @@ const path = require("path");
 const withPWA = require("next-pwa")({
   dest: "public",
   // Activate a new SW as soon as it finishes installing, and take control of
-  // open clients immediately. Combined with the client-side update listener
-  // in <PWAInstallPrompt>, users get fresh assets on the next navigation
-  // without needing to fully close all tabs.
+  // open clients immediately. Paired with <ServiceWorkerRecovery>, which reloads
+  // once on `controllerchange` so an open tab doesn't keep running an old webpack
+  // runtime against freshly-cached chunks.
   skipWaiting: true,
   clientsClaim: true,
+  // Never precache source maps. We upload them to Sentry and then delete them
+  // from the build output (deleteSourcemapsAfterUpload), so the .map URLs 404 in
+  // production. Workbox's precacheAndRoute fetches every precache entry during
+  // SW install and rejects the whole install on any non-OK response — so a SW
+  // that precached the (now-missing) .map files could never install/update,
+  // stranding users on a stale cache that served mismatched chunks ("Element
+  // type is invalid: undefined" → persistent 500).
+  buildExcludes: [/\.map$/],
   // Raise the max size to precache large chunks:
   maximumFileSizeToCacheInBytes: 8 * 1024 * 1024, // 8MB
   // Advanced caching strategies for better performance

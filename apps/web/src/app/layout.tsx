@@ -5,6 +5,7 @@ import { HiringConsoleLog } from "@/app/_components";
 import { cookies } from "next/headers";
 import { Theme } from "@/enums";
 import { BannerManager } from "@/features/banners";
+import { ServiceWorkerRecovery } from "@/features/pwa-install";
 import React from "react";
 import Script from "next/script";
 import { Inter, Lora } from "next/font/google";
@@ -92,6 +93,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <Script defer data-domain="ecency.com" data-api="/pl/api/event" src="/pl/js/script.js" />
       <body className={theme === Theme.night ? "dark" : ""}>
         <BannerManager />
+        <ServiceWorkerRecovery />
         <HiringConsoleLog />
         <Providers><main id="main-content">{children}</main></Providers>
         <div id="modal-overlay-container" />
