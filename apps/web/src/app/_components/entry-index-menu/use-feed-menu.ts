@@ -43,7 +43,7 @@ export function useFeedMenu() {
   }
   const router = useRouter();
 
-  const normalizedTag = tag.replace("%40", "@");
+  const normalizedTag = tag.replace(/%40/g, "@");
   const isFollowing = filter === "feed";
   const isCommunities = tag === "my";
   // A specific hashtag/community feed (e.g. /trending/photography) is its own
