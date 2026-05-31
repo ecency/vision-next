@@ -1,13 +1,36 @@
 import { EntryFilter } from "@/enums";
-import { useInfiniteDataFlow } from "@/utils";
-import { getTrendingTagsQueryOptions } from "@ecency/sdk";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { MenuItem } from "@ui/dropdown";
 import i18next from "i18next";
 import { useParams, useRouter } from "next/navigation";
 import { useMemo } from "react";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
+export interface FeedMenuItem {
+  label: string;
+  href: string;
+  selected: boolean;
+  id: string;
+  onClick: () => void;
+}
+
+// Sort filters that apply to the Communities and Global sources.
+// "Following" is chronological and has no sort, so it is excluded here.
+const SORT_FILTERS: EntryFilter[] = [
+  EntryFilter.trending,
+  EntryFilter.hot,
+  EntryFilter.created,
+  EntryFilter.payout
+];
+
+/**
+ * Splits the feed filter bar into two orthogonal axes:
+ *  - `sources`: where posts come from — Following, Communities, Global
+ *    (Following/Communities require an active user; Global is always present)
+ *  - `sorts`: how Communities/Global posts are ranked — Trending, Hot, New, Top
+ *  - `overflow`: niche views surfaced behind a "more" menu — Muted, Promoted
+ *
+ * URL scheme is unchanged: Following → /@user/feed (rewritten to the feed
+ * route), Communities → /{sort}/my, Global → /{sort}.
+ */
 export function useFeedMenu() {
   const { activeUser } = useActiveAccount();
 
@@ -20,35 +43,115 @@ export function useFeedMenu() {
   }
   const router = useRouter();
 
-  const { data: trendingTags } = useInfiniteQuery(getTrendingTagsQueryOptions(250));
-  const allTrendingTags = useInfiniteDataFlow(trendingTags);
+  const normalizedTag = tag.replace(/%40/g, "@");
+  // "Following" is a logged-in-only personal feed. A logged-out visitor landing
+  // on a feed URL (e.g. /@bob/feed) must NOT enter Following mode — otherwise the
+  // bar collapses to just the reblog toggle with no way back to Global/sorts.
+  const isFollowing = filter === "feed" && !!activeUser;
+  const isCommunities = tag === "my";
+  // A specific hashtag/community feed (e.g. /trending/photography) is its own
+  // source: Global should NOT appear selected, but the sort tabs stay and keep
+  // the tag. "@user" tags belong to the Following feed, not a hashtag.
+  const hasTag =
+    !isFollowing &&
+    !isCommunities &&
+    normalizedTag !== "" &&
+    normalizedTag !== "global" &&
+    !normalizedTag.startsWith("@");
+  const isGlobal = !isFollowing && !isCommunities && !hasTag;
 
-  const isMy = useMemo(
-    () =>
-      activeUser &&
-      ((activeUser.username === tag.replace("@", "") && filter === "feed") || tag === "my"),
-    [activeUser, filter, tag]
-  );
+  // Sort to carry when switching between Communities and Global. Following has no
+  // sort, and overflow views (muted/promoted) aren't real sorts, so default to Hot.
+  const currentSort = SORT_FILTERS.includes(filter as EntryFilter)
+    ? (filter as EntryFilter)
+    : EntryFilter.hot;
 
-  const secondaryMenu = useMemo(
+  const sources: FeedMenuItem[] = useMemo(() => {
+    const items: FeedMenuItem[] = [];
+
+    // Active hashtag/community shows as a selected chip so Global reads as a
+    // "clear tag" action rather than the current state.
+    if (hasTag) {
+      const tagHref = `/${currentSort}/${normalizedTag}`;
+      items.push({
+        label: `#${normalizedTag}`,
+        href: tagHref,
+        selected: true,
+        id: "tag",
+        onClick: () => router.push(tagHref)
+      });
+    }
+
+    if (activeUser) {
+      const followingHref = `/@${activeUser.username}/feed`;
+      items.push({
+        label: i18next.t("entry-filter.filter-feed-friends"),
+        href: followingHref,
+        selected: isFollowing,
+        id: "following",
+        onClick: () => router.push(followingHref)
+      });
+
+      const communitiesHref = `/${currentSort}/my`;
+      items.push({
+        label: i18next.t("entry-filter.filter-feed-subscriptions"),
+        href: communitiesHref,
+        selected: !!isCommunities,
+        id: "communities",
+        onClick: () => router.push(communitiesHref)
+      });
+    }
+
+    const globalHref = `/${currentSort}`;
+    items.push({
+      label: i18next.t("entry-filter.filter-global"),
+      href: globalHref,
+      selected: isGlobal,
+      id: "global",
+      onClick: () => router.push(globalHref)
+    });
+
+    return items;
+  }, [activeUser, currentSort, hasTag, isCommunities, isFollowing, isGlobal, normalizedTag, router]);
+
+  const sorts: FeedMenuItem[] = useMemo(() => {
+    // Preserve the current source context when changing sort:
+    //  - Communities → keep /my
+    //  - Global with a specific tag (e.g. /trending/photography) → keep that tag
+    //  - otherwise → global (no tag)
+    const tagSegment = isCommunities
+      ? "my"
+      : normalizedTag && normalizedTag !== "global" && !normalizedTag.startsWith("@")
+        ? normalizedTag
+        : "";
+
+    return SORT_FILTERS.map((x) => {
+      const href = `/${x}${tagSegment ? `/${tagSegment}` : ""}`;
+      return {
+        label:
+          x === EntryFilter.payout
+            ? i18next.t("entry-filter.filter-top")
+            : i18next.t(`entry-filter.filter-${x}`),
+        href,
+        selected: (filter as EntryFilter) === x,
+        id: x,
+        onClick: () => router.push(href)
+      };
+    });
+  }, [filter, isCommunities, normalizedTag, router]);
+
+  const overflow: FeedMenuItem[] = useMemo(
     () => [
       {
-        label: i18next.t(`entry-filter.filter-payout`),
-        href: `/payout`,
-        selected: filter === "payout",
-        id: "payout",
-        onClick: () => router.push("/payout")
-      },
-      {
-        label: i18next.t(`entry-filter.filter-muted`),
-        href: `/muted`,
+        label: i18next.t("entry-filter.filter-muted"),
+        href: "/muted",
         selected: filter === "muted",
         id: "muted",
         onClick: () => router.push("/muted")
       },
       {
-        label: i18next.t(`entry-filter.filter-promoted`),
-        href: `/promoted`,
+        label: i18next.t("entry-filter.filter-promoted"),
+        href: "/promoted",
         selected: filter === "promoted",
         id: "promoted",
         onClick: () => router.push("/promoted")
@@ -57,47 +160,8 @@ export function useFeedMenu() {
     [filter, router]
   );
 
-  const menuItems: MenuItem[] = useMemo(
-    () => [
-      ...(activeUser
-        ? [
-            {
-              label: i18next.t(`entry-filter.filter-feed-friends`),
-              href: `/@${activeUser?.username}/feed`,
-              selected: filter === "feed",
-              id: "feed",
-              onClick: () => router.push(`/@${activeUser?.username}/feed`)
-            }
-          ]
-        : []),
-      ...[EntryFilter.trending, EntryFilter.hot, EntryFilter.created].map((x) => {
-        // Determine tag segment based on current context
-        let tagSegment = "";
-
-        if (filter === "feed") {
-          // When switching FROM feed TO trending/hot/created:
-          // - If it's your own feed (@username === activeUser), go to /my
-          // - Otherwise go to global (no tag)
-          const isOwnFeed = activeUser && tag === `@${activeUser.username}`;
-          tagSegment = isOwnFeed ? "my" : "";
-        } else {
-          // When already on trending/hot/created, preserve the tag context
-          tagSegment = tag === "global" ? "" : tag;
-        }
-
-        const href = `/${x}${tagSegment ? `/${tagSegment}` : ""}`;
-
-        return {
-          onClick: () => router.push(href),
-          label: i18next.t(`entry-filter.filter-${x}`),
-          href,
-          selected: (filter as unknown as EntryFilter) === x,
-          id: x
-        };
-      })
-    ],
-    [activeUser, allTrendingTags, filter, isMy, router, tag]
+  return useMemo(
+    () => ({ sources, sorts, overflow, isFollowing }),
+    [isFollowing, overflow, sorts, sources]
   );
-
-  return useMemo(() => [menuItems, secondaryMenu, isMy] as const, [isMy, menuItems, secondaryMenu]);
 }
