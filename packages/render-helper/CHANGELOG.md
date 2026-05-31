@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.5.9
+
+### Patch Changes
+
+- feat(render-helper): strip First Context attribution footer in cleanReply (#858)
+
 ## 2.5.8
 
 ### Patch Changes

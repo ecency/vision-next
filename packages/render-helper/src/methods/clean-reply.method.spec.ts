@@ -42,6 +42,15 @@ describe('cleanReply() method - Reply Cleaning', () => {
       expect(result).not.toContain('Neoxian')
     })
 
+    it('should remove First Context signature', () => {
+      const input =
+        'Nice piece\n\n*Posted via [First Context](https://beta.firstcontext.app/creator/ecency/02adc19f-14fb-444f-b295-1af98b2fb7e3)*'
+      const result = cleanReply(input)
+
+      expect(result.trim()).toBe('Nice piece')
+      expect(result).not.toContain('First Context')
+    })
+
     it('should remove STEMGeeks signature', () => {
       const input = 'Science!\n\nPosted with [STEMGeeks](https://stemgeeks.net)'
       const result = cleanReply(input)
