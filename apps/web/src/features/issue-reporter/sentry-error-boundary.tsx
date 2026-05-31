@@ -28,6 +28,13 @@ interface State {
  * so the component stack is the only thing that names the component at fault —
  * `captureException` alone (e.g. from global-error, which only receives
  * `{ error }`) cannot. Pair with the uploaded source maps to pinpoint the file.
+ *
+ * Lifecycle note: `getDerivedStateFromError` renders the fallback first with
+ * `eventId` still undefined, then `componentDidCatch` captures the exception and
+ * sets `eventId` on a second render. A fallback that auto-opens the report
+ * dialog must therefore guard on `eventId` to avoid capturing a duplicate
+ * exception; the current entry fallback only reports on explicit click, so it
+ * is unaffected.
  */
 export class SentryErrorBoundary extends Component<Props, State> {
   state: State = {};

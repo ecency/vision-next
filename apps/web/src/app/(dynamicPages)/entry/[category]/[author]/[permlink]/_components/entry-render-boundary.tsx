@@ -20,6 +20,10 @@ const SentryIssueReporterDialog = dynamic(
   { ssr: false }
 );
 
+interface EntryRenderBoundaryProps {
+  children: ReactNode;
+}
+
 /**
  * Wraps the entry (post / reply) content so a render-time crash in the body,
  * client content or discussion subtree degrades to an inline retry card instead
@@ -28,7 +32,7 @@ const SentryIssueReporterDialog = dynamic(
  * named. Lives as a client component because `fallback` is a function, which
  * can't cross the server→client (RSC) boundary from the server page.
  */
-export function EntryRenderBoundary({ children }: { children: ReactNode }) {
+export function EntryRenderBoundary({ children }: EntryRenderBoundaryProps) {
   return (
     <SentryErrorBoundary
       fallback={({ error, eventId, reset }) => (
