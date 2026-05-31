@@ -1,5 +1,31 @@
 @import "src/styles/vars_mixins";
 
+// The `.the-editor` textarea (classic /submit editor and the reply/edit comment
+// composer) is rendered exclusively through this component, so its styles live
+// here — the one stylesheet guaranteed to ship wherever the editor renders.
+// Previously these rules lived in comment/_index.scss and only reached /submit
+// because the @/features/shared barrel side-effect-imported the comment composer.
+// That re-export was dropped (#850/#852), which stripped the styles (notably
+// `width: 100%`) from /submit and squashed the input column.
+.the-editor {
+  @include themify(night) {
+    @apply text-silver;
+    @apply bg-dark-200;
+  }
+  @include themify(day) {
+    @apply bg-light-200;
+  }
+  border-width: 0px;
+  resize: none;
+  outline: none;
+  min-height: 80px;
+  padding: 4px;
+  line-height: 1.5;
+  font-size: 1rem;
+  font-weight: 400;
+  width: 100%;
+}
+
 .rta {
   width: 100%;
   & > textarea {
