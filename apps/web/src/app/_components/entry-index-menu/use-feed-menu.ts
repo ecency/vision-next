@@ -43,7 +43,7 @@ export function useFeedMenu() {
   }
   const router = useRouter();
 
-  const normalizedTag = tag.replace("%40", "@");
+  const normalizedTag = tag.replace(/%40/g, "@");
   // "Following" is a logged-in-only personal feed. A logged-out visitor landing
   // on a feed URL (e.g. /@bob/feed) must NOT enter Following mode — otherwise the
   // bar collapses to just the reblog toggle with no way back to Global/sorts.
