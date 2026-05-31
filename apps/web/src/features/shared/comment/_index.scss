@@ -62,21 +62,8 @@
   }
 }
 
-.the-editor {
-  @include themify(night) {
-    @apply text-silver;
-    @apply bg-dark-200;
-  }
-  @include themify(day) {
-    @apply bg-light-200;
-  }
-  border-width: 0px;
-  resize: none;
-  outline: none;
-  min-height: 80px;
-  padding: 4px;
-  line-height: 1.5;
-  font-size: 1rem;
-  font-weight: 400;
-  width: 100%;
-}
+// NOTE: `.the-editor` styles moved to textarea-autocomplete/_index.scss — the
+// stylesheet that ships with the component that actually renders the textarea.
+// Keeping them here coupled the /submit editor's width to this composer's CSS
+// being bundled, which broke when the @/features/shared barrel stopped
+// re-exporting the comment composer (#850/#852).
