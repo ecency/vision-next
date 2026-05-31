@@ -26,9 +26,16 @@ export function getProxyBase(): string {
   return proxyBase
 }
 
+// The image proxy's own /p/ route, on the active base and the legacy
+// images.ecency.com origin (the base before the i.ecency.com SNI migration).
+// Recognizing both lets a transform on an already-proxified URL reuse the
+// existing hash instead of re-encoding the whole URL into a proxy-of-a-proxy.
+const PROXY_P_PREFIXES = (): string[] => [`${proxyBase}/p/`, 'https://images.ecency.com/p/']
+
 export function extractPHash(url: string): string | null {
-  if (url.startsWith(`${proxyBase}/p/`)) {
-    const [hash] = url.split('/p/')[1].split('?')
+  const prefix = PROXY_P_PREFIXES().find((p) => url.startsWith(p))
+  if (prefix) {
+    const [hash] = url.slice(prefix.length).split('?')
     return hash.replace(/\.(webp|png)$/,'')
   }
   return null
@@ -48,13 +55,44 @@ export function getLatestUrl(str: string): string {
   return last
 }
 
+export interface ProxifyOptions {
+  /**
+   * Request a tiny blurred LQIP placeholder. The proxy resizes to ~20px and
+   * gaussian-blurs it (a few hundred bytes), for use behind the real image
+   * while it loads.
+   */
+  blur?: boolean
+  /**
+   * Route on-host uploads through the /p/ proxy even when no width/height is
+   * requested, so the server still negotiates WebP/AVIF via the Accept header
+   * (instead of streaming the original bytes from direct-serve). Use for
+   * displayed `<img>` sources; leave off for OG/social images, where the
+   * original format is safest.
+   */
+  forceProxy?: boolean
+}
+
 /**
  * @param _format - @deprecated Ignored. Always uses 'match' — format is handled server-side via Accept header.
  */
-export function proxifyImageSrc(url?: string, width = 0, height = 0, _format = 'match') {
+export function proxifyImageSrc(
+  url?: string,
+  width = 0,
+  height = 0,
+  _format = 'match',
+  opts: ProxifyOptions = {}
+) {
   if (!url || typeof url !== 'string' || !isValidUrl(url)) {
     return ''
   }
+
+  // The /p/ route is the only one that transforms (resize/blur) or negotiates
+  // WebP/AVIF; the direct-serve route streams the stored original bytes as-is.
+  // Route through /p/ when a transform is requested, or when the caller opts in
+  // to format negotiation on an otherwise-unsized image (forceProxy). Otherwise
+  // keep the lightweight hostname-swap — no proxy self-fetch, original format
+  // preserved (which matters for OG/social where AVIF may be unsupported).
+  const routeThroughProxy = width > 0 || height > 0 || !!opts.blur || !!opts.forceProxy
 
   // skip images already proxified with images.hive.blog
   if (url.indexOf('https://images.hive.blog/') === 0 && url.indexOf('https://images.hive.blog/D') !== 0) {
@@ -65,11 +103,15 @@ export function proxifyImageSrc(url?: string, width = 0, height = 0, _format = '
     return url.replace('https://steemitimages.com', proxyBase)
   }
 
-  // Legacy on-chain content embeds images.ecency.com URLs directly. Re-point
-  // every images.ecency.com URL to the active proxy base — the same
-  // imagehoster backend, just an SNI-resilient hostname (some ISPs, e.g.
-  // Virgin Media UK, SNI-filter the images.ecency.com hostname).
-  if (url.indexOf('https://images.ecency.com/') === 0) {
+  // Legacy on-chain content embeds images.ecency.com URLs directly. With no
+  // transform or format negotiation requested, re-point them to the active
+  // proxy base — the same imagehoster backend, just an SNI-resilient hostname
+  // (some ISPs, e.g. Virgin Media UK, SNI-filter the images.ecency.com
+  // hostname) — and serve the stored bytes directly (no proxy self-fetch).
+  // Otherwise fall through to the /p/ proxy: the bare hostname swap yields a
+  // direct-serve URL that ignores ?width / ?blur and does no WebP/AVIF
+  // negotiation, shipping the full-size original in its original format.
+  if (url.indexOf('https://images.ecency.com/') === 0 && !routeThroughProxy) {
     return url.replace('https://images.ecency.com', proxyBase)
   }
 
@@ -88,6 +130,10 @@ export function proxifyImageSrc(url?: string, width = 0, height = 0, _format = '
 
   if (height > 0) {
     options.height = height
+  }
+
+  if (opts.blur) {
+    options.blur = 1
   }
 
   const qs = querystring.stringify(options)

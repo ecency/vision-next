@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.5.8
+
+### Patch Changes
+
+- fix(render-helper): proxy ecency uploads so resize, srcset, blur & WebP/AVIF apply (#856)
+
 ## 2.5.7
 
 ### Patch Changes

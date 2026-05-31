@@ -475,9 +475,11 @@ function setProxyBase(p2) {
 function getProxyBase() {
   return proxyBase;
 }
+var PROXY_P_PREFIXES = () => [`${proxyBase}/p/`, "https://images.ecency.com/p/"];
 function extractPHash(url) {
-  if (url.startsWith(`${proxyBase}/p/`)) {
-    const [hash] = url.split("/p/")[1].split("?");
+  const prefix = PROXY_P_PREFIXES().find((p2) => url.startsWith(p2));
+  if (prefix) {
+    const [hash] = url.slice(prefix.length).split("?");
     return hash.replace(/\.(webp|png)$/, "");
   }
   return null;
@@ -493,17 +495,18 @@ function getLatestUrl(str) {
   const [last] = [...str.replace(/https?:\/\//g, "\n$&").trim().split("\n")].reverse();
   return last;
 }
-function proxifyImageSrc(url, width = 0, height = 0, _format = "match") {
+function proxifyImageSrc(url, width = 0, height = 0, _format = "match", opts = {}) {
   if (!url || typeof url !== "string" || !isValidUrl(url)) {
     return "";
   }
+  const routeThroughProxy = width > 0 || height > 0 || !!opts.blur || !!opts.forceProxy;
   if (url.indexOf("https://images.hive.blog/") === 0 && url.indexOf("https://images.hive.blog/D") !== 0) {
     return url.replace("https://images.hive.blog", proxyBase);
   }
   if (url.indexOf("https://steemitimages.com/") === 0 && url.indexOf("https://steemitimages.com/D") !== 0) {
     return url.replace("https://steemitimages.com", proxyBase);
   }
-  if (url.indexOf("https://images.ecency.com/") === 0) {
+  if (url.indexOf("https://images.ecency.com/") === 0 && !routeThroughProxy) {
     return url.replace("https://images.ecency.com", proxyBase);
   }
   const realUrl = getLatestUrl(url);
@@ -517,6 +520,9 @@ function proxifyImageSrc(url, width = 0, height = 0, _format = "match") {
   }
   if (height > 0) {
     options.height = height;
+  }
+  if (opts.blur) {
+    options.blur = 1;
   }
   const qs = querystring.stringify(options);
   if (pHash) {
@@ -578,7 +584,7 @@ function img(el, state) {
   const base = trimTrailingSlash(getProxyBase());
   const hasAlreadyProxied = src.startsWith(`${base}/p/`) || src.startsWith(`${base}/u/`) || new RegExp(`^${base.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}/\\d+x\\d+/`).test(src);
   if (shouldReplace && !hasAlreadyProxied) {
-    const proxified = proxifyImageSrc(decodedSrc);
+    const proxified = proxifyImageSrc(decodedSrc, 0, 0, "match", { forceProxy: true });
     if (proxified) {
       el.setAttribute("src", proxified);
       const srcset = buildSrcSet(decodedSrc);
@@ -598,7 +604,7 @@ function img(el, state) {
   }
 }
 function createImageHTML(src, isLCP) {
-  const proxified = proxifyImageSrc(src);
+  const proxified = proxifyImageSrc(src, 0, 0, "match", { forceProxy: true });
   if (!proxified) return "";
   const base = trimTrailingSlash(getProxyBase());
   const isAlreadyProxied = src.startsWith(`${base}/u/`) || new RegExp(`^${base.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}/\\d+x\\d+/`).test(src);

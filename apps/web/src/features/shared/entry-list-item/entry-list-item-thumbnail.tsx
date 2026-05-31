@@ -3,7 +3,7 @@ import { Entry } from "@/entities";
 import { useGlobalStore } from "@/core/global-store";
 import { useImageDownloader } from "@/api/queries";
 import { EntryLink } from "@/features/shared";
-import { catchPostImage } from "@ecency/render-helper";
+import { catchPostImage, proxifyImageSrc } from "@ecency/render-helper";
 import Image from "next/image";
 
 interface Props {
@@ -36,8 +36,10 @@ export function EntryListItemThumbnail({ entry, noImage, isCrossPost, entryProp 
   const blurUrl = useMemo(() => {
     const url = catchPostImage(entry, 0, 0);
     if (!url) return null;
-    const sep = url.includes("?") ? "&" : "?";
-    return `${url}${sep}blur=1`;
+    // Route the LQIP placeholder through the /p/ proxy so `blur=1` is honored.
+    // Appending `?blur=1` to a bare upload URL hits the direct-serve route,
+    // which ignores the param and returns the full-resolution image.
+    return proxifyImageSrc(url, 0, 0, "match", { blur: true }) || null;
   }, [entry]);
 
   const isGrid = listStyle === "grid";
