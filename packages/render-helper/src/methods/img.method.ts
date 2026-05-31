@@ -62,7 +62,10 @@ export function img(el: HTMLElement, state?: { firstImageFound: boolean }): void
     || new RegExp(`^${base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/\\d+x\\d+/`).test(src);
 
   if (shouldReplace && !hasAlreadyProxied) {
-    const proxified = proxifyImageSrc(decodedSrc);
+    // forceProxy: route the fallback src through /p/ even though no width is set,
+    // so uploads still get WebP/AVIF via Accept negotiation instead of the
+    // original-format direct-serve bytes. (srcset carries the resized variants.)
+    const proxified = proxifyImageSrc(decodedSrc, 0, 0, "match", { forceProxy: true });
     if (proxified) {
       el.setAttribute("src", proxified);
       const srcset = buildSrcSet(decodedSrc);
@@ -85,7 +88,9 @@ export function img(el: HTMLElement, state?: { firstImageFound: boolean }): void
 }
 
 export function createImageHTML(src: string, isLCP: boolean): string {
-  const proxified = proxifyImageSrc(src);
+  // forceProxy: see img() — keep the fallback src unsized but proxied so uploads
+  // are served WebP/AVIF rather than the original-format direct-serve bytes.
+  const proxified = proxifyImageSrc(src, 0, 0, "match", { forceProxy: true });
   if (!proxified) return '';
 
   const base = trimTrailingSlash(getProxyBase());

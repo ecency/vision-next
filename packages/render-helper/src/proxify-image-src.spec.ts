@@ -173,3 +173,79 @@ describe('buildSrcSet', () => {
     expect(result).not.toContain('i.ecency.com')
   })
 })
+
+describe('proxifyImageSrc transform-aware unwind (images.ecency.com uploads)', () => {
+  const upload = 'https://images.ecency.com/DQmfEjdTaDpofgAtbPjUjkT9uNKK3gR7n1PeHT3QJAYeXwq/img_0402.jpg'
+
+  beforeEach(() => {
+    setProxyBase('https://i.ecency.com')
+  })
+
+  it('should hostname-swap to direct-serve when no transform is requested', () => {
+    // Plain full-size fetch: the direct-serve route is correct and avoids a
+    // proxy self-fetch. This preserves the SNI-resilient hostname swap.
+    expect(proxifyImageSrc(upload)).toBe(
+      'https://i.ecency.com/DQmfEjdTaDpofgAtbPjUjkT9uNKK3gR7n1PeHT3QJAYeXwq/img_0402.jpg'
+    )
+  })
+
+  it('should route through /p/ when a width is requested (so resize actually applies)', () => {
+    const result = proxifyImageSrc(upload, 600)
+
+    expect(result).toMatch(/^https:\/\/i\.ecency\.com\/p\//)
+    expect(result).not.toContain('/DQm')
+    expect(result).toContain('width=600')
+    expect(result).toContain('format=match')
+    expect(result).toContain('mode=fit')
+  })
+
+  it('should route through /p/ when a height is requested', () => {
+    const result = proxifyImageSrc(upload, 0, 400)
+
+    expect(result).toMatch(/^https:\/\/i\.ecency\.com\/p\//)
+    expect(result).toContain('height=400')
+  })
+
+  it('should route through /p/ and emit blur=1 for a blur placeholder', () => {
+    const result = proxifyImageSrc(upload, 0, 0, 'match', { blur: true })
+
+    expect(result).toMatch(/^https:\/\/i\.ecency\.com\/p\//)
+    expect(result).not.toContain('/DQm')
+    expect(result).toContain('blur=1')
+  })
+
+  it('should emit blur=1 for an already-direct i.ecency.com upload URL', () => {
+    // catchPostImage(entry, 0, 0) hands us the already-unwound direct URL;
+    // re-proxifying it with blur must still produce a /p/ transform URL.
+    const direct = 'https://i.ecency.com/DQmfEjdTaDpofgAtbPjUjkT9uNKK3gR7n1PeHT3QJAYeXwq/img_0402.jpg'
+    const result = proxifyImageSrc(direct, 0, 0, 'match', { blur: true })
+
+    expect(result).toMatch(/^https:\/\/i\.ecency\.com\/p\//)
+    expect(result).toContain('blur=1')
+  })
+
+  it('should not affect non-upload images (blur still proxifies a plain URL)', () => {
+    const result = proxifyImageSrc('https://i.imgur.com/muESb0B.png', 0, 0, 'match', { blur: true })
+
+    expect(result).toContain('blur=1')
+    expect(result).toMatch(/^https:\/\/i\.ecency\.com\/p\//)
+  })
+
+  it('should route an unsized upload through /p/ for format negotiation when forceProxy is set', () => {
+    // No width/height, but forceProxy → /p/ (so the server negotiates WebP/AVIF)
+    // rather than the original-format direct-serve URL.
+    const result = proxifyImageSrc(upload, 0, 0, 'match', { forceProxy: true })
+
+    expect(result).toMatch(/^https:\/\/i\.ecency\.com\/p\//)
+    expect(result).not.toContain('/DQm')
+    expect(result).toContain('format=match')
+    expect(result).not.toContain('width=')
+    expect(result).not.toContain('blur=')
+  })
+
+  it('should still direct-serve an unsized upload without forceProxy (OG/social path)', () => {
+    expect(proxifyImageSrc(upload)).toBe(
+      'https://i.ecency.com/DQmfEjdTaDpofgAtbPjUjkT9uNKK3gR7n1PeHT3QJAYeXwq/img_0402.jpg'
+    )
+  })
+})

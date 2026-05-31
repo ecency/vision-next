@@ -50,11 +50,33 @@ export function getLatestUrl(str: string): string {
 
 /**
  * @param _format - @deprecated Ignored. Always uses 'match' — format is handled server-side via Accept header.
+ * @param opts.blur - Request a tiny blurred LQIP placeholder. The proxy resizes
+ *   to ~20px and gaussian-blurs it (a few hundred bytes), for use behind the
+ *   real image while it loads.
+ * @param opts.forceProxy - Route on-host uploads through the /p/ proxy even when
+ *   no width/height is requested, so the server still negotiates WebP/AVIF via
+ *   the Accept header (instead of streaming the original bytes from direct-serve).
+ *   Use for displayed `<img>` sources; leave off for OG/social images, where the
+ *   original format is safest.
  */
-export function proxifyImageSrc(url?: string, width = 0, height = 0, _format = 'match') {
+export function proxifyImageSrc(
+  url?: string,
+  width = 0,
+  height = 0,
+  _format = 'match',
+  opts: { blur?: boolean; forceProxy?: boolean } = {}
+) {
   if (!url || typeof url !== 'string' || !isValidUrl(url)) {
     return ''
   }
+
+  // The /p/ route is the only one that transforms (resize/blur) or negotiates
+  // WebP/AVIF; the direct-serve route streams the stored original bytes as-is.
+  // Route through /p/ when a transform is requested, or when the caller opts in
+  // to format negotiation on an otherwise-unsized image (forceProxy). Otherwise
+  // keep the lightweight hostname-swap — no proxy self-fetch, original format
+  // preserved (which matters for OG/social where AVIF may be unsupported).
+  const routeThroughProxy = width > 0 || height > 0 || !!opts.blur || !!opts.forceProxy
 
   // skip images already proxified with images.hive.blog
   if (url.indexOf('https://images.hive.blog/') === 0 && url.indexOf('https://images.hive.blog/D') !== 0) {
@@ -65,11 +87,15 @@ export function proxifyImageSrc(url?: string, width = 0, height = 0, _format = '
     return url.replace('https://steemitimages.com', proxyBase)
   }
 
-  // Legacy on-chain content embeds images.ecency.com URLs directly. Re-point
-  // every images.ecency.com URL to the active proxy base — the same
-  // imagehoster backend, just an SNI-resilient hostname (some ISPs, e.g.
-  // Virgin Media UK, SNI-filter the images.ecency.com hostname).
-  if (url.indexOf('https://images.ecency.com/') === 0) {
+  // Legacy on-chain content embeds images.ecency.com URLs directly. With no
+  // transform or format negotiation requested, re-point them to the active
+  // proxy base — the same imagehoster backend, just an SNI-resilient hostname
+  // (some ISPs, e.g. Virgin Media UK, SNI-filter the images.ecency.com
+  // hostname) — and serve the stored bytes directly (no proxy self-fetch).
+  // Otherwise fall through to the /p/ proxy: the bare hostname swap yields a
+  // direct-serve URL that ignores ?width / ?blur and does no WebP/AVIF
+  // negotiation, shipping the full-size original in its original format.
+  if (url.indexOf('https://images.ecency.com/') === 0 && !routeThroughProxy) {
     return url.replace('https://images.ecency.com', proxyBase)
   }
 
@@ -88,6 +114,10 @@ export function proxifyImageSrc(url?: string, width = 0, height = 0, _format = '
 
   if (height > 0) {
     options.height = height
+  }
+
+  if (opts.blur) {
+    options.blur = 1
   }
 
   const qs = querystring.stringify(options)

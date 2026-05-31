@@ -53,8 +53,19 @@ declare function getPostBodySummary(obj: Entry | string, length?: number, platfo
 declare function setProxyBase(p: string): void;
 /**
  * @param _format - @deprecated Ignored. Always uses 'match' — format is handled server-side via Accept header.
+ * @param opts.blur - Request a tiny blurred LQIP placeholder. The proxy resizes
+ *   to ~20px and gaussian-blurs it (a few hundred bytes), for use behind the
+ *   real image while it loads.
+ * @param opts.forceProxy - Route on-host uploads through the /p/ proxy even when
+ *   no width/height is requested, so the server still negotiates WebP/AVIF via
+ *   the Accept header (instead of streaming the original bytes from direct-serve).
+ *   Use for displayed `<img>` sources; leave off for OG/social images, where the
+ *   original format is safest.
  */
-declare function proxifyImageSrc(url?: string, width?: number, height?: number, _format?: string): string;
+declare function proxifyImageSrc(url?: string, width?: number, height?: number, _format?: string, opts?: {
+    blur?: boolean;
+    forceProxy?: boolean;
+}): string;
 /**
  * Builds a srcset string with multiple width variants for responsive images.
  * Uses the image proxy's width parameter to serve appropriately sized images.
