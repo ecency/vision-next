@@ -44,7 +44,10 @@ export function useFeedMenu() {
   const router = useRouter();
 
   const normalizedTag = tag.replace("%40", "@");
-  const isFollowing = filter === "feed";
+  // "Following" is a logged-in-only personal feed. A logged-out visitor landing
+  // on a feed URL (e.g. /@bob/feed) must NOT enter Following mode — otherwise the
+  // bar collapses to just the reblog toggle with no way back to Global/sorts.
+  const isFollowing = filter === "feed" && !!activeUser;
   const isCommunities = tag === "my";
   // A specific hashtag/community feed (e.g. /trending/photography) is its own
   // source: Global should NOT appear selected, but the sort tabs stay and keep
@@ -62,13 +65,6 @@ export function useFeedMenu() {
   const currentSort = SORT_FILTERS.includes(filter as EntryFilter)
     ? (filter as EntryFilter)
     : EntryFilter.hot;
-
-  const isMy = useMemo(
-    () =>
-      activeUser &&
-      ((activeUser.username === normalizedTag.replace("@", "") && isFollowing) || tag === "my"),
-    [activeUser, isFollowing, normalizedTag, tag]
-  );
 
   const sources: FeedMenuItem[] = useMemo(() => {
     const items: FeedMenuItem[] = [];
@@ -165,7 +161,7 @@ export function useFeedMenu() {
   );
 
   return useMemo(
-    () => ({ sources, sorts, overflow, isFollowing, isMy }),
-    [isFollowing, isMy, overflow, sorts, sources]
+    () => ({ sources, sorts, overflow, isFollowing }),
+    [isFollowing, overflow, sorts, sources]
   );
 }

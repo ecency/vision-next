@@ -38,7 +38,12 @@ export function EntryIndexMenu() {
     () => sources.find((s) => s.selected) ?? sources[sources.length - 1],
     [sources]
   );
-  const selectedSort = useMemo(() => sorts.find((s) => s.selected), [sorts]);
+  // Include overflow (Muted/Promoted) so the mobile trigger reflects the active
+  // filter even when it isn't one of the visible sort tabs.
+  const selectedSort = useMemo(
+    () => [...sorts, ...overflow].find((s) => s.selected),
+    [sorts, overflow]
+  );
 
   const reblogLabel = noReblog
     ? i18next.t("entry-filter.filter-with-reblog")
@@ -64,10 +69,16 @@ export function EntryIndexMenu() {
   }, [activeUser, isFollowing, prevActiveUser, router]);
 
   const handleFilterReblog = useCallback(() => {
-    const params = new URLSearchParams();
-    params.set("no-reblog", String(!noReblog));
-    router.push(pathname + "?" + params.toString());
-  }, [noReblog, pathname, router]);
+    // Preserve any unrelated query params already on the URL.
+    const params = new URLSearchParams(searchParams?.toString());
+    if (noReblog) {
+      params.delete("no-reblog");
+    } else {
+      params.set("no-reblog", "true");
+    }
+    const qs = params.toString();
+    router.push(qs ? `${pathname}?${qs}` : pathname);
+  }, [noReblog, pathname, router, searchParams]);
 
   const renderPill = (item: FeedMenuItem) => (
     <li key={item.id}>

@@ -116,6 +116,27 @@ describe("EntryIndexMenu — Source × Sort filter bar", () => {
     ).toBeGreaterThan(0);
   });
 
+  it("does not strand logged-out visitors on a feed URL — sorts stay as an escape", () => {
+    // Logged-out visit to /@bob/feed (rewritten to sections ["feed","@bob"]).
+    mockSections = ["feed", "@bob"];
+    render(<EntryIndexMenu />);
+
+    // Not treated as the personal Following feed, so the sort tabs remain
+    // navigable instead of collapsing to a lone reblog toggle.
+    expect(screen.getByRole("link", { name: SORT.hot }).getAttribute("href")).toBe("/hot");
+    expect(screen.getByRole("link", { name: SORT.trending }).getAttribute("href")).toBe("/trending");
+    expect(screen.queryByRole("button", { name: "entry-filter.filter-no-reblog" })).toBeNull();
+  });
+
+  it("labels the mobile sort trigger with the active overflow filter", () => {
+    mockSections = ["muted"];
+    render(<EntryIndexMenu />);
+
+    // Muted lives in the overflow menu, but the closed mobile trigger must still
+    // reflect it rather than falling back to the generic "Sort by" label.
+    expect(screen.getByRole("button", { name: "entry-filter.filter-muted" })).toBeTruthy();
+  });
+
   it("shows a hashtag chip, leaves Global unselected and keeps the tag on sorts", () => {
     setLoggedIn(true);
     mockSections = ["trending", "photography"];

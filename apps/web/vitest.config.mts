@@ -2,8 +2,25 @@ import { defineConfig } from 'vitest/config';
 import path from 'path';
 import react from '@vitejs/plugin-react';
 
+// Stub style imports (.scss/.css/...) with an empty module during tests.
+// Components import their stylesheets for side effects; routing those through
+// vite's CSS/sass pipeline can hang (sass-embedded "Timeout calling fetch"),
+// and tests never assert on styles. Resolving them to an empty module bypasses
+// the preprocessor entirely.
+const stubStyles = {
+  name: 'stub-styles',
+  enforce: 'pre' as const,
+  resolveId(id: string) {
+    return /\.(css|scss|sass|less|styl)$/.test(id) ? '\0style-stub' : null;
+  },
+  load(id: string) {
+    return id === '\0style-stub' ? 'export default {}' : null;
+  }
+};
+
 export default defineConfig({
-  plugins: [react()],
+  // cast: dual vite versions in the workspace make the Plugin types diverge
+  plugins: [stubStyles as any, react()],
   test: {
     globals: true,
     environment: 'jsdom',
