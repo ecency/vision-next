@@ -24,6 +24,7 @@ import useLocalStorage from "react-use/lib/useLocalStorage";
 import useUnmount from "react-use/lib/useUnmount";
 import "./_index.scss";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useIsMobile } from "@/features/ui/util/use-is-mobile";
 import { useQuery } from "@tanstack/react-query";
 import {
   getCommunityContextQueryOptions,
@@ -71,10 +72,11 @@ export function Comment({
     PREFIX + `_reply_text_${entry.author}_${entry.permlink}`,
     initialText ?? ""
   );
+  const isMobile = useIsMobile();
+  const boxRef = useRef<HTMLDivElement>(null);
   const [inputHeight, setInputHeight] = useState(0);
   const [preview, setPreview] = useState("");
-  const [showEmoji, setShowEmoji] = useState(false);
-  const [showGif, setShowGif] = useState(false);
+  const [mobileView, setMobileView] = useState<"write" | "preview">("write");
 
   const { data: userContext } = useQuery({
     ...getCommunityContextQueryOptions(activeUser?.username, entry.category),
@@ -131,6 +133,26 @@ export function Comment({
     50,
     [text]
   );
+
+  // Keep the action row above the on-screen keyboard on mobile by tracking the
+  // visual viewport and exposing the keyboard height as a CSS variable.
+  useEffect(() => {
+    if (!isMobile || typeof window === "undefined" || !window.visualViewport) {
+      return;
+    }
+    const vv = window.visualViewport;
+    const update = () => {
+      const inset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+      boxRef.current?.style.setProperty("--comment-kb-inset", `${inset}px`);
+    };
+    update();
+    vv.addEventListener("resize", update);
+    vv.addEventListener("scroll", update);
+    return () => {
+      vv.removeEventListener("resize", update);
+      vv.removeEventListener("scroll", update);
+    };
+  }, [isMobile]);
 
   // Restore failed text when blockchain submission fails
   useEffect(() => {
@@ -190,6 +212,16 @@ export function Comment({
 
   const handleDrop = (event: Event): void => toolbarEventListener(event, "drop");
   const handleShortcuts = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+      // Submit on Cmd/Ctrl+Enter — unless the mention autocomplete dropdown is
+      // open (Enter picks a suggestion) or there is nothing to submit yet.
+      const autocompleteOpen = !!commentBodyRef.current?.querySelector(".rta__autocomplete");
+      if (!autocompleteOpen && !inProgress && text?.trim()) {
+        e.preventDefault();
+        submit();
+      }
+      return;
+    }
     if (e.altKey && e.key === "b") {
       detectEvent("bold");
     }
@@ -221,51 +253,82 @@ export function Comment({
     return <></>;
   }
 
+  const showEditor = !isMobile || mobileView === "write";
+  const showPreview = !isMobile || mobileView === "preview";
+
   return (
     <>
-      <div
-        className="comment-box"
-        role="presentation"
-        onMouseEnter={() => {
-          if (!showEmoji && !showGif) {
-            setShowEmoji(true);
-            setShowGif(true);
-          }
-        }}
-      >
-        <EditorToolbar comment={true} sm={true} />
-        <div className="comment-body" role="presentation" onKeyDown={handleShortcuts} ref={commentBodyRef}>
-          <TextareaAutocomplete
-            className={`the-editor accepts-emoji ${text!.length > 20 ? "expanded" : ""}`}
-            as="textarea"
-            placeholder={i18next.t("comment.body-placeholder")}
-            containerStyle={{ height: !text ? "80px" : inputHeight }}
-            value={text}
-            onChange={textChanged}
-            disabled={inProgress}
-            autoFocus={autoFocus}
-            minrows={10}
-            rows={rows}
-            maxrows={100}
-            ref={inputRef}
-            acceptCharset="UTF-8"
-            id="the-editor"
-            spellCheck={true}
-            isComment={true}
-          />
-          <div className="editor-toolbar bottom">
-            {activeUser ? (
-              <AvailableCredits
-                className="p-2 w-full"
-                operation="comment_operation"
-                username={activeUser.username}
-              />
-            ) : (
-              <></>
-            )}
+      <div className="comment-box" role="presentation" ref={boxRef}>
+        {isMobile && (
+          <div className="comment-view-toggle" role="tablist">
+            <Button
+              size="sm"
+              outline={mobileView !== "write"}
+              onClick={() => setMobileView("write")}
+              role="tab"
+              aria-selected={mobileView === "write"}
+            >
+              {i18next.t("comment.write")}
+            </Button>
+            <Button
+              size="sm"
+              outline={mobileView !== "preview"}
+              disabled={!text?.trim()}
+              onClick={() => setMobileView("preview")}
+              role="tab"
+              aria-selected={mobileView === "preview"}
+            >
+              {i18next.t("comment.preview")}
+            </Button>
+          </div>
+        )}
+        {/* Hide (don't unmount) the editor pane so the paste/drag/drop listeners
+            attached to `commentBodyRef` survive a Write/Preview toggle. */}
+        <div className={showEditor ? undefined : "hidden"}>
+          <EditorToolbar comment={true} sm={true} />
+          <div
+            className="comment-body"
+            role="presentation"
+            onKeyDown={handleShortcuts}
+            ref={commentBodyRef}
+          >
+            <TextareaAutocomplete
+              className={`the-editor accepts-emoji ${text!.length > 20 ? "expanded" : ""}`}
+              as="textarea"
+              placeholder={i18next.t("comment.body-placeholder")}
+              containerStyle={{ height: !text ? "80px" : inputHeight }}
+              value={text}
+              onChange={textChanged}
+              disabled={inProgress}
+              autoFocus={autoFocus}
+              minrows={3}
+              rows={rows}
+              maxrows={100}
+              ref={inputRef}
+              acceptCharset="UTF-8"
+              id="the-editor"
+              spellCheck={true}
+              isComment={true}
+            />
+            <div className="editor-toolbar bottom">
+              {activeUser ? (
+                <AvailableCredits
+                  className="p-2 w-full"
+                  operation="comment_operation"
+                  username={activeUser.username}
+                />
+              ) : (
+                <></>
+              )}
+            </div>
           </div>
         </div>
         <div className="comment-buttons flex items-center mt-3">
+          {!isMobile && (
+            <span className="comment-submit-hint mr-auto text-xs opacity-60">
+              {i18next.t("comment.submit-shortcut")}
+            </span>
+          )}
           {cancellable && (
             <Button
               className="mr-2"
@@ -277,13 +340,13 @@ export function Comment({
               {i18next.t("g.cancel")}
             </Button>
           )}
-          <LoginRequired>
+          <LoginRequired promptOnAnon>
             <Button size="sm" onClick={submit} isLoading={inProgress} iconPlacement="left">
               {submitText}
             </Button>
           </LoginRequired>
         </div>
-        <CommentPreview text={preview} />
+        {showPreview && <CommentPreview text={preview} />}
       </div>
     </>
   );

@@ -8,7 +8,9 @@ import { motion } from "framer-motion";
 import i18next from "i18next";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import * as ls from "@/utils/local-storage";
+import { PERKS_SEEN_KEY } from "@/features/shared/navbar/navbar-perks-button";
 import {
   PerksBasicCard,
   PerksPointsCard,
@@ -20,6 +22,11 @@ import {
 export function PerksPage() {
   const [showBoost, setShowBoost] = useState(false);
   const [showQrDialog, setShowQrDialog] = useState(false);
+
+  // Opening the hub clears the one-time discovery dot on the navbar perks button.
+  useEffect(() => {
+    ls.set(PERKS_SEEN_KEY, true);
+  }, []);
 
   return (
     <div className="flex flex-col gap-4">

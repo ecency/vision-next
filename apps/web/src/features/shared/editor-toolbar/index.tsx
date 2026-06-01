@@ -22,7 +22,7 @@ import {
 import "./_index.scss";
 import { UilPanelAdd } from "@tooni/iconscout-unicons-react";
 import { PollsCreation, PollSnapshot } from "@/features/polls";
-import { useGlobalStore } from "@/core/global-store";
+import { useIsMobile } from "@/features/ui/util/use-is-mobile";
 import { useUploadImageMutation } from "@/api/sdk-mutations";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { insertOrReplace, replace } from "@/utils";
@@ -74,7 +74,7 @@ export function EditorToolbar({
   const { activeUser } = useActiveAccount();
   const activeUserRef = useRef(activeUser);
 
-  const isMobile = useGlobalStore((s) => s.isMobile);
+  const isMobile = useIsMobile();
 
   const rootRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);

@@ -4,6 +4,7 @@ import { Button } from "@ui/button";
 import { DayChange } from "@/app/market/advanced/_advanced-mode/types/day-change.type";
 import { Widget } from "@/app/market/advanced/_advanced-mode/types/layout.type";
 import { useGlobalStore } from "@/core/global-store";
+import { useIsMobile } from "@/features/ui/util/use-is-mobile";
 import i18next from "i18next";
 import Link from "next/link";
 import { HiveBarter } from "@/app/market/_components/hive-barter";
@@ -29,7 +30,7 @@ export const TradingFormWidget = ({
   onSuccessTrade
 }: Props) => {
   const { username: activeUsername } = useActiveAccount();
-  const isMobile = useGlobalStore((s) => s.isMobile);
+  const isMobile = useIsMobile();
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
 
   const [loading, setLoading] = useState(false);

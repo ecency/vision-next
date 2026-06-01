@@ -5,7 +5,7 @@ import { MARKET_MODE_LS_TOKEN, MarketMode } from "../../_enums/market-mode";
 import { ModeSelector } from "../../_components/mode-selector";
 import { AdvancedModeSettings } from "./advanced-mode-settings";
 import { MarketAsset } from "@/api/market-pair";
-import { useGlobalStore } from "@/core/global-store";
+import { useIsMobile } from "@/features/ui/util/use-is-mobile";
 import { formattedNumber } from "@/utils";
 
 interface Props {
@@ -31,7 +31,7 @@ export const AdvancedModeToolbar = ({
   updateRate,
   setUpdateRate
 }: Props) => {
-  const isMobile = useGlobalStore((s) => s.isMobile);
+  const isMobile = useIsMobile();
 
   const getPercent = () => {
     if (dayChange.percent > 0) {

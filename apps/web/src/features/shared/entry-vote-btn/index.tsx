@@ -137,7 +137,7 @@ export function EntryVoteBtn({ entry: originalEntry, isPostSlider, account }: Pr
   }, [dialog, getPreviousVote]);
 
   return (
-    <LoginRequired>
+    <LoginRequired promptOnAnon>
       <div ref={rootRef}>
         <div
           className="entry-vote-btn"

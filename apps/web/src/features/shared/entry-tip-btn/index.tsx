@@ -102,7 +102,7 @@ export function EntryTipBtn({
 
   return (
     <>
-      <LoginRequired>
+      <LoginRequired promptOnAnon>
         {inlineTipButton ? (
           inlineTipBtn
         ) : tipCount > 0 ? (

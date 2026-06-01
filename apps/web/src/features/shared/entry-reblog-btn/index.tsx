@@ -54,7 +54,7 @@ export function EntryReblogBtn({ entry }: Props) {
     );
 
     if (!activeUser) {
-        return <LoginRequired>{content}</LoginRequired>;
+        return <LoginRequired promptOnAnon>{content}</LoginRequired>;
     }
 
     return (

@@ -6,7 +6,8 @@ import { error, LoginRequired, success } from "@/features/shared";
 import { getRelationshipBetweenAccountsQueryOptions, useAccountRelationsUpdate } from "@ecency/sdk";
 import { getSdkAuthContext } from "@/utils";
 import { getUser } from "@/utils/user-token";
-import { useQuery } from "@tanstack/react-query";
+import { scheduleQuestsRefresh } from "@/utils/refresh-quests";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@ui/button";
 import i18next from "i18next";
 
@@ -68,20 +69,22 @@ function FollowButton({ disabled, following }: ButtonProps) {
     getRelationshipBetweenAccountsQueryOptions(activeUser?.username, following)
   );
 
+  const queryClient = useQueryClient();
   const { mutateAsync: updateRelation, isPending } = useAccountRelationsUpdate(
     activeUser?.username,
     following,
     getSdkAuthContext(getUser(activeUser?.username ?? "")),
-    (data) => {},
+    () => scheduleQuestsRefresh(queryClient, activeUser?.username),
     (err) => error(...formatError(err))
   );
 
   return (
-    <LoginRequired>
+    <LoginRequired promptOnAnon>
       <Button
         size="sm"
         style={{ marginRight: "5px" }}
         disabled={disabled}
+        isLoading={isPending}
         onClick={() => updateRelation("toggle-follow")}
       >
         {data?.follows

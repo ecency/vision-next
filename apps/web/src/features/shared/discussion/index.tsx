@@ -178,7 +178,7 @@ export function Discussion({ parent, community, isRawContent, hideControls, onTo
                   <div className="text-sm">{i18next.t("discussion.join-hint")}</div>
                 </div>
               </div>
-              <LoginRequired>
+              <LoginRequired promptOnAnon>
                 <Button appearance="white" icon="🔥" size="lg">
                   {i18next.t("discussion.btn-join")}
                 </Button>

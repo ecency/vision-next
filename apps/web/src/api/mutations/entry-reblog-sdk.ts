@@ -8,6 +8,7 @@ import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { QueryKeys } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useReblogMutation } from "@/api/sdk-mutations";
+import { scheduleQuestsRefresh } from "@/utils/refresh-quests";
 
 /**
  * Entry-specific reblog mutation hook that wraps SDK reblog with web app cache management.
@@ -54,6 +55,11 @@ export function useEntryReblog(entry: Entry) {
       // Update reblogs count in entry cache (clamped to prevent negative values)
       const newReblogsCount = Math.max(0, (entry.reblogs ?? 0) + (isDelete ? -1 : 1));
       updateReblogsCount(newReblogsCount);
+
+      // Reblogging earns points — refresh the ambient quests indicator.
+      if (!isDelete) {
+        scheduleQuestsRefresh(queryClient, activeUser?.username);
+      }
 
       // Update reblogs list cache (optimistic UI)
       queryClient.setQueryData<BlogEntry[]>(
