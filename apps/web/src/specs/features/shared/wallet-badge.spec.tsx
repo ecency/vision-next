@@ -34,10 +34,15 @@ vi.mock("@/utils", async () => {
 });
 
 vi.mock("@ui/svg", async () => {
-  const actual = await vi.importActual("@ui/svg");
+  const actual = await vi.importActual<Record<string, unknown>>("@ui/svg");
+  // Build the element with createElement (React imported inside the factory),
+  // not JSX: vitest 4 hoists vi.mock above the file's imports, so JSX here would
+  // reference the not-yet-initialized jsx-runtime binding and throw "Cannot
+  // access '__vi_import_N__' before initialization".
+  const { createElement } = await import("react");
   return {
     ...actual,
-    creditCardSvg: <svg data-testid="credit-card-icon" />
+    creditCardSvg: createElement("svg", { "data-testid": "credit-card-icon" })
   };
 });
 

@@ -4,10 +4,15 @@ import { NextRequest } from "next/server";
 
 // Mock node:dns/promises and node:net before importing route
 vi.mock("node:dns/promises", () => {
-  const Resolver = vi.fn().mockImplementation(() => ({
-    resolve4: vi.fn().mockResolvedValue(["93.184.216.34"]),
-    resolve6: vi.fn().mockResolvedValue([])
-  }));
+  // `function`, not an arrow: the route does `new Resolver()`, and vitest 4
+  // rejects an arrow mockImplementation used as a constructor ("not a
+  // constructor"), which previously made every request fail validation -> 400.
+  const Resolver = vi.fn().mockImplementation(function () {
+    return {
+      resolve4: vi.fn().mockResolvedValue(["93.184.216.34"]),
+      resolve6: vi.fn().mockResolvedValue([])
+    };
+  });
   return { default: { Resolver }, Resolver };
 });
 
@@ -34,9 +39,12 @@ vi.mock("@mozilla/readability", () => ({
 
 vi.mock("turndown", () => ({
   __esModule: true,
-  default: vi.fn().mockImplementation(() => ({
-    turndown: vi.fn().mockReturnValue("# Test content")
-  }))
+  // `function`: the route does `new TurndownService()` (see Resolver note).
+  default: vi.fn().mockImplementation(function () {
+    return {
+      turndown: vi.fn().mockReturnValue("# Test content")
+    };
+  })
 }));
 
 import { POST } from "@/app/api/import/route";
@@ -132,16 +140,18 @@ describe("POST /api/import", () => {
       querySelectorAll: vi.fn().mockReturnValue([])
     };
 
-    vi.mocked(JSDOM).mockImplementation(() => ({
-      window: { document: mockDoc }
-    }) as any);
+    vi.mocked(JSDOM).mockImplementation(function () {
+      return { window: { document: mockDoc } };
+    } as any);
 
-    vi.mocked(Readability).mockImplementation(() => ({
-      parse: () => ({
-        title: "External Article",
-        content: "<p>Article body</p>"
-      })
-    }) as any);
+    vi.mocked(Readability).mockImplementation(function () {
+      return {
+        parse: () => ({
+          title: "External Article",
+          content: "<p>Article body</p>"
+        })
+      };
+    } as any);
 
     // Mock global fetch for fetchPage
     const mockResponse = {
@@ -240,13 +250,13 @@ describe("POST /api/import", () => {
       querySelectorAll: vi.fn().mockReturnValue([])
     };
 
-    vi.mocked(JSDOM).mockImplementation(() => ({
-      window: { document: mockDoc }
-    }) as any);
+    vi.mocked(JSDOM).mockImplementation(function () {
+      return { window: { document: mockDoc } };
+    } as any);
 
-    vi.mocked(Readability).mockImplementation(() => ({
-      parse: () => null
-    }) as any);
+    vi.mocked(Readability).mockImplementation(function () {
+      return { parse: () => null };
+    } as any);
 
     const mockResponse = {
       ok: true,

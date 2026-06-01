@@ -1,16 +1,5 @@
 # @ecency/wallets
 
-## 6.0.0
-
-### Major Changes
-
-- chore(deps): bump the npm_and_yarn group across 5 directories with 2 updates (#868)
-
-### Patch Changes
-
-- Updated dependencies []:
-  - @ecency/sdk@3.0.0
-
 ## 5.0.6
 
 ### Patch Changes

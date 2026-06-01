@@ -11,12 +11,16 @@ vi.mock("@tanstack/react-query", async () => {
   );
   return {
     ...actual,
-    QueryClient: vi.fn().mockImplementation(() => ({
-      fetchQuery: vi.fn().mockImplementation(() => {
-        const callIndex = fetchQueryCallCount++;
-        return Promise.resolve(subscriptionsByCall[callIndex] || []);
-      })
-    }))
+    // Use `function` (not an arrow): vitest 4 requires a constructor mock to be
+    // newable — `new QueryClient()` in the test throws on an arrow impl.
+    QueryClient: vi.fn().mockImplementation(function () {
+      return {
+        fetchQuery: vi.fn().mockImplementation(() => {
+          const callIndex = fetchQueryCallCount++;
+          return Promise.resolve(subscriptionsByCall[callIndex] || []);
+        })
+      };
+    })
   };
 });
 

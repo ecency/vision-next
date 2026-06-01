@@ -1,7 +1,7 @@
 {
   "name": "@ecency/sdk",
   "private": false,
-  "version": "3.0.0",
+  "version": "2.3.7",
   "description": "Ecency SDK",
   "repository": {
     "type": "git",
@@ -47,9 +47,9 @@
     "test": "vitest run"
   },
   "peerDependencies": {
-    "react": ">=18",
     "@tanstack/react-query": ">=5",
-    "hivesigner": "^4.0.0"
+    "hivesigner": "^4.0.0",
+    "react": ">=18"
   },
   "peerDependenciesMeta": {
     "react": {
@@ -64,7 +64,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.13.8",
-    "@vitest/coverage-v8": "^2.0.0",
+    "@vitest/coverage-v8": "^4.1.8",
     "bip39": "^3.1.0",
     "eslint": "^9.21.0",
     "lru-cache": "^11.0.2",
@@ -72,7 +72,7 @@
     "tsup": "^8",
     "typescript": "^5.6",
     "typescript-eslint": "^8.18.2",
-    "vitest": "^4.1.0"
+    "vitest": "^4.1.8"
   },
   "dependencies": {
     "@noble/ciphers": "^2.1.1",
