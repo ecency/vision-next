@@ -992,7 +992,9 @@
   },
   "comment": {
     "body-placeholder": "Schrijf jouw reactie hier",
+    "write": "Schrijven",
     "preview": "Voorbeeld",
+    "submit-shortcut": "Ctrl/taxes, + Enter om te posten",
     "success": "Uw antwoord is succesvol aangemaakt!",
     "delete-success": "Reactie succesvol verwijderd",
     "delete-error-hint": "Opmerking kon niet verwijderd worden. Probeer het opnieuw",
