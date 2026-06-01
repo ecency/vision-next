@@ -45,16 +45,24 @@ export class SentryErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    // A deploy-skew crash (a chunk that no longer matches the running build) is
+    // auto-recovered by reloading. Record it as a distinct, low-severity
+    // "auto-recovered" event (so skew frequency stays visible) instead of a
+    // fresh crash that re-spikes after every deploy, then reload — skip the
+    // component-stack capture, which is only useful for real render bugs.
+    if (isDeploySkewError(error)) {
+      Sentry.captureException(error, {
+        level: "warning",
+        tags: { deploy_skew: "true" },
+        fingerprint: ["deploy-skew-auto-recovered"]
+      });
+      reloadForSkew();
+      return;
+    }
     const eventId = Sentry.captureException(error, {
       contexts: { react: { componentStack: errorInfo.componentStack ?? undefined } }
     });
     this.setState({ eventId });
-    // A deploy-skew crash (a chunk that doesn't match the running build) isn't a
-    // real render bug — reload once onto the current build instead of showing the
-    // fallback. Guarded to one reload per session.
-    if (isDeploySkewError(error)) {
-      reloadForSkew();
-    }
   }
 
   reset = () => this.setState({ error: undefined, eventId: undefined });

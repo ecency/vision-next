@@ -25,13 +25,21 @@ export default function GlobalError({
   // optional user feedback (via SentryIssueReporterDialog) is then attached to
   // THIS event id instead of capturing a second, separate exception.
   useEffect(() => {
-    setEventId(Sentry.captureException(error));
-    // A deploy-skew crash (mismatched chunk after a deploy) isn't a real bug —
-    // reload once onto the current build instead of stranding the user on the
-    // 500 page. Guarded to one reload per session.
+    // A deploy-skew crash (a chunk that no longer matches the running build) is
+    // auto-recovered by reloading onto the current build. Record it as a
+    // distinct, low-severity "auto-recovered" event — NOT a fresh 500 that would
+    // re-spike after every deploy — so we keep visibility into skew frequency
+    // without it masquerading as a new crash. Then reload (once per session).
     if (isDeploySkewError(error)) {
+      Sentry.captureException(error, {
+        level: "warning",
+        tags: { deploy_skew: "true" },
+        fingerprint: ["deploy-skew-auto-recovered"]
+      });
       reloadForSkew();
+      return;
     }
+    setEventId(Sentry.captureException(error));
   }, [error]);
 
   return (

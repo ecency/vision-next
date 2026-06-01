@@ -71,6 +71,45 @@ describe("SentryErrorBoundary", () => {
     expect(screen.getByTestId("fallback")).toHaveTextContent("fallback:evt-123");
   });
 
+  it("reloads + reports a low-severity tagged event (not the component-stack crash) on a deploy-skew error", () => {
+    const reloadMock = vi.fn();
+    const realLocation = window.location;
+    Object.defineProperty(window, "location", {
+      configurable: true,
+      value: { ...realLocation, reload: reloadMock }
+    });
+    sessionStorage.clear();
+
+    function SkewBomb(): never {
+      throw Object.assign(new Error("Cannot read properties of undefined (reading 'call')"), {
+        stack: "at a (https://ecency.com/_next/static/chunks/webpack-2bcfd50e.js:1:1)"
+      });
+    }
+
+    render(
+      <SentryErrorBoundary fallback={fallback}>
+        <SkewBomb />
+      </SentryErrorBoundary>
+    );
+
+    // Captured as a distinct, low-severity, fingerprinted "auto-recovered" event
+    // — NOT the component-stack crash capture (so it never re-spikes as a fresh
+    // 500 after a deploy).
+    expect(Sentry.captureException).toHaveBeenCalledTimes(1);
+    expect(Sentry.captureException).toHaveBeenCalledWith(
+      expect.any(Error),
+      expect.objectContaining({
+        level: "warning",
+        tags: { deploy_skew: "true" },
+        fingerprint: ["deploy-skew-auto-recovered"]
+      })
+    );
+    // And it triggered a one-time recovery reload onto the current build.
+    expect(reloadMock).toHaveBeenCalledTimes(1);
+
+    Object.defineProperty(window, "location", { configurable: true, value: realLocation });
+  });
+
   it("restores children when reset is called after the child stops throwing", () => {
     render(
       <SentryErrorBoundary fallback={fallback}>
