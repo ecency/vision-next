@@ -14,6 +14,14 @@
   display: none;
   cursor: pointer;
 
+  // On mobile, sit above the bottom tab bar and clear of the bottom-right
+  // compose FAB (which lives on the right).
+  @media (max-width: 767px) {
+    left: 16px;
+    right: auto;
+    bottom: calc(env(safe-area-inset-bottom) + 5.5rem);
+  }
+
   &.visible {
     display: flex;
     align-items: center;

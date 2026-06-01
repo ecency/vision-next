@@ -9,17 +9,26 @@ import { NavbarNotificationsButton } from "@/features/shared/navbar/navbar-notif
 import { NavbarSide } from "@/features/shared/navbar/sidebar/navbar-side";
 import { useHideOnScroll } from "@/features/shared/navbar/use-hide-on-scroll";
 import { searchIconSvg } from "@ui/icons";
+import { closeSvg } from "@ui/svg";
 import { isInAppBrowser } from "@/utils";
 import { useMattermostUnread } from "@/features/chat/mattermost-api";
-import { UilBars, UilComment, UilHomeAlt, UilLock, UilPlus, UilWater } from "@tooni/iconscout-unicons-react";
+import { UilBars, UilComment, UilHomeAlt, UilLock, UilPen, UilWater } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
 import clsx from "clsx";
 import i18next from "i18next";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import defaults from "@/defaults";
+import dynamic from "next/dynamic";
+
+// The full search experience (input + suggester); loaded only when the user
+// opens the in-navbar quick search.
+const MobileSearch = dynamic(
+  () => import("@/features/shared/navbar/search").then((m) => ({ default: m.Search })),
+  { ssr: false }
+);
 
 interface Props {
   step?: number;
@@ -43,7 +52,38 @@ export function NavbarMobile({
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
   const { data: unread } = useMattermostUnread(Boolean(activeUser && hydrated));
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  // Use the string form (stable identity) so the effect only fires on a real
+  // query change, not on every render where useSearchParams returns a new object.
+  const searchKey = searchParams?.toString();
   const hidden = useHideOnScroll();
+  const [searchOpen, setSearchOpen] = useState(false);
+  const searchWrapRef = useRef<HTMLDivElement>(null);
+
+  // Collapse the in-navbar search after any navigation — including a query-only
+  // change (e.g. submitting a new search while already on /search).
+  useEffect(() => {
+    setSearchOpen(false);
+  }, [pathname, searchKey]);
+
+  // Focus the input once the (lazily-loaded) search mounts, so it's ready to type.
+  useEffect(() => {
+    if (!searchOpen) {
+      return;
+    }
+    let raf = 0;
+    let tries = 0;
+    const focusInput = () => {
+      const input = searchWrapRef.current?.querySelector("input");
+      if (input) {
+        input.focus();
+      } else if (tries++ < 30) {
+        raf = requestAnimationFrame(focusInput);
+      }
+    };
+    raf = requestAnimationFrame(focusInput);
+    return () => cancelAnimationFrame(raf);
+  }, [searchOpen]);
 
   const [isInRn, setIsInRn] = useState(false);
   useEffect(() => {
@@ -75,34 +115,52 @@ export function NavbarMobile({
           scroll-up, like a mobile browser's own toolbar. */}
       <div
         className={clsx(
-          "fixed top-0 left-0 right-0 z-20 md:hidden flex items-center justify-between gap-2 px-3 h-14",
+          "fixed top-0 left-0 right-0 z-20 md:hidden flex items-center gap-2 px-3 h-14",
           "bg-white/90 dark:bg-dark-200/90 backdrop-blur-sm border-b border-[--border-color]",
           "transition-transform duration-300 will-change-transform",
           hidden ? "-translate-y-full" : "translate-y-0",
           step === 1 && "transparent"
         )}
       >
-        <div className="flex items-center gap-1">
-          <Button
-            appearance="gray-link"
-            noPadding={true}
-            icon={<UilBars width={22} height={22} />}
-            onClick={() => setMainBarExpanded(true)}
-            aria-label={i18next.t("navbar.toggle-menu")}
-            aria-expanded={mainBarExpanded}
-          />
-          <Link href="/" className="flex items-center">
-            {/* The image alt provides the link's accessible name (brand/home),
-                distinct from the "Home" feed tab below. */}
-            <Image src={defaults.logo} alt="Ecency" width={30} height={30} className="rounded" />
-          </Link>
-        </div>
-        <Button
-          href="/search"
-          appearance="gray-link"
-          icon={searchIconSvg}
-          aria-label={i18next.t("navbar.search", { defaultValue: "Search" })}
-        />
+        {searchOpen ? (
+          <>
+            <Button
+              appearance="gray-link"
+              noPadding={true}
+              icon={closeSvg}
+              onClick={() => setSearchOpen(false)}
+              aria-label={i18next.t("g.close", { defaultValue: "Close search" })}
+            />
+            <div ref={searchWrapRef} className="flex-1 min-w-0">
+              <MobileSearch containerClassName="w-full" />
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="flex items-center gap-1">
+              <Button
+                appearance="gray-link"
+                noPadding={true}
+                icon={<UilBars width={22} height={22} />}
+                onClick={() => setMainBarExpanded(true)}
+                aria-label={i18next.t("navbar.toggle-menu")}
+                aria-expanded={mainBarExpanded}
+              />
+              <Link href="/" className="flex items-center">
+                {/* The image alt provides the link's accessible name (brand/home),
+                    distinct from the "Home" feed tab below. */}
+                <Image src={defaults.logo} alt="Ecency" width={30} height={30} className="rounded" />
+              </Link>
+            </div>
+            <Button
+              className="ml-auto"
+              appearance="gray-link"
+              icon={searchIconSvg}
+              onClick={() => setSearchOpen(true)}
+              aria-label={i18next.t("navbar.search", { defaultValue: "Search" })}
+            />
+          </>
+        )}
       </div>
 
       {/* Bottom primary tabs */}
@@ -182,7 +240,7 @@ export function NavbarMobile({
         href="/publish"
         appearance="primary"
         noPadding={true}
-        icon={<UilPlus width={26} height={26} />}
+        icon={<UilPen width={26} height={26} />}
         aria-label={i18next.t("navbar.post")}
         aria-current={isActive("/publish") ? "page" : undefined}
         className={clsx(

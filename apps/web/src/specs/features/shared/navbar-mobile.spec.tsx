@@ -7,10 +7,19 @@ let pathname = "/";
 const toggleUiProp = vi.fn();
 const useActiveAccount = vi.fn(() => ({ activeUser: { username: "tester" } as { username: string } | null }));
 
-vi.mock("next/navigation", () => ({ usePathname: () => pathname }));
+vi.mock("next/navigation", () => ({
+  usePathname: () => pathname,
+  useSearchParams: () => new URLSearchParams()
+}));
 vi.mock("next/image", () => ({
   // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
   default: ({ src, alt, ...rest }: any) => <img src={typeof src === "string" ? src : ""} alt={alt} {...rest} />
+}));
+vi.mock("next/dynamic", () => ({
+  // Render the dynamically-imported in-navbar search as a lightweight stub.
+  default: () => function MobileSearchStub() {
+    return <input data-testid="mobile-search" aria-label="search input" />;
+  }
 }));
 vi.mock("@/api/queries", () => ({ useHydrated: () => true }));
 vi.mock("@/core/global-store", () => ({ useGlobalStore: (s: any) => s({ toggleUiProp }) }));
@@ -76,6 +85,18 @@ describe("NavbarMobile", () => {
     renderNav();
     expect(screen.getByLabelText("navbar.home")).toHaveAttribute("aria-current", "page");
     expect(screen.getByLabelText("navbar.chats")).not.toHaveAttribute("aria-current", "page");
+  });
+
+  test("tapping search expands an in-navbar search input and can be closed", () => {
+    renderNav();
+    fireEvent.click(screen.getByLabelText("navbar.search"));
+    // search mode: brand/menu replaced by a close control + the search input
+    expect(screen.getByLabelText("g.close")).toBeInTheDocument();
+    expect(screen.getByTestId("mobile-search")).toBeInTheDocument();
+    expect(screen.queryByLabelText("navbar.toggle-menu")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText("g.close"));
+    expect(screen.getByLabelText("navbar.toggle-menu")).toBeInTheDocument();
   });
 
   test("keeps Home active across other feed sorts (e.g. /trending)", () => {
