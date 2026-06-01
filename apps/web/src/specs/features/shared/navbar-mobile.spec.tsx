@@ -62,6 +62,7 @@ describe("NavbarMobile", () => {
     renderNav();
     expect(screen.getByAltText("Ecency")).toBeInTheDocument(); // logo
     expect(screen.getByLabelText("navbar.toggle-menu")).toBeInTheDocument(); // ☰
+    expect(screen.getByLabelText("navbar.search")).toBeInTheDocument();
     expect(screen.getByLabelText("navbar.home")).toBeInTheDocument();
     expect(screen.getByLabelText("navbar.waves")).toBeInTheDocument();
     expect(screen.getByLabelText("navbar.chats")).toBeInTheDocument();
