@@ -6,6 +6,28 @@ import {
   isValidLinkTarget,
   normalizeLinkHref
 } from "@/features/tiptap-editor/functions/normalize-link-href";
+import * as CuratedIcons from "@/features/ui/unicons";
+
+describe("curated unicons coverage for the link bubble", () => {
+  // The Next build aliases `@tooni/iconscout-unicons-react` to the curated
+  // `src/features/ui/unicons.tsx` (subset of icons). Importing an icon that
+  // isn't in that file compiles and passes vitest (which uses the real
+  // package) but is `undefined` in production → "Element type is invalid"
+  // when it renders. This guards every icon the bubble menu + link form use.
+  it.each([
+    "UilArrow",
+    "UilBold",
+    "UilItalic",
+    "UilTextStrikeThrough",
+    "UilLink",
+    "UilEnter",
+    "UilPen",
+    "UilExternalLinkAlt",
+    "UilLinkBroken"
+  ])("%s is present in the curated icon set", (name) => {
+    expect((CuratedIcons as Record<string, unknown>)[name]).toBeDefined();
+  });
+});
 
 describe("normalizeLinkHref", () => {
   it("prepends https:// to a bare domain", () => {
