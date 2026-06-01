@@ -992,7 +992,9 @@
   },
   "comment": {
     "body-placeholder": "Escreva a sua resposta aqui",
+    "write": "Salvar",
     "preview": "Pré-visualizar",
+    "submit-shortcut": "Ctrl/├+ Enter para postar",
     "success": "Sua resposta foi criada com sucesso!",
     "delete-success": "Comentário apagado com sucesso",
     "delete-error-hint": "Não foi possível apagar o comentário. Por favor, tente novamente",
