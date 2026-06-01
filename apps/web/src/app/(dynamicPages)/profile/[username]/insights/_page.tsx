@@ -38,7 +38,8 @@ function InsightsRange({ username, dateRange, label }: InsightsRangeProps) {
     )
   );
 
-  const formatter = useMemo(() => new Intl.NumberFormat(), []);
+  // Pinned locale so SSR == client (avoids React #418 hydration mismatch).
+  const formatter = useMemo(() => new Intl.NumberFormat("en-US"), []);
 
   const rows = useMemo<InsightsRow[]>(() => {
     const pages = statsQuery.data?.results ?? [];

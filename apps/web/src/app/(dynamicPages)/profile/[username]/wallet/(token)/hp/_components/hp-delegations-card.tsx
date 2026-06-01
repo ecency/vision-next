@@ -30,7 +30,9 @@ interface Props {
   username: string;
 }
 
-const format = new Intl.NumberFormat();
+// Pinned locale so SSR and client render identically (avoids the React #418
+// hydration mismatch -> removeChild crash; see format-asset-balance).
+const format = new Intl.NumberFormat("en-US");
 
 export function HpDelegationsCard({ username }: Props) {
   const { data } = useQuery(getAccountWalletAssetInfoQueryOptions(username, "HP"));
