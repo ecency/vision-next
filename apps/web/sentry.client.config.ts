@@ -60,6 +60,26 @@ const SENTRY_CONFIG: Sentry.BrowserOptions = {
       event.exception?.values?.[0]?.stacktrace?.frames ?? []
     );
 
+    // ECENCY-NEXT-1AA7: an injected page script (pageHook.js / __mm__updateUrl)
+    // JSON.stringify'ing a DOM node. Gate on the injected-script frame so a real
+    // app-side circular-stringify bug (different frames) is still reported.
+    if (
+      /Converting circular structure to JSON/i.test(message) &&
+      /pageHook|__mm__/i.test(stackStr)
+    ) {
+      return null;
+    }
+
+    // ECENCY-NEXT-XA0: "Insufficient Resource Credits" is an expected Hive
+    // condition surfaced as a HANDLED toast. Drop only the handled capture — a
+    // future unhandled path that surfaces the same text is still reported.
+    if (
+      /Insufficient Resource Credits/i.test(message) &&
+      event.exception?.values?.[0]?.mechanism?.handled !== false
+    ) {
+      return null;
+    }
+
     // AbortController-induced timeouts (TimeoutError / AbortError) ship
     // with no stack frames, so we can't tell which fetch is at fault.
     // Walk recent breadcrumbs for the last in-flight fetch URL and tag
