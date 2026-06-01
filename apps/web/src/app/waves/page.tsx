@@ -5,6 +5,7 @@ import { getQueryClient } from "@/core/react-query";
 import { EcencyConfigManager } from "@/config";
 import { notFound } from "next/navigation";
 import { ScrollToTop } from "@/features/shared/scroll-to-top";
+import { RouteErrorBoundary } from "@/features/issue-reporter/route-error-boundary";
 
 export const metadata: Metadata = {
   title: "Waves | Ecency",
@@ -23,7 +24,9 @@ export default function WavesServerPage() {
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>
       <ScrollToTop />
-      <WavesPage />
+      <RouteErrorBoundary>
+        <WavesPage />
+      </RouteErrorBoundary>
     </HydrationBoundary>
   );
 }
