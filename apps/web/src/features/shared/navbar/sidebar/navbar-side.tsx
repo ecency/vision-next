@@ -48,7 +48,8 @@ export function NavbarSide({ show, setShow, placement = "right" }: Props) {
           aria-label={i18next.t("navbar.wallet")}
         />
       </div>
-      <div className="px-4 pb-3">
+      {/* On mobile this lives in the bottom tab bar instead. */}
+      <div className="hidden md:block px-4 pb-3">
         <NavbarPerksButton />
       </div>
       <NavbarSideMainMenu onHide={() => setShow(false)} />

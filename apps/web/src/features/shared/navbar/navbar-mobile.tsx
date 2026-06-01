@@ -6,6 +6,7 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { UserAvatar, preloadLoginDialog } from "@/features/shared";
 import { NavbarMainSidebar } from "@/features/shared/navbar/navbar-main-sidebar";
 import { NavbarNotificationsButton } from "@/features/shared/navbar/navbar-notifications-button";
+import { NavbarPerksButton } from "@/features/shared/navbar/navbar-perks-button";
 import { NavbarSide } from "@/features/shared/navbar/sidebar/navbar-side";
 import { isInAppBrowser } from "@/utils";
 import { useMattermostUnread } from "@/features/chat/mattermost-api";
@@ -134,6 +135,7 @@ export function NavbarMobile({
 
         {activeUser ? (
           <>
+            <NavbarPerksButton />
             <NavbarNotificationsButton />
             <button
               key={`mobile-avatar-${activeUser.username}`}

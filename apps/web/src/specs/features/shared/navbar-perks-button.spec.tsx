@@ -51,6 +51,13 @@ describe("NavbarPerksButton", () => {
     expect(container.textContent).toContain("7");
   });
 
+  test("caps the streak display at 99+ for large streaks", () => {
+    markPerksSeen();
+    const { container } = renderWith({ current: 150, best: 200, at_risk: false });
+    expect(container.textContent).toContain("99+");
+    expect(container.textContent).not.toContain("150");
+  });
+
   test("uses the at-risk (orange) styling when the streak is at risk", () => {
     markPerksSeen();
     const { container } = renderWith({ current: 3, best: 8, at_risk: true });
