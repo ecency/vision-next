@@ -74,10 +74,10 @@ export function TagsPage() {
                         </Link>
                       </Td>
                       <Td className="border p-2">
-                        <span className="tag-metric">{tag.comments.toLocaleString()}</span>
+                        <span className="tag-metric">{tag.comments.toLocaleString("en-US")}</span>
                       </Td>
                       <Td className="border p-2">
-                        <span className="tag-metric">{tag.top_posts.toLocaleString()}</span>
+                        <span className="tag-metric">{tag.top_posts.toLocaleString("en-US")}</span>
                       </Td>
                       <Td className="border p-2">
                         <span className="tag-metric">{tag.total_payouts}</span>

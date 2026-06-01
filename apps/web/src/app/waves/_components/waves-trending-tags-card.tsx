@@ -18,7 +18,8 @@ export function WavesTrendingTagsCard() {
 
   const { data, isLoading, isError } = useQuery(getWavesTrendingTagsQueryOptions(host, TRENDING_TAGS_HOURS));
 
-  const numberFormatter = useMemo(() => new Intl.NumberFormat(), []);
+  // Pinned locale so SSR == client (avoids React #418 hydration mismatch).
+  const numberFormatter = useMemo(() => new Intl.NumberFormat("en-US"), []);
   const tags = useMemo(() => data?.slice(0, TRENDING_TAGS_LIMIT) ?? [], [data]);
 
   return (

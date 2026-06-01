@@ -62,7 +62,7 @@ export const WitnessCard = ({ row, witness, onVotersClick }: Props) => {
             onClick={() => onVotersClick?.(row.name)}
             aria-label={i18next.t("witnesses.voters-aria-label", { name: row.name })}
           >
-            {row.votersNum.toLocaleString()}
+            {row.votersNum.toLocaleString("en-US")}
           </button>
         </div>
       )}
