@@ -32,8 +32,9 @@ function isWebpackFactoryError(error: { message?: string; stack?: string }): boo
   }
   const message = error.message ?? "";
   return (
-    /Cannot read propert(?:y|ies) of undefined \(reading 'call'\)/i.test(message) ||
-    /undefined is not an object \(evaluating '[^']*\.call'\)/i.test(message) ||
+    /Cannot read propert(?:y|ies) of undefined \(reading 'call'\)/i.test(message) || // Chrome
+    /undefined is not an object \(evaluating '[^']*\.call'\)/i.test(message) || // Safari
+    /can't access property ['"]?call['"]?/i.test(message) || // Firefox
     /'call' of undefined/i.test(message)
   );
 }

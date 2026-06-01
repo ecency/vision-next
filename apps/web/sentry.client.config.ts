@@ -36,7 +36,13 @@ const SENTRY_CONFIG: Sentry.BrowserOptions = {
     "window.ethereum._handleChainChanged is not a function",
     "window[eFuncName] is not a function",
     "Cannot destructure property 'register' of 'undefined' as it is undefined.",
-    "CopyDataProperties is not a function"
+    "CopyDataProperties is not a function",
+    // Injected page script (pageHook.js / __mm__updateUrl) JSON.stringify'ing a DOM
+    // node — not our code (bogus helpers.ts source-map mapping). ECENCY-NEXT-1AA7.
+    "Converting circular structure to JSON",
+    // Expected Hive condition (account out of resource credits), shown to the user
+    // as a handled toast — not a crash to track. ECENCY-NEXT-XA0.
+    "Insufficient Resource Credits"
   ],
   denyUrls: [
     /sui\.js/,

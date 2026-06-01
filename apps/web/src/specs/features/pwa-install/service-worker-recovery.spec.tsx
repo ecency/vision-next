@@ -46,6 +46,13 @@ describe("isDeploySkewError", () => {
         stack: "webpack-internal:///./node_modules/x"
       })
     ).toBe(true);
+    // Firefox phrasing (ECENCY-NEXT-1FMZ).
+    expect(
+      isDeploySkewError({
+        message: 'can\'t access property "call", e[c] is undefined',
+        stack: "at a (https://ecency.com/_next/static/chunks/webpack-2bcfd50e.js:1:1)"
+      })
+    ).toBe(true);
   });
 
   it("does NOT fire on an unrelated `.call of undefined` app bug (no webpack frame)", () => {
