@@ -992,7 +992,9 @@
   },
   "comment": {
     "body-placeholder": "Xabarni kiriting",
+    "write": "Write",
     "preview": "Ko'rish",
+    "submit-shortcut": "Ctrl/⌘ + Enter to post",
     "success": "Sizning javobingiz muvaffaqiyatli yaratildi!",
     "delete-success": "Comment deleted successfully",
     "delete-error-hint": "Could not delete comment. Please try again",
