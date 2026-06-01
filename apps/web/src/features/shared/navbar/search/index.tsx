@@ -22,9 +22,10 @@ import { EcencyConfigManager } from "@/config";
 
 interface Props {
   containerClassName?: string;
+  autoFocus?: boolean;
 }
 
-export function Search({ containerClassName }: Props) {
+export function Search({ containerClassName, autoFocus }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const previousPathname = usePrevious(pathname);
@@ -514,6 +515,7 @@ export function Search({ containerClassName }: Props) {
           autoComplete="non-autocomplete-field"
           name="non-autocomplete-field"
           id="non-autocomplete-field"
+          autoFocus={autoFocus}
         />
       </SearchSuggester>
 

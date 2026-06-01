@@ -19,7 +19,7 @@ import i18next from "i18next";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import defaults from "@/defaults";
 import dynamic from "next/dynamic";
 
@@ -58,32 +58,12 @@ export function NavbarMobile({
   const searchKey = searchParams?.toString();
   const hidden = useHideOnScroll();
   const [searchOpen, setSearchOpen] = useState(false);
-  const searchWrapRef = useRef<HTMLDivElement>(null);
 
   // Collapse the in-navbar search after any navigation — including a query-only
   // change (e.g. submitting a new search while already on /search).
   useEffect(() => {
     setSearchOpen(false);
   }, [pathname, searchKey]);
-
-  // Focus the input once the (lazily-loaded) search mounts, so it's ready to type.
-  useEffect(() => {
-    if (!searchOpen) {
-      return;
-    }
-    let raf = 0;
-    let tries = 0;
-    const focusInput = () => {
-      const input = searchWrapRef.current?.querySelector("input");
-      if (input) {
-        input.focus();
-      } else if (tries++ < 30) {
-        raf = requestAnimationFrame(focusInput);
-      }
-    };
-    raf = requestAnimationFrame(focusInput);
-    return () => cancelAnimationFrame(raf);
-  }, [searchOpen]);
 
   const [isInRn, setIsInRn] = useState(false);
   useEffect(() => {
@@ -131,8 +111,8 @@ export function NavbarMobile({
               onClick={() => setSearchOpen(false)}
               aria-label={i18next.t("g.close", { defaultValue: "Close search" })}
             />
-            <div ref={searchWrapRef} className="flex-1 min-w-0">
-              <MobileSearch containerClassName="w-full" />
+            <div className="flex-1 min-w-0">
+              <MobileSearch containerClassName="w-full" autoFocus />
             </div>
           </>
         ) : (
