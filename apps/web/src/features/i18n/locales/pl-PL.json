@@ -992,7 +992,9 @@
   },
   "comment": {
     "body-placeholder": "Napisz swoją odpowiedź tutaj",
+    "write": "Napisz",
     "preview": "Podgląd",
+    "submit-shortcut": "Ctrl/<unk> + Wejdź do wpisu",
     "success": "Twoja odpowiedź została pomyślnie utworzona!",
     "delete-success": "Komentarz usunięty pomyślnie",
     "delete-error-hint": "Nie można usunąć komentarza. Spróbuj ponownie",
