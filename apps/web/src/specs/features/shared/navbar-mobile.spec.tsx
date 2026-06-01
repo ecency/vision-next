@@ -76,6 +76,12 @@ describe("NavbarMobile", () => {
     expect(screen.getByLabelText("navbar.chats")).not.toHaveAttribute("aria-current", "page");
   });
 
+  test("keeps Home active across other feed sorts (e.g. /trending)", () => {
+    pathname = "/trending";
+    renderNav();
+    expect(screen.getByLabelText("navbar.home")).toHaveAttribute("aria-current", "page");
+  });
+
   test("marks Chats active via aria-current on the chats route", () => {
     pathname = "/chats";
     renderNav();

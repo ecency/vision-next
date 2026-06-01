@@ -296,5 +296,17 @@ describe("LoginRequired", () => {
       expect(originalOnClick).toHaveBeenCalled();
       expect(mockToggleUiProp).not.toHaveBeenCalled();
     });
+
+    test("does not intercept Space typing inside a wrapped editable field", () => {
+      render(
+        <LoginRequired promptOnAnon>
+          <input type="text" aria-label="field" defaultValue="" />
+        </LoginRequired>
+      );
+
+      fireEvent.keyDown(screen.getByLabelText("field"), { key: " " });
+
+      expect(mockToggleUiProp).not.toHaveBeenCalled();
+    });
   });
 });

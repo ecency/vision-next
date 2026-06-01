@@ -35,25 +35,25 @@ export function NavbarPerksButton() {
   // streak about to break, or a never-opened perks hub. No "new day" nag.
   const showDot = !!activeUser && ((streak?.at_risk ?? false) || !everSeenPerks);
 
+  const streakLabel =
+    streak && streak.current > 0
+      ? i18next.t("perks.quests.streak", { n: streak.current })
+      : undefined;
+
   const button =
     streak && streak.current > 0 ? (
-      (() => {
-        const streakLabel = i18next.t("perks.quests.streak", { n: streak.current });
-        return (
-          <Button
-            href="/perks"
-            aria-label={streakLabel}
-            title={streak.at_risk ? i18next.t("perks.quests.streak-at-risk") : streakLabel}
-            className={clsx(
-              "font-semibold flex items-center gap-1 whitespace-nowrap text-sm",
-              streak.at_risk && "text-orange-500"
-            )}
-          >
-            <span aria-hidden>🔥</span>
-            <span>{streak.current}</span>
-          </Button>
-        );
-      })()
+      <Button
+        href="/perks"
+        aria-label={streakLabel}
+        title={streak.at_risk ? i18next.t("perks.quests.streak-at-risk") : streakLabel}
+        className={clsx(
+          "font-semibold flex items-center gap-1 whitespace-nowrap text-sm",
+          streak.at_risk && "text-orange-500"
+        )}
+      >
+        <span aria-hidden>🔥</span>
+        <span>{streak.current}</span>
+      </Button>
     ) : (
       <Button
         href="/perks"

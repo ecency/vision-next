@@ -58,8 +58,12 @@ export function NavbarMobile({
   }, []);
 
   const isActive = (prefix: string) => !!pathname && pathname.startsWith(prefix);
-  const activeClass = (prefix: string) =>
-    isActive(prefix) ? "!bg-blue-duck-egg dark:!bg-gray-800 rounded-lg" : "rounded-lg";
+  // The Home tab links to /hot but represents the whole feed area, so it stays
+  // active across the feed sorts and the root.
+  const homeActive =
+    pathname === "/" || isActive("/hot") || isActive("/trending") || isActive("/created");
+  const activeClass = (active: boolean) =>
+    active ? "!bg-blue-duck-egg dark:!bg-gray-800 rounded-lg" : "rounded-lg";
 
   return (
     <>
@@ -102,8 +106,8 @@ export function NavbarMobile({
           appearance="gray-link"
           icon={<UilHomeAlt width={20} height={20} />}
           aria-label={i18next.t("navbar.home")}
-          aria-current={isActive("/hot") ? "page" : undefined}
-          className={activeClass("/hot")}
+          aria-current={homeActive ? "page" : undefined}
+          className={activeClass(homeActive)}
         />
         <div key={`mobile-chat-${activeUser?.username || "anon"}`} className="relative">
           <Button
@@ -112,7 +116,7 @@ export function NavbarMobile({
             icon={<UilComment width={20} height={20} />}
             aria-label={i18next.t("navbar.chats")}
             aria-current={isActive("/chats") ? "page" : undefined}
-            className={activeClass("/chats")}
+            className={activeClass(isActive("/chats"))}
           />
           {!unread?.truncated && unread?.totalUnread ? (
             <span className="absolute -top-1 -right-1 inline-flex min-w-[18px] justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold text-black dark:text-white shadow">

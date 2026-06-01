@@ -37,7 +37,18 @@ export function LoginRequired({ children, promptOnAnon = false }: PropsWithChild
     // the real (protected) handler never runs — even when the click/keypress
     // lands on a nested element — and open the login modal instead. The wrapper
     // uses `display: contents` so it does not affect layout.
+    // Skip editable targets so a nested input/textarea keeps typing (including
+    // Space) working instead of opening the login modal.
+    const isEditableTarget = (target: EventTarget | null) => {
+      const el = target as HTMLElement | null;
+      if (!el) return false;
+      const tag = el.tagName;
+      return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || el.isContentEditable;
+    };
     const openLogin = (e: MouseEvent | KeyboardEvent) => {
+      if (isEditableTarget(e.target)) {
+        return;
+      }
       e.preventDefault();
       e.stopPropagation();
       toggleUiProp("login");

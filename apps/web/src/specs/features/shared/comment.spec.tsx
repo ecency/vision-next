@@ -3,6 +3,7 @@ import React from "react";
 import { fireEvent, render } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import type { Entry } from "@/entities";
 
 // --- Mock the heavy children so we can exercise the composer logic in isolation ---
 vi.mock("@/features/shared/editor-toolbar", () => ({
@@ -15,8 +16,15 @@ vi.mock("@/features/shared/textarea-autocomplete", () => ({
   // A plain textarea that forwards value/onChange/ref — onKeyDown bubbles to the
   // `.comment-body` handler exactly like the real component.
   // eslint-disable-next-line react/display-name
-  TextareaAutocomplete: React.forwardRef<HTMLTextAreaElement, any>(
-    ({ value, onChange, placeholder, id }, ref) => (
+  TextareaAutocomplete: React.forwardRef<
+    HTMLTextAreaElement,
+    {
+      value?: string;
+      onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+      placeholder?: string;
+      id?: string;
+    }
+  >(({ value, onChange, placeholder, id }, ref) => (
       <textarea
         ref={ref}
         id={id}
@@ -72,7 +80,7 @@ const entry = {
   category: "ecency",
   body: "",
   json_metadata: {}
-} as any;
+} as unknown as Entry;
 
 function renderComment(onSubmit = vi.fn().mockResolvedValue(undefined)) {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -84,7 +92,7 @@ function renderComment(onSubmit = vi.fn().mockResolvedValue(undefined)) {
   return { onSubmit, ...utils };
 }
 
-function type(getByTestId: any, value: string) {
+function type(getByTestId: (testId: string) => HTMLElement, value: string) {
   fireEvent.change(getByTestId("comment-textarea"), { target: { value } });
 }
 
