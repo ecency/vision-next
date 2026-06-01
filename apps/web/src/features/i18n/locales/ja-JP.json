@@ -992,7 +992,9 @@
   },
   "comment": {
     "body-placeholder": "ここに返信を書いてください",
+    "write": "書き込み",
     "preview": "プレビュー",
+    "submit-shortcut": "Ctrl/⌘+ Enter で投稿する",
     "success": "返信が正常に作成されました！",
     "delete-success": "コメントは正常に削除されました",
     "delete-error-hint": "コメントを削除できませんでした。もう一度やり直してください。",
