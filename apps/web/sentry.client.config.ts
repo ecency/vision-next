@@ -4,6 +4,7 @@
 
 import * as Sentry from "@sentry/nextjs";
 import appPackage from "./package.json";
+import { isEmptyCaptureEvent } from "./src/utils/sentry-empty-capture";
 
 // Defer Sentry initialization until after first user interaction or 5s idle.
 // This moves ~1s of JS evaluation off the critical rendering path.
@@ -44,6 +45,15 @@ const SENTRY_CONFIG: Sentry.BrowserOptions = {
   ],
 
   beforeSend(event) {
+    // Drop value-less captures — captureException(null/undefined/"") produces a
+    // synthetic exception with no message and no stack frames (zero actionable
+    // info, all grouped as the "<unknown>" issue). Only empty + frame-less
+    // events are dropped, so real errors (which always carry a stack or a
+    // message) are never lost. See sentry-empty-capture for the exact rule.
+    if (isEmptyCaptureEvent(event)) {
+      return null;
+    }
+
     const exceptionType = event.exception?.values?.[0]?.type ?? "";
     const message = event.exception?.values?.[0]?.value ?? "";
     const stackStr = JSON.stringify(

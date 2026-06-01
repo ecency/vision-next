@@ -5,7 +5,8 @@ import * as Sentry from "@sentry/nextjs";
 import { SentryErrorBoundary } from "@/features/issue-reporter/sentry-error-boundary";
 
 vi.mock("@sentry/nextjs", () => ({
-  captureException: vi.fn(() => "evt-123")
+  captureException: vi.fn(() => "evt-123"),
+  flush: vi.fn(() => Promise.resolve(true))
 }));
 
 // A child whose throwing is toggleable, so we can exercise reset/recovery.
@@ -69,6 +70,47 @@ describe("SentryErrorBoundary", () => {
 
     // The captured event id is threaded into the fallback (for feedback assoc).
     expect(screen.getByTestId("fallback")).toHaveTextContent("fallback:evt-123");
+  });
+
+  it("reloads + reports a low-severity tagged event (not the component-stack crash) on a deploy-skew error", async () => {
+    const reloadMock = vi.fn();
+    const realLocation = window.location;
+    Object.defineProperty(window, "location", {
+      configurable: true,
+      value: { ...realLocation, reload: reloadMock }
+    });
+    sessionStorage.clear();
+
+    function SkewBomb(): never {
+      throw Object.assign(new Error("Cannot read properties of undefined (reading 'call')"), {
+        stack: "at a (https://ecency.com/_next/static/chunks/webpack-2bcfd50e.js:1:1)"
+      });
+    }
+
+    render(
+      <SentryErrorBoundary fallback={fallback}>
+        <SkewBomb />
+      </SentryErrorBoundary>
+    );
+
+    // Captured as a distinct, low-severity, fingerprinted "auto-recovered" event
+    // — NOT the component-stack crash capture (so it never re-spikes as a fresh
+    // 500 after a deploy).
+    expect(Sentry.captureException).toHaveBeenCalledTimes(1);
+    expect(Sentry.captureException).toHaveBeenCalledWith(
+      expect.any(Error),
+      expect.objectContaining({
+        level: "warning",
+        tags: { deploy_skew: "true" },
+        fingerprint: ["deploy-skew-auto-recovered"]
+      })
+    );
+    // The reload happens after the transport flush resolves (so the monitoring
+    // event isn't dropped on unload).
+    expect(Sentry.flush).toHaveBeenCalled();
+    await vi.waitFor(() => expect(reloadMock).toHaveBeenCalledTimes(1));
+
+    Object.defineProperty(window, "location", { configurable: true, value: realLocation });
   });
 
   it("restores children when reset is called after the child stops throwing", () => {

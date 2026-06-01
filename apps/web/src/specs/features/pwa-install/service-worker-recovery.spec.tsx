@@ -1,8 +1,11 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
 import { render } from "@testing-library/react";
 // ServiceWorkerRecovery is imported dynamically per-test (see beforeEach) to reset
-// its module-level reload guards; isChunkLoadError is pure, imported statically.
-import { isChunkLoadError } from "@/features/pwa-install/service-worker-recovery";
+// its module-level reload guards; the pure helpers are imported statically.
+import {
+  isChunkLoadError,
+  isDeploySkewError
+} from "@/features/pwa-install/service-worker-recovery";
 
 describe("isChunkLoadError", () => {
   it("matches the chunk / dynamic-import failure messages", () => {
@@ -19,6 +22,54 @@ describe("isChunkLoadError", () => {
     expect(isChunkLoadError("")).toBe(false);
     expect(isChunkLoadError(undefined)).toBe(false);
     expect(isChunkLoadError(null)).toBe(false);
+  });
+});
+
+describe("isDeploySkewError", () => {
+  it("matches chunk-load errors (string or Error)", () => {
+    expect(isDeploySkewError("ChunkLoadError: x")).toBe(true);
+    expect(isDeploySkewError(new Error("Loading chunk 7 failed"))).toBe(true);
+  });
+
+  it("matches the webpack factory mismatch ONLY when thrown from the webpack runtime", () => {
+    // The real post-deploy crash: undefined module factory in webpack-*.js.
+    expect(
+      isDeploySkewError({
+        message: "Cannot read properties of undefined (reading 'call')",
+        stack: "at a (https://ecency.com/_next/static/chunks/webpack-2bcfd50e3f341c1.js:1:1)"
+      })
+    ).toBe(true);
+    // Safari phrasing, also from the webpack runtime.
+    expect(
+      isDeploySkewError({
+        message: "undefined is not an object (evaluating 'r.call')",
+        stack: "webpack-internal:///./node_modules/x"
+      })
+    ).toBe(true);
+  });
+
+  it("does NOT fire on an unrelated `.call of undefined` app bug (no webpack frame)", () => {
+    expect(
+      isDeploySkewError({
+        message: "Cannot read properties of undefined (reading 'call')",
+        stack: "at handleClick (https://ecency.com/_next/static/chunks/app/page.js:5:9)"
+      })
+    ).toBe(false);
+  });
+
+  it("does NOT fire on a different undefined read even from the webpack runtime", () => {
+    expect(
+      isDeploySkewError({
+        message: "Cannot read properties of undefined (reading 'foo')",
+        stack: "at a (https://ecency.com/_next/static/chunks/webpack-abc.js:1:1)"
+      })
+    ).toBe(false);
+  });
+
+  it("ignores non-error input", () => {
+    expect(isDeploySkewError(null)).toBe(false);
+    expect(isDeploySkewError(undefined)).toBe(false);
+    expect(isDeploySkewError(42)).toBe(false);
   });
 });
 
@@ -65,6 +116,16 @@ describe("ServiceWorkerRecovery", () => {
     window.dispatchEvent(
       new ErrorEvent("error", { message: "ChunkLoadError: Loading chunk 9 failed" })
     );
+    expect(reloadMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("reloads on an uncaught webpack factory mismatch (post-deploy skew)", () => {
+    render(<Recovery />);
+
+    const error = Object.assign(new Error("Cannot read properties of undefined (reading 'call')"), {
+      stack: "at a (https://ecency.com/_next/static/chunks/webpack-2bcfd50e.js:1:1)"
+    });
+    window.dispatchEvent(new ErrorEvent("error", { message: error.message, error }));
     expect(reloadMock).toHaveBeenCalledTimes(1);
   });
 

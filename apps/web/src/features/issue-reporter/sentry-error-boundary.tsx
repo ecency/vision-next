@@ -2,6 +2,7 @@
 
 import { Component, ErrorInfo, ReactNode } from "react";
 import * as Sentry from "@sentry/nextjs";
+import { isDeploySkewError, reloadForSkew } from "@/features/pwa-install/service-worker-recovery";
 
 interface FallbackProps {
   error: Error;
@@ -44,6 +45,23 @@ export class SentryErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    // A deploy-skew crash (a chunk that no longer matches the running build) is
+    // auto-recovered by reloading. Record it as a distinct, low-severity
+    // "auto-recovered" event (so skew frequency stays visible) instead of a
+    // fresh crash that re-spikes after every deploy, then reload — skip the
+    // component-stack capture, which is only useful for real render bugs.
+    if (isDeploySkewError(error)) {
+      Sentry.captureException(error, {
+        level: "warning",
+        tags: { deploy_skew: "true" },
+        fingerprint: ["deploy-skew-auto-recovered"]
+      });
+      // Flush the transport before reloading, otherwise the monitoring event is
+      // dropped on unload. Bounded so a slow/blocked transport can't delay the
+      // recovery reload; reloadForSkew still runs on timeout.
+      void Sentry.flush(2000).finally(() => reloadForSkew());
+      return;
+    }
     const eventId = Sentry.captureException(error, {
       contexts: { react: { componentStack: errorInfo.componentStack ?? undefined } }
     });
