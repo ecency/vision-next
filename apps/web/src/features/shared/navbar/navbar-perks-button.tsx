@@ -52,7 +52,7 @@ export function NavbarPerksButton() {
         )}
       >
         <span aria-hidden>🔥</span>
-        <span>{streak.current}</span>
+        <span>{streak.current > 99 ? "99+" : streak.current}</span>
       </Button>
     ) : (
       <Button
@@ -73,7 +73,7 @@ export function NavbarPerksButton() {
       {button}
       <span
         aria-hidden
-        className="perks-badge-dot pointer-events-none absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-red-600 ring-2 ring-white dark:ring-dark-200"
+        className="perks-badge-dot pointer-events-none absolute top-0.5 right-0.5 h-1.5 w-1.5 rounded-full bg-red-500"
       />
     </span>
   );

@@ -63,8 +63,9 @@ describe("NavbarMobile", () => {
     expect(screen.getByAltText("Ecency")).toBeInTheDocument(); // logo
     expect(screen.getByLabelText("navbar.toggle-menu")).toBeInTheDocument(); // ☰
     expect(screen.getByLabelText("navbar.home")).toBeInTheDocument();
+    expect(screen.getByLabelText("navbar.waves")).toBeInTheDocument();
     expect(screen.getByLabelText("navbar.chats")).toBeInTheDocument();
-    expect(screen.getByLabelText("navbar.post")).toBeInTheDocument();
+    expect(screen.getByLabelText("navbar.post")).toBeInTheDocument(); // compose FAB
     expect(screen.getByTestId("notifications")).toBeInTheDocument();
     expect(screen.getByTestId("avatar")).toBeInTheDocument();
   });

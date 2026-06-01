@@ -69,6 +69,7 @@ interface Props {
   onBackToClassic: () => void;
   onImport?: (result: ImportResult) => void;
   draftId?: string;
+  lastSaved?: Date | null;
 }
 
 export function PublishActionBar({
@@ -76,7 +77,8 @@ export function PublishActionBar({
   children,
   onBackToClassic,
   onImport,
-  draftId
+  draftId,
+  lastSaved
 }: PropsWithChildren<Props>) {
   const { schedule: scheduleDate, clearAll, title, content } = usePublishState();
 
@@ -104,7 +106,17 @@ export function PublishActionBar({
       transition={{ delay: 0.4 }}
       className="container relative z-[11] justify-between gap-4 px-2 md:px-4 flex flex-col-reverse sm:flex-row sm:items-center max-w-[1024px] py-4 mx-auto publish-action-bar"
     >
-      <PublishActionBarCommunity />
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <span className="text-xs text-gray-600 dark:text-gray-400 whitespace-nowrap">
+          {i18next.t("publish.new-content")}
+        </span>
+        {lastSaved && draftId && (
+          <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
+            {i18next.t("publish.auto-save")}: {lastSaved.toLocaleTimeString()}
+          </span>
+        )}
+        <PublishActionBarCommunity />
+      </div>
       <div className="w-full sm:w-auto flex justify-end sm:justify-normal items-center gap-2 sm:gap-4">
         <LoginRequired promptOnAnon>
           <Button

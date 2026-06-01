@@ -3,7 +3,6 @@ import { NavbarSideUserInfo } from "./navbar-side-user-info";
 import { NavbarSideMainMenu } from "./navbar-side-main-menu";
 import { Button } from "@ui/button";
 import { NavbarPerksButton } from "../navbar-perks-button";
-import { NavbarNotificationsButton } from "../navbar-notifications-button";
 import { UilEditAlt } from "@tooni/iconscout-unicons-react";
 import { closeSvg } from "@ui/svg";
 import { walletIconSvg } from "@ui/icons";
@@ -39,7 +38,7 @@ export function NavbarSide({ show, setShow, placement = "right" }: Props) {
           icon={<UilEditAlt width={20} height={20} />}
           aria-label={i18next.t("navbar.post")}
         />
-        <NavbarNotificationsButton onClick={() => setShow(false)} />
+        <NavbarPerksButton />
         <Button
           icon={walletIconSvg}
           size="sm"
@@ -47,9 +46,6 @@ export function NavbarSide({ show, setShow, placement = "right" }: Props) {
           href={`/@${activeUser?.username}/wallet`}
           aria-label={i18next.t("navbar.wallet")}
         />
-      </div>
-      <div className="px-4 pb-3">
-        <NavbarPerksButton />
       </div>
       <NavbarSideMainMenu onHide={() => setShow(false)} />
     </ModalSidebar>
