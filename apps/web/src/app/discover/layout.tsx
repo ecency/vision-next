@@ -5,6 +5,7 @@ import { FullHeight } from "@/features/ui";
 import React, { PropsWithChildren, ReactNode } from "react";
 import Image from "next/image";
 import i18next from "i18next";
+import { DiscoverRenderBoundary } from "./_components/discover-render-boundary";
 
 export default function Layout(
   props: PropsWithChildren<{
@@ -46,15 +47,15 @@ export default function Layout(
             <h3 className="col-span-1 md:col-span-2 text-2xl font-semibold">
               {i18next.t("discover.leads-curators")}
             </h3>
-            {props.leaderboard}
-            {props.curation}
+            <DiscoverRenderBoundary>{props.leaderboard}</DiscoverRenderBoundary>
+            <DiscoverRenderBoundary>{props.curation}</DiscoverRenderBoundary>
           </div>
-          {props.communities}
+          <DiscoverRenderBoundary>{props.communities}</DiscoverRenderBoundary>
           <div className="relative flex flex-col gap-4 sm:gap-6 lg:gap-8 mt-6 ms:mt-8 lg:mt-10 xl:mt-16">
             <h3 className="col-span-1 sm:col-span-2 text-2xl font-semibold">
               {i18next.t("contributors.title")}
             </h3>
-            {props.contributors}
+            <DiscoverRenderBoundary>{props.contributors}</DiscoverRenderBoundary>
           </div>
           <div className="relative">{props.children}</div>
           {props.communitiesDialog}
