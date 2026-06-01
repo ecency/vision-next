@@ -18,7 +18,7 @@ export default function Layout(props: PropsWithChildren) {
       <ScrollToTop />
       <Theme />
       <Navbar experimental={true} />
-      <div className="bg-blue-duck-egg dark:bg-black pt-[63px] md:pt-[69px] min-h-[100vh] pb-16">
+      <div className="bg-blue-duck-egg dark:bg-black pt-[63px] md:pt-[69px] min-h-[100vh] pb-24 md:pb-16">
         <div className="container mx-auto px-2 sm:p-0 relative mt-4 md:mt-0">
           <div className="grid grid-cols-12 my-4 md:mb-10 items-center gap-4 md:gap-6 lg:gap-8 xl:gap-10 p-2 sm:p-0 md:mt-16">
             <div className="col-span-12 md:col-span-6">

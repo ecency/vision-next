@@ -7,6 +7,8 @@ import { UserAvatar, preloadLoginDialog } from "@/features/shared";
 import { NavbarMainSidebar } from "@/features/shared/navbar/navbar-main-sidebar";
 import { NavbarNotificationsButton } from "@/features/shared/navbar/navbar-notifications-button";
 import { NavbarSide } from "@/features/shared/navbar/sidebar/navbar-side";
+import { useHideOnScroll } from "@/features/shared/navbar/use-hide-on-scroll";
+import { searchIconSvg } from "@ui/icons";
 import { isInAppBrowser } from "@/utils";
 import { useMattermostUnread } from "@/features/chat/mattermost-api";
 import { UilBars, UilComment, UilHomeAlt, UilLock, UilPlus, UilWater } from "@tooni/iconscout-unicons-react";
@@ -41,6 +43,7 @@ export function NavbarMobile({
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
   const { data: unread } = useMattermostUnread(Boolean(activeUser && hydrated));
   const pathname = usePathname();
+  const hidden = useHideOnScroll();
 
   const [isInRn, setIsInRn] = useState(false);
   useEffect(() => {
@@ -67,28 +70,39 @@ export function NavbarMobile({
 
   return (
     <>
-      {/* Floating brand + browse/governance menu — compact, top-left only so it
-          never costs a full row of vertical space on small screens. */}
+      {/* Full-width sticky top bar — brand + browse/governance menu (left) and
+          search (right). Slides up out of view on scroll-down, reveals on
+          scroll-up, like a mobile browser's own toolbar. */}
       <div
         className={clsx(
-          "fixed top-2 left-2 z-20 md:hidden flex items-center gap-1 rounded-xl p-1.5",
-          "bg-white/80 dark:bg-dark-200/80 backdrop-blur-sm shadow-sm border border-[--border-color]",
+          "fixed top-0 left-0 right-0 z-20 md:hidden flex items-center justify-between gap-2 px-3 h-14",
+          "bg-white/90 dark:bg-dark-200/90 backdrop-blur-sm border-b border-[--border-color]",
+          "transition-transform duration-300 will-change-transform",
+          hidden ? "-translate-y-full" : "translate-y-0",
           step === 1 && "transparent"
         )}
       >
+        <div className="flex items-center gap-1">
+          <Button
+            appearance="gray-link"
+            noPadding={true}
+            icon={<UilBars width={22} height={22} />}
+            onClick={() => setMainBarExpanded(true)}
+            aria-label={i18next.t("navbar.toggle-menu")}
+            aria-expanded={mainBarExpanded}
+          />
+          <Link href="/" className="flex items-center">
+            {/* The image alt provides the link's accessible name (brand/home),
+                distinct from the "Home" feed tab below. */}
+            <Image src={defaults.logo} alt="Ecency" width={30} height={30} className="rounded" />
+          </Link>
+        </div>
         <Button
+          href="/search"
           appearance="gray-link"
-          noPadding={true}
-          icon={<UilBars width={20} height={20} />}
-          onClick={() => setMainBarExpanded(true)}
-          aria-label={i18next.t("navbar.toggle-menu")}
-          aria-expanded={mainBarExpanded}
+          icon={searchIconSvg}
+          aria-label={i18next.t("navbar.search", { defaultValue: "Search" })}
         />
-        <Link href="/" className="flex items-center">
-          {/* The image alt provides the link's accessible name (brand/home),
-              distinct from the "Home" feed tab below. */}
-          <Image src={defaults.logo} alt="Ecency" width={28} height={28} className="rounded" />
-        </Link>
       </div>
 
       {/* Bottom primary tabs */}
@@ -96,6 +110,8 @@ export function NavbarMobile({
         className={clsx(
           "flex items-center justify-around bg-white/80 dark:bg-dark-200/80 backdrop-blur-sm md:hidden mx-2 mt-2 rounded-xl p-3",
           "shadow-sm border border-[--border-color]",
+          "transition-transform duration-300 will-change-transform",
+          hidden && "translate-y-[200%]",
           step === 1 && "transparent",
           isInRn && "mb-20"
         )}
@@ -171,6 +187,8 @@ export function NavbarMobile({
         aria-current={isActive("/publish") ? "page" : undefined}
         className={clsx(
           "md:hidden fixed right-4 z-20 h-14 w-14 !rounded-full flex items-center justify-center shadow-lg",
+          "transition-transform duration-300",
+          hidden && "translate-y-[200%]",
           step === 1 && "transparent"
         )}
         style={{ bottom: isInRn ? "7rem" : "calc(env(safe-area-inset-bottom) + 4.75rem)" }}
