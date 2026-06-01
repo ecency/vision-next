@@ -5,7 +5,8 @@ import * as Sentry from "@sentry/nextjs";
 import { SentryErrorBoundary } from "@/features/issue-reporter/sentry-error-boundary";
 
 vi.mock("@sentry/nextjs", () => ({
-  captureException: vi.fn(() => "evt-123")
+  captureException: vi.fn(() => "evt-123"),
+  flush: vi.fn(() => Promise.resolve(true))
 }));
 
 // A child whose throwing is toggleable, so we can exercise reset/recovery.
@@ -71,7 +72,7 @@ describe("SentryErrorBoundary", () => {
     expect(screen.getByTestId("fallback")).toHaveTextContent("fallback:evt-123");
   });
 
-  it("reloads + reports a low-severity tagged event (not the component-stack crash) on a deploy-skew error", () => {
+  it("reloads + reports a low-severity tagged event (not the component-stack crash) on a deploy-skew error", async () => {
     const reloadMock = vi.fn();
     const realLocation = window.location;
     Object.defineProperty(window, "location", {
@@ -104,8 +105,10 @@ describe("SentryErrorBoundary", () => {
         fingerprint: ["deploy-skew-auto-recovered"]
       })
     );
-    // And it triggered a one-time recovery reload onto the current build.
-    expect(reloadMock).toHaveBeenCalledTimes(1);
+    // The reload happens after the transport flush resolves (so the monitoring
+    // event isn't dropped on unload).
+    expect(Sentry.flush).toHaveBeenCalled();
+    await vi.waitFor(() => expect(reloadMock).toHaveBeenCalledTimes(1));
 
     Object.defineProperty(window, "location", { configurable: true, value: realLocation });
   });

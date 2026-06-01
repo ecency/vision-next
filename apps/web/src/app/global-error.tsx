@@ -36,7 +36,10 @@ export default function GlobalError({
         tags: { deploy_skew: "true" },
         fingerprint: ["deploy-skew-auto-recovered"]
       });
-      reloadForSkew();
+      // Flush the transport before reloading, otherwise the monitoring event is
+      // dropped on unload. Bounded so a slow/blocked transport can't delay the
+      // recovery reload; reloadForSkew still runs on timeout.
+      void Sentry.flush(2000).finally(() => reloadForSkew());
       return;
     }
     setEventId(Sentry.captureException(error));
