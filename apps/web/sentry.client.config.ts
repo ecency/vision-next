@@ -36,13 +36,7 @@ const SENTRY_CONFIG: Sentry.BrowserOptions = {
     "window.ethereum._handleChainChanged is not a function",
     "window[eFuncName] is not a function",
     "Cannot destructure property 'register' of 'undefined' as it is undefined.",
-    "CopyDataProperties is not a function",
-    // Injected page script (pageHook.js / __mm__updateUrl) JSON.stringify'ing a DOM
-    // node — not our code (bogus helpers.ts source-map mapping). ECENCY-NEXT-1AA7.
-    "Converting circular structure to JSON",
-    // Expected Hive condition (account out of resource credits), shown to the user
-    // as a handled toast — not a crash to track. ECENCY-NEXT-XA0.
-    "Insufficient Resource Credits"
+    "CopyDataProperties is not a function"
   ],
   denyUrls: [
     /sui\.js/,
@@ -65,6 +59,26 @@ const SENTRY_CONFIG: Sentry.BrowserOptions = {
     const stackStr = JSON.stringify(
       event.exception?.values?.[0]?.stacktrace?.frames ?? []
     );
+
+    // ECENCY-NEXT-1AA7: an injected page script (pageHook.js / __mm__updateUrl)
+    // JSON.stringify'ing a DOM node. Gate on the injected-script frame so a real
+    // app-side circular-stringify bug (different frames) is still reported.
+    if (
+      /Converting circular structure to JSON/i.test(message) &&
+      /pageHook|__mm__/i.test(stackStr)
+    ) {
+      return null;
+    }
+
+    // ECENCY-NEXT-XA0: "Insufficient Resource Credits" is an expected Hive
+    // condition surfaced as a HANDLED toast. Drop only the handled capture — a
+    // future unhandled path that surfaces the same text is still reported.
+    if (
+      /Insufficient Resource Credits/i.test(message) &&
+      event.exception?.values?.[0]?.mechanism?.handled !== false
+    ) {
+      return null;
+    }
 
     // AbortController-induced timeouts (TimeoutError / AbortError) ship
     // with no stack frames, so we can't tell which fetch is at fault.
