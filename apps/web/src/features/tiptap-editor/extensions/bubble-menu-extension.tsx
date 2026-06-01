@@ -214,6 +214,22 @@ export function BubbleMenu({ editor }: Props) {
             ref={refs.setFloating}
             className="z-[1070] absolute"
             style={{ ...floatingStyles, visibility: show ? "visible" : "hidden" }}
+            onBlurCapture={(event) => {
+              // Dismiss when keyboard focus (Tab/Shift+Tab) leaves the bubble.
+              // A null relatedTarget is skipped on purpose: switching modes
+              // unmounts the focused toolbar button a beat before the URL input
+              // autofocuses, and treating that transient as "left" would slam
+              // the popup shut the moment it opens. Real tab-outs land on a
+              // concrete element, so they're still caught.
+              const next = event.relatedTarget as Node | null;
+              if (!next) {
+                return;
+              }
+              if (refs.floating.current?.contains(next) || editor?.view.dom.contains(next)) {
+                return;
+              }
+              hideAll();
+            }}
           >
             {!mode && (
               <motion.div

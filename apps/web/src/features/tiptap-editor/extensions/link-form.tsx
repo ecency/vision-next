@@ -3,12 +3,7 @@ import { Form } from "@/features/ui/form";
 import { UilEnter, UilLinkBroken } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
 import { useRef, useState } from "react";
-import { object, string } from "yup";
-import { normalizeLinkHref } from "../functions/normalize-link-href";
-
-const linkSchema = object({
-  link: string().url().required()
-});
+import { isValidLinkTarget, normalizeLinkHref } from "../functions/normalize-link-href";
 
 interface Props {
   onSubmit: (link: string) => void;
@@ -33,17 +28,15 @@ export function PublishEditorToolbarLinkForm({
   return (
     <Form
       ref={formRef}
-      onSubmit={async (e: React.FormEvent) => {
+      onSubmit={(e: React.FormEvent) => {
         e.preventDefault();
         e.stopPropagation();
 
         const normalized = normalizeLinkHref(link);
 
-        try {
-          if (await linkSchema.validate({ link: normalized })) {
-            onSubmit(normalized);
-          }
-        } catch (e) {
+        if (isValidLinkTarget(normalized)) {
+          onSubmit(normalized);
+        } else {
           setIsLinkInvalid(true);
         }
       }}

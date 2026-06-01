@@ -2,7 +2,10 @@ import { Editor } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
 
 import { SafeLink } from "@/features/tiptap-editor/extensions/safe-link-extension";
-import { normalizeLinkHref } from "@/features/tiptap-editor/functions/normalize-link-href";
+import {
+  isValidLinkTarget,
+  normalizeLinkHref
+} from "@/features/tiptap-editor/functions/normalize-link-href";
 
 describe("normalizeLinkHref", () => {
   it("prepends https:// to a bare domain", () => {
@@ -30,6 +33,27 @@ describe("normalizeLinkHref", () => {
   it("treats host:port as a host, not a scheme", () => {
     expect(normalizeLinkHref("example.com:8080")).toBe("https://example.com:8080");
     expect(normalizeLinkHref("localhost:3000")).toBe("https://localhost:3000");
+  });
+});
+
+describe("isValidLinkTarget", () => {
+  it("accepts absolute URLs (incl. host:port after normalization)", () => {
+    expect(isValidLinkTarget("https://ecency.com")).toBe(true);
+    expect(isValidLinkTarget("https://example.com:8080")).toBe(true);
+    expect(isValidLinkTarget(normalizeLinkHref("ecency.com"))).toBe(true);
+  });
+
+  it("accepts the relative / protocol-relative / anchor targets the normalizer preserves", () => {
+    expect(isValidLinkTarget("/trending")).toBe(true);
+    expect(isValidLinkTarget("/@user/post")).toBe(true);
+    expect(isValidLinkTarget("//cdn.example.com/a.png")).toBe(true);
+    expect(isValidLinkTarget("#section")).toBe(true);
+  });
+
+  it("rejects empty and clearly invalid targets", () => {
+    expect(isValidLinkTarget("")).toBe(false);
+    expect(isValidLinkTarget("not a url")).toBe(false);
+    expect(isValidLinkTarget("https://")).toBe(false);
   });
 });
 

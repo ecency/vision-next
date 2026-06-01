@@ -1,3 +1,7 @@
+import { string } from "yup";
+
+const absoluteUrlSchema = string().url();
+
 /**
  * Normalizes a user-entered link target before it is validated/applied.
  *
@@ -21,4 +25,23 @@ export function normalizeLinkHref(value: string): string {
   }
 
   return `https://${trimmed}`;
+}
+
+/**
+ * Whether a (already-normalized) href is an acceptable link target. Absolute
+ * URLs are validated strictly; root-relative (`/trending`), protocol-relative
+ * (`//cdn…`) and in-page anchor (`#section`) targets are accepted as-is — these
+ * are common and valid in Hive posts and are exactly what `normalizeLinkHref`
+ * deliberately leaves untouched.
+ */
+export function isValidLinkTarget(href: string): boolean {
+  if (!href) {
+    return false;
+  }
+
+  if (href.startsWith("/") || href.startsWith("#")) {
+    return true;
+  }
+
+  return absoluteUrlSchema.isValidSync(href);
 }
