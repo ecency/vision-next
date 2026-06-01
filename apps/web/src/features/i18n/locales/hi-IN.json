@@ -992,7 +992,9 @@
   },
   "comment": {
     "body-placeholder": "अपना उत्तर यहां लिखें",
+    "write": "Write",
     "preview": "पूर्वावलोकन",
+    "submit-shortcut": "Ctrl/⌘ + Enter to post",
     "success": "आपका उत्तर सफलतापूर्वक बनाया गया!",
     "delete-success": "Comment deleted successfully",
     "delete-error-hint": "Could not delete comment. Please try again",
