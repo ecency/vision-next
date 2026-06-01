@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { catchPostImage } from "@ecency/render-helper";
-import { dateToFullRelative } from "@/utils";
+import { TimeLabel } from "@/features/shared/time-label";
 import React, { useMemo, useRef } from "react";
 import { SearchResult } from "@/entities";
 interface Props {
@@ -52,7 +52,7 @@ export function SimilarEntryItem({ entry, i }: Props) {
         <div className="truncate py-2 px-4">{entry.title}</div>
         <div className="item-footer py-2 px-4">
           <span className="item-footer-author">{entry.author}</span>
-          <span className="item-footer-date">{dateToFullRelative(entry.created_at)}</span>
+          <TimeLabel created={entry.created_at} mode="fullRelative" className="item-footer-date" />
         </div>
       </motion.div>
     </Link>

@@ -81,6 +81,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           See /public/scripts/config-stub.js for details.
         */}
         <script async src="/scripts/chunk-reload.js" />
+        {/*
+          Guards React against in-page translators (Google/Chrome Translate)
+          that wrap text nodes in <font> tags and crash the commit phase with a
+          NotFoundError on insertBefore/removeChild. beforeInteractive installs
+          the Node.prototype patch before React hydrates, so it's in place for
+          the first commit.
+        */}
+        <Script src="/scripts/translate-dom-guard.js" strategy="beforeInteractive" />
         <script async src="/scripts/config-stub.js" />
         <link rel="dns-prefetch" href="https://i.ecency.com" />
         <link rel="dns-prefetch" href="https://ecency.com" />
