@@ -98,7 +98,10 @@ a[target="_blank"] {
   max-width: 1600px;
   min-height: 100vh;
 
-  @apply pt-4 mb-24 px-2 md:px-4 md:pt-[6rem] mx-auto;
+  // Mobile reserves room for the floating top-left brand/menu cluster (~48px)
+  // so page content (e.g. a post title) isn't covered by it. Desktop keeps its
+  // own offset for the fixed top navbar.
+  @apply pt-14 mb-24 px-2 md:px-4 md:pt-[6rem] mx-auto;
 }
 
 // markdown styles
