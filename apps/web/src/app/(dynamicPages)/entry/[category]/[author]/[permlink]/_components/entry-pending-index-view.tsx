@@ -29,7 +29,7 @@ export function EntryPendingIndexView({ entry, isTimedOut }: Props) {
   return (
     <div>
       <Navbar />
-      <div className="container overflow-x-hidden">
+      <div className="container overflow-x-hidden pt-14 md:pt-24 pb-24 md:pb-0">
         <ScrollToTop />
         <Theme />
         <div className="grid grid-cols-12">

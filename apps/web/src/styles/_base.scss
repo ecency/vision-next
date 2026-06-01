@@ -101,7 +101,7 @@ a[target="_blank"] {
   // Mobile reserves room for the fixed full-width top bar (h-14 / 56px) so page
   // content isn't covered by it. Desktop keeps its own offset for the fixed top
   // navbar.
-  @apply pt-14 mb-24 px-2 md:px-4 md:pt-[6rem] mx-auto;
+  @apply pt-16 mb-24 px-2 md:px-4 md:pt-[6rem] mx-auto;
 }
 
 // markdown styles

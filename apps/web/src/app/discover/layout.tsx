@@ -21,7 +21,7 @@ export default function Layout(
       <FullHeight />
       <Theme />
       <Navbar experimental={true} />
-      <div className="bg-blue-duck-egg dark:bg-black pt-[63px] md:pt-[69px] min-h-[100vh] pb-16">
+      <div className="bg-blue-duck-egg dark:bg-black pt-[63px] md:pt-[69px] min-h-[100vh] pb-24 md:pb-16">
         <div className="absolute hidden lg:block top-16 left-0 right-0 h-[280px]">
           <Image
             width={1920}

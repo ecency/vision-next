@@ -54,7 +54,7 @@ export default function WalletSetupExternalPage() {
       <Navbar experimental={true} />
       <div className="fixed top-0 left-0 w-full h-full bg-gradient-to-br from-blue-dark-sky to-blue-duck-egg backdrop-blur-lg -z-[1]" />
       <div className="fixed top-0 left-0 w-full h-full bg-white/80 dark:bg-black/90 backdrop-blur-lg -z-[1]" />
-      <div className="container mx-auto px-2 pt-[63px] md:pt-[69px] min-h-[100vh] pb-16">
+      <div className="container mx-auto px-2 pt-[63px] md:pt-[69px] min-h-[100vh] pb-24 md:pb-16">
         <SetupExternalHeader />
         <div className="grid grid-cols-2 gap-4">
           {options.map(({ title, description, buttonText, onClick }, i) => (
