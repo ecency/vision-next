@@ -992,7 +992,9 @@
   },
   "comment": {
     "body-placeholder": "Write your reply here",
+    "write": "Write",
     "preview": "Preview",
+    "submit-shortcut": "Ctrl/⌘ + Enter to post",
     "success": "Your reply created successfully!",
     "delete-success": "Comment deleted successfully",
     "delete-error-hint": "Could not delete comment. Please try again",
