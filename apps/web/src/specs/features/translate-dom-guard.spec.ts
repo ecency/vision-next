@@ -59,7 +59,7 @@ describe("translate-dom-guard public script", () => {
     expect(parent.childNodes.length).toBe(0);
   });
 
-  it("no-ops insertBefore when the reference node is not a child of the parent (no throw)", () => {
+  it("appends to the expected parent when the reference node is foreign (no throw, node not lost)", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     const realParent = document.createElement("div");
     const foreignParent = document.createElement("div");
@@ -70,8 +70,11 @@ describe("translate-dom-guard public script", () => {
     const result = foreignParent.insertBefore(newNode, reference);
 
     expect(result).toBe(newNode);
-    expect(foreignParent.childNodes.length).toBe(0); // not inserted
-    expect(newNode.parentNode).toBeNull();
+    // Appended to the expected parent rather than dropped: content stays present
+    // and React's fiber tree stays consistent with the DOM.
+    expect(newNode.parentNode).toBe(foreignParent);
+    expect(foreignParent.childNodes[0]).toBe(newNode);
+    expect(reference.parentNode).toBe(realParent); // untouched
     expect(warn).toHaveBeenCalled();
     warn.mockRestore();
   });
