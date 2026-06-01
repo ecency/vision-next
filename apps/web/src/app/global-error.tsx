@@ -8,6 +8,7 @@ import { Button } from "@ui/button";
 import { SentryIssueReporterDialog } from "@/features/issue-reporter";
 import defaults from "@/defaults";
 import * as Sentry from "@sentry/nextjs";
+import { isDeploySkewError, reloadForSkew } from "@/features/pwa-install/service-worker-recovery";
 import { useEffect, useState } from "react";
 
 export default function GlobalError({
@@ -25,6 +26,12 @@ export default function GlobalError({
   // THIS event id instead of capturing a second, separate exception.
   useEffect(() => {
     setEventId(Sentry.captureException(error));
+    // A deploy-skew crash (mismatched chunk after a deploy) isn't a real bug —
+    // reload once onto the current build instead of stranding the user on the
+    // 500 page. Guarded to one reload per session.
+    if (isDeploySkewError(error)) {
+      reloadForSkew();
+    }
   }, [error]);
 
   return (

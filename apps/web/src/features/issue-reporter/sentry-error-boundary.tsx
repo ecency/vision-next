@@ -2,6 +2,7 @@
 
 import { Component, ErrorInfo, ReactNode } from "react";
 import * as Sentry from "@sentry/nextjs";
+import { isDeploySkewError, reloadForSkew } from "@/features/pwa-install/service-worker-recovery";
 
 interface FallbackProps {
   error: Error;
@@ -48,6 +49,12 @@ export class SentryErrorBoundary extends Component<Props, State> {
       contexts: { react: { componentStack: errorInfo.componentStack ?? undefined } }
     });
     this.setState({ eventId });
+    // A deploy-skew crash (a chunk that doesn't match the running build) isn't a
+    // real render bug — reload once onto the current build instead of showing the
+    // fallback. Guarded to one reload per session.
+    if (isDeploySkewError(error)) {
+      reloadForSkew();
+    }
   }
 
   reset = () => this.setState({ error: undefined, eventId: undefined });

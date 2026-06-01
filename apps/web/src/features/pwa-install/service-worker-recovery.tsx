@@ -2,12 +2,8 @@
 
 import { useEffect } from "react";
 
-// Matches the runtime symptoms of a stale service worker handing a mismatched
-// chunk to the running webpack runtime: the dynamic import either fails outright
-// (ChunkLoadError / failed module script) or loads a module whose exports don't
-// line up. We can only auto-recover the former here; the latter is handled by
-// the React error boundaries. Keep this list aligned with what the bundlers /
-// browsers actually throw.
+// Message patterns for a failed chunk / dynamic import — a stale cache or a
+// just-replaced build handing the client a chunk that no longer exists.
 export function isChunkLoadError(message?: string | null): boolean {
   if (!message) {
     return false;
@@ -22,20 +18,51 @@ export function isChunkLoadError(message?: string | null): boolean {
   );
 }
 
-// Guards against reload loops: at most one chunk-error recovery reload per tab
-// session. If the page still errors after the reload, we stop and let the error
-// boundary render its fallback rather than refreshing forever.
-const CHUNK_RELOAD_FLAG = "sw-chunk-recovery-reloaded";
+// The webpack runtime was handed an undefined module factory: a chunk loaded but
+// references a module id the running runtime doesn't have — a build/version
+// mismatch after a deploy ("Cannot read properties of undefined (reading 'call')"
+// thrown from webpack-*.js, or the Safari equivalent). Require the webpack
+// runtime frame so this never fires on unrelated ".call of undefined" app bugs.
+function isWebpackFactoryError(error: { message?: string; stack?: string }): boolean {
+  const stack = error.stack ?? "";
+  const fromWebpackRuntime =
+    /webpack-[0-9a-f]+\.js/i.test(stack) || /webpack-internal/i.test(stack);
+  if (!fromWebpackRuntime) {
+    return false;
+  }
+  const message = error.message ?? "";
+  return (
+    /Cannot read propert(?:y|ies) of undefined \(reading 'call'\)/i.test(message) ||
+    /undefined is not an object \(evaluating '[^']*\.call'\)/i.test(message) ||
+    /'call' of undefined/i.test(message)
+  );
+}
 
-// Guards a controllerchange reload against firing twice within one page load.
-let controllerReloadStarted = false;
+// True when the error indicates the client is running a build that no longer
+// matches what the server serves (chunk-load failures + webpack factory
+// mismatches). The cure is to reload onto the current build.
+export function isDeploySkewError(error: unknown): boolean {
+  if (typeof error === "string") {
+    return isChunkLoadError(error);
+  }
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+  const e = error as { message?: string; stack?: string };
+  return isChunkLoadError(e.message) || isWebpackFactoryError(e);
+}
 
-function reloadAfterChunkError() {
+// Guards against reload loops: at most one recovery reload per tab session. If
+// the page still errors after the reload, we stop and let the error boundary
+// render its fallback rather than refreshing forever.
+const RELOAD_FLAG = "deploy-skew-recovery-reloaded";
+
+export function reloadForSkew() {
   try {
-    if (sessionStorage.getItem(CHUNK_RELOAD_FLAG)) {
+    if (sessionStorage.getItem(RELOAD_FLAG)) {
       return;
     }
-    sessionStorage.setItem(CHUNK_RELOAD_FLAG, "1");
+    sessionStorage.setItem(RELOAD_FLAG, "1");
   } catch {
     // sessionStorage unusable (private mode / quota) — without a persisted guard
     // we can't prove we haven't already reloaded this session, so do NOT reload.
@@ -46,18 +73,23 @@ function reloadAfterChunkError() {
   window.location.reload();
 }
 
+// Guards a controllerchange reload against firing twice within one page load.
+let controllerReloadStarted = false;
+
 /**
- * Recovers users stranded on a stale service worker / mismatched chunks — the
- * cause of the persistent "Element type is invalid: undefined" 500s. Renders
- * nothing.
+ * Recovers users running a build that no longer matches the server — the cause
+ * of the post-deploy "Element type is invalid: undefined" / "undefined (reading
+ * 'call')" 500s. Renders nothing. Complements Next's `deploymentId` skew
+ * protection (which hard-reloads on navigation); this catches the cases that
+ * already crashed (stale cached HTML, mid-render mismatch).
  *
  * 1. When a NEW service worker takes control of an already-controlled page
  *    (`controllerchange`), reload once so the in-memory webpack runtime matches
  *    the freshly-cached chunks. Only armed when the page already had a
  *    controller at mount — otherwise the upcoming `controllerchange` is just the
  *    initial `clientsClaim` on a first visit and a reload would be spurious.
- * 2. As a safety net, reload once (per session) on a ChunkLoadError / failed
- *    dynamic import, which is what a stale-cache chunk mismatch surfaces as.
+ * 2. As a safety net, reload once (per session) on an uncaught deploy-skew error
+ *    (chunk-load failure or webpack factory mismatch).
  */
 export function ServiceWorkerRecovery() {
   useEffect(() => {
@@ -85,15 +117,13 @@ export function ServiceWorkerRecovery() {
     }
 
     const onError = (event: ErrorEvent) => {
-      if (isChunkLoadError(event.message) || isChunkLoadError(event.error?.message)) {
-        reloadAfterChunkError();
+      if (isDeploySkewError(event.error) || isChunkLoadError(event.message)) {
+        reloadForSkew();
       }
     };
     const onRejection = (event: PromiseRejectionEvent) => {
-      const reason = event.reason;
-      const message = typeof reason === "string" ? reason : reason?.message;
-      if (isChunkLoadError(message)) {
-        reloadAfterChunkError();
+      if (isDeploySkewError(event.reason)) {
+        reloadForSkew();
       }
     };
     window.addEventListener("error", onError);

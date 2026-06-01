@@ -118,6 +118,15 @@ const config = {
       return Date.now().toString();
     }
   },
+  // Deployment skew protection. Tags asset/RSC requests with the per-deploy
+  // commit SHA so a client running an older build is detected on navigation and
+  // cleanly hard-reloads onto the current build, instead of loading a mismatched
+  // chunk (the post-deploy "undefined (reading 'call')" / "element type is
+  // invalid" 500s). Reuses the SHA already injected as SENTRY_RELEASE in CI;
+  // unset in local dev, where skew protection is inactive (and unnecessary).
+  deploymentId: process.env.SENTRY_RELEASE
+    ? process.env.SENTRY_RELEASE.replace(/^ecency-next@/, "")
+    : undefined,
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
   transpilePackages: ["@ecency/sdk", "@ecency/wallets", "@ecency/render-helper"],
