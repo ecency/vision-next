@@ -146,7 +146,6 @@ export const globalInstance: Partial<GlobalStore> = {
   searchIndexCount: 10000000,
   canUseWebp: true,
   hasKeyChain: false,
-  isMobile: false,
   globalNotifications: true,
   nsfw: false,
   newVersion: null

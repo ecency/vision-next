@@ -46,7 +46,6 @@ export function createGlobalState() {
     newVersion: null,
     globalNotifications: true,
     nsfw: false,
-    isMobile: false,
     imageProxy: initialImageProxy
   };
 }
@@ -56,7 +55,7 @@ type State = ReturnType<typeof createGlobalState>;
 export function createGlobalActions(set: (state: Partial<State>) => void, getState: () => State) {
   return {
     toggleTheme: (theme_key?: Theme) => {
-      const { theme, isMobile } = getState();
+      const { theme } = getState();
       let newTheme: any = theme === Theme.day ? Theme.night : Theme.day;
 
       if (!!theme_key) {

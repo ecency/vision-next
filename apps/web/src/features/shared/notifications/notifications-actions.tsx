@@ -1,7 +1,7 @@
 import { useUpdateNotificationsSettings } from "@/api/mutations";
 import { useMarkNotificationsMutation, useSetLastReadMutation } from "@/api/sdk-mutations";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
-import { useGlobalStore } from "@/core/global-store";
+import { useIsMobile } from "@/features/ui/util/use-is-mobile";
 import { NotificationFilter, NotifyTypes } from "@/enums";
 import { FormControl, Tooltip } from "@/features/ui";
 import {
@@ -31,7 +31,7 @@ interface Props {
 
 export function NotificationsActions({ filter }: Props) {
   const { activeUser } = useActiveAccount();
-  const isMobile = useGlobalStore((state) => state.isMobile);
+  const isMobile = useIsMobile();
 
   const [settings, { set: setSettingItem }] = useMap<Record<NotifyTypes, boolean>>({
     [NotifyTypes.COMMENT]: false,

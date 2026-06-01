@@ -215,4 +215,98 @@ describe("LoginRequired", () => {
     // Protected content should not be visible when not logged in
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
+
+  describe("promptOnAnon mode", () => {
+    beforeEach(() => {
+      (useActiveAccount as any).mockReturnValue({ activeUser: null });
+    });
+
+    test("renders the gated child for logged-out users", () => {
+      render(
+        <LoginRequired promptOnAnon>
+          <button>Vote</button>
+        </LoginRequired>
+      );
+
+      expect(screen.getByText("Vote")).toBeInTheDocument();
+    });
+
+    test("clicking the child opens login instead of firing its handler", () => {
+      const originalOnClick = vi.fn();
+
+      render(
+        <LoginRequired promptOnAnon>
+          <button onClick={originalOnClick}>Vote</button>
+        </LoginRequired>
+      );
+
+      fireEvent.click(screen.getByText("Vote"));
+
+      expect(mockToggleUiProp).toHaveBeenCalledWith("login");
+      expect(originalOnClick).not.toHaveBeenCalled();
+    });
+
+    test("clicking a nested element inside the child still opens login, not the inner handler", () => {
+      const innerOnClick = vi.fn();
+
+      render(
+        <LoginRequired promptOnAnon>
+          <div onClick={innerOnClick} role="button">
+            <span>chevron</span>
+          </div>
+        </LoginRequired>
+      );
+
+      // Capture-phase interception must beat the nested target's own handler.
+      fireEvent.click(screen.getByText("chevron"));
+
+      expect(mockToggleUiProp).toHaveBeenCalledWith("login");
+      expect(innerOnClick).not.toHaveBeenCalled();
+    });
+
+    test("pressing Enter on the child opens login", () => {
+      const originalOnClick = vi.fn();
+
+      render(
+        <LoginRequired promptOnAnon>
+          <button onClick={originalOnClick}>Vote</button>
+        </LoginRequired>
+      );
+
+      fireEvent.keyDown(screen.getByText("Vote"), { key: "Enter" });
+
+      expect(mockToggleUiProp).toHaveBeenCalledWith("login");
+      expect(originalOnClick).not.toHaveBeenCalled();
+    });
+
+    test("ignores promptOnAnon when logged in and runs the real handler", () => {
+      (useActiveAccount as any).mockReturnValue({
+        activeUser: { username: "testuser" }
+      });
+      const originalOnClick = vi.fn();
+
+      render(
+        <LoginRequired promptOnAnon>
+          <button onClick={originalOnClick}>Vote</button>
+        </LoginRequired>
+      );
+
+      fireEvent.click(screen.getByText("Vote"));
+
+      expect(originalOnClick).toHaveBeenCalled();
+      expect(mockToggleUiProp).not.toHaveBeenCalled();
+    });
+
+    test("does not intercept Space typing inside a wrapped editable field", () => {
+      render(
+        <LoginRequired promptOnAnon>
+          <input type="text" aria-label="field" defaultValue="" />
+        </LoginRequired>
+      );
+
+      fireEvent.keyDown(screen.getByLabelText("field"), { key: " " });
+
+      expect(mockToggleUiProp).not.toHaveBeenCalled();
+    });
+  });
 });

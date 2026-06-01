@@ -7,7 +7,7 @@ import { MarketAsset } from "@/api/market-pair";
 import { Widget } from "@/app/market/advanced/_advanced-mode/types/layout.type";
 import { PREFIX } from "@/utils/local-storage";
 import { formattedNumber } from "@/utils";
-import { useGlobalStore } from "@/core/global-store";
+import { useIsMobile } from "@/features/ui/util/use-is-mobile";
 import i18next from "i18next";
 
 interface Props {
@@ -37,7 +37,7 @@ export const StakeWidget = ({
   price,
   usdPrice
 }: Props) => {
-  const isMobile = useGlobalStore((s) => s.isMobile);
+  const isMobile = useIsMobile();
   const [storedFraction, setStoredFraction] = useLocalStorage<number>(PREFIX + "_amml_st_fr");
   const [storedViewType, setStoredViewType] = useLocalStorage<StakeWidgetViewType>(
     PREFIX + "_amml_st_vt"

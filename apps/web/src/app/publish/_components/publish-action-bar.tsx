@@ -106,7 +106,7 @@ export function PublishActionBar({
     >
       <PublishActionBarCommunity />
       <div className="w-full sm:w-auto flex justify-end sm:justify-normal items-center gap-2 sm:gap-4">
-        <LoginRequired>
+        <LoginRequired promptOnAnon>
           <Button
             size="sm"
             appearance={scheduleDate ? "primary" : "success"}
@@ -125,7 +125,7 @@ export function PublishActionBar({
           </div>
         )}
 
-        <LoginRequired>
+        <LoginRequired promptOnAnon>
           <Button
             size="sm"
             disabled={isDraftPending || !title?.trim()}

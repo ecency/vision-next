@@ -1,20 +1,4 @@
-"use client";
-
-import { useEffect, useState } from "react";
-
-export function useIsMobile() {
-  const [screenWidth, setScreenWidth] = useState(
-    typeof window !== "undefined" && window.innerWidth
-  );
-
-  useEffect(() => {
-    function handleResize() {
-      setScreenWidth(window.innerWidth);
-    }
-
-    window.addEventListener("resize", handleResize);
-  });
-
-  // @ts-ignore
-  return screenWidth < 570;
-}
+// Re-export of the canonical, SSR-safe mobile-detection hook so existing
+// `@/utils` consumers keep working. The implementation lives in
+// `@/features/ui/util/use-is-mobile`.
+export { MOBILE_BREAKPOINT, useIsMobile } from "@/features/ui/util/use-is-mobile";

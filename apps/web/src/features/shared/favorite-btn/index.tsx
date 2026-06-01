@@ -63,7 +63,7 @@ export function FavoriteBtn({ targetUsername }: Props) {
   return (
     <>
       {!activeUser && (
-        <LoginRequired>
+        <LoginRequired promptOnAnon>
           <span className="favorite-btn">
             <Tooltip content={i18next.t("favorite-btn.add")}>
               <Button

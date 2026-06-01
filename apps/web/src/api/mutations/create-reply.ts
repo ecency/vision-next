@@ -11,6 +11,7 @@ import i18next from "i18next";
 import { getAccountRcQueryOptions, addOptimisticDiscussionEntry, removeOptimisticDiscussionEntry } from "@ecency/sdk";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { scheduleQuestsRefresh } from "@/utils/refresh-quests";
 import { useCommentMutation } from "@/api/sdk-mutations";
 import type { CommentPayload } from "@ecency/sdk";
 
@@ -130,6 +131,7 @@ export function useCreateReply(
           // via custom merge logic in the query options
 
           success(i18next.t("comment.success"));
+          scheduleQuestsRefresh(queryClient, activeUser?.username);
         })
         .catch((err) => {
         // Blockchain failed - remove optimistic entry from web + SDK caches

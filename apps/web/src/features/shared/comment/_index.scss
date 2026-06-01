@@ -56,9 +56,36 @@
     }
   }
 
+  .comment-view-toggle {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
   .comment-buttons {
     display: flex;
+    align-items: center;
     justify-content: flex-end;
+  }
+
+  // On phones, keep the submit row pinned above the on-screen keyboard. The
+  // keyboard height is supplied at runtime via `--comment-kb-inset` (visual
+  // viewport), and the safe-area inset clears the iOS home indicator.
+  @media (max-width: 569px) {
+    .comment-buttons {
+      position: sticky;
+      bottom: calc(env(safe-area-inset-bottom, 0px) + var(--comment-kb-inset, 0px));
+      z-index: 5;
+      padding: 8px 0;
+
+      @include themify(day) {
+        @apply bg-light-200;
+      }
+
+      @include themify(night) {
+        @apply bg-dark-200;
+      }
+    }
   }
 }
 
