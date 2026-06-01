@@ -13,7 +13,9 @@ export function normalizeLinkHref(value: string): string {
     return trimmed;
   }
 
-  const hasScheme = /^[a-z][a-z0-9+.-]*:/i.test(trimmed);
+  // The negative lookahead keeps `host:port` (e.g. `example.com:8080`) from
+  // being mistaken for a `scheme:` — real schemes are never followed by a digit.
+  const hasScheme = /^[a-z][a-z0-9+.-]*:(?!\d)/i.test(trimmed);
   if (hasScheme || trimmed.startsWith("//") || trimmed.startsWith("/") || trimmed.startsWith("#")) {
     return trimmed;
   }

@@ -26,6 +26,11 @@ describe("normalizeLinkHref", () => {
     expect(normalizeLinkHref("  ecency.com  ")).toBe("https://ecency.com");
     expect(normalizeLinkHref("   ")).toBe("");
   });
+
+  it("treats host:port as a host, not a scheme", () => {
+    expect(normalizeLinkHref("example.com:8080")).toBe("https://example.com:8080");
+    expect(normalizeLinkHref("localhost:3000")).toBe("https://localhost:3000");
+  });
 });
 
 function makeEditor(content: string) {
@@ -94,6 +99,25 @@ describe("link selection detection (BubbleMenu mode decision)", () => {
       // plain "Hello " + the link → not a pure link selection.
       editor.commands.setTextSelection({ from: 1, to: range.to });
       expect(editor.isActive("link")).toBe(false);
+    } finally {
+      editor.destroy();
+    }
+  });
+
+  it("does not absorb following text into the link after it is applied", () => {
+    // Mirrors what the bubble menu does on submit: apply the link, collapse to
+    // its (inclusive) end, then clear the stored link mark so continued typing
+    // stays plain text instead of extending the anchor.
+    const editor = makeEditor("<p>world</p>");
+    try {
+      editor.chain().setTextSelection({ from: 1, to: 6 }).setLink({ href: "https://x.com" }).run();
+      const end = editor.state.selection.to;
+      editor.chain().setTextSelection(end).unsetMark("link").run();
+      editor.chain().insertContent("!").run();
+
+      const html = editor.getHTML();
+      expect(html).toContain(">world</a>");
+      expect(html).not.toContain("world!</a>");
     } finally {
       editor.destroy();
     }

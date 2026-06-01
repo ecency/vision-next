@@ -118,6 +118,33 @@ export function BubbleMenu({ editor }: Props) {
     };
   }, [editor, refs, hideAll, anchorToSelection]);
 
+  // Dismiss on an outside click. The editor `blur` handler can't cover this on
+  // its own: once the link input holds focus, clicking elsewhere blurs the
+  // input (not the editor), so no editor blur fires.
+  useEffect(() => {
+    if (!show) {
+      return;
+    }
+
+    const handlePointerDown = (event: MouseEvent) => {
+      const target = event.target as Node | null;
+      if (!target) {
+        return;
+      }
+      if (refs.floating.current?.contains(target)) {
+        return;
+      }
+      // Clicks inside the editor are handled by selectionUpdate/blur.
+      if (editor?.view.dom.contains(target)) {
+        return;
+      }
+      hideAll();
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+    return () => document.removeEventListener("mousedown", handlePointerDown);
+  }, [show, editor, refs, hideAll]);
+
   const openLinkEdit = useCallback(() => {
     if (!editor) {
       return;
@@ -141,11 +168,12 @@ export function BubbleMenu({ editor }: Props) {
         return;
       }
       editor.chain().focus().extendMarkRange("link").setLink({ href }).run();
-      // The link mark is non-inclusive, so collapsing to its end leaves the
-      // cursor just outside it: the writer can keep typing and the menu closes
-      // instead of immediately re-opening over the freshly-edited link.
+      // The link mark is inclusive (autolink), so collapsing to its end isn't
+      // enough — typed text would inherit the link. Clear the stored link mark
+      // too so the writer keeps typing plain text, and the menu closes instead
+      // of re-opening over the freshly-edited link.
       const end = editor.state.selection.to;
-      editor.chain().setTextSelection(end).run();
+      editor.chain().setTextSelection(end).unsetMark("link").run();
       hideAll();
     },
     [editor, hideAll]
@@ -162,14 +190,10 @@ export function BubbleMenu({ editor }: Props) {
   }, [editor, hideAll]);
 
   const openLinkInNewTab = useCallback(() => {
-    if (!editor) {
-      return;
+    if (linkHref) {
+      window.open(linkHref, "_blank", "noopener,noreferrer");
     }
-    const href = editor.getAttributes("link").href as string | undefined;
-    if (href) {
-      window.open(href, "_blank", "noopener,noreferrer");
-    }
-  }, [editor]);
+  }, [linkHref]);
 
   const cancelLinkEdit = useCallback(() => {
     hideAll();
