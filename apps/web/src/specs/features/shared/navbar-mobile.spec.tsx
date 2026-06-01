@@ -7,7 +7,10 @@ let pathname = "/";
 const toggleUiProp = vi.fn();
 const useActiveAccount = vi.fn(() => ({ activeUser: { username: "tester" } as { username: string } | null }));
 
-vi.mock("next/navigation", () => ({ usePathname: () => pathname }));
+vi.mock("next/navigation", () => ({
+  usePathname: () => pathname,
+  useSearchParams: () => new URLSearchParams()
+}));
 vi.mock("next/image", () => ({
   // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
   default: ({ src, alt, ...rest }: any) => <img src={typeof src === "string" ? src : ""} alt={alt} {...rest} />

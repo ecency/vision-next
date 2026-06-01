@@ -18,8 +18,8 @@ import clsx from "clsx";
 import i18next from "i18next";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import defaults from "@/defaults";
 import dynamic from "next/dynamic";
 
@@ -52,12 +52,38 @@ export function NavbarMobile({
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
   const { data: unread } = useMattermostUnread(Boolean(activeUser && hydrated));
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  // Use the string form (stable identity) so the effect only fires on a real
+  // query change, not on every render where useSearchParams returns a new object.
+  const searchKey = searchParams?.toString();
   const hidden = useHideOnScroll();
   const [searchOpen, setSearchOpen] = useState(false);
-  // Collapse the in-navbar search when navigating away.
+  const searchWrapRef = useRef<HTMLDivElement>(null);
+
+  // Collapse the in-navbar search after any navigation — including a query-only
+  // change (e.g. submitting a new search while already on /search).
   useEffect(() => {
     setSearchOpen(false);
-  }, [pathname]);
+  }, [pathname, searchKey]);
+
+  // Focus the input once the (lazily-loaded) search mounts, so it's ready to type.
+  useEffect(() => {
+    if (!searchOpen) {
+      return;
+    }
+    let raf = 0;
+    let tries = 0;
+    const focusInput = () => {
+      const input = searchWrapRef.current?.querySelector("input");
+      if (input) {
+        input.focus();
+      } else if (tries++ < 30) {
+        raf = requestAnimationFrame(focusInput);
+      }
+    };
+    raf = requestAnimationFrame(focusInput);
+    return () => cancelAnimationFrame(raf);
+  }, [searchOpen]);
 
   const [isInRn, setIsInRn] = useState(false);
   useEffect(() => {
@@ -105,7 +131,7 @@ export function NavbarMobile({
               onClick={() => setSearchOpen(false)}
               aria-label={i18next.t("g.close", { defaultValue: "Close search" })}
             />
-            <div className="flex-1 min-w-0">
+            <div ref={searchWrapRef} className="flex-1 min-w-0">
               <MobileSearch containerClassName="w-full" />
             </div>
           </>
