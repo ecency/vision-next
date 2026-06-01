@@ -29,9 +29,6 @@ vi.mock("@/features/shared", () => ({
 vi.mock("@/features/shared/navbar/navbar-notifications-button", () => ({
   NavbarNotificationsButton: () => <button data-testid="notifications">notifs</button>
 }));
-vi.mock("@/features/shared/navbar/navbar-perks-button", () => ({
-  NavbarPerksButton: () => <button data-testid="perks">perks</button>
-}));
 vi.mock("@/features/shared/navbar/navbar-main-sidebar", () => ({ NavbarMainSidebar: () => null }));
 vi.mock("@/features/shared/navbar/sidebar/navbar-side", () => ({ NavbarSide: () => null }));
 
@@ -66,10 +63,10 @@ describe("NavbarMobile", () => {
     expect(screen.getByAltText("Ecency")).toBeInTheDocument(); // logo
     expect(screen.getByLabelText("navbar.toggle-menu")).toBeInTheDocument(); // ☰
     expect(screen.getByLabelText("navbar.home")).toBeInTheDocument();
+    expect(screen.getByLabelText("navbar.waves")).toBeInTheDocument();
     expect(screen.getByLabelText("navbar.chats")).toBeInTheDocument();
-    expect(screen.getByLabelText("navbar.post")).toBeInTheDocument();
+    expect(screen.getByLabelText("navbar.post")).toBeInTheDocument(); // compose FAB
     expect(screen.getByTestId("notifications")).toBeInTheDocument();
-    expect(screen.getByTestId("perks")).toBeInTheDocument();
     expect(screen.getByTestId("avatar")).toBeInTheDocument();
   });
 
@@ -105,7 +102,6 @@ describe("NavbarMobile", () => {
     expect(screen.getByText("g.login")).toBeInTheDocument();
     expect(screen.queryByTestId("avatar")).not.toBeInTheDocument();
     expect(screen.queryByTestId("notifications")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("perks")).not.toBeInTheDocument();
     // Home / Chats / brand stay available to anonymous users
     expect(screen.getByLabelText("navbar.home")).toBeInTheDocument();
     expect(screen.getByAltText("Ecency")).toBeInTheDocument();

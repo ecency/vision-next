@@ -6,11 +6,10 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { UserAvatar, preloadLoginDialog } from "@/features/shared";
 import { NavbarMainSidebar } from "@/features/shared/navbar/navbar-main-sidebar";
 import { NavbarNotificationsButton } from "@/features/shared/navbar/navbar-notifications-button";
-import { NavbarPerksButton } from "@/features/shared/navbar/navbar-perks-button";
 import { NavbarSide } from "@/features/shared/navbar/sidebar/navbar-side";
 import { isInAppBrowser } from "@/utils";
 import { useMattermostUnread } from "@/features/chat/mattermost-api";
-import { UilBars, UilComment, UilHomeAlt, UilLock, UilPlusCircle } from "@tooni/iconscout-unicons-react";
+import { UilBars, UilComment, UilHomeAlt, UilLock, UilPlus, UilWater } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
 import clsx from "clsx";
 import i18next from "i18next";
@@ -110,6 +109,14 @@ export function NavbarMobile({
           aria-current={homeActive ? "page" : undefined}
           className={activeClass(homeActive)}
         />
+        <Button
+          href="/waves"
+          appearance="gray-link"
+          icon={<UilWater width={20} height={20} />}
+          aria-label={i18next.t("navbar.waves")}
+          aria-current={isActive("/waves") ? "page" : undefined}
+          className={activeClass(isActive("/waves"))}
+        />
         <div key={`mobile-chat-${activeUser?.username || "anon"}`} className="relative">
           <Button
             href="/chats"
@@ -125,17 +132,8 @@ export function NavbarMobile({
             </span>
           ) : null}
         </div>
-        <Button
-          href="/publish"
-          appearance="primary"
-          icon={<UilPlusCircle width={22} height={22} />}
-          aria-label={i18next.t("navbar.post")}
-          aria-current={isActive("/publish") ? "page" : undefined}
-        />
-
         {activeUser ? (
           <>
-            <NavbarPerksButton />
             <NavbarNotificationsButton />
             <button
               key={`mobile-avatar-${activeUser.username}`}
@@ -162,6 +160,21 @@ export function NavbarMobile({
           </Button>
         )}
       </div>
+
+      {/* Floating compose button (FAB), mirroring the native app's create action. */}
+      <Button
+        href="/publish"
+        appearance="primary"
+        noPadding={true}
+        icon={<UilPlus width={26} height={26} />}
+        aria-label={i18next.t("navbar.post")}
+        aria-current={isActive("/publish") ? "page" : undefined}
+        className={clsx(
+          "md:hidden fixed right-4 z-20 h-14 w-14 !rounded-full flex items-center justify-center shadow-lg",
+          step === 1 && "transparent"
+        )}
+        style={{ bottom: isInRn ? "7rem" : "calc(env(safe-area-inset-bottom) + 4.75rem)" }}
+      />
 
       {activeUser && <NavbarSide key={`mobile-${activeUser.username}`} show={expanded} setShow={setExpanded} />}
       <NavbarMainSidebar setShow={setMainBarExpanded} show={mainBarExpanded} setStepOne={setStepOne} />
