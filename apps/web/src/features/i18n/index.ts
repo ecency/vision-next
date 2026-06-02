@@ -71,6 +71,14 @@ export const langOptions = [
   {
     code: "zh-CN",
     name: "简体字"
+  },
+  {
+    code: "th-TH",
+    name: "ไทย"
+  },
+  {
+    code: "tr-TR",
+    name: "Türkçe"
   }
 ];
 
@@ -93,7 +101,9 @@ const localeLoaders: Record<string, () => Promise<any>> = {
   "bg-BG": () => import("./locales/bg-BG.json"),
   "ru-RU": () => import("./locales/ru-RU.json"),
   "uz-UZ": () => import("./locales/uz-UZ.json"),
-  "zh-CN": () => import("./locales/zh-CN.json")
+  "zh-CN": () => import("./locales/zh-CN.json"),
+  "th-TH": () => import("./locales/th-TH.json"),
+  "tr-TR": () => import("./locales/tr-TR.json")
 };
 
 export async function loadLocale(lang: string) {
@@ -105,6 +115,32 @@ export async function loadLocale(lang: string) {
 }
 
 const supportedCodes = new Set(langOptions.map((l) => l.code));
+
+/**
+ * Best-effort detection of the visitor's preferred UI language from the browser.
+ * Returns a supported langOptions code, or null when nothing matches.
+ * SSR-safe: returns null when `navigator` is unavailable, so it must only be
+ * relied upon on the client (call after mount to avoid hydration mismatches).
+ */
+export function detectBrowserLang(): string | null {
+  if (typeof navigator === "undefined") return null;
+  const navLangs =
+    navigator.languages && navigator.languages.length
+      ? navigator.languages
+      : [navigator.language];
+  for (const nav of navLangs) {
+    if (!nav) continue;
+    const lower = nav.toLowerCase();
+    // exact match (e.g. "pt-PT")
+    const exact = langOptions.find((o) => o.code.toLowerCase() === lower);
+    if (exact) return exact.code;
+    // base-language match (e.g. "de", "de-AT" -> "de-DE")
+    const base = lower.split("-")[0];
+    const baseMatch = langOptions.find((o) => o.code.split("-")[0].toLowerCase() === base);
+    if (baseMatch) return baseMatch.code;
+  }
+  return null;
+}
 
 let initI18nextPromise: Promise<void> | null = null;
 
