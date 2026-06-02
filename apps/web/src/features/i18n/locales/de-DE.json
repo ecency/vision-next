@@ -128,7 +128,10 @@
   "announcements": {
     "dismiss": "Verwerfen",
     "next": "Weiter",
-    "later": "Später"
+    "later": "Später",
+    "voted": "Abgestimmt",
+    "view-proposal": "Vorschlag anzeigen",
+    "vote-success": "Vielen Dank für die Unterstützung von Ecency!"
   },
   "floating-faq": {
     "toggle-icon-info": "Klicken zum Vergrößern",
@@ -314,6 +317,7 @@
     "extensions": "Erweiterungen",
     "extensions-info-title": "Browser-Erweiterungen",
     "extensions-info-description": "Melden Sie sich sicher mit einer Hive-Browser-Erweiterung an. Installieren Sie eine der folgenden Erweiterungen um loszulegen:",
+    "extensions-mobile-note": "Hive-Browsererweiterungen sind nur in Desktop-Browsern verfügbar. Benutzen Sie auf dem Handy Keychain Mobile oder melden Sie sich mit Ihrem Schlüssel oder HiveSigner an.",
     "extensions-select-title": "Erweiterung auswählen",
     "extensions-select-description": "Mehrere Hive-Erweiterungen erkannt. Wählen Sie aus, welche zum Signieren verwendet werden soll:",
     "extension-keeper-name": "Hive-Hüter",
@@ -1695,6 +1699,8 @@
     "with-hivesigner": "Sign with hivesigner",
     "with-keychain": "Sign with keychain",
     "with-extension": "Mit Erweiterung signieren",
+    "with-extension-named": "Mit {{name}} anmelden",
+    "no-extension-prompt": "Sie haben keine Hive-Erweiterung? Installieren Sie:",
     "with-hiveauth": "Mit HiveAuh signieren",
     "invalid-key": "Ungültiges Schlüsselformat. Bitte überprüfen Sie ungültige Zeichen.",
     "key-error": "Fehler bei der Verarbeitung des Schlüssels. Bitte überprüfen Sie, ob er korrekt ist.",
