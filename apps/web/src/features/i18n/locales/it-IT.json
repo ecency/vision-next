@@ -94,8 +94,8 @@
     "failed": "Fallito",
     "status": "Stato",
     "download": "Scarica",
-    "pin": "Pin",
-    "unpin": "Unpin",
+    "pin": "Fissa",
+    "unpin": "Rimuovi",
     "retry": "Ritenta",
     "message": "Messaggio",
     "actions": "Azioni",
@@ -137,7 +137,7 @@
     "toggle-icon-info": "Fare clic per espandere",
     "help": "Aiuto",
     "welcome": "Benvenuto in Ecency",
-    "center": "Ecency center",
+    "center": "Centro Ecency",
     "need-help": "Hai bisogno di aiuto?",
     "search-placeholder": "Cerca",
     "suggestion": "Articoli suggeriti",
@@ -204,7 +204,7 @@
     "action-transfer-hive": "Trasferisci HIVE",
     "action-transfer-hbd": "Trasferimento HBD",
     "action-transfer-points": "Trasferisci PUNTI",
-    "action-transfer-description": "Send {{token}} instantly",
+    "action-transfer-description": "Invia {{token}} all'istante",
     "action-delegate-hp": "Potere Dell'Alveare Delegato",
     "action-delegate-hp-description": "Delega HP a un altro account",
     "action-power-up": "Accensione su",
@@ -269,7 +269,7 @@
     "boost": "Potenzia",
     "submit": "Crea un post",
     "chats": "Conversazioni",
-    "perks": "Perks"
+    "perks": "Vantaggi"
   },
   "intro": {
     "title": "Aspira alla grandezza",
@@ -320,11 +320,11 @@
     "extensions-mobile-note": "Le estensioni del browser Hive sono disponibili solo sui browser desktop. Su dispositivi mobili, usa Keychain Mobile o accedi con la tua chiave o HiveSigner.",
     "extensions-select-title": "Scegli Estensione",
     "extensions-select-description": "Rilevate estensioni multiple di Hive. Seleziona quale usare per firmare:",
-    "extension-keeper-name": "Custode Dell'Alveare",
+    "extension-keeper-name": "Hive Keeper",
     "extension-keeper-desc": "Con Ecency - consigliato per la migliore esperienza",
     "extension-keychain-name": "Hive Keychain",
     "extension-keychain-desc": "Popolare Hive portafoglio e estensione firma",
-    "extension-peakvault-name": "Cassetta Di Picco",
+    "extension-peakvault-name": "Peak Vault",
     "extension-peakvault-desc": "Da PeakD - estensione del portafoglio leggero",
     "keychain-mobile": "Portachiavi Mobile",
     "keychain-mobile-missing-sig": "Firma mancante dal portachiavi. Per favore riprova.",
@@ -447,7 +447,7 @@
     "posts-comments": "Post/Commenti:",
     "votes": "Voti:",
     "transfers": "Trasferimenti:",
-    "reblogs-follows": "Reblogs/Follows:",
+    "reblogs-follows": "Reblog/Follow:",
     "rc-error": "You can not delegate below 5bn Rc",
     "rc-delegation-failed": "Delega RC non riuscita",
     "invalid-link": "Link onboarding non valido",
@@ -479,7 +479,7 @@
     }
   },
   "entry-list-item": {
-    "cross-posted": "cross-posted",
+    "cross-posted": "ripubblicato",
     "cross-posted-to": "a",
     "reblogged": "{{n}} rebloggati",
     "promoted": "Promossi",
@@ -517,9 +517,9 @@
   },
   "entry-tip": {
     "title": "Invia omaggio",
-    "tip": "Tip",
+    "tip": "Mancia",
     "send-tip": "Invia un suggerimento",
-    "count": "{{count}} tip",
+    "count": "{{count}} mancia",
     "count_plural": "{{count}} suggerimenti"
   },
   "entry-share": {
@@ -529,7 +529,7 @@
     "cross-post": "Post trasversale",
     "share": "Condividi",
     "edit-history": "Modifica Cronologia",
-    "pin": "Pin",
+    "pin": "Fissa",
     "pin-to-blog": "Pin al blog",
     "pin-to-community": "Pin alla comunità",
     "pin-success": "Post fissato",
@@ -632,7 +632,7 @@
     "filters": "Filtri",
     "history": "Cronologia",
     "type": "Digita",
-    "add-column": "Add new column",
+    "add-column": "Aggiungi nuova colonna",
     "back-to-feed": "Torna al feed",
     "faq": "Domande frequenti",
     "terms": "Termini di servizio",
@@ -764,7 +764,7 @@
       "topics-subtitle": "Il più popolare software",
       "replied-to": "risposto a",
       "edit-wave": "Modifica",
-      "updated": "Edited {{n}} ago",
+      "updated": "Modificato {{n}} fa",
       "balance": "Bilancio",
       "whats-new": "Novità",
       "whats-new-description": "Tieni traccia degli aggiornamenti dell'Ecency",
@@ -831,11 +831,11 @@
     "confirm-sell": "Valori",
     "transaction-succeeded": "Transazione inviata",
     "lowest-ask": "Prezzo di vendità più basso",
-    "decimal-error": "Only {{decimals}} decimal digits allowed!",
+    "decimal-error": "Sono consentite solo {{decimals}} cifre decimali!",
     "from": "Da",
     "to": "A",
     "sign": "Accesso",
-    "swapping": "Swapping...",
+    "swapping": "Scambio in corso...",
     "continue": "Continua",
     "balance": "Bilancio",
     "fee": "Commissione",
@@ -866,7 +866,7 @@
     "advanced": {
       "history": "Cronologia",
       "stake": "Libro ordini",
-      "pairs": "Pairs",
+      "pairs": "Coppie",
       "form": "Modulo d’ordine",
       "open-orders": "Apri",
       "completed-orders": "Completati",
@@ -939,7 +939,7 @@
     "pending-message": "Il contenuto ha dei voti in sospeso. Attendere un minuto e aggiornare questa finestra per vedere nuovi voti."
   },
   "entry": {
-    "via-app": "via <span class=\"app-name\">{{app}}</span>",
+    "via-app": "tramite <span class=\"app-name\">{{app}}</span>",
     "author-reputation": "Reputazione dell'autore",
     "disclaimer": "Questo post è stato pubblicato tramite {{appName}}. Ecency non è l'originator o editor di questo contenuto e lo visualizza solo per scopi di scoperta.",
     "comment-entry-title": "Stai guardando un singolo thread del commento da: ",
@@ -1218,7 +1218,7 @@
     "uniques": "Viste uniche",
     "minutes": "Minuti",
     "no-data": "Nessuna vista pagina disponibile per questo intervallo.",
-    "range": "Date range",
+    "range": "Intervallo di date",
     "disabled": "Le informazioni sono disabilitate al momento.",
     "error": "Impossibile caricare intuizioni."
   },
@@ -1296,7 +1296,7 @@
     "image-server": "Server immagini",
     "image-server-default": "Immagini di Ecency (Predefinito)",
     "image-server-hiveblog": "Immagini di alveare (alternative)",
-    "image-server-nocdn": "Ecency images (No CDN)"
+    "image-server-nocdn": "Immagini Ecency (No CDN)"
   },
   "settings": {
     "dm-privacy": {
@@ -1533,7 +1533,7 @@
     "transfer-sub-title": "Sposta i fondi a un altro account Hive",
     "stake-hive-engine-title": "Token di puntata",
     "stake-hive-engine-sub-title": "Token di puntata per guadagnare premi passivi",
-    "unstake-hive-engine-title": "Unstake token",
+    "unstake-hive-engine-title": "Rimuovi stake token",
     "unstake-hive-engine-sub-title": "Unstake token si smetterà di guadagnare premi passivi",
     "transfer-saving-title": "Trasferisci nei risparmi",
     "transfer-saving-sub-title": "Proteggi i fondi richiedendo un periodo di attesa prima del pagamento di 3 giorni",
@@ -1604,7 +1604,7 @@
     "stop-power-down": "Interrompi",
     "claim-title": "Riscuoti",
     "powerup-title": "Power Up",
-    "powerdown-title": "Power down",
+    "powerdown-title": "Power Down",
     "lock-title": "Blocca liquidità",
     "unlock-title": "Sblocca liquidità",
     "lock-summary": "Blocco completato come <span class=\"amount\">{{amount}}</span>",
@@ -1613,7 +1613,7 @@
     "success-sub-title": "Transazione completata",
     "sign-title": "Firma la transazione",
     "sign-sub-title": "Firma la tua transazione",
-    "swap-title": "Swap Hive/HBD",
+    "swap-title": "Scambia Hive/HBD",
     "swap-sub-title": "Scambia i tuoi fondi con pochi clic",
     "gift-title": "Regalo",
     "gift-sub-title": "Regala i punti a un utente specifico",
@@ -1655,7 +1655,7 @@
     "type-withdraw_vesting": "Depotenzia",
     "type-set_withdraw_vesting_route": "Ritira percorso cambiato",
     "type-fill_vesting_withdraw": "Si è verificato un consumo parziale",
-    "type-fill_order": "Open trade filled",
+    "type-fill_order": "Ordine aperto eseguito",
     "type-market_buy": "Acquisto di mercato",
     "type-market_placeOrder": "Ordine di mercato effettuato",
     "type-market_closeOrder": "Ordine di mercato chiuso",
@@ -1769,7 +1769,7 @@
   },
   "editor-toolbar": {
     "bold": "Grassetto (Alt + B)",
-    "italic": "Italic (Alt + I)",
+    "italic": "Corsivo (Alt + I)",
     "header": "Testata/Intestazione",
     "code": "Codice (Alt + C)",
     "quote": "Preventivo (Alt + M)",
@@ -1936,7 +1936,7 @@
     "payouts-amount": "Hai ricevuto il pagamento {{amount}}.",
     "payouts-amount-usd": "Hai guadagnato ${{amount_usd}} ({{amount}}).",
     "payouts-title": "{{body}} \"{{title}}\"",
-    "monthly-posts": "You created {{count}} post{{suffix}} this month. Keep it up!",
+    "monthly-posts": "Hai creato {{count}} post{{suffix}} questo mese. Continua così!",
     "weekly-earnings": "Hai guadagnato ${{total}} questa settimana - ${{author}} da post, ${{curation}} dalla curazione.",
     "weekly-earnings-short": "Hai guadagnato ${{total}} questa settimana dai tuoi post e cura."
   },
@@ -2161,7 +2161,7 @@
       "daily-pay-label": "Pagamenti giornalieri (HBD)",
       "daily-pay-help": "Quantità di HBD che state richiedendo al giorno.",
       "daily-pay-error": "Inserisci un importo di pagamento giornaliero positivo.",
-      "summary-title": "Summary",
+      "summary-title": "Riepilogo",
       "summary-duration": "Durata: {{days}} giorni",
       "summary-daily-pay": "Pagamento giornaliero: {{amount}} HBD",
       "summary-total-pay": "Pagamento totale <unk> {{amount}} HBD",
@@ -2305,7 +2305,7 @@
     "channel-type-public": "Canale pubblico",
     "channel-type-private": "Canale privato",
     "join-channel-action": "Entra",
-    "joining-channel": "Joining…",
+    "joining-channel": "Accesso al canale…",
     "no-additional-channels": "Nessun canale aggiuntivo trovato.",
     "no-admin": "Nessun amministratore o moderatore per questa chat della comunità.",
     "view-community-channel": "Chat della Comunità",
@@ -2450,7 +2450,7 @@
       "can-link-post-header": "Posso richiedere l'aggiunta di backlink al mio sito web dal team di Ecency?",
       "can-link-post-body": "<p>Tutti i contenuti sul nostro sito sono creati dai nostri utenti e non modifichiamo né possiamo aggiungere backlink. Sei libero di contattare l'autore del post o <a href=\"/signup?referral=ecency\" class=\"push-link\">Registrati</a> per aprire il tuo blog e la tua comunità, pubblicare articoli per creare backlink gratis.</p>",
       "can-guest-post-header": "È possibile inviare un post ospite sul tuo sito web?",
-      "can-guest-post-body": "<p>Publishing on Ecency is simple and easy, <a href=\"/signup?referral=ecency\" class=\"push-link\">Signup</a> to open your own blog and community, start posting your content.</p>",
+      "can-guest-post-body": "<p>Pubblicare su Ecency è semplice e facile, <a href=\"/signup?referral=ecency\" class=\"push-link\">Registrati</a> per aprire il tuo blog e la tua community e iniziare a pubblicare i tuoi contenuti.</p>",
       "source-label-header": "Etichette di origine del contenuto, quali sono?",
       "source-label-body": "<p>Sorgente dei contenuti ti aiuta a capire come i contenuti sono stati pubblicati. In alcuni casi si può vedere un nome client di terze parti, che indica il Contenuto proviene da un'applicazione non-Ecency. Gli autori a volte utilizzano applicazioni client di terze parti per gestire i loro blog, comunità. I client di terze parti sono strumenti software utilizzati dagli autori e quindi non sono affiliati, né riflettono le opinioni dei contenuti. I contenuti possono essere creati direttamente dagli esseri umani o, in alcune circostanze, automatizzati da un'applicazione.</p>",
       "how-to-contribute-header": "Come contribuire all'Ecency?",
@@ -2576,7 +2576,7 @@
       "getting-post-notifications-header": "Perché sto ricevendo notifiche che le persone stanno pubblicando post?",
       "getting-post-notifications-body": "<p> Se aggiungi qualcuno alla tua lista Preferiti, riceverai una notifica quando il loro post sarà pubblicato. Vai al menu principale e controlla la tua lista Preferiti. Se non vuoi ricevere le notifiche, puoi semplicemente Spreferiti andando alla loro pagina.</p>",
       "manage-notifications-header": "Posso gestire le mie Notifiche?",
-      "manage-notifications-body": "<pYou can manage notifications by sorting them which notifications you want to see. Click on the All notifications and choose on of the notificatons (All, Votes, Mentions, Favorites, Bookmarks, Follows, Replies, Reblogs, Transfers, Delegations) to see.></p>",
+      "manage-notifications-body": "<pPuoi gestire le notifiche ordinandole in base a quali vuoi visualizzare. Clicca su Tutte le notifiche e scegli una delle notifiche (Tutte, Voti, Menzioni, Preferiti, Segnalibri, Follow, Risposte, Reblog, Trasferimenti, Deleghe) da visualizzare.></p>",
       "find-friends-header": "Come trovare più amici su Ecency?",
       "find-friends-body": "<p>In alto a destra della pagina Ecency puoi vedere il pulsante Discover/Community. Cliccando su Discover, puoi trovare informazioni su utenti più attivi, curatori e utenti popolari.</p>",
       "accounts-included-leaderboard-header": "Quali account sono inclusi nella Classifica?",
@@ -2727,7 +2727,7 @@
     "download-for-windows": "Scarica per computer",
     "download-for-ios": "Scarica per IOS",
     "download-for-android": "Scarica per Android",
-    "install-web-app": "Install Web App (PWA)",
+    "install-web-app": "Installa la Web App (PWA)",
     "get-mobile-app": "Scarica app mobile",
     "our-history": "La nostra storia",
     "our-history-p-one": "<b>Ecency</b> (precedentemente Esteem) è iniziato nel 2016, fondata da <a href=\"/contributors\" class=\"push-link\">membri della community</a> che hanno deciso di costruire un'applicazione mobile che rivoluzionerebbe il modo in cui interagisci e crei, costruire, impegnarsi online. Con il tempo è cresciuto a qualcosa di molto più grande.",
@@ -2834,12 +2834,12 @@
       "weekly": "Settimanale",
       "monthly": "Mensile",
       "resets-in": "Ripristina in {{time}}",
-      "streak": "{{n}}-day streak",
+      "streak": "Serie di {{n}} giorni",
       "streak-at-risk": "Accedi oggi per mantenere viva la tua striscia!",
       "available": "Disponibile ora",
       "max-rewards": "premi max oggi",
       "checkin": {
-        "title": "Check in"
+        "title": "Check-in"
       },
       "post": {
         "title": "Pubblica un post"
@@ -2893,7 +2893,7 @@
     "account-age": "Età del conto per votare(in giorni)",
     "end-time": "Ora di fine",
     "vote": "Voto",
-    "account-age-hint": "Only accounts older than {{n}} days allowed",
+    "account-age-hint": "Sono ammessi solo account più vecchi di {{n}} giorni",
     "preview-mode": "Modalità anteprima",
     "number_of_votes": "Per numero di voti",
     "tokens": "Per token",
@@ -2947,7 +2947,7 @@
   "banners": {
     "no-ls-title": "Impossibile utilizzare i dati locali",
     "no-ls-description": "Sembra che tu o il tuo browser abbia disabilitato i dati locali per il nostro sito web. Purtroppo, non è possibile utilizzare la maggior parte delle funzioni Ecency come bozze, mazzi locali, cruscotto di trading avanzato e altro ancora. Si prega di utilizzare le ultime versioni di qualsiasi browser moderno o attivare i dati locali manualmente.",
-    "install-title": "Install Ecency",
+    "install-title": "Installa Ecency",
     "install-description": "Aggiungi Ecency alla schermata iniziale per un'esperienza a schermo intero più veloce.",
     "install-cta": "Installa",
     "install-dismiss": "Non ora",
@@ -2972,7 +2972,7 @@
     "who-to-follow": "Chi seguire",
     "who-to-follow-hint": "Vuoi essere qui troppo? Sii attivo e tieni traccia in Discover/Leaderboards.",
     "whats-happening": "Cosa sta succedendo",
-    "whats-happening-subtitle": "Trending hashtags from the last {{hours}} hours",
+    "whats-happening-subtitle": "Hashtag di tendenza delle ultime {{hours}} ore",
     "whats-happening-empty": "Ancora nessun hashtag di tendenza.",
     "whats-happening-error": "Impossibile caricare gli hashtag di tendenza in questo momento.",
     "tag-feed-indicator": "Navigazione #{{tag}}",
@@ -3011,7 +3011,7 @@
     "invited": {
       "title": "Invitato da un amico",
       "description": "Un amico con un account Hive può crearne uno per te senza alcun costo.",
-      "button": "Get Invited",
+      "button": "Fatti invitare",
       "label": "Invitato"
     }
   },
@@ -3101,7 +3101,7 @@
       "enter-address-hint": "Copia l'indirizzo dal tuo portafoglio MetaMask per questa catena.",
       "login-with-metamask": "Accedi con MetaMask",
       "logging-in": "Accedi con MetaMask...",
-      "address-label": "{{chain}} address:",
+      "address-label": "Indirizzo {{chain}}:",
       "checking-multichain": "Controllo degli indirizzi multichain di MetaMaschera...",
       "chain-not-available": "La catena selezionata non è disponibile in MetaMaschera"
     },
@@ -3223,7 +3223,7 @@
       "video": "Video",
       "poll": "Sondaggio",
       "align-hint": "Solo paragrafi e immagini possono essere allineati",
-      "geotag": "Geo tag"
+      "geotag": "Geotag"
     },
     "table-toolbar": {
       "add-column-before": "Aggiungi colonna prima",
@@ -3375,12 +3375,12 @@
       "withdraw-saving": "Preleva percorsi",
       "gift": "Regalo",
       "promote": "Promuovi",
-      "claim": "Claim",
+      "claim": "Riscuoti",
       "buy": "Acquista",
       "lock": "Blocca liquidità",
       "stake": "Stake",
       "unstake": "Spostare",
-      "undelegate": "Undelegate"
+      "undelegate": "Annulla delega"
     },
     "hbd-interest": {
       "title": "Interessi di risparmio HBD",
@@ -3388,7 +3388,7 @@
       "next-ready": "Pronto a reclamare ora",
       "next-in": "Disponibile {{relative}}",
       "next-unknown": "Schema di interessi non disponibile",
-      "next-date": "On {{date}}",
+      "next-date": "Il {{date}}",
       "balance-label": "Saldo di risparmio",
       "minimum-balance": "Gli interessi maturano una volta che hai almeno {{amount}} HBD nei risparmi.",
       "note": "Gli interessi sono calcolati in modo continuo al TAEG {{apr}}%.",
@@ -3399,7 +3399,7 @@
     "claim-rewards-loading": "Rivendicazione...",
     "claim-rewards-success": "{{amount}} {{token}} rivendicato con successo",
     "hp-delegation-promo": {
-      "tag": "+10% APR boost",
+      "tag": "+10% di APR bonus",
       "title": "Lasciate che Ecency curare con il vostro potere Hive",
       "description": "Delega il tuo potere Hive a @ecency per attivare la cura attiva gestita dal nostro team di curatori. La cura attiva può aggiungere circa +10% APR e il 100% delle ricompense di curazione ti vengono restituiti.",
       "button": "Delega a @ecency",
@@ -3424,10 +3424,10 @@
       "transfer-soon": "Trasferimento (prossimo)",
       "receive-title": "Ricevi {{token}}",
       "receive-description": "Scansiona il codice QR o copia l'indirizzo per ricevere {{token}}.",
-      "receive-loading": "Generating QR code...",
+      "receive-loading": "Generazione del codice QR...",
       "receive-qr-error": "Non è stato possibile generare un codice QR. Si prega di copiare l'indirizzo invece.",
-      "receive-qr-alt": "{{token}} deposit QR code",
-      "address-label": "{{token}} address",
+      "receive-qr-alt": "Codice QR per deposito {{token}}",
+      "address-label": "Indirizzo {{token}}",
       "receive-no-address": "Non abbiamo ancora trovato un indirizzo per questo token. Impostalo dalla pagina di configurazione del tuo portafoglio per iniziare a ricevere."
     }
   },
@@ -3557,11 +3557,11 @@
     }
   },
   "ai-image-generator": {
-    "title": "AI Image Generator",
-    "page-title": "AI Image Generator",
+    "title": "Generatore di immagini IA",
+    "page-title": "Generatore di immagini IA",
     "page-description": "Generare immagini da descrizioni di testo utilizzando AI. I costi sono detratti dai vostri Ecency Points.",
     "toolbar-button": "Immagine AI",
-    "perk-card-title": "AI Image Generator",
+    "perk-card-title": "Generatore di immagini IA",
     "perk-card-description": "Crea immagini da messaggi di testo utilizzando AI, alimentato dai tuoi Ecency Points",
     "prompt-label": "Descrivi l'immagine che vuoi creare",
     "prompt-placeholder": "Un bel tramonto sulle montagne con nuvole viola...",
@@ -3612,8 +3612,8 @@
     "action-suggest_tags-desc": "Ottieni tag rilevanti per il tuo post",
     "action-generate_title": "Genera Titolo",
     "action-generate_title-desc": "Crea opzioni di titolo convincenti",
-    "action-summarize": "Summarize",
-    "action-summarize-desc": "Create a TL;DR summary",
+    "action-summarize": "Riassumi",
+    "action-summarize-desc": "Crea un riassunto TL;DR",
     "action-check_grammar": "Controlla Grammatica",
     "action-check_grammar-desc": "Correggi grammatica e ortografia",
     "submit-button": "Esegui Assistenza AI",
@@ -3633,6 +3633,6 @@
     "error-rate-limit": "Troppe richieste. Si prega di attendere un attimo e riprovare.",
     "error-auth": "Autenticazione scaduta. Per favore aggiorna la pagina e riprova.",
     "error-generic": "Aiuto AI non riuscito. Riprova.",
-    "error-text-too-short": "Your text is too short. Minimum {{count}} characters required."
+    "error-text-too-short": "Il testo è troppo breve. Sono richiesti almeno {{count}} caratteri."
   }
 }

@@ -269,7 +269,7 @@
     "boost": "Продвинуть",
     "submit": "Создать пост",
     "chats": "Чаты",
-    "perks": "Perks"
+    "perks": "Бонусы"
   },
   "intro": {
     "title": "Стремитесь к величию",
@@ -320,11 +320,11 @@
     "extensions-mobile-note": "Расширения Hive доступны только для настольных браузеров. На мобильных устройствах, используйте Keychain Mobile или войдите с вашим ключом или HiveSigner.",
     "extensions-select-title": "Выберите расширение",
     "extensions-select-description": "Обнаружено несколько расширений Hive . Выберите, какой из них использовать для подписи:",
-    "extension-keeper-name": "Хранитель Улей",
+    "extension-keeper-name": "Hive Keeper",
     "extension-keeper-desc": "По Ecency - рекомендуется для наилучшего опыта",
     "extension-keychain-name": "Hive Keychain",
     "extension-keychain-desc": "Популярный кошелек Hive и подписание расширения",
-    "extension-peakvault-name": "Хранилище пика",
+    "extension-peakvault-name": "Peak Vault",
     "extension-peakvault-desc": "По PeakD - легкое расширение кошелька",
     "keychain-mobile": "Мобильный Keychain",
     "keychain-mobile-missing-sig": "Отсутствует подпись из связки ключей. Пожалуйста, попробуйте еще раз.",
@@ -517,10 +517,10 @@
   },
   "entry-tip": {
     "title": "Чаевые",
-    "tip": "Tip",
+    "tip": "Чаевые",
     "send-tip": "Подсказка",
-    "count": "{{count}} tip",
-    "count_plural": "{{count}} tips"
+    "count": "{{count}} чаевые",
+    "count_plural": "{{count}} чаевых"
   },
   "entry-share": {
     "title": "Поделиться"
@@ -903,7 +903,7 @@
       "title": "Рынок Hive Engine",
       "description": "Торгуйте токенами Hive Engine с лимитными ордерами прямо из вашего счета Hive account.",
       "token": "Токен",
-      "volume": "Vol: {{value}} SWAP.HIVE",
+      "volume": "Объём: {{value}} SWAP.HIVE",
       "last-price": "Последняя цена",
       "price-change": "Смена на 24 часа",
       "volume-label": "Громкость 24 часа ({{symbol}})",
@@ -1218,7 +1218,7 @@
     "uniques": "Уникальные виды",
     "minutes": "Минут",
     "no-data": "Для этого диапазона пока нет доступных просмотров страниц.",
-    "range": "Date range",
+    "range": "Диапазон дат",
     "disabled": "В данный момент информация о достопримечательностях отключена.",
     "error": "Не удалось загрузить прорисовки."
   },
@@ -1931,11 +1931,11 @@
     "reblogged": "{{source}} сделал репост вашего поста",
     "transfer": "{{source}} отправил вам {{amount}}",
     "delegations": "{{source}} делегировал вам {{amount}}",
-    "checkins": "You checked in {{count}} day{{suffix}} this week. Keep it up!",
+    "checkins": "Вы отметились {{count}} дн.{{suffix}} на этой неделе. Так держать!",
     "payouts": "Выплата контента готова.",
     "payouts-amount": "Вы получили выплату {{amount}}.",
     "payouts-amount-usd": "Вы заработали ${{amount_usd}} ({{amount}}).",
-    "payouts-title": "{{body}} \"{{title}}\"",
+    "payouts-title": "{{body}} «{{title}}»",
     "monthly-posts": "Вы создали {{count}} пост{{suffix}} в этом месяце. Держите его!",
     "weekly-earnings": "Вы заработали ${{total}} на этой неделе - ${{author}} от должностей, ${{curation}} от курирования.",
     "weekly-earnings-short": "Вы заработали ${{total}} на этой неделе от ваших постов и курирования."
@@ -2135,7 +2135,7 @@
     "create": {
       "step-setup-title": "Детали предложения",
       "step-setup-sub-title": "Опишите предложение, которое вы хотите отправить в DHF.",
-      "description": "<p>Before submitting a proposal make sure you have published a Hive post that explains the scope of the work and link to it below. Creating a proposal costs <strong>10 HBD</strong> plus <strong>1 HBD</strong> for each day over 60.</p>",
+      "description": "<p>Прежде чем подавать предложение, убедитесь, что вы опубликовали пост в Hive, объясняющий объём работ, и укажите ссылку на него ниже. Создание предложения стоит <strong>10 HBD</strong> плюс <strong>1 HBD</strong> за каждый день свыше 60.</p>",
       "subject-label": "Заголовок",
       "subject-placeholder": "Короткое публичное название",
       "subject-help": "Это появляется в списке предложений. Держите его кратким (максимум 80 символов).",
@@ -2161,7 +2161,7 @@
       "daily-pay-label": "Ежедневная оплата (HBD)",
       "daily-pay-help": "Количество запрошенного HBD в день.",
       "daily-pay-error": "Введите положительную сумму дневной оплаты.",
-      "summary-title": "Summary",
+      "summary-title": "Резюме",
       "summary-duration": "Продолжительность: {{days}} дней",
       "summary-daily-pay": "Ежедневная оплата: {{amount}} HBD",
       "summary-total-pay": "Всего выплачено <unk> {{amount}} HBD",
@@ -2727,7 +2727,7 @@
     "download-for-windows": "Скачать для компьютера",
     "download-for-ios": "Скачать для IOS",
     "download-for-android": "Скачать для Android",
-    "install-web-app": "Install Web App (PWA)",
+    "install-web-app": "Установить веб-приложение (PWA)",
     "get-mobile-app": "Получить мобильное приложение",
     "our-history": "Наша история",
     "our-history-p-one": "<b>Ecency</b> (ранее Esteem) начался в 2016 году, основанный <a href=\"/contributors\" class=\"push-link\">членами сообщества</a> , создавшими мобильное приложение, которое революционизирует то, как вы взаимодействуете и создаваете, строительство, участие в сети. Со временем она выросла до чего-то гораздо крупнее.",
@@ -2947,7 +2947,7 @@
   "banners": {
     "no-ls-title": "Невозможно использовать локальные данные",
     "no-ls-description": "Похоже, Вы или Ваш браузер отключили локальные данные для нашего сайта. К сожалению, вы не можете использовать большинство функций Ecency, таких как черновики, локальные колоды, продвинутая торговая панель и многое другое. Пожалуйста, используйте последние версии любого современного браузера или включите локальные данные вручную.",
-    "install-title": "Install Ecency",
+    "install-title": "Установить Ecency",
     "install-description": "Добавьте Ecency на домашний экран для более быстрой работы с полноэкранным экраном.",
     "install-cta": "Установить",
     "install-dismiss": "Не сейчас",
@@ -3375,7 +3375,7 @@
       "withdraw-saving": "Вывести маршруты",
       "gift": "Подарок",
       "promote": "Повысить",
-      "claim": "Claim",
+      "claim": "Получить",
       "buy": "Купить",
       "lock": "Заблокировать ликвидность",
       "stake": "Разбивка",
@@ -3424,9 +3424,9 @@
       "transfer-soon": "Перевод (скоро)",
       "receive-title": "Получить {{token}}",
       "receive-description": "Сканируйте QR-код или скопируйте адрес, чтобы получить {{token}}.",
-      "receive-loading": "Generating QR code...",
+      "receive-loading": "Генерация QR-кода...",
       "receive-qr-error": "Мы не смогли сгенерировать QR-код. Пожалуйста, скопируйте адрес.",
-      "receive-qr-alt": "{{token}} deposit QR code",
+      "receive-qr-alt": "QR-код для пополнения {{token}}",
       "address-label": "{{token}} адрес",
       "receive-no-address": "Мы пока не смогли найти адрес для этого токена. Настройте его на странице установки вашего кошелька, чтобы начать получение."
     }
@@ -3557,11 +3557,11 @@
     }
   },
   "ai-image-generator": {
-    "title": "AI Image Generator",
-    "page-title": "AI Image Generator",
+    "title": "Генератор изображений ИИ",
+    "page-title": "Генератор изображений ИИ",
     "page-description": "Генерировать изображения из текстовых описаний с помощью AI. Стоимость вычитается из ваших очков эцента.",
     "toolbar-button": "ИИ изображение",
-    "perk-card-title": "AI Image Generator",
+    "perk-card-title": "Генератор изображений ИИ",
     "perk-card-description": "Создавайте изображения из текстовых подсказок, используя AI, поддерживаемые вашими очками",
     "prompt-label": "Опишите изображение, которое вы хотите создать",
     "prompt-placeholder": "Красивый закат над горами с фиолетовыми облаками...",
@@ -3612,8 +3612,8 @@
     "action-suggest_tags-desc": "Получить соответствующие теги для вашего сообщения",
     "action-generate_title": "Создать Заголовок",
     "action-generate_title-desc": "Создать убедительные параметры заголовка",
-    "action-summarize": "Summarize",
-    "action-summarize-desc": "Create a TL;DR summary",
+    "action-summarize": "Кратко изложить",
+    "action-summarize-desc": "Создать краткое резюме (TL;DR)",
     "action-check_grammar": "Проверить грамматику",
     "action-check_grammar-desc": "Исправить грамматику и орфографию",
     "submit-button": "Помощь ИИ Запустить",
