@@ -128,7 +128,10 @@
   "announcements": {
     "dismiss": "Odrzuć",
     "next": "Następny",
-    "later": "Później"
+    "later": "Później",
+    "voted": "Zagłosowano",
+    "view-proposal": "Zobacz propozycję",
+    "vote-success": "Dziękujemy za wsparcie Ecencji!"
   },
   "floating-faq": {
     "toggle-icon-info": "Kliknij aby rozwinąć",
@@ -314,6 +317,7 @@
     "extensions": "Rozszerzenia",
     "extensions-info-title": "Rozszerzenia przeglądarki",
     "extensions-info-description": "Zaloguj się bezpiecznie za pomocą rozszerzenia przeglądarki ul. Zainstaluj jedno z następujących rozszerzeń, aby rozpocząć:",
+    "extensions-mobile-note": "Rozszerzenia przeglądarki ulowej są dostępne tylko w przeglądarkach komputerowych. Na urządzeniu mobilnym użyj Keychain Mobile lub zaloguj się za pomocą klucza lub HiveSigner.",
     "extensions-select-title": "Wybierz rozszerzenie",
     "extensions-select-description": "Wykryto wiele rozszerzeń ula. Wybierz, który z nich ma być użyty do podpisu:",
     "extension-keeper-name": "Opiekun Uli",
@@ -1695,6 +1699,8 @@
     "with-hivesigner": "Sign with hivesigner",
     "with-keychain": "Sign with keychain",
     "with-extension": "Podpisz rozszerzeniem",
+    "with-extension-named": "Podpisz za pomocą {{name}}",
+    "no-extension-prompt": "Nie masz rozszerzenia do Uli? Zainstaluj:",
     "with-hiveauth": "Podpisz z HiveAuth",
     "invalid-key": "Nieprawidłowy format klucza. Sprawdź czy nie występują nieprawidłowe znaki.",
     "key-error": "Przetwarzanie klucza nie powiodło się. Sprawdź, czy jest poprawne.",
