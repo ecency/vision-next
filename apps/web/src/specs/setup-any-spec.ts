@@ -33,9 +33,10 @@ vi.mock("@ecency/sdk", () => ({
   callWithQuorum: vi.fn(),
   config: { nodes: [], timeout: 1000, address_prefix: "STM" },
   utils: { operations: {}, makeBitMaskFilter: vi.fn() },
-}));
-
-vi.mock("@ecency/sdk", () => ({
+  // Keep a SINGLE vi.mock("@ecency/sdk") factory: vitest 4 no longer merges
+  // duplicate vi.mock() calls for the same module (the first factory wins), so
+  // a second factory's exports (e.g. hiveTxUtils) silently went missing and
+  // broke specs that import them transitively.
   ConfigManager: { setQueryClient: vi.fn() },
   CONFIG: {
     hiveNodes: [],
@@ -66,7 +67,6 @@ vi.mock("@ecency/sdk", () => ({
   sha256: vi.fn(() => new Uint8Array(32)),
   calculateVPMana: vi.fn(() => ({ percentage: 10000, current_mana: 0, max_mana: 0 })),
   calculateRCMana: vi.fn(() => ({ percentage: 10000, current_mana: 0, max_mana: 0 })),
-  callRPC: vi.fn(),
   hiveTxUtils: { operations: {}, makeBitMaskFilter: vi.fn() },
   hiveTxConfig: { nodes: [], timeout: 1000, address_prefix: "STM" },
   dedupeAndSortKeyAuths: vi.fn((...args: any[]) => args[0] || []),

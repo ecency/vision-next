@@ -31,6 +31,9 @@
     "changeset:publish": "changeset publish"
   },
   "packageManager": "pnpm@10.26.1",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
   "devDependencies": {
     "@changesets/changelog-github": "^0.5.0",
     "@changesets/cli": "^2.27.8",
@@ -39,7 +42,7 @@
     "sass-embedded": "^1.93.2",
     "tsup": "^8.5.0",
     "typescript": "^5",
-    "vitest": "^3.2.4"
+    "vitest": "^4.1.8"
   },
   "pnpm": {
     "overrides": {
