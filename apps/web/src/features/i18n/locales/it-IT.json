@@ -128,7 +128,10 @@
   "announcements": {
     "dismiss": "Abbandona",
     "next": "Avanti",
-    "later": "Dopo"
+    "later": "Dopo",
+    "voted": "Votato",
+    "view-proposal": "Visualizza proposta",
+    "vote-success": "Grazie per aver sostenuto Ecency!"
   },
   "floating-faq": {
     "toggle-icon-info": "Fare clic per espandere",
@@ -314,6 +317,7 @@
     "extensions": "Estensioni",
     "extensions-info-title": "Estensioni Del Browser",
     "extensions-info-description": "Accedi in modo sicuro utilizzando un'estensione del browser Hive. Installa una delle seguenti estensioni per iniziare:",
+    "extensions-mobile-note": "Le estensioni del browser Hive sono disponibili solo sui browser desktop. Su dispositivi mobili, usa Keychain Mobile o accedi con la tua chiave o HiveSigner.",
     "extensions-select-title": "Scegli Estensione",
     "extensions-select-description": "Rilevate estensioni multiple di Hive. Seleziona quale usare per firmare:",
     "extension-keeper-name": "Custode Dell'Alveare",
@@ -1695,6 +1699,8 @@
     "with-hivesigner": "Sign with hivesigner",
     "with-keychain": "Sign with keychain",
     "with-extension": "Firma con estensione",
+    "with-extension-named": "Firma con {{name}}",
+    "no-extension-prompt": "Non hai un'estensione Hive? Installa una:",
     "with-hiveauth": "Firma con HiveAuth",
     "invalid-key": "Formato chiave non valido. Si prega di verificare la presenza di caratteri non validi.",
     "key-error": "Impossibile elaborare la chiave. Verifica che sia corretta.",
