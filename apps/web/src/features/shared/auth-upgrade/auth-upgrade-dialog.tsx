@@ -11,7 +11,6 @@ import { MetaMaskSignButton } from "../metamask-sign-button";
 import { resolveAuthUpgrade } from "./auth-upgrade-events";
 import { shouldUseKeychainMobile } from "@/utils/client";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
-import { useIsMobile } from "@/utils";
 import { getLoginType } from "@/utils/user-token";
 import {
   getDetectedExtensions,
@@ -28,7 +27,6 @@ interface AuthUpgradeRequest {
 
 export function AuthUpgradeDialog() {
   const { activeUser } = useActiveAccount();
-  const isMobileBrowser = useIsMobile();
   const [request, setRequest] = useState<AuthUpgradeRequest | null>(null);
 
   useEffect(() => {
@@ -89,7 +87,13 @@ export function AuthUpgradeDialog() {
   const isMetaMaskUser = activeUser && getLoginType(activeUser.username) === "metamask";
   const useKcMobile = shouldUseKeychainMobile(activeUser?.username);
   const detectedExtensions = getDetectedExtensions();
-  const showExtensionBtn = !isMetaMaskUser && (!isMobileBrowser || useKcMobile || isInAppBrowser() || hasAnyHiveExtension());
+  // The generic (deep-link) fallback button only makes sense for Keychain
+  // Mobile / in-app WebViews. On desktop with no detected extension there's
+  // nothing to sign with, so don't offer a dead-end "Sign with Extension".
+  const canUseExtensionFallback = useKcMobile || isInAppBrowser();
+  const showExtensionBtn =
+    !isMetaMaskUser &&
+    (detectedExtensions.length > 0 || hasAnyHiveExtension() || canUseExtensionFallback);
   const extensionLabel = useKcMobile
     ? i18next.t("key-or-hot.with-keychain-mobile", { defaultValue: "Sign with Keychain Mobile" })
     : i18next.t("key-or-hot.with-extension", { defaultValue: "Sign with Extension" });
@@ -162,10 +166,10 @@ export function AuthUpgradeDialog() {
                         })}
                       </Button>
                     ))
-                  ) : (
-                    // No extension detected (e.g. Keychain Mobile / in-app
-                    // WebView): keep the generic button — the adapter resolves
-                    // the deep-link path from the login type.
+                  ) : canUseExtensionFallback ? (
+                    // No extension detected but a Keychain Mobile / in-app
+                    // WebView deep-link path exists: keep the generic button —
+                    // the adapter resolves the deep-link from the login type.
                     <Button
                       outline={true}
                       appearance="secondary"
@@ -182,7 +186,7 @@ export function AuthUpgradeDialog() {
                     >
                       {extensionLabel}
                     </Button>
-                  ))}
+                  ) : null)}
               </div>
             </>
           )}
