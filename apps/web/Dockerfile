@@ -89,4 +89,15 @@ COPY --from=base /var/app/node_modules ./node_modules
 COPY --from=base /var/app/apps/web/node_modules ./apps/web/node_modules
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 CMD node /var/app/apps/web/healthCheck.js
-CMD ["pnpm", "start"]
+
+# Start Next.js directly rather than via `pnpm start`. The production image is
+# already built; it needs no package manager at runtime. pnpm 11 runs a
+# "verify deps before run" check before the start script, decides the pruned
+# (`pnpm deploy --prod`) node_modules is stale, tries to purge + reinstall, and
+# aborts in a TTY-less container (ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY ->
+# exit 1). That made every Swarm rollout crash on start and silently roll back
+# to the previous image, so deploys went green while prod kept serving the old
+# build. Invoking next directly skips that check (and a per-start corepack
+# download of pnpm).
+WORKDIR /var/app/apps/web
+CMD ["node", "./node_modules/next/dist/bin/next", "start"]

@@ -138,8 +138,26 @@ jobs:
           docker pull ecency/api:latest
           docker pull ecency/vision-next:latest
           docker stack deploy -c <(docker-compose -f docker-compose.production.yml config) vision
-          sleep 60
+          # Fail the job if vision_web does not converge — e.g. the new image
+          # crashes on start and Swarm rolls back to the previous image. Without
+          # this, `docker stack deploy` returns 0 immediately, so a rolled-back
+          # rollout still reports a green deploy while prod serves the old build.
+          state=""
+          for i in $(seq 1 36); do
+            state=$(docker service inspect vision_web --format '{{if .UpdateStatus}}{{.UpdateStatus.State}}{{end}}' 2>/dev/null || echo "")
+            case "$state" in
+              ""|completed) break ;;
+              rollback_*|paused) break ;;
+            esac
+            sleep 5
+          done
+          case "$state" in
+            rollback_*|paused)
+              echo "::error::vision_web did not converge (UpdateStatus=$state); prod still on previous image"
+              exit 1 ;;
+          esac
           docker system prune -f
+          echo "vision_web converged (UpdateStatus=${state:-none})"
 
   deploy-US:
     needs: build
@@ -194,8 +212,26 @@ jobs:
           docker pull ecency/api:latest
           docker pull ecency/vision-next:latest
           docker stack deploy -c <(docker-compose -f docker-compose.production.yml config) vision
-          sleep 60
+          # Fail the job if vision_web does not converge — e.g. the new image
+          # crashes on start and Swarm rolls back to the previous image. Without
+          # this, `docker stack deploy` returns 0 immediately, so a rolled-back
+          # rollout still reports a green deploy while prod serves the old build.
+          state=""
+          for i in $(seq 1 36); do
+            state=$(docker service inspect vision_web --format '{{if .UpdateStatus}}{{.UpdateStatus.State}}{{end}}' 2>/dev/null || echo "")
+            case "$state" in
+              ""|completed) break ;;
+              rollback_*|paused) break ;;
+            esac
+            sleep 5
+          done
+          case "$state" in
+            rollback_*|paused)
+              echo "::error::vision_web did not converge (UpdateStatus=$state); prod still on previous image"
+              exit 1 ;;
+          esac
           docker system prune -f
+          echo "vision_web converged (UpdateStatus=${state:-none})"
 
   deploy-SG:
     needs: build
@@ -250,5 +286,23 @@ jobs:
           docker pull ecency/api:latest
           docker pull ecency/vision-next:latest
           docker stack deploy -c <(docker-compose -f docker-compose.production.yml config) vision
-          sleep 60
+          # Fail the job if vision_web does not converge — e.g. the new image
+          # crashes on start and Swarm rolls back to the previous image. Without
+          # this, `docker stack deploy` returns 0 immediately, so a rolled-back
+          # rollout still reports a green deploy while prod serves the old build.
+          state=""
+          for i in $(seq 1 36); do
+            state=$(docker service inspect vision_web --format '{{if .UpdateStatus}}{{.UpdateStatus.State}}{{end}}' 2>/dev/null || echo "")
+            case "$state" in
+              ""|completed) break ;;
+              rollback_*|paused) break ;;
+            esac
+            sleep 5
+          done
+          case "$state" in
+            rollback_*|paused)
+              echo "::error::vision_web did not converge (UpdateStatus=$state); prod still on previous image"
+              exit 1 ;;
+          esac
           docker system prune -f
+          echo "vision_web converged (UpdateStatus=${state:-none})"
