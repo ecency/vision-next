@@ -128,7 +128,10 @@
   "announcements": {
     "dismiss": "Отклонить",
     "next": "Далее",
-    "later": "Позже"
+    "later": "Позже",
+    "voted": "Проголосовал",
+    "view-proposal": "Просмотреть предложение",
+    "vote-success": "Спасибо за поддержку Эценции!"
   },
   "floating-faq": {
     "toggle-icon-info": "Нажмите, чтобы развернуть",
@@ -314,6 +317,7 @@
     "extensions": "Расширения",
     "extensions-info-title": "Расширения браузера",
     "extensions-info-description": "Войдите в систему с помощью расширения Him. Установите одно из следующих расширений:",
+    "extensions-mobile-note": "Расширения Hive доступны только для настольных браузеров. На мобильных устройствах, используйте Keychain Mobile или войдите с вашим ключом или HiveSigner.",
     "extensions-select-title": "Выберите расширение",
     "extensions-select-description": "Обнаружено несколько расширений Hive . Выберите, какой из них использовать для подписи:",
     "extension-keeper-name": "Хранитель Улей",
@@ -1695,6 +1699,8 @@
     "with-hivesigner": "Подписать с помощью hivesigner",
     "with-keychain": "Подписать с помощью keychain",
     "with-extension": "Подписать с помощью расширения",
+    "with-extension-named": "Подписать с помощью {{name}}",
+    "no-extension-prompt": "У вас нет расширения Hiv? Установите один:",
     "with-hiveauth": "Подписать через HiveAuth",
     "invalid-key": "Неверный формат ключа. Пожалуйста, проверьте недопустимые символы.",
     "key-error": "Не удалось обработать ключ. Пожалуйста, проверьте правильность.",
