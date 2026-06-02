@@ -678,7 +678,7 @@ See README.md for detailed environment variable documentation.
 
 ## Package Manager
 
-This project uses **pnpm@10.26.1**. The `packageManager` field in `package.json` ensures the correct version is used. Always run commands from the workspace root unless specifically targeting a package.
+This project uses **pnpm@10.34.1** and **Node.js >= 22.12** (CI runs Node 24; see `.nvmrc`). The `packageManager` field in `package.json` ensures the correct pnpm version is used. Always run commands from the workspace root unless specifically targeting a package.
 
 ## Production Build
 

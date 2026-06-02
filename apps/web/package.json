@@ -2,7 +2,7 @@
   "name": "@ecency/web",
   "version": "4.3.9",
   "private": true,
-  "packageManager": "pnpm@10.18.1",
+  "packageManager": "pnpm@10.34.1",
   "scripts": {
     "prepare": "next-ws patch",
     "dev": "node ./node_modules/next/dist/bin/next dev",
@@ -126,7 +126,6 @@
     "react-virtuoso": "^4.18.1",
     "remeda": "^2.30.0",
     "rss": "^1.2.2",
-    "sharp": "0.32.6",
     "sortablejs": "^1.15.2",
     "speakingurl": "^14.0.1",
     "turndown": "^7.2.0",
