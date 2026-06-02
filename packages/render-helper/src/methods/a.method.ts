@@ -238,7 +238,7 @@ export function a(el: HTMLElement | null, forApp: boolean, parentDomain: string 
       el.setAttribute('data-permlink', permlink)
 
     } else {
-      const h = `/${tag}/@${author}/${permlink}`
+      const h = `/@${author}/${permlink}`
       el.setAttribute('href', h)
       el.setAttribute('data-is-inline', '' + isInline)
     }
@@ -343,7 +343,7 @@ export function a(el: HTMLElement | null, forApp: boolean, parentDomain: string 
         el.setAttribute('data-permlink', permlink)
 
       } else {
-        const h = `/${tag}/@${author}/${permlink}`
+        const h = `/@${author}/${permlink}`
         el.setAttribute('href', h)
         el.setAttribute('data-is-inline', '' + isInline)
       }
@@ -425,7 +425,7 @@ export function a(el: HTMLElement | null, forApp: boolean, parentDomain: string 
         el.setAttribute('data-author', author)
         el.setAttribute('data-permlink', permlink)
       } else {
-        const h = `/${tag}/@${author}/${permlink}`
+        const h = `/@${author}/${permlink}`
         el.setAttribute('href', h)
         el.setAttribute('data-is-inline', '' + isInline)
       }
@@ -532,7 +532,7 @@ export function a(el: HTMLElement | null, forApp: boolean, parentDomain: string 
       el.setAttribute('data-author', author)
       el.setAttribute('data-permlink', permlink)
     } else {
-      const h = `/${tag}/@${author}/${permlink}`
+      const h = `/@${author}/${permlink}`
       el.setAttribute('href', h)
       el.setAttribute('data-is-inline', '' + isInline)
     }

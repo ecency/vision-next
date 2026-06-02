@@ -9,10 +9,10 @@ interface Props {
 
 export function EntryPageIsCommentHeader({ entry }: Props) {
   const isComment = !!entry.parent_author;
-  const rootHref =
-    entry.url && !entry.url.includes("undefined")
-      ? entry.url
-      : makeEntryPath(entry.category, entry.author, entry.permlink);
+  // Always build from makeEntryPath (bare /@author/permlink) rather than the
+  // chain-provided entry.url, which is the legacy /category/@author/permlink
+  // form and would send the link through the 308 redirect.
+  const rootHref = makeEntryPath(entry.category, entry.author, entry.permlink);
 
   return isComment ? (
     <div className="comment-entry-header">

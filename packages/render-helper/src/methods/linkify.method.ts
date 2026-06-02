@@ -55,7 +55,7 @@ export function linkify(content: string, forApp: boolean, renderOptions?: Render
         const attrs = forApp ? `href="https://ecency.com/@${authorLower}/${permlink}"` : `href="/@${authorLower}/${permlink}"`
         return `${preceding}<a class="markdown-profile-link" ${attrs}>@${authorLower}/${permlink}</a>`
       } else {
-        const attrs = forApp ? `data-author="${authorLower}" data-tag="${tag}" data-permlink="${permlink}"` : `href="/${tag}/@${authorLower}/${permlink}"`
+        const attrs = forApp ? `data-author="${authorLower}" data-tag="${tag}" data-permlink="${permlink}"` : `href="/@${authorLower}/${permlink}"`
         return `${preceding}<a class="markdown-post-link" ${attrs}>@${authorLower}/${permlink}</a>`
       }
     }
@@ -73,7 +73,7 @@ export function linkify(content: string, forApp: boolean, renderOptions?: Render
         const attrs = forApp ? `href="https://ecency.com/@${uu}/${permlink}"` : `href="/@${uu}/${permlink}"`
         return ` <a class="markdown-profile-link" ${attrs}>@${uu}/${permlink}</a>`
       } else {
-        const attrs = forApp ? `data-author="${uu}" data-tag="post" data-permlink="${permlink}"` : `href="/post/@${uu}/${permlink}"`
+        const attrs = forApp ? `data-author="${uu}" data-tag="post" data-permlink="${permlink}"` : `href="/@${uu}/${permlink}"`
         return ` <a class="markdown-post-link" ${attrs}>@${uu}/${permlink}</a>`
       }
     }

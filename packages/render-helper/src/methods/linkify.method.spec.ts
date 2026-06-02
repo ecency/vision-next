@@ -119,14 +119,14 @@ describe('linkify() method - Content Linkification', () => {
       const result = linkify(content, false)
 
       expect(result).toContain('class="markdown-post-link"')
-      expect(result).toContain('href="/post/@author/my-post"')
+      expect(result).toContain('href="/@author/my-post"')
     })
 
     it('should linkify internal links starting with /@', () => {
       const content = 'Read /@alice/awesome-article today'
       const result = linkify(content, false)
 
-      expect(result).toContain('href="/post/@alice/awesome-article"')
+      expect(result).toContain('href="/@alice/awesome-article"')
     })
 
     it('should use data attributes for app mode', () => {
@@ -157,7 +157,7 @@ describe('linkify() method - Content Linkification', () => {
       const content = '/@author/post?param=value'
       const result = linkify(content, false)
 
-      expect(result).toContain('href="/post/@author/post"')
+      expect(result).toContain('href="/@author/post"')
     })
 
     it('should not linkify invalid permlinks', () => {
@@ -183,7 +183,7 @@ describe('linkify() method - Content Linkification', () => {
       const result = linkify(content, false)
 
       expect(result).toContain('class="markdown-post-link"')
-      expect(result).toContain('href="/hive-173115/@alice/my-great-post"')
+      expect(result).toContain('href="/@alice/my-great-post"')
     })
 
     it('should linkify /category/@user/permlink in app mode with data attributes', () => {
@@ -287,7 +287,7 @@ describe('linkify() method - Content Linkification', () => {
       const result = linkify(content, false)
 
       expect(result).toContain('href="/@alice"')
-      expect(result).toContain('href="/post/@bob/my-article"')
+      expect(result).toContain('href="/@bob/my-article"')
     })
 
     it('should handle all types of content together', () => {

@@ -44,6 +44,6 @@ exports[`tempEntry > (1) Create temp entry 1`] = `
   },
   "title": "a test post",
   "updated": "2019-04-22T10:20:30",
-  "url": "/ecency/@foo/lorem",
+  "url": "/@foo/lorem",
 }
 `;

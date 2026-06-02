@@ -86,13 +86,13 @@ export function useMenuItemsGenerator(
   const copyAddress = useCallback(() => {
     let u;
     if (activeUser?.username) {
-      u = `https://ecency.com/${entry.category}/@${entry.author}/${entry.permlink}?referral=${activeUser.username}`;
+      u = `https://ecency.com/@${entry.author}/${entry.permlink}?referral=${activeUser.username}`;
     } else {
-      u = `https://ecency.com/${entry.category}/@${entry.author}/${entry.permlink}`;
+      u = `https://ecency.com/@${entry.author}/${entry.permlink}`;
     }
     clipboard(u);
     success(i18next.t("entry.address-copied"));
-  }, [activeUser?.username, entry.author, entry.category, entry.permlink]);
+  }, [activeUser?.username, entry.author, entry.permlink]);
 
   const togglePin = useCallback(
     (key = "") => {

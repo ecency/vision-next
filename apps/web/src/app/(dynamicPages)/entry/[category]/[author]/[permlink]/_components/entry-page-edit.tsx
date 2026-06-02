@@ -37,7 +37,7 @@ export function EntryPageEdit({ entry: initialEntry }: Props) {
   const { mutateAsync: updateReplyApi, isPending } = useUpdateReply(entry, async () => {
     setIsLoading(true);
     await delay(2000);
-    router.push(`/${entry.category}/@${entry.author}/${entry.permlink}`);
+    router.push(`/@${entry.author}/${entry.permlink}`);
   });
 
   const updateReply = async (text: string) => {

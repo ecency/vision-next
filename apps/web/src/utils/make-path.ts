@@ -33,7 +33,11 @@ export function makeEntryPath(
 
   const sanitizedPermlink = permlink.trim();
 
-  return `/${category}/@${author}/${sanitizedPermlink}${
-    toReplies ? "#replies" : ""
-  }`;
+  // Canonical post URL is the bare "/@author/permlink" form. The leading
+  // `category` segment is intentionally omitted: next.config.js issues a 308
+  // redirect from /:category/@author/:permlink onto the bare form, so emitting
+  // category here would only force every internal link through a redirect hop.
+  // The `category` param is retained for call-site compatibility (the entry
+  // route rewrites still accept an optional category segment).
+  return `/@${author}/${sanitizedPermlink}${toReplies ? "#replies" : ""}`;
 }
