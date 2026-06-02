@@ -1,5 +1,10 @@
 {
+  "tweet": {
+    "load-failed": "Kan deze X-post niet laden.",
+    "view-on-x": "Bekijk op X"
+  },
   "g": {
+    "now": "Nu",
     "all": "Allemaal",
     "add": "Toevoegen",
     "edit": "Bewerken",
@@ -123,7 +128,10 @@
   "announcements": {
     "dismiss": "Uitschakelen",
     "next": "Volgende",
-    "later": "Later"
+    "later": "Later",
+    "voted": "Gestemd",
+    "view-proposal": "Bekijk voorstel",
+    "vote-success": "Bedankt voor het steunen van Ecency!"
   },
   "floating-faq": {
     "toggle-icon-info": "Klik om te openen",
@@ -147,10 +155,14 @@
     "filter-payout": "Uitbetalingen",
     "filter-muted": "Gedempt",
     "filter-feed": "Kanaal",
-    "filter-feed-friends": "Vrienden",
+    "filter-feed-friends": "Volgt",
     "filter-feed-subscriptions": "Gemeenschappen",
+    "filter-top": "Bovenkant",
     "filter-global": "Globaal",
     "filter-community": "Mijn Communities",
+    "source-label": "Feed bron",
+    "sort-label": "Sorteren op",
+    "more-filters": "Meer filters",
     "filter-controversial": "Controversieel",
     "filter-rising": "Stijgend",
     "filter-global-part1": "Deze feed bevat ",
@@ -178,6 +190,7 @@
     "waves": "Golven",
     "communities": "Gemeenschappen",
     "chats": "Chats",
+    "search": "Zoeken",
     "toggle-menu": "Navigatiemenu in-/uitschakelen"
   },
   "search": {
@@ -256,7 +269,7 @@
     "boost": "Boost",
     "submit": "Een bericht maken",
     "chats": "Chats",
-    "perks": "Buy perks"
+    "perks": "Perks"
   },
   "intro": {
     "title": "Streef naar grootsheid",
@@ -301,6 +314,18 @@
     "metamask-no-keys": "Kan geen Hive keys verkrijgen van MetaMask snap",
     "metamask-key-mismatch": "MetaMask Hive sleutels komen niet overeen met dit account. Zorg ervoor dat je dezelfde MetaMask wallet gebruikt tijdens het aanmelden.",
     "keychain": "Keychain",
+    "extensions": "Extensies",
+    "extensions-info-title": "Browser extensies",
+    "extensions-info-description": "Log veilig in met behulp van een Hive browserextensie. Installeer een van de volgende extensies om te beginnen:",
+    "extensions-mobile-note": "Hive browserextensies zijn alleen beschikbaar op desktopbrowsers. Gebruik op mobiel Keychain Mobiel of log in met uw sleutel of HiveSigner.",
+    "extensions-select-title": "Kies extensie",
+    "extensions-select-description": "Meerdere Hive extensies gedetecteerd. Selecteer om te gebruiken voor ondertekening:",
+    "extension-keeper-name": "Korf Keeper",
+    "extension-keeper-desc": "Op Ecency - aanbevolen voor de beste ervaring",
+    "extension-keychain-name": "Hive Keychain",
+    "extension-keychain-desc": "Populaire Hive portemonnee en de extensie ondertekenen",
+    "extension-peakvault-name": "Piek Kluis",
+    "extension-peakvault-desc": "Door PeakD - lichtgewicht portemonnee extensie",
     "keychain-mobile": "Sleutelhanger Mobiel",
     "keychain-mobile-missing-sig": "Handtekening uit Sleutelhanger ontbreekt. Probeer het opnieuw.",
     "keychain-mobile-no-pending": "Geen login gevonden. Probeer opnieuw aan te melden.",
@@ -429,7 +454,8 @@
     "delegate-placeholder": "Voer bedrag in om te delegeren (Bn)"
   },
   "trending-tags": {
-    "title": "Onderwerpen"
+    "title": "Onderwerpen",
+    "view-more": "Bekijk meer"
   },
   "sort-trending-tags": {
     "sort": "Sorteren",
@@ -629,6 +655,37 @@
     "choose-one": "Kies er een",
     "user": "Gebruiker",
     "search-query": "Zoek query",
+    "intro": {
+      "title": "Decks — uw gepersonaliseerde dashboard",
+      "description": "Volg feeds, gemeenschappen, Waves, meldingen en uw portemonnee kant aan zijde, bijwerken in real time. Log in om uw eigen dek te bouwen en op te slaan.",
+      "login": "Log in om je dek te bouwen",
+      "browse-communities": "Bekijk gemeenschappen in plaats daarvan",
+      "features": {
+        "columns-title": "Live kolommen",
+        "columns-description": "Bekijk in real time meerdere feeds updates naast elkaar.",
+        "anything-title": "Alles wat je volgt",
+        "anything-description": "Voeg kolommen toe voor mensen, gemeenschappen, Waves, trending, zoeken, meldingen en uw portemonnee.",
+        "arrange-title": "Rangschikken op jouw weg",
+        "arrange-description": "Sleep kolommen om ze te herordenen en vorm te geven aan je eigen werkruimte.",
+        "saved-title": "Opgeslagen in je account",
+        "saved-description": "Meld u aan en synchroniseer uw decks met u op elk apparaat."
+      }
+    },
+    "onboarding": {
+      "title": "Welkom bij Decks",
+      "button": "Aan de slag",
+      "skip": "Overslaan",
+      "finish": "Mijn dek bouwen",
+      "build-title": "Maak je dek",
+      "tips": {
+        "add-title": "Voeg een kolom toe",
+        "add-description": "Kies een kolomtype om een feed, community, persoon, je meldingen en meer te volgen.",
+        "drag-title": "Rangschik ze",
+        "drag-description": "Sleep kolommen met hun koptekst om uw werkruimte op de een of andere manier te herordenen.",
+        "save-title": "Sla je deck op",
+        "save-description": "Een dek opslaan in uw account vanuit de instellingen om het op alle apparaten te houden."
+      }
+    },
     "columns": {
       "view-full-post": "Volledig bericht bekijken",
       "user": "Gebruiker",
@@ -895,6 +952,8 @@
     "deleted-content-warning": "Dit bericht is verwijderd door de auteur. Je kunt het zien in de Blockchain ",
     "deleted-content": "Dit bericht is verwijderd door {{author}}",
     "deleted-no-history": "De geschiedenis van verwijderde inhoud is niet beschikbaar in de blockchain.",
+    "unable-to-load": "Kan dit bericht niet laden. Controleer uw verbinding en probeer het opnieuw.",
+    "try-edit-history": "Probeer geschiedenis te bewerken",
     "indexing-blockchain": "Je bericht is gepubliceerd naar de blockchain en wordt geïndexeerd. Dit duurt meestal een paar seconden.",
     "indexing-slow": "Indexeren duurt langer dan verwacht. Probeer de pagina binnen enkele ogenblikken te vernieuwen.",
     "untitled": "Naamloos",
@@ -916,7 +975,7 @@
       "update-info": "Elke minuut bijwerken",
       "visitors": "bezoekers",
       "views": "Weergaven",
-      "reads": "Lees tijd",
+      "avg-visit-duration": "Gem. bezoek",
       "countries": "Landen",
       "devices": "Apparaten",
       "referrers": "Verwijzers",
@@ -938,7 +997,9 @@
   },
   "comment": {
     "body-placeholder": "Schrijf jouw reactie hier",
+    "write": "Schrijven",
     "preview": "Voorbeeld",
+    "submit-shortcut": "Ctrl/taxes, + Enter om te posten",
     "success": "Uw antwoord is succesvol aangemaakt!",
     "delete-success": "Reactie succesvol verwijderd",
     "delete-error-hint": "Opmerking kon niet verwijderd worden. Probeer het opnieuw",
@@ -1507,6 +1568,13 @@
     "memo": "Notitie",
     "memo-placeholder": "voer hier je notities in",
     "memo-help": "Deze notitie is openbaar",
+    "memo-encrypted": "Deze memo zal versleuteld worden",
+    "memo-decrypt": "Ontsleutelen",
+    "memo-decrypt-error": "Kan memo's niet decoderen. Controleer uw memo sleutel.",
+    "memo-encrypted-label": "Versleutelde memo",
+    "memo-key-title": "Voer Memo Sleutel in",
+    "memo-key-subtitle-encrypt": "Je memo sleutel is nodig om dit bericht te versleutelen.",
+    "memo-key-subtitle-decrypt": "Je memo sleutel is nodig om dit bericht te decoderen.",
     "memo-error": "Plaats nooit privésleutels in een notitie veld, het is openbaar zichtbaar voor iedereen.",
     "memo-required": "Overdracht naar een uitwisseling moet een memo's hebben.",
     "invalid-asset": "U kunt alleen HIVE versturen naar een wisselaccount.",
@@ -1630,6 +1698,9 @@
     "key-placeholder": "Enter active/owner/master key",
     "with-hivesigner": "Sign with hivesigner",
     "with-keychain": "Sign with keychain",
+    "with-extension": "Ondertekenen met extensie",
+    "with-extension-named": "Ondertekenen met {{name}}",
+    "no-extension-prompt": "Heb je geen Hive extensie? Installeer er een:",
     "with-hiveauth": "Meld je aan met HiveAuth",
     "invalid-key": "Ongeldige sleutelformaat. Controleer op ongeldige tekens.",
     "key-error": "Fout bij het verwerken van de sleutel. Controleer of het juist is.",
@@ -1897,10 +1968,16 @@
     "checkins-title": "Geweldige reeks op @{{username}}",
     "payouts-title": "U heeft een uitbetaling ontvangen op @{{username}}",
     "monthly-posts-title": "Voltooi de maand sterk, @{{username}}",
-    "spin-str": "Tijd om meer punten te verdienen, speel Spin op Ecency Mobile app",
+    "spin-str": "Houd je reeks levend, je dagelijkse quests wachten nu!",
     "inactive-str": "Wees actief! Schrijf een bericht, blijf verdienen",
     "referral-str": "Verwijzend ingeschreven, welkom hen",
-    "account-update-str": "Uw accountsleutels of profiel zijn bijgewerkt",
+    "account-update-str": "Uw account of profiel zijn bijgewerkt",
+    "account-update-owner-key": "Uw eigenaarssleutel is veranderd. Als u dit niet was, beveilig dan onmiddellijk uw account.",
+    "account-update-active-key": "Uw actieve sleutel is veranderd. Als u dit niet was, beveilig uw account.",
+    "account-update-posting-key": "Je bericht sleutel is gewijzigd. Als jij dit niet was, beveilig je account.",
+    "account-update-owner-authority": "{{accounts}} heeft een eigenaarsautoriteit gekregen op uw account. Als u dit niet was, beveilig dan onmiddellijk uw account.",
+    "account-update-active-authority": "{{accounts}} heeft een actieve autoriteit gekregen op uw account. Als u dit niet heeft geautoriseerd, trek deze in.",
+    "account-update-posting-authority": "{{accounts}} kan nu namens jou posten en stemmen. Als je dit niet hebt geautoriseerd, trek het in.",
     "weekly-earnings-title": "Wekelijkse inkomsten samenvatting van @{{username}}",
     "refresh": "Vernieuwen",
     "mark-all-read": "Alles markeren als gelezen",
@@ -1926,7 +2003,8 @@
     "header-score-tip": "Post + opmerkingen van een gebruiker voor de geselecteerde periode",
     "header-reward": "Beloning",
     "header-votes": "Stemming",
-    "header-votes-tip": "Aantal stemmen in deze periode"
+    "header-votes-tip": "Aantal stemmen in deze periode",
+    "quests-done": "Alle dagelijkse opdrachten vandaag voltooid"
   },
   "discover": {
     "title": "Ontdek",
@@ -1967,6 +2045,7 @@
     "sort-relevance": "Relevantie",
     "sort-newest": "Recentelijk",
     "hide-low": "Verberg inhoud van lage uitbetaling",
+    "include-nsfw": "NSFW-inhoud tonen",
     "show-more": "meer weergeven"
   },
   "search-people": {
@@ -2006,7 +2085,12 @@
     "proxy-active-btn-label": "Proxy wissen",
     "proxy-votes-for": "@{{username}} stemmen op",
     "proxy-active-highlighted": "Uw proxystemmen zijn gemarkeerd",
-    "check-witness-highlighted": "keuzes zijn gemarkeerd"
+    "check-witness-highlighted": "keuzes zijn gemarkeerd",
+    "list-voters": "Stemmers",
+    "voters-title": "Stemmers voor @{{witness}}",
+    "voters-sort-vests": "Stemming Kracht",
+    "voters-sort-timestamp": "Stem datum",
+    "voters-aria-label": "Bekijk kiezers van {{name}}"
   },
   "referral": {
     "page-title": "Verwijzingen",
@@ -2614,6 +2698,12 @@
     "how-it-works": "HOE HET WERKEN?",
     "get-started": "NU WORDEN",
     "explore": "VERKENEN",
+    "trending-now": "Nu Trending",
+    "trending-now-desc": "Zie wat de gemeenschap momenteel leest.",
+    "scroll-down": "Scroll naar beneden",
+    "see-more": "Meer weergeven",
+    "explore-topics": "Onderwerpen verkennen",
+    "popular-communities": "Populaire gemeenschappen",
     "earn-money": "Verdien geld",
     "earn-money-block-chain-based": "Blockchain-gebaseerd sociaal netwerk, ",
     "join-us": "deelname-ons",
@@ -2640,7 +2730,7 @@
     "install-web-app": "Install Web App (PWA)",
     "get-mobile-app": "Download de mobiele app",
     "our-history": "Onze geschiedenis",
-    "our-history-p-one": "<b>Ecency</b> (voorheen Esteem) begon in 2016, oprichter <span> <a href=\"/@good-karma\" class=\"push-link\"> Feruz Muradov </a></span> is begonnen met het implementeren van een mobiele applicatie die de manier waarop je interactie zou ontwikkelen en creëren zou revolutioniseren. bouw, neem online aan. De tijd groeide naar iets veel groter.",
+    "our-history-p-one": "<b>Ecency</b> (voorheen Esteem) begon in 2016, opgericht door <a href=\"/contributors\" class=\"push-link\">gemeenschapsleden</a> die erop uit waren om een mobiele applicatie te bouwen die de manier waarop je interactie en gecreëerd zou hebben zou revolutioneren, bouw, neem online aan. Met tijd groeide het tot iets groter.",
     "our-history-p-two": "Sindsdien zijn we nog steeds bezig met het bouwen van Web 3. en verbeter ons op blockchain gebaseerd sociaal netwerk, zodat apps zo toegankelijk mogelijk zijn, veilig en in veel talen spreekt de wereld over.",
     "our-vision": "Onze visie",
     "our-vision-p-one": "We willen alle mensen een veilige en belonende blockchain-ervaring bieden. Sociale media zonder grenzen en censuur, waar alleen jij je eigen account en je gemeenschappen beheerst. Beveilig door blockchain, aangedreven door mensen.",
@@ -2681,7 +2771,7 @@
   },
   "top-communities": {
     "title": "Top communities",
-    "create-button": "Maak een gedecentraliseerde gemeenschap"
+    "create-button": "Maak je community aan"
   },
   "feedback-modal": {
     "title": "Details van fout",
@@ -2736,7 +2826,37 @@
     "want-more-spins": "Wil je meer draaien?",
     "spin-success": "Punten zijn overgemaakt naar je account. Geniet van Ecency!",
     "spins-left": "draaien links",
-    "next-spin": "Volgende gratis draai"
+    "next-spin": "Volgende gratis draai",
+    "quests": {
+      "title": "Opdrachten",
+      "subtitle": "Voltooi dagelijkse doelen, verdien punten en houd uw reeks levend",
+      "daily": "Dagelijks",
+      "weekly": "wekelijks",
+      "monthly": "maandelijks",
+      "resets-in": "Reset in {{time}}",
+      "streak": "{{n}}-dagen reeks",
+      "streak-at-risk": "Check in vandaag om je reeks in leven te houden!",
+      "available": "Nu beschikbaar",
+      "max-rewards": "maximale beloningen vandaag",
+      "checkin": {
+        "title": "Check in"
+      },
+      "post": {
+        "title": "Publiceer een bericht"
+      },
+      "comment": {
+        "title": "Laat reacties achter"
+      },
+      "vote": {
+        "title": "Berichten opvolgen"
+      },
+      "reblog": {
+        "title": "Herblogg een bericht"
+      },
+      "spin": {
+        "title": "Dagelijks draaien"
+      }
+    }
   },
   "boost-plus": {
     "title": "Boost+",
@@ -2785,6 +2905,7 @@
     "vote-confirmation-and-sign": "Onderteken en bevestig je stem",
     "your-choice": "Jouw keuze",
     "not-found": "Poll niet gevonden",
+    "no-choice-selected": "Selecteer ten minste één keuze",
     "voting": "Stemmen...",
     "vote-change": "Veranderen van een stem",
     "current-standing": "Verberg stemmen",
@@ -3094,6 +3215,9 @@
       "fragments": "Tekstbouwstenen",
       "image": "Afbeelding",
       "link": "Koppeling",
+      "edit-link": "Link bewerken",
+      "remove-link": "Koppeling verwijderen",
+      "open-link": "Koppeling openen",
       "emoji": "Emoji",
       "gif": "GIF",
       "video": "Video",
@@ -3221,6 +3345,25 @@
       "linking-success": "Tokens zijn met succes gekoppeld",
       "linking-success-hint": "U kunt uw tokens vinden op een portefeuille pagina"
     },
+    "balance-history": "Saldo geschiedenis",
+    "yearly-summary": "Jaarlijkse samenvatting",
+    "monthly-summary": "Maandelijkse samenvatting",
+    "daily-summary": "Dagelijkse samenvatting",
+    "current-balance": "Stroom",
+    "year-change": "Jaar verandering",
+    "year-min": "Min. jaar",
+    "year-max": "Max. jaar",
+    "month-change": "Maand Verandering",
+    "month-min": "Maand min.",
+    "month-max": "Maand Max",
+    "day-change": "Dag verandering",
+    "day-min": "Dag Min",
+    "day-max": "Max. dag",
+    "granularity": "Granulariteit",
+    "granularity-yearly": "Jaarlijks",
+    "granularity-monthly": "maandelijks",
+    "granularity-daily": "Dagelijks",
+    "summary-period": "Periode",
     "operations": {
       "transfer": "Overschrijving",
       "transfer-saving": "Naar spaargeld",
@@ -3261,6 +3404,20 @@
       "description": "Delegeer je Hive Power naar @ecency om de actieve curatie te activeren die beheerd wordt door ons curator team. Actieve curatie kan grofweg +10% APR toevoegen en 100% van de curatie beloningen zijn aan u teruggegeven.",
       "button": "Delegeren naar @ecency",
       "dismiss": "Misschien later"
+    },
+    "hp-governance-promo": {
+      "tag": "Governance",
+      "title": "Houd je governance met @ecency",
+      "description": "Je bent gedelegeerd aan @ecency. Stel @ecency in als je governance proxy zodat je getuige en voorstellen stemmen blijven afgestemd op de visie van het Ecency team. U behoudt de volledige controle en kunt dit op elk gewenst moment wijzigen of verwijderen.",
+      "button": "@ecency als proxy instellen",
+      "dismiss": "Niet nu",
+      "confirm-title": "@ecency als governance proxy instellen?",
+      "confirm-description": "@ecency zal namens u stemmen op bijenkisten en voorstellen. Uw staak blijft van u, en u kunt de proxy op elk gewenst moment wijzigen of verwijderen van de getuigen pagina.",
+      "confirm-ok": "Proxy instellen",
+      "success": "@ecency is nu jouw governance proxy"
+    },
+    "promo-carousel": {
+      "go-to-slide": "Ga naar tip {{n}}"
     },
     "external": {
       "receive-button": "Ontvangen",

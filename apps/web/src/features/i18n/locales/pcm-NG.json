@@ -1,5 +1,10 @@
 {
+  "tweet": {
+    "load-failed": "Couldn't load this X post.",
+    "view-on-x": "View on X"
+  },
   "g": {
+    "now": "Now",
     "all": "All",
     "add": "add",
     "edit": "Edit",
@@ -123,7 +128,10 @@
   "announcements": {
     "dismiss": "Dismiss",
     "next": "Next",
-    "later": "Later"
+    "later": "Later",
+    "voted": "Voted",
+    "view-proposal": "View proposal",
+    "vote-success": "Thank you for supporting Ecency!"
   },
   "floating-faq": {
     "toggle-icon-info": "Click to expand",
@@ -147,10 +155,14 @@
     "filter-payout": "Payouts",
     "filter-muted": "Muted",
     "filter-feed": "Feed",
-    "filter-feed-friends": "Friends",
+    "filter-feed-friends": "Following",
     "filter-feed-subscriptions": "Communities",
+    "filter-top": "Top",
     "filter-global": "Global",
     "filter-community": "My Community",
+    "source-label": "Feed source",
+    "sort-label": "Sort by",
+    "more-filters": "More filters",
     "filter-controversial": "Controversial",
     "filter-rising": "Rising",
     "filter-global-part1": "This feed contains ",
@@ -178,6 +190,7 @@
     "waves": "Waves",
     "communities": "Communities",
     "chats": "Chats",
+    "search": "Search",
     "toggle-menu": "Toggle navigation menu"
   },
   "search": {
@@ -256,7 +269,7 @@
     "boost": "Boost",
     "submit": "Create a post",
     "chats": "Chats",
-    "perks": "Buy perks"
+    "perks": "Perks"
   },
   "intro": {
     "title": "Aspire to greatness",
@@ -301,6 +314,18 @@
     "metamask-no-keys": "Could not get Hive keys from MetaMask snap",
     "metamask-key-mismatch": "MetaMask Hive keys do not match this account. Make sure you are using the same MetaMask wallet used during signup.",
     "keychain": "Keychain",
+    "extensions": "Extensions",
+    "extensions-info-title": "Browser Extensions",
+    "extensions-info-description": "Sign in securely using a Hive browser extension. Install one of the following extensions to get started:",
+    "extensions-mobile-note": "Hive browser extensions are only available on desktop browsers. On mobile, use Keychain Mobile or sign in with your key or HiveSigner.",
+    "extensions-select-title": "Choose Extension",
+    "extensions-select-description": "Multiple Hive extensions detected. Select which one to use for signing:",
+    "extension-keeper-name": "Hive Keeper",
+    "extension-keeper-desc": "By Ecency - recommended for the best experience",
+    "extension-keychain-name": "Hive Keychain",
+    "extension-keychain-desc": "Popular Hive wallet and signing extension",
+    "extension-peakvault-name": "Peak Vault",
+    "extension-peakvault-desc": "By PeakD - lightweight wallet extension",
     "keychain-mobile": "Keychain Mobile",
     "keychain-mobile-missing-sig": "Missing signature from Keychain. Please try again.",
     "keychain-mobile-no-pending": "No pending login found. Please try logging in again.",
@@ -429,7 +454,8 @@
     "delegate-placeholder": "Enter amount to delegate (Bn)"
   },
   "trending-tags": {
-    "title": "Topics"
+    "title": "Topics",
+    "view-more": "View more"
   },
   "sort-trending-tags": {
     "sort": "Sort",
@@ -629,6 +655,37 @@
     "choose-one": "Choose one",
     "user": "User",
     "search-query": "Search query",
+    "intro": {
+      "title": "Decks — your personalized dashboard",
+      "description": "Follow feeds, communities, Waves, notifications and your wallet side by side, updating in real time. Sign in to build and save your own deck.",
+      "login": "Log in to build your deck",
+      "browse-communities": "Browse communities instead",
+      "features": {
+        "columns-title": "Live columns",
+        "columns-description": "Watch multiple feeds update next to each other, in real time.",
+        "anything-title": "Anything you follow",
+        "anything-description": "Add columns for people, communities, Waves, trending, search, notifications and your wallet.",
+        "arrange-title": "Arrange your way",
+        "arrange-description": "Drag columns to reorder them and shape your own workspace.",
+        "saved-title": "Saved to your account",
+        "saved-description": "Sign in and your decks sync with you across every device."
+      }
+    },
+    "onboarding": {
+      "title": "Welcome to Decks",
+      "button": "Get started",
+      "skip": "Skip",
+      "finish": "Build my deck",
+      "build-title": "Build your deck",
+      "tips": {
+        "add-title": "Add a column",
+        "add-description": "Pick a column type to follow a feed, community, person, your notifications and more.",
+        "drag-title": "Arrange them",
+        "drag-description": "Drag columns by their header to reorder your workspace any way you like.",
+        "save-title": "Save your deck",
+        "save-description": "Save a deck to your account from its settings to keep it across devices."
+      }
+    },
     "columns": {
       "view-full-post": "View full post",
       "user": "User",
@@ -895,6 +952,8 @@
     "deleted-content-warning": "This content was deleted by the author. You can see it from Blockchain ",
     "deleted-content": "This post was deleted by {{author}}",
     "deleted-no-history": "The deleted content history is not available from the blockchain.",
+    "unable-to-load": "Unable to load this post. Please check your connection and try again.",
+    "try-edit-history": "Try edit history",
     "indexing-blockchain": "Your post has been published to the blockchain and is being indexed. This usually takes a few seconds.",
     "indexing-slow": "Indexing is taking longer than expected. Try refreshing the page in a few moments.",
     "untitled": "Untitled",
@@ -916,7 +975,7 @@
       "update-info": "Updating every minute",
       "visitors": "Visitors",
       "views": "Views",
-      "reads": "Read time",
+      "avg-visit-duration": "Avg. visit",
       "countries": "Countries",
       "devices": "Devices",
       "referrers": "Referrers",
@@ -938,7 +997,9 @@
   },
   "comment": {
     "body-placeholder": "Write your reply here",
+    "write": "Write",
     "preview": "Preview",
+    "submit-shortcut": "Ctrl/⌘ + Enter to post",
     "success": "Your reply created successfully!",
     "delete-success": "Comment deleted successfully",
     "delete-error-hint": "Could not delete comment. Please try again",
@@ -1507,6 +1568,13 @@
     "memo": "Memo",
     "memo-placeholder": "write your note for here",
     "memo-help": "Na everybody go see this memo",
+    "memo-encrypted": "This memo will be encrypted",
+    "memo-decrypt": "Decrypt",
+    "memo-decrypt-error": "Could not decrypt memo. Check your memo key.",
+    "memo-encrypted-label": "Encrypted memo",
+    "memo-key-title": "Enter Memo Key",
+    "memo-key-subtitle-encrypt": "Your memo key is needed to encrypt this message.",
+    "memo-key-subtitle-decrypt": "Your memo key is needed to decrypt this message.",
     "memo-error": "Never put private keys into a memo field, it is publicly visible to everyone.",
     "memo-required": "Transfer to an exchange must have a memo.",
     "invalid-asset": "You can only send HIVE to an exchange account.",
@@ -1630,6 +1698,9 @@
     "key-placeholder": "Enter active/owner/master key",
     "with-hivesigner": "Sign with hivesigner",
     "with-keychain": "Sign with keychain",
+    "with-extension": "Sign with Extension",
+    "with-extension-named": "Sign with {{name}}",
+    "no-extension-prompt": "Don't have a Hive extension? Install one:",
     "with-hiveauth": "Sign with HiveAuth",
     "invalid-key": "Invalid key format. Please check for invalid characters.",
     "key-error": "Failed to process the key. Please verify it is correct.",
@@ -1897,10 +1968,16 @@
     "checkins-title": "Great streak on @{{username}}",
     "payouts-title": "You received a payout on @{{username}}",
     "monthly-posts-title": "Finishing the month strong, @{{username}}",
-    "spin-str": "Time to earn more Points, Play Spin on Ecency Mobile app",
+    "spin-str": "Keep your streak alive, your daily quests are waiting!",
     "inactive-str": "Be active! Write a post, continue earning",
     "referral-str": "joined with referral, welcome them",
-    "account-update-str": "Your account keys or profile were updated",
+    "account-update-str": "Your account or profile were updated",
+    "account-update-owner-key": "Your owner key was changed. If this was not you, secure your account immediately.",
+    "account-update-active-key": "Your active key was changed. If this was not you, secure your account.",
+    "account-update-posting-key": "Your posting key was changed. If this was not you, secure your account.",
+    "account-update-owner-authority": "{{accounts}} was granted owner authority on your account. If this was not you, secure your account immediately.",
+    "account-update-active-authority": "{{accounts}} was granted active authority on your account. If you did not authorize this, revoke it.",
+    "account-update-posting-authority": "{{accounts}} can now post and vote on your behalf. If you did not authorize this, revoke it.",
     "weekly-earnings-title": "Weekly earnings summary for @{{username}}",
     "refresh": "Refresh",
     "mark-all-read": "Mark All as Read",
@@ -1926,7 +2003,8 @@
     "header-score-tip": "Post + comments made by a user for selected period",
     "header-reward": "Reward",
     "header-votes": "Votes",
-    "header-votes-tip": "Number of votes in this period"
+    "header-votes-tip": "Number of votes in this period",
+    "quests-done": "Completed all daily quests today"
   },
   "discover": {
     "title": "Discover",
@@ -1967,6 +2045,7 @@
     "sort-relevance": "Relevance",
     "sort-newest": "Recent",
     "hide-low": "Hide low payout content",
+    "include-nsfw": "Show NSFW content",
     "show-more": "show more"
   },
   "search-people": {
@@ -2006,7 +2085,12 @@
     "proxy-active-btn-label": "Clear Proxy",
     "proxy-votes-for": "@{{username}} votes for",
     "proxy-active-highlighted": "Your proxy votes are highlighted",
-    "check-witness-highlighted": "votes are highlighted"
+    "check-witness-highlighted": "votes are highlighted",
+    "list-voters": "Voters",
+    "voters-title": "Voters for @{{witness}}",
+    "voters-sort-vests": "Voting Power",
+    "voters-sort-timestamp": "Vote Date",
+    "voters-aria-label": "View voters of {{name}}"
   },
   "referral": {
     "page-title": "Referrals",
@@ -2614,6 +2698,12 @@
     "how-it-works": "HOW IT WORKS?",
     "get-started": "JOIN NOW",
     "explore": "EXPLORE",
+    "trending-now": "Trending now",
+    "trending-now-desc": "See what the community is reading right now",
+    "scroll-down": "Scroll down",
+    "see-more": "See more",
+    "explore-topics": "Explore topics",
+    "popular-communities": "Popular communities",
     "earn-money": "Earn money",
     "earn-money-block-chain-based": "Blockchain-based social network, ",
     "join-us": "join-us",
@@ -2640,7 +2730,7 @@
     "install-web-app": "Install Web App (PWA)",
     "get-mobile-app": "Get mobile app",
     "our-history": "Our History",
-    "our-history-p-one": "<b>Ecency</b> (previously Esteem) started out in 2016, founder <span> <a href=\"/@good-karma\" class=\"push-link\"> Feruz Muradov </a></span> started implementing a mobile application that would revolutionize the way you interact and create, build, engage online. With time grew to something much bigger.",
+    "our-history-p-one": "<b>Ecency</b> (previously Esteem) started out in 2016, founded by <a href=\"/contributors\" class=\"push-link\">community members</a> who set out to build a mobile application that would revolutionize the way you interact and create, build, engage online. With time it grew to something much bigger.",
     "our-history-p-two": "Since then we have been continuing to build for Web 3.0 and improve our blockchain-based social network, making sure apps are as accessible as possible, secure and in many languages the world speaks.",
     "our-vision": "Our Vision",
     "our-vision-p-one": "We want to bring a secure and rewarding blockchain experience to all people. Social media without any limits and censorship, where only you control your own account and your communities. Secured by blockchain, powered by people.",
@@ -2681,7 +2771,7 @@
   },
   "top-communities": {
     "title": "Top communities",
-    "create-button": "Create decentralized community"
+    "create-button": "Create your community"
   },
   "feedback-modal": {
     "title": "Error details",
@@ -2736,7 +2826,37 @@
     "want-more-spins": "Want more spins?",
     "spin-success": "Points has transferred to your account. Enjoy with Ecency!",
     "spins-left": "spins left",
-    "next-spin": "Next free spin"
+    "next-spin": "Next free spin",
+    "quests": {
+      "title": "Quests",
+      "subtitle": "Complete daily goals, earn points and keep your streak alive",
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "resets-in": "Resets in {{time}}",
+      "streak": "{{n}}-day streak",
+      "streak-at-risk": "Check in today to keep your streak alive!",
+      "available": "Available now",
+      "max-rewards": "max rewards today",
+      "checkin": {
+        "title": "Check in"
+      },
+      "post": {
+        "title": "Publish a post"
+      },
+      "comment": {
+        "title": "Leave comments"
+      },
+      "vote": {
+        "title": "Curate posts"
+      },
+      "reblog": {
+        "title": "Reblog a post"
+      },
+      "spin": {
+        "title": "Daily spin"
+      }
+    }
   },
   "boost-plus": {
     "title": "Boost+",
@@ -2785,6 +2905,7 @@
     "vote-confirmation-and-sign": "Sign and confirm your vote",
     "your-choice": "Your choice",
     "not-found": "Poll not found",
+    "no-choice-selected": "Please select at least one choice",
     "voting": "Voting...",
     "vote-change": "Changing a vote",
     "current-standing": "Hide votes",
@@ -3094,6 +3215,9 @@
       "fragments": "Snippets",
       "image": "Image",
       "link": "Link",
+      "edit-link": "Edit link",
+      "remove-link": "Remove link",
+      "open-link": "Open link",
       "emoji": "Emoji",
       "gif": "GIF",
       "video": "Video",
@@ -3221,6 +3345,25 @@
       "linking-success": "Tokens have linked successfully",
       "linking-success-hint": "You can find your tokens in a wallet page"
     },
+    "balance-history": "Balance History",
+    "yearly-summary": "Yearly Summary",
+    "monthly-summary": "Monthly Summary",
+    "daily-summary": "Daily Summary",
+    "current-balance": "Current",
+    "year-change": "Year Change",
+    "year-min": "Year Min",
+    "year-max": "Year Max",
+    "month-change": "Month Change",
+    "month-min": "Month Min",
+    "month-max": "Month Max",
+    "day-change": "Day Change",
+    "day-min": "Day Min",
+    "day-max": "Day Max",
+    "granularity": "Granularity",
+    "granularity-yearly": "Yearly",
+    "granularity-monthly": "Monthly",
+    "granularity-daily": "Daily",
+    "summary-period": "Period",
     "operations": {
       "transfer": "Transfer",
       "transfer-saving": "To Savings",
@@ -3261,6 +3404,20 @@
       "description": "Delegate your Hive Power to @ecency to activate active curation managed by our curator team. Active curation can add roughly +10% APR and 100% of the curation rewards are returned to you.",
       "button": "Delegate to @ecency",
       "dismiss": "Maybe later"
+    },
+    "hp-governance-promo": {
+      "tag": "Governance",
+      "title": "Keep your governance with @ecency",
+      "description": "You've delegated to @ecency. Set @ecency as your governance proxy so your witness and proposal votes stay aligned with the Ecency team's vision. You keep full control and can change or remove this anytime.",
+      "button": "Set @ecency as proxy",
+      "dismiss": "Not now",
+      "confirm-title": "Set @ecency as governance proxy?",
+      "confirm-description": "@ecency will vote on Hive witnesses and proposals on your behalf. Your stake stays yours, and you can change or remove the proxy anytime from the Witnesses page.",
+      "confirm-ok": "Set proxy",
+      "success": "@ecency is now your governance proxy"
+    },
+    "promo-carousel": {
+      "go-to-slide": "Go to tip {{n}}"
     },
     "external": {
       "receive-button": "Receive",

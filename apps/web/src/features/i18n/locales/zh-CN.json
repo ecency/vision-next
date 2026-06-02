@@ -1,5 +1,10 @@
 {
+  "tweet": {
+    "load-failed": "无法加载此 X 帖子。",
+    "view-on-x": "在 X 上查看"
+  },
   "g": {
+    "now": "现在开始",
     "all": "所有的",
     "add": "添加",
     "edit": "编辑",
@@ -123,7 +128,10 @@
   "announcements": {
     "dismiss": "关闭",
     "next": "下一个",
-    "later": "稍后再说"
+    "later": "稍后再说",
+    "voted": "已投票",
+    "view-proposal": "查看提案",
+    "vote-success": "感谢您支持生态！"
   },
   "floating-faq": {
     "toggle-icon-info": "单击以扩展",
@@ -147,10 +155,14 @@
     "filter-payout": "收益",
     "filter-muted": "已屏蔽",
     "filter-feed": "已关注",
-    "filter-feed-friends": "朋友圈",
+    "filter-feed-friends": "关注",
     "filter-feed-subscriptions": "社区",
+    "filter-top": "顶端",
     "filter-global": "通用",
     "filter-community": "我的社区",
+    "source-label": "订阅源",
+    "sort-label": "排序方式",
+    "more-filters": "更多筛选器",
     "filter-controversial": "有争议的",
     "filter-rising": "上升中",
     "filter-global-part1": "这种订阅包含 ",
@@ -178,6 +190,7 @@
     "waves": "浪潮",
     "communities": "社区",
     "chats": "聊天",
+    "search": "搜索",
     "toggle-menu": "切换导航菜单"
   },
   "search": {
@@ -256,7 +269,7 @@
     "boost": "加速",
     "submit": "创建一个帖子",
     "chats": "聊天",
-    "perks": "Buy perks"
+    "perks": "Perks"
   },
   "intro": {
     "title": "渴望伟大",
@@ -301,6 +314,18 @@
     "metamask-no-keys": "无法从 MetaMask snap 获取 Hive 密钥",
     "metamask-key-mismatch": "MetaMask Hive 密钥与此账户不匹配。请确保您在注册时使用相同的 MetaMask 钱包。",
     "keychain": "Keychain",
+    "extensions": "扩展",
+    "extensions-info-title": "浏览器扩展",
+    "extensions-info-description": "使用 Hive 浏览器扩展安全登录。安装以下扩展之一以启动：",
+    "extensions-mobile-note": "Hive 浏览器扩展只能在桌面浏览器上使用。移动设备时，使用Keychain Mobile 或使用您的密钥或 HiveSigner登录。",
+    "extensions-select-title": "选择扩展",
+    "extensions-select-description": "检测到多个Hive 扩展。选择哪个用于签名：",
+    "extension-keeper-name": "Hive 守护者",
+    "extension-keeper-desc": "按生态分列——推荐获得最佳经验",
+    "extension-keychain-name": "Hive Keychain",
+    "extension-keychain-desc": "流行的 Hive 钱包和签名扩展",
+    "extension-peakvault-name": "峰值保险库",
+    "extension-peakvault-desc": "通过 PeakD - 轻量钱包扩展",
     "keychain-mobile": "Keychain 手机",
     "keychain-mobile-missing-sig": "缺少来自钥匙串的签名。请再试一次。",
     "keychain-mobile-no-pending": "找不到未决登录。请重新登录。",
@@ -429,7 +454,8 @@
     "delegate-placeholder": "输入要代表的金额 (Bn)"
   },
   "trending-tags": {
-    "title": "主题"
+    "title": "主题",
+    "view-more": "查看更多"
   },
   "sort-trending-tags": {
     "sort": "排序",
@@ -629,6 +655,37 @@
     "choose-one": "选择一个",
     "user": "用户",
     "search-query": "搜索查询",
+    "intro": {
+      "title": "牌组 — — 您的个人化仪表板",
+      "description": "跟随订阅源、社区、Waves、通知和你的钱包并实时更新。登录以建立和保存你自己的牌组。",
+      "login": "登录以构建您的牌组",
+      "browse-communities": "浏览社区",
+      "features": {
+        "columns-title": "实时列",
+        "columns-description": "实时观看多个源的更新。",
+        "anything-title": "您关注的任何内容",
+        "anything-description": "为人们、社区、Waves、趋势、 搜索、 通知和您的钱包添加列数。",
+        "arrange-title": "安排您的道路",
+        "arrange-description": "拖动列来重新排序和形成您自己的工作区。",
+        "saved-title": "保存到您的帐户",
+        "saved-description": "登录并与您的牌组在每个设备上同您同步。"
+      }
+    },
+    "onboarding": {
+      "title": "欢迎来到牌组",
+      "button": "开始使用",
+      "skip": "跳过",
+      "finish": "构建我的牌组",
+      "build-title": "构建您的牌组",
+      "tips": {
+        "add-title": "添加列",
+        "add-description": "选择列类型来关注种子、 社区、人员、您的通知等等。",
+        "drag-title": "安排他们的工作",
+        "drag-description": "由他们的头部拖动列来按你喜欢的方式重新排序工作区。",
+        "save-title": "保存您的牌组",
+        "save-description": "从设置保存牌组到您的帐户以便在设备上保持它。"
+      }
+    },
     "columns": {
       "view-full-post": "查看完整帖子",
       "user": "用户",
@@ -895,6 +952,8 @@
     "deleted-content-warning": "此内容已被作者删除。您可以从 Blockchain 中查看 ",
     "deleted-content": "This post was deleted by {{author}}",
     "deleted-no-history": "已删除的内容历史记录不可用 blockchain。",
+    "unable-to-load": "无法加载此帖子。请检查您的连接，然后重试。",
+    "try-edit-history": "尝试编辑历史记录",
     "indexing-blockchain": "您的帖子已发布到区块链并正在索引。这通常需要几秒钟。",
     "indexing-slow": "索引花费的时间超过预期。尝试稍后刷新页面。",
     "untitled": "无标题",
@@ -916,7 +975,7 @@
       "update-info": "每分钟更新",
       "visitors": "访客数",
       "views": "视图",
-      "reads": "读取时间",
+      "avg-visit-duration": "平均访问",
       "countries": "国家",
       "devices": "设备",
       "referrers": "推荐人",
@@ -938,7 +997,9 @@
   },
   "comment": {
     "body-placeholder": "在此处写下您的回复",
+    "write": "写入",
     "preview": "预览",
+    "submit-shortcut": "Ctrl/按下 + 进入发布",
     "success": "您的回复已成功创建！",
     "delete-success": "评论已成功删除",
     "delete-error-hint": "无法删除评论。请重试",
@@ -1507,6 +1568,13 @@
     "memo": "备注",
     "memo-placeholder": "在此输入您的备注",
     "memo-help": "此备忘录是公开的",
+    "memo-encrypted": "此备忘录将被加密",
+    "memo-decrypt": "解密的",
+    "memo-decrypt-error": "无法解密备忘录。请检查您的备忘录密钥。",
+    "memo-encrypted-label": "加密的备注",
+    "memo-key-title": "输入Memo密钥",
+    "memo-key-subtitle-encrypt": "需要您的备注密钥来加密此消息。",
+    "memo-key-subtitle-decrypt": "解密此消息需要您的备注密钥。",
     "memo-error": "从不将私钥放入备忘录字段，它对所有人都是可公开可见的。",
     "memo-required": "转到交易所必须有一份备忘录。",
     "invalid-asset": "您只能将艾滋病毒发送到一个交易账户。",
@@ -1630,6 +1698,9 @@
     "key-placeholder": "Enter active/owner/master key",
     "with-hivesigner": "Sign with hivesigner",
     "with-keychain": "Sign with keychain",
+    "with-extension": "使用扩展名登录",
+    "with-extension-named": "Sign with {{name}}",
+    "no-extension-prompt": "没有Hive 扩展？安装：",
     "with-hiveauth": "使用 HiveAuth 登录",
     "invalid-key": "密钥格式无效。请检查无效字符。",
     "key-error": "处理密钥失败。请验证它是否正确。",
@@ -1897,10 +1968,16 @@
     "checkins-title": "Great streak on @{{username}}",
     "payouts-title": "You received a payout on @{{username}}",
     "monthly-posts-title": "Finishing the month strong, @{{username}}",
-    "spin-str": "赚取更多点数的时刻，在Ecency移动版上玩转盘游戏。",
+    "spin-str": "让您的街道继续生存，您的日常任务正在等待！",
     "inactive-str": "活跃！写一个帖子，继续赚钱",
     "referral-str": "加入推荐，欢迎他们加入",
-    "account-update-str": "您的账户密钥或个人资料已更新",
+    "account-update-str": "您的帐户或个人资料已更新",
+    "account-update-owner-key": "您的所有者密钥已更改。如果不是您，请立即保护您的帐户。",
+    "account-update-active-key": "您的活动密钥已更改。如果不是您，请保护您的帐户。",
+    "account-update-posting-key": "您的发布密钥已更改。如果不是你，请保护您的帐户。",
+    "account-update-owner-authority": "{{accounts}} was granted owner authority on your account. If this was not you, secure your account immediately.",
+    "account-update-active-authority": "{{accounts}} was granted active authority on your account. If you did not authorize this, revoke it.",
+    "account-update-posting-authority": "{{accounts}} can now post and vote on your behalf. If you did not authorize this, revoke it.",
     "weekly-earnings-title": "Weekly earnings summary for @{{username}}",
     "refresh": "刷新",
     "mark-all-read": "全部标为已读",
@@ -1926,7 +2003,8 @@
     "header-score-tip": "选定时间内用户发表的文章+评论",
     "header-reward": "奖励",
     "header-votes": "票",
-    "header-votes-tip": "在此期间的投票数"
+    "header-votes-tip": "在此期间的投票数",
+    "quests-done": "今天完成了所有每日任务"
   },
   "discover": {
     "title": "发现",
@@ -1967,6 +2045,7 @@
     "sort-relevance": "相关性",
     "sort-newest": "最近",
     "hide-low": "隐藏低收入的内容",
+    "include-nsfw": "显示 NSFW 内容",
     "show-more": "显示更多"
   },
   "search-people": {
@@ -2006,7 +2085,12 @@
     "proxy-active-btn-label": "清除代理",
     "proxy-votes-for": "@{{username}} 投票给",
     "proxy-active-highlighted": "您的代理票被高亮显示",
-    "check-witness-highlighted": "选票高亮显示"
+    "check-witness-highlighted": "选票高亮显示",
+    "list-voters": "投票者",
+    "voters-title": "Voters for @{{witness}}",
+    "voters-sort-vests": "投票权",
+    "voters-sort-timestamp": "投票日期",
+    "voters-aria-label": "View voters of {{name}}"
   },
   "referral": {
     "page-title": "引用",
@@ -2614,6 +2698,12 @@
     "how-it-works": "信息技术是如何工作的？",
     "get-started": "立即加入",
     "explore": "退出",
+    "trending-now": "现在热门游戏",
+    "trending-now-desc": "看看社区现在正在阅读什么",
+    "scroll-down": "向下滚动",
+    "see-more": "查看更多",
+    "explore-topics": "探索主题",
+    "popular-communities": "受欢迎的社区",
     "earn-money": "赚钱",
     "earn-money-block-chain-based": "基于Blockchain的社交网络 ",
     "join-us": "加入我们！",
@@ -2640,7 +2730,7 @@
     "install-web-app": "Install Web App (PWA)",
     "get-mobile-app": "获取移动应用",
     "our-history": "我们的历史",
-    "our-history-p-one": "<b>Ecency</b> (previously Esteem) started out in 2016, founder <span> <a href=\"/@good-karma\" class=\"push-link\"> Feruz Muradov </a></span> started implementing a mobile application that would revolutionize the way you interact and create, build, engage online. With time grew to something much bigger.",
+    "our-history-p-one": "<b>Ecency</b> (previously Esteem) started out in 2016, founded by <a href=\"/contributors\" class=\"push-link\">community members</a> who set out to build a mobile application that would revolutionize the way you interact and create, build, engage online. With time it grew to something much bigger.",
     "our-history-p-two": "自那时以来，我们一直在继续建造Web3。 并改进我们基于区块链的社交网络，确保应用程序尽可能容易访问、安全并以世界所说的许多语言使用。",
     "our-vision": "我们的愿景",
     "our-vision-p-one": "我们想给所有人带来安全和有回报的区块链体验。 没有任何限制和检查的社交媒体，只有您才能控制您自己的帐户和您的社群。由区块链保护，由人们提供动力。",
@@ -2681,7 +2771,7 @@
   },
   "top-communities": {
     "title": "顶级社区",
-    "create-button": "创建分散的社区"
+    "create-button": "创建您的社区"
   },
   "feedback-modal": {
     "title": "错误详细信息",
@@ -2736,7 +2826,37 @@
     "want-more-spins": "想要更多溢出？",
     "spin-success": "点已转到您的帐户。与生态一起愉快！",
     "spins-left": "还剩拼图",
-    "next-spin": "下次免费旋转"
+    "next-spin": "下次免费旋转",
+    "quests": {
+      "title": "任务",
+      "subtitle": "完成每日目标, 赚取积分并保持您的连续记录",
+      "daily": "每天",
+      "weekly": "每周的",
+      "monthly": "每月的",
+      "resets-in": "Resets in {{time}}",
+      "streak": "{{n}}-day streak",
+      "streak-at-risk": "今天检查以保持您的街道生命值！",
+      "available": "现在可用",
+      "max-rewards": "今天最大奖励",
+      "checkin": {
+        "title": "签入"
+      },
+      "post": {
+        "title": "发布帖子"
+      },
+      "comment": {
+        "title": "留下评论"
+      },
+      "vote": {
+        "title": "管理帖子"
+      },
+      "reblog": {
+        "title": "重新发布文章"
+      },
+      "spin": {
+        "title": "每日拼写"
+      }
+    }
   },
   "boost-plus": {
     "title": "提升+",
@@ -2785,6 +2905,7 @@
     "vote-confirmation-and-sign": "签名并确认您的投票",
     "your-choice": "您的选择",
     "not-found": "未找到投票",
+    "no-choice-selected": "请选择至少一个",
     "voting": "投票中...",
     "vote-change": "更改投票",
     "current-standing": "隐藏投票",
@@ -3094,6 +3215,9 @@
       "fragments": "片段",
       "image": "图片",
       "link": "链接",
+      "edit-link": "编辑链接",
+      "remove-link": "删除链接",
+      "open-link": "打开链接",
       "emoji": "Emoji",
       "gif": "GIF",
       "video": "视频",
@@ -3221,6 +3345,25 @@
       "linking-success": "令牌已成功链接",
       "linking-success-hint": "您可以在钱包页面找到您的代币。"
     },
+    "balance-history": "余额历史",
+    "yearly-summary": "年度摘要",
+    "monthly-summary": "每月摘要",
+    "daily-summary": "每日摘要",
+    "current-balance": "当前的",
+    "year-change": "年份变化",
+    "year-min": "年份分钟",
+    "year-max": "年份最大",
+    "month-change": "月更改",
+    "month-min": "月份最小值",
+    "month-max": "月最大值",
+    "day-change": "日期更改",
+    "day-min": "白天分钟",
+    "day-max": "日最大值",
+    "granularity": "颗粒度",
+    "granularity-yearly": "每年一次",
+    "granularity-monthly": "每月的",
+    "granularity-daily": "每天",
+    "summary-period": "会计期间",
     "operations": {
       "transfer": "转移",
       "transfer-saving": "储蓄账户",
@@ -3261,6 +3404,20 @@
       "description": "委派你的Hive Power 到 @ecency 来激活由我们的管理团队管理的活动管理。 主动管理可以添加大约10% APR，100%的管理奖励将返还给你。",
       "button": "代表 @ecency",
       "dismiss": "稍后再说"
+    },
+    "hp-governance-promo": {
+      "tag": "治理",
+      "title": "使用 @ecency 保持您的治理",
+      "description": "你已经委托给@ection。设置@ecency作为你的治理代理，所以你的证人和建议票保持与生态团队的愿景一致。 您保持完全控制，并且可以随时更改或移除。",
+      "button": "设置 @ecency 为代理",
+      "dismiss": "暂不",
+      "confirm-title": "将 @ecency 设置为施政代理？",
+      "confirm-description": "@ecency将代表你投票表决Hive 证人和建议。 您的利益攸关在您身上，您可以随时从目击者页面更改或删除代理人。",
+      "confirm-ok": "设置代理",
+      "success": "@ecency 现在是您的管理代理"
+    },
+    "promo-carousel": {
+      "go-to-slide": "Go to tip {{n}}"
     },
     "external": {
       "receive-button": "接收",
