@@ -11,6 +11,7 @@ import i18next from "i18next";
 import { getAnnouncementsQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { ProposalVoteAction } from "./proposal-vote-action";
 
 export const Announcements = () => {
   const { activeUser } = useActiveAccount();
@@ -176,9 +177,18 @@ export const Announcements = () => {
                     <p>{x?.description}</p>
                   </div>
                   <div className="flex actions">
-                    <Link href={x?.button_link ?? "/"} onClick={dismissClick}>
-                      <Button>{x?.button_text}</Button>
-                    </Link>
+                    {x?.proposal_ids && x.proposal_ids.length > 0 ? (
+                      <ProposalVoteAction
+                        proposalId={x.proposal_ids[0]}
+                        buttonText={x?.button_text}
+                        viewLink={x?.button_link ?? "/"}
+                        onSupported={dismissClick}
+                      />
+                    ) : (
+                      <Link href={x?.button_link ?? "/"} onClick={dismissClick}>
+                        <Button>{x?.button_text}</Button>
+                      </Link>
+                    )}
                     <Button onClick={laterClick} appearance="primary" outline={true}>
                       {i18next.t("announcements.later")}
                     </Button>
