@@ -30,7 +30,7 @@
     "changeset:version": "changeset version",
     "changeset:publish": "changeset publish"
   },
-  "packageManager": "pnpm@10.34.1",
+  "packageManager": "pnpm@11.5.0",
   "engines": {
     "node": ">=22.12.0"
   },
@@ -43,32 +43,5 @@
     "tsup": "^8.5.0",
     "typescript": "^5",
     "vitest": "^4.1.8"
-  },
-  "pnpm": {
-    "overrides": {
-      "typescript": "^5",
-      "source-map": "^0.7.4",
-      "sass-embedded": "1.93.2",
-      "@sentry/core": "^8.55.0",
-      "@sentry/types": "^8.55.0",
-      "@sentry/utils": "^8.55.0"
-    },
-    "ignoredBuiltDependencies": [
-      "sharp"
-    ],
-    "onlyBuiltDependencies": [
-      "@firebase/util",
-      "@parcel/watcher",
-      "@sentry/cli",
-      "@sentry/profiling-node",
-      "bigint-buffer",
-      "core-js",
-      "esbuild",
-      "keccak",
-      "protobufjs",
-      "scryptlib",
-      "secp256k1",
-      "unrs-resolver"
-    ]
   }
 }

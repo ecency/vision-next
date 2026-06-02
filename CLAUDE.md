@@ -678,7 +678,7 @@ See README.md for detailed environment variable documentation.
 
 ## Package Manager
 
-This project uses **pnpm@10.34.1** and **Node.js >= 22.12** (CI runs Node 24; see `.nvmrc`). The `packageManager` field in `package.json` ensures the correct pnpm version is used. Always run commands from the workspace root unless specifically targeting a package.
+This project uses **pnpm@11.5.0** and **Node.js >= 22.12** (CI runs Node 24; see `.nvmrc`). The `packageManager` field in `package.json` ensures the correct pnpm version is used. pnpm 11 reads workspace settings (`overrides`, `allowBuilds`, etc.) from **`pnpm-workspace.yaml`**, not the old package.json `pnpm` field. A dependency that ships an install/build script must be reviewed and added to `allowBuilds` in `pnpm-workspace.yaml` (`strictDepBuilds` fails the install otherwise). Always run commands from the workspace root unless specifically targeting a package.
 
 ## Production Build
 
