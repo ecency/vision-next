@@ -128,7 +128,10 @@
   "announcements": {
     "dismiss": "Ignorer",
     "next": "Suivant",
-    "later": "Plus tard"
+    "later": "Plus tard",
+    "voted": "Voté",
+    "view-proposal": "Voir la proposition",
+    "vote-success": "Merci pour votre soutien à Ecency!"
   },
   "floating-faq": {
     "toggle-icon-info": "Cliquez pour agrandir",
@@ -314,6 +317,7 @@
     "extensions": "Extensions",
     "extensions-info-title": "Extensions de navigateur",
     "extensions-info-description": "Connectez-vous en toute sécurité en utilisant une extension de navigateur Hive. Installez l'une des extensions suivantes pour commencer:",
+    "extensions-mobile-note": "Les extensions du navigateur Hive ne sont disponibles que sur les navigateurs de bureau. Sur mobile, utilisez Keychain Mobile ou connectez-vous avec votre clé ou HiveSigner.",
     "extensions-select-title": "Choisir une extension",
     "extensions-select-description": "Extensions Hive multiples détectées. Sélectionnez celle à utiliser pour la signature :",
     "extension-keeper-name": "Gardien de la ruche",
@@ -1695,6 +1699,8 @@
     "with-hivesigner": "Sign with hivesigner",
     "with-keychain": "Sign with keychain",
     "with-extension": "Signer avec l'extension",
+    "with-extension-named": "Signer avec {{name}}",
+    "no-extension-prompt": "Vous n'avez pas d'extension Hive ? Installez en une :",
     "with-hiveauth": "Signer avec HiveAuth",
     "invalid-key": "Format de clé invalide. Veuillez vérifier s'il y a des caractères non valides.",
     "key-error": "Impossible de traiter la clé. Veuillez vérifier qu'elle est correcte.",
