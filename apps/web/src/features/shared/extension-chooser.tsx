@@ -16,6 +16,10 @@ interface Props {
  * auth-upgrade (signing) dialog so the choice is the same everywhere.
  */
 export function ExtensionChooser({ extensions, onSelect }: Props) {
+  // Defensive: callers only open the chooser with >1 extension, but never show
+  // a blank body if that invariant is ever violated.
+  if (extensions.length === 0) return null;
+
   return (
     <>
       <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">

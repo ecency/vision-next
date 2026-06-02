@@ -104,6 +104,19 @@ describe("AuthUpgradeDialog extension picker", () => {
     expect(h.resolveAuthUpgrade).toHaveBeenCalledWith("keychain");
   });
 
+  it("returns from the chooser to the sign options via Back without cancelling", () => {
+    openDialog();
+    fireEvent.click(screen.getByRole("button", { name: /key-or-hot\.with-extension/i }));
+    expect(screen.getByText("login.extensions-select-description")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /g\.back/i }));
+
+    // Sign options are back, the chooser is gone, and nothing was resolved.
+    expect(screen.getByRole("button", { name: /key-or-hot\.with-extension/i })).toBeInTheDocument();
+    expect(screen.queryByText("login.extensions-select-description")).toBeNull();
+    expect(h.resolveAuthUpgrade).not.toHaveBeenCalled();
+  });
+
   it("shows install options on desktop when no extension is detected", () => {
     h.detected = [];
     openDialog();

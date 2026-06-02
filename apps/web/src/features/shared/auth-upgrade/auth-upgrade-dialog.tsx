@@ -6,6 +6,7 @@ import { Button } from "@ui/button";
 import { KeyInput } from "@ui/input";
 import i18next from "i18next";
 import Image from "next/image";
+import { UilArrowLeft } from "@tooni/iconscout-unicons-react";
 import { PrivateKey } from "@ecency/sdk";
 import { MetaMaskSignButton } from "../metamask-sign-button";
 import { ExtensionInstallList, useShowExtensionInstall } from "../extension-install-list";
@@ -118,7 +119,21 @@ export function AuthUpgradeDialog() {
       </ModalHeader>
       <ModalBody>
         {choosing ? (
-          <ExtensionChooser extensions={detectedExtensions} onSelect={handleChooseExtension} />
+          // The chooser replaces the body (same as login), so offer a Back to
+          // the sign options — closing the modal would cancel the whole flow.
+          <div className="flex flex-col gap-3">
+            <Button
+              iconPlacement="left"
+              appearance="gray-link"
+              size="sm"
+              noPadding={true}
+              onClick={() => setChoosing(false)}
+              icon={<UilArrowLeft />}
+            >
+              {i18next.t("g.back")}
+            </Button>
+            <ExtensionChooser extensions={detectedExtensions} onSelect={handleChooseExtension} />
+          </div>
         ) : (
           <>
             <p className="text-sm text-gray-600 mb-4">{i18next.t("trx-common.sign-sub-title")}</p>
