@@ -42,7 +42,7 @@ export async function GET(request: NextRequest, { params }: Props) {
     const image = catchPostImage(entry, 1200, 630, "match");
 
     const summary = postBodySummary(entry.body, 140);
-    const url = `https://ecency.com/${entry.category}/${author}/${permlink}`;
+    const url = `https://ecency.com/@${entry.author}/${entry.permlink}`;
 
     const imageMeta = image
       ? `

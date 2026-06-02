@@ -56,7 +56,7 @@ export function tempEntry(p: TempEntryProps): Entry {
     stats: { flag_weight: 0, gray: false, hide: false, total_votes: 0 },
     title: p.title,
     updated: correctIsoDate(now.toISOString()),
-    url: `/${category}/@${p.author.name}/${p.permlink}`,
+    url: `/@${p.author.name}/${p.permlink}`,
     parent_author: p.parentAuthor,
     parent_permlink: p.parentPermlink
   };

@@ -14,5 +14,5 @@ export const crossPostMessage = (body: string) => {
 };
 
 export const makeCrossPostMessage = (entry: Entry, poster: string, message: string) => {
-  return `This is a cross post of [@${entry.author}/${entry.permlink}](/${entry.category}/@${entry.author}/${entry.permlink}) by @${poster}.<br><br>${message}`;
+  return `This is a cross post of [@${entry.author}/${entry.permlink}](/@${entry.author}/${entry.permlink}) by @${poster}.<br><br>${message}`;
 };

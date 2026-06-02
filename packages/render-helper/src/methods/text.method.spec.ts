@@ -679,7 +679,7 @@ describe('text() method - Text Node Processing', () => {
       const postLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
         link.getAttribute('class') === 'markdown-post-link'
       )
-      expect(postLinks[0]?.getAttribute('href')).toBe('/hive/@alice/my-post')
+      expect(postLinks[0]?.getAttribute('href')).toBe('/@alice/my-post')
     })
 
     it('should set correct attributes for app mode', () => {

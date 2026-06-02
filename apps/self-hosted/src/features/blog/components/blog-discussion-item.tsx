@@ -41,15 +41,12 @@ export function BlogDiscussionItem({
     [entry.created],
   );
 
-  const entryLink = useMemo(() => {
-    // Comments should have same link as regular post
-    // Use the same URL pattern as the post page routes
-    // If category exists, use /:category/:author/:permlink, otherwise /:author/:permlink
-    if (entry.category && entry.category !== 'created') {
-      return `/${entry.category}/@${entry.author}/${entry.permlink}`;
-    }
-    return `/@${entry.author}/${entry.permlink}`;
-  }, [entry]);
+  const entryLink = useMemo(
+    // Canonical post URL is the bare /@author/permlink form (same as the post
+    // page routes); the category segment is intentionally omitted.
+    () => `/@${entry.author}/${entry.permlink}`,
+    [entry],
+  );
 
   return (
     <div className="border-l-2 border-theme pl-3 sm:pl-6 py-3 sm:py-4">

@@ -727,7 +727,7 @@ function a(el, forApp, parentDomain = "ecency.com", seoContext, renderOptions) {
       el.setAttribute("data-author", author);
       el.setAttribute("data-permlink", permlink);
     } else {
-      const h = `/${tag}/@${author}/${permlink}`;
+      const h = `/@${author}/${permlink}`;
       el.setAttribute("href", h);
       el.setAttribute("data-is-inline", "" + isInline);
     }
@@ -806,7 +806,7 @@ function a(el, forApp, parentDomain = "ecency.com", seoContext, renderOptions) {
         el.setAttribute("data-author", author);
         el.setAttribute("data-permlink", permlink);
       } else {
-        const h = `/${tag}/@${author}/${permlink}`;
+        const h = `/@${author}/${permlink}`;
         el.setAttribute("href", h);
         el.setAttribute("data-is-inline", "" + isInline);
       }
@@ -871,7 +871,7 @@ function a(el, forApp, parentDomain = "ecency.com", seoContext, renderOptions) {
         el.setAttribute("data-author", author);
         el.setAttribute("data-permlink", permlink);
       } else {
-        const h = `/${tag}/@${author}/${permlink}`;
+        const h = `/@${author}/${permlink}`;
         el.setAttribute("href", h);
         el.setAttribute("data-is-inline", "" + isInline);
       }
@@ -957,7 +957,7 @@ function a(el, forApp, parentDomain = "ecency.com", seoContext, renderOptions) {
       el.setAttribute("data-author", author);
       el.setAttribute("data-permlink", permlink);
     } else {
-      const h = `/${tag}/@${author}/${permlink}`;
+      const h = `/@${author}/${permlink}`;
       el.setAttribute("href", h);
       el.setAttribute("data-is-inline", "" + isInline);
     }
@@ -1501,7 +1501,7 @@ function linkify(content, forApp, renderOptions) {
         const attrs = forApp ? `href="https://ecency.com/@${authorLower}/${permlink}"` : `href="/@${authorLower}/${permlink}"`;
         return `${preceding}<a class="markdown-profile-link" ${attrs}>@${authorLower}/${permlink}</a>`;
       } else {
-        const attrs = forApp ? `data-author="${authorLower}" data-tag="${tag}" data-permlink="${permlink}"` : `href="/${tag}/@${authorLower}/${permlink}"`;
+        const attrs = forApp ? `data-author="${authorLower}" data-tag="${tag}" data-permlink="${permlink}"` : `href="/@${authorLower}/${permlink}"`;
         return `${preceding}<a class="markdown-post-link" ${attrs}>@${authorLower}/${permlink}</a>`;
       }
     }
@@ -1516,7 +1516,7 @@ function linkify(content, forApp, renderOptions) {
         const attrs = forApp ? `href="https://ecency.com/@${uu}/${permlink}"` : `href="/@${uu}/${permlink}"`;
         return ` <a class="markdown-profile-link" ${attrs}>@${uu}/${permlink}</a>`;
       } else {
-        const attrs = forApp ? `data-author="${uu}" data-tag="post" data-permlink="${permlink}"` : `href="/post/@${uu}/${permlink}"`;
+        const attrs = forApp ? `data-author="${uu}" data-tag="post" data-permlink="${permlink}"` : `href="/@${uu}/${permlink}"`;
         return ` <a class="markdown-post-link" ${attrs}>@${uu}/${permlink}</a>`;
       }
     }
@@ -1611,7 +1611,7 @@ function text(node, forApp, renderOptions) {
       if (!tag || !/^[a-z0-9_-]+$/i.test(tag)) return;
       if (!isValidUsername(author)) return;
       if (!isValidPermlink(permlink)) return;
-      const attrs = forApp ? `data-tag="${tag}" data-author="${author}" data-permlink="${permlink}" class="markdown-post-link"` : `class="markdown-post-link" href="/${tag}/@${author}/${permlink}"`;
+      const attrs = forApp ? `data-tag="${tag}" data-author="${author}" data-permlink="${permlink}" class="markdown-post-link"` : `class="markdown-post-link" href="/@${author}/${permlink}"`;
       const doc = DOMParser.parseFromString(
         `<a ${attrs}>/@${author}/${permlink}</a>`,
         "text/html"

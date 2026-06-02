@@ -103,7 +103,7 @@ export function text(node: HTMLElement | null, forApp: boolean, renderOptions?: 
       if (!isValidUsername(author)) return
       if (!isValidPermlink(permlink)) return
 
-      const attrs = forApp ? `data-tag="${tag}" data-author="${author}" data-permlink="${permlink}" class="markdown-post-link"` : `class="markdown-post-link" href="/${tag}/@${author}/${permlink}"`
+      const attrs = forApp ? `data-tag="${tag}" data-author="${author}" data-permlink="${permlink}" class="markdown-post-link"` : `class="markdown-post-link" href="/@${author}/${permlink}"`
       const doc = DOMParser.parseFromString(
         `<a ${attrs}>/@${author}/${permlink}</a>`,
         'text/html'

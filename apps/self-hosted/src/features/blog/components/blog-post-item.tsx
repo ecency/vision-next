@@ -105,7 +105,7 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
 
       <h2 className="text-xl sm:text-2xl font-bold mb-3 transition-theme hover:opacity-70 heading-theme leading-[1.15]">
         <a
-          href={`/${entryData.category}/@${entryData.author}/${entryData.permlink}`}
+          href={`/@${entryData.author}/${entryData.permlink}`}
         >
           {entryData.title}
         </a>
@@ -114,7 +114,7 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
       {listType === 'grid' && imageUrl && (
         <div className="mb-4 overflow-hidden">
           <a
-            href={`/${entryData.category}/@${entryData.author}/${entryData.permlink}`}
+            href={`/@${entryData.author}/${entryData.permlink}`}
           >
             <img
               src={imageUrl}
@@ -207,7 +207,7 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
           <div className="flex-1">{contentSection}</div>
           <div className="shrink-0 w-full sm:w-48">
             <a
-              href={`/${entryData.category}/@${entryData.author}/${entryData.permlink}`}
+              href={`/@${entryData.author}/${entryData.permlink}`}
             >
               <img
                 src={imageUrl}

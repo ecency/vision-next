@@ -271,7 +271,7 @@ describe('a() method - Link Processing', () => {
         a(el, false)
 
         expect(el.getAttribute('class')).toBe('markdown-post-link')
-        expect(el.getAttribute('href')).toBe('/hive/@author/permlink')
+        expect(el.getAttribute('href')).toBe('/@author/permlink')
         expect(el.getAttribute('data-is-inline')).toBe('true')
         expect(el.textContent).toBe('@author/permlink')
       })
@@ -287,7 +287,7 @@ describe('a() method - Link Processing', () => {
         a(el, false)
 
         expect(el.getAttribute('class')).toBe('markdown-post-link')
-        expect(el.getAttribute('href')).toBe('/hive/@author/permlink')
+        expect(el.getAttribute('href')).toBe('/@author/permlink')
       })
 
       it('should transform hive.blog post links for web', () => {
@@ -301,7 +301,7 @@ describe('a() method - Link Processing', () => {
         a(el, false)
 
         expect(el.getAttribute('class')).toBe('markdown-post-link')
-        expect(el.getAttribute('href')).toBe('/test/@author/permlink')
+        expect(el.getAttribute('href')).toBe('/@author/permlink')
       })
 
       it('should set data attributes for app mode', () => {
@@ -333,7 +333,7 @@ describe('a() method - Link Processing', () => {
         a(el, false)
 
         expect(el.getAttribute('class')).toBe('markdown-post-link')
-        expect(el.getAttribute('href')).toBe('/hive/@author/permlink')
+        expect(el.getAttribute('href')).toBe('/@author/permlink')
       })
 
       it('should detect non-inline links when text differs', () => {
@@ -374,7 +374,7 @@ describe('a() method - Link Processing', () => {
 
         a(el, false)
 
-        expect(el.getAttribute('href')).toBe('/hive/@author/permlink')
+        expect(el.getAttribute('href')).toBe('/@author/permlink')
       })
 
       it('should sanitize permlink with hash', () => {
@@ -387,7 +387,7 @@ describe('a() method - Link Processing', () => {
 
         a(el, false)
 
-        expect(el.getAttribute('href')).toBe('/hive/@author/permlink')
+        expect(el.getAttribute('href')).toBe('/@author/permlink')
       })
 
       it('should reject invalid permlinks with image extensions', () => {
@@ -731,7 +731,7 @@ describe('a() method - Link Processing', () => {
         a(el, false)
 
         expect(el.getAttribute('class')).toBe('markdown-post-link')
-        expect(el.getAttribute('href')).toBe('/ccc/@username/permlink')
+        expect(el.getAttribute('href')).toBe('/@username/permlink')
       })
 
       it('should set correct tag for collection posts', () => {
@@ -762,7 +762,7 @@ describe('a() method - Link Processing', () => {
         a(el, false)
 
         expect(el.getAttribute('class')).toBe('markdown-post-link')
-        expect(el.getAttribute('href')).toBe('/post/@author/permlink')
+        expect(el.getAttribute('href')).toBe('/@author/permlink')
       })
 
       it('should handle internal post tag links', () => {
@@ -776,7 +776,7 @@ describe('a() method - Link Processing', () => {
         a(el, false)
 
         expect(el.getAttribute('class')).toBe('markdown-post-link')
-        expect(el.getAttribute('href')).toBe('/hive/@author/permlink')
+        expect(el.getAttribute('href')).toBe('/@author/permlink')
       })
     })
   })
@@ -1599,7 +1599,7 @@ describe('a() method - Link Processing', () => {
       a(el, false)
 
       expect(el.getAttribute('class')).toBe('markdown-post-link')
-      expect(el.getAttribute('href')).toBe('/hive/@author/my-post-title-2024')
+      expect(el.getAttribute('href')).toBe('/@author/my-post-title-2024')
     })
 
     it('should handle usernames with dots', () => {

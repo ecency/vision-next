@@ -514,7 +514,7 @@ describe('markdownToHTML() method', () => {
       const input = 'https://ecency.com/hive/@author/permlink'
       const result = markdownToHTML(input, false, 'ecency.com')
       expect(result).toContain('markdown-post-link')
-      expect(result).toContain('/hive/@author/permlink')
+      expect(result).toContain('/@author/permlink')
     })
 
     it('should handle Hive community links', () => {
@@ -535,14 +535,14 @@ describe('markdownToHTML() method', () => {
       const input = 'https://peakd.com/hive/@author/permlink'
       const result = markdownToHTML(input, false, 'ecency.com')
       expect(result).toContain('markdown-post-link')
-      expect(result).toContain('/hive/@author/permlink')
+      expect(result).toContain('/@author/permlink')
     })
 
     it('should handle Hive.blog post links', () => {
       const input = 'https://hive.blog/test/@author/permlink'
       const result = markdownToHTML(input, false, 'ecency.com')
       expect(result).toContain('markdown-post-link')
-      expect(result).toContain('/test/@author/permlink')
+      expect(result).toContain('/@author/permlink')
     })
   })
 
