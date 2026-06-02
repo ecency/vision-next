@@ -128,7 +128,10 @@
   "announcements": {
     "dismiss": "Dismiss",
     "next": "Next",
-    "later": "Later"
+    "later": "Later",
+    "voted": "Voted",
+    "view-proposal": "View proposal",
+    "vote-success": "Thank you for supporting Ecency!"
   },
   "floating-faq": {
     "toggle-icon-info": "Click to expand",
