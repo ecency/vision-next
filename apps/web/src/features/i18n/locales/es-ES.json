@@ -128,7 +128,10 @@
   "announcements": {
     "dismiss": "Descartar",
     "next": "Siguiente",
-    "later": "Más tarde"
+    "later": "Más tarde",
+    "voted": "Votado",
+    "view-proposal": "Ver propuesta",
+    "vote-success": "¡Gracias por apoyar a Ecency!"
   },
   "floating-faq": {
     "toggle-icon-info": "Haz clic para ampliar",
@@ -314,6 +317,7 @@
     "extensions": "Extensiones",
     "extensions-info-title": "Extensiones del navegador",
     "extensions-info-description": "Inicia sesión de forma segura usando una extensión del navegador Hive. Instala una de las siguientes extensiones para empezar:",
+    "extensions-mobile-note": "Las extensiones del navegador Hive sólo están disponibles en navegadores de escritorio. En dispositivos móviles, use Keychain Mobile o inicie sesión con su clave o HiveSigner.",
     "extensions-select-title": "Elegir extensión",
     "extensions-select-description": "Múltiples extensiones de Hive detectadas. Seleccione la que se usará para firmar:",
     "extension-keeper-name": "Hive Keeper",
@@ -1695,6 +1699,8 @@
     "with-hivesigner": "Iniciar Sesión con hivesigner",
     "with-keychain": "Iniciar sesión con KeyChain",
     "with-extension": "Firmar con extensión",
+    "with-extension-named": "Firmar con {{name}}",
+    "no-extension-prompt": "¿No tienes una extensión Hive? Instala una:",
     "with-hiveauth": "Firmar con HiveAuth",
     "invalid-key": "Formato de clave no válido. Por favor, compruebe los caracteres no válidos.",
     "key-error": "Error al procesar la clave. Por favor, compruebe que es correcta.",
