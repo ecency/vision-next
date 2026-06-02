@@ -4,14 +4,15 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import { ProposalVoteAction } from "@/features/announcement/proposal-vote-action";
 
-const { votesRef, voteMock, successMock } = vi.hoisted(() => ({
+const { votesRef, voteMock, successMock, usernameRef } = vi.hoisted(() => ({
   votesRef: { current: [] as { proposal?: { proposal_id: number } }[] },
   voteMock: vi.fn(),
-  successMock: vi.fn()
+  successMock: vi.fn(),
+  usernameRef: { current: "alice" as string | undefined }
 }));
 
 vi.mock("@/core/hooks/use-active-username", () => ({
-  useActiveUsername: () => "alice"
+  useActiveUsername: () => usernameRef.current
 }));
 
 vi.mock("@/api/sdk-mutations", () => ({
@@ -19,7 +20,8 @@ vi.mock("@/api/sdk-mutations", () => ({
 }));
 
 vi.mock("@/features/shared", () => ({
-  success: successMock
+  success: successMock,
+  LoginRequired: ({ children }: { children: React.ReactNode }) => <>{children}</>
 }));
 
 vi.mock("@ecency/sdk", () => ({
@@ -39,6 +41,25 @@ describe("ProposalVoteAction", () => {
     voteMock.mockReset().mockResolvedValue(true);
     successMock.mockReset();
     votesRef.current = [];
+    usernameRef.current = "alice";
+  });
+
+  it("prompts login instead of voting when there is no active user", () => {
+    usernameRef.current = undefined;
+    render(
+      <ProposalVoteAction
+        proposalId={379}
+        buttonText="Support now"
+        viewLink="/proposals/379"
+        onSupported={vi.fn()}
+      />
+    );
+
+    // The primary button is shown (wrapped in LoginRequired) and is NOT wired
+    // directly to the vote mutation — so a logged-out click can't silently fail.
+    const supportBtn = screen.getByRole("button", { name: "Support now" });
+    fireEvent.click(supportBtn);
+    expect(voteMock).not.toHaveBeenCalled();
   });
 
   it("casts an approve vote and dismisses on success", async () => {

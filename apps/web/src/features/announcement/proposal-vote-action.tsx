@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { getUserProposalVotesQueryOptions } from "@ecency/sdk";
 import { Button } from "@ui/button";
-import { success } from "@/features/shared";
+import { LoginRequired, success } from "@/features/shared";
 import { useProposalVoteMutation } from "@/api/sdk-mutations";
 import { useActiveUsername } from "@/core/hooks/use-active-username";
 
@@ -54,13 +54,29 @@ export function ProposalVoteAction({ proposalId, buttonText, viewLink, onSupport
     }
   };
 
+  if (!username) {
+    // Voting needs an account. This is only reachable if an announcement omits
+    // auth:true (ours sets it); prompt login on the primary action rather than
+    // swallowing the "no active user" error and doing nothing visible.
+    return (
+      <>
+        <LoginRequired>
+          <Button>{buttonText}</Button>
+        </LoginRequired>
+        <Link href={viewLink}>
+          <Button appearance="link">{i18next.t("announcements.view-proposal")}</Button>
+        </Link>
+      </>
+    );
+  }
+
   if (voted) {
     return (
       <>
         <Button appearance="success" outline={true} disabled={true}>
           {i18next.t("announcements.voted")}
         </Button>
-        <Link href={viewLink} onClick={onSupported}>
+        <Link href={viewLink}>
           <Button appearance="link">{i18next.t("announcements.view-proposal")}</Button>
         </Link>
       </>

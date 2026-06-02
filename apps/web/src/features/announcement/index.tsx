@@ -178,6 +178,9 @@ export const Announcements = () => {
                   </div>
                   <div className="flex actions">
                     {x?.proposal_ids && x.proposal_ids.length > 0 ? (
+                      // Ecency proposal announcements target a single proposal; we vote
+                      // on the first id. (The Hive op accepts an array, but the web
+                      // mutation is single-id and the data has never carried more.)
                       <ProposalVoteAction
                         proposalId={x.proposal_ids[0]}
                         buttonText={x?.button_text}
