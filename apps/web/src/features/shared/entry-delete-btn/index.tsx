@@ -22,10 +22,19 @@ export function EntryDeleteBtn({ children, entry, parent }: Props) {
     parent
   );
 
+  // Read the caller's class from children.props (ReactElement.props is typed
+  // `unknown` under React 19, hence the cast). The previous code read
+  // `children.className` — a field that is always undefined on a React
+  // element — which silently dropped the caller's class.
+  const childClassName = (children.props as { className?: string }).className;
+  // Strip the exact "in-progress" token (not a raw substring, which would
+  // corrupt class names like "in-progress-pill") before re-adding it.
+  const baseClassName = (childClassName ?? "")
+    .split(/\s+/)
+    .filter((token) => token && token !== "in-progress")
+    .join(" ");
   const child = cloneElement(children, {
-    className: `${children.className ? children.className.replace("in-progress", "") : ""} ${
-      isPending ? "in-progress" : ""
-    }`
+    className: [baseClassName, isPending ? "in-progress" : ""].filter(Boolean).join(" ")
   });
 
   return (
