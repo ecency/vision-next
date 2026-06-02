@@ -30,7 +30,7 @@ describe("ProfileLink", () => {
   it("renders the provided children inside the link", () => {
     render(
       <ProfileLink username="bob">
-        <span data-testid="child">Bob's avatar</span>
+        <span data-testid="child">{"Bob's avatar"}</span>
       </ProfileLink>
     );
 
