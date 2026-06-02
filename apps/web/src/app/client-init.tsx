@@ -4,7 +4,7 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
 import { useQuery } from "@tanstack/react-query";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
-import { initI18next } from "@/features/i18n";
+import { initI18next, detectBrowserLang } from "@/features/i18n";
 import * as ls from "@/utils/local-storage";
 import Cookies from "js-cookie";
 import { ConfigManager } from "@ecency/sdk";
@@ -25,6 +25,7 @@ export function ClientInit() {
   const loadUsers = useGlobalStore((state) => state.loadUsers);
   const setCurrency = useGlobalStore((state) => state.setCurrency);
   const currency = useGlobalStore((state) => state.currency);
+  const setLang = useGlobalStore((state) => state.setLang);
 
   const queryClient = useQueryClient();
 
@@ -37,7 +38,19 @@ export function ClientInit() {
     ConfigManager.setQueryClient(queryClient as any);
 
     initKeychain();
-    initI18next();
+    // Initialize i18n, then auto-detect the visitor's locale on their first
+    // visit (no saved preference). This runs post-mount, so the initial render
+    // still matches the server's en-US output — no hydration mismatch. The
+    // detected language persists via setLang and is overridable from settings.
+    initI18next().then(() => {
+      const savedLang = ls.get("lang") || ls.get("current-language");
+      if (!savedLang) {
+        const detected = detectBrowserLang();
+        if (detected && detected !== "en-US") {
+          setLang(detected);
+        }
+      }
+    });
     loadUsers();
 
     const activeUsername = ls.get("active_user") ?? Cookies.get("active_user");
