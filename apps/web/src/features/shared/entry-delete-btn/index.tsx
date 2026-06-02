@@ -22,8 +22,13 @@ export function EntryDeleteBtn({ children, entry, parent }: Props) {
     parent
   );
 
+  // Read the caller's class from children.props (ReactElement.props is typed
+  // `unknown` under React 19, hence the cast). The previous code read
+  // `children.className` — a field that is always undefined on a React
+  // element — which silently dropped the caller's class.
+  const childClassName = (children.props as { className?: string }).className;
   const child = cloneElement(children, {
-    className: `${children.className ? children.className.replace("in-progress", "") : ""} ${
+    className: `${childClassName ? childClassName.replace("in-progress", "") : ""} ${
       isPending ? "in-progress" : ""
     }`
   });

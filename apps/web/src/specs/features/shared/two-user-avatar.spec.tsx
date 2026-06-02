@@ -1,8 +1,12 @@
 import { render } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { TwoUserAvatar } from "@/features/shared/two-user-avatar";
+import defaults from "@/defaults";
 
-const IMAGE_SERVER = "https://i.ecency.com";
+// Derive from the same source the component reads (defaults.imageServer is
+// env-overridable via NEXT_PUBLIC_IMAGE_SERVER) so the URL assertions hold
+// regardless of the CI environment.
+const IMAGE_SERVER = defaults.imageServer;
 
 /**
  * TwoUserAvatar renders two stacked avatar spans whose backgroundImage is built

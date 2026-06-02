@@ -131,10 +131,12 @@ describe("EntryDeleteBtn", () => {
       </EntryDeleteBtn>
     );
 
+    // Both the caller's class and the pending marker are present.
+    expect(screen.getByText("Delete")).toHaveClass("delete-btn");
     expect(screen.getByText("Delete")).toHaveClass("in-progress");
   });
 
-  it("does not add 'in-progress' to the child while idle", () => {
+  it("preserves the caller's className and omits 'in-progress' while idle", () => {
     render(
       <EntryDeleteBtn entry={entry}>
         <button type="button" className="delete-btn">
@@ -144,14 +146,9 @@ describe("EntryDeleteBtn", () => {
     );
 
     const child = screen.getByText("Delete");
-    // While idle the "in-progress" marker must be absent.
+    // The caller's own class is preserved (EntryDeleteBtn reads
+    // children.props.className), and the pending marker is absent while idle.
+    expect(child).toHaveClass("delete-btn");
     expect(child).not.toHaveClass("in-progress");
-    // NOTE on a latent component quirk: EntryDeleteBtn rebuilds the child's
-    // className from `children.className` (the React element field, always
-    // undefined) instead of `children.props.className`, so the caller's own
-    // class is dropped. We assert the actual rendered value (just the
-    // pending-flag slot, blank when idle) to lock in current behavior.
-    expect((child.getAttribute("class") ?? "").trim()).toBe("");
-    expect(child).not.toHaveClass("delete-btn");
   });
 });
