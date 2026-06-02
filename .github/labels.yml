@@ -56,3 +56,7 @@
 - name: skip-changeset
   description: Skip changeset generation (web-only changes)
   color: "d4c5f9"
+
+- name: sync-translations
+  description: Add to any PR to pull the latest translations from Crowdin into a batched PR
+  color: "5319e7"
