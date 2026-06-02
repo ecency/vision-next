@@ -1,8 +1,8 @@
 # syntax=docker/dockerfile:1.7
-FROM node:20.12 AS base
+FROM node:24.16.0 AS base
 WORKDIR /var/app
 
-ARG PNPM_VERSION=10.18.1
+ARG PNPM_VERSION=10.34.1
 RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate
 ENV CI=true
 
@@ -55,7 +55,7 @@ RUN pnpm deploy --filter @ecency/web --prod --legacy /var/app/.deploy-workdir \
 RUN cd apps/web && node node_modules/next-ws/dist/cli.cjs patch
 
 # ---------- production ----------
-FROM node:20.12 AS production
+FROM node:24.16.0 AS production
 WORKDIR /var/app
 
 ENV TINI_VERSION=v0.18.0
@@ -64,7 +64,6 @@ RUN chmod +x /tini
 ENTRYPOINT ["/tini", "--"]
 
 ENV NODE_ENV=production
-ENV NEXT_SHARP_PATH=/var/app/node_modules/sharp
 
 # Carry the Sentry release identifier into the runtime container.
 # Build-args don't cross stage boundaries automatically — each stage that
@@ -75,7 +74,7 @@ ENV NEXT_SHARP_PATH=/var/app/node_modules/sharp
 ARG SENTRY_RELEASE
 ENV SENTRY_RELEASE=${SENTRY_RELEASE}
 
-ARG PNPM_VERSION=10.18.1
+ARG PNPM_VERSION=10.34.1
 RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate
 
 # Copy runtime artifacts from the single build
