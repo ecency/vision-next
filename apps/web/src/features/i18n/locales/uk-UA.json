@@ -128,7 +128,10 @@
   "announcements": {
     "dismiss": "Закрити",
     "next": "Далі",
-    "later": "Пізніше"
+    "later": "Пізніше",
+    "voted": "Проголосували",
+    "view-proposal": "Переглянути пропозицію",
+    "vote-success": "Дякуємо за підтримку Ecency!"
   },
   "floating-faq": {
     "toggle-icon-info": "Клацніть, щоб розгорнути",
@@ -314,6 +317,7 @@
     "extensions": "Розширення",
     "extensions-info-title": "Розширення браузера",
     "extensions-info-description": "Щоб почати, увійдіть безпечно, використовуючи розширення для браузера Hive. Встановіть одну з наступних розширень, щоб почати:",
+    "extensions-mobile-note": "Розширення для браузера доступні лише в настільних браузерах. Для мобільних пристроїв використовуйте Keychain Mobile або увійдіть за допомогою ключа або HiveSigner.",
     "extensions-select-title": "Виберіть розширення",
     "extensions-select-description": "Виявлено декілька розширень вуликів. Оберіть, яку можна використовувати для підпису:",
     "extension-keeper-name": "Тримати вулик",
@@ -1695,6 +1699,8 @@
     "with-hivesigner": "Sign with hivesigner",
     "with-keychain": "Sign with keychain",
     "with-extension": "Увійти з розширенням",
+    "with-extension-named": "Sign with {{name}}",
+    "no-extension-prompt": "Не маєте розширення His? Встановити одне:",
     "with-hiveauth": "Увійти за допомогою HiveAuth",
     "invalid-key": "Невірний формат ключа. Будь ласка, перевірте неправильні символи.",
     "key-error": "Не вдалося обробити ключ. Будь ласка, перевірте його правильність.",
