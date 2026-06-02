@@ -133,24 +133,33 @@ jobs:
           git pull origin develop
           cd apps/web
           docker network create --driver overlay vision || true
-          docker pull ecency/vision-next:develop
+          web_pull="$(docker pull ecency/vision-next:develop)"; printf '%s\n' "$web_pull"
           docker stack deploy -c <(docker-compose config) vision
-          # Fail the job if vision_web does not converge — e.g. the new image
-          # crashes on start and Swarm rolls back to the previous image. Without
-          # this, `docker stack deploy` returns 0 immediately, so a rolled-back
-          # rollout still reports a green deploy while staging serves the old build.
-          state=""
-          for i in $(seq 1 36); do
-            state=$(docker service inspect vision_web --format '{{if .UpdateStatus}}{{.UpdateStatus.State}}{{end}}' 2>/dev/null || echo "")
-            case "$state" in
-              ""|completed) break ;;
-              rollback_*|paused) break ;;
-            esac
-            sleep 5
-          done
-          case "$state" in
-            rollback_*|paused)
-              echo "::error::vision_web did not converge (UpdateStatus=$state); staging still on previous image"
-              exit 1 ;;
-          esac
-          echo "vision_web converged (UpdateStatus=${state:-none})"
+          # Don't report a green deploy unless the new image actually rolled out.
+          # `docker stack deploy` returns as soon as the spec is committed to Raft
+          # (before Swarm populates UpdateStatus), so a crash-on-start (-> rollback)
+          # or a stuck/slow rollout would otherwise pass silently. When a new image
+          # was pulled, wait for vision_web to reach `completed`: never accept an
+          # empty/`updating` reading as success, fail immediately on rollback/pause,
+          # and fail on timeout in any non-`completed` state. Skip the wait only
+          # when the image was unchanged (genuine no-op, nothing to roll out).
+          if printf '%s' "$web_pull" | grep -q 'Image is up to date'; then
+            echo "vision_web image unchanged; no rollout expected"
+          else
+            state=""
+            for i in $(seq 1 60); do
+              state="$(docker service inspect vision_web --format '{{if .UpdateStatus}}{{.UpdateStatus.State}}{{end}}' 2>/dev/null || echo "")"
+              case "$state" in
+                completed) break ;;
+                rollback_*|paused)
+                  echo "::error::vision_web rolled back (UpdateStatus=$state); staging still on the previous image"
+                  exit 1 ;;
+              esac
+              sleep 5
+            done
+            if [ "$state" != "completed" ]; then
+              echo "::error::vision_web did not converge within ~5m (UpdateStatus=${state:-empty}); staging may still be on the previous image"
+              exit 1
+            fi
+            echo "vision_web converged (UpdateStatus=completed)"
+          fi
