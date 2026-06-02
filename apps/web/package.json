@@ -2,7 +2,7 @@
   "name": "@ecency/web",
   "version": "4.3.9",
   "private": true,
-  "packageManager": "pnpm@10.34.1",
+  "packageManager": "pnpm@11.5.0",
   "scripts": {
     "prepare": "next-ws patch",
     "dev": "node ./node_modules/next/dist/bin/next dev",

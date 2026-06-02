@@ -1,3 +1,44 @@
 packages:
   - "apps/*"
   - "packages/*"
+
+# Settings below were migrated from the package.json "pnpm" field — pnpm 11 no
+# longer reads that field and takes these from pnpm-workspace.yaml instead.
+overrides:
+  typescript: "^5"
+  source-map: "^0.7.4"
+  sass-embedded: "1.93.2"
+  "@sentry/core": "^8.55.0"
+  "@sentry/types": "^8.55.0"
+  "@sentry/utils": "^8.55.0"
+
+# pnpm 11 removed onlyBuiltDependencies / ignoredBuiltDependencies in favour of
+# allowBuilds (a per-package true/false map), enforced by strictDepBuilds.
+# true  = previously-allowlisted deps that genuinely need their native/build step.
+# false = sharp (unused: images run unoptimized) and the optional ws native
+#         addons (JS fallback is used, so building them is unnecessary).
+# A new dependency that ships a build script will fail CI until it's reviewed
+# and added here — that's the intended supply-chain guard.
+allowBuilds:
+  "@firebase/util": true
+  "@parcel/watcher": true
+  "@sentry/cli": true
+  "@sentry/profiling-node": true
+  "bigint-buffer": true
+  "core-js": true
+  "esbuild": true
+  "keccak": true
+  "protobufjs": true
+  "scryptlib": true
+  "secp256k1": true
+  "unrs-resolver": true
+  "sharp": false
+  "bufferutil": false
+  "utf-8-validate": false
+
+# Supply-chain guard: refuse to install package versions published less than a
+# day ago, so a compromised version that's published and yanked within hours is
+# never pulled in. Trade-off: `pnpm install --frozen-lockfile` (CI) will fail
+# for ~24h after a same-day dependency bump lands in the lockfile — re-run CI
+# once the version has aged, or add the package to minimumReleaseAgeExclude.
+minimumReleaseAge: 1440

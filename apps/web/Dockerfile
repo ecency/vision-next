@@ -2,7 +2,7 @@
 FROM node:24.16.0 AS base
 WORKDIR /var/app
 
-ARG PNPM_VERSION=10.34.1
+ARG PNPM_VERSION=11.5.0
 RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate
 ENV CI=true
 
@@ -74,7 +74,7 @@ ENV NODE_ENV=production
 ARG SENTRY_RELEASE
 ENV SENTRY_RELEASE=${SENTRY_RELEASE}
 
-ARG PNPM_VERSION=10.34.1
+ARG PNPM_VERSION=11.5.0
 RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate
 
 # Copy runtime artifacts from the single build
