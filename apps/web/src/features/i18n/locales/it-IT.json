@@ -392,7 +392,7 @@
     "asking-description": "Copia il link dell'account e invia ad un amico.",
     "username": "Nome Utente:",
     "email": "Email:",
-    "referral": "Referral:",
+    "referral": "Referente:",
     "copy-key": "Assicurati di copiare o scaricare le chiavi.",
     "download-keys": "Scarica le chiavi",
     "create-account-hive": "Paga con HIVE",
@@ -969,7 +969,7 @@
     "post-read-time": "Reading:",
     "post-read-minutes": "min",
     "raw": "Visualizza formato RAW",
-    "post-top-curator": "Top Curator:",
+    "post-top-curator": "Miglior curatore:",
     "stats": {
       "stats-details": "Statistiche a vita",
       "update-info": "Aggiornamento ogni minuto",

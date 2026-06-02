@@ -816,7 +816,7 @@
     "pending-orders": "Bekleyen emirler",
     "type": "Tür",
     "mode-limit": "Limit",
-    "mode-engine": "Engine",
+    "mode-engine": "Hive Engine",
     "mode-swap": "Takas",
     "mode-advanced": "Gelişmiş",
     "action": "İşlem",
@@ -888,8 +888,8 @@
       "variant-engine": "Engine tokenları"
     },
     "limit": {
-      "layer-core": "Core · Layer 1",
-      "layer-engine": "Engine · Layer 2",
+      "layer-core": "Çekirdek · Katman 1",
+      "layer-engine": "Hive Engine · Katman 2",
       "token-selector": {
         "label": "Alım satım çifti",
         "title": "Bir alım satım çifti seçin",
@@ -1430,7 +1430,7 @@
       },
       "account-value": "Tahmini Hesap Değeri",
       "account-value-description": "Hesabınızdaki tüm SPK varlıklarının yaklaşık ABD Doları değeri",
-      "larynx-locked": "LARYNX Locked",
+      "larynx-locked": "LARYNX Kilitli",
       "larynx-locked-description": "Kilitli tokenlar ağa likidite sağlar, konsensüs belirlemeye yardımcı olur ve düğüm işletenler için ödül kazandırır"
     },
     "setup-external": {
@@ -1931,12 +1931,12 @@
     "reblogged": "{{source}} gönderini yeniden yayınladı",
     "transfer": "{{source}} sana {{amount}} gönderdi",
     "delegations": "{{source}} size {{amount}} devretti",
-    "checkins": "You checked in {{count}} day{{suffix}} this week. Keep it up!",
+    "checkins": "Bu hafta {{count}} gün{{suffix}} giriş yaptın. Böyle devam et!",
     "payouts": "Your content payout is ready.",
     "payouts-amount": "{{amount}} ödeme aldınız.",
     "payouts-amount-usd": "${{amount_usd}} ({{amount}}) kazandınız.",
     "payouts-title": "{{body}} \"{{title}}\"",
-    "monthly-posts": "You created {{count}} post{{suffix}} this month. Keep it up!",
+    "monthly-posts": "Bu ay {{count}} gönderi{{suffix}} oluşturdun. Böyle devam et!",
     "weekly-earnings": "Bu hafta ${{total}} kazandınız - gönderilerden ${{author}}, küratörlükten ${{curation}}.",
     "weekly-earnings-short": "Bu hafta gönderilerinizden ve küratörlükten ${{total}} kazandınız."
   },
@@ -3501,7 +3501,7 @@
         "will-be-replaced": "yeni anahtarla değiştirilecek",
         "memo-will-replace": "Yeni memo anahtarı bunun yerini alacak",
         "derivation-unknown": "Bilinmiyor",
-        "derivation-bip44": "BIP44 Seed",
+        "derivation-bip44": "BIP44 Tohumu",
         "derivation-master-password": "Ana Şifre"
       },
       "step4": {

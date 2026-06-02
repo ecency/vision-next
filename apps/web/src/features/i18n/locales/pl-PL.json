@@ -1097,7 +1097,7 @@
     "types": {
       "topic": "Temat",
       "journal": "Dziennik",
-      "council": "Rozporządzenie Parlamentu Europejskiego i Rady (UE, Euratom) nr 966/2012 z dnia 25 października 2012 r. w sprawie zasad finansowych mających zastosowanie do budżetu ogólnego Unii oraz uchylające rozporządzenie Rady (WE, Euratom) nr 1605/2002 (Dz.U. L 298 z 26.10.2012, s. 1)."
+      "council": "Rada"
     }
   },
   "communities-create": {
@@ -1775,7 +1775,7 @@
     "quote": "Cytat (Alt + M)",
     "ul": "Lista nienumerowana",
     "ol": "Lista numerowana",
-    "link": "Link (Alt + K)",
+    "link": "Odnośnik (Alt + K)",
     "image": "Obraz (Alt + D)",
     "table": "Tabela (Alt + T)",
     "table-3-col": "3 kolumny",
@@ -1789,7 +1789,7 @@
     "image-error-size": "Rozmiar obrazu jest zbyt duży, spróbuj ponownie mniejszych rozmiarów.",
     "image-error-conflict-name": "Masz już obraz z tą nazwą pliku. Wybierz go z galerii.",
     "fragments": "Fragmenty",
-    "link-image": "Link",
+    "link-image": "Odnośnik",
     "polls": "Ankiety",
     "image-error-network": "Nie można przesłać obrazu z powodu błędu API"
   },
@@ -2136,7 +2136,7 @@
       "step-setup-title": "Ustaw szczegóły wniosku",
       "step-setup-sub-title": "Opisz wniosek, który chcesz przesłać do DHF.",
       "description": "<p>Przed złożeniem wniosku upewnij się, że opublikowałeś post na ulicy, który wyjaśnia zakres pracy i link do niej poniżej. Tworzenie propozycji kosztuje <strong>10 HBD</strong> plus <strong>1 HBD</strong> każdego dnia ponad 60.</p>",
-      "subject-label": "Rozporządzenie Rady (EWG) nr 2658/87 z dnia 23 lipca 1987 r. w sprawie nomenklatury taryfowej i statystycznej oraz w sprawie Wspólnej Taryfy Celnej (Dz.U. L 256 z 7.9.1987, s. 1).",
+      "subject-label": "Tytuł",
       "subject-placeholder": "Krótki tytuł publiczny",
       "subject-help": "To pojawia się na liście propozycji. Zachowaj zwięzły (maksymalnie 80 znaków).",
       "subject-error": "Wprowadź tytuł od 3 do 80 znaków.",
@@ -2205,7 +2205,7 @@
     "title": "Fragmenty",
     "create-first": "Utwórz swój pierwszy fragment",
     "filter": "Szukaj według tytułu",
-    "form-title": "Rozporządzenie Rady (EWG) nr 2658/87 z dnia 23 lipca 1987 r. w sprawie nomenklatury taryfowej i statystycznej oraz w sprawie Wspólnej Taryfy Celnej (Dz.U. L 256 z 7.9.1987, s. 1).",
+    "form-title": "Tytuł",
     "validation-title": "Tytuł jest wymagany.",
     "validation-value": "Wartość jest wymagana.",
     "validation-body": "Treść jest wymagana.",
@@ -3214,7 +3214,7 @@
       "list": "Lista",
       "fragments": "Fragmenty",
       "image": "Obraz",
-      "link": "Link",
+      "link": "Odnośnik",
       "edit-link": "Edytuj link",
       "remove-link": "Usuń link",
       "open-link": "Otwórz link",

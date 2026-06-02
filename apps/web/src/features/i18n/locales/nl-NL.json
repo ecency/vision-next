@@ -207,9 +207,9 @@
     "action-transfer-description": "Stuur {{token}} direct",
     "action-delegate-hp": "Verkiezing Korf Kracht",
     "action-delegate-hp-description": "HP overdragen aan een ander account",
-    "action-power-up": "Power up",
+    "action-power-up": "Power Up",
     "action-power-up-description": "Converteer HIVE naar hive Power",
-    "action-power-down": "Power down",
+    "action-power-down": "Power Down",
     "action-power-down-description": "Converteer Hive Kracht terug naar HIVE",
     "action-claim-hive": "Beloningen opeisen in afwachting van HIVE",
     "action-claim-points": "PUNINTS beloningen opeisen",
@@ -1349,11 +1349,11 @@
     "transfer": "Overschrijven",
     "transfer-to-savings": "Overschrijven naar spaarpot",
     "convert": "Omzetten",
-    "power-up": "Power up",
+    "power-up": "Power Up",
     "withdraw-hive": "HIVE opnemen",
     "withdraw-hbd": "HIVE Dollar opnemen",
     "delegate": "Delegeren",
-    "power-down": "Power down",
+    "power-down": "Power Down",
     "withdraw-routes": "Opname traject",
     "calculating": "Berekenen",
     "converting-hbd-amount": "Omzetten naar HIVE",
@@ -1374,7 +1374,7 @@
         }
       },
       "power-up": {
-        "title": "Power up",
+        "title": "Power Up",
         "subtitle": "Tegoeden vastzetten voor passieve beloning"
       },
       "power-down": {
@@ -1604,7 +1604,7 @@
     "stop-power-down": "Stoppen",
     "claim-title": "Claimen",
     "powerup-title": "Power Up",
-    "powerdown-title": "Power down",
+    "powerdown-title": "Power Down",
     "lock-title": "Vergrendel liquiditeit",
     "unlock-title": "Ontgrendel liquiditeit",
     "lock-summary": "Vergrendeling voltooid als <span class=\"amount\">{{amount}}</span>",
@@ -1651,8 +1651,8 @@
     "type-claim_reward_balance": "Beloningen opeisen",
     "type-transfer": "Overschrijving",
     "type-tokens_transfer": "Overschrijving",
-    "type-transfer_to_vesting": "Power up",
-    "type-withdraw_vesting": "Power down",
+    "type-transfer_to_vesting": "Power Up",
+    "type-withdraw_vesting": "Power Down",
     "type-set_withdraw_vesting_route": "Route intrekken veranderd",
     "type-fill_vesting_withdraw": "Gedeeltelijke stroomstoring heeft plaatsgevonden",
     "type-fill_order": "Transactie gevuld",
@@ -3003,7 +3003,7 @@
       "label": "Premium"
     },
     "wallet": {
-      "title": "Crypto Wallet",
+      "title": "Crypto-portemonnee",
       "description": "Maak direct een account aan met MetaMask. Geen herstelzinnen nodig.",
       "button": "Verbind Portemonnee",
       "label": "Portemonnee"
@@ -3406,7 +3406,7 @@
       "dismiss": "Misschien later"
     },
     "hp-governance-promo": {
-      "tag": "Governance",
+      "tag": "Bestuur",
       "title": "Houd je governance met @ecency",
       "description": "Je bent gedelegeerd aan @ecency. Stel @ecency in als je governance proxy zodat je getuige en voorstellen stemmen blijven afgestemd op de visie van het Ecency team. U behoudt de volledige controle en kunt dit op elk gewenst moment wijzigen of verwijderen.",
       "button": "@ecency als proxy instellen",
