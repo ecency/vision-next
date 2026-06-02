@@ -71,6 +71,14 @@ export const langOptions = [
   {
     code: "zh-CN",
     name: "简体字"
+  },
+  {
+    code: "th-TH",
+    name: "ไทย"
+  },
+  {
+    code: "tr-TR",
+    name: "Türkçe"
   }
 ];
 
@@ -93,7 +101,9 @@ const localeLoaders: Record<string, () => Promise<any>> = {
   "bg-BG": () => import("./locales/bg-BG.json"),
   "ru-RU": () => import("./locales/ru-RU.json"),
   "uz-UZ": () => import("./locales/uz-UZ.json"),
-  "zh-CN": () => import("./locales/zh-CN.json")
+  "zh-CN": () => import("./locales/zh-CN.json"),
+  "th-TH": () => import("./locales/th-TH.json"),
+  "tr-TR": () => import("./locales/tr-TR.json")
 };
 
 export async function loadLocale(lang: string) {
