@@ -3,6 +3,12 @@ FROM node:24-alpine AS builder
 
 WORKDIR /app
 
+# Toolchain for node-gyp: a transitive native dep (better-sqlite3) ships no
+# Node 24 musl prebuild, so npm compiles it from source and alpine needs
+# python3 + make + g++. Only the builder needs these; the runtime stage copies
+# the already-compiled node_modules.
+RUN apk add --no-cache python3 make g++
+
 # Install dependencies
 COPY package.json ./
 RUN npm install
