@@ -36,9 +36,9 @@ allowBuilds:
   "bufferutil": false
   "utf-8-validate": false
 
-# pnpm 11 enables minimumReleaseAge (1 day) by default, which makes
-# `pnpm install --frozen-lockfile` (CI) fail for ~1 day after any freshly
-# published version lands in the lockfile (e.g. a same-day dependency bump).
-# Set to 0 to keep CI deterministic; raise it (with minimumReleaseAgeExclude
-# for fast-moving internal deps) if you want the supply-chain delay back.
-minimumReleaseAge: 0
+# Supply-chain guard: refuse to install package versions published less than a
+# day ago, so a compromised version that's published and yanked within hours is
+# never pulled in. Trade-off: `pnpm install --frozen-lockfile` (CI) will fail
+# for ~24h after a same-day dependency bump lands in the lockfile — re-run CI
+# once the version has aged, or add the package to minimumReleaseAgeExclude.
+minimumReleaseAge: 1440
