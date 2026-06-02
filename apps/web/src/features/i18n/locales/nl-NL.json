@@ -128,7 +128,10 @@
   "announcements": {
     "dismiss": "Uitschakelen",
     "next": "Volgende",
-    "later": "Later"
+    "later": "Later",
+    "voted": "Gestemd",
+    "view-proposal": "Bekijk voorstel",
+    "vote-success": "Bedankt voor het steunen van Ecency!"
   },
   "floating-faq": {
     "toggle-icon-info": "Klik om te openen",
@@ -314,6 +317,7 @@
     "extensions": "Extensies",
     "extensions-info-title": "Browser extensies",
     "extensions-info-description": "Log veilig in met behulp van een Hive browserextensie. Installeer een van de volgende extensies om te beginnen:",
+    "extensions-mobile-note": "Hive browserextensies zijn alleen beschikbaar op desktopbrowsers. Gebruik op mobiel Keychain Mobiel of log in met uw sleutel of HiveSigner.",
     "extensions-select-title": "Kies extensie",
     "extensions-select-description": "Meerdere Hive extensies gedetecteerd. Selecteer om te gebruiken voor ondertekening:",
     "extension-keeper-name": "Korf Keeper",
@@ -1695,6 +1699,8 @@
     "with-hivesigner": "Sign with hivesigner",
     "with-keychain": "Sign with keychain",
     "with-extension": "Ondertekenen met extensie",
+    "with-extension-named": "Ondertekenen met {{name}}",
+    "no-extension-prompt": "Heb je geen Hive extensie? Installeer er een:",
     "with-hiveauth": "Meld je aan met HiveAuth",
     "invalid-key": "Ongeldige sleutelformaat. Controleer op ongeldige tekens.",
     "key-error": "Fout bij het verwerken van de sleutel. Controleer of het juist is.",
