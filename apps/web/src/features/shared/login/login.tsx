@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 import { useLoginByKeychain, useLoginByMetaMask } from "./hooks";
 import { LoginUserByKey } from "./login-user-by-key";
 import { LoginUsersList } from "./login-users-list";
-import { ExtensionInstallList } from "../extension-install-list";
+import { ExtensionInstallList, useShowExtensionInstall } from "../extension-install-list";
 import { motion } from "framer-motion";
 import { TabItem } from "@/features/ui";
 import clsx from "clsx";
@@ -54,6 +54,7 @@ export default function Login() {
   const [detectedExtensions, setDetectedExtensions] = useState<DetectedExtension[]>([]);
   const [useKeychainMobile, setUseKeychainMobile] = useState(false);
   const [showExtensionsInfo, setShowExtensionsInfo] = useState(false);
+  const showExtensionInstall = useShowExtensionInstall();
 
   useEffect(() => {
     setDetectedExtensions(getDetectedExtensions());
@@ -290,13 +291,19 @@ export default function Login() {
                 ))}
               </div>
             </>
-          ) : (
+          ) : showExtensionInstall ? (
             <>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                 {i18next.t("login.extensions-info-description")}
               </p>
               <ExtensionInstallList />
             </>
+          ) : (
+            // Mobile (or unsupported browser): desktop extensions don't apply,
+            // so guide users to the mobile sign-in options instead of links.
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              {i18next.t("login.extensions-mobile-note")}
+            </p>
           )}
         </ModalBody>
       </Modal>

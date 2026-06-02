@@ -53,6 +53,11 @@ function openDialog() {
 // "Sign with X" strings. Each extension button still carries an <img alt={name}>
 // that contributes the extension name to the button's accessible name, so we
 // match on that via a regex.
+const ORIGINAL_UA = navigator.userAgent;
+function setUserAgent(ua: string) {
+  Object.defineProperty(window.navigator, "userAgent", { value: ua, configurable: true });
+}
+
 describe("AuthUpgradeDialog extension picker", () => {
   beforeEach(() => {
     h.detected = [
@@ -63,7 +68,10 @@ describe("AuthUpgradeDialog extension picker", () => {
     h.setPreferredExtensionId.mockClear();
     h.resolveAuthUpgrade.mockClear();
   });
-  afterEach(cleanup);
+  afterEach(() => {
+    setUserAgent(ORIGINAL_UA);
+    cleanup();
+  });
 
   it("renders one sign button per detected extension", () => {
     openDialog();
@@ -104,6 +112,31 @@ describe("AuthUpgradeDialog extension picker", () => {
     expect(keeperLink.getAttribute("href")).toContain("chromewebstore");
     expect(screen.getByRole("link", { name: /peak vault/i })).toBeInTheDocument();
     expect(h.setPreferredExtensionId).not.toHaveBeenCalled();
+  });
+
+  it("shows only the Firefox listing (Keychain) on Firefox", () => {
+    h.detected = [];
+    setUserAgent("Mozilla/5.0 (X11; Linux x86_64; rv:120.0) Gecko/20100101 Firefox/120.0");
+    openDialog();
+
+    const keychainLink = screen.getByRole("link", { name: /keychain/i });
+    expect(keychainLink.getAttribute("href")).toContain("addons.mozilla.org");
+    // Keeper (in AMO review) and Peak Vault (Chromium-only) have no Firefox link.
+    expect(screen.queryByRole("link", { name: /hive keeper/i })).toBeNull();
+    expect(screen.queryByRole("link", { name: /peak vault/i })).toBeNull();
+  });
+
+  it("hides the install list entirely on mobile", () => {
+    h.detected = [];
+    setUserAgent(
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148"
+    );
+    openDialog();
+
+    // Desktop extensions don't apply on mobile — no install links, key entry
+    // and HiveSigner remain.
+    expect(screen.getByRole("button", { name: /hivesigner/i })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /keeper|keychain|peak vault/i })).toBeNull();
   });
 
   it("keeps the generic deep-link button for Keychain Mobile with no extension", () => {

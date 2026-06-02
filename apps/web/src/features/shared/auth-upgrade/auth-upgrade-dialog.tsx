@@ -8,7 +8,7 @@ import i18next from "i18next";
 import Image from "next/image";
 import { PrivateKey } from "@ecency/sdk";
 import { MetaMaskSignButton } from "../metamask-sign-button";
-import { ExtensionInstallList } from "../extension-install-list";
+import { ExtensionInstallList, useShowExtensionInstall } from "../extension-install-list";
 import { resolveAuthUpgrade } from "./auth-upgrade-events";
 import { shouldUseKeychainMobile } from "@/utils/client";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
@@ -28,6 +28,7 @@ interface AuthUpgradeRequest {
 
 export function AuthUpgradeDialog() {
   const { activeUser } = useActiveAccount();
+  const showInstall = useShowExtensionInstall();
   const [request, setRequest] = useState<AuthUpgradeRequest | null>(null);
 
   useEffect(() => {
@@ -189,10 +190,11 @@ export function AuthUpgradeDialog() {
                     </Button>
                   ) : null)}
               </div>
-              {!showExtensionBtn && (
-                // No extension and no mobile deep-link path: instead of a
-                // dead-end, point the user at the install options (same list as
-                // the login dialog). Key entry / HiveSigner above still work.
+              {!showExtensionBtn && showInstall && (
+                // Desktop with no extension and no mobile deep-link path:
+                // instead of a dead-end, point the user at the install options
+                // (same list as login), browser-appropriate. Hidden on mobile
+                // via showInstall. Key entry / HiveSigner above still work.
                 <div className="mt-1">
                   <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
                     {i18next.t("key-or-hot.no-extension-prompt", {

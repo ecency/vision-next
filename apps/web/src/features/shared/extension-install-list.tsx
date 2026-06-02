@@ -2,48 +2,120 @@
 
 import Image from "next/image";
 import i18next from "i18next";
+import { useEffect, useState } from "react";
 import { UilArrowRight } from "@tooni/iconscout-unicons-react";
 
-/**
- * The set of supported Hive browser extensions with their Chrome Web Store
- * install links. Shared by the login dialog and the auth-upgrade (signing)
- * dialog so the "you don't have an extension — install one" guidance stays in
- * one place. Keeper is highlighted as the recommended (Ecency) option.
- */
-const EXTENSIONS = [
-  {
-    href: "https://chromewebstore.google.com/detail/hive-keeper/eehlplhgiofbbanbjiodipefljadfehe",
-    icon: "/assets/keeper.svg",
-    alt: "Hive Keeper",
-    nameKey: "login.extension-keeper-name",
-    descKey: "login.extension-keeper-desc",
-    highlight: true
-  },
-  {
-    href: "https://chromewebstore.google.com/detail/hive-keychain/jcacnejopjdphbnjgfaaobbfafkihpep",
-    icon: "/assets/keychain.png",
-    alt: "Keychain",
-    nameKey: "login.extension-keychain-name",
-    descKey: "login.extension-keychain-desc",
-    highlight: false
-  },
-  {
-    href: "https://chromewebstore.google.com/detail/peak-vault/mcocapccicdidkhhghnopbddglkpjcoi",
-    icon: "/assets/peakvault.svg",
-    alt: "Peak Vault",
-    nameKey: "login.extension-peakvault-name",
-    descKey: "login.extension-peakvault-desc",
-    highlight: false
-  }
-] as const;
+type BrowserFamily = "chrome" | "firefox";
+
+interface InstallableExtension {
+  alt: string;
+  icon: string;
+  nameKey: string;
+  descKey: string;
+  highlight: boolean;
+  /**
+   * Store URL per browser family. A family is omitted when there's no listing
+   * yet: Hive Keeper is still in Firefox (AMO) review, and Peak Vault ships for
+   * Chromium only. Add Keeper's `firefox` URL here once it's approved.
+   */
+  urls: Partial<Record<BrowserFamily, string>>;
+}
 
 /**
- * Renders the list of installable Hive browser extensions as store links.
+ * Supported Hive browser extensions with their store links. Shared by the login
+ * dialog and the auth-upgrade (signing) dialog. Keeper is the recommended
+ * (Ecency) option and is highlighted.
+ */
+const EXTENSIONS: InstallableExtension[] = [
+  {
+    alt: "Hive Keeper",
+    icon: "/assets/keeper.svg",
+    nameKey: "login.extension-keeper-name",
+    descKey: "login.extension-keeper-desc",
+    highlight: true,
+    urls: {
+      chrome:
+        "https://chromewebstore.google.com/detail/hive-keeper/eehlplhgiofbbanbjiodipefljadfehe"
+      // firefox: pending AMO review — add the listing URL once approved.
+    }
+  },
+  {
+    alt: "Keychain",
+    icon: "/assets/keychain.png",
+    nameKey: "login.extension-keychain-name",
+    descKey: "login.extension-keychain-desc",
+    highlight: false,
+    urls: {
+      chrome:
+        "https://chromewebstore.google.com/detail/hive-keychain/jcacnejopjdphbnjgfaaobbfafkihpep",
+      firefox: "https://addons.mozilla.org/en-US/firefox/addon/hive-keychain/"
+    }
+  },
+  {
+    alt: "Peak Vault",
+    icon: "/assets/peakvault.svg",
+    nameKey: "login.extension-peakvault-name",
+    descKey: "login.extension-peakvault-desc",
+    highlight: false,
+    urls: {
+      chrome: "https://chromewebstore.google.com/detail/peak-vault/mcocapccicdidkhhghnopbddglkpjcoi"
+    }
+  }
+];
+
+// UA-based mobile check — intentionally not the viewport-width heuristic from
+// client.ts: a narrow desktop window can still install extensions, a phone can't.
+const MOBILE_UA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
+
+interface ResolvedExtension extends InstallableExtension {
+  href: string;
+}
+
+/**
+ * Install links for the current browser, or null when nothing should render:
+ * during SSR / before mount, or on mobile (desktop extensions don't apply).
+ */
+function useInstallableExtensions(): ResolvedExtension[] | null {
+  const [resolved, setResolved] = useState<ResolvedExtension[] | null>(null);
+
+  useEffect(() => {
+    const ua = navigator.userAgent ?? "";
+    if (MOBILE_UA.test(ua)) {
+      setResolved(null);
+      return;
+    }
+    const family: BrowserFamily = /firefox/i.test(ua) ? "firefox" : "chrome";
+    const items = EXTENSIONS.flatMap((ext) => {
+      const href = ext.urls[family];
+      return href ? [{ ...ext, href }] : [];
+    });
+    setResolved(items.length ? items : null);
+  }, []);
+
+  return resolved;
+}
+
+/**
+ * True once the install list has something to render (desktop browser with at
+ * least one store link). Lets callers hide surrounding chrome — e.g. a heading —
+ * on mobile or before mount.
+ */
+export function useShowExtensionInstall(): boolean {
+  return useInstallableExtensions() !== null;
+}
+
+/**
+ * Renders installable Hive browser extensions as store links, picking the right
+ * store for the current browser (Chrome Web Store vs Firefox Add-ons). Renders
+ * nothing on mobile.
  */
 export function ExtensionInstallList() {
+  const extensions = useInstallableExtensions();
+  if (!extensions) return null;
+
   return (
     <div className="flex flex-col gap-3">
-      {EXTENSIONS.map((ext) => (
+      {extensions.map((ext) => (
         <a
           key={ext.alt}
           href={ext.href}
