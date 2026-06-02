@@ -91,15 +91,18 @@ describe("AuthUpgradeDialog extension picker", () => {
     expect(h.resolveAuthUpgrade).toHaveBeenCalledWith("keychain");
   });
 
-  it("offers no extension action on desktop when none is detected", () => {
+  it("shows install options on desktop when no extension is detected", () => {
     h.detected = [];
     openDialog();
 
-    // HiveSigner is always available; the extension path must not render a
-    // dead-end button when there's no extension and no mobile deep-link target.
+    // No dead-end extension button; instead guide the user to install one
+    // (key entry / HiveSigner above still work).
     expect(screen.getByRole("button", { name: /hivesigner/i })).toBeInTheDocument();
-    expect(screen.queryByAltText("extensions")).toBeNull();
     expect(screen.queryByRole("button", { name: /keeper|keychain/i })).toBeNull();
+
+    const keeperLink = screen.getByRole("link", { name: /hive keeper/i });
+    expect(keeperLink.getAttribute("href")).toContain("chromewebstore");
+    expect(screen.getByRole("link", { name: /peak vault/i })).toBeInTheDocument();
     expect(h.setPreferredExtensionId).not.toHaveBeenCalled();
   });
 
@@ -108,8 +111,10 @@ describe("AuthUpgradeDialog extension picker", () => {
     h.kcMobile = true;
     openDialog();
 
-    const fallback = screen.getByRole("button", { name: /extensions/i });
-    fireEvent.click(fallback);
+    // A deep-link path exists, so show the generic button, not install links.
+    expect(screen.queryByRole("link", { name: /hive keeper/i })).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: /extensions/i }));
 
     // Deep-link path resolves generically; it must NOT pin an extension
     // preference (there's no detected extension to pin).
