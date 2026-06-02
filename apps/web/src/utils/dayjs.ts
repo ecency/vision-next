@@ -20,6 +20,8 @@ import "dayjs/locale/sr";
 import "dayjs/locale/uk";
 import "dayjs/locale/uz";
 import "dayjs/locale/zh-cn";
+import "dayjs/locale/th";
+import "dayjs/locale/tr";
 
 // Extend dayjs with commonly used plugins
 // These are needed for replacing moment.js features across the codebase
