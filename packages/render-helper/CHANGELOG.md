@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.5.10
+
+### Patch Changes
+
+- fix: build post links in bare /@author/permlink form (#886)
+
 ## 2.5.9
 
 ### Patch Changes
