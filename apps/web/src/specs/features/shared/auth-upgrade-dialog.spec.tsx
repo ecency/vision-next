@@ -49,10 +49,9 @@ function openDialog() {
   });
 }
 
-// i18next is globally mocked to echo keys, so button labels are not the real
-// "Sign with X" strings. Each extension button still carries an <img alt={name}>
-// that contributes the extension name to the button's accessible name, so we
-// match on that via a regex.
+// i18next is globally mocked to echo keys, so labels are the key strings (e.g.
+// "key-or-hot.with-extension"). Buttons also carry <img alt> icons that
+// contribute to their accessible name, so we match via regex.
 const ORIGINAL_UA = navigator.userAgent;
 function setUserAgent(ua: string) {
   Object.defineProperty(window.navigator, "userAgent", { value: ua, configurable: true });
@@ -73,26 +72,32 @@ describe("AuthUpgradeDialog extension picker", () => {
     cleanup();
   });
 
-  it("renders one sign button per detected extension", () => {
+  it("shows a single unified extension button, not one per extension", () => {
     openDialog();
-    expect(screen.getByRole("button", { name: /hive keeper/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /keychain/i })).toBeInTheDocument();
+    // One "Sign with Extension" button regardless of how many are installed; the
+    // choice is deferred to the chooser (matching login), not shown inline.
+    expect(screen.getByRole("button", { name: /key-or-hot\.with-extension/i })).toBeInTheDocument();
+    expect(screen.queryByText("login.extensions-select-description")).toBeNull();
   });
 
-  it("persists the chosen extension and resolves as keychain (no Keeper auto-pick)", () => {
+  it("opens the chooser on click and persists the selected extension", () => {
     openDialog();
 
-    fireEvent.click(screen.getByRole("button", { name: /keychain/i }));
+    // Click the unified button → the body switches to the extension chooser.
+    fireEvent.click(screen.getByRole("button", { name: /key-or-hot\.with-extension/i }));
+    expect(screen.getByText("login.extensions-select-description")).toBeInTheDocument();
 
-    // The user's explicit choice is stored so broadcastWithExtension targets
-    // window.hive_keychain directly instead of falling back to Keeper-first.
+    // Picking one stores it so broadcastWithExtension targets that extension's
+    // own API instead of falling back to Keeper-first.
+    fireEvent.click(screen.getByRole("button", { name: /keychain/i }));
     expect(h.setPreferredExtensionId).toHaveBeenCalledWith("keychain");
     expect(h.resolveAuthUpgrade).toHaveBeenCalledWith("keychain");
   });
 
-  it("persists Keeper when Keeper is explicitly chosen", () => {
+  it("persists Keeper when Keeper is chosen in the chooser", () => {
     openDialog();
 
+    fireEvent.click(screen.getByRole("button", { name: /key-or-hot\.with-extension/i }));
     fireEvent.click(screen.getByRole("button", { name: /hive keeper/i }));
 
     expect(h.setPreferredExtensionId).toHaveBeenCalledWith("hive-keeper");

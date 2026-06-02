@@ -13,6 +13,7 @@ import { useLoginByKeychain, useLoginByMetaMask } from "./hooks";
 import { LoginUserByKey } from "./login-user-by-key";
 import { LoginUsersList } from "./login-users-list";
 import { ExtensionInstallList, useShowExtensionInstall } from "../extension-install-list";
+import { ExtensionChooser } from "../extension-chooser";
 import { motion } from "framer-motion";
 import { TabItem } from "@/features/ui";
 import clsx from "clsx";
@@ -272,25 +273,7 @@ export default function Login() {
         </ModalHeader>
         <ModalBody>
           {detectedExtensions.length > 1 ? (
-            <>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                {i18next.t("login.extensions-select-description")}
-              </p>
-              <div className="flex flex-col gap-3">
-                {detectedExtensions.map((ext) => (
-                  <button
-                    key={ext.id}
-                    type="button"
-                    onClick={() => handleSelectExtension(ext.id)}
-                    className="flex items-center gap-3 p-3 rounded-lg border border-[--border-color] hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-left w-full"
-                  >
-                    <Image width={32} height={32} src={ext.icon} alt={ext.name} className="w-8 h-8 rounded" />
-                    <div className="flex-1 font-semibold text-sm">{ext.name}</div>
-                    <UilArrowRight className="w-4 h-4 opacity-50" />
-                  </button>
-                ))}
-              </div>
-            </>
+            <ExtensionChooser extensions={detectedExtensions} onSelect={handleSelectExtension} />
           ) : showExtensionInstall ? (
             <>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
