@@ -128,7 +128,10 @@
   "announcements": {
     "dismiss": "Descartar",
     "next": "Próximo",
-    "later": "Depois"
+    "later": "Depois",
+    "voted": "Votado",
+    "view-proposal": "Ver proposta",
+    "vote-success": "Obrigado por apoiar a Ecanção!"
   },
   "floating-faq": {
     "toggle-icon-info": "Clique para expandir",
@@ -314,6 +317,7 @@
     "extensions": "Extensões",
     "extensions-info-title": "Extensões do navegador",
     "extensions-info-description": "Faça o login com segurança utilizando uma extensão de navegador da Hive. Instale uma das seguintes extensões para começar:",
+    "extensions-mobile-note": "As extensões do navegador Hive estão disponíveis apenas nos navegadores desktop. No celular, use Keychain Mobile ou entre com sua chave ou HiveSigner.",
     "extensions-select-title": "Escolha a extensão",
     "extensions-select-description": "Várias extensões da Colmeia foram detectadas. Selecione quais serão usadas para assinar:",
     "extension-keeper-name": "Guardião da Colméia",
@@ -1695,6 +1699,8 @@
     "with-hivesigner": "Sign with hivesigner",
     "with-keychain": "Sign with keychain",
     "with-extension": "Assinar com extensão",
+    "with-extension-named": "Assinar com {{name}}",
+    "no-extension-prompt": "Não tem uma extensão do Hive? Instale uma:",
     "with-hiveauth": "Assinar com HiveAuth",
     "invalid-key": "Formato de chave inválido. Por favor, verifique caracteres inválidos.",
     "key-error": "Falha ao processar a chave. Por favor, verifique se está correta.",
