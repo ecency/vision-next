@@ -2228,7 +2228,7 @@
   "manage-authorities": {
     "title": "अथॉरिटी प्रबंधित करें",
     "type": "प्रकार",
-    "key": "Key",
+    "key": "की",
     "weight": "वज़न",
     "posting": "posting",
     "revoke": "रद्द करें",
@@ -2828,7 +2828,7 @@
     "spins-left": "स्पिन शेष",
     "next-spin": "अगला मुफ़्त स्पिन",
     "quests": {
-      "title": "Quests",
+      "title": "क्वेस्ट",
       "subtitle": "रोज़ाना के लक्ष्य पूरे करें, पॉइंट्स कमाएँ और अपनी स्ट्रीक बनाए रखें",
       "daily": "दैनिक",
       "weekly": "साप्ताहिक",
@@ -2922,7 +2922,7 @@
     "message": "कृपया थोड़ा प्रतीक्षा करें, आपको स्वचालित रूप से रीडायरेक्ट किया जाएगा।"
   },
   "center": {
-    "faq": "FAQ",
+    "faq": "सामान्य प्रश्न",
     "chats": "चैट",
     "news": "समाचार",
     "chats-page-placeholder": "चैट विस्तृत व्यू में खुल गई हैं",
@@ -3545,7 +3545,7 @@
         "success-description": "आपके वॉलेट पते और keys सफलतापूर्वक आयात कर लिए गए हैं।",
         "step-import-title": "सीड फ्रेज़ आयात करें",
         "step-import-description": "अपना मौजूदा 12-शब्द सीड फ्रेज़ दर्ज करें",
-        "step-hive-keys-title": "Hive keys",
+        "step-hive-keys-title": "Hive कीज़",
         "step-hive-keys-description": "वैकल्पिक रूप से उसी सीड फ्रेज़ से Hive keys आयात करें",
         "step-tokens-title": "टोकन",
         "step-tokens-description": "प्राप्त किए गए वॉलेट पतों की समीक्षा करें",

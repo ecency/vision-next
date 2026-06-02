@@ -20,7 +20,7 @@
     "login": "Einloggen",
     "login-as": "Einloggen als",
     "signup": "Registrieren",
-    "permissions": "Ich lasse mich immer fahren im Moment geht's ja nicht",
+    "permissions": "Berechtigungen",
     "delete": "Mm Moment geht's ja nicht aber",
     "cancel": "Abbrechen",
     "reply": "Antworten",
@@ -156,7 +156,7 @@
     "filter-muted": "Stummgeschaltet",
     "filter-feed": "Feed",
     "filter-feed-friends": "Folgt",
-    "filter-feed-subscriptions": "Communities",
+    "filter-feed-subscriptions": "Communitys",
     "filter-top": "Oben",
     "filter-global": "Allgemein",
     "filter-community": "Filter Gemeinschaft",
@@ -188,7 +188,7 @@
     "address-placeholder": "URL oder Suchbegriff eingeben",
     "home": "Startseite",
     "waves": "Wellen",
-    "communities": "Communities",
+    "communities": "Communitys",
     "chats": "Chats",
     "search": "Suchen",
     "toggle-menu": "Navigationsmenü umschalten"
@@ -199,7 +199,7 @@
     "placeholder-count": "Suche {{n}} Beiträge",
     "header-tag": "Tags",
     "header-account": "Benutzer",
-    "header-community": "Communities",
+    "header-community": "Communitys",
     "header-actions": "Schnelle Aktionen",
     "action-transfer-hive": "HIV übertragen",
     "action-transfer-hbd": "HBD übertragen",
@@ -768,7 +768,7 @@
       "balance": "Saldo",
       "whats-new": "Was ist neu",
       "whats-new-description": "Ecency Updates im Überblick behalten",
-      "updates": "Updates",
+      "updates": "Aktualisierungen",
       "release-list": "Release-Versionen",
       "current": "Aktuell",
       "infinite-failed": "Hoppla, das Abrufen ist fehlgeschlagen. Setze dicht, wir versuchen es nochmal..."
@@ -801,7 +801,7 @@
     "last-price": "Letzter Preis",
     "volume": "24 Std. Volumen",
     "bid": "Gebot",
-    "spread": "Spread",
+    "spread": "Spanne",
     "ask": "Frage",
     "buy": "Kauf",
     "sell": "Verkauf",
@@ -1081,7 +1081,7 @@
     "validation-title": "Titel erforderlich."
   },
   "communities": {
-    "title": "Communities",
+    "title": "Communitys",
     "description": "Beste Online, dezentralisierte, unveränderliche, belohnende Gemeinschaften",
     "n-subscribers": "{{n}} Mitglieder",
     "n-authors": "{{n}} Authoren",
@@ -1170,7 +1170,7 @@
     "section-trail": "Gefällt",
     "section-comments": "Kommentare",
     "section-replies": "Antworten",
-    "section-communities": "Communities",
+    "section-communities": "Communitys",
     "section-wallet": "Wallet",
     "section-insights": "Einblicke",
     "section-settings": "Einstellungen",
@@ -2055,7 +2055,7 @@
     "title": "Themen"
   },
   "search-communities": {
-    "title": "Communities"
+    "title": "Communitys"
   },
   "witnesses": {
     "page-title": "Witnesses",
@@ -2747,7 +2747,7 @@
     "faq": "FAQ",
     "discover": "Entdecken",
     "sign-in": "Anmelden",
-    "communities": "Communities",
+    "communities": "Communitys",
     "help": "Hilfe",
     "subscribe-us": "Abonniere uns",
     "enter-your-email-adress": "Enter your email adress",
@@ -3573,7 +3573,7 @@
     "generating": "Erstelle dein Bild...",
     "result-title": "Erstelltes Bild",
     "insert-button": "In Beitrag einfügen",
-    "download-button": "Download",
+    "download-button": "Herunterladen",
     "generate-again": "Erneut generieren",
     "history-title": "Neueste Generationen",
     "history-empty": "Noch kein Generationsverlauf",
