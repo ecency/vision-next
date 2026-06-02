@@ -128,7 +128,10 @@
   "announcements": {
     "dismiss": "却下する",
     "next": "次へ",
-    "later": "後で"
+    "later": "後で",
+    "voted": "投票",
+    "view-proposal": "提案を表示",
+    "vote-success": "Ecencyをサポートしていただきありがとうございます!"
   },
   "floating-faq": {
     "toggle-icon-info": "クリックして展開します",
@@ -314,6 +317,7 @@
     "extensions": "拡張",
     "extensions-info-title": "ブラウザ拡張",
     "extensions-info-description": "Hiveブラウザ拡張機能を使用して安全にサインインします。開始するには以下の拡張機能のいずれかをインストールしてください。",
+    "extensions-mobile-note": "Hiveブラウザ拡張機能はデスクトップブラウザでのみ利用できます。モバイルではKeychain Mobileを使用するか、キーまたはHiveSignerでサインインしてください。",
     "extensions-select-title": "拡張機能を選択",
     "extensions-select-description": "複数のハイブ拡張が検出されました。署名に使用するものを選択してください:",
     "extension-keeper-name": "ハイブキーパー",
@@ -1695,6 +1699,8 @@
     "with-hivesigner": "Sign with hivesigner",
     "with-keychain": "Sign with keychain",
     "with-extension": "拡張機能でサインイン",
+    "with-extension-named": "{{name}} でサインイン",
+    "no-extension-prompt": "Hive拡張機能がありませんか？インストール1：",
     "with-hiveauth": "HiveAuthでサインイン",
     "invalid-key": "無効なキーフォーマットです。無効な文字を確認してください。",
     "key-error": "キーの処理に失敗しました。正しいことを確認してください。",
