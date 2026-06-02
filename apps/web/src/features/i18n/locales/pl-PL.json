@@ -1,5 +1,10 @@
 {
+  "tweet": {
+    "load-failed": "Nie można załadować tego posta X.",
+    "view-on-x": "Zobacz na X"
+  },
   "g": {
+    "now": "Teraz",
     "all": "Wszystkie",
     "add": "Dodaj",
     "edit": "Edytuj",
@@ -123,7 +128,10 @@
   "announcements": {
     "dismiss": "Odrzuć",
     "next": "Następny",
-    "later": "Później"
+    "later": "Później",
+    "voted": "Zagłosowano",
+    "view-proposal": "Zobacz propozycję",
+    "vote-success": "Dziękujemy za wsparcie Ecencji!"
   },
   "floating-faq": {
     "toggle-icon-info": "Kliknij aby rozwinąć",
@@ -147,10 +155,14 @@
     "filter-payout": "Wypłaty",
     "filter-muted": "Wyciszone",
     "filter-feed": "Aktualności",
-    "filter-feed-friends": "Znajomi",
+    "filter-feed-friends": "Obserwowane",
     "filter-feed-subscriptions": "Społeczności",
+    "filter-top": "Góra",
     "filter-global": "Globalny",
     "filter-community": "Moja społeczność",
+    "source-label": "Źródło kanału",
+    "sort-label": "Sortuj według",
+    "more-filters": "Więcej filtrów",
     "filter-controversial": "Kontroler",
     "filter-rising": "Rosnący",
     "filter-global-part1": "Ten kanał zawiera ",
@@ -178,6 +190,7 @@
     "waves": "Fale",
     "communities": "Społeczności",
     "chats": "Czaty",
+    "search": "Szukaj",
     "toggle-menu": "Przełącz menu nawigacji"
   },
   "search": {
@@ -256,7 +269,7 @@
     "boost": "Wzmocnienie",
     "submit": "Utwórz post",
     "chats": "Czaty",
-    "perks": "Buy perks"
+    "perks": "Perks"
   },
   "intro": {
     "title": "Dla wielkich aspiracji",
@@ -301,6 +314,18 @@
     "metamask-no-keys": "Nie można uzyskać kluczy ulowych z MetaMask",
     "metamask-key-mismatch": "Klucze MetaMask Hive nie pasują do tego konta. Upewnij się, że używasz tego samego portfela MetaMask użytego podczas rejestracji.",
     "keychain": "Keychain",
+    "extensions": "Rozszerzenia",
+    "extensions-info-title": "Rozszerzenia przeglądarki",
+    "extensions-info-description": "Zaloguj się bezpiecznie za pomocą rozszerzenia przeglądarki ul. Zainstaluj jedno z następujących rozszerzeń, aby rozpocząć:",
+    "extensions-mobile-note": "Rozszerzenia przeglądarki ulowej są dostępne tylko w przeglądarkach komputerowych. Na urządzeniu mobilnym użyj Keychain Mobile lub zaloguj się za pomocą klucza lub HiveSigner.",
+    "extensions-select-title": "Wybierz rozszerzenie",
+    "extensions-select-description": "Wykryto wiele rozszerzeń ula. Wybierz, który z nich ma być użyty do podpisu:",
+    "extension-keeper-name": "Opiekun Uli",
+    "extension-keeper-desc": "Według Ecencji - zalecane dla najlepszych doświadczeń",
+    "extension-keychain-name": "Hive Keychain",
+    "extension-keychain-desc": "Popularny portfel ulowy i podpisywanie rozszerzenia",
+    "extension-peakvault-name": "Szczytowy sejf",
+    "extension-peakvault-desc": "Przez szczyt D - lekkie rozszerzenie portfela",
     "keychain-mobile": "Komórka Keychain",
     "keychain-mobile-missing-sig": "Brakuje podpisu z Keychain. Spróbuj ponownie.",
     "keychain-mobile-no-pending": "Nie znaleziono logowania. Spróbuj zalogować się ponownie.",
@@ -429,7 +454,8 @@
     "delegate-placeholder": "Wprowadź kwotę do delegowania (Bn)"
   },
   "trending-tags": {
-    "title": "Tematy"
+    "title": "Tematy",
+    "view-more": "Zobacz więcej"
   },
   "sort-trending-tags": {
     "sort": "Sortuj",
@@ -629,6 +655,37 @@
     "choose-one": "Wybierz jeden",
     "user": "Użytkownik",
     "search-query": "Szukaj zapytania",
+    "intro": {
+      "title": "Tablice — Twój spersonalizowany panel",
+      "description": "Obserwuj kanały, społeczności, Waves, powiadomienia i portfel po boku, aktualizując w czasie rzeczywistym. Zaloguj się, aby zbudować i zapisać własną talię.",
+      "login": "Zaloguj się, aby zbudować talię",
+      "browse-communities": "Zamiast tego przeglądaj społeczności",
+      "features": {
+        "columns-title": "Kolumny na żywo",
+        "columns-description": "Oglądaj wiele kanałów informacyjnych aktualizowanych obok siebie, w czasie rzeczywistym.",
+        "anything-title": "Wszystko, co obserwujesz",
+        "anything-description": "Dodaj kolumny dla ludzi, społeczności, Faves, trendy, wyszukiwanie, powiadomienia i portfel.",
+        "arrange-title": "Ułóż swój sposób",
+        "arrange-description": "Przeciągnij kolumny, aby zmienić ich kolejność i kształtować swój własny obszar roboczy.",
+        "saved-title": "Zapisano na Twoim koncie",
+        "saved-description": "Zaloguj się i zsynchronizuj talie z Tobą na każdym urządzeniu."
+      }
+    },
+    "onboarding": {
+      "title": "Witamy na talii",
+      "button": "Zacznij",
+      "skip": "Pomiń",
+      "finish": "Zbuduj moją talię",
+      "build-title": "Zbuduj swoją talię",
+      "tips": {
+        "add-title": "Dodaj kolumnę",
+        "add-description": "Wybierz typ kolumny, aby śledzić kanał, społeczność, osobę, powiadomienia i więcej.",
+        "drag-title": "Uporządkuj je",
+        "drag-description": "Przeciągnij kolumny przez ich nagłówek, aby zmienić kolejność obszaru roboczego w dowolny sposób.",
+        "save-title": "Zapisz swoją talię",
+        "save-description": "Zapisz talię na swoim koncie w ustawieniach, aby zachować ją pomiędzy urządzeniami."
+      }
+    },
     "columns": {
       "view-full-post": "Zobacz pełny post",
       "user": "Użytkownik",
@@ -895,6 +952,8 @@
     "deleted-content-warning": "Ta zawartość została usunięta przez autora. Możesz ją zobaczyć z Blockchain ",
     "deleted-content": "Ten post został usunięty przez {{author}}",
     "deleted-no-history": "Usunięta historia treści nie jest dostępna z blockchain.",
+    "unable-to-load": "Nie można załadować tego posta. Sprawdź swoje połączenie i spróbuj ponownie.",
+    "try-edit-history": "Spróbuj edytować historię",
     "indexing-blockchain": "Twój post został opublikowany w blockchain i jest indeksowany. Zwykle trwa to kilka sekund.",
     "indexing-slow": "Indeksowanie trwa dłużej niż oczekiwano. Spróbuj odświeżyć stronę za kilka chwil.",
     "untitled": "Bez tytułu",
@@ -916,7 +975,7 @@
       "update-info": "Aktualizowanie co minutę",
       "visitors": "Odwiedzający",
       "views": "Widoki",
-      "reads": "Czas odczytu",
+      "avg-visit-duration": "Średnia wizyta",
       "countries": "Kraje",
       "devices": "Urządzenia",
       "referrers": "Odsyłacze",
@@ -938,7 +997,9 @@
   },
   "comment": {
     "body-placeholder": "Napisz swoją odpowiedź tutaj",
+    "write": "Napisz",
     "preview": "Podgląd",
+    "submit-shortcut": "Ctrl/<unk> + Wejdź do wpisu",
     "success": "Twoja odpowiedź została pomyślnie utworzona!",
     "delete-success": "Komentarz usunięty pomyślnie",
     "delete-error-hint": "Nie można usunąć komentarza. Spróbuj ponownie",
@@ -1507,6 +1568,13 @@
     "memo": "Notatka",
     "memo-placeholder": "tu wpisuj swoje notatki",
     "memo-help": "To memo jest publiczne",
+    "memo-encrypted": "Ta notatka będzie zaszyfrowana",
+    "memo-decrypt": "Odszyfruj",
+    "memo-decrypt-error": "Nie można odszyfrować wiadomości. Sprawdź swój klucz wiadomości.",
+    "memo-encrypted-label": "Zaszyfrowana wiadomość",
+    "memo-key-title": "Wprowadź klucz notatki",
+    "memo-key-subtitle-encrypt": "Klucz wiadomości jest potrzebny do zaszyfrowania tej wiadomości.",
+    "memo-key-subtitle-decrypt": "Klucz memo jest potrzebny do odszyfrowania tej wiadomości.",
     "memo-error": "Nigdy nie umieszczaj kluczy prywatnych w polu wiadomości, jest on publicznie widoczny dla wszystkich.",
     "memo-required": "Przeniesienie na giełdę musi mieć notatkę.",
     "invalid-asset": "Możesz wysłać HIVE tylko na konto wymiany.",
@@ -1630,6 +1698,9 @@
     "key-placeholder": "Enter active/owner/master key",
     "with-hivesigner": "Sign with hivesigner",
     "with-keychain": "Sign with keychain",
+    "with-extension": "Podpisz rozszerzeniem",
+    "with-extension-named": "Podpisz za pomocą {{name}}",
+    "no-extension-prompt": "Nie masz rozszerzenia do Uli? Zainstaluj:",
     "with-hiveauth": "Podpisz z HiveAuth",
     "invalid-key": "Nieprawidłowy format klucza. Sprawdź czy nie występują nieprawidłowe znaki.",
     "key-error": "Przetwarzanie klucza nie powiodło się. Sprawdź, czy jest poprawne.",
@@ -1897,10 +1968,16 @@
     "checkins-title": "Świetny ciąg na @{{username}}",
     "payouts-title": "Otrzymałeś wypłatę na @{{username}}",
     "monthly-posts-title": "Ukończenie miesiąca silnego, @{{username}}",
-    "spin-str": "Czas na zdobycie więcej punktów, Zagraj w Spin na aplikacji Ecency Mobile",
+    "spin-str": "Trzymaj swoją serię przy życiu, twoje codzienne zadania czekają!",
     "inactive-str": "Bądź aktywny! Napisz post, kontynuuj zarabianie",
     "referral-str": "dołączył(a) do rekomendacji, powitaj ich",
-    "account-update-str": "Klucze konta lub profil zostały zaktualizowane",
+    "account-update-str": "Twoje konto lub profil zostały zaktualizowane",
+    "account-update-owner-key": "Twój klucz właściciela został zmieniony. Jeśli to nie Ty, zabezpiecz swoje konto natychmiast.",
+    "account-update-active-key": "Twój aktywny klucz został zmieniony. Jeśli to nie Ty, zabezpiecz swoje konto.",
+    "account-update-posting-key": "Twój klucz wpisu został zmieniony. Jeśli to nie Ty, zabezpiecz swoje konto.",
+    "account-update-owner-authority": "{{accounts}} otrzymał uprawnienia właściciela na Twoim koncie. Jeśli to nie Ty, zabezpiecz swoje konto natychmiast.",
+    "account-update-active-authority": "{{accounts}} otrzymał aktywny urząd na Twoim koncie. Jeśli nie autoryzowałeś tego, cofnij go.",
+    "account-update-posting-authority": "{{accounts}} może teraz publikować i głosować w Twoim imieniu. Jeśli nie autoryzowałeś tego, cofnij to.",
     "weekly-earnings-title": "Podsumowanie tygodniowych zarobków dla @{{username}}",
     "refresh": "Odśwież",
     "mark-all-read": "Oznacz wszystkie jako przeczytane",
@@ -1926,7 +2003,8 @@
     "header-score-tip": "Post + komentarze użytkownika dla wybranego okresu",
     "header-reward": "Wynagrodzenie",
     "header-votes": "Głosy",
-    "header-votes-tip": "Liczba głosów w tym okresie"
+    "header-votes-tip": "Liczba głosów w tym okresie",
+    "quests-done": "Zakończono dziś wszystkie dzienne zadania"
   },
   "discover": {
     "title": "Odkrywaj",
@@ -1967,6 +2045,7 @@
     "sort-relevance": "Znaczenie",
     "sort-newest": "Najnowsze",
     "hide-low": "Ukryj niską ilość płatności",
+    "include-nsfw": "Pokaż zawartość NSFW",
     "show-more": "pokaż więcej"
   },
   "search-people": {
@@ -2006,7 +2085,12 @@
     "proxy-active-btn-label": "Wyczyść proxy",
     "proxy-votes-for": "@{{username}} głosuje na",
     "proxy-active-highlighted": "Twoje głosy proxy są zaznaczone",
-    "check-witness-highlighted": "głosy są zaznaczone"
+    "check-witness-highlighted": "głosy są zaznaczone",
+    "list-voters": "Głosujący",
+    "voters-title": "Głosujący za @{{witness}}",
+    "voters-sort-vests": "Moc głosowania",
+    "voters-sort-timestamp": "Data głosowania",
+    "voters-aria-label": "Zobacz wyborców {{name}}"
   },
   "referral": {
     "page-title": "Polecenia",
@@ -2614,6 +2698,12 @@
     "how-it-works": "JAK JEST DZIAŁA?",
     "get-started": "DOŁĄCZ TERAZ",
     "explore": "PRZYKŁADUJ",
+    "trending-now": "Najpopularniejsze teraz",
+    "trending-now-desc": "Zobacz, co społeczność czyta teraz",
+    "scroll-down": "Przewiń w dół",
+    "see-more": "Zobacz więcej",
+    "explore-topics": "Przeglądaj tematy",
+    "popular-communities": "Popularne społeczności",
     "earn-money": "Zarabiaj pieniądze",
     "earn-money-block-chain-based": "Sieć społecznościowa oparta na blockchain, ",
     "join-us": "dołącz do nas",
@@ -2640,7 +2730,7 @@
     "install-web-app": "Install Web App (PWA)",
     "get-mobile-app": "Pobierz aplikację mobilną",
     "our-history": "Nasza historia",
-    "our-history-p-one": "<b>Ecencja</b> (wcześniej Esteem) rozpoczęła się w 2016 r., założyciel <span> <a href=\"/@good-karma\" class=\"push-link\"> Feruz Muradov </a></span> rozpoczął wdrażanie aplikacji mobilnej, która zrewolucjonizowałaby sposób interakcji i tworzenia, buduj, angażuj się online. Z czasem wzrosło do czegoś znacznie większego.",
+    "our-history-p-one": "<b>Ecencja</b> (wcześniej Esteem) rozpoczęła się w 2016 r., założony przez <a href=\"/contributors\" class=\"push-link\">członków społeczności</a> , którzy planowali zbudować aplikację mobilną, która zrewolucjonizowałaby sposób interakcji i tworzenia, buduj, angażuj się online. Z czasem wzrosła do czegoś znacznie większego.",
     "our-history-p-two": "Od tego czasu kontynuujemy budowę sieci Web 3. i ulepsza naszą sieć społecznościową opartą na blockchain, zapewniając jak największą dostępność aplikacji, bezpieczną i w wielu językach mówi świat.",
     "our-vision": "Nasza wizja",
     "our-vision-p-one": "Chcemy zapewnić wszystkim ludziom bezpieczne i nagradzające doświadczenia z blockchain. Media społecznościowe bez żadnych ograniczeń i cenzury, gdzie tylko kontrolujesz swoje własne konto i społeczności. Zabezpieczone przez blockchain, wspierane przez ludzi.",
@@ -2681,7 +2771,7 @@
   },
   "top-communities": {
     "title": "Najlepsze społeczności",
-    "create-button": "Utwórz społeczność zdecentralizowaną"
+    "create-button": "Utwórz swoją społeczność"
   },
   "feedback-modal": {
     "title": "Szczegóły błędu",
@@ -2736,7 +2826,37 @@
     "want-more-spins": "Chcesz więcej szpin?",
     "spin-success": "Punkty zostały przeniesione do Twojego konta. Ciesz się z Ecencją!",
     "spins-left": "kręci w lewo",
-    "next-spin": "Następna wolna gałąź"
+    "next-spin": "Następna wolna gałąź",
+    "quests": {
+      "title": "Zadania",
+      "subtitle": "Ukończ codzienne cele, zarabiaj punkty i utrzymuj swoją serię przy życiu",
+      "daily": "Codziennie",
+      "weekly": "Tygodniowo",
+      "monthly": "Miesięczny",
+      "resets-in": "Resetuje w {{time}}",
+      "streak": "Seria {{n}}",
+      "streak-at-risk": "Sprawdź dzisiaj, aby utrzymać swoją serię przy życiu!",
+      "available": "Dostępne teraz",
+      "max-rewards": "maksymalna liczba nagród dzisiaj",
+      "checkin": {
+        "title": "Sprawdź"
+      },
+      "post": {
+        "title": "Opublikuj post"
+      },
+      "comment": {
+        "title": "Pozostaw komentarze"
+      },
+      "vote": {
+        "title": "Curate posty"
+      },
+      "reblog": {
+        "title": "Reblog posta"
+      },
+      "spin": {
+        "title": "Codzienne krępanie"
+      }
+    }
   },
   "boost-plus": {
     "title": "Wzmocnie+",
@@ -2785,6 +2905,7 @@
     "vote-confirmation-and-sign": "Podpisz i potwierdź swój głos",
     "your-choice": "Twój wybór",
     "not-found": "Nie znaleziono ankiety",
+    "no-choice-selected": "Proszę wybrać co najmniej jeden wybór",
     "voting": "Głosowanie...",
     "vote-change": "Zmiana głosu",
     "current-standing": "Ukryj głosy",
@@ -3094,6 +3215,9 @@
       "fragments": "Fragmenty",
       "image": "Obraz",
       "link": "Link",
+      "edit-link": "Edytuj link",
+      "remove-link": "Usuń link",
+      "open-link": "Otwórz link",
       "emoji": "Emoji",
       "gif": "GIF",
       "video": "Wideo",
@@ -3221,6 +3345,25 @@
       "linking-success": "Tokeny pomyślnie połączone",
       "linking-success-hint": "Możesz znaleźć tokeny na stronie portfela"
     },
+    "balance-history": "Historia salda",
+    "yearly-summary": "Roczne podsumowanie",
+    "monthly-summary": "Miesięczne podsumowanie",
+    "daily-summary": "Podsumowanie dzienne",
+    "current-balance": "Bieżący",
+    "year-change": "Zmiana roku",
+    "year-min": "Min roku",
+    "year-max": "Maksimum roku",
+    "month-change": "Zmiana miesiąca",
+    "month-min": "Min. Miesiąca",
+    "month-max": "Maksymalny Miesiąc",
+    "day-change": "Zmiana dnia",
+    "day-min": "Min dnia",
+    "day-max": "Dzień Maks.",
+    "granularity": "Granularność",
+    "granularity-yearly": "Rocznie",
+    "granularity-monthly": "Miesięczny",
+    "granularity-daily": "Codziennie",
+    "summary-period": "Okres",
     "operations": {
       "transfer": "Przelew",
       "transfer-saving": "Oszczędności",
@@ -3261,6 +3404,20 @@
       "description": "Deleguj swoją Moc Urolową do @ecency, aby aktywować aktywną kurację zarządzaną przez nasz zespół kuratorów. Aktywna kuracja może dodać około +10% APR i 100% nagród za kurację jest zwracane do Ciebie.",
       "button": "Deleguj na @ecency",
       "dismiss": "Może później"
+    },
+    "hp-governance-promo": {
+      "tag": "Zarządzanie",
+      "title": "Zachowaj swoje zarządzanie z @ecency",
+      "description": "Udzieliłeś uprawnień do @ecency. Ustaw @ecency jako swój pełnomocnik zarządzający, aby Twój świadek i wniosek pozostały w zgodzie z wizją zespołu Ecency. Utrzymujesz pełną kontrolę i możesz to zmienić lub usunąć w dowolnym momencie.",
+      "button": "Ustaw @ecency jako proxy",
+      "dismiss": "Nie teraz",
+      "confirm-title": "Ustawić @ecency jako proxy zarządzające?",
+      "confirm-description": "@ecency będzie głosować na świadków i propozycje w Twoim imieniu. Twój kurs pozostaje twój, a następnie możesz zmienić lub usunąć proxy w dowolnym momencie ze strony świadków.",
+      "confirm-ok": "Ustaw proxy",
+      "success": "@ecency jest teraz twoim proxy zarządzającym"
+    },
+    "promo-carousel": {
+      "go-to-slide": "Przejdź do porady {{n}}"
     },
     "external": {
       "receive-button": "Odbierz",

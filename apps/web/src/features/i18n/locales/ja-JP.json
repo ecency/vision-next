@@ -1,5 +1,10 @@
 {
+  "tweet": {
+    "load-failed": "この X ポストを読み込めませんでした。",
+    "view-on-x": "X上で表示"
+  },
   "g": {
+    "now": "現在",
     "all": "すべて",
     "add": "追加",
     "edit": "編集",
@@ -123,7 +128,10 @@
   "announcements": {
     "dismiss": "却下する",
     "next": "次へ",
-    "later": "後で"
+    "later": "後で",
+    "voted": "投票",
+    "view-proposal": "提案を表示",
+    "vote-success": "Ecencyをサポートしていただきありがとうございます!"
   },
   "floating-faq": {
     "toggle-icon-info": "クリックして展開します",
@@ -147,10 +155,14 @@
     "filter-payout": "支払い",
     "filter-muted": "ミュート中",
     "filter-feed": "フィード",
-    "filter-feed-friends": "友達",
+    "filter-feed-friends": "フォロー中",
     "filter-feed-subscriptions": "コミュニティ",
+    "filter-top": "上",
     "filter-global": "グローバル",
     "filter-community": "コミュニティ",
+    "source-label": "フィードソース",
+    "sort-label": "並び替え",
+    "more-filters": "その他のフィルター",
     "filter-controversial": "論争中",
     "filter-rising": "上昇中",
     "filter-global-part1": "このフィードには以下が含まれています ",
@@ -178,6 +190,7 @@
     "waves": "波",
     "communities": "コミュニティ",
     "chats": "チャット",
+    "search": "検索",
     "toggle-menu": "ナビゲーションメニューの切り替え"
   },
   "search": {
@@ -256,7 +269,7 @@
     "boost": "ブースト",
     "submit": "投稿を作成",
     "chats": "チャット",
-    "perks": "Buy perks"
+    "perks": "Perks"
   },
   "intro": {
     "title": "素晴らしさに",
@@ -301,6 +314,18 @@
     "metamask-no-keys": "MetaMaskスナップからハイブキーを取得できませんでした",
     "metamask-key-mismatch": "MetaMask Hiveキーがこのアカウントと一致しません。サインアップ時に使用されているのと同じMetaMaskウォレットを使用していることを確認してください。",
     "keychain": "Keychain",
+    "extensions": "拡張",
+    "extensions-info-title": "ブラウザ拡張",
+    "extensions-info-description": "Hiveブラウザ拡張機能を使用して安全にサインインします。開始するには以下の拡張機能のいずれかをインストールしてください。",
+    "extensions-mobile-note": "Hiveブラウザ拡張機能はデスクトップブラウザでのみ利用できます。モバイルではKeychain Mobileを使用するか、キーまたはHiveSignerでサインインしてください。",
+    "extensions-select-title": "拡張機能を選択",
+    "extensions-select-description": "複数のハイブ拡張が検出されました。署名に使用するものを選択してください:",
+    "extension-keeper-name": "ハイブキーパー",
+    "extension-keeper-desc": "繰り返し順 - 最高の体験をおすすめします。",
+    "extension-keychain-name": "Hive Keychain",
+    "extension-keychain-desc": "人気のハイブウォレットと署名のエクステンション",
+    "extension-peakvault-name": "Peak Vault",
+    "extension-peakvault-desc": "By PeakD - 軽量ウォレット拡張",
     "keychain-mobile": "キーチェーンモバイル",
     "keychain-mobile-missing-sig": "キーチェーンから署名がありません。もう一度やり直してください。",
     "keychain-mobile-no-pending": "保留中のログインが見つかりませんでした。もう一度ログインしてみてください。",
@@ -429,7 +454,8 @@
     "delegate-placeholder": "委任する金額を入力 (Bn)"
   },
   "trending-tags": {
-    "title": "トピック"
+    "title": "トピック",
+    "view-more": "もっと見る"
   },
   "sort-trending-tags": {
     "sort": "並べ替え",
@@ -629,6 +655,37 @@
     "choose-one": "1つ選択してください",
     "user": "ユーザー",
     "search-query": "検索クエリ",
+    "intro": {
+      "title": "デッキ — 自分用のダッシュボード",
+      "description": "フィード、コミュニティ、Waves、通知、ウォレットを並んでリアルタイムに更新してください。サインインして自分のデッキを保存してください。",
+      "login": "ログインしてデッキを構築する",
+      "browse-communities": "代わりにコミュニティを参照",
+      "features": {
+        "columns-title": "ライブ列",
+        "columns-description": "リアルタイムで、お互いの隣に複数のフィードが更新されるのを見ます。",
+        "anything-title": "あなたがフォローしているもの",
+        "anything-description": "人、コミュニティ、波、トレンド、検索、通知、ウォレット用の列を追加します。",
+        "arrange-title": "道を整理する",
+        "arrange-description": "列をドラッグして並び替え、独自のワークスペースを形成します。",
+        "saved-title": "アカウントに保存しました",
+        "saved-description": "サインインすると、すべてのデバイス間でデッキが同期します。"
+      }
+    },
+    "onboarding": {
+      "title": "デッキへようこそ",
+      "button": "始めよう",
+      "skip": "スキップ",
+      "finish": "デッキを作る",
+      "build-title": "デッキを作る",
+      "tips": {
+        "add-title": "カラムを追加",
+        "add-description": "フィード、コミュニティ、連絡先、通知などに従うカラムタイプを選択します。",
+        "drag-title": "整列させる",
+        "drag-description": "任意の方法でワークスペースの順序を変更するには、ヘッダーの横に列をドラッグします。",
+        "save-title": "デッキを保存",
+        "save-description": "デバイス間で保管するために、設定からアカウントにデッキを保存します。"
+      }
+    },
     "columns": {
       "view-full-post": "全ての投稿を表示",
       "user": "ユーザー",
@@ -895,6 +952,8 @@
     "deleted-content-warning": "このコンテンツは著者によって削除されました。ブロックチェーンから見ることができます ",
     "deleted-content": "この投稿は {{author}}によって削除されました",
     "deleted-no-history": "削除されたコンテンツの履歴はブロックチェーンからは利用できません。",
+    "unable-to-load": "この投稿を読み込むことができません。接続を確認して、もう一度やり直してください。",
+    "try-edit-history": "編集履歴をお試しください",
     "indexing-blockchain": "あなたの投稿はブロックチェーンに公開されています。これは通常数秒かかります。",
     "indexing-slow": "インデックス作成に時間がかかっています。しばらくしてからページを更新してください。",
     "untitled": "無題のタイトル",
@@ -916,7 +975,7 @@
       "update-info": "毎分更新中",
       "visitors": "ビジター",
       "views": "ビュー",
-      "reads": "読み取り時間",
+      "avg-visit-duration": "平均訪問",
       "countries": "国",
       "devices": "デバイス",
       "referrers": "リファラー",
@@ -938,7 +997,9 @@
   },
   "comment": {
     "body-placeholder": "ここに返信を書いてください",
+    "write": "書き込み",
     "preview": "プレビュー",
+    "submit-shortcut": "Ctrl/⌘+ Enter で投稿する",
     "success": "返信が正常に作成されました！",
     "delete-success": "コメントは正常に削除されました",
     "delete-error-hint": "コメントを削除できませんでした。もう一度やり直してください。",
@@ -1507,6 +1568,13 @@
     "memo": "メモ",
     "memo-placeholder": "ここにメモを入力してください",
     "memo-help": "このメモは公開されます",
+    "memo-encrypted": "このメモは暗号化されます",
+    "memo-decrypt": "復号化",
+    "memo-decrypt-error": "メモを復号できませんでした。メモキーを確認してください。",
+    "memo-encrypted-label": "暗号化済みメモ",
+    "memo-key-title": "メモキーを入力",
+    "memo-key-subtitle-encrypt": "このメッセージを暗号化するにはメモキーが必要です。",
+    "memo-key-subtitle-decrypt": "このメッセージを復号するにはメモキーが必要です。",
     "memo-error": "メモフィールドに秘密鍵を入れないでください。誰にでも公開されています。",
     "memo-required": "取引所への転送にはメモが必要です。",
     "invalid-asset": "HIVEは取引所口座にのみ送信できます。",
@@ -1630,6 +1698,9 @@
     "key-placeholder": "Enter active/owner/master key",
     "with-hivesigner": "Sign with hivesigner",
     "with-keychain": "Sign with keychain",
+    "with-extension": "拡張機能でサインイン",
+    "with-extension-named": "{{name}} でサインイン",
+    "no-extension-prompt": "Hive拡張機能がありませんか？インストール1：",
     "with-hiveauth": "HiveAuthでサインイン",
     "invalid-key": "無効なキーフォーマットです。無効な文字を確認してください。",
     "key-error": "キーの処理に失敗しました。正しいことを確認してください。",
@@ -1897,10 +1968,16 @@
     "checkins-title": "連続@{{username}}",
     "payouts-title": "@{{username}}で支払いを受け取りました",
     "monthly-posts-title": "強力な月を終了しました。@{{username}}",
-    "spin-str": "より多くのポイントを獲得しましょう。Ecency Mobile アプリでスピンをプレイしましょう",
+    "spin-str": "連続クエストを生かしておくと、毎日のクエストが待っています！",
     "inactive-str": "アクティブにしましょう！投稿を書き、獲得を続けましょう",
     "referral-str": "紹介を受けて歓迎します",
-    "account-update-str": "アカウントキーまたはプロファイルが更新されました",
+    "account-update-str": "アカウントまたはプロフィールが更新されました",
+    "account-update-owner-key": "オーナーキーが変更されました。これがあなたでない場合は、すぐにアカウントを保護してください。",
+    "account-update-active-key": "アクティブなキーが変更されました。これがあなたでない場合は、アカウントを保護してください。",
+    "account-update-posting-key": "投稿キーが変更されました。これがあなたでない場合は、アカウントを保護してください。",
+    "account-update-owner-authority": "{{accounts}} はあなたのアカウントの所有者権限を付与されました。これがあなたでない場合は、すぐにアカウントを保護してください。",
+    "account-update-active-authority": "{{accounts}} はあなたのアカウントで有効な権限を付与されました。許可しなかった場合は、無効にしてください。",
+    "account-update-posting-authority": "{{accounts}} があなたに代わって投稿して投票できるようになりました。承認しなかった場合は、取り消してください。",
     "weekly-earnings-title": "@{{username}}の週間収入概要",
     "refresh": "更新",
     "mark-all-read": "すべて既読にする",
@@ -1926,7 +2003,8 @@
     "header-score-tip": "投稿+ユーザーが選択した期間のコメント",
     "header-reward": "Recompensa",
     "header-votes": "投票",
-    "header-votes-tip": "この期間の投票数"
+    "header-votes-tip": "この期間の投票数",
+    "quests-done": "今日すべての毎日の探求を完了しました"
   },
   "discover": {
     "title": "Discover",
@@ -1967,6 +2045,7 @@
     "sort-relevance": "関連",
     "sort-newest": "最近のもの",
     "hide-low": "低い支払いコンテンツを非表示",
+    "include-nsfw": "NSFWコンテンツを表示",
     "show-more": "詳細を表示"
   },
   "search-people": {
@@ -2006,7 +2085,12 @@
     "proxy-active-btn-label": "プロキシをクリア",
     "proxy-votes-for": "@{{username}} の投票",
     "proxy-active-highlighted": "あなたのプロキシ投票はハイライトされています",
-    "check-witness-highlighted": "投票がハイライト表示されます"
+    "check-witness-highlighted": "投票がハイライト表示されます",
+    "list-voters": "投票者",
+    "voters-title": "投票者@{{witness}}",
+    "voters-sort-vests": "投票力",
+    "voters-sort-timestamp": "投票日",
+    "voters-aria-label": "{{name}} の投票者を表示"
   },
   "referral": {
     "page-title": "紹介",
@@ -2614,6 +2698,12 @@
     "how-it-works": "どのように機能しますか？",
     "get-started": "今すぐ参加",
     "explore": "検索",
+    "trending-now": "トレンド",
+    "trending-now-desc": "コミュニティが今読んでいる内容を見る",
+    "scroll-down": "下にスクロール",
+    "see-more": "もっと見る",
+    "explore-topics": "トピックを探索",
+    "popular-communities": "人気のあるコミュニティ",
     "earn-money": "お金を稼ぎます",
     "earn-money-block-chain-based": "ブロックチェーンベースのソーシャルネットワーク ",
     "join-us": "join-us",
@@ -2640,7 +2730,7 @@
     "install-web-app": "Install Web App (PWA)",
     "get-mobile-app": "モバイルアプリを取得する",
     "our-history": "沿革",
-    "our-history-p-one": "<b>Ecency</b> (previously Esteem) started out in 2016, founder <span> <a href=\"/@good-karma\" class=\"push-link\"> Feruz Muradov </a></span> started implementing a mobile application that would revolutionize the way you interact and create, build, engage online. With time grew to something much bigger.",
+    "our-history-p-one": "<b>Ecency</b> (previously Esteem) started out in 2016, founded by <a href=\"/contributors\" class=\"push-link\">community members</a> who set out to build a mobile application that would revolutionize the way you interact and create, build, engage online. With time it grew to something much bigger.",
     "our-history-p-two": "それ以来、私たちは Web 3 用のビルドを続けています。 ブロックチェーンベースのソーシャルネットワークを改善し、可能な限りアプリにアクセスできるようにし、世界中の多くの言語で安全にアクセスできるようにします。",
     "our-vision": "私たちのビジョン",
     "our-vision-p-one": "私たちはすべての人に安全でやりがいのあるブロックチェーン体験を提供したいと考えています。 制限や検閲なしでソーシャルメディア、あなただけが自分のアカウントとコミュニティを制御します。 人々によって提供されるブロックチェーンによって保護されます。",
@@ -2681,7 +2771,7 @@
   },
   "top-communities": {
     "title": "上位のコミュニティ",
-    "create-button": "分散型コミュニティを作成"
+    "create-button": "コミュニティを作成"
   },
   "feedback-modal": {
     "title": "エラーの詳細",
@@ -2736,7 +2826,37 @@
     "want-more-spins": "もっとスピンが欲しいですか？",
     "spin-success": "ポイントがアカウントに移転しました。Ecencyでお楽しみください！",
     "spins-left": "左にスピンする",
-    "next-spin": "次のフリースピン（フリースピン）"
+    "next-spin": "次のフリースピン（フリースピン）",
+    "quests": {
+      "title": "クエスト",
+      "subtitle": "毎日の目標を達成し、ポイントを獲得し、連勝を保ちましょう",
+      "daily": "毎日",
+      "weekly": "Weekly",
+      "monthly": "月ごと",
+      "resets-in": "{{time}} でリセット",
+      "streak": "{{n}}日連続記録",
+      "streak-at-risk": "今日チェックインして、連続記録を維持しましょう！",
+      "available": "今すぐ利用可能です",
+      "max-rewards": "本日の最大報酬は",
+      "checkin": {
+        "title": "チェックインする"
+      },
+      "post": {
+        "title": "投稿を公開"
+      },
+      "comment": {
+        "title": "コメントを残す"
+      },
+      "vote": {
+        "title": "投稿をキュレートする"
+      },
+      "reblog": {
+        "title": "投稿をリブログする"
+      },
+      "spin": {
+        "title": "毎日スピンする"
+      }
+    }
   },
   "boost-plus": {
     "title": "ブースト+",
@@ -2785,6 +2905,7 @@
     "vote-confirmation-and-sign": "署名して投票を確認する",
     "your-choice": "あなたの選択",
     "not-found": "アンケートが見つかりません",
+    "no-choice-selected": "少なくとも一つの選択肢を選択してください",
     "voting": "投票中...",
     "vote-change": "投票の変更",
     "current-standing": "投票を非表示",
@@ -3094,6 +3215,9 @@
       "fragments": "Snippets",
       "image": "画像",
       "link": "リンク",
+      "edit-link": "リンクを編集",
+      "remove-link": "リンクを削除",
+      "open-link": "リンクを開く",
       "emoji": "Emoji",
       "gif": "GIF",
       "video": "ビデオ",
@@ -3221,6 +3345,25 @@
       "linking-success": "トークンが正常にリンクされました",
       "linking-success-hint": "ウォレットページでトークンを見つけることができます"
     },
+    "balance-history": "残高履歴",
+    "yearly-summary": "年間の概要",
+    "monthly-summary": "毎月の概要",
+    "daily-summary": "毎日のサマリー",
+    "current-balance": "現在",
+    "year-change": "年の変更",
+    "year-min": "年の分",
+    "year-max": "最大年",
+    "month-change": "月変更",
+    "month-min": "月最小値",
+    "month-max": "月最大数",
+    "day-change": "1日の変更",
+    "day-min": "日分",
+    "day-max": "日数上限",
+    "granularity": "詳細度",
+    "granularity-yearly": "年ごと",
+    "granularity-monthly": "月ごと",
+    "granularity-daily": "毎日",
+    "summary-period": "期間",
     "operations": {
       "transfer": "送金",
       "transfer-saving": "貯蓄へ",
@@ -3261,6 +3404,20 @@
       "description": "キュレーターチームによって管理されているアクティブキュレーションをアクティブにするには、ハイブパワーを @ecency に委任してください。 アクティブキュレーションでは、約+10%のAPRが加算され、キュレーション報酬の100%が返却されます。",
       "button": "@ecency に委任する",
       "dismiss": "たぶん後で"
+    },
+    "hp-governance-promo": {
+      "tag": "Governance",
+      "title": "@ecency を使ってガバナンスを維持しましょう",
+      "description": "@ecencyに委任しました。@ecencyをガバナンスプロキシとして設定すると、あなたの証人と提案の投票がEcencyチームのビジョンと一致し続けることができます。 あなたは完全な制御を維持し、いつでも変更または削除することができます。",
+      "button": "@ecency をプロキシとして設定",
+      "dismiss": "今はしない",
+      "confirm-title": "@ecency を governance プロキシとして設定しますか？",
+      "confirm-description": "@ecency はHiveの証人と提案に投票します。 あなたのステークはあなたのものであり、いつでもWitnesページからプロキシを変更または削除できます。",
+      "confirm-ok": "プロキシを設定",
+      "success": "@ecency がガバナンスのプロキシになりました"
+    },
+    "promo-carousel": {
+      "go-to-slide": "ヒント {{n}} に移動"
     },
     "external": {
       "receive-button": "受信する",
