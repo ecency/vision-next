@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { useLoginByKeychain, useLoginByMetaMask } from "./hooks";
 import { LoginUserByKey } from "./login-user-by-key";
 import { LoginUsersList } from "./login-users-list";
+import { ExtensionInstallList, useShowExtensionInstall } from "../extension-install-list";
 import { motion } from "framer-motion";
 import { TabItem } from "@/features/ui";
 import clsx from "clsx";
@@ -53,6 +54,7 @@ export default function Login() {
   const [detectedExtensions, setDetectedExtensions] = useState<DetectedExtension[]>([]);
   const [useKeychainMobile, setUseKeychainMobile] = useState(false);
   const [showExtensionsInfo, setShowExtensionsInfo] = useState(false);
+  const showExtensionInstall = useShowExtensionInstall();
 
   useEffect(() => {
     setDetectedExtensions(getDetectedExtensions());
@@ -289,53 +291,19 @@ export default function Login() {
                 ))}
               </div>
             </>
-          ) : (
+          ) : showExtensionInstall ? (
             <>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                 {i18next.t("login.extensions-info-description")}
               </p>
-              <div className="flex flex-col gap-3">
-                <a
-                  href="https://chromewebstore.google.com/detail/hive-keeper/eehlplhgiofbbanbjiodipefljadfehe"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 p-3 rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors"
-                >
-                  <Image width={32} height={32} src="/assets/keeper.svg" alt="Hive Keeper" className="w-8 h-8" />
-                  <div className="flex-1">
-                    <div className="font-semibold text-sm">{i18next.t("login.extension-keeper-name")}</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">{i18next.t("login.extension-keeper-desc")}</div>
-                  </div>
-                  <UilArrowRight className="w-4 h-4 text-blue-500" />
-                </a>
-                <a
-                  href="https://chromewebstore.google.com/detail/hive-keychain/jcacnejopjdphbnjgfaaobbfafkihpep"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 p-3 rounded-lg border border-[--border-color] hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                >
-                  <Image width={32} height={32} src="/assets/keychain.png" alt="Keychain" className="w-8 h-8" />
-                  <div className="flex-1">
-                    <div className="font-semibold text-sm">{i18next.t("login.extension-keychain-name")}</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">{i18next.t("login.extension-keychain-desc")}</div>
-                  </div>
-                  <UilArrowRight className="w-4 h-4 opacity-50" />
-                </a>
-                <a
-                  href="https://chromewebstore.google.com/detail/peak-vault/mcocapccicdidkhhghnopbddglkpjcoi"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 p-3 rounded-lg border border-[--border-color] hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                >
-                  <Image width={32} height={32} src="/assets/peakvault.svg" alt="Peak Vault" className="w-8 h-8" />
-                  <div className="flex-1">
-                    <div className="font-semibold text-sm">{i18next.t("login.extension-peakvault-name")}</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">{i18next.t("login.extension-peakvault-desc")}</div>
-                  </div>
-                  <UilArrowRight className="w-4 h-4 opacity-50" />
-                </a>
-              </div>
+              <ExtensionInstallList />
             </>
+          ) : (
+            // Mobile (or unsupported browser): desktop extensions don't apply,
+            // so guide users to the mobile sign-in options instead of links.
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              {i18next.t("login.extensions-mobile-note")}
+            </p>
           )}
         </ModalBody>
       </Modal>

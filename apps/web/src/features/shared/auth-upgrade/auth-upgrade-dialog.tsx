@@ -8,12 +8,17 @@ import i18next from "i18next";
 import Image from "next/image";
 import { PrivateKey } from "@ecency/sdk";
 import { MetaMaskSignButton } from "../metamask-sign-button";
+import { ExtensionInstallList, useShowExtensionInstall } from "../extension-install-list";
 import { resolveAuthUpgrade } from "./auth-upgrade-events";
 import { shouldUseKeychainMobile } from "@/utils/client";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
-import { useIsMobile } from "@/utils";
 import { getLoginType } from "@/utils/user-token";
-import { getDetectedExtensions, hasAnyHiveExtension } from "@/utils/hive-extensions";
+import {
+  getDetectedExtensions,
+  hasAnyHiveExtension,
+  setPreferredExtensionId,
+  type HiveExtensionId
+} from "@/utils/hive-extensions";
 import { isInAppBrowser } from "@/utils/keychain";
 
 interface AuthUpgradeRequest {
@@ -23,7 +28,7 @@ interface AuthUpgradeRequest {
 
 export function AuthUpgradeDialog() {
   const { activeUser } = useActiveAccount();
-  const isMobileBrowser = useIsMobile();
+  const showInstall = useShowExtensionInstall();
   const [request, setRequest] = useState<AuthUpgradeRequest | null>(null);
 
   useEffect(() => {
@@ -58,6 +63,19 @@ export function AuthUpgradeDialog() {
     resolveAuthUpgrade("keychain");
   }, []);
 
+  // User explicitly chose a specific browser extension to sign with. Persist it
+  // as the preference so `broadcastWithExtension` targets that extension's own
+  // API (e.g. Keychain's `window.hive_keychain`) instead of auto-resolving
+  // Keeper-first. This avoids the Keeper-vs-Keychain cross-talk where Keeper
+  // stamps `extension_id` on the shared event channel and a co-installed,
+  // not-yet-protocol-aware Keychain rejects it with
+  // `ValidationError: "extension_id" is not allowed`.
+  const handleExtensionChoice = useCallback((extId: HiveExtensionId) => {
+    setRequest(null);
+    setPreferredExtensionId(extId);
+    resolveAuthUpgrade("keychain");
+  }, []);
+
   const handleMetaMask = useCallback(() => {
     setRequest(null);
     // Resolve as 'keychain' — the adapter's broadcastWithKeychain detects
@@ -71,7 +89,13 @@ export function AuthUpgradeDialog() {
   const isMetaMaskUser = activeUser && getLoginType(activeUser.username) === "metamask";
   const useKcMobile = shouldUseKeychainMobile(activeUser?.username);
   const detectedExtensions = getDetectedExtensions();
-  const showExtensionBtn = !isMetaMaskUser && (!isMobileBrowser || useKcMobile || isInAppBrowser() || hasAnyHiveExtension());
+  // The generic (deep-link) fallback button only makes sense for Keychain
+  // Mobile / in-app WebViews. On desktop with no detected extension there's
+  // nothing to sign with, so don't offer a dead-end "Sign with Extension".
+  const canUseExtensionFallback = useKcMobile || isInAppBrowser();
+  const showExtensionBtn =
+    !isMetaMaskUser &&
+    (detectedExtensions.length > 0 || hasAnyHiveExtension() || canUseExtensionFallback);
   const extensionLabel = useKcMobile
     ? i18next.t("key-or-hot.with-keychain-mobile", { defaultValue: "Sign with Keychain Mobile" })
     : i18next.t("key-or-hot.with-extension", { defaultValue: "Sign with Extension" });
@@ -117,40 +141,69 @@ export function AuthUpgradeDialog() {
                 >
                   {i18next.t("key-or-hot.with-hivesigner")}
                 </Button>
-                {showExtensionBtn && (
-                  <Button
-                    outline={true}
-                    appearance="secondary"
-                    onClick={handleKeychainOrMobile}
-                    icon={
-                      <div className="flex items-center -space-x-1">
-                        {detectedExtensions.length > 0 ? (
-                          detectedExtensions.map((ext) => (
-                            <Image
-                              key={ext.id}
-                              width={20}
-                              height={20}
-                              src={ext.icon}
-                              alt={ext.name}
-                              className="w-4 h-4 rounded-sm"
-                            />
-                          ))
-                        ) : (
+                {showExtensionBtn &&
+                  (detectedExtensions.length > 0 ? (
+                    // One button per detected extension. Picking one persists it
+                    // as the signing preference so we target that extension's own
+                    // API directly — no Keeper-first auto-pick, no cross-talk.
+                    detectedExtensions.map((ext) => (
+                      <Button
+                        key={ext.id}
+                        outline={true}
+                        appearance="secondary"
+                        onClick={() => handleExtensionChoice(ext.id)}
+                        icon={
                           <Image
                             width={20}
                             height={20}
-                            src="/assets/keychain.png"
-                            alt="extensions"
-                            className="w-4 h-4"
+                            src={ext.icon}
+                            alt={ext.name}
+                            className="w-4 h-4 rounded-sm"
                           />
-                        )}
-                      </div>
-                    }
-                  >
-                    {extensionLabel}
-                  </Button>
-                )}
+                        }
+                      >
+                        {i18next.t("key-or-hot.with-extension-named", {
+                          name: ext.name,
+                          defaultValue: `Sign with ${ext.name}`
+                        })}
+                      </Button>
+                    ))
+                  ) : canUseExtensionFallback ? (
+                    // No extension detected but a Keychain Mobile / in-app
+                    // WebView deep-link path exists: keep the generic button —
+                    // the adapter resolves the deep-link from the login type.
+                    <Button
+                      outline={true}
+                      appearance="secondary"
+                      onClick={handleKeychainOrMobile}
+                      icon={
+                        <Image
+                          width={20}
+                          height={20}
+                          src="/assets/keychain.png"
+                          alt="extensions"
+                          className="w-4 h-4"
+                        />
+                      }
+                    >
+                      {extensionLabel}
+                    </Button>
+                  ) : null)}
               </div>
+              {!showExtensionBtn && showInstall && (
+                // Desktop with no extension and no mobile deep-link path:
+                // instead of a dead-end, point the user at the install options
+                // (same list as login), browser-appropriate. Hidden on mobile
+                // via showInstall. Key entry / HiveSigner above still work.
+                <div className="mt-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                    {i18next.t("key-or-hot.no-extension-prompt", {
+                      defaultValue: "Don't have a Hive extension? Install one:"
+                    })}
+                  </p>
+                  <ExtensionInstallList />
+                </div>
+              )}
             </>
           )}
         </div>
