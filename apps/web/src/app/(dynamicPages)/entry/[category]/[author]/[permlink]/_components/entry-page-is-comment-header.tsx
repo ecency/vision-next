@@ -9,10 +9,16 @@ interface Props {
 
 export function EntryPageIsCommentHeader({ entry }: Props) {
   const isComment = !!entry.parent_author;
-  // Always build from makeEntryPath (bare /@author/permlink) rather than the
-  // chain-provided entry.url, which is the legacy /category/@author/permlink
-  // form and would send the link through the 308 redirect.
-  const rootHref = makeEntryPath(entry.category, entry.author, entry.permlink);
+  // For a comment, the chain-provided entry.url targets the ROOT discussion
+  // (e.g. /<category>/@root-author/root-permlink#@author/permlink), which is
+  // what "go to root" must link to — not the comment itself. Keep that target
+  // but strip the leading /<category> segment so the link lands directly on the
+  // bare /@author/permlink canonical form instead of taking the 308 redirect.
+  // Fall back to the entry's own bare path when entry.url is missing/malformed.
+  const rootHref =
+    entry.url && !entry.url.includes("undefined")
+      ? entry.url.replace(/^\/[^/]+\/@/, "/@")
+      : makeEntryPath(entry.category, entry.author, entry.permlink);
 
   return isComment ? (
     <div className="comment-entry-header">
