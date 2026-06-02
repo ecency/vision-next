@@ -128,7 +128,10 @@
   "announcements": {
     "dismiss": "关闭",
     "next": "下一个",
-    "later": "稍后再说"
+    "later": "稍后再说",
+    "voted": "已投票",
+    "view-proposal": "查看提案",
+    "vote-success": "感谢您支持生态！"
   },
   "floating-faq": {
     "toggle-icon-info": "单击以扩展",
@@ -314,6 +317,7 @@
     "extensions": "扩展",
     "extensions-info-title": "浏览器扩展",
     "extensions-info-description": "使用 Hive 浏览器扩展安全登录。安装以下扩展之一以启动：",
+    "extensions-mobile-note": "Hive 浏览器扩展只能在桌面浏览器上使用。移动设备时，使用Keychain Mobile 或使用您的密钥或 HiveSigner登录。",
     "extensions-select-title": "选择扩展",
     "extensions-select-description": "检测到多个Hive 扩展。选择哪个用于签名：",
     "extension-keeper-name": "Hive 守护者",
@@ -1695,6 +1699,8 @@
     "with-hivesigner": "Sign with hivesigner",
     "with-keychain": "Sign with keychain",
     "with-extension": "使用扩展名登录",
+    "with-extension-named": "Sign with {{name}}",
+    "no-extension-prompt": "没有Hive 扩展？安装：",
     "with-hiveauth": "使用 HiveAuth 登录",
     "invalid-key": "密钥格式无效。请检查无效字符。",
     "key-error": "处理密钥失败。请验证它是否正确。",
