@@ -302,6 +302,10 @@
   aspect-ratio: var(--cover-ar, auto);
   width: var(--cover-w, auto);
   height: auto;
+  // Safety net: if the recorded cover ratio ever maps to a different first
+  // body image (e.g. a custom thumbnail that isn't the first image), letterbox
+  // instead of stretching. A no-op when the ratio matches (the common case).
+  object-fit: contain;
 }
 
 .visible {
