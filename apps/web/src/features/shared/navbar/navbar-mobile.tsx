@@ -224,7 +224,10 @@ export function NavbarMobile({
         aria-label={i18next.t("navbar.post")}
         aria-current={isActive("/publish") ? "page" : undefined}
         className={clsx(
-          "md:hidden fixed right-4 z-20 h-14 w-14 !rounded-full flex items-center justify-center shadow-lg",
+          // `!h-12 !w-12` (48px) overrides the Button's injected `h-[2.125rem]`
+          // size class so this renders as a true circle, level with the
+          // scroll-to-top control on the opposite corner (same size + bottom).
+          "md:hidden fixed right-4 z-20 !h-12 !w-12 !rounded-full flex items-center justify-center shadow-lg",
           "transition-transform duration-300",
           hidden && "translate-y-[200%]",
           step === 1 && "transparent"
