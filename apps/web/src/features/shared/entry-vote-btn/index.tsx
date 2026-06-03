@@ -16,6 +16,8 @@ import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { AnimatePresence, motion } from "framer-motion";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { error } from "@/features/shared/feedback";
+import { formatError } from "@/api/format-error";
 import i18next from "i18next";
 
 // The vote slider dialog only mounts on interaction (dialog && entry &&
@@ -84,9 +86,18 @@ export function EntryVoteBtn({ entry: originalEntry, isPostSlider, account }: Pr
     async (percent: number, estimated: number) => {
       const weight = Math.ceil(percent * 100);
 
-      await voteInAPI({ weight, estimated });
-
-      setDialog(false);
+      try {
+        await voteInAPI({ weight, estimated });
+      } catch (e) {
+        // The broadcast was rejected (commonly the account is out of Resource
+        // Credits, or an identical/duplicate vote). Surface the friendly,
+        // classified toast via the standard error()/formatError path instead of
+        // letting the rejection escape as an unhandled promise — which Sentry's
+        // global handler would otherwise capture as a fresh client crash.
+        error(...formatError(e));
+      } finally {
+        setDialog(false);
+      }
     },
     [voteInAPI]
   );
