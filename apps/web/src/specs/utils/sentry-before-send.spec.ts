@@ -126,12 +126,28 @@ describe("beforeSend — $RS hydration-resume reclassification", () => {
     expect(out!.fingerprint).toEqual(["hydration-rs-autorecovered"]);
   });
 
-  it("reclassifies the Chrome 117+ parentNode-null phrasing inside $RS", () => {
+  it("reclassifies the Chrome MINIFIED single-letter null read inside $RS", () => {
+    // Exercises the isMinifiedNull second branch specifically (the minified
+    // resume var, not the literal 'parentNode' covered by isParentNodeNull).
+    const out = beforeSend(makeEvent("Cannot read properties of null (reading 'b')", [RS_FRAME]));
+    expect(out!.fingerprint).toEqual(["hydration-rs-autorecovered"]);
+    expect(out!.level).toBe("warning");
+  });
+
+  it("reclassifies the literal parentNode-null phrasing inside $RS (isParentNodeNull)", () => {
     const out = beforeSend(
       makeEvent("Cannot read properties of null (reading 'parentNode')", [RS_FRAME])
     );
     expect(out!.fingerprint).toEqual(["hydration-rs-autorecovered"]);
-    expect(out!.level).toBe("warning");
+  });
+
+  it("does NOT over-match a multi-char null read even with a $RS frame", () => {
+    // The narrowed single-char regex must leave a real "(reading 'document')"
+    // bug as an error, even if a $RS frame happens to be on the stack.
+    const ev = makeEvent("Cannot read properties of null (reading 'document')", [RS_FRAME]);
+    expect(beforeSend(ev)).toBe(ev);
+    expect(ev.level).toBeUndefined();
+    expect(ev.fingerprint).toBeUndefined();
   });
 
   it("does NOT touch a real 'b is null' app bug with no $RS frame", () => {

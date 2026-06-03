@@ -23,9 +23,12 @@ const SENTRY_CONFIG: Sentry.BrowserOptions = {
   // SHA), so without this label its errors are tagged "production" and trip the
   // prod "Critical errors" alert + eat prod quota. CI stamps SENTRY_ENVIRONMENT
   // per deploy (staging.yml="staging", master.yml="production"); inlined into
-  // the client bundle via the `env` block in next.config.js. Defaults to
-  // "production" for local/unset builds.
-  environment: process.env.SENTRY_ENVIRONMENT ?? "production",
+  // the client bundle via the `env` block in next.config.js. Falls back to
+  // NODE_ENV (so a locally-run prod build is tagged "development", not
+  // "production") then "production". `||` (not `??`) so an empty
+  // SENTRY_ENVIRONMENT — an unset ARG in a non-CI Docker build yields `ENV=""` —
+  // also falls through instead of tagging events with an empty environment.
+  environment: process.env.SENTRY_ENVIRONMENT || process.env.NODE_ENV || "production",
 
   tracesSampleRate: 0,
   integrations: (defaults) =>

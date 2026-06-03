@@ -147,7 +147,11 @@ export function beforeSend(event: SentryErrorEvent): SentryErrorEvent | null {
     /null is not an object \(evaluating '[a-z]\.parentNode'\)/.test(message);
   const isMinifiedNull =
     /^[a-z] is null$/i.test(message) || // Firefox minified "b is null"
-    /Cannot read properties of null \(reading '[\w$]+'\)/.test(message); // Chrome minified twin
+    // Chrome minified twin — single-char property name only (the $RS resume var
+    // is minified to one letter, e.g. "reading 'b'"). Multi-char names like
+    // 'document'/'innerHTML' are intentionally NOT matched, so an unrelated
+    // null-access that merely co-occurs with a $RS frame stays a real error.
+    /Cannot read properties of null \(reading '[a-z$]'\)/i.test(message);
   if ((isParentNodeNull || isMinifiedNull) && stackStr.includes("$RS")) {
     event.level = "warning";
     event.tags = { ...event.tags, hydration_autorecovered: "true" };
