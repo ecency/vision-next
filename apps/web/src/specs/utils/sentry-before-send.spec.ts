@@ -95,6 +95,13 @@ describe("beforeSend — RC exhaustion is dropped as expected user condition", (
     expect(beforeSend(makeEvent("RPCError: ... has 1 RC, needs 248319953 RC ..."))).toBeNull();
   });
 
+  it("anchors has_mana to the assertion form (has_mana:) and does not over-filter a bare substring", () => {
+    expect(beforeSend(makeEvent("Assert Exception: transaction:has_mana: Account x"))).toBeNull();
+    // A future unrelated error merely containing the substring must NOT be dropped.
+    const unrelated = makeEvent("has_mana_check skipped", [APP_FRAME]);
+    expect(beforeSend(unrelated)).toBe(unrelated);
+  });
+
   it("keeps an ordinary application error untouched", () => {
     const ev = makeEvent("TypeError: cannot read foo of bar", [APP_FRAME]);
     expect(beforeSend(ev)).toBe(ev);

@@ -88,6 +88,9 @@ export function EntryVoteBtn({ entry: originalEntry, isPostSlider, account }: Pr
 
       try {
         await voteInAPI({ weight, estimated });
+        // Close only on success — on failure keep the slider open so the user
+        // can adjust and retry in place (matches the pre-existing behavior).
+        setDialog(false);
       } catch (e) {
         // The broadcast was rejected (commonly the account is out of Resource
         // Credits, or an identical/duplicate vote). Surface the friendly,
@@ -95,8 +98,6 @@ export function EntryVoteBtn({ entry: originalEntry, isPostSlider, account }: Pr
         // letting the rejection escape as an unhandled promise — which Sentry's
         // global handler would otherwise capture as a fresh client crash.
         error(...formatError(e));
-      } finally {
-        setDialog(false);
       }
     },
     [voteInAPI]

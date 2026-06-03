@@ -77,7 +77,7 @@ export function beforeSend(event: SentryErrorEvent): SentryErrorEvent | null {
   // handled-only guard never matched (the raw RPCError carries none of that text).
   // None of these phrases appear in app code, so over-filter risk is nil.
   if (
-    /has not enough RC mana|has_mana|Insufficient Resource Credits|Please wait to transact|needs \d+ RC/i.test(
+    /has not enough RC mana|has_mana:|Insufficient Resource Credits|Please wait to transact|needs \d+ RC/i.test(
       message
     )
   ) {
