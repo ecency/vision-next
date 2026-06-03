@@ -14,12 +14,20 @@
   display: none;
   cursor: pointer;
 
-  // On mobile, sit above the bottom tab bar and clear of the bottom-right
-  // compose FAB (which lives on the right).
+  // On mobile, sit above the bottom tab bar on the left, mirroring the
+  // bottom-right compose FAB as a matched pair: same 48px circle, same level.
   @media (max-width: 767px) {
     left: 16px;
     right: auto;
-    bottom: calc(env(safe-area-inset-bottom) + 5.5rem);
+    width: 48px;
+    height: 48px;
+    bottom: calc(env(safe-area-inset-bottom) + 4.75rem);
+
+    // In the in-app (RN) browser the bottom bar uses a fixed offset, so match
+    // the FAB's RN bottom (see the FAB style in navbar-mobile.tsx).
+    body.is-inapp-browser & {
+      bottom: 7rem;
+    }
   }
 
   &.visible {
