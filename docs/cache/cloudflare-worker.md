@@ -3,11 +3,14 @@
 The `ecency-geo-router` worker sits in front of nginx and is the primary edge
 cache layer for ecency.com. It implements:
 
-1. Bot management gating
-2. Geo-routing across 3 origins (eu/us/asia.ecency.com)
-3. WebSocket pass-through to the closest origin
-4. Edge cache for cacheable HTML responses, keyed by URL + auth-class
-5. Smart-Tiered-Cache-eligible subfetches via `cf.cacheKey`
+1. Geo-routing across 3 origins (eu/us/asia.ecency.com)
+2. WebSocket pass-through to the closest origin
+3. Edge cache for cacheable HTML responses, keyed by URL + auth-class
+4. Smart-Tiered-Cache-eligible subfetches via `cf.cacheKey`
+
+> Bot/abuse filtering is **not** done in the worker — it is handled upstream at
+> the Cloudflare edge (firewall rules + bot management). The worker only reads
+> the verified-bot flag to tune origin timeouts.
 
 ## Cache key strategy
 
