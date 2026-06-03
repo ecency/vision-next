@@ -9,7 +9,6 @@ import { cache } from "react";
 export enum QueryIdentifiers {
   COMMUNITY_THREADS = "community-threads",
   THREADS = "threads",
-  ENTRY_THUMB = "entry-thumb",
   ENTRY_PIN_TRACK = "entry-pin-track",
   PROMOTED_ENTRIES = "promoted-entries",
   SWAP_FORM_CURRENCY_RATE = "swap-form-currency-rate",

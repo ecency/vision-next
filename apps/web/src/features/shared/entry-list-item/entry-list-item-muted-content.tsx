@@ -19,9 +19,10 @@ import { isHiddenPost, useEntryLocation } from "@/utils";
 
 interface Props {
   entry: Entry;
+  isThumbLcp?: boolean;
 }
 
-export function EntryListItemMutedContent({ entry: entryProp }: Props) {
+export function EntryListItemMutedContent({ entry: entryProp, isThumbLcp }: Props) {
   const { activeUser } = useActiveAccount();
   const globalNsfw = useGlobalStore((s) => s.nsfw);
   const { showNsfw } = EcencyClientServerBridge.useSafeContext(EntryListItemContext);
@@ -108,6 +109,7 @@ export function EntryListItemMutedContent({ entry: entryProp }: Props) {
             isCrossPost={isCrossPost}
             noImage="/assets/noimage.png"
             entry={entry}
+            isThumbLcp={isThumbLcp}
           />
         )}
         <div className="item-summary overflow-x-hidden">

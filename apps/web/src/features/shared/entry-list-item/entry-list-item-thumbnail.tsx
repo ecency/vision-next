@@ -1,37 +1,44 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Entry } from "@/entities";
 import { useGlobalStore } from "@/core/global-store";
-import { useImageDownloader } from "@/api/queries";
 import { EntryLink } from "@/features/shared";
-import { catchPostImage, proxifyImageSrc } from "@ecency/render-helper";
+import { buildSrcSet, catchPostImage, proxifyImageSrc } from "@ecency/render-helper";
 import Image from "next/image";
+
+// The row thumbnail box is full-width on mobile but a fixed 150px on desktop
+// (.item-image in _index.scss). Use a thumbnail-sized `sizes` — NOT the
+// post-body IMAGE_SIZES (700px) — so desktop picks a small srcset candidate
+// instead of over-fetching an ~800w image for a 150px slot.
+const THUMB_SIZES = "(max-width: 768px) 100vw, 150px";
 
 interface Props {
   entry: Entry;
   noImage: string;
   isCrossPost: boolean;
   entryProp: Entry;
+  // First above-the-fold item(s): render the thumbnail eagerly with high fetch
+  // priority so it can be the LCP without waiting behind lazy images.
+  isThumbLcp?: boolean;
 }
 
-export function EntryListItemThumbnail({ entry, noImage, isCrossPost, entryProp }: Props) {
+export function EntryListItemThumbnail({
+  entry,
+  noImage,
+  isCrossPost,
+  entryProp,
+  isThumbLcp = false
+}: Props) {
   const listStyle = useGlobalStore((state) => state.listStyle);
+  const isGrid = listStyle === "grid";
 
-  const { data: imgGrid, isLoading: isGridLoading } = useImageDownloader(
-    entry,
-    noImage,
-    600,
-    500,
-    listStyle === "grid",
-    false
-  );
-  const { data: imgRow, isLoading: isRowLoading } = useImageDownloader(
-    entry,
-    noImage,
-    260,
-    200,
-    listStyle !== "grid",
-    false
-  );
+  // Proxied thumbnail URL computed SYNCHRONOUSLY (no client blob fetch), so the
+  // <img src>/<srcset> lands in the server HTML and the browser can discover and
+  // start the LCP image at parse time. catchPostImage already returns a fully
+  // proxified i.ecency.com URL — the same path post-body/cover images use — so
+  // the old useImageDownloader blob→base64 round-trip (which gated this behind
+  // JS download + hydration) is not needed.
+  const src = useMemo(() => catchPostImage(entry, 600, 500, "match") || null, [entry]);
+  const srcSet = useMemo(() => (src ? buildSrcSet(src) : ""), [src]);
 
   const blurUrl = useMemo(() => {
     const url = catchPostImage(entry, 0, 0);
@@ -42,52 +49,58 @@ export function EntryListItemThumbnail({ entry, noImage, isCrossPost, entryProp 
     return proxifyImageSrc(url, 0, 0, "match", { blur: true }) || null;
   }, [entry]);
 
-  const isGrid = listStyle === "grid";
-  const img = isGrid ? imgGrid : imgRow;
-  const isLoading = isGrid ? isGridLoading : isRowLoading;
-  const hasFullImage = !!img && img !== noImage;
+  // Loop-safe one-shot fallback to the noImage placeholder. This preserves what
+  // the old query's try/catch did (swap to noImage on a failed load) without the
+  // request loop a naive onError can cause: once we've fallen back we never
+  // re-assign src. Reset when the row is reused for a different entry.
+  const [errored, setErrored] = useState(false);
+  useEffect(() => setErrored(false), [entry.author, entry.permlink]);
+
+  const hasFullImage = !!src && !errored;
+  const displaySrc = hasFullImage ? (src as string) : noImage;
 
   const showImage = useMemo(() => {
     const isComment = !!entry.parent_permlink && entry.parent_permlink !== entry.permlink;
-    const hasImage = !!imgGrid || !!imgRow;
-    return !isComment || hasImage;
-  }, [entry.parent_permlink, entry.permlink, imgGrid, imgRow]);
+    return !isComment || !!src;
+  }, [entry.parent_permlink, entry.permlink, src]);
 
   return (
     showImage && (
       <div className={"item-image " + (!hasFullImage ? "noImage" : "")}>
         <EntryLink className="h-full" entry={isCrossPost ? entryProp : entry}>
           <div className="h-full w-full relative overflow-hidden">
-            {blurUrl && (
+            {/* LQIP placeholder behind the real image; the real image (opaque on
+                load) covers it. Kept fully visible so it never gates the LCP
+                paint on JS. */}
+            {blurUrl && hasFullImage && (
               <img
                 src={blurUrl}
                 alt=""
                 aria-hidden="true"
-                className={
-                  "absolute inset-0 w-full h-full object-cover transition-opacity duration-300 " +
-                  (hasFullImage ? "opacity-0" : "opacity-100")
-                }
+                className="absolute inset-0 w-full h-full object-cover"
               />
             )}
             {isGrid ? (
               <Image
                 width={1000}
                 height={1000}
-                className={
-                  "w-full h-full object-cover mx-auto relative transition-opacity duration-300 " +
-                  (hasFullImage ? "opacity-100" : blurUrl ? "opacity-0" : "")
-                }
-                src={img || noImage}
-                alt={isLoading ? "" : entry.title}
+                className="w-full h-full object-cover mx-auto relative"
+                src={displaySrc}
+                alt={entry.title}
+                priority={isThumbLcp}
+                onError={() => setErrored(true)}
               />
             ) : (
               <img
-                className={
-                  "w-full relative transition-opacity duration-300 " +
-                  (hasFullImage ? "opacity-100" : blurUrl ? "opacity-0" : "")
-                }
-                src={img || noImage}
-                alt={isLoading ? "" : entry.title}
+                className="w-full relative"
+                src={displaySrc}
+                srcSet={hasFullImage && srcSet ? srcSet : undefined}
+                sizes={hasFullImage && srcSet ? THUMB_SIZES : undefined}
+                alt={entry.title}
+                loading={isThumbLcp ? "eager" : "lazy"}
+                fetchPriority={isThumbLcp ? "high" : undefined}
+                decoding={isThumbLcp ? undefined : "async"}
+                onError={() => setErrored(true)}
               />
             )}
           </div>
