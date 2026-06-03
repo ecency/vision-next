@@ -1,4 +1,3 @@
-export * from "./image-downloader-query";
 export * from "./get-contributors-query";
 export * from "./get-account-posts-feed-query";
 export * from "./get-gifs-query";
