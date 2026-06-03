@@ -19,11 +19,19 @@ export async function detectHiveKeyDerivation(
   const auth = account[type];
 
   // --- BIP44 check (match selected authority) ---
-  const bip44 = deriveHiveKeys(seed);
-  const bip44Pub =
-      type === "owner" ? bip44.ownerPubkey : bip44.activePubkey;
-
-  const matchBip44 = auth.key_auths.some(([pub]) => String(pub) === bip44Pub);
+  // The input may be a legacy master password (or any non-mnemonic string),
+  // which @scure/bip39 rejects with "Invalid mnemonic". The previous bip39 ran
+  // PBKDF2 over any string and produced a (non-matching) seed here, so guard the
+  // BIP44 probe and fall through to the master-password check on failure —
+  // otherwise master-password logins/signing abort before authenticating.
+  let matchBip44 = false;
+  try {
+    const bip44 = deriveHiveKeys(seed);
+    const bip44Pub = type === "owner" ? bip44.ownerPubkey : bip44.activePubkey;
+    matchBip44 = auth.key_auths.some(([pub]) => String(pub) === bip44Pub);
+  } catch {
+    // not a valid BIP39 mnemonic -> not a BIP44 seed
+  }
   if (matchBip44) return "bip44";
 
   // --- Master password (legacy) check (match selected authority) ---

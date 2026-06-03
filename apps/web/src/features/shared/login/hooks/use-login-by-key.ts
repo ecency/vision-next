@@ -2,7 +2,6 @@ import i18next from "i18next";
 import { error } from "../../feedback";
 import { PrivateKey, PublicKey } from "@ecency/sdk";
 import { isWif, sha256 } from "@ecency/sdk";
-import { deriveHiveKeys, detectHiveKeyDerivation } from "@ecency/wallets";
 import { FullAccount } from "@/entities";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { broadcastOperations, getAccountFullQueryOptions, useGrantPostingPermission } from "@ecency/sdk";
@@ -104,6 +103,11 @@ export function useLoginByKey(
         // Login with master password, BIP44 seed or active private key
         // Get active and posting private keys from user entered code
         if (isPlainPassword) {
+          // Lazy-load Hive key derivation so @ecency/wallets (heavy crypto
+          // deps) stays out of the eager bundle. Only reached when logging in
+          // with a plain password/seed (WIF active-key logins take the
+          // else-branch and never reach this import).
+          const { deriveHiveKeys, detectHiveKeyDerivation } = await import("@ecency/wallets");
           const derivation = await detectHiveKeyDerivation(account.name, keyOrSeed);
 
           const candidates: { active: PrivateKey; posting: PrivateKey }[] = [];

@@ -1,5 +1,11 @@
 # @ecency/wallets
 
+## 5.0.7
+
+### Patch Changes
+
+- perf(web): evict bip39 wordlists from read pages (lazy key derivation + @scure/bip39) (#899)
+
 ## 5.0.6
 
 ### Patch Changes
