@@ -122,19 +122,41 @@ export function beforeSend(event: SentryErrorEvent): SentryErrorEvent | null {
     }
   }
 
-  // React SSR streaming hydration issue triggered by browser extensions
-  // ($RS is React's internal resumable script marker)
-  // Covers old Chrome ≤116 ("Cannot read property 'parentNode' of null"),
-  // new Chrome 117+ ("Cannot read properties of null (reading 'parentNode')"),
-  // Firefox ("can't access property \"parentNode\", a is null"), and
-  // Safari ("null is not an object (evaluating 'a.parentNode')") phrasings.
+  // React 19 SSR streaming-resume ($RS) crash that FOLLOWS a hydration mismatch.
+  // React #418 (text-content mismatch — commonly a browser extension or
+  // auto-translate rewriting text on legacy/non-English browsers, or a residual
+  // SSR locale/Date drift) tears the subtree down and regenerates it CLIENT-SIDE,
+  // so the user still gets a working page; React's $RS inline resume script then
+  // can't find its now-removed node and throws. Phrasings seen across engines:
+  //   Chrome ≤116  "Cannot read property 'parentNode' of null"
+  //   Chrome 117+  "Cannot read properties of null (reading 'parentNode')"
+  //   Firefox      `can't access property "parentNode", a is null`
+  //   Firefox min. "b is null"  (the resume var is minified to a single letter)
+  //   Safari       "null is not an object (evaluating 'a.parentNode')"
+  // RECLASSIFY (not drop) to ONE low-severity, fingerprinted issue. Sentry groups
+  // $RS by the permlink in its argument, so each post page would otherwise spawn a
+  // fresh error-level issue. Reclassifying stops that per-permlink spam and marks
+  // it auto-recovered, while leaving the underlying #418 fully visible — so a
+  // GENUINE hydration regression would still surface as a spike on this
+  // fingerprint across many users/pages. The $RS-frame requirement keeps this off
+  // ordinary null-access app bugs (those have no $RS in the stack).
   const isParentNodeNull =
     message.includes("reading 'parentNode'") ||
     message.includes("property 'parentNode'") ||
     message.includes('"parentNode"') ||
     /null is not an object \(evaluating '[a-z]\.parentNode'\)/.test(message);
-  if (isParentNodeNull && stackStr.includes("$RS")) {
-    return null;
+  const isMinifiedNull =
+    /^[a-z] is null$/i.test(message) || // Firefox minified "b is null"
+    // Chrome minified twin — single-char property name only (the $RS resume var
+    // is minified to one letter, e.g. "reading 'b'"). Multi-char names like
+    // 'document'/'innerHTML' are intentionally NOT matched, so an unrelated
+    // null-access that merely co-occurs with a $RS frame stays a real error.
+    /Cannot read properties of null \(reading '[a-z$]'\)/i.test(message);
+  if ((isParentNodeNull || isMinifiedNull) && stackStr.includes("$RS")) {
+    event.level = "warning";
+    event.tags = { ...event.tags, hydration_autorecovered: "true" };
+    event.fingerprint = ["hydration-rs-autorecovered"];
+    return event;
   }
 
   // Firefox-specific iframe teardown error following a React hydration

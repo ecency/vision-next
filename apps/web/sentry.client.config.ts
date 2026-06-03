@@ -18,6 +18,18 @@ const SENTRY_CONFIG: Sentry.BrowserOptions = {
   // bundle via the `env` block in next.config.js.
   release: process.env.SENTRY_RELEASE ?? appPackage.version,
 
+  // Distinguish staging (alpha) from production. Alpha runs an otherwise
+  // identical prod build (same DSN, NODE_ENV=production, often the same commit
+  // SHA), so without this label its errors are tagged "production" and trip the
+  // prod "Critical errors" alert + eat prod quota. CI stamps SENTRY_ENVIRONMENT
+  // per deploy (staging.yml="staging", master.yml="production"); inlined into
+  // the client bundle via the `env` block in next.config.js. Falls back to
+  // NODE_ENV (so a locally-run prod build is tagged "development", not
+  // "production") then "production". `||` (not `??`) so an empty
+  // SENTRY_ENVIRONMENT — an unset ARG in a non-CI Docker build yields `ENV=""` —
+  // also falls through instead of tagging events with an empty environment.
+  environment: process.env.SENTRY_ENVIRONMENT || process.env.NODE_ENV || "production",
+
   tracesSampleRate: 0,
   integrations: (defaults) =>
     defaults.filter((i) => i.name !== "BrowserTracing"),

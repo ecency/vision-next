@@ -99,7 +99,10 @@ const config = {
   // (which trips Next's env schema). When absent, Sentry.init falls back
   // to package.json version via `process.env.SENTRY_RELEASE ?? appPackage.version`.
   env: {
-    ...(process.env.SENTRY_RELEASE && { SENTRY_RELEASE: process.env.SENTRY_RELEASE })
+    ...(process.env.SENTRY_RELEASE && { SENTRY_RELEASE: process.env.SENTRY_RELEASE }),
+    // Same treatment for SENTRY_ENVIRONMENT so the client bundle can tag
+    // staging (alpha) vs production. Conditionally spread for the same reason.
+    ...(process.env.SENTRY_ENVIRONMENT && { SENTRY_ENVIRONMENT: process.env.SENTRY_ENVIRONMENT })
   },
   htmlLimitedBots:
     /Mediapartners-Google|Chrome-Lighthouse|Slurp|DuckDuckBot|baiduspider|yandex|sogou|bitlybot|tumblr|vkShare|quora link preview|redditbot|ia_archiver|Bingbot|BingPreview|applebot|facebookexternalhit|facebookcatalog|Twitterbot|LinkedInBot|Slackbot|Discordbot|WhatsApp|SkypeUriPreview|Yeti/,

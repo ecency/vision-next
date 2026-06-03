@@ -107,3 +107,53 @@ describe("beforeSend — RC exhaustion is dropped as expected user condition", (
     expect(beforeSend(ev)).toBe(ev);
   });
 });
+
+describe("beforeSend — $RS hydration-resume reclassification", () => {
+  // A React #418 text mismatch regenerates the subtree; React's $RS streaming-
+  // resume script then throws on the removed node. Self-healed noise — reclassify
+  // to one fingerprinted warning (NOT dropped), so a genuine hydration regression
+  // still surfaces. Sentry groups $RS by the permlink, so the frame carries it.
+  const RS_FRAME = {
+    function: "$RS",
+    filename: "app:///@storicious/re-barski-202662t14550715z"
+  } as unknown as { filename?: string };
+
+  it("reclassifies Firefox minified 'b is null' inside a $RS frame", () => {
+    const out = beforeSend(makeEvent("b is null", [RS_FRAME]));
+    expect(out).not.toBeNull();
+    expect(out!.level).toBe("warning");
+    expect(out!.tags?.hydration_autorecovered).toBe("true");
+    expect(out!.fingerprint).toEqual(["hydration-rs-autorecovered"]);
+  });
+
+  it("reclassifies the Chrome MINIFIED single-letter null read inside $RS", () => {
+    // Exercises the isMinifiedNull second branch specifically (the minified
+    // resume var, not the literal 'parentNode' covered by isParentNodeNull).
+    const out = beforeSend(makeEvent("Cannot read properties of null (reading 'b')", [RS_FRAME]));
+    expect(out!.fingerprint).toEqual(["hydration-rs-autorecovered"]);
+    expect(out!.level).toBe("warning");
+  });
+
+  it("reclassifies the literal parentNode-null phrasing inside $RS (isParentNodeNull)", () => {
+    const out = beforeSend(
+      makeEvent("Cannot read properties of null (reading 'parentNode')", [RS_FRAME])
+    );
+    expect(out!.fingerprint).toEqual(["hydration-rs-autorecovered"]);
+  });
+
+  it("does NOT over-match a multi-char null read even with a $RS frame", () => {
+    // The narrowed single-char regex must leave a real "(reading 'document')"
+    // bug as an error, even if a $RS frame happens to be on the stack.
+    const ev = makeEvent("Cannot read properties of null (reading 'document')", [RS_FRAME]);
+    expect(beforeSend(ev)).toBe(ev);
+    expect(ev.level).toBeUndefined();
+    expect(ev.fingerprint).toBeUndefined();
+  });
+
+  it("does NOT touch a real 'b is null' app bug with no $RS frame", () => {
+    const ev = makeEvent("b is null", [APP_FRAME]);
+    expect(beforeSend(ev)).toBe(ev);
+    expect(ev.level).toBeUndefined();
+    expect(ev.fingerprint).toBeUndefined();
+  });
+});

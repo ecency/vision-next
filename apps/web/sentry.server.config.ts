@@ -19,6 +19,12 @@ Sentry.init({
   // source-map upload and runtime tagging stay aligned across deploys
   // that don't bump the package.json version.
   release: process.env.SENTRY_RELEASE ?? appPackage.version,
+  // Tag staging (alpha) vs production so staging noise doesn't trip the prod
+  // "Critical errors" alert. Set via the Dockerfile ENV from CI
+  // (staging.yml="staging"). `||` chain falls back to NODE_ENV then "production",
+  // and treats an empty SENTRY_ENVIRONMENT (unset ARG in a non-CI build) as unset
+  // (an empty `ENV` would otherwise survive `??` and tag events with "").
+  environment: process.env.SENTRY_ENVIRONMENT || process.env.NODE_ENV || "production",
   integrations: [nodeProfilingIntegration()],
   _experiments: { enableLogs: true },
   ignoreErrors: [
