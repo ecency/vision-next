@@ -8,16 +8,6 @@ import dynamic from "next/dynamic";
 import { Modal, ModalBody, ModalHeader } from "@ui/modal";
 import { Account, Entry } from "@/entities";
 import { LoginRequired } from "@/features/shared/login-required";
-
-// The tip transfer modal is interaction-gated (renders only when the dialog
-// opens) and drags the write-flow → @ecency/wallets → bip39 graph. Load it
-// lazily so that heavy chunk stays off the eager feed/profile/community read
-// path (it was previously pulled in eagerly via EntryVoteBtn → EntryVoteDialog
-// → EntryTipBtn). ssr:false is correct: it never renders during SSR.
-const Transfer = dynamic(
-  () => import("@/features/shared/transfer").then((m) => ({ default: m.Transfer })),
-  { ssr: false }
-);
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
 import { giftOutlineSvg } from "@ui/svg";
@@ -27,6 +17,23 @@ import { EcencyConfigManager } from "@/config";
 import { PostTipsResponse } from "@ecency/sdk";
 import { Popover, PopoverContent } from "@/features/ui";
 import { formattedNumber } from "@/utils";
+
+// The tip transfer modal is interaction-gated (renders only when the dialog
+// opens) and drags the write-flow → @ecency/wallets → bip39 graph. Load it
+// lazily so that heavy chunk stays off the eager feed/profile/community read
+// path (previously pulled in eagerly via EntryVoteBtn → EntryVoteDialog →
+// EntryTipBtn). ssr:false is correct: it never renders during SSR.
+const Transfer = dynamic(
+  () => import("@/features/shared/transfer").then((m) => ({ default: m.Transfer })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center min-h-40 opacity-60">
+        {i18next.t("g.loading")}
+      </div>
+    )
+  }
+);
 
 interface Props {
   entry: Entry;
