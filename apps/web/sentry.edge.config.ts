@@ -18,6 +18,11 @@ Sentry.init({
   // that don't bump the package.json version.
   release: process.env.SENTRY_RELEASE ?? appPackage.version,
 
+  // Tag staging (alpha) vs production so staging noise doesn't trip the prod
+  // "Critical errors" alert. Set via the Dockerfile ENV from CI
+  // (staging.yml="staging"); defaults to "production".
+  environment: process.env.SENTRY_ENVIRONMENT ?? "production",
+
   // Setting this option to true will print useful information to the console while you're setting up Sentry.
   debug: false,
   _experiments: { enableLogs: true },

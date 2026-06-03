@@ -68,6 +68,7 @@ jobs:
             SENTRY_ORG=ecency
             SENTRY_PROJECT=ecency-next
             SENTRY_RELEASE=ecency-next@${{ github.sha }}
+            SENTRY_ENVIRONMENT=staging
             NEXT_PUBLIC_GMAPS_API_KEY=${{ secrets.GMAPS_API_KEY }}
             NEXT_PUBLIC_GMAPS_MAP_ID=${{ secrets.GMAPS_MAP_ID }}
             PNPM_VERSION=10.18.1

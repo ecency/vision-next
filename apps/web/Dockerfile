@@ -34,10 +34,14 @@ ARG SENTRY_PROJECT
 # Sentry.init agree on the same release identifier — even when the
 # package.json version is unchanged across deploys.
 ARG SENTRY_RELEASE
+# Deploy target ("staging" for alpha, "production" for prod). Inlined into the
+# client bundle at build time (next.config.js `env`) and read by Sentry.init.
+ARG SENTRY_ENVIRONMENT
 ENV SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN}
 ENV SENTRY_ORG=${SENTRY_ORG}
 ENV SENTRY_PROJECT=${SENTRY_PROJECT}
 ENV SENTRY_RELEASE=${SENTRY_RELEASE}
+ENV SENTRY_ENVIRONMENT=${SENTRY_ENVIRONMENT}
 ENV SENTRY_LOG_LEVEL=debug
 
 # Single build that emits the EXACT assets we ship
@@ -73,6 +77,10 @@ ENV NODE_ENV=production
 # build) and server (tagged at runtime).
 ARG SENTRY_RELEASE
 ENV SENTRY_RELEASE=${SENTRY_RELEASE}
+# Same for the environment label, so the server/edge runtimes tag events with
+# the same staging/production value the client bundle was built with.
+ARG SENTRY_ENVIRONMENT
+ENV SENTRY_ENVIRONMENT=${SENTRY_ENVIRONMENT}
 
 # Copy runtime artifacts from the single build
 COPY --from=base /var/app/package.json ./package.json

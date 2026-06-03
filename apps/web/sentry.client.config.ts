@@ -18,6 +18,15 @@ const SENTRY_CONFIG: Sentry.BrowserOptions = {
   // bundle via the `env` block in next.config.js.
   release: process.env.SENTRY_RELEASE ?? appPackage.version,
 
+  // Distinguish staging (alpha) from production. Alpha runs an otherwise
+  // identical prod build (same DSN, NODE_ENV=production, often the same commit
+  // SHA), so without this label its errors are tagged "production" and trip the
+  // prod "Critical errors" alert + eat prod quota. CI stamps SENTRY_ENVIRONMENT
+  // per deploy (staging.yml="staging", master.yml="production"); inlined into
+  // the client bundle via the `env` block in next.config.js. Defaults to
+  // "production" for local/unset builds.
+  environment: process.env.SENTRY_ENVIRONMENT ?? "production",
+
   tracesSampleRate: 0,
   integrations: (defaults) =>
     defaults.filter((i) => i.name !== "BrowserTracing"),
