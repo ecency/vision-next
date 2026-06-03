@@ -22,10 +22,17 @@ export function EntryPageStaticBody({ entry }: Props) {
   // the cover via its fetchpriority="high" hint. This deliberately stays out of
   // the sanitized body HTML — the renderer's attribute whitelist is unchanged.
   // Posts without a recorded ratio leave the property unset → the rule no-ops.
+  // image_ratios lives in json_metadata — arbitrary, user-controlled data on the
+  // blockchain that any client or direct broadcast can set to any value. Clamp
+  // to a sane range so a hostile/buggy ratio (e.g. 0.001 → a ~800000px-tall box)
+  // can't break the page layout. object-fit:contain (entry.scss) letterboxes any
+  // residual mismatch from clamping.
   const meta = entry.json_metadata as { image_ratios?: (string | number)[] } | undefined;
-  const coverRatio = Number(meta?.image_ratios?.[0]);
+  const rawRatio = Number(meta?.image_ratios?.[0]);
+  const coverRatio =
+    Number.isFinite(rawRatio) && rawRatio > 0 ? Math.min(Math.max(rawRatio, 0.1), 10) : 0;
   const coverStyle =
-    Number.isFinite(coverRatio) && coverRatio > 0
+    coverRatio > 0
       ? ({ "--cover-ar": String(coverRatio), "--cover-w": "100%" } as CSSProperties)
       : undefined;
 
