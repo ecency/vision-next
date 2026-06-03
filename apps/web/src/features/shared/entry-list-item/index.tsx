@@ -128,7 +128,11 @@ export function EntryListItemComponent({
       </div>
       <div className="item-body">
         <EntryListItemNsfwContent entry={entryProp} />
-        <EntryListItemMutedContent entry={entryProp} isThumbLcp={order < 2 && !promoted} />
+        {/* Eager/high-priority for the two visually-topmost items (the LCP
+            candidates). Interleaved promoted items have order=4 so they're
+            already excluded; on the /promoted section the top items ARE
+            promoted, so don't strip their priority — order alone is correct. */}
+        <EntryListItemMutedContent entry={entryProp} isThumbLcp={order < 2} />
       </div>
       <div>
         <div className="w-full flex md:w-auto md:inline-flex items-center gap-2 md:gap-3 rounded-xl border border-[--border-color] px-2 py-1 text-sm">
