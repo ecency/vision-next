@@ -10,7 +10,11 @@ import React, {
 } from "react";
 import { createRoot } from "react-dom/client";
 import "./hive-post-link-extension.scss";
-import { findPostLinkElements, isWaveLikePost } from "../functions";
+import {
+  findPostLinkElements,
+  isInvalidPermlinkLink,
+  isWaveLikePost,
+} from "../functions";
 
 // In-memory session cache
 const simpleCache = new Map<
@@ -21,21 +25,6 @@ const simpleCache = new Map<
     image: string | undefined;
   }
 >();
-
-function isInvalidPermlinkLink(path: string): boolean {
-  try {
-    const parts = new URL(`https://ecency.com${path}`).pathname.split("/");
-    const permlink = decodeURIComponent(parts[3] || "");
-
-    const isImage = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(permlink);
-    const hasBadChars = /[?#]/.test(permlink);
-    const isClean = /^[a-z0-9-]+$/.test(permlink); // Hive-style
-
-    return !isClean || isImage || hasBadChars;
-  } catch {
-    return true;
-  }
-}
 
 export function HivePostLinkRenderer({ link }: { link: string }) {
   const [data, setData] = useState<{
