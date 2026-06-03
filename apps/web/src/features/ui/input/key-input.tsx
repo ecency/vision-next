@@ -70,10 +70,10 @@ export const KeyInput = forwardRef<
         if (isWif(key)) {
           privateKey = PrivateKey.fromString(key);
         } else {
-          // Lazy-load Hive key derivation (pulls the bip39 wordlists, ~220KB)
-          // only when a non-WIF key is actually entered for signing, so it
-          // stays out of the eager bundle loaded on every feed/profile/
-          // community page (key-input is reached from always-mounted signing UI).
+          // Lazy-load Hive key derivation so @ecency/wallets (heavy crypto
+          // deps) stays out of the eager bundle loaded on every feed/profile/
+          // community page. Only reached when a non-WIF key is entered for
+          // signing (key-input is rendered by always-mounted signing UI).
           const { deriveHiveKeys, detectHiveKeyDerivation } = await import("@ecency/wallets");
           const derivation = await detectHiveKeyDerivation(
             activeUser.username,

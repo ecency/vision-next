@@ -1010,9 +1010,13 @@ async function detectHiveKeyDerivation(username, seed, type = "active") {
     getAccountFullQueryOptions(uname)
   );
   const auth = account[type];
-  const bip44 = deriveHiveKeys(seed);
-  const bip44Pub = type === "owner" ? bip44.ownerPubkey : bip44.activePubkey;
-  const matchBip44 = auth.key_auths.some(([pub]) => String(pub) === bip44Pub);
+  let matchBip44 = false;
+  try {
+    const bip44 = deriveHiveKeys(seed);
+    const bip44Pub = type === "owner" ? bip44.ownerPubkey : bip44.activePubkey;
+    matchBip44 = auth.key_auths.some(([pub]) => String(pub) === bip44Pub);
+  } catch {
+  }
   if (matchBip44) return "bip44";
   const legacyPub = PrivateKey.fromLogin(uname, seed, type).createPublic().toString();
   const matchLegacy = auth.key_auths.some(([pub]) => String(pub) === legacyPub);

@@ -28,4 +28,13 @@ describe("deriveHiveKeys (BIP44 / @scure/bip39)", () => {
       "5Jf2wWfXWdXhSXax2cmNfKrVibp1ctLBm6f671x2GvET4S4DSYo"
     );
   });
+
+  it("throws on a non-mnemonic input (e.g. a legacy master password)", () => {
+    // @scure/bip39 validates the mnemonic and rejects arbitrary strings, unlike
+    // the old bip39. Callers that probe BIP44 on raw user input (e.g.
+    // detectHiveKeyDerivation) MUST catch this so master-password login/signing
+    // still falls through to PrivateKey.fromLogin instead of aborting.
+    expect(() => deriveHiveKeys("P5KQXMH7q9masterpasswordexample")).toThrow();
+    expect(() => deriveHiveKeys("super secret hunter two phrase")).toThrow();
+  });
 });
