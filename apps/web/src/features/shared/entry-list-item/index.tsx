@@ -128,7 +128,7 @@ export function EntryListItemComponent({
       </div>
       <div className="item-body">
         <EntryListItemNsfwContent entry={entryProp} />
-        <EntryListItemMutedContent entry={entryProp} />
+        <EntryListItemMutedContent entry={entryProp} isThumbLcp={order < 2 && !promoted} />
       </div>
       <div>
         <div className="w-full flex md:w-auto md:inline-flex items-center gap-2 md:gap-3 rounded-xl border border-[--border-color] px-2 py-1 text-sm">
