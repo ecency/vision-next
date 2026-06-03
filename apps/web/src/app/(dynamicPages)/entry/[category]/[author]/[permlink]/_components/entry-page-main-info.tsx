@@ -24,6 +24,11 @@ export function EntryPageMainInfo({ entry }: Props) {
 
   return (
     <div className=" bg-white/80 dark:bg-dark-200/90 rounded-xl flex flex-col mb-4 md:mb-6 lg:mb-8 mt-2 lg:mt-4">
+      {!isComment && (
+        <h1 className="px-3 md:px-4 pt-3 md:pt-4 pb-1 text-2xl md:text-[30px] lg:text-[38px] font-semibold !leading-[1.25] break-words !font-[var(--font-lora)]">
+          {entry.title}
+        </h1>
+      )}
       <div className="p-2 md:p-3 grid grid-cols-1 sm:grid-cols-[1fr_max-content] w-full items-end gap-2">
         <div className="flex items-center gap-2 md:gap-3 truncate overflow-hidden">
           <ProfileLink username={entry.author}>

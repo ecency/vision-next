@@ -68,7 +68,7 @@ export function EntryPendingIndexView({ entry, isTimedOut }: Props) {
                 </div>
               </div>
 
-              <h1 className="px-2 lg:px-0 text-xl sm:text-2xl md:text-[32px] lg:text-[42px] !leading-[1.5] mt-4 mb-6 break-words !font-[var(--font-lora)]">
+              <h1 className="px-2 lg:px-0 text-2xl md:text-[30px] lg:text-[38px] font-semibold !leading-[1.25] mt-4 mb-6 break-words !font-[var(--font-lora)]">
                 {entry.title}
               </h1>
 
