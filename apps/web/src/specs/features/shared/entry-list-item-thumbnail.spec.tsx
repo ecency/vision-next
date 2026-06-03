@@ -1,17 +1,23 @@
 import React from "react";
 import { render, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Render the cover thumbnail as an SSR-discoverable proxied <img> (no client
-// blob→base64). Stub the render-helper proxy fns + the row-default store.
+// blob→base64). Stub the render-helper proxy fns + a configurable list store.
+const store = vi.hoisted(() => ({ listStyle: "row" as "row" | "grid" }));
 vi.mock("@/core/global-store", () => ({
-  useGlobalStore: (selector: any) => selector({ listStyle: "row" })
+  useGlobalStore: (selector: any) => selector({ listStyle: store.listStyle })
 }));
 vi.mock("@/features/shared", () => ({
   EntryLink: ({ children, className }: any) => <div className={className}>{children}</div>
 }));
-vi.mock("next/image", () => ({ default: (props: any) => <img alt="" {...props} /> }));
+// next/image stub that surfaces `priority` so the grid branch can be asserted.
+vi.mock("next/image", () => ({
+  default: ({ src, alt, priority, onError }: any) => (
+    <img src={src} alt={alt ?? ""} data-priority={priority ? "true" : "false"} onError={onError} />
+  )
+}));
 vi.mock("@ecency/render-helper", () => ({
   catchPostImage: vi.fn((entry: any, w?: number) =>
     entry?.__noimg
@@ -42,6 +48,10 @@ const mainImg = (c: HTMLElement) =>
   Array.from(c.querySelectorAll("img")).find((i) => i.getAttribute("src")?.includes("width=600"));
 
 describe("EntryListItemThumbnail — SSR-discoverable LCP image", () => {
+  beforeEach(() => {
+    store.listStyle = "row";
+  });
+
   it("renders a proxied <img src>+srcset in markup (not a base64 data URL)", () => {
     const { container } = render(
       <EntryListItemThumbnail entry={entry} entryProp={entry} isCrossPost={false} noImage={NO_IMG} />
@@ -51,7 +61,28 @@ describe("EntryListItemThumbnail — SSR-discoverable LCP image", () => {
     expect(img.getAttribute("src")!.startsWith("data:")).toBe(false);
     expect(img.getAttribute("src")).toContain("i.ecency.com/p/");
     expect(img.getAttribute("srcset")).toContain("600w");
-    expect(img.getAttribute("sizes")).toContain("700px");
+    // Thumbnail-sized (150px desktop), not the post-body 700px — avoids
+    // over-fetching a large candidate for the small row thumbnail.
+    expect(img.getAttribute("sizes")).toContain("150px");
+    expect(img.getAttribute("sizes")).not.toContain("700px");
+  });
+
+  it("renders the grid (next/image) variant with proxied src + priority for the LCP item", () => {
+    store.listStyle = "grid";
+    const { container } = render(
+      <EntryListItemThumbnail
+        entry={entry}
+        entryProp={entry}
+        isCrossPost={false}
+        noImage={NO_IMG}
+        isThumbLcp
+      />
+    );
+    const img = container.querySelector("img[data-priority]")!;
+    expect(img).toBeTruthy();
+    expect(img.getAttribute("src")!.startsWith("data:")).toBe(false);
+    expect(img.getAttribute("src")).toContain("i.ecency.com/p/");
+    expect(img.getAttribute("data-priority")).toBe("true");
   });
 
   it("marks the above-fold item eager+high priority, others lazy", () => {

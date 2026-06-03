@@ -2,8 +2,14 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Entry } from "@/entities";
 import { useGlobalStore } from "@/core/global-store";
 import { EntryLink } from "@/features/shared";
-import { buildSrcSet, catchPostImage, IMAGE_SIZES, proxifyImageSrc } from "@ecency/render-helper";
+import { buildSrcSet, catchPostImage, proxifyImageSrc } from "@ecency/render-helper";
 import Image from "next/image";
+
+// The row thumbnail box is full-width on mobile but a fixed 150px on desktop
+// (.item-image in _index.scss). Use a thumbnail-sized `sizes` — NOT the
+// post-body IMAGE_SIZES (700px) — so desktop picks a small srcset candidate
+// instead of over-fetching an ~800w image for a 150px slot.
+const THUMB_SIZES = "(max-width: 768px) 100vw, 150px";
 
 interface Props {
   entry: Entry;
@@ -81,6 +87,7 @@ export function EntryListItemThumbnail({
                 className="w-full h-full object-cover mx-auto relative"
                 src={displaySrc}
                 alt={entry.title}
+                priority={isThumbLcp}
                 onError={() => setErrored(true)}
               />
             ) : (
@@ -88,7 +95,7 @@ export function EntryListItemThumbnail({
                 className="w-full relative"
                 src={displaySrc}
                 srcSet={hasFullImage && srcSet ? srcSet : undefined}
-                sizes={hasFullImage && srcSet ? IMAGE_SIZES : undefined}
+                sizes={hasFullImage && srcSet ? THUMB_SIZES : undefined}
                 alt={entry.title}
                 loading={isThumbLcp ? "eager" : "lazy"}
                 fetchPriority={isThumbLcp ? "high" : undefined}
