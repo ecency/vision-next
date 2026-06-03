@@ -292,6 +292,18 @@
   height: auto;
 }
 
+// Reserve the cover (LCP) image's box from the aspect ratio the editor recorded
+// at publish time (passed as --cover-ar on #post-body) so the body can't reflow
+// when the image loads — the single layout shift GTmetrix/Lighthouse flags on
+// post pages. Targets the cover via the fetchpriority="high" hint the renderer
+// already sets on the first image. When the ratio is unknown the custom
+// properties are absent, so this falls back to `auto` and is a no-op.
+#post-body img[fetchpriority="high"] {
+  aspect-ratio: var(--cover-ar, auto);
+  width: var(--cover-w, auto);
+  height: auto;
+}
+
 .visible {
   .avatar-fixed {
     opacity: 1 !important;

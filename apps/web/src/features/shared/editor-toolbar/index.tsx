@@ -40,7 +40,12 @@ import { AddLink } from "@/features/shared/editor-toolbar/add-link";
 import { AddImageMobile } from "@/features/shared/editor-toolbar/add-image-mobile";
 import useMount from "react-use/lib/useMount";
 import { EcencyConfigManager } from "@/config";
-import { useOptionalUploadTracker } from "@/app/publish/_hooks";
+// Import directly from the file, NOT the "@/app/publish/_hooks" barrel:
+// the barrel re-exports use-publish-editor (the full TipTap/ProseMirror graph,
+// ~400KB), so importing the tracker through it drags the entire editor into
+// every editor-toolbar consumer — including the read-only entry page. The
+// tracker itself only depends on React.
+import { useOptionalUploadTracker } from "@/app/publish/_hooks/use-upload-tracker";
 
 interface Props {
   sm?: boolean;

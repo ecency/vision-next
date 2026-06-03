@@ -7,8 +7,16 @@ import { useContext, useEffect, useState } from "react";
 import { SafeTweet } from "@/features/shared/safe-tweet";
 import TransactionSigner from "@/features/shared/transactions/transaction-signer";
 import { EntryPageContext } from "./context";
-import { EntryPageEdit } from "./entry-page-edit";
+import dynamic from "next/dynamic";
 import { makeEntryPath } from "@/utils";
+
+// The edit composer pulls the Comment editor (toolbar, image/video upload,
+// polls, gif picker). It only renders in edit mode, so keep it out of the
+// read-path bundle and load it on demand when the user enters editing.
+const EntryPageEdit = dynamic(
+  () => import("./entry-page-edit").then((m) => m.EntryPageEdit),
+  { ssr: false }
+);
 
 interface Props {
   entry: Entry;
