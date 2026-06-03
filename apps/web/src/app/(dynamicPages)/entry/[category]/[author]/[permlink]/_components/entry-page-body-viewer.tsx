@@ -7,8 +7,25 @@ import { useContext, useEffect, useState } from "react";
 import { SafeTweet } from "@/features/shared/safe-tweet";
 import TransactionSigner from "@/features/shared/transactions/transaction-signer";
 import { EntryPageContext } from "./context";
-import { EntryPageEdit } from "./entry-page-edit";
+import dynamic from "next/dynamic";
 import { makeEntryPath } from "@/utils";
+import i18next from "i18next";
+
+// The edit composer pulls the Comment editor (toolbar, image/video upload,
+// polls, gif picker). It only renders in edit mode, so keep it out of the
+// read-path bundle and load it on demand when the user enters editing. The
+// loading fallback avoids a blank slot during the first chunk download.
+const EntryPageEdit = dynamic(
+  () => import("./entry-page-edit").then((m) => m.EntryPageEdit),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center min-h-40 opacity-60">
+        {i18next.t("g.loading")}
+      </div>
+    )
+  }
+);
 
 interface Props {
   entry: Entry;
