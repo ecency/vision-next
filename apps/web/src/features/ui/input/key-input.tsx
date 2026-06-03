@@ -16,7 +16,6 @@ import {
 } from "react";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
-import { deriveHiveKeys, detectHiveKeyDerivation } from "@ecency/wallets";
 import { error } from "@/features/shared";
 import clsx from "clsx";
 
@@ -71,6 +70,11 @@ export const KeyInput = forwardRef<
         if (isWif(key)) {
           privateKey = PrivateKey.fromString(key);
         } else {
+          // Lazy-load Hive key derivation (pulls the bip39 wordlists, ~220KB)
+          // only when a non-WIF key is actually entered for signing, so it
+          // stays out of the eager bundle loaded on every feed/profile/
+          // community page (key-input is reached from always-mounted signing UI).
+          const { deriveHiveKeys, detectHiveKeyDerivation } = await import("@ecency/wallets");
           const derivation = await detectHiveKeyDerivation(
             activeUser.username,
             key,

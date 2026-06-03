@@ -1,4 +1,9 @@
-import { mnemonicToSeedSync } from "bip39";
+// @scure/bip39 (same @noble/@scure family as @scure/bip32 used below).
+// mnemonicToSeedSync is pure PBKDF2-HMAC-SHA512 over the mnemonic string — it
+// uses no wordlist, so this is byte-identical to bip39's output (verified
+// against BIP39 test vectors) while dropping bip39's ~164KB of 10 bundled
+// language wordlists from the app bundle.
+import { mnemonicToSeedSync } from "@scure/bip39";
 import { HDKey } from "@scure/bip32";
 import { PrivateKey } from "@ecency/sdk";
 

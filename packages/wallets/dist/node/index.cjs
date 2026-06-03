@@ -4,7 +4,7 @@ var sdk = require('@ecency/sdk');
 var reactQuery = require('@tanstack/react-query');
 var R = require('remeda');
 var lruCache = require('lru-cache');
-var bip39 = require('bip39');
+var bip39 = require('@scure/bip39');
 var bip32 = require('@scure/bip32');
 
 function _interopNamespace(e) {

@@ -3,7 +3,7 @@ export { AssetOperation, HIVE_ACCOUNT_OPERATION_GROUPS, HIVE_OPERATION_LIST, HIV
 import { useMutation, useQuery, queryOptions, useQueryClient } from '@tanstack/react-query';
 import * as R from 'remeda';
 import { LRUCache } from 'lru-cache';
-import { mnemonicToSeedSync } from 'bip39';
+import { mnemonicToSeedSync } from '@scure/bip39';
 import { HDKey } from '@scure/bip32';
 
 var __defProp = Object.defineProperty;
