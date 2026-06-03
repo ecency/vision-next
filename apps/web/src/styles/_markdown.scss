@@ -511,3 +511,86 @@
     margin: 10px 0;
   }
 }
+
+// Author (@user) and tag (#tag) chips.
+//
+// These chips are emitted server-side by @ecency/render-helper (renderPostBody
+// → linkify) as `.er-author-link` / `.er-tag-link` markup, so their layout must
+// be styled deterministically wherever rendered output appears — post bodies
+// (`.markdown-view`), wave/thread items (`.thread-render`, `.waves-list-item`,
+// which deliberately exclude `.er-author-link-image` from their own image
+// sizing), comment previews, decks, etc. The rules are intentionally global
+// (not nested under `.markdown-view`) to match every render surface.
+//
+// Previously these lived in component-local SCSS imported only by the unused
+// author-link/tag-link enhancer modules, and reached the bundle solely because
+// the barrel `export *` was not tree-shaken. Once tree-shaking was enabled the
+// orphaned modules — and their styles — were pruned, collapsing the chips to
+// unstyled inline content. Owning the rules here keeps them load-bearing.
+.er-author-link {
+  vertical-align: middle;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 0.25rem;
+  text-decoration: none;
+  color: #357ce6;
+  border: 1px solid var(--border-color, #dee2e6);
+  padding: 0.375rem 0.675rem 0.375rem 0.375rem;
+  font-size: 0.875rem !important;
+  border-radius: 1rem;
+  max-width: 100%;
+
+  .er-author-link-content {
+    display: flex;
+    flex-direction: column;
+    line-height: 1;
+    min-width: 0;
+  }
+
+  .er-author-link-label {
+    font-size: 0.5rem !important;
+    font-weight: 500;
+    letter-spacing: 0.05rem;
+    color: #8d8d8d;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .er-author-link-image {
+    border-radius: 1rem;
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+    min-width: 1.5rem;
+    aspect-ratio: auto !important;
+    object-fit: cover;
+  }
+
+  &::after {
+    content: none !important;
+  }
+
+  &:hover {
+    color: #1b68da;
+  }
+}
+
+.er-tag-link {
+  vertical-align: middle;
+  display: inline-block;
+  text-decoration: none;
+  color: #357ce6;
+  border: 1px solid var(--border-color, #dee2e6);
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem !important;
+  border-radius: 1rem;
+  white-space: nowrap;
+  box-sizing: border-box;
+
+  &::after {
+    content: none !important;
+  }
+
+  &:hover {
+    color: #1b68da;
+  }
+}
