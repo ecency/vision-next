@@ -24,7 +24,8 @@ export function PublishModeHeader({ label, lastSaved }: Props) {
         <span>{label}</span>
         {lastSaved && (
           <span className="text-gray-500 dark:text-gray-400">
-            {i18next.t("publish.auto-save")}: {lastSaved.toLocaleTimeString()}
+            {i18next.t("publish.auto-save")}:{" "}
+          {lastSaved.toLocaleTimeString(i18next.language || undefined)}
           </span>
         )}
       </div>
