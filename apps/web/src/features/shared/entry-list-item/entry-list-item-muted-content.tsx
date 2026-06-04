@@ -85,13 +85,15 @@ export function EntryListItemMutedContent({ entry: entryProp, isThumbLcp }: Prop
 
   const shouldShowMutedOverlay = showModMuted || showHidden || showMuted || showLowTrust;
 
-  const mutedMessage = showModMuted
-    ? i18next.t("g.modmuted-message")
-    : showHidden
-      ? i18next.t("g.hidden-message")
-      : showMuted
-        ? i18next.t("g.muted-message")
-        : i18next.t("g.lowtrust-message");
+  const mutedMessage = !shouldShowMutedOverlay
+    ? ""
+    : showModMuted
+      ? i18next.t("g.modmuted-message")
+      : showHidden
+        ? i18next.t("g.hidden-message")
+        : showMuted
+          ? i18next.t("g.muted-message")
+          : i18next.t("g.lowtrust-message");
 
   const handleReveal = (e: React.MouseEvent) => {
     e.preventDefault();

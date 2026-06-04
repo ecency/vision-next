@@ -44,20 +44,32 @@ const IMAGE_HOSTS = [
   "media.giphy.com"
 ];
 const IMAGE_EXT_RE = /\.(jpe?g|png|gif|webp|svg|bmp|avif)(\?|#|$)/i;
-const URL_RE = /https?:\/\/[^\s)<>"'\]]+/gi;
+// Match absolute AND protocol-relative URLs ("//host/..."), so the check can't be
+// evaded with `[promo](//shop.example)` (the renderer allows protocol-relative hrefs).
+const URL_RE = /(?:https?:)?\/\/[^\s)<>"'\]]+/gi;
+// URLs in prose are commonly followed by punctuation ("https://ecency.com, and...");
+// strip it so the host parses correctly and we don't false-positive on internal links.
+const TRAILING_PUNCT_RE = /[.,;:!?'"]+$/;
 
 function hostOf(url: string): string {
-  const m = /^https?:\/\/([^/?#]+)/i.exec(url);
+  const m = /^(?:https?:)?\/\/([^/?#]+)/i.exec(url);
   return m ? m[1].toLowerCase().replace(/^www\./, "") : "";
 }
 
-function isInternalOrImage(url: string): boolean {
+function isExternalPromoLink(rawUrl: string): boolean {
+  const url = rawUrl.replace(TRAILING_PUNCT_RE, "");
   if (IMAGE_EXT_RE.test(url)) {
-    return true;
+    return false; // embedded image, not a backlink
   }
   const host = hostOf(url);
+  if (!host.includes(".")) {
+    return false; // not a real domain (e.g. a stray "//something")
+  }
   const matches = (h: string) => host === h || host.endsWith("." + h);
-  return INTERNAL_HOSTS.some(matches) || IMAGE_HOSTS.some(matches);
+  if (INTERNAL_HOSTS.some(matches) || IMAGE_HOSTS.some(matches)) {
+    return false; // Hive/Ecency or image host
+  }
+  return true;
 }
 
 /** True if the post body contains an outbound (non-Hive, non-image) link. */
@@ -69,7 +81,7 @@ export function hasExternalLink(body: string | undefined | null): boolean {
   if (!matches) {
     return false;
   }
-  return matches.some((url) => !isInternalOrImage(url));
+  return matches.some(isExternalPromoLink);
 }
 
 /**

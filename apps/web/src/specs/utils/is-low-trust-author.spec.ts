@@ -30,6 +30,26 @@ describe("hasExternalLink", () => {
     expect(hasExternalLink(undefined)).toBe(false);
     expect(hasExternalLink("plain text, no links")).toBe(false);
   });
+
+  it("strips trailing prose punctuation (no false positive on internal link + comma)", () => {
+    expect(hasExternalLink("see https://ecency.com, and enjoy")).toBe(false);
+  });
+
+  it("still detects an outbound link followed by punctuation", () => {
+    expect(hasExternalLink("visit https://shop.example.")).toBe(true);
+  });
+
+  it("detects protocol-relative outbound links", () => {
+    expect(hasExternalLink("[promo](//shop.example/page)")).toBe(true);
+  });
+
+  it("ignores protocol-relative internal links", () => {
+    expect(hasExternalLink("see //peakd.com/@a/b")).toBe(false);
+  });
+
+  it("ignores stray // tokens without a domain", () => {
+    expect(hasExternalLink("a // b and 10//5")).toBe(false);
+  });
 });
 
 describe("isLowTrustSeoPost", () => {
