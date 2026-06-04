@@ -1,4 +1,5 @@
 import { useUploadImageMutation } from "@/api/sdk-mutations";
+import { extForImageType } from "@/utils";
 import { Button, Popover, PopoverContent } from "@/features/ui";
 import { proxifyImageSrc } from "@ecency/render-helper";
 import i18next from "i18next";
@@ -64,7 +65,12 @@ export function PublishEditorImageViewer({
         try {
           const response = await fetch(src);
           const blob = await response.blob();
-          const file = new File([blob], alt, { type: blob.type });
+          // Pasted images carry no name; `alt` is the caption (often empty), so
+          // deriving the filename from it produced an extension-less upload that
+          // the image server rejects with 400. Always build a valid name+ext.
+          const file = new File([blob], `pasted-image-${Date.now()}.${extForImageType(blob.type)}`, {
+            type: blob.type
+          });
           const { url } = await uploadImage({ file });
           updateAttributes({ src: url });
         } catch {
@@ -72,7 +78,7 @@ export function PublishEditorImageViewer({
         }
       })();
     }
-  }, [isBlob, src, alt, uploadImage, updateAttributes]);
+  }, [isBlob, src, uploadImage, updateAttributes]);
 
   return (
     <NodeViewWrapper
