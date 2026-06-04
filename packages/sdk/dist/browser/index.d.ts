@@ -7912,7 +7912,7 @@ declare function getProfiles(accounts: string[], observer?: string): Promise<Pro
  */
 declare function verifyPostOnAlternateNode(author: string, permlink: string, observer: string): Promise<Entry$1 | null>;
 
-declare function signUp(username: string, email: string, referral: string): Promise<ApiResponse<Record<string, unknown>>>;
+declare function signUp(username: string, email: string, referral: string, captchaToken?: string): Promise<ApiResponse<Record<string, unknown>>>;
 declare function subscribeEmail(email: string): Promise<ApiResponse<Record<string, unknown>>>;
 declare function usrActivity(code: string | undefined, ty: number, bl?: string | number, tx?: string | number): Promise<void>;
 declare function getNotifications(code: string | undefined, filter: string | null, since?: string | null, user?: string | null): Promise<ApiNotification[]>;

@@ -1,6 +1,6 @@
 "use client";
 
-import ReCAPTCHA from "react-google-recaptcha";
+import { Turnstile, type TurnstileHandle } from "@/features/shared/turnstile";
 import { Spinner } from "@ui/spinner";
 import { FormControl } from "@ui/input";
 import { Button } from "@ui/button";
@@ -17,6 +17,11 @@ import { getUsernameError, handleInvalid, handleOnInput } from "@/utils";
 import { checkSvg } from "@ui/svg";
 import { useGlobalStore } from "@/core/global-store";
 import { useQueryClient } from "@tanstack/react-query";
+
+// Public Cloudflare Turnstile sitekey for signup (Managed mode). The token is
+// verified server-side; the secret never reaches the client.
+const TURNSTILE_SITEKEY =
+  process.env.NEXT_PUBLIC_TURNSTILE_SITEKEY || "0x4AAAAAADe6jH7FIi9dBzgR";
 
 export function FreeSignUp() {
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
@@ -36,11 +41,12 @@ export function FreeSignUp() {
   const [lockReferral, setLockReferral] = useState(false);
   const [inProgress, setInProgress] = useState(false);
   const [done, setDone] = useState(false);
-  const [isVerified, setIsVerified] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState("");
   const [isDisabled, setIsDisabled] = useState(false);
   const [registrationError, setRegistrationError] = useState("");
 
   const form = useRef<HTMLFormElement>(null);
+  const turnstileRef = useRef<TurnstileHandle>(null);
 
   const params = useSearchParams();
   const router = useRouter();
@@ -147,14 +153,17 @@ export function FreeSignUp() {
 
     setInProgress(true);
     try {
-      if (!isVerified) {
+      if (!captchaToken) {
         error(i18next.t("login.captcha-check-required"));
         return;
       }
 
-      const response = await signUp(username, email, referral);
+      const response = await signUp(username, email, referral, captchaToken);
       if (response?.data?.code) {
         setRegistrationError(String(response.data.code));
+        // Turnstile tokens are single-use; drop it and re-challenge so a retry works.
+        setCaptchaToken("");
+        turnstileRef.current?.reset();
       } else {
         setDone(true);
         setLsReferral(undefined);
@@ -166,14 +175,14 @@ export function FreeSignUp() {
           setRegistrationError(errorData.message);
         }
       }
+      // Token is consumed on a verification attempt; reset for the next try.
+      setCaptchaToken("");
+      turnstileRef.current?.reset();
     } finally {
       setInProgress(false);
     }
   };
 
-  const captchaCheck = (value: string | null) => {
-    setIsVerified(!!value);
-  };
 
   return (
     <div className="max-w-[500px] mx-auto">
@@ -238,10 +247,11 @@ export function FreeSignUp() {
                 <small className="text-red pl-3">{referralError}</small>
               </div>
               <div className="my-4">
-                <ReCAPTCHA
-                  sitekey="6LdEi_4iAAAAAO_PD6H4SubH5Jd2JjgbIq8VGwKR"
-                  onChange={captchaCheck}
-                  size="normal"
+                <Turnstile
+                  ref={turnstileRef}
+                  sitekey={TURNSTILE_SITEKEY}
+                  onVerify={setCaptchaToken}
+                  onExpire={() => setCaptchaToken("")}
                 />
               </div>
               {registrationError && (
@@ -252,7 +262,7 @@ export function FreeSignUp() {
                 type="submit"
                 disabled={
                   inProgress ||
-                  !isVerified ||
+                  !captchaToken ||
                   isDisabled ||
                   !!usernameError ||
                   !!emailError ||

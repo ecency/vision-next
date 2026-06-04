@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.9
+
+### Patch Changes
+
+- Server-side CAPTCHA: Turnstile on free signup (+ web 4.4.0) (#910)
+
 ## 2.3.8
 
 ### Patch Changes
