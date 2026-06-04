@@ -361,6 +361,7 @@
     "free-account": "Free account",
     "free-account-desc": "Get a full-fledged Hive account, this method has basic checks to make sure botnet doesn't abuse our signup faucet.",
     "register-free": "Register free",
+    "captcha-load-failed": "Security check failed to load. Please disable any ad/script blockers and refresh the page.",
     "buy-account": "Buy account",
     "buy-account-desc": "Get a full-fledged Hive account with no extra checks and few perks such as:",
     "buy-account-li-1": "Instant creation without extra checks and waiting",

@@ -1,6 +1,13 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import i18next from "i18next";
+import React, {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState
+} from "react";
 
 // Cloudflare Turnstile widget. Loads the CF script once and renders an explicit
 // widget, no extra npm dependency. The sitekey is public; the secret is verified
@@ -43,18 +50,51 @@ function loadTurnstileScript(): Promise<void> {
   return scriptPromise;
 }
 
+export interface TurnstileHandle {
+  /** Discard the current (single-use) token and request a fresh challenge. */
+  reset: () => void;
+}
+
 interface Props {
   sitekey: string;
   /** Called with the verification token when the challenge is solved. */
   onVerify: (token: string) => void;
-  /** Called when the token expires or the widget errors — clear any stored token. */
+  /** Called when the token expires/errors or the widget is reset — clear stored token. */
   onExpire?: () => void;
   className?: string;
 }
 
-export function Turnstile({ sitekey, onVerify, onExpire, className }: Props) {
+export const Turnstile = forwardRef<TurnstileHandle, Props>(function Turnstile(
+  { sitekey, onVerify, onExpire, className },
+  ref
+) {
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
+  // Hold the latest callbacks in refs so the widget is rendered once (stable) but
+  // always invokes the current props — safe even if a caller passes inline callbacks.
+  const onVerifyRef = useRef(onVerify);
+  const onExpireRef = useRef(onExpire);
+  onVerifyRef.current = onVerify;
+  onExpireRef.current = onExpire;
+
+  const [failedToLoad, setFailedToLoad] = useState(false);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      reset: () => {
+        if (widgetIdRef.current && window.turnstile) {
+          try {
+            window.turnstile.reset(widgetIdRef.current);
+          } catch {
+            // widget already gone
+          }
+        }
+        onExpireRef.current?.();
+      }
+    }),
+    []
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -66,12 +106,17 @@ export function Turnstile({ sitekey, onVerify, onExpire, className }: Props) {
         }
         widgetIdRef.current = window.turnstile.render(containerRef.current, {
           sitekey,
-          callback: (token: string) => onVerify(token),
-          "expired-callback": () => onExpire?.(),
-          "error-callback": () => onExpire?.()
+          callback: (token: string) => onVerifyRef.current(token),
+          "expired-callback": () => onExpireRef.current?.(),
+          "error-callback": () => onExpireRef.current?.()
         });
       })
-      .catch(() => onExpire?.());
+      .catch(() => {
+        if (!cancelled) {
+          setFailedToLoad(true);
+          onExpireRef.current?.();
+        }
+      });
 
     return () => {
       cancelled = true;
@@ -84,9 +129,15 @@ export function Turnstile({ sitekey, onVerify, onExpire, className }: Props) {
         widgetIdRef.current = null;
       }
     };
-    // sitekey is stable; callbacks intentionally excluded to avoid re-rendering the widget
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sitekey]);
 
+  if (failedToLoad) {
+    return (
+      <div className={className}>
+        <small className="text-red">{i18next.t("sign-up.captcha-load-failed")}</small>
+      </div>
+    );
+  }
+
   return <div ref={containerRef} className={className} />;
-}
+});

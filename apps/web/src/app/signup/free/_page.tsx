@@ -1,6 +1,6 @@
 "use client";
 
-import { Turnstile } from "@/features/shared/turnstile";
+import { Turnstile, type TurnstileHandle } from "@/features/shared/turnstile";
 import { Spinner } from "@ui/spinner";
 import { FormControl } from "@ui/input";
 import { Button } from "@ui/button";
@@ -46,6 +46,7 @@ export function FreeSignUp() {
   const [registrationError, setRegistrationError] = useState("");
 
   const form = useRef<HTMLFormElement>(null);
+  const turnstileRef = useRef<TurnstileHandle>(null);
 
   const params = useSearchParams();
   const router = useRouter();
@@ -160,6 +161,9 @@ export function FreeSignUp() {
       const response = await signUp(username, email, referral, captchaToken);
       if (response?.data?.code) {
         setRegistrationError(String(response.data.code));
+        // Turnstile tokens are single-use; drop it and re-challenge so a retry works.
+        setCaptchaToken("");
+        turnstileRef.current?.reset();
       } else {
         setDone(true);
         setLsReferral(undefined);
@@ -171,6 +175,9 @@ export function FreeSignUp() {
           setRegistrationError(errorData.message);
         }
       }
+      // Token is consumed on a verification attempt; reset for the next try.
+      setCaptchaToken("");
+      turnstileRef.current?.reset();
     } finally {
       setInProgress(false);
     }
@@ -241,6 +248,7 @@ export function FreeSignUp() {
               </div>
               <div className="my-4">
                 <Turnstile
+                  ref={turnstileRef}
                   sitekey={TURNSTILE_SITEKEY}
                   onVerify={setCaptchaToken}
                   onExpire={() => setCaptchaToken("")}
