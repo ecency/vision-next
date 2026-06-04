@@ -16,6 +16,7 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { UilMapPinAlt } from "@tooni/iconscout-unicons-react";
 import { isHiddenPost, useEntryLocation } from "@/utils";
+import { isLowTrustSeoPost } from "@/utils/is-low-trust-author";
 
 interface Props {
   entry: Entry;
@@ -50,10 +51,13 @@ export function EntryListItemMutedContent({ entry: entryProp, isThumbLcp }: Prop
       entry.json_metadata.tags.includes("nsfw"),
     [entry]
   );
+  // SEO/backlink-farm signal: new low-reputation account + an outbound promo link.
+  const isLowTrust = useMemo(() => isLowTrustSeoPost(entry), [entry]);
 
   const [showMuted, setShowMuted] = useState(isPostMuted);
   const [showModMuted, setShowModMuted] = useState(isModMuted);
   const [showHidden, setShowHidden] = useState(isHidden);
+  const [showLowTrust, setShowLowTrust] = useState(isLowTrust);
 
   useEffect(() => {
     setShowMuted(false);
@@ -71,23 +75,32 @@ export function EntryListItemMutedContent({ entry: entryProp, isThumbLcp }: Prop
     setShowHidden(isHidden);
   }, [isHidden]);
 
+  useEffect(() => {
+    setShowLowTrust(isLowTrust);
+  }, [isLowTrust]);
+
   if (nsfw && !showNsfw && !globalNsfw) {
     return <></>;
   }
 
-  const shouldShowMutedOverlay = showModMuted || showHidden || showMuted;
+  const shouldShowMutedOverlay = showModMuted || showHidden || showMuted || showLowTrust;
 
-  const mutedMessage = showModMuted
-    ? i18next.t("g.modmuted-message")
-    : showHidden
-      ? i18next.t("g.hidden-message")
-      : i18next.t("g.muted-message");
+  const mutedMessage = !shouldShowMutedOverlay
+    ? ""
+    : showModMuted
+      ? i18next.t("g.modmuted-message")
+      : showHidden
+        ? i18next.t("g.hidden-message")
+        : showMuted
+          ? i18next.t("g.muted-message")
+          : i18next.t("g.lowtrust-message");
 
   const handleReveal = (e: React.MouseEvent) => {
     e.preventDefault();
     if (showModMuted) setShowModMuted(false);
     if (showHidden) setShowHidden(false);
     if (showMuted) setShowMuted(false);
+    if (showLowTrust) setShowLowTrust(false);
   };
 
   return (

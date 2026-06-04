@@ -2,6 +2,7 @@ import i18next from "i18next";
 import { Tsx } from "@/features/i18n/helper";
 import { Entry } from "@/entities";
 import { isHiddenPost } from "@/utils";
+import { isLowTrustSeoPost } from "@/utils/is-low-trust-author";
 import { EntryPageMightContainsMutedCommentsWarning } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-might-contains-muted-comments-warning";
 
 interface Props {
@@ -13,6 +14,10 @@ export function EntryPageWarnings({ entry }: Props) {
   const isHidden = isHiddenPost(entry?.net_rshares, entry?.active_votes?.length ?? 0);
   const isLowReputation =
     !!entry.stats?.gray && entry.net_rshares >= 0 && entry.author_reputation < 0;
+  // New low-reputation account publishing an outbound promo link (SEO/backlink-farm
+  // signature). We warn rather than hide; the outbound link carries no SEO value
+  // (noindex) and the reader is cautioned.
+  const isLowTrust = isLowTrustSeoPost(entry);
 
   return (
     <>
@@ -38,6 +43,12 @@ export function EntryPageWarnings({ entry }: Props) {
       {isLowReputation && (
         <div className="hidden-warning">
           <span>{i18next.t("entry.lowrep-warning")}</span>
+        </div>
+      )}
+
+      {isLowTrust && (
+        <div className="hidden-warning">
+          <span>{i18next.t("entry.lowtrust-warning")}</span>
         </div>
       )}
       <EntryPageMightContainsMutedCommentsWarning entry={entry} />
