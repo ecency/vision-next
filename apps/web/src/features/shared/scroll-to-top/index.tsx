@@ -1,16 +1,24 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import "./_index.scss";
 import { chevronUpSvg } from "@/features/ui/svg";
 import i18next from "i18next";
 import { Tooltip } from "@ui/tooltip";
+import { useHideOnScroll } from "@/features/shared/navbar/use-hide-on-scroll";
+import clsx from "clsx";
 import useMount from "react-use/lib/useMount";
 import useUnmount from "react-use/lib/useUnmount";
 
 export function ScrollToTop() {
   const timerRef = useRef<any>(undefined);
-  const buttonRef = useRef<HTMLDivElement | null>(null);
+  const [visible, setVisible] = useState(false);
+
+  // Share the bottom navbar + compose FAB's hide-on-scroll signal so the whole
+  // bottom cluster moves as one: it slides away on scroll-down and returns on
+  // scroll-up, keeping this control level with the FAB instead of stranded above
+  // it. (No-op on desktop — the matching transform is mobile-only in the SCSS.)
+  const hidden = useHideOnScroll();
 
   useMount(() => {
     detect();
@@ -21,6 +29,7 @@ export function ScrollToTop() {
   useUnmount(() => {
     window.removeEventListener("scroll", scrollChanged);
     window.removeEventListener("resize", scrollChanged);
+    clearTimeout(timerRef.current);
   });
 
   const scrollChanged = () => {
@@ -29,39 +38,23 @@ export function ScrollToTop() {
   };
 
   const detect = () => {
-    if (!buttonRef.current) {
-      return;
-    }
-
-    if (window.scrollY > window.innerHeight) {
-      buttonRef.current.classList.add("visible");
-      return;
-    }
-
-    buttonRef.current.classList.remove("visible");
+    setVisible(window.scrollY > window.innerHeight);
   };
+
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
   return (
     <Tooltip content={i18next.t("scroll-to-top.title")}>
       <div
-        ref={buttonRef}
-        className="scroll-to-top"
+        className={clsx("scroll-to-top", visible && "visible", hidden && "navbar-hidden")}
         role="button"
         tabIndex={0}
         aria-label={i18next.t("scroll-to-top.title")}
-        onClick={() =>
-          window.scrollTo({
-            top: 0,
-            behavior: "smooth"
-          })
-        }
+        onClick={scrollToTop}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
-            window.scrollTo({
-              top: 0,
-              behavior: "smooth"
-            });
+            scrollToTop();
           }
         }}
       >
