@@ -38,7 +38,8 @@ async function parseJsonResponse<T>(response: Response): Promise<T> {
 export async function signUp(
   username: string,
   email: string,
-  referral: string
+  referral: string,
+  captchaToken?: string
 ): Promise<ApiResponse<Record<string, unknown>>> {
   const fetchApi = getBoundFetch();
   const response = await fetchApi(CONFIG.privateApiHost + "/private-api/account-create", {
@@ -46,7 +47,7 @@ export async function signUp(
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ username, email, referral }),
+    body: JSON.stringify({ username, email, referral, captcha_token: captchaToken }),
   });
 
   const data = await parseJsonResponse<Record<string, unknown>>(response);
