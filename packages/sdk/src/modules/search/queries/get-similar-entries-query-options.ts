@@ -134,8 +134,9 @@ export function getSimilarEntriesQueryOptions(entry: Entry) {
       return collected;
     },
     // Best-effort suggestions strip — never retry-storm a degraded backend.
-    // The web QueryClient sets retry:false globally, but other SDK consumers
-    // (e.g. mobile) may not, so pin it here too.
+    // The web QueryClient only disables retries on the server; the browser
+    // client keeps React Query's default retry (3×) — and other SDK consumers
+    // (e.g. mobile) may too — so pin retry:false here to cover every caller.
     retry: false
   });
 }
