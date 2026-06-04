@@ -106,7 +106,11 @@ export function PublishActionBar({
       transition={{ delay: 0.4 }}
       className="container relative z-[11] justify-between gap-4 px-2 md:px-4 flex flex-col-reverse sm:flex-row sm:items-center max-w-[1024px] py-4 mx-auto publish-action-bar"
     >
+      {/* Community selector leads the group so it stays the prominent anchor on
+          both layouts: inline-first on desktop, and on its own (first) wrapped
+          line on mobile, with the lighter status text trailing after it. */}
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <PublishActionBarCommunity />
         <span className="text-xs text-gray-600 dark:text-gray-400 whitespace-nowrap">
           {i18next.t("publish.new-content")}
         </span>
@@ -115,7 +119,6 @@ export function PublishActionBar({
             {i18next.t("publish.auto-save")}: {lastSaved.toLocaleTimeString()}
           </span>
         )}
-        <PublishActionBarCommunity />
       </div>
       <div className="w-full sm:w-auto flex justify-end sm:justify-normal items-center gap-2 sm:gap-4">
         <LoginRequired promptOnAnon>
