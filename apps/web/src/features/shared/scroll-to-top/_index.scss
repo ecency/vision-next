@@ -33,11 +33,18 @@
       bottom: 7rem;
     }
 
-    // Drop away with the bottom navbar + FAB on scroll-down (and ride back up on
-    // scroll-up). 200% of the 48px control = 96px, identical to the FAB's
-    // `translate-y-[200%]`, so the two move together as one cluster.
+    // Drop fully off-screen with the bottom navbar + FAB on scroll-down (and
+    // ride back up on scroll-up), in lockstep with the FAB. Travel the control's
+    // own height (100%) + its bottom offset + 1rem so the control and its shadow
+    // clear the viewport bottom; a flat translateY(200%) (96px) left ~28px of
+    // the 48px control poking above the edge.
     &.navbar-hidden {
-      transform: translateY(200%);
+      transform: translateY(calc(100% + env(safe-area-inset-bottom) + 4.75rem + 1rem));
+    }
+
+    // In-app (RN) browser uses the fixed 7rem bottom, so match it here.
+    body.is-inapp-browser &.navbar-hidden {
+      transform: translateY(calc(100% + 7rem + 1rem));
     }
   }
 
