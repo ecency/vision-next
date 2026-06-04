@@ -22,6 +22,7 @@
     width: 48px;
     height: 48px;
     bottom: calc(env(safe-area-inset-bottom) + 4.75rem);
+
     // Match the FAB's `transition-transform duration-300` (Tailwind easing) so
     // the pair slides in perfect lockstep when the navbar hides/shows.
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);

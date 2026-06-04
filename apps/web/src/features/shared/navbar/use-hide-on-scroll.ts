@@ -9,12 +9,17 @@ import { useEffect, useState } from "react";
  *
  * @param threshold  minimum px delta before toggling (debounces jitter)
  * @param topOffset  always reveal while within this many px of the top
+ * @param enabled    when false, skips the scroll listener and always reports
+ *                   `false` — e.g. on desktop where the hidden state is unused
  */
-export function useHideOnScroll(threshold = 8, topOffset = 56) {
+export function useHideOnScroll(threshold = 8, topOffset = 56, enabled = true) {
   const [hidden, setHidden] = useState(false);
 
   useEffect(() => {
-    if (typeof window === "undefined") {
+    if (typeof window === "undefined" || !enabled) {
+      // Reset so a control that was hidden on mobile returns to rest if the
+      // viewport grows past the breakpoint (enabled flips to false).
+      setHidden(false);
       return;
     }
 
@@ -46,7 +51,7 @@ export function useHideOnScroll(threshold = 8, topOffset = 56) {
 
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, [threshold, topOffset]);
+  }, [threshold, topOffset, enabled]);
 
   return hidden;
 }
