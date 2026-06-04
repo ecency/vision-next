@@ -88,6 +88,12 @@ export function NavbarMobile({
   const activeClass = (active: boolean) =>
     active ? "!bg-blue-duck-egg dark:!bg-gray-800 rounded-lg" : "rounded-lg";
 
+  // Resting offset of the compose FAB (and its scroll-to-top twin) above the
+  // viewport bottom, written without a calc() wrapper so it composes into the
+  // bottom and the hide transform below without nesting calc(). 7rem in the
+  // in-app browser, safe-area + 4.75rem otherwise.
+  const fabBottom = isInRn ? "7rem" : "env(safe-area-inset-bottom) + 4.75rem";
+
   return (
     <>
       {/* Full-width sticky top bar — brand + browse/governance menu (left) and
@@ -229,10 +235,19 @@ export function NavbarMobile({
           // scroll-to-top control on the opposite corner (same size + bottom).
           "md:hidden fixed right-4 z-20 !h-12 !w-12 !rounded-full flex items-center justify-center shadow-lg",
           "transition-transform duration-300",
-          hidden && "translate-y-[200%]",
           step === 1 && "transparent"
         )}
-        style={{ bottom: isInRn ? "7rem" : "calc(env(safe-area-inset-bottom) + 4.75rem)" }}
+        style={{
+          bottom: `calc(${fabBottom})`,
+          // When hidden, slide fully off-screen instead of stopping half-cut: a
+          // flat translate-y-[200%] (96px) left ~28px of the 48px button poking
+          // above the edge because it rests `fabBottom` up from it. Travel the
+          // height (100%) + that offset + 1rem so the button and its shadow
+          // clear the viewport bottom. Left undefined when shown so the Button's
+          // `active:scale-95` press feedback isn't overridden by an inline
+          // transform (none <-> translateY still animates).
+          transform: hidden ? `translateY(calc(100% + ${fabBottom} + 1rem))` : undefined
+        }}
       />
 
       {activeUser && <NavbarSide key={`mobile-${activeUser.username}`} show={expanded} setShow={setExpanded} />}
