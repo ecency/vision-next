@@ -2,6 +2,7 @@
 
 import {
   PublishActionBar,
+  PublishModeHeader,
   PublishValidatePost,
   PublishMultiTabWarning
 } from "@/app/publish/_components";
@@ -88,12 +89,12 @@ export default function Publish() {
       <PublishMultiTabWarning isActiveTab={isActiveTab} />
       {step === "edit" && (
         <>
+          <PublishModeHeader label={i18next.t("publish.new-content")} lastSaved={lastSaved} />
           <PublishActionBar
             onPublish={() => setStep("validation")}
             onBackToClassic={() => router.push(routes.SUBMIT)}
             onImport={handleImport}
             draftId={draftId}
-            lastSaved={lastSaved}
           />
           <PublishEditor editor={editor} />
         </>

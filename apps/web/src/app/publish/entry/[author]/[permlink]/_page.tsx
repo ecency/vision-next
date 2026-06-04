@@ -1,6 +1,6 @@
 "use client";
 
-import { PublishEditor } from "@/app/publish/_components";
+import { PublishEditor, PublishModeHeader } from "@/app/publish/_components";
 import { usePublishEditor, usePublishState } from "@/app/publish/_hooks";
 import { useEntryDetector } from "@/app/submit/_hooks";
 import { Entry } from "@/entities";
@@ -83,11 +83,7 @@ export default function Publish() {
       <AnimatePresence>
         {step === "edit" && (
           <>
-            <div className="container max-w-[1024px] mx-auto text-xs text-gray-600 dark:text-gray-400 p-2 md:p-0">
-              <div className="flex flex-wrap justify-between items-center">
-                <span>{i18next.t("publish.edit-mode")}</span>
-              </div>
-            </div>
+            <PublishModeHeader label={i18next.t("publish.edit-mode")} />
             <PublishEntryActionBar entry={entry} onEdit={() => setStep("validation")} />
             <PublishEditor editor={editor} allowToUploadVideo={false} />
           </>
