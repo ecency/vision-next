@@ -3,7 +3,8 @@ const IMAGE_MIME_EXT: Record<string, string> = {
   "image/jpeg": "jpg",
   "image/jpg": "jpg",
   "image/gif": "gif",
-  "image/webp": "webp"
+  "image/webp": "webp",
+  "image/avif": "avif"
 };
 
 /**

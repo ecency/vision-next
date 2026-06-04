@@ -78,7 +78,7 @@ export function PublishEditorImageViewer({
         }
       })();
     }
-  }, [isBlob, src, alt, uploadImage, updateAttributes]);
+  }, [isBlob, src, uploadImage, updateAttributes]);
 
   return (
     <NodeViewWrapper

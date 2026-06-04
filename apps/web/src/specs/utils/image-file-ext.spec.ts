@@ -8,6 +8,7 @@ describe("extForImageType", () => {
     expect(extForImageType("image/jpg")).toBe("jpg");
     expect(extForImageType("image/gif")).toBe("gif");
     expect(extForImageType("image/webp")).toBe("webp");
+    expect(extForImageType("image/avif")).toBe("avif");
   });
 
   it("is case-insensitive", () => {
