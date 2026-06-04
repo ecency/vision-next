@@ -88,10 +88,11 @@ export function NavbarMobile({
   const activeClass = (active: boolean) =>
     active ? "!bg-blue-duck-egg dark:!bg-gray-800 rounded-lg" : "rounded-lg";
 
-  // Resting distance of the compose FAB (and its scroll-to-top twin) above the
-  // viewport bottom. Reused for the hide transform so the button travels its own
-  // height (100%) plus this offset and clears the edge completely.
-  const fabBottom = isInRn ? "7rem" : "calc(env(safe-area-inset-bottom) + 4.75rem)";
+  // Resting offset of the compose FAB (and its scroll-to-top twin) above the
+  // viewport bottom, written without a calc() wrapper so it composes into the
+  // bottom and the hide transform below without nesting calc(). 7rem in the
+  // in-app browser, safe-area + 4.75rem otherwise.
+  const fabBottom = isInRn ? "7rem" : "env(safe-area-inset-bottom) + 4.75rem";
 
   return (
     <>
@@ -237,7 +238,7 @@ export function NavbarMobile({
           step === 1 && "transparent"
         )}
         style={{
-          bottom: fabBottom,
+          bottom: `calc(${fabBottom})`,
           // When hidden, slide fully off-screen instead of stopping half-cut: a
           // flat translate-y-[200%] (96px) left ~28px of the 48px button poking
           // above the edge because it rests `fabBottom` up from it. Travel the
