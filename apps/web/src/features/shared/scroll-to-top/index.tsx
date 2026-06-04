@@ -1,67 +1,59 @@
 "use client";
 
-import React, { useRef } from "react";
+import { useEffect, useState } from "react";
 import "./_index.scss";
 import { chevronUpSvg } from "@/features/ui/svg";
 import i18next from "i18next";
 import { Tooltip } from "@ui/tooltip";
-import useMount from "react-use/lib/useMount";
-import useUnmount from "react-use/lib/useUnmount";
+import { useHideOnScroll } from "@/features/shared/navbar/use-hide-on-scroll";
+import useMedia from "react-use/lib/useMedia";
+import clsx from "clsx";
 
 export function ScrollToTop() {
-  const timerRef = useRef<any>(undefined);
-  const buttonRef = useRef<HTMLDivElement | null>(null);
+  const [visible, setVisible] = useState(false);
 
-  useMount(() => {
+  // Share the bottom navbar + compose FAB's hide-on-scroll signal so the whole
+  // bottom cluster moves as one: it slides away on scroll-down and returns on
+  // scroll-up, keeping this control level with the FAB. Gated to the same
+  // breakpoint as the SCSS transform, so the shared hook adds no scroll listener
+  // on desktop, where the hidden state has no visual effect.
+  const isMobile = useMedia("(max-width: 767px)", false);
+  const hidden = useHideOnScroll(8, 56, isMobile);
+
+  // Single effect with one stable handler: registering and removing the exact
+  // same listener reference avoids a leak across the per-page mount/unmounts.
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>;
+    const detect = () => setVisible(window.scrollY > window.innerHeight);
+    const onScrollOrResize = () => {
+      clearTimeout(timer);
+      timer = setTimeout(detect, 5);
+    };
+
     detect();
-    window.addEventListener("scroll", scrollChanged);
-    window.addEventListener("resize", scrollChanged);
-  });
+    window.addEventListener("scroll", onScrollOrResize, { passive: true });
+    window.addEventListener("resize", onScrollOrResize);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("scroll", onScrollOrResize);
+      window.removeEventListener("resize", onScrollOrResize);
+    };
+  }, []);
 
-  useUnmount(() => {
-    window.removeEventListener("scroll", scrollChanged);
-    window.removeEventListener("resize", scrollChanged);
-  });
-
-  const scrollChanged = () => {
-    clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(detect, 5);
-  };
-
-  const detect = () => {
-    if (!buttonRef.current) {
-      return;
-    }
-
-    if (window.scrollY > window.innerHeight) {
-      buttonRef.current.classList.add("visible");
-      return;
-    }
-
-    buttonRef.current.classList.remove("visible");
-  };
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
   return (
     <Tooltip content={i18next.t("scroll-to-top.title")}>
       <div
-        ref={buttonRef}
-        className="scroll-to-top"
+        className={clsx("scroll-to-top", visible && "visible", hidden && "navbar-hidden")}
         role="button"
         tabIndex={0}
         aria-label={i18next.t("scroll-to-top.title")}
-        onClick={() =>
-          window.scrollTo({
-            top: 0,
-            behavior: "smooth"
-          })
-        }
+        onClick={scrollToTop}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
-            window.scrollTo({
-              top: 0,
-              behavior: "smooth"
-            });
+            scrollToTop();
           }
         }}
       >

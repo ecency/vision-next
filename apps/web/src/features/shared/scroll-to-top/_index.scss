@@ -23,10 +23,21 @@
     height: 48px;
     bottom: calc(env(safe-area-inset-bottom) + 4.75rem);
 
+    // Match the FAB's `transition-transform duration-300` (Tailwind easing) so
+    // the pair slides in perfect lockstep when the navbar hides/shows.
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
     // In the in-app (RN) browser the bottom bar uses a fixed offset, so match
     // the FAB's RN bottom (see the FAB style in navbar-mobile.tsx).
     body.is-inapp-browser & {
       bottom: 7rem;
+    }
+
+    // Drop away with the bottom navbar + FAB on scroll-down (and ride back up on
+    // scroll-up). 200% of the 48px control = 96px, identical to the FAB's
+    // `translate-y-[200%]`, so the two move together as one cluster.
+    &.navbar-hidden {
+      transform: translateY(200%);
     }
   }
 
