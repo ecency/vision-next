@@ -4,6 +4,15 @@ import {
   SIMILAR_ENTRIES_MIN_RENDER,
 } from "./get-similar-entries-query-options";
 import type { SearchResponse } from "../types/search-response";
+import { similar } from "../requests";
+
+// Wrap the real `similar` request in a call-through spy: the existing
+// fetch-based tests keep exercising the real payload logic, while this lets us
+// assert the per-context timeout (its 3rd arg) the query passes in.
+vi.mock("../requests", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../requests")>();
+  return { ...actual, similar: vi.fn(actual.similar) };
+});
 
 const entry = {
   author: "alice",
@@ -206,6 +215,26 @@ describe("getSimilarEntriesQueryOptions", () => {
     // turned a /search-api/similar outage into a ~29s post-onload tail. This is a
     // best-effort strip — one attempt, then hide.
     expect(getSimilarEntriesQueryOptions(entry).retry).toBe(false);
+  });
+
+  it("caps the request at 2s on the server (SSR budget) and 4s on the client", async () => {
+    // Regression guard for the timeout split: the queryFn must pass the short
+    // 2s cap on the server (so a slow cross-region call can't stall SSR) and the
+    // 4s cap on the client (best-effort, doesn't block paint). Without this, a
+    // refactor could silently fall back to the SDK's generic ~10s timeout.
+    fetchMock.mockResolvedValue({ ok: true, json: async () => searchResponse([]) });
+
+    // SSR context — no window.
+    vi.stubGlobal("window", undefined);
+    vi.mocked(similar).mockClear();
+    await (getSimilarEntriesQueryOptions(entry).queryFn as QueryFn)({ signal: undefined });
+    expect(vi.mocked(similar).mock.calls[0][2]).toBe(2000);
+
+    // Client context — window present.
+    vi.stubGlobal("window", {} as Window & typeof globalThis);
+    vi.mocked(similar).mockClear();
+    await (getSimilarEntriesQueryOptions(entry).queryFn as QueryFn)({ signal: undefined });
+    expect(vi.mocked(similar).mock.calls[0][2]).toBe(4000);
   });
 
   it("exposes a shared min-render threshold of 2", () => {

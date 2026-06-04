@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.8
+
+### Patch Changes
+
+- test(sdk): cover similar-entries timeout split + fix retry comment (#905)
+
 ## 2.3.7
 
 ### Patch Changes
