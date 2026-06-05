@@ -249,6 +249,7 @@ export const QueryKeys = {
   // ===========================================================================
   notifications: {
     announcements: () => ["notifications", "announcements"],
+    spotlights: () => ["notifications", "spotlights"],
     list: (activeUsername?: string, filter?: string) =>
       ["notifications", activeUsername, filter],
     unreadCount: (activeUsername?: string) =>
