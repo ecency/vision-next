@@ -13,8 +13,9 @@ function pathMatches(pathname: string | null, pattern: string): boolean {
 
 /**
  * Pick the single spotlight to show. The server already filtered by the date window;
- * here we apply the client-side rules — platform (website vs mobile app), auth (default
- * logged-in only), path regex, and per-id dismissal — then pick the highest weight
+ * here we apply the client-side rules — platform (website vs mobile app), audience
+ * (logged-in by default, or guestsOnly for signed-out visitors), path regex, and per-id
+ * dismissal — then pick the highest weight
  * (tie-break: earliest start). Pure + exported for unit testing.
  */
 export function pickSpotlight(
@@ -26,7 +27,7 @@ export function pickSpotlight(
 ): Spotlight | null {
   const candidates = items
     .filter((s) => !s.platforms || s.platforms.includes(platform))
-    .filter((s) => (s.auth === false ? true : !!activeUser))
+    .filter((s) => (s.guestsOnly ? !activeUser : !!activeUser))
     .filter((s) => {
       if (!s.path) {
         return true;
