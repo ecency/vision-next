@@ -19,6 +19,7 @@ export default function FeedLayout({ children }: PropsWithChildren) {
       <Navbar />
       <div className="app-content overflow-hidden entry-index-page">
         <div className="tags-side">
+          <MyFavoritesWidget />
           <TrendingTagsCard />
         </div>
         <div className="entry-page-content">
@@ -28,9 +29,8 @@ export default function FeedLayout({ children }: PropsWithChildren) {
           {children}
         </div>
         <div className="side-menu">
-          <MyFavoritesWidget />
-          <TopCommunitiesWidget />
           <FeatureSpotlightWidget />
+          <TopCommunitiesWidget />
         </div>
       </div>
     </>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import i18next from "i18next";
 import { useQuery } from "@tanstack/react-query";
@@ -8,6 +8,7 @@ import { getSpotlightsQueryOptions } from "@ecency/sdk";
 import { Button } from "@ui/button";
 import { closeSvg } from "@ui/svg";
 import * as ls from "@/utils/local-storage";
+import { trackEvent } from "@/utils/track-event";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { pickSpotlight } from "./select";
 
@@ -26,16 +27,35 @@ export function FeatureSpotlightWidget() {
     [data, activeUser, pathname, dismissedIds]
   );
 
+  // Count an impression once per shown spotlight so click/dismiss rates are comparable.
+  const spotlightId = spotlight?.id;
+  const spotlightFeature = spotlight?.feature;
+  useEffect(() => {
+    if (spotlightId && spotlightFeature) {
+      trackEvent("Spotlight: Impression", { id: spotlightId, feature: spotlightFeature });
+    }
+  }, [spotlightId, spotlightFeature]);
+
   if (!spotlight) {
     return null;
   }
 
-  const dismiss = () => {
+  const markSeen = () => {
     const current: string[] = ls.get(DISMISS_KEY) ?? [];
     if (!current.includes(spotlight.id)) {
       ls.set(DISMISS_KEY, [...current, spotlight.id]);
     }
     setDismissedIds((prev) => (prev.includes(spotlight.id) ? prev : [...prev, spotlight.id]));
+  };
+
+  const onDismiss = () => {
+    trackEvent("Spotlight: Dismiss", { id: spotlight.id, feature: spotlight.feature });
+    markSeen();
+  };
+
+  const onCtaClick = () => {
+    trackEvent("Spotlight: Click", { id: spotlight.id, feature: spotlight.feature });
+    markSeen();
   };
 
   const copy = spotlight.locales?.[i18next.language] ?? spotlight;
@@ -46,7 +66,7 @@ export function FeatureSpotlightWidget() {
       <Button
         appearance="link"
         className="absolute top-2 right-2"
-        onClick={dismiss}
+        onClick={onDismiss}
         aria-label={i18next.t("feature-spotlight.dismiss")}
       >
         {closeSvg}
@@ -61,7 +81,8 @@ export function FeatureSpotlightWidget() {
           href={spotlight.button_link}
           size="sm"
           appearance="primary"
-          onClick={dismiss}
+          className="inline-flex items-center justify-center"
+          onClick={onCtaClick}
           target={isExternal ? "_blank" : undefined}
           rel={isExternal ? "noopener noreferrer" : undefined}
         >
