@@ -16,7 +16,7 @@ export async function GET(): Promise<Response> {
 
 > Ecency is a web client for the Hive blockchain — a decentralized social network. Every public post and comment is also available in clean, token-efficient Markdown and JSON through stable read-only endpoints, so agents do not need to render or scrape the JavaScript app.
 
-Append a format extension to any post URL. Both the bare form (\`${base}/@author/permlink\`) and the community form (\`${base}/hive-125125/@author/permlink\`) are supported.
+Append a format extension to a post's canonical URL (\`${base}/@author/permlink\`).
 
 ## Read a post
 
