@@ -27,6 +27,15 @@ describe("pickSpotlight", () => {
     expect(pickSpotlight([make({ id: "x", auth: false })], null, "/", [])?.id).toBe("x");
   });
 
+  it("hides default-auth (auth unset) spotlights from anonymous users", () => {
+    expect(pickSpotlight([make({ id: "x" })], null, "/", [])).toBeNull();
+  });
+
+  it("skips a spotlight whose path is an invalid regex instead of throwing", () => {
+    const items = [make({ id: "bad", path: "[broken" }), make({ id: "ok" })];
+    expect(pickSpotlight(items, user, "/", [])?.id).toBe("ok");
+  });
+
   it("filters by platform — a mobile-only spotlight is hidden on web", () => {
     const items = [make({ id: "m", platforms: ["mobile"] })];
     expect(pickSpotlight(items, user, "/", [], "web")).toBeNull();

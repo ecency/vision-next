@@ -2,6 +2,15 @@ import type { Spotlight } from "@ecency/sdk";
 
 export type SpotlightPlatform = "web" | "mobile";
 
+function pathMatches(pathname: string | null, pattern: string): boolean {
+  try {
+    return !!pathname?.match(pattern);
+  } catch {
+    // A malformed regex from the API must skip that spotlight, not crash the chain.
+    return false;
+  }
+}
+
 /**
  * Pick the single spotlight to show. The server already filtered by the date window;
  * here we apply the client-side rules — platform (website vs mobile app), auth (default
@@ -23,9 +32,9 @@ export function pickSpotlight(
         return true;
       }
       if (Array.isArray(s.path)) {
-        return s.path.some((p) => !!pathname?.match(p));
+        return s.path.some((p) => pathMatches(pathname, p));
       }
-      return !!pathname?.match(s.path);
+      return pathMatches(pathname, s.path);
     })
     .filter((s) => !dismissed.includes(s.id));
 

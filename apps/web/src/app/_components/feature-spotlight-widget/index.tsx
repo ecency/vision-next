@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
-import Link from "next/link";
 import i18next from "i18next";
 import { useQuery } from "@tanstack/react-query";
 import { getSpotlightsQueryOptions } from "@ecency/sdk";
@@ -58,24 +57,16 @@ export function FeatureSpotlightWidget() {
       <div className="mt-1 font-semibold">{copy.title}</div>
       <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{copy.description}</p>
       <div className="mt-3">
-        {isExternal ? (
-          <a
-            href={spotlight.button_link}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={dismiss}
-          >
-            <Button size="sm" appearance="primary">
-              {copy.button_text}
-            </Button>
-          </a>
-        ) : (
-          <Link href={spotlight.button_link} onClick={dismiss}>
-            <Button size="sm" appearance="primary">
-              {copy.button_text}
-            </Button>
-          </Link>
-        )}
+        <Button
+          href={spotlight.button_link}
+          size="sm"
+          appearance="primary"
+          onClick={dismiss}
+          target={isExternal ? "_blank" : undefined}
+          rel={isExternal ? "noopener noreferrer" : undefined}
+        >
+          {copy.button_text}
+        </Button>
       </div>
     </div>
   );
