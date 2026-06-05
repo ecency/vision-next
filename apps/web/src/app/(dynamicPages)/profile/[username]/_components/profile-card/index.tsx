@@ -28,7 +28,6 @@ import i18next from "i18next";
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { Followers, Following } from "../friends";
 import { ProfileInfo } from "../profile-info";
 import { ResourceCreditsInfo } from "../rc-info";
 import "./_index.scss";
@@ -57,8 +56,6 @@ export function ProfileCard({ account }: Props) {
   });
   const { data: subscriptions } = useQuery(getAccountSubscriptionsQueryOptions(account?.name));
 
-  const [showFollowers, setShowFollowers] = useState(false);
-  const [showFollowing, setShowFollowing] = useState(false);
   const [imageSrc, setImageSrc] = useState<string>();
   const moderatedCommunities = useMemo(
     () => subscriptions?.filter((x) => x[2] === "mod" || x[2] === "admin" || x[2] === "owner") ?? [],
@@ -120,42 +117,23 @@ export function ProfileCard({ account }: Props) {
         </div>
 
         <div className="grid grid-cols-2 pb-4">
-          <div
+          <Link
+            href={`/@${account.name}/followers`}
             className="hover:text-blue-dark-sky hover:scale-95 duration-300 cursor-pointer"
-            role="button"
-            tabIndex={0}
-            onClick={() => setShowFollowers(true)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                setShowFollowers(true);
-              }
-            }}
           >
             <div className="text-sm opacity-50">{i18next.t("profile.followers")}</div>
             <div className="font-semibold">{data?.follow_stats?.follower_count ?? 0}</div>
-          </div>
-          <div
+          </Link>
+          <Link
+            href={`/@${account.name}/following`}
             className="hover:text-blue-dark-sky hover:scale-95 duration-300 cursor-pointer"
-            role="button"
-            tabIndex={0}
-            onClick={() => setShowFollowing(true)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                setShowFollowing(true);
-              }
-            }}
           >
             <div className="text-sm opacity-50">{i18next.t("profile.following")}</div>
             <div className="font-semibold">{data?.follow_stats?.following_count ?? 0}</div>
-          </div>
+          </Link>
         </div>
       </div>
       <HivePosh username={account.name} className="mb-4" />
-
-      {showFollowers && data && <Followers account={data} onHide={() => setShowFollowers(false)} />}
-      {showFollowing && data && <Following account={data} onHide={() => setShowFollowing(false)} />}
 
       {!isMyProfile && (
         <div className="mb-4 flex gap-2">

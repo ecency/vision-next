@@ -149,7 +149,7 @@ describe("getCachePolicyForPath", () => {
       expect(policy).toEqual({ tier: "profile", sMaxAge: 300, staleWhileRevalidate: 3600 });
     });
 
-    it.each(["posts", "blog", "comments", "replies", "communities"])(
+    it.each(["posts", "blog", "comments", "replies", "communities", "followers", "following"])(
       "returns profile tier for /@alice/%s",
       (section) => {
         const policy = getCachePolicyForPath(`/@alice/${section}`);
@@ -162,6 +162,17 @@ describe("getCachePolicyForPath", () => {
       (section) => {
         const policy = getCachePolicyForPath(`/@alice/${section}`);
         expect(policy).toEqual({ tier: "profile-feed", sMaxAge: 60, staleWhileRevalidate: 300 });
+      }
+    );
+
+    it.each(["followers", "following"])(
+      "does not treat /@alice/%s as an entry page (viewer-independent profile tier)",
+      (section) => {
+        // Regression: a 2-segment /@author/<section> must not fall through to
+        // the entry tier (which would cache a follower list as a post for 1h).
+        // SSR is viewer-independent, so it gets the cacheable profile tier.
+        const policy = getCachePolicyForPath(`/@alice/${section}`);
+        expect(policy).toEqual({ tier: "profile", sMaxAge: 300, staleWhileRevalidate: 3600 });
       }
     );
   });
@@ -424,7 +435,9 @@ describe("parseEntryUrl", () => {
     "wallet",
     "settings",
     "feed",
-    "trail"
+    "trail",
+    "followers",
+    "following"
   ])("returns null for profile section /@alice/%s", (section) => {
     expect(parseEntryUrl(`/@alice/${section}`)).toBeNull();
   });

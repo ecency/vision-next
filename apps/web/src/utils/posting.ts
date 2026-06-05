@@ -1,10 +1,18 @@
 import getSlug from "speakingurl";
 import { diff_match_patch } from "diff-match-patch";
+import { SECTION_LIST } from "@ecency/render-helper";
 import { BeneficiaryRoute, CommentOptions, MetaData, RewardType } from "@/entities";
 
 const permlinkRnd = () => (Math.random() + 1).toString(16).substring(2);
 
 const permlinkPattern = /^[a-z0-9-]{1,255}$/;
+
+// A post permlink must never be exactly a reserved profile-section slug (e.g.
+// "followers", "wallet"), or its canonical /@author/<permlink> URL would
+// resolve to that section page instead of the post. SECTION_LIST is the shared
+// render-helper list of routed sections; referenced lazily (inside the
+// functions) to avoid an import-time evaluation order issue.
+const isReservedSectionSlug = (slug: string): boolean => SECTION_LIST.includes(slug);
 
 export const createPermlink = (title: string, random: boolean = false): string => {
   // Ensure the string is valid and normalized
@@ -33,6 +41,12 @@ export const createPermlink = (title: string, random: boolean = false): string =
     perm = `${perm}-${rnd}`;
   }
 
+  // Append random chars if the slug is exactly a reserved section so the post
+  // can't be shadowed by a section page.
+  if (isReservedSectionSlug(perm)) {
+    perm = `${perm}-${permlinkRnd().toLowerCase()}`;
+  }
+
   if (perm.length > 255) {
     perm = perm.substring(0, 250);
   }
@@ -46,7 +60,14 @@ export const ensureValidPermlink = (
 ): string => {
   const normalizedPermlink = permlink?.trim().toLowerCase();
 
-  if (normalizedPermlink && permlinkPattern.test(normalizedPermlink)) {
+  // A regex-valid, user-provided permlink is accepted as-is — unless it is a
+  // reserved section slug, in which case it falls through to createPermlink
+  // (below) which appends random chars to avoid the route collision.
+  if (
+    normalizedPermlink &&
+    permlinkPattern.test(normalizedPermlink) &&
+    !isReservedSectionSlug(normalizedPermlink)
+  ) {
     return normalizedPermlink;
   }
 

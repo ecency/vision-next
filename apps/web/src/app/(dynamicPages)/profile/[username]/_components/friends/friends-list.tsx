@@ -1,4 +1,6 @@
 import { useMemo, useState } from "react";
+import clsx from "clsx";
+import "./_index.scss";
 import { getFriendsInfiniteQueryOptions, getSearchFriendsQueryOptions } from "@ecency/sdk";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { Account } from "@/entities";
@@ -20,9 +22,15 @@ const loadLimit = 30;
 interface Props {
   account: Account;
   mode: "following" | "followers";
+  /**
+   * "modal" (default) keeps the fixed-height scroll box used inside the
+   * followers/following dialogs. "page" lets the list flow naturally inside a
+   * profile section.
+   */
+  variant?: "modal" | "page";
 }
 
-export const FriendsList = ({ account, mode }: Props) => {
+export const FriendsList = ({ account, mode, variant = "modal" }: Props) => {
   const [query, setQuery] = useState("");
   const [type, setType] = useState<FilterFriendsType>();
 
@@ -95,7 +103,7 @@ export const FriendsList = ({ account, mode }: Props) => {
   );
 
   return (
-    <div className="friends-content">
+    <div className={clsx("friends-content", variant === "page" && "is-page")}>
       <div>
         <FilterFriends updateFilterType={(v) => setType(v)} />
       </div>
