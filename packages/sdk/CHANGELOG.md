@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.10
+
+### Patch Changes
+
+- Add Spotlight type and getSpotlightsQueryOptions to @ecency/sdk (#912)
+
 ## 2.3.9
 
 ### Patch Changes
