@@ -23,7 +23,11 @@ export async function GET(_request: Request, { params }: Props): Promise<Respons
       status: 200,
       headers: {
         "Content-Type": "text/markdown; charset=utf-8",
-        "Cache-Control": AGENT_CACHE_CONTROL
+        "Cache-Control": AGENT_CACHE_CONTROL,
+        // Alternate representation of the HTML post — keep it out of the search
+        // index (no duplicate-content competition). Agents fetching the URL
+        // still get the content; X-Robots-Tag only governs indexing.
+        "X-Robots-Tag": "noindex"
       }
     });
   } catch {
