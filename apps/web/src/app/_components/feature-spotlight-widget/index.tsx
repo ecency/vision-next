@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import i18next from "i18next";
 import { useQuery } from "@tanstack/react-query";
@@ -27,11 +27,14 @@ export function FeatureSpotlightWidget() {
     [data, activeUser, pathname, dismissedIds]
   );
 
-  // Count an impression once per shown spotlight so click/dismiss rates are comparable.
+  // Count an impression once per shown spotlight per mount, so a flicker or a StrictMode
+  // effect re-run doesn't double-count; click/dismiss rates stay comparable.
   const spotlightId = spotlight?.id;
   const spotlightFeature = spotlight?.feature;
+  const impressedIds = useRef(new Set<string>());
   useEffect(() => {
-    if (spotlightId && spotlightFeature) {
+    if (spotlightId && spotlightFeature && !impressedIds.current.has(spotlightId)) {
+      impressedIds.current.add(spotlightId);
       trackEvent("Spotlight: Impression", { id: spotlightId, feature: spotlightFeature });
     }
   }, [spotlightId, spotlightFeature]);
