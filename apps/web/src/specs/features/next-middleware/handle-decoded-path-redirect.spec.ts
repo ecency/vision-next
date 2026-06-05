@@ -13,6 +13,7 @@ describe("handleDecodedPathRedirect", () => {
     const res = handleDecodedPathRedirect(requestFor("/%40ecency"));
     expect(res).not.toBeNull();
     expect(res!.status).toBe(307);
+    expect(res!.headers.get("location")).not.toBeNull();
     const location = new URL(res!.headers.get("location")!, "https://ecency.com");
     expect(location.host).toBe("ecency.com");
     expect(location.pathname).toBe("/@ecency");

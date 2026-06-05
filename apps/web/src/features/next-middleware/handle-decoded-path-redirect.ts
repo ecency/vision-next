@@ -14,9 +14,9 @@ import { NextRequest, NextResponse } from "next/server";
  * normalized by the WHATWG pathname setter to one beginning with `//`, which
  * `NextResponse.redirect` serializes as a protocol-relative `Location`
  * (`//evil.com`) that the browser resolves OFF-origin. We therefore refuse any
- * protocol-relative / cross-origin redirect target. Note: assigning `.pathname`
- * never mutates `.origin`, so the leading-`//` check — not the origin check — is
- * what actually stops this payload; the origin check is defense in depth.
+ * decoded path that normalizes to a protocol-relative target. (Checking the
+ * final `url.pathname` is sufficient: assigning `.pathname` can never change
+ * `.origin`, so a same-host comparison would be dead code.)
  */
 export function handleDecodedPathRedirect(request: NextRequest): NextResponse | null {
   const path = request.nextUrl.pathname;
@@ -37,7 +37,7 @@ export function handleDecodedPathRedirect(request: NextRequest): NextResponse | 
   const url = request.nextUrl.clone();
   url.pathname = decodedPath;
 
-  if (url.pathname.startsWith("//") || url.origin !== request.nextUrl.origin) {
+  if (url.pathname.startsWith("//")) {
     return new NextResponse("Bad Request", { status: 400 });
   }
 
