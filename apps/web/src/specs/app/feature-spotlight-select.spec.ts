@@ -19,16 +19,16 @@ describe("pickSpotlight", () => {
     expect(pickSpotlight([], user, "/", [])).toBeNull();
   });
 
-  it("hides auth-required spotlights from anonymous users", () => {
-    expect(pickSpotlight([make({ id: "x", auth: true })], null, "/", [])).toBeNull();
-  });
-
-  it("shows auth:false spotlights to anonymous users", () => {
-    expect(pickSpotlight([make({ id: "x", auth: false })], null, "/", [])?.id).toBe("x");
-  });
-
-  it("hides default-auth (auth unset) spotlights from anonymous users", () => {
+  it("hides logged-in spotlights (default) from anonymous users", () => {
     expect(pickSpotlight([make({ id: "x" })], null, "/", [])).toBeNull();
+  });
+
+  it("shows guestsOnly spotlights to anonymous users", () => {
+    expect(pickSpotlight([make({ id: "x", guestsOnly: true })], null, "/", [])?.id).toBe("x");
+  });
+
+  it("hides guestsOnly spotlights from logged-in users", () => {
+    expect(pickSpotlight([make({ id: "x", guestsOnly: true })], user, "/", [])).toBeNull();
   });
 
   it("skips a spotlight whose path is an invalid regex instead of throwing", () => {

@@ -9,7 +9,8 @@ export interface Spotlight {
   button_text: string;
   button_link: string;
   path?: string | Array<string>;
-  auth?: boolean;
+  // show only to signed-out visitors; omit = logged-in users only
+  guestsOnly?: boolean;
   // which platform(s) may show it: "web" (website) / "mobile" (mobile app); omit = both
   platforms?: Array<"web" | "mobile">;
   start?: string;
