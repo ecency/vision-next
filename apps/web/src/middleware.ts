@@ -4,6 +4,7 @@ import {
   buildCacheControlHeader,
   getCachePolicyForPath,
   getEntryTierForAge,
+  handleDecodedPathRedirect,
   handleIndexRedirect,
   isIndexRedirect,
   isUserSpecificForLoggedIn,
@@ -59,34 +60,13 @@ export async function middleware(request: NextRequest, event: NextFetchEvent) {
     return handleIndexRedirect(request);
   }
 
-  // Decode URL and redirect if needed.
-  //
-  // Guard against redirect loops: when the path contains characters that the
-  // URL pathname setter does NOT re-encode (e.g. brackets in `[object Object]`),
-  // assigning the decoded form back produces the same encoded string we
-  // received. Without this check we'd 307 to the same URL forever — see the
-  // ERR_TOO_MANY_REDIRECTS reports on `/@user/[object Object]` paths produced
-  // when a non-string value gets templated into a URL elsewhere in the app.
+  // Canonicalize percent-encoded paths (e.g. `/%40user` -> `/@user`), refusing
+  // any decoded target that would redirect off-origin. See the helper for the
+  // open-redirect (CWE-601) and redirect-loop reasoning.
+  const decodedRedirect = handleDecodedPathRedirect(request);
+  if (decodedRedirect) return decodedRedirect;
+
   const path = request.nextUrl.pathname;
-  try {
-    const decodedPath = decodeURIComponent(path);
-    if (decodedPath !== path) {
-      const url = request.nextUrl.clone();
-      url.pathname = decodedPath;
-      // After the URL setter, url.pathname is the re-encoded canonical form.
-      // If that already matches the request's path, redirecting is a no-op
-      // and would loop.
-      if (url.pathname !== path) {
-        return NextResponse.redirect(url);
-      }
-    }
-  } catch (e) {
-    if (e instanceof URIError) {
-      console.warn("Failed to decode request path", path, e);
-    } else {
-      throw e;
-    }
-  }
 
   // block invalid permlinks with file extensions
   if (path.match(/^\/[^\/]+\/@[\w\d.-]+\/[a-z0-9-]+\.(jpg|jpeg|png|gif|webp|svg)$/i)) {
