@@ -1,9 +1,8 @@
 import React from "react";
 import { Modal, ModalBody, ModalHeader, ModalTitle } from "@ui/modal";
-import i18next from "i18next";
-import { formattedNumber } from "@/utils";
 import { Account } from "@/entities";
 import { FriendsList } from "@/app/(dynamicPages)/profile/[username]/_components/friends/friends-list";
+import { getFriendsTitle } from "@/app/(dynamicPages)/profile/[username]/_components/friends/friends-title";
 
 interface Props {
   account: Account;
@@ -13,13 +12,7 @@ export function Followers({ onHide, account }: Props) {
   return (
     <Modal onHide={onHide} show={true} centered={true} size="lg">
       <ModalHeader closeButton={true}>
-        <ModalTitle>
-          {account.follow_stats
-            ? i18next.t("friends.followers", {
-                n: formattedNumber(account.follow_stats.follower_count, { fractionDigits: 0 })
-              })
-            : ""}
-        </ModalTitle>
+        <ModalTitle>{getFriendsTitle(account, "followers")}</ModalTitle>
       </ModalHeader>
       <ModalBody>
         <FriendsList mode="followers" account={account} />
@@ -32,13 +25,7 @@ export function Following({ onHide, account }: Props) {
   return (
     <Modal onHide={onHide} show={true} centered={true} size="lg">
       <ModalHeader closeButton={true}>
-        <ModalTitle>
-          {account.follow_stats
-            ? i18next.t("friends.following", {
-                n: formattedNumber(account.follow_stats.following_count, { fractionDigits: 0 })
-              })
-            : ""}
-        </ModalTitle>
+        <ModalTitle>{getFriendsTitle(account, "following")}</ModalTitle>
       </ModalHeader>
       <ModalBody>
         <FriendsList mode="following" account={account} />

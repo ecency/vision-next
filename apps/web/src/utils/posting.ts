@@ -1,5 +1,6 @@
 import getSlug from "speakingurl";
 import { diff_match_patch } from "diff-match-patch";
+import { SECTION_LIST } from "@ecency/render-helper";
 import { BeneficiaryRoute, CommentOptions, MetaData, RewardType } from "@/entities";
 
 const permlinkRnd = () => (Math.random() + 1).toString(16).substring(2);
@@ -31,6 +32,14 @@ export const createPermlink = (title: string, random: boolean = false): string =
   if (random) {
     const rnd = permlinkRnd().toLowerCase();
     perm = `${perm}-${rnd}`;
+  }
+
+  // Never let a post permlink be exactly a reserved profile-section slug (e.g.
+  // "followers", "wallet"): its canonical /@author/<permlink> URL would resolve
+  // to that section page instead of the post. Append random chars to avoid the
+  // collision.
+  if (SECTION_LIST.includes(perm)) {
+    perm = `${perm}-${permlinkRnd().toLowerCase()}`;
   }
 
   if (perm.length > 255) {

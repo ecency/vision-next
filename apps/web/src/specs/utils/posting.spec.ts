@@ -34,6 +34,21 @@ describe("Posting", () => {
     randomSpy.mockRestore();
   });
 
+  it("createPermlink avoids reserved profile-section slugs", () => {
+    const randomSpy = vi.spyOn(Math, "random").mockImplementation(() => 1.95136022969379);
+
+    // A title that slugifies to a section name must not become that bare slug,
+    // or /@author/<permlink> would resolve to the section page, not the post.
+    expect(createPermlink("Followers")).not.toBe("followers");
+    expect(createPermlink("Followers").startsWith("followers-")).toBe(true);
+    expect(createPermlink("Wallet").startsWith("wallet-")).toBe(true);
+
+    // Non-section titles are unaffected.
+    expect(createPermlink("My cool post")).toBe("my-cool-post");
+
+    randomSpy.mockRestore();
+  });
+
   it("ensureValidPermlink returns valid permlink unchanged", () => {
     expect(ensureValidPermlink("valid-permlink-1", "fallback title")).toBe(
       "valid-permlink-1"

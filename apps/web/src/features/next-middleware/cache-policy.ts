@@ -94,11 +94,13 @@ const NO_CACHE_PROFILE_SECTIONS = new Set([
  *           posts from followed users and should refresh on feed cadence.
  * - `trail` shows the user's curation trail (votes on others' posts),
  *           which also updates faster than authored content.
- * - `followers` / `following` list other accounts and change as people
- *           follow/unfollow; deterministic per URL but should refresh on a
- *           faster cadence than authored content.
+ *
+ * NOTE: `followers`/`following` are NOT here — their SSR is viewer-independent
+ * (the list hydrates client-side; only the owner's follow counts render on the
+ * server), so they use the auth-class-equivalent `profile` tier and can share
+ * an edge-cache entry across logged-in users, exactly like posts/blog.
  */
-const PROFILE_FEED_SECTIONS = new Set(["feed", "trail", "followers", "following"]);
+const PROFILE_FEED_SECTIONS = new Set(["feed", "trail"]);
 
 /** Static content pages — effectively permanent. */
 const STATIC_PAGES = new Set([
@@ -335,7 +337,7 @@ export function parseEntryUrl(
     if (
       NO_CACHE_PROFILE_SECTIONS.has(second) ||
       PROFILE_FEED_SECTIONS.has(second) ||
-      ["posts", "blog", "comments", "replies", "communities", "insights", "rss", "rss.xml"].includes(second)
+      ["posts", "blog", "comments", "replies", "communities", "followers", "following", "insights", "rss", "rss.xml"].includes(second)
     ) {
       return null; // profile section, not an entry
     }
