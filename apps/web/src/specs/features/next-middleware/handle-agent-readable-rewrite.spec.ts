@@ -36,7 +36,12 @@ describe("handleAgentReadableRewrite", () => {
     );
   });
 
-  it("does NOT treat the community form as an agent endpoint (single canonical URL per post)", () => {
+  // The community form never reaches this rewrite as-is: next.config.js
+  // 308-redirects /:category/@author/:permlink onto the bare /@author/:permlink
+  // (its :permlink captures the .<ext> too) and redirects run before middleware.
+  // So this rewrite only ever handles the bare form, and ignores the community
+  // form — which still works end-to-end via that upstream redirect.
+  it("ignores the community form here (consolidated to bare by the upstream 308 redirect)", () => {
     expect(handleAgentReadableRewrite(requestFor("/hive-101010/@alice/my-post.md"))).toBeNull();
     expect(
       handleAgentReadableRewrite(requestFor("/hive-101010/@alice/my-post.discussion.json"))

@@ -9,10 +9,14 @@ import { NextRequest, NextResponse } from "next/server";
  *   /@author/:permlink.json              → structured JSON (post)
  *   /@author/:permlink.discussion.json   → JSON (full comment thread)
  *
- * Only the bare `/@author/:permlink` form is an agent endpoint — that's the
- * canonical post URL (see generate-entry-metadata / selfUrl). The community form
- * `/:category/@author/:permlink.<ext>` is deliberately NOT matched, so there is
- * a single agent URL per post (no alternate/duplicate surface).
+ * Only the bare `/@author/:permlink` form is matched here — that's the canonical
+ * post URL (see generate-entry-metadata / selfUrl). The community form
+ * `/:category/@author/:permlink.<ext>` still works for callers: the existing 308
+ * redirect in next.config.js consolidates `/:category/@author/:permlink` onto
+ * the bare form (its `:permlink` captures the `.<ext>` too), and redirects run
+ * before middleware — so a community-form link 308s to the bare URL, which then
+ * hits this rewrite. The result is one canonical agent URL per post (a redirect,
+ * never an alternate/duplicate surface).
  *
  * Implemented as a middleware rewrite (mirrors the rss.xml and social-bot
  * rewrites) so a single Route Handler under the existing entry tree serves the
