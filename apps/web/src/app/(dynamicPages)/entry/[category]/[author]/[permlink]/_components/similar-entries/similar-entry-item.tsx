@@ -1,9 +1,8 @@
-import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { catchPostImage } from "@ecency/render-helper";
 import { TimeLabel } from "@/features/shared/time-label";
-import React, { useMemo, useRef } from "react";
+import React, { useMemo } from "react";
 import { SearchResult } from "@/entities";
 interface Props {
   entry: SearchResult;
@@ -11,7 +10,6 @@ interface Props {
 }
 
 export function SimilarEntryItem({ entry, i }: Props) {
-  const ref = useRef<HTMLDivElement>(null);
   const postImage = useMemo(
     () => catchPostImage(entry.img_url, 600, 500),
     [entry.img_url]
@@ -19,15 +17,12 @@ export function SimilarEntryItem({ entry, i }: Props) {
 
   return (
     <Link href={`/@${entry.author}/${entry.permlink}`} className="no-style">
-      <motion.div
-        ref={ref}
+      {/* Entrance animation is CSS (see _index.scss), staggered per item via
+          animation-delay — keeps the card visible in the SSR HTML (and with JS
+          disabled) instead of framer-motion's serialized opacity:0. */}
+      <div
         className="similar-entries-list-item bg-gray-100 hover:bg-blue-dark-sky-040 dark:bg-gray-900 rounded-2xl overflow-hidden transform transition-transform duration-200 hover:rotate-[1.5deg]"
-        initial={{
-          opacity: 0,
-          y: -24
-        }}
-        animate={{ opacity: 1, y: 0, transition: { delay: i * 0.2 } }}
-        onAnimationComplete={() => ref.current?.style.removeProperty("transform")}
+        style={{ animationDelay: `${i * 0.2}s` }}
       >
         {postImage && (
           <Image
@@ -54,7 +49,7 @@ export function SimilarEntryItem({ entry, i }: Props) {
           <span className="item-footer-author">{entry.author}</span>
           <TimeLabel created={entry.created_at} mode="fullRelative" className="item-footer-date" />
         </div>
-      </motion.div>
+      </div>
     </Link>
   );
 }
