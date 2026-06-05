@@ -48,6 +48,7 @@ vi.mock("@ecency/sdk", () => ({
   getAccountDelegationsQueryOptions: vi.fn((username) => ({ queryKey: ['assets', 'account-delegations', username], queryFn: vi.fn() })),
   getBoostPlusPricesQueryOptions: vi.fn(() => ({ queryKey: ['boost-prices'], queryFn: vi.fn() })),
   getPointsQueryOptions: vi.fn(() => ({ queryKey: ['points'], queryFn: vi.fn() })),
+  getSpotlightsQueryOptions: vi.fn(() => ({ queryKey: ['notifications', 'spotlights'], queryFn: vi.fn() })),
   getBoostPlusAccountPricesQueryOptions: vi.fn(() => ({ queryKey: ['boost-account'], queryFn: vi.fn() })),
   getDeletedEntryQueryOptions: vi.fn((author, permlink) => ({
     queryKey: ['posts', 'deleted-entry', `@${author}/${permlink}`],

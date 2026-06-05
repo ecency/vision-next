@@ -3,6 +3,7 @@ import { EntryIndexMenu } from "@/app/_components/entry-index-menu";
 import React, { PropsWithChildren } from "react";
 import { TopCommunitiesWidget } from "@/app/_components/top-communities-widget";
 import { MyFavoritesWidget } from "@/app/_components/my-favorites-widget";
+import { FeatureSpotlightWidget } from "@/app/_components/feature-spotlight-widget/lazy";
 import "./[...sections]/entry-index.scss";
 import { Feedback } from "@/features/shared/feedback";
 import { Navbar } from "@/features/shared/navbar";
@@ -29,6 +30,7 @@ export default function FeedLayout({ children }: PropsWithChildren) {
         <div className="side-menu">
           <MyFavoritesWidget />
           <TopCommunitiesWidget />
+          <FeatureSpotlightWidget />
         </div>
       </div>
     </>

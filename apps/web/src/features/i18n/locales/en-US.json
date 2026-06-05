@@ -134,6 +134,10 @@
     "view-proposal": "View proposal",
     "vote-success": "Thank you for supporting Ecency!"
   },
+  "feature-spotlight": {
+    "label": "Did you know?",
+    "dismiss": "Dismiss"
+  },
   "floating-faq": {
     "toggle-icon-info": "Click to expand",
     "help": "Help",
