@@ -4,6 +4,7 @@ import {
   buildCacheControlHeader,
   getCachePolicyForPath,
   getEntryTierForAge,
+  handleAgentReadableRewrite,
   handleDecodedPathRedirect,
   handleIndexRedirect,
   isIndexRedirect,
@@ -73,6 +74,11 @@ export async function middleware(request: NextRequest, event: NextFetchEvent) {
     console.warn("Blocked invalid permlink with file extension:", path);
     return new NextResponse("Not found", { status: 404 });
   }
+
+  // Agentic-web read-only endpoints: /@author/permlink.md|.json|.discussion.json
+  // rewrite to a Route Handler that serves clean Markdown/JSON for LLMs & agents.
+  const agentRewrite = handleAgentReadableRewrite(request);
+  if (agentRewrite) return agentRewrite;
 
   const userAgent = request.headers.get("user-agent") || "";
   const isSocialBot =
