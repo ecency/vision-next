@@ -27,6 +27,13 @@
     .similar-entries-list-item {
       cursor: pointer;
 
+      // CSS entrance, staggered via an inline animation-delay per item. Replaces
+      // the framer-motion `initial={{ opacity: 0 }}`, which serialized opacity:0
+      // into the SSR HTML — leaving the strip invisible until hydration and for
+      // no-JS clients. `backwards` holds the start frame through the delay; the
+      // resting state is visible, so the server HTML carries no inline opacity:0.
+      animation: similar-entry-in 0.4s ease backwards;
+
       .item-image {
         align-items: center;
         cursor: pointer;
@@ -71,5 +78,24 @@
         }
       }
     }
+  }
+}
+
+@keyframes similar-entry-in {
+  from {
+    opacity: 0;
+    transform: translateY(-24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Respect users who prefer reduced motion — skip the entrance animation.
+@media (prefers-reduced-motion: reduce) {
+  .similar-entries-list .similar-entries-list-body .similar-entries-list-item {
+    animation: none;
   }
 }
