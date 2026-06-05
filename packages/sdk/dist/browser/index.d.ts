@@ -5897,6 +5897,7 @@ interface Spotlight {
     button_link: string;
     path?: string | Array<string>;
     auth?: boolean;
+    platforms?: Array<"web" | "mobile">;
     start?: string;
     end?: string;
     weight?: number;

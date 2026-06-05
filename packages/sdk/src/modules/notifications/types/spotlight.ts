@@ -10,6 +10,8 @@ export interface Spotlight {
   button_link: string;
   path?: string | Array<string>;
   auth?: boolean;
+  // which platform(s) may show it: "web" (website) / "mobile" (mobile app); omit = both
+  platforms?: Array<"web" | "mobile">;
   start?: string;
   end?: string;
   weight?: number;
