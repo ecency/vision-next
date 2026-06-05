@@ -67,6 +67,18 @@ describe("Posting", () => {
     randomSpy.mockRestore();
   });
 
+  it("ensureValidPermlink avoids a reserved profile-section slug", () => {
+    const randomSpy = vi.spyOn(Math, "random").mockImplementation(() => 1.95136022969379);
+
+    // A regex-valid but reserved user-provided permlink must not be returned
+    // as-is, or /@author/followers would resolve to the section page.
+    const result = ensureValidPermlink("followers", "fallback title");
+    expect(result).not.toBe("followers");
+    expect(result.startsWith("followers-")).toBe(true);
+
+    randomSpy.mockRestore();
+  });
+
   it("(1) extractMetadata", () => {
     const input = '<img src="http://www.xx.com/a.png"> @lorem @ipsum';
     expect(extractMetaData(input)).toMatchSnapshot();

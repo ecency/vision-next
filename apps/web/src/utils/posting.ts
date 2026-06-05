@@ -7,6 +7,13 @@ const permlinkRnd = () => (Math.random() + 1).toString(16).substring(2);
 
 const permlinkPattern = /^[a-z0-9-]{1,255}$/;
 
+// A post permlink must never be exactly a reserved profile-section slug (e.g.
+// "followers", "wallet"), or its canonical /@author/<permlink> URL would
+// resolve to that section page instead of the post. SECTION_LIST is the shared
+// render-helper list of routed sections; referenced lazily (inside the
+// functions) to avoid an import-time evaluation order issue.
+const isReservedSectionSlug = (slug: string): boolean => SECTION_LIST.includes(slug);
+
 export const createPermlink = (title: string, random: boolean = false): string => {
   // Ensure the string is valid and normalized
   let slug = getSlug(title || "", { lang: false, symbols: true }) ?? "";
@@ -34,11 +41,9 @@ export const createPermlink = (title: string, random: boolean = false): string =
     perm = `${perm}-${rnd}`;
   }
 
-  // Never let a post permlink be exactly a reserved profile-section slug (e.g.
-  // "followers", "wallet"): its canonical /@author/<permlink> URL would resolve
-  // to that section page instead of the post. Append random chars to avoid the
-  // collision.
-  if (SECTION_LIST.includes(perm)) {
+  // Append random chars if the slug is exactly a reserved section so the post
+  // can't be shadowed by a section page.
+  if (isReservedSectionSlug(perm)) {
     perm = `${perm}-${permlinkRnd().toLowerCase()}`;
   }
 
@@ -55,7 +60,14 @@ export const ensureValidPermlink = (
 ): string => {
   const normalizedPermlink = permlink?.trim().toLowerCase();
 
-  if (normalizedPermlink && permlinkPattern.test(normalizedPermlink)) {
+  // A regex-valid, user-provided permlink is accepted as-is — unless it is a
+  // reserved section slug, in which case it falls through to createPermlink
+  // (below) which appends random chars to avoid the route collision.
+  if (
+    normalizedPermlink &&
+    permlinkPattern.test(normalizedPermlink) &&
+    !isReservedSectionSlug(normalizedPermlink)
+  ) {
     return normalizedPermlink;
   }
 
