@@ -336,7 +336,7 @@ const config = {
       },
       {
         source:
-          "/:author(@.+)/:section(posts|blog|comments|replies|communities|trail|wallet|settings|insights|referrals|permissions|rss|rss.xml)",
+          "/:author(@.+)/:section(posts|blog|comments|replies|communities|trail|followers|following|wallet|settings|insights|referrals|permissions|rss|rss.xml)",
         destination: "/profile/:author/:section"
       },
       {

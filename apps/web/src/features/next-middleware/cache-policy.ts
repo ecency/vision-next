@@ -94,8 +94,11 @@ const NO_CACHE_PROFILE_SECTIONS = new Set([
  *           posts from followed users and should refresh on feed cadence.
  * - `trail` shows the user's curation trail (votes on others' posts),
  *           which also updates faster than authored content.
+ * - `followers` / `following` list other accounts and change as people
+ *           follow/unfollow; deterministic per URL but should refresh on a
+ *           faster cadence than authored content.
  */
-const PROFILE_FEED_SECTIONS = new Set(["feed", "trail"]);
+const PROFILE_FEED_SECTIONS = new Set(["feed", "trail", "followers", "following"]);
 
 /** Static content pages — effectively permanent. */
 const STATIC_PAGES = new Set([
@@ -212,7 +215,7 @@ export function getCachePolicyForPath(pathname: string): CachePolicy | null {
       const second = segments[1];
       if (
         !NO_CACHE_PROFILE_SECTIONS.has(second) &&
-        !["posts", "blog", "comments", "replies", "communities", "trail", "insights", "rss", "rss.xml", "feed"].includes(
+        !["posts", "blog", "comments", "replies", "communities", "trail", "followers", "following", "insights", "rss", "rss.xml", "feed"].includes(
           second
         )
       ) {

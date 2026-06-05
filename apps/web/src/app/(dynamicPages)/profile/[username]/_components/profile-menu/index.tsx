@@ -22,15 +22,13 @@ export function ProfileMenu({ username }: Props) {
   const pathname = usePathname();
   const section = useMemo(() => pathname?.split("/")[2] ?? "posts", [pathname]);
 
-  const kebabMenuItems = [
-    ...["trail", "replies"]
-      .map((x) => ({
-        label: i18next.t(`profile.section-${x}`),
-        href: `/@${username}/${x}`,
-        selected: section === x,
-        id: x
-      }))
-      .filter((item) => !item.selected),
+  const kebabMenuItemsAll = [
+    ...["trail", "replies", "followers", "following"].map((x) => ({
+      label: i18next.t(`profile.section-${x}`),
+      href: `/@${username}/${x}`,
+      selected: section === x,
+      id: x
+    })),
     ...EcencyConfigManager.composeConditionals(
       EcencyConfigManager.withConditional(
         (config) => config.visionFeatures.referrals.enabled,
@@ -43,6 +41,8 @@ export function ProfileMenu({ username }: Props) {
       )
     )
   ];
+  // Hide the current section from the kebab (it's the page you're already on)
+  const kebabMenuItems = kebabMenuItemsAll.filter((item) => !item.selected);
 
   const menuItems = [
     ...[ProfileFilter.blog, ProfileFilter.posts, ProfileFilter.comments, "communities"].map(
@@ -72,14 +72,17 @@ export function ProfileMenu({ username }: Props) {
   ];
 
   const dropDownMenuItems = [...menuItems, ...kebabMenuItems];
+  // Full set (including the active kebab section) used only to resolve the
+  // mobile dropdown label, so being on /followers shows "Followers" not "Blog".
+  const allMenuItems = [...menuItems, ...kebabMenuItemsAll];
 
   return (
     <PageMenu className="pb-4 pt-4 md:pt-0">
       <PageMenuMobileDropdown
         label={
-          dropDownMenuItems.filter((item) => item.id === section).length > 0
+          allMenuItems.some((item) => item.id === section)
             ? i18next.t(`profile.section-${section}`)
-            : i18next.t(`profile.section-${dropDownMenuItems[0].id}`)
+            : i18next.t(`profile.section-${menuItems[0].id}`)
         }
         isSelected={false}
       >

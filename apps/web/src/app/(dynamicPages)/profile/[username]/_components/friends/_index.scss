@@ -5,6 +5,13 @@
   overflow: auto;
   margin-top: 1px;
 
+  // Embedded inside a profile section (/@user/followers): flow with the page
+  // instead of the fixed-height modal scroll box.
+  &.is-page {
+    height: auto;
+    overflow: visible;
+  }
+
   .loading {
     position: absolute;
     left: 0;

@@ -1,5 +1,4 @@
 import React from "react";
-import "./_index.scss";
 import { Modal, ModalBody, ModalHeader, ModalTitle } from "@ui/modal";
 import i18next from "i18next";
 import { formattedNumber } from "@/utils";
