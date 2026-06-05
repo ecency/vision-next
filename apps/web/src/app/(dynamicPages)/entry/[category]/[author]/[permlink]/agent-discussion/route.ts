@@ -1,8 +1,8 @@
 import { prefetchQuery } from "@/core/react-query";
 import { getDiscussionQueryOptions } from "@ecency/sdk";
 import {
-  AGENT_CACHE_CONTROL,
   agentNotFound,
+  agentResponse,
   loadIndexableEntry,
   selfUrl
 } from "@/app/(dynamicPages)/entry/_helpers/agent-readable";
@@ -19,32 +19,26 @@ export async function GET(_request: Request, { params }: Props): Promise<Respons
   try {
     const { author, permlink } = await params;
 
-    // Gate on the root post: if the post itself is suppressed, so is its thread.
+    // Gate on the requested entry: if it's suppressed, so is its thread.
     const loaded = await loadIndexableEntry(author, permlink);
     if (!loaded) return agentNotFound();
 
-    const discussion = await prefetchQuery(
-      getDiscussionQueryOptions(loaded.entry.author, loaded.entry.permlink)
-    );
+    // Always return the FULL thread. bridge.get_discussion rooted at a comment
+    // only yields that comment's subtree, so resolve to the discussion root
+    // (root_author/root_permlink when this entry is a reply; itself otherwise).
+    const rootAuthor = loaded.entry.root_author || loaded.entry.author;
+    const rootPermlink = loaded.entry.root_permlink || loaded.entry.permlink;
+
+    const discussion = await prefetchQuery(getDiscussionQueryOptions(rootAuthor, rootPermlink));
 
     const body = JSON.stringify({
       type: "discussion",
-      canonical_url: selfUrl(loaded.entry),
+      canonical_url: selfUrl({ author: rootAuthor, permlink: rootPermlink }),
       source: "hive_bridge",
       content: discussion ?? {}
     });
 
-    return new Response(body, {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json; charset=utf-8",
-        "Cache-Control": AGENT_CACHE_CONTROL,
-        // Alternate representation of the HTML post — keep it out of the search
-        // index (no duplicate-content competition). Agents fetching the URL
-        // still get the content; X-Robots-Tag only governs indexing.
-        "X-Robots-Tag": "noindex"
-      }
-    });
+    return agentResponse(body, "application/json; charset=utf-8");
   } catch {
     return agentNotFound();
   }

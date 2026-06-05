@@ -26,12 +26,13 @@ const AGENT_EXTENSIONS: ReadonlyArray<readonly [string, string]> = [
   [".json", "agent-json"]
 ];
 
-// Post URL forms. On-chain permlinks are `[a-z0-9-]+` (never contain a dot), so
-// stripping a known trailing extension is unambiguous.
+// Post URL forms. On-chain permlinks are `[a-z0-9_-]+` (lowercase alnum, hyphen,
+// underscore — never a dot), so stripping a known trailing extension is
+// unambiguous.
 //   /:category/@author/:permlink   (community / category form)
-const CATEGORY_FORM = /^\/[^/]+\/@[^/]+\/[a-z0-9-]+$/i;
+const CATEGORY_FORM = /^\/[^/]+\/@[^/]+\/[a-z0-9_-]+$/i;
 //   /@author/:permlink             (bare form)
-const BARE_FORM = /^\/@[^/]+\/[a-z0-9-]+$/i;
+const BARE_FORM = /^\/@[^/]+\/[a-z0-9_-]+$/i;
 
 /**
  * If the request targets an agent-readable post endpoint, returns the rewrite to
@@ -65,8 +66,4 @@ export function handleAgentReadableRewrite(request: NextRequest): NextResponse |
   }
 
   return null;
-}
-
-export function isAgentReadableRequest(request: NextRequest): boolean {
-  return handleAgentReadableRewrite(request) !== null;
 }

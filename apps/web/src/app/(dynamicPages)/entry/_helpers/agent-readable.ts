@@ -23,6 +23,24 @@ export const AGENT_CACHE_CONTROL = "public, max-age=0, s-maxage=300, stale-while
 // both of which can flip — don't let edges pin it for long.
 const NOT_FOUND_CACHE_CONTROL = "public, max-age=0, s-maxage=60";
 
+// Hive bodies are a markdown/HTML hybrid and CAN carry arbitrary raw HTML/JS
+// (we serve the body verbatim, NOT through the HTML sanitizer). We never send a
+// text/html content type, but harden every response so that raw body can never
+// be content-sniffed or rendered as an executable document on our own origin:
+//   - nosniff           → the declared text/markdown|application/json wins; the
+//                         browser won't re-interpret it as HTML and run scripts.
+//   - CSP default-src 'none'; sandbox → even if forced into a document context,
+//                         nothing loads or executes.
+//   - X-Robots-Tag noindex → alternate representation of the HTML post; keep it
+//                         out of search (no duplicate-content competition).
+// Agents fetching the URL still get the full content — these only govern how a
+// browser would render it and how search engines index it.
+const AGENT_SECURITY_HEADERS: Record<string, string> = {
+  "X-Content-Type-Options": "nosniff",
+  "Content-Security-Policy": "default-src 'none'; sandbox",
+  "X-Robots-Tag": "noindex"
+};
+
 export type EntrySource = "hive_condenser" | "hive_bridge";
 
 export interface LoadedEntry {
@@ -30,10 +48,26 @@ export interface LoadedEntry {
   source: EntrySource;
 }
 
+/** 200 response with the shared cache + security headers for every format. */
+export function agentResponse(body: string, contentType: string): Response {
+  return new Response(body, {
+    status: 200,
+    headers: {
+      "Content-Type": contentType,
+      "Cache-Control": AGENT_CACHE_CONTROL,
+      ...AGENT_SECURITY_HEADERS
+    }
+  });
+}
+
 export function agentNotFound(): Response {
   return new Response("Not found", {
     status: 404,
-    headers: { "Cache-Control": NOT_FOUND_CACHE_CONTROL }
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8",
+      "Cache-Control": NOT_FOUND_CACHE_CONTROL,
+      ...AGENT_SECURITY_HEADERS
+    }
   });
 }
 

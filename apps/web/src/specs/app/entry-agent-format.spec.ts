@@ -60,6 +60,14 @@ describe("renderEntryMarkdown", () => {
     expect(md).not.toContain("app:");
   });
 
+  it("collapses newlines in the H1 heading (front matter stays escaped)", () => {
+    const md = renderEntryMarkdown(makeEntry({ title: "Line one\nLine two" }));
+    expect(md).toContain("# Line one Line two\n\n");
+    expect(md).not.toContain("# Line one\nLine two");
+    // front matter keeps the title as a single escaped scalar
+    expect(md).toContain('title: "Line one\\nLine two"');
+  });
+
   it("extracts the app name when json_metadata.app is an object", () => {
     const md = renderEntryMarkdown(
       makeEntry({ json_metadata: { app: { name: "ecency", version: "4.0" } } as any })

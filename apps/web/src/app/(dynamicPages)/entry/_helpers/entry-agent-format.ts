@@ -55,6 +55,8 @@ export function renderEntryMarkdown(entry: Entry): string {
     yamlLine("canonical_url", selfUrl(entry))
   ].filter(Boolean);
 
-  const heading = entry.title ? `# ${entry.title}\n\n` : "";
+  // Collapse any newlines in the title so the H1 stays a single line (on-chain
+  // titles can contain raw line breaks). The front-matter copy is JSON-escaped.
+  const heading = entry.title ? `# ${entry.title.replace(/[\r\n]+/g, " ")}\n\n` : "";
   return `---\n${front.join("\n")}\n---\n\n${heading}${entry.body}\n`;
 }

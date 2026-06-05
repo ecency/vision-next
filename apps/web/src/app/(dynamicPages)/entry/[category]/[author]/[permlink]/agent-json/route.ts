@@ -1,6 +1,6 @@
 import {
-  AGENT_CACHE_CONTROL,
   agentNotFound,
+  agentResponse,
   loadIndexableEntry,
   selfUrl
 } from "@/app/(dynamicPages)/entry/_helpers/agent-readable";
@@ -26,17 +26,7 @@ export async function GET(_request: Request, { params }: Props): Promise<Respons
       content: loaded.entry
     });
 
-    return new Response(body, {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json; charset=utf-8",
-        "Cache-Control": AGENT_CACHE_CONTROL,
-        // Alternate representation of the HTML post — keep it out of the search
-        // index (no duplicate-content competition). Agents fetching the URL
-        // still get the content; X-Robots-Tag only governs indexing.
-        "X-Robots-Tag": "noindex"
-      }
-    });
+    return agentResponse(body, "application/json; charset=utf-8");
   } catch {
     return agentNotFound();
   }

@@ -41,6 +41,15 @@ describe("handleAgentReadableRewrite", () => {
     );
   });
 
+  it("matches permlinks containing underscores", () => {
+    expect(rewriteTarget("/@alice/re-bob-my_post-20240601.md")).toBe(
+      "/created/@alice/re-bob-my_post-20240601/agent-md"
+    );
+    expect(rewriteTarget("/hive-101010/@alice/a_b_c.json")).toBe(
+      "/hive-101010/@alice/a_b_c/agent-json"
+    );
+  });
+
   it("leaves a normal post URL (no extension) untouched", () => {
     expect(handleAgentReadableRewrite(requestFor("/hive-101010/@alice/my-post"))).toBeNull();
     expect(handleAgentReadableRewrite(requestFor("/@alice/my-post"))).toBeNull();
