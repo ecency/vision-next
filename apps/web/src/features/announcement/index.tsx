@@ -166,7 +166,9 @@ export const Announcements = () => {
     } else {
       const getCurrentData = ls.get("dismiss_announcements");
       for (let i = 0; i < getCurrentData.length; i++) {
-        if (getCurrentData[i].id === clickedBanner.id) {
+        // dismiss_announcements stores bare ids, so compare the number itself —
+        // `.id` on a number is undefined and would never dedup.
+        if (getCurrentData[i] === clickedBanner.id) {
           return;
         }
       }
