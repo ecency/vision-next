@@ -8,17 +8,48 @@ import { usePathname } from "next/navigation";
 import { closeSvg } from "@ui/svg";
 import Link from "next/link";
 import i18next from "i18next";
-import { getAnnouncementsQueryOptions } from "@ecency/sdk";
+import { getAnnouncementsQueryOptions, getUserProposalVotesQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { ProposalVoteAction } from "./proposal-vote-action";
 
 export const Announcements = () => {
-  const { activeUser } = useActiveAccount();
+  const { activeUser, username } = useActiveAccount();
 
   const pathname = usePathname();
 
   const { data: allAnnouncements } = useQuery(getAnnouncementsQueryOptions());
+
+  // Resolve the active user's proposal votes so we can drop proposal-type
+  // announcements they've already supported. This uses the exact same query as
+  // the inline ProposalVoteAction (same key, so it's a shared cache read rather
+  // than a second request), and after an inline vote the mutation invalidates
+  // this key — making the card disappear on its own too.
+  const { data: userVotes, isSuccess: userVotesResolved } = useQuery({
+    ...getUserProposalVotesQueryOptions(username ?? ""),
+    enabled: !!username
+  });
+
+  const votedProposalIds = useMemo(
+    () =>
+      new Set(
+        (userVotes ?? [])
+          .map((vote) => vote.proposal?.proposal_id)
+          .filter((id): id is number => typeof id === "number")
+      ),
+    [userVotes]
+  );
+
+  // Until the votes resolve we can't tell a voter from a non-voter, so hold
+  // proposal announcements back rather than flashing a "support" card that then
+  // vanishes. We gate on success — not merely "fetched" — on purpose: if the
+  // votes lookup errors we keep proposal announcements hidden rather than
+  // re-prompting someone who may have already voted (the whole point of this
+  // filter), accepting that a transient RPC failure briefly hides the card from
+  // non-voters too. Logged-out users have no votes query (it's disabled), so
+  // treat them as ready — auth/path filtering and the action's own login prompt
+  // cover that case.
+  const votesReady = !username || userVotesResolved;
 
   const [show, setShow] = useState(true);
   const [list, setList] = useState<Announcement[]>([]);
@@ -72,8 +103,20 @@ export const Announcements = () => {
         }
       });
 
-    return displayList;
-  }, [activeUser, allAnnouncements, pathname]);
+    return displayList.filter((announcement) => {
+      // Proposal announcements disappear once the user has voted on the proposal
+      // they promote. The inline action votes on the first id, so we mirror that
+      // here. Non-proposal announcements are never affected.
+      const proposalIds = announcement.proposal_ids;
+      if (!proposalIds || proposalIds.length === 0) {
+        return true;
+      }
+      if (!votesReady) {
+        return false;
+      }
+      return !votedProposalIds.has(proposalIds[0]);
+    });
+  }, [activeUser, allAnnouncements, pathname, votedProposalIds, votesReady]);
 
   useEffect(() => {
     setList(superList);
@@ -123,7 +166,9 @@ export const Announcements = () => {
     } else {
       const getCurrentData = ls.get("dismiss_announcements");
       for (let i = 0; i < getCurrentData.length; i++) {
-        if (getCurrentData[i].id === clickedBanner.id) {
+        // dismiss_announcements stores bare ids, so compare the number itself —
+        // `.id` on a number is undefined and would never dedup.
+        if (getCurrentData[i] === clickedBanner.id) {
           return;
         }
       }
