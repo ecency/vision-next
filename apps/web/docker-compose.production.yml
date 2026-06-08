@@ -24,7 +24,7 @@ services:
     image: ecency/vision-next:latest
     stop_grace_period: 30s
     deploy:
-      replicas: 4
+      replicas: ${WEB_REPLICAS:-4}
       update_config:
         parallelism: 1
         delay: 15s
