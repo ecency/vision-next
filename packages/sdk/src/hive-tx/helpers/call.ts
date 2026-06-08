@@ -472,6 +472,12 @@ export class NodeHealthTracker {
    * At most one healthy node overdue for an exploratory re-probe: never sampled, or
    * neither sampled nor re-probed within LATENCY_REPROBE_MS. Returns the stalest such
    * node and stamps `lastProbeAt` to single-flight it against concurrent orderings.
+   *
+   * Note: `getOrCreate` here materializes a health entry per node in the passed list.
+   * The node list (`config.nodes`/`restNodes`) is treated as effectively static — set
+   * once via `setNodes` — so the map is bounded. If a host is ever removed from the
+   * list at runtime its stale entry is simply ignored (never re-surfaced) and is a
+   * negligible, bounded amount of memory.
    */
   private pickReprobeCandidate(healthy: string[], now: number): string | undefined {
     const threshold = now - LATENCY_REPROBE_MS
@@ -841,6 +847,11 @@ export const callRPCBroadcast = async <T = any>(
     }
     try {
       const res = await jsonRPCCall(node, method, params, timeout, false, signal)
+      // Deliberately no latency sample for broadcasts: broadcast_transaction_synchronous
+      // blocks for block inclusion (~1.5–3s+) regardless of the node's read speed, so
+      // feeding it into the shared read EWMA would wrongly demote a fast node for reads.
+      // The same nodes are profiled by callRPC read traffic, so a genuinely slow node is
+      // still demoted there.
       rpcHealthTracker.recordSuccess(node, api)
       return res as T
     } catch (e: any) {

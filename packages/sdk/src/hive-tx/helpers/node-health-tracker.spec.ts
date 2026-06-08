@@ -178,6 +178,21 @@ describe("NodeHealthTracker — adaptive latency ordering", () => {
     expect(order).toEqual([C, A]);
     expect(order).not.toContain(B);
   });
+
+  it("per-API failures deprioritize a node for THAT api only, not globally", () => {
+    const t = new NodeHealthTracker();
+    warm(t, A, 300); // fast for everything
+    warm(t, B, 800);
+    // A repeatedly fails the 'hivesense' plugin ⇒ per-API cooldown (not a global fail)
+    t.recordFailure(A, "hivesense");
+    t.recordFailure(A, "hivesense");
+    // for hivesense: A is in cooldown ⇒ unhealthy tail, B serves despite being slower
+    const hs = t.getOrderedNodes([A, B], "hivesense");
+    expect(hs[0]).toBe(B);
+    expect(hs[hs.length - 1]).toBe(A);
+    // for a different api: A is still healthy and ranks first on its fast latency
+    expect(t.getOrderedNodes([A, B], "condenser_api")[0]).toBe(A);
+  });
 });
 
 // ── Real-path integration: prove the CALL SITES feed latency (end-to-end) ────
