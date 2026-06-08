@@ -133,6 +133,17 @@ export function getSimilarEntriesQueryOptions(entry: Entry) {
 
       return collected;
     },
+    // The entry page server-prefetches this query and dehydrates it. Without a
+    // staleTime, React Query treats the hydrated data as stale and refetches on
+    // mount — issuing a *redundant* /search-api/similar XHR right after
+    // hydration even though SSR already provided the data. That refetch was the
+    // long post-onload tail in the waterfall (held open to the client timeout),
+    // inflating GTmetrix "Fully Loaded" while the visible strip was already
+    // populated from SSR. A staleTime makes the hydrated data fresh so the
+    // client skips that refetch; if SSR delivered nothing (empty cache), the
+    // client still fetches. Recommendations are stable per post (and the cache
+    // key is content-fingerprinted), so 5 min matches the page's ISR cadence.
+    staleTime: 5 * 60 * 1000,
     // Best-effort suggestions strip — never retry-storm a degraded backend.
     // The web QueryClient only disables retries on the server; the browser
     // client keeps React Query's default retry (3×) — and other SDK consumers
