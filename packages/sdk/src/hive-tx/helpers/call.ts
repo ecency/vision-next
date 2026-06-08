@@ -119,6 +119,22 @@ interface NodeHealth {
   headBlock: number
   /** Epoch ms when the head_block was recorded. Used to expire stale observations. */
   headBlockUpdatedAt: number
+
+  // ── Latency tracking (adaptive ordering) ────────────────────────────────
+  /** EWMA of observed round-trip ms. Fed by successful calls AND by slow/timeout
+   *  failures (so a node that returns 200 in 15s, or aborts at the timeout, is
+   *  ranked on its real slowness — not treated as merely "healthy"). `undefined`
+   *  until the first sample. */
+  ewmaLatencyMs?: number
+  /** Number of latency samples folded into the EWMA. Gates "warmup": below
+   *  LATENCY_MIN_SAMPLES the node is unproven and keeps its config-order prior. */
+  latencySampleCount: number
+  /** Epoch ms of the most recent latency sample. Used for usability expiry and to
+   *  decide when a node is overdue for an exploratory re-probe. */
+  latencyUpdatedAt: number
+  /** Epoch ms of the most recent exploratory promotion. Single-flight guard so a
+   *  burst of concurrent orderings doesn't all re-probe the same stale node. */
+  lastProbeAt: number
 }
 
 /**
@@ -158,6 +174,54 @@ const HEAD_BLOCK_MAX_AGE_MS = 120_000
 /** Maximum lag (in blocks) before a node is considered stale relative to the best-known head. */
 const STALE_BLOCK_THRESHOLD = 30
 
+// ── Adaptive latency-ordering constants ──────────────────────────────────────
+/** EWMA smoothing weight for a new latency sample. 0.3 ⇒ ~5–6 samples to converge;
+ *  absorbs one-off GC/TLS spikes while still reacting to a real regional shift fast. */
+const LATENCY_EWMA_ALPHA = 0.3
+/** Samples required before a node's latency is trusted for ranking. Below this the
+ *  node is "warming" and ranks at a neutral prior (config order via tiebreak), so a
+ *  single fluke never reorders the list and cold start == today's behavior. */
+const LATENCY_MIN_SAMPLES = 3
+/** How long a latency sample stays usable for ranking. Past this a node reverts to
+ *  warming. Must be > LATENCY_REPROBE_MS so re-probes keep a busy node's profile fresh. */
+const LATENCY_MAX_AGE_MS = 5 * 60_000
+/** A healthy node not sampled within this window is overdue for an exploratory
+ *  re-probe (promoted to front of ONE ordering). This is what lets a demoted node
+ *  climb back when it recovers — and what profiles a node that organic traffic never
+ *  reaches. 60s ⇒ ~1 probe/node/min worst case = negligible cost. */
+const LATENCY_REPROBE_MS = 60_000
+/** Neutral score (ms) for an unproven/warming node: optimistic enough to sit ahead
+ *  of a proven-slow node (so we explore an unknown before hammering a known-slow one)
+ *  but behind a proven-fast node. Fixed, so a node makes at most ONE rank transition
+ *  when it crosses LATENCY_MIN_SAMPLES — no churn. */
+const LATENCY_UNPROVEN_PRIOR_MS = 1_000
+/** A failed call only feeds a latency penalty if it was actually slow (≥ this). Keeps
+ *  a genuine timeout / slow-5xx (the hapi-from-US case) visible to the ranker while an
+ *  instant ECONNREFUSED (a *down* node, handled by consecutiveFailures) is NOT mis-read
+ *  as "slow". The penalty value is the *measured* elapsed, never a static constant. */
+const LATENCY_SLOW_FAILURE_MS = 2_000
+/** Our-node additive tolerance (ms): our own unlimited node (no public rate limit via
+ *  fleet IP whitelist) is forgiven up to this much extra latency, so it keeps its slot
+ *  when it's merely a little slower than a public peer. ~700ms covers the normal
+ *  EU/SIN advantage envelope. */
+const OUR_NODE_BIAS_MS = 700
+/** Hard ceiling on the bias: once our node is this many× the fastest proven peer, the
+ *  forgiveness is dropped and it ranks on raw latency. Guarantees our node CAN be
+ *  demoted when it's genuinely slow (US 6–20s) instead of being pinned #1 forever. */
+const OUR_NODE_DEMOTE_RATIO = 2.5
+
+/** Hosts we operate (no public rate limit). Biased so the fleet prefers its own
+ *  unlimited node where it is fast, and only steps off it when it is genuinely slow.
+ *  Matched by hostname so a path/trailing-slash can't defeat it. */
+const OUR_NODE_HOSTS = new Set(['hapi.ecency.com', 'api.ecency.com'])
+function isOurNode(node: string): boolean {
+  try {
+    return OUR_NODE_HOSTS.has(new URL(node).hostname)
+  } catch {
+    return false
+  }
+}
+
 /** @internal Exported for testing only. */
 export class NodeHealthTracker {
   private health = new Map<string, NodeHealth>()
@@ -171,20 +235,57 @@ export class NodeHealthTracker {
         rateLimitedUntil: 0,
         apiFailures: new Map(),
         headBlock: 0,
-        headBlockUpdatedAt: 0
+        headBlockUpdatedAt: 0,
+        ewmaLatencyMs: undefined,
+        latencySampleCount: 0,
+        latencyUpdatedAt: 0,
+        lastProbeAt: 0
       }
       this.health.set(node, h)
     }
     return h
   }
 
-  recordSuccess(node: string, api?: string): void {
+  recordSuccess(node: string, api?: string, durationMs?: number): void {
     const h = this.getOrCreate(node)
     h.consecutiveFailures = 0
     if (api) {
       // A successful API call clears that API's failure counter.
       h.apiFailures.delete(api)
     }
+    if (typeof durationMs === 'number' && Number.isFinite(durationMs) && durationMs >= 0) {
+      this.recordLatency(h, durationMs)
+    }
+  }
+
+  /**
+   * Record a *slow* failed call as a latency signal. The failure counters are
+   * updated separately (recordFailure/recordError); this only feeds the EWMA so a
+   * node that returns 200-but-too-slow, times out, or returns a slow 5xx is ranked
+   * on its real slowness. Callers pass the MEASURED elapsed ms and only call this
+   * when the call was genuinely slow (≥ LATENCY_SLOW_FAILURE_MS) — an instant
+   * connection failure (a *down* node) must NOT look "slow".
+   */
+  recordSlowFailure(node: string, durationMs: number): void {
+    if (!Number.isFinite(durationMs) || durationMs < LATENCY_SLOW_FAILURE_MS) return
+    this.recordLatency(this.getOrCreate(node), durationMs)
+  }
+
+  /** Fold a latency sample into the node's EWMA (warmup + usability bookkeeping). */
+  private recordLatency(h: NodeHealth, durationMs: number): void {
+    const now = Date.now()
+    // A profile older than the usable window starts fresh, so an idled process
+    // re-learns from scratch rather than ranking on hour-old data.
+    if (h.latencyUpdatedAt > 0 && now - h.latencyUpdatedAt > LATENCY_MAX_AGE_MS) {
+      h.ewmaLatencyMs = undefined
+      h.latencySampleCount = 0
+    }
+    h.ewmaLatencyMs =
+      h.ewmaLatencyMs === undefined
+        ? durationMs
+        : LATENCY_EWMA_ALPHA * durationMs + (1 - LATENCY_EWMA_ALPHA) * h.ewmaLatencyMs
+    h.latencySampleCount++
+    h.latencyUpdatedAt = now
   }
 
   recordFailure(node: string, api?: string): void {
@@ -285,7 +386,19 @@ export class NodeHealthTracker {
     return true
   }
 
-  /** Return nodes sorted: healthy first (preserving order), unhealthy appended. */
+  /**
+   * Order nodes best-first: healthy nodes sorted by adaptive latency score, then
+   * unhealthy nodes appended. Capability / staleness / rate-limit filtering stays in
+   * `isNodeHealthy` and is unchanged — latency only reorders WITHIN the healthy set,
+   * and only WITHIN the array it is handed (so it never leaves the configured list).
+   *
+   * One ordering per pass MAY promote a healthy node overdue for a re-probe (never
+   * sampled, or not sampled within LATENCY_REPROBE_MS) to the front — single-flight
+   * via `lastProbeAt`. This is what lets a demoted node climb back when it recovers,
+   * and profiles a node that organic traffic (always served by a faster peer) never
+   * reaches. Cold start: with no profiles, every node scores the neutral prior and the
+   * stable config-index tiebreak yields the original order — i.e. today's behavior.
+   */
   getOrderedNodes(nodes: string[], api?: string): string[] {
     const healthy: string[] = []
     const unhealthy: string[] = []
@@ -296,7 +409,84 @@ export class NodeHealthTracker {
         unhealthy.push(node)
       }
     }
-    return [...healthy, ...unhealthy]
+    if (healthy.length <= 1) {
+      return [...healthy, ...unhealthy]
+    }
+    const now = Date.now()
+    const fastest = this.fastestUsableLatency(healthy, now)
+    // Every score in THIS pass is computed against the same `fastest` and falls back
+    // to config index on ties → a total, transitive order with no memo (so no
+    // stale-denominator inversions).
+    const ordered = healthy
+      .map((node, i) => ({ node, i, score: this.scoreNode(node, fastest, now) }))
+      .sort((a, b) => a.score - b.score || a.i - b.i)
+      .map((d) => d.node)
+    const probe = this.pickReprobeCandidate(healthy, now)
+    if (probe && ordered[0] !== probe) {
+      return [probe, ...ordered.filter((n) => n !== probe), ...unhealthy]
+    }
+    return [...ordered, ...unhealthy]
+  }
+
+  /** A node's latency is usable for ranking only if profiled (≥ MIN_SAMPLES) and fresh. */
+  private isLatencyUsable(h: NodeHealth | undefined, now: number): boolean {
+    return (
+      !!h &&
+      h.ewmaLatencyMs !== undefined &&
+      h.latencySampleCount >= LATENCY_MIN_SAMPLES &&
+      now - h.latencyUpdatedAt <= LATENCY_MAX_AGE_MS
+    )
+  }
+
+  /** Fastest usable EWMA among the given nodes; Infinity if none is profiled yet. */
+  private fastestUsableLatency(nodes: string[], now: number): number {
+    let min = Infinity
+    for (const n of nodes) {
+      const h = this.health.get(n)
+      if (this.isLatencyUsable(h, now)) min = Math.min(min, h!.ewmaLatencyMs!)
+    }
+    return min
+  }
+
+  /**
+   * Ranking score (lower = better). Unproven/warming nodes get a fixed neutral prior
+   * so they sit ahead of a proven-slow node but behind a proven-fast one, and make at
+   * most one rank transition when they cross MIN_SAMPLES (no churn). Our own node is
+   * forgiven OUR_NODE_BIAS_MS of extra latency — bounded by OUR_NODE_DEMOTE_RATIO so it
+   * is genuinely demoted when slow rather than pinned #1.
+   */
+  private scoreNode(node: string, fastest: number, now: number): number {
+    const h = this.health.get(node)
+    if (!this.isLatencyUsable(h, now)) return LATENCY_UNPROVEN_PRIOR_MS
+    const lat = h!.ewmaLatencyMs!
+    if (isOurNode(node)) {
+      const overCeiling =
+        fastest > 0 && fastest !== Infinity && lat > OUR_NODE_DEMOTE_RATIO * fastest
+      if (overCeiling) return lat // demoted: raw latency, no forgiveness
+      return Math.max(lat - OUR_NODE_BIAS_MS, 0)
+    }
+    return lat
+  }
+
+  /**
+   * At most one healthy node overdue for an exploratory re-probe: never sampled, or
+   * neither sampled nor re-probed within LATENCY_REPROBE_MS. Returns the stalest such
+   * node and stamps `lastProbeAt` to single-flight it against concurrent orderings.
+   */
+  private pickReprobeCandidate(healthy: string[], now: number): string | undefined {
+    const threshold = now - LATENCY_REPROBE_MS
+    let cand: string | undefined
+    let candTouch = Infinity
+    for (const n of healthy) {
+      const h = this.getOrCreate(n)
+      const touch = Math.max(h.latencyUpdatedAt, h.lastProbeAt)
+      if (touch <= threshold && touch < candTouch) {
+        cand = n
+        candTouch = touch
+      }
+    }
+    if (cand) this.getOrCreate(cand).lastProbeAt = now
+    return cand
   }
 }
 
@@ -572,9 +762,10 @@ export const callRPC = async <T = any>(
       node = orderedNodes[0]
     }
     triedInRound.add(node)
+    const callStart = Date.now()
     try {
       const res = await jsonRPCCall(node, method, params, timeout, false, signal)
-      rpcHealthTracker.recordSuccess(node, api)
+      rpcHealthTracker.recordSuccess(node, api, Date.now() - callStart)
       tryRecordHeadBlock(rpcHealthTracker, node, method, res)
       return res as T
     } catch (e: any) {
@@ -593,6 +784,11 @@ export const callRPC = async <T = any>(
         throw e
       }
       recordError(rpcHealthTracker, node, e, api)
+      // A genuinely slow failure (timeout/abort/slow-5xx) is also a latency signal so
+      // a node that 200s-but-too-slow or aborts at the timeout is demoted by the
+      // ranker, not only by the (transient) failure gate. Measured elapsed, never a
+      // constant; recordSlowFailure ignores instant (down-node) failures.
+      rpcHealthTracker.recordSlowFailure(node, Date.now() - callStart)
       lastError = e
 
       // Add jitter before trying next node
@@ -782,6 +978,7 @@ export async function callREST(
     const { signal: tSignal, cleanup: cleanupTimeout } = createTimeoutSignal(timeout)
     const { signal: restSignal, cleanup: cleanupMerge } = mergeSignals(tSignal, signal)
     const restCleanup = () => { cleanupTimeout(); cleanupMerge() }
+    const restCallStart = Date.now()
     try {
       const response = await fetch(url.toString(), {
         signal: restSignal
@@ -806,7 +1003,7 @@ export async function callREST(
         alreadyRecorded = true
         throw new Error(`HTTP ${response.status} from ${node}`)
       }
-      restHealthTracker.recordSuccess(node, api)
+      restHealthTracker.recordSuccess(node, api, Date.now() - restCallStart)
       return response.json() as any
     } catch (e: any) {
       // 404 is not a node issue, don't failover
@@ -817,6 +1014,11 @@ export async function callREST(
       if (!alreadyRecorded) {
         restHealthTracker.recordFailure(node, api)
       }
+      // A slow failure (timeout/abort/slow-5xx — e.g. hapi from a far region) is a
+      // latency signal too, so it is demoted by the ranker, not only the failure gate.
+      // Measured elapsed; recordSlowFailure floors at LATENCY_SLOW_FAILURE_MS so a fast
+      // 404/429 or instant down-node failure is NOT mis-read as "slow".
+      restHealthTracker.recordSlowFailure(node, Date.now() - restCallStart)
       lastError = e
 
       if (attempt < retry) {
