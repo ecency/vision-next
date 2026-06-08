@@ -53,6 +53,7 @@ export function isTransientUpstreamError(e: unknown): boolean {
   return (
     /Unable to parse endpoint data/i.test(msg) ||
     /HTTP 5\d\d/.test(msg) ||
-    /fetch failed/i.test(msg)
+    /fetch failed/i.test(msg) ||
+    /Assert Exception:.*(Category|Tag).*does not exist/i.test(msg)
   );
 }
