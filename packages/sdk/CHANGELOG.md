@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.12
+
+### Patch Changes
+
+- Latency-aware adaptive node selection in hive-tx (#924)
+
 ## 2.3.11
 
 ### Patch Changes
