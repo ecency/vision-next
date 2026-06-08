@@ -3,6 +3,13 @@ version: "3.7"
 services:
   vapi:
     image: ecency/api:latest
+    # Pin the search backend hostname to the origin IP so vapi connects directly,
+    # bypassing a Cloudflare colo<->origin path that can hang for minutes (broke
+    # all US-routed search on 2026-06-08). Keeps the hostname for SNI/cert. The IP
+    # comes from the HIVESEARCHER_ORIGIN_IP secret (never committed to this public
+    # repo); update it if the search box IP changes.
+    extra_hosts:
+      - "api.hivesearcher.com:${HIVESEARCHER_ORIGIN_IP:?set HIVESEARCHER_ORIGIN_IP secret = hivesearcher origin IP}"
     environment:
       - PRIVATE_API_ADDR
       - PRIVATE_API_AUTH
