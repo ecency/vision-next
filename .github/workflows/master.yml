@@ -132,13 +132,15 @@ jobs:
           export THREESPEAK_EMBED_API_KEY=$THREESPEAK_EMBED_API_KEY
           export SEO_CRON_SECRET=$SEO_CRON_SECRET
           export SEO_BLACKLIST_URL=$SEO_BLACKLIST_URL
+          set -eo pipefail
           cd ~/vision-next
           git pull origin main
           cd apps/web
-          docker network create --driver overlay vision || true
+          docker network inspect vision >/dev/null 2>&1 || docker network create --driver overlay vision
           docker pull ecency/api:latest
           web_pull="$(docker pull ecency/vision-next:latest)"; printf '%s\n' "$web_pull"
-          docker stack deploy -c <(docker-compose -f docker-compose.production.yml config) vision
+          docker-compose -f docker-compose.production.yml config > /tmp/vision-stack.yml
+          docker stack deploy -c /tmp/vision-stack.yml vision
           # Don't report a green deploy unless the new image actually rolled out.
           # `docker stack deploy` returns as soon as the spec is committed to Raft
           # (before Swarm populates UpdateStatus), so a crash-on-start (-> rollback)
@@ -215,13 +217,15 @@ jobs:
           export THREESPEAK_EMBED_API_KEY=$THREESPEAK_EMBED_API_KEY
           export SEO_CRON_SECRET=$SEO_CRON_SECRET
           export SEO_BLACKLIST_URL=$SEO_BLACKLIST_URL
+          set -eo pipefail
           cd ~/vision-next
           git pull origin main
           cd apps/web
-          docker network create --driver overlay vision || true
+          docker network inspect vision >/dev/null 2>&1 || docker network create --driver overlay vision
           docker pull ecency/api:latest
           web_pull="$(docker pull ecency/vision-next:latest)"; printf '%s\n' "$web_pull"
-          docker stack deploy -c <(docker-compose -f docker-compose.production.yml config) vision
+          docker-compose -f docker-compose.production.yml config > /tmp/vision-stack.yml
+          docker stack deploy -c /tmp/vision-stack.yml vision
           # Don't report a green deploy unless the new image actually rolled out.
           # `docker stack deploy` returns as soon as the spec is committed to Raft
           # (before Swarm populates UpdateStatus), so a crash-on-start (-> rollback)
@@ -300,13 +304,15 @@ jobs:
           export SEO_CRON_SECRET=$SEO_CRON_SECRET
           export SEO_BLACKLIST_URL=$SEO_BLACKLIST_URL
           export WEB_REPLICAS=$WEB_REPLICAS
+          set -eo pipefail
           cd ~/vision-next
           git pull origin main
           cd apps/web
-          docker network create --driver overlay vision || true
+          docker network inspect vision >/dev/null 2>&1 || docker network create --driver overlay vision
           docker pull ecency/api:latest
           web_pull="$(docker pull ecency/vision-next:latest)"; printf '%s\n' "$web_pull"
-          docker stack deploy -c <(docker-compose -f docker-compose.production.yml config) vision
+          docker-compose -f docker-compose.production.yml config > /tmp/vision-stack.yml
+          docker stack deploy -c /tmp/vision-stack.yml vision
           # Don't report a green deploy unless the new image actually rolled out.
           # `docker stack deploy` returns as soon as the spec is committed to Raft
           # (before Swarm populates UpdateStatus), so a crash-on-start (-> rollback)
