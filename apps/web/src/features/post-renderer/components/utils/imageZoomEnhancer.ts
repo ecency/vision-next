@@ -1,4 +1,5 @@
 import type { Zoom } from "medium-zoom";
+import { zoomReplaceTarget, zoomEffectiveParent } from "./picture-zoom";
 
 /**
  * Apply medium-zoom to images in a container.
@@ -22,8 +23,15 @@ export function applyImageZoom(container: HTMLElement): Promise<Zoom | null> {
                 return false;
             }
 
+            // <img> inside a <picture>: the element we wrap/replace is the
+            // <picture>, so the "linked image" check looks at its parent.
+            const effectiveParent = zoomEffectiveParent(parentNode);
+            if (!effectiveParent) {
+                return false;
+            }
+
             return (
-                parentNode.nodeName !== "A" &&
+                effectiveParent.nodeName !== "A" &&
                 !x.classList.contains("medium-zoom-image") &&
                 !x.closest(".markdown-image-container")
             );
@@ -42,8 +50,13 @@ export function applyImageZoom(container: HTMLElement): Promise<Zoom | null> {
                 return;
             }
 
+            // When the <img> sits inside a <picture>, wrap/replace the whole
+            // <picture> so the <img> stays a DIRECT child of it (otherwise the
+            // <source>s are ignored and the format=match URL loads).
+            const zoomTarget = zoomReplaceTarget(el);
+
             // Verify parentElement exists before attempting manipulation
-            const parentElement = el.parentElement;
+            const parentElement = zoomTarget.parentElement;
             if (!parentElement) {
                 console.warn("Image element has no parent, skipping");
                 return;
@@ -52,26 +65,30 @@ export function applyImageZoom(container: HTMLElement): Promise<Zoom | null> {
             const wrapper = document.createElement("div");
             wrapper.classList.add("markdown-image-container");
 
-            // Preserve alignment from parent element, default to center
-            const parent = el.parentElement;
+            // Preserve alignment from the wrapped element's parent, default center
+            const parent = zoomTarget.parentElement;
             const validAligns = ["left", "center", "right", "justify"];
             const rawAlign = parent
                 ? (parent.tagName === "CENTER"
                     ? "center"
                     : parent.getAttribute("dir")
                     || parent.getAttribute("data-align")
-                    || parent.style.textAlign
+                    || (parent as HTMLElement).style?.textAlign
                     || "")
                 : "";
             const parentAlign = validAligns.includes(rawAlign) ? rawAlign : "";
             wrapper.style.textAlign = parentAlign === "left" ? "" : (parentAlign || "center");
 
-            const clonedImage = el.cloneNode(true) as HTMLImageElement;
+            const clonedImage = zoomTarget.cloneNode(true) as HTMLElement;
 
-            // Set explicit width/height to reduce CLS if not already present
-            if (el instanceof HTMLImageElement && !clonedImage.getAttribute("width") && el.naturalWidth > 0) {
-                clonedImage.setAttribute("width", String(el.naturalWidth));
-                clonedImage.setAttribute("height", String(el.naturalHeight));
+            // Set explicit width/height to reduce CLS if not already present. The
+            // cloned node may be a <picture>; target the inner <img>.
+            const clonedImg = (clonedImage.nodeName === "PICTURE"
+                ? clonedImage.querySelector("img")
+                : clonedImage) as HTMLImageElement | null;
+            if (el instanceof HTMLImageElement && clonedImg && !clonedImg.getAttribute("width") && el.naturalWidth > 0) {
+                clonedImg.setAttribute("width", String(el.naturalWidth));
+                clonedImg.setAttribute("height", String(el.naturalHeight));
             }
 
             const title = el.getAttribute("title")?.trim();
@@ -98,8 +115,8 @@ export function applyImageZoom(container: HTMLElement): Promise<Zoom | null> {
             }
 
             // Final check before replacing - ensure element is still in DOM
-            if (el.isConnected && el.parentElement) {
-                el.parentElement.replaceChild(wrapper, el);
+            if (zoomTarget.isConnected && zoomTarget.parentElement) {
+                zoomTarget.parentElement.replaceChild(wrapper, zoomTarget);
             }
         } catch (error) {
             // Handle any errors during DOM manipulation gracefully

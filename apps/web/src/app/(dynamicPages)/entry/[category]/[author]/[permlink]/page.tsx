@@ -1,6 +1,12 @@
 import { prefetchQuery, getQueryClient } from "@/core/react-query";
 import { getAccountFullQueryOptions, getSimilarEntriesQueryOptions } from "@ecency/sdk";
-import { buildSrcSet, catchPostImage, IMAGE_SIZES } from "@ecency/render-helper";
+import {
+  buildPictureSources,
+  buildSrcSet,
+  catchPostImage,
+  getEntryImageRawUrl,
+  IMAGE_SIZES
+} from "@ecency/render-helper";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { EntryPageContentClient } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-client";
 import { EntryPageContentSSR } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-ssr";
@@ -103,14 +109,28 @@ export default async function EntryPage({ params, searchParams }: Props) {
     );
   }
 
-  // Preload the post's primary image as the likely LCP element.
-  // catchPostImage extracts from json_metadata.image or body, proxied via i.ecency.com.
-  // buildSrcSet emits the same `/p/<hash>?...&width=<w>` URLs the in-body LCP
-  // <img>'s srcset uses, so pairing it with IMAGE_SIZES (the single source of
-  // truth, exported by @ecency/render-helper) makes the high-priority preload
-  // resolve to the exact rendition the page renders, not a fixed 600px URL.
-  const lcpImage = catchPostImage(entry, 600, 500, "match");
-  const lcpImageSrcSet = lcpImage ? buildSrcSet(lcpImage) : "";
+  // Preload the post's primary image as the likely LCP element, matching the
+  // exact rendition the in-body <picture>/<img> will request so the preload is
+  // a head start, not a double download. (getEntryImageRawUrl shares the
+  // renderer's decodeImageSrc, so the proxy hash is byte-identical to the body.)
+  //   - Eligible cover (static raster): the body renders <picture> and an
+  //     avif-capable browser picks the avif <source>. Preload the SAME avif
+  //     srcset, typed image/avif. We deliberately emit ONLY the avif preload:
+  //     unlike <picture>, multiple typed image preloads do NOT "pick the first
+  //     supported one" — a browser that supports both avif and webp would fetch
+  //     BOTH, double-downloading the LCP on the majority of clients. A match
+  //     preload would likewise mismatch the avif <source>. The trade-off: the
+  //     shrinking webp-only/no-avif tail (Safari 16.0–16.3, very old Chromium)
+  //     skips the typed preload and instead loads the body <picture>'s webp via
+  //     the in-body fetchpriority="high" <img> — no head start, but a far
+  //     smaller image than develop's CDN-cross-served match preload, so net LCP
+  //     for that cohort is not worse.
+  //   - Ineligible cover (gif/svg/extensionless/already-proxified): the body
+  //     renders a bare format=match <img>, so preload that (original behavior).
+  const rawCover = getEntryImageRawUrl(entry);
+  const coverPicture = rawCover ? buildPictureSources(rawCover) : null;
+  const lcpMatch = catchPostImage(entry, 600, 500, "match");
+  const lcpMatchSrcSet = lcpMatch ? buildSrcSet(lcpMatch) : "";
 
   // Structured data: only top-level posts get Article + breadcrumb. Comments
   // carry no headline of their own and would emit an invalid Article.
@@ -134,15 +154,26 @@ export default async function EntryPage({ params, searchParams }: Props) {
 
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>
-      {lcpImage && (
+      {coverPicture ? (
         <link
           rel="preload"
           as="image"
-          href={lcpImage}
-          imageSrcSet={lcpImageSrcSet || undefined}
-          imageSizes={lcpImageSrcSet ? IMAGE_SIZES : undefined}
+          type="image/avif"
+          imageSrcSet={coverPicture.avif}
+          imageSizes={IMAGE_SIZES}
           fetchPriority="high"
         />
+      ) : (
+        lcpMatch && (
+          <link
+            rel="preload"
+            as="image"
+            href={lcpMatch}
+            imageSrcSet={lcpMatchSrcSet || undefined}
+            imageSizes={lcpMatchSrcSet ? IMAGE_SIZES : undefined}
+            fetchPriority="high"
+          />
+        )
       )}
       <EntryPageContextProvider>
         <MdHandler />

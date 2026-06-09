@@ -771,4 +771,35 @@ describe('sanitizeHtml', () => {
       expect(result).not.toContain('onclick')
     })
   })
+
+  describe('<picture>/<source> content-negotiation', () => {
+    it('keeps a clean <picture> with typed proxy-/p/ <source> srcsets', () => {
+      const html = '<picture>' +
+        '<source type="image/avif" srcset="https://i.ecency.com/p/abc?format=avif&mode=fit&width=320 320w" sizes="100vw" />' +
+        '<source type="image/webp" srcset="https://i.ecency.com/p/abc?format=webp&mode=fit&width=320 320w" sizes="100vw" />' +
+        '<img src="https://i.ecency.com/p/abc?format=match&mode=fit" /></picture>'
+      const out = sanitizeHtml(html)
+      expect(out).toContain('<picture>')
+      expect(out).toContain('type="image/avif"')
+      expect(out).toContain('type="image/webp"')
+      expect(out).toContain('format=avif')
+    })
+
+    it('blanks a <source srcset> pointing off the proxy /p/ route (no external beacon)', () => {
+      const html = '<source type="image/avif" srcset="https://evil.com/x.png 320w" />'
+      expect(sanitizeHtml(html)).not.toContain('evil.com')
+    })
+
+    it('blanks a javascript: <source srcset>', () => {
+      const html = '<source type="image/webp" srcset="javascript:alert(1) 320w" />'
+      expect(sanitizeHtml(html)).not.toContain('javascript:')
+    })
+
+    it('drops a <source> with a missing or invalid type (would otherwise match every browser)', () => {
+      const noType = '<source srcset="https://i.ecency.com/p/abc?format=avif&mode=fit&width=320 320w" />'
+      expect(sanitizeHtml(noType)).not.toContain('<source')
+      const badType = '<source type="text/html" srcset="https://i.ecency.com/p/abc?format=avif&mode=fit&width=320 320w" />'
+      expect(sanitizeHtml(badType)).not.toContain('<source')
+    })
+  })
 })

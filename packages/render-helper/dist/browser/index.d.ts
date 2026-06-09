@@ -38,6 +38,15 @@ declare function setSlowRenderThresholdMs(ms: number): void;
  */
 declare function markdown2Html(obj: Entry | string, forApp?: boolean, _webp?: boolean, parentDomain?: string, seoContext?: SeoContext, renderOptions?: RenderOptions): string;
 
+/**
+ * The RAW (pre-proxify) URL of an entry's primary image, using the same
+ * discovery order as catchPostImage (json_metadata.image, then the first body
+ * image). Unlike catchPostImage it does NOT proxify — callers need the original
+ * URL (e.g. to test picture-eligibility for an LCP preload, since catchPostImage
+ * returns an already-proxified /p/ URL). Returns null when the fast path finds
+ * no unambiguous image (the caller can fall back to catchPostImage).
+ */
+declare function getEntryImageRawUrl(obj: Entry | string): string | null;
 declare function catchPostImage(obj: Entry | string, width?: number, height?: number, format?: string): string | null;
 
 /**
@@ -68,14 +77,49 @@ interface ProxifyOptions {
     forceProxy?: boolean;
 }
 /**
- * @param _format - @deprecated Ignored. Always uses 'match' — format is handled server-side via Accept header.
+ * @param _format - @deprecated Ignored. The public API always requests 'match'
+ * so the origin negotiates WebP/AVIF via the Accept header. Explicit per-format
+ * renditions (for `<picture>`) are built via buildSrcSetForFormat /
+ * buildPictureSources, which keep the format in the URL (cache-safe behind a CDN
+ * that ignores Accept).
  */
 declare function proxifyImageSrc(url?: string, width?: number, height?: number, _format?: string, opts?: ProxifyOptions): string;
 /**
  * Builds a srcset string with multiple width variants for responsive images.
  * Uses the image proxy's width parameter to serve appropriately sized images.
+ * Format is locked to 'match' (Accept-negotiated) — see buildSrcSetForFormat
+ * for explicit per-format renditions.
  */
 declare function buildSrcSet(url?: string): string;
+/**
+ * Like buildSrcSet but pins an explicit output format in the URL (avif/webp/
+ * match). Used to build the per-format `<source>` srcsets of a `<picture>`: a
+ * format baked into the URL is cache-safe behind a CDN that ignores the Accept
+ * header, whereas a single 'match' URL gets one negotiated variant cached and
+ * cross-served to every client. Byte-identical to buildSrcSet when format is
+ * 'match'.
+ */
+declare function buildSrcSetForFormat(url?: string, format?: 'avif' | 'webp' | 'match'): string;
+/**
+ * Whether a RAW (pre-proxify) image URL is safe to offer avif/webp `<source>`
+ * renditions for. Requires an http(s) URL whose PATHNAME ends in a static-raster
+ * extension and that is NOT already proxified — already-proxified routes (`/p/`
+ * base58 hash, `/u/` avatars, `WxH` sized) have the original extension stripped,
+ * so we can't prove the underlying bytes aren't an animated gif and must fall
+ * back to a bare img. URL parsing (not string regex on the host) keeps the host
+ * comparison exact and avoids an interpolated-hostname regex.
+ */
+declare function isPictureEligibleRawUrl(rawUrl?: string): boolean;
+/**
+ * Build the avif + webp `<source>` srcsets for a `<picture>` around a RAW image
+ * URL, or null when the URL is ineligible (non-raster, animated, already
+ * proxified, or a legacy host that bypasses the /p/ transform). Single
+ * eligibility gate shared by the renderer so the decision can't diverge.
+ */
+declare function buildPictureSources(rawUrl?: string): {
+    avif: string;
+    webp: string;
+} | null;
 
 /**
  * The `sizes` value the renderer applies to in-body post images (see `img()`
@@ -101,4 +145,4 @@ declare function isValidPermlink(permlink: string): boolean;
  */
 declare function simpleMarkdownToHTML(input: string): string;
 
-export { type Entry, IMAGE_SIZES, type ProxifyOptions, type RenderOptions, SECTION_LIST, type SeoContext, buildSrcSet, catchPostImage, isValidPermlink, getPostBodySummary as postBodySummary, proxifyImageSrc, markdown2Html as renderPostBody, setCacheSize, setProxyBase, setSlowRenderThresholdMs, simpleMarkdownToHTML };
+export { type Entry, IMAGE_SIZES, type ProxifyOptions, type RenderOptions, SECTION_LIST, type SeoContext, buildPictureSources, buildSrcSet, buildSrcSetForFormat, catchPostImage, getEntryImageRawUrl, isPictureEligibleRawUrl, isValidPermlink, getPostBodySummary as postBodySummary, proxifyImageSrc, markdown2Html as renderPostBody, setCacheSize, setProxyBase, setSlowRenderThresholdMs, simpleMarkdownToHTML };

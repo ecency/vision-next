@@ -1,4 +1,152 @@
-import { catchPostImage } from './catch-post-image'
+import { catchPostImage, getEntryImageRawUrl } from './catch-post-image'
+import { markdown2Html } from './markdown-2-html'
+import { buildPictureSources } from './proxify-image-src'
+
+// The feature's central invariant: the LCP <link rel="preload"> the entry page
+// builds from getEntryImageRawUrl + buildPictureSources must byte-match the avif
+// <source> the in-body <picture> (markdown2Html forApp=false) actually requests
+// — otherwise the high-priority preload is wasted and the LCP image
+// double-downloads. Encoded / non-ASCII cover URLs are the regression-prone case.
+describe('LCP preload avif URL matches the in-body <picture> avif source', () => {
+  const firstAvif = (ss: string) => ss.split(',')[0].trim().split(/\s+/)[0].replace(/&amp;/g, '&')
+  const bodyAvif = (entry: any): string | null => {
+    const m = markdown2Html(entry, false).match(/<source type="image\/avif" srcset="([^"]+)"/)
+    return m ? firstAvif(m[1]) : null
+  }
+  const preloadAvif = (entry: any): string | null => {
+    const raw = getEntryImageRawUrl(entry)
+    const p = raw ? buildPictureSources(raw) : null
+    return p ? firstAvif(p.avif) : null
+  }
+  const urls: Record<string, string> = {
+    ascii: 'https://files.peakd.com/x/a.png',
+    'percent-encoded': 'https://files.peakd.com/x/my%20pic.png',
+    'non-ascii (cyrillic)': 'https://files.peakd.com/x/%D1%84%D0%B0%D0%B9%D0%BB.png',
+    'amp-encoded query': 'https://files.peakd.com/x/a.png?w=1&amp;h=2'
+  }
+  let i = 0
+  for (const [label, url] of Object.entries(urls)) {
+    // distinct permlink per case — the entry render cache keys on author/permlink
+    const permlink = `inv-${i++}`
+    it(`matches for a ${label} cover URL`, () => {
+      const entry = {
+        author: 'a', permlink, last_update: '2019-05-10T09:15:21',
+        body: `text ![x](${url}) more`, json_metadata: '{}'
+      } as any
+      const b = bodyAvif(entry)
+      expect(b).not.toBeNull()
+      expect(preloadAvif(entry)).toBe(b)
+    })
+  }
+
+  it('matches for a bare-text image URL cover (no markdown syntax, no json_metadata thumbnail)', () => {
+    const entry = {
+      author: 'a', permlink: 'inv-bare', last_update: '2019-05-10T09:15:21',
+      body: 'lead in\n\nhttps://files.peakd.com/x/bare-cover.png\n\ntrailing', json_metadata: '{}'
+    } as any
+    const b = bodyAvif(entry)
+    expect(b).not.toBeNull()
+    expect(preloadAvif(entry)).toBe(b)
+  })
+
+  it('matches for an [url](url) image-link cover', () => {
+    const u = 'https://files.peakd.com/x/link-cover.png'
+    const entry = {
+      author: 'a', permlink: 'inv-link', last_update: '2019-05-10T09:15:21',
+      body: `lead in\n\n[${u}](${u})\n\ntrailing`, json_metadata: '{}'
+    } as any
+    const b = bodyAvif(entry)
+    expect(b).not.toBeNull()
+    expect(preloadAvif(entry)).toBe(b)
+  })
+})
+
+describe('getEntryImageRawUrl', () => {
+  it('returns the raw (un-proxified) json_metadata.image[0]', () => {
+    const entry = {
+      author: 'a', permlink: 'p', last_update: '2019-05-10T09:15:21',
+      body: 'no images here',
+      json_metadata: JSON.stringify({ image: ['https://files.peakd.com/x/cover.png'] })
+    } as any
+    expect(getEntryImageRawUrl(entry)).toBe('https://files.peakd.com/x/cover.png')
+  })
+
+  it('falls back to the first body image when json_metadata has none', () => {
+    const entry = {
+      author: 'a', permlink: 'p', last_update: '2019-05-10T09:15:21',
+      body: 'intro ![x](https://files.peakd.com/x/body.jpg) more',
+      json_metadata: '{}'
+    } as any
+    expect(getEntryImageRawUrl(entry)).toBe('https://files.peakd.com/x/body.jpg')
+  })
+
+  it('captures a standalone bare-text image URL as the first body image', () => {
+    const entry = {
+      author: 'a', permlink: 'p', last_update: '2019-05-10T09:15:21',
+      body: 'lead in\n\nhttps://files.peakd.com/x/cover.png\n\ntrailing',
+      json_metadata: '{}'
+    } as any
+    expect(getEntryImageRawUrl(entry)).toBe('https://files.peakd.com/x/cover.png')
+  })
+
+  it('picks the earliest image in source order (bare-text before markdown)', () => {
+    const entry = {
+      author: 'a', permlink: 'p', last_update: '2019-05-10T09:15:21',
+      body: 'https://files.peakd.com/x/first.png\n\n![a](https://files.peakd.com/x/second.png)',
+      json_metadata: '{}'
+    } as any
+    expect(getEntryImageRawUrl(entry)).toBe('https://files.peakd.com/x/first.png')
+  })
+
+  it('does NOT capture an image-extension URL inside a [label](href) link (avoids false-positive preload)', () => {
+    const entry = {
+      author: 'a', permlink: 'p', last_update: '2019-05-10T09:15:21',
+      body: '[click here](https://files.peakd.com/x/not-a-cover.png) and some text',
+      json_metadata: '{}'
+    } as any
+    expect(getEntryImageRawUrl(entry)).toBeNull()
+  })
+
+  it('captures an [url](url) image-link cover (label equals href, href is an image)', () => {
+    const u = 'https://files.peakd.com/x/cover.png'
+    const entry = {
+      author: 'a', permlink: 'p', last_update: '2019-05-10T09:15:21',
+      body: `lead in\n\n[${u}](${u})\n\ntrailing`, json_metadata: '{}'
+    } as any
+    expect(getEntryImageRawUrl(entry)).toBe(u)
+  })
+
+  it('does NOT capture a [label](href) link whose label differs from href (reference link, not an image)', () => {
+    const entry = {
+      author: 'a', permlink: 'p', last_update: '2019-05-10T09:15:21',
+      body: '[https://files.peakd.com/x/other.png](https://files.peakd.com/x/a.png) text',
+      json_metadata: '{}'
+    } as any
+    expect(getEntryImageRawUrl(entry)).toBeNull()
+  })
+
+  it('returns null when no image is found', () => {
+    const entry = {
+      author: 'a', permlink: 'p', last_update: '2019-05-10T09:15:21',
+      body: 'just text', json_metadata: '{}'
+    } as any
+    expect(getEntryImageRawUrl(entry)).toBeNull()
+  })
+
+  it('works on a raw markdown string', () => {
+    expect(getEntryImageRawUrl('![x](https://files.peakd.com/x/s.webp)')).toBe('https://files.peakd.com/x/s.webp')
+  })
+
+  it('he-decodes fast-path body image URLs (no &amp; leakage into the proxy hash)', () => {
+    const entry = {
+      author: 'a', permlink: 'p', last_update: '2019-05-10T09:15:21',
+      body: 'pre ![x](https://files.peakd.com/x/a.png?w=1&amp;h=2) post',
+      json_metadata: '{}'
+    } as any
+    expect(getEntryImageRawUrl(entry)).toBe('https://files.peakd.com/x/a.png?w=1&h=2')
+    expect(getEntryImageRawUrl('![x](https://files.peakd.com/x/a.png?w=1&amp;h=2)')).toBe('https://files.peakd.com/x/a.png?w=1&h=2')
+  })
+})
 
 describe('catchPostImage', () => {
   describe('extracting from json_metadata', () => {

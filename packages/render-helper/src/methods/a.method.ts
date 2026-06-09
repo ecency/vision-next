@@ -178,7 +178,7 @@ export function a(el: HTMLElement | null, forApp: boolean, parentDomain: string 
     getSerializedInnerHTML(el).trim().replace(/&amp;/g, '&')
   ) {
     const isLCP = false; // LCP handled elsewhere
-    const imgHTML = createImageHTML(href, isLCP);
+    const imgHTML = createImageHTML(href, isLCP, forApp);
     const doc = DOMParser.parseFromString(imgHTML, 'text/html');
     const replaceNode = doc.body?.firstChild || doc.firstChild
 

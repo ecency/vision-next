@@ -332,4 +332,57 @@ describe('applyImageZoom', () => {
       expect(wrapper.style.textAlign).toBe('')
     })
   })
+
+  describe('<picture> content-negotiation (keep <img> a direct child of <picture>)', () => {
+    function addPicture(): HTMLImageElement {
+      const picture = document.createElement('picture')
+      const avif = document.createElement('source')
+      avif.setAttribute('type', 'image/avif')
+      avif.setAttribute('srcset', 'https://i.ecency.com/p/abc?format=avif&mode=fit&width=320 320w')
+      const webp = document.createElement('source')
+      webp.setAttribute('type', 'image/webp')
+      webp.setAttribute('srcset', 'https://i.ecency.com/p/abc?format=webp&mode=fit&width=320 320w')
+      const img = document.createElement('img')
+      img.src = 'https://i.ecency.com/p/abc?format=match&mode=fit'
+      picture.appendChild(avif)
+      picture.appendChild(webp)
+      picture.appendChild(img)
+      container.appendChild(picture)
+      return img
+    }
+
+    it('wraps the whole <picture> and keeps <img> a DIRECT child of it (sources stay effective)', () => {
+      addPicture()
+      applyImageZoom(document.body)
+
+      // The <picture> is moved into the caption container, NOT just the <img>.
+      const wrapper = container.querySelector('.markdown-image-container') as HTMLElement
+      expect(wrapper).toBeTruthy()
+      const picture = wrapper.querySelector(':scope > picture') as HTMLElement
+      expect(picture).toBeTruthy()
+      // The <img> must remain a direct child of <picture> (else <source>s are ignored).
+      const directImg = picture.querySelector(':scope > img')
+      expect(directImg).toBeTruthy()
+      // Both <source> renditions survive alongside the <img>.
+      expect(picture.querySelectorAll('source').length).toBe(2)
+      // The <img> is NOT directly under the container (which would orphan the sources).
+      expect(wrapper.querySelector(':scope > img')).toBeNull()
+    })
+
+    it('does not zoom-wrap a <picture> whose <img> is inside an anchor', () => {
+      const anchor = document.createElement('a')
+      anchor.href = '/somewhere'
+      const picture = document.createElement('picture')
+      const img = document.createElement('img')
+      img.src = 'https://i.ecency.com/p/abc?format=match&mode=fit'
+      picture.appendChild(img)
+      anchor.appendChild(picture)
+      container.appendChild(anchor)
+
+      applyImageZoom(document.body)
+
+      // Linked images are excluded (the check looks through <picture> to the <a>).
+      expect(container.querySelector('.markdown-image-container')).toBeNull()
+    })
+  })
 })

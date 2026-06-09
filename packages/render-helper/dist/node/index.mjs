@@ -1,4 +1,5 @@
 import { DOMParser as DOMParser$1, XMLSerializer } from '@xmldom/xmldom';
+import he2 from 'he';
 import xss from 'xss';
 import multihash from 'multihashes';
 import querystring from 'querystring';
@@ -7,7 +8,6 @@ import { Remarkable } from 'remarkable';
 import { linkify as linkify$1 } from 'remarkable/linkify';
 import * as htmlparser2 from 'htmlparser2';
 import * as domSerializerModule from 'dom-serializer';
-import he from 'he';
 
 // src/consts/white-list.const.ts
 var WHITE_LIST = [
@@ -133,6 +133,13 @@ var ALLOWED_ATTRIBUTES = {
     "decoding",
     "itemprop"
   ],
+  // Responsive image content-negotiation wrapper emitted for web/self-hosted
+  // (forApp === false). Without these entries `xss` silently collapses the
+  // <picture>/<source> to a bare <img>. `source` attrs are further constrained
+  // in sanitize-html (srcset must be a proxy /p/ URL; type must be avif/webp;
+  // a type-less <source> is dropped post-pass).
+  "picture": [],
+  "source": ["type", "srcset", "sizes"],
   "span": ["class", "id", "data-align"],
   "iframe": ["src", "class", "frameborder", "allowfullscreen", "webkitallowfullscreen", "mozallowfullscreen", "sandbox"],
   "video": ["src", "controls", "poster"],
@@ -176,8 +183,14 @@ function createParser() {
   });
 }
 var DOMParser = createParser();
-
-// src/helper.ts
+function decodeImageSrc(src) {
+  const entityDecoded = he2.decode(src);
+  try {
+    return decodeURIComponent(entityDecoded).trim();
+  } catch {
+    return entityDecoded.trim();
+  }
+}
 function isSpaceChar(c) {
   return c === 32 || c === 9 || c === 10 || c === 13 || c === 12;
 }
@@ -433,33 +446,6 @@ function removeChildNodes(node) {
     node.removeChild(node.firstChild);
   }
 }
-var decodeEntities = (input) => input.replace(/&#(\d+);?/g, (_, dec) => String.fromCodePoint(Number(dec))).replace(/&#x([0-9a-f]+);?/gi, (_, hex) => String.fromCodePoint(parseInt(hex, 16)));
-function sanitizeHtml(html) {
-  return xss(html, {
-    whiteList: ALLOWED_ATTRIBUTES,
-    stripIgnoreTag: true,
-    stripIgnoreTagBody: ["style"],
-    css: false,
-    // block style attrs entirely for safety
-    onTagAttr: (tag, name, value) => {
-      const decoded = decodeEntities(value.trim());
-      const decodedLower = decoded.toLowerCase();
-      if (name.startsWith("on")) return "";
-      if (tag === "img" && name === "src" && !/^https?:\/\//.test(decodedLower)) return "";
-      if (tag === "img" && name === "srcset") {
-        const candidates = decoded.split(",").map((c) => c.trim().split(/\s+/)[0]);
-        if (candidates.some((url) => !/^https?:\/\//i.test(url))) return "";
-      }
-      if (tag === "video" && ["src", "poster"].includes(name) && !/^https?:\/\//.test(decodedLower)) return "";
-      if (tag === "img" && ["dynsrc", "lowsrc"].includes(name)) return "";
-      if (tag === "span" && name === "class" && decoded.toLowerCase().trim() === "wr") return "";
-      if (name === "id") {
-        if (!ID_WHITELIST.test(decoded)) return "";
-      }
-      return void 0;
-    }
-  });
-}
 var proxyBase = "https://i.ecency.com";
 var urlHashCache = new LRUCache({ max: 500 });
 function getUrlHash(url) {
@@ -495,7 +481,7 @@ function getLatestUrl(str) {
   const [last] = [...str.replace(/https?:\/\//g, "\n$&").trim().split("\n")].reverse();
   return last;
 }
-function proxifyImageSrc(url, width = 0, height = 0, _format = "match", opts = {}) {
+function proxifyForFormat(url, width = 0, height = 0, format = "match", opts = {}) {
   if (!url || typeof url !== "string" || !isValidUrl(url)) {
     return "";
   }
@@ -512,7 +498,7 @@ function proxifyImageSrc(url, width = 0, height = 0, _format = "match", opts = {
   const realUrl = getLatestUrl(url);
   const pHash = extractPHash(realUrl);
   const options = {
-    format: "match",
+    format,
     mode: "fit"
   };
   if (width > 0) {
@@ -531,29 +517,127 @@ function proxifyImageSrc(url, width = 0, height = 0, _format = "match", opts = {
   const b58url = getUrlHash(realUrl.toString());
   return `${proxyBase}/p/${b58url}?${qs}`;
 }
+function proxifyImageSrc(url, width = 0, height = 0, _format = "match", opts = {}) {
+  return proxifyForFormat(url, width, height, "match", opts);
+}
 var SRCSET_WIDTHS = [320, 600, 800, 1024, 1280];
 function buildSrcSet(url) {
+  return buildSrcSetForFormat(url, "match");
+}
+function buildSrcSetForFormat(url, format = "match") {
   if (!url || typeof url !== "string") return "";
   const proxyPrefix = `${proxyBase}/p/`;
+  let result;
   if (url.startsWith(proxyPrefix)) {
     const rest = url.slice(proxyPrefix.length);
     const q = rest.indexOf("?");
     const phash = extractPHash(url) || (q >= 0 ? rest.slice(0, q) : rest);
-    return SRCSET_WIDTHS.map((w) => `${proxyBase}/p/${phash}?format=match&mode=fit&width=${w} ${w}w`).join(", ");
+    result = SRCSET_WIDTHS.map((w) => `${proxyBase}/p/${phash}?format=${format}&mode=fit&width=${w} ${w}w`).join(", ");
+  } else {
+    result = SRCSET_WIDTHS.map((w) => {
+      const proxied = proxifyForFormat(url, w, 0, format);
+      return proxied ? `${proxied} ${w}w` : "";
+    }).filter(Boolean).join(", ");
   }
-  return SRCSET_WIDTHS.map((w) => {
-    const proxied = proxifyImageSrc(url, w);
-    return proxied ? `${proxied} ${w}w` : "";
-  }).filter(Boolean).join(", ");
+  if (format !== "match" && result && !result.split(",").every((c) => c.includes(`format=${format}`))) {
+    return "";
+  }
+  return result;
+}
+var STATIC_RASTER_PATH_EXT = /\.(?:jpe?g|png|webp)$/i;
+var SIZED_PROXY_PATH = /^\/\d+x\d+\//;
+function isPictureEligibleRawUrl(rawUrl) {
+  if (!rawUrl || typeof rawUrl !== "string") return false;
+  let u;
+  try {
+    u = new URL(rawUrl);
+  } catch {
+    return false;
+  }
+  if (u.protocol !== "http:" && u.protocol !== "https:") return false;
+  const host = `${u.protocol}//${u.host}`;
+  const isProxyHost = host === proxyBase || host === "https://images.ecency.com";
+  if (isProxyHost && (u.pathname.startsWith("/p/") || u.pathname.startsWith("/u/") || SIZED_PROXY_PATH.test(u.pathname))) {
+    return false;
+  }
+  return STATIC_RASTER_PATH_EXT.test(u.pathname);
+}
+function buildPictureSources(rawUrl) {
+  if (!isPictureEligibleRawUrl(rawUrl)) return null;
+  const avif = buildSrcSetForFormat(rawUrl, "avif");
+  const webp = buildSrcSetForFormat(rawUrl, "webp");
+  if (!avif || !webp) return null;
+  return { avif, webp };
+}
+
+// src/methods/sanitize-html.method.ts
+var decodeEntities = (input) => input.replace(/&#(\d+);?/g, (_, dec) => String.fromCodePoint(Number(dec))).replace(/&#x([0-9a-f]+);?/gi, (_, hex) => String.fromCodePoint(parseInt(hex, 16)));
+var isProxyPSrcset = (srcset) => {
+  const base = trimTrailingSlash(getProxyBase());
+  const candidates = srcset.split(",").map((c) => c.trim().split(/\s+/)[0]).filter(Boolean);
+  return candidates.length > 0 && candidates.every((url) => url.startsWith(`${base}/p/`));
+};
+function sanitizeHtml(html) {
+  const cleaned = xss(html, {
+    whiteList: ALLOWED_ATTRIBUTES,
+    stripIgnoreTag: true,
+    stripIgnoreTagBody: ["style"],
+    css: false,
+    // block style attrs entirely for safety
+    onTagAttr: (tag, name, value) => {
+      const decoded = decodeEntities(value.trim());
+      const decodedLower = decoded.toLowerCase();
+      if (name.startsWith("on")) return "";
+      if (tag === "img" && name === "src" && !/^https?:\/\//.test(decodedLower)) return "";
+      if (tag === "img" && name === "srcset") {
+        const candidates = decoded.split(",").map((c) => c.trim().split(/\s+/)[0]);
+        if (candidates.some((url) => !/^https?:\/\//i.test(url))) return "";
+      }
+      if (tag === "source" && name === "srcset" && !isProxyPSrcset(decoded)) return "";
+      if (tag === "source" && name === "type" && decodedLower !== "image/avif" && decodedLower !== "image/webp") return "";
+      if (tag === "video" && ["src", "poster"].includes(name) && !/^https?:\/\//.test(decodedLower)) return "";
+      if (tag === "img" && ["dynsrc", "lowsrc"].includes(name)) return "";
+      if (tag === "span" && name === "class" && decoded.toLowerCase().trim() === "wr") return "";
+      if (name === "id") {
+        if (!ID_WHITELIST.test(decoded)) return "";
+      }
+      return void 0;
+    }
+  });
+  return cleaned.replace(
+    /<source\b(?:[^>"']|"[^"]*"|'[^']*')*>/gi,
+    (t) => /\btype\s*=\s*["'](?:image\/avif|image\/webp)["']/i.test(t) ? t : ""
+  );
 }
 
 // src/methods/img.method.ts
 var IMAGE_SIZES = "(max-width: 768px) 100vw, 700px";
-function img(el, state) {
+function wrapInPicture(el, rawUrl) {
+  const parent = el.parentNode;
+  if (!parent) return;
+  if (parent.nodeName && parent.nodeName.toLowerCase() === "picture") return;
+  const sources = buildPictureSources(rawUrl);
+  if (!sources) return;
+  const doc = el.ownerDocument;
+  if (!doc) return;
+  const sizes = el.getAttribute("sizes") || IMAGE_SIZES;
+  const picture = doc.createElement("picture");
+  const avif = doc.createElement("source");
+  avif.setAttribute("type", "image/avif");
+  avif.setAttribute("srcset", sources.avif);
+  avif.setAttribute("sizes", sizes);
+  const webp = doc.createElement("source");
+  webp.setAttribute("type", "image/webp");
+  webp.setAttribute("srcset", sources.webp);
+  webp.setAttribute("sizes", sizes);
+  parent.insertBefore(picture, el);
+  picture.appendChild(avif);
+  picture.appendChild(webp);
+  picture.appendChild(el);
+}
+function img(el, state, forApp = true) {
   const src = el.getAttribute("src") || "";
-  const decodedSrc = decodeURIComponent(
-    src.replace(/&#(\d+);/g, (_, dec) => String.fromCharCode(dec)).replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
-  ).trim();
+  const decodedSrc = decodeImageSrc(src);
   ["onerror", "dynsrc", "lowsrc", "width", "height"].forEach((attr) => el.removeAttribute(attr));
   const isInvalid = !src || decodedSrc.startsWith("javascript") || decodedSrc.startsWith("vbscript") || decodedSrc === "x";
   if (isInvalid) {
@@ -592,6 +676,9 @@ function img(el, state) {
         el.setAttribute("srcset", srcset);
         el.setAttribute("sizes", IMAGE_SIZES);
       }
+      if (!forApp) {
+        wrapInPicture(el, decodedSrc);
+      }
     }
   } else if (shouldReplace && hasAlreadyProxied) {
     if (src.startsWith(`${base}/p/`)) {
@@ -603,16 +690,17 @@ function img(el, state) {
     }
   }
 }
-function createImageHTML(src, isLCP) {
-  const proxified = proxifyImageSrc(src, 0, 0, "match", { forceProxy: true });
+function createImageHTML(src, isLCP, forApp = true) {
+  const decoded = decodeImageSrc(src);
+  const proxified = proxifyImageSrc(decoded, 0, 0, "match", { forceProxy: true });
   if (!proxified) return "";
   const base = trimTrailingSlash(getProxyBase());
-  const isAlreadyProxied = src.startsWith(`${base}/u/`) || new RegExp(`^${base.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}/\\d+x\\d+/`).test(src);
-  const srcset = isAlreadyProxied ? "" : buildSrcSet(src);
+  const isAlreadyProxied = decoded.startsWith(`${base}/u/`) || new RegExp(`^${base.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}/\\d+x\\d+/`).test(decoded);
+  const srcset = isAlreadyProxied ? "" : buildSrcSet(decoded);
   const loading = isLCP ? "eager" : "lazy";
   const fetch = isLCP ? 'fetchpriority="high"' : 'decoding="async"';
   const srcsetAttr = srcset ? `srcset="${srcset}" sizes="${IMAGE_SIZES}"` : "";
-  return `<img
+  const imgTag = `<img
     class="markdown-img-link"
     src="${proxified}"
     ${srcsetAttr}
@@ -620,6 +708,13 @@ function createImageHTML(src, isLCP) {
     ${fetch}
     itemprop="image"
   />`;
+  if (!forApp) {
+    const sources = buildPictureSources(decoded);
+    if (sources) {
+      return `<picture><source type="image/avif" srcset="${sources.avif}" sizes="${IMAGE_SIZES}" /><source type="image/webp" srcset="${sources.webp}" sizes="${IMAGE_SIZES}" />${imgTag}</picture>`;
+    }
+  }
+  return imgTag;
 }
 
 // src/methods/a.method.ts
@@ -686,7 +781,7 @@ function a(el, forApp, parentDomain = "ecency.com", seoContext, renderOptions) {
   }
   if (href.match(IMG_REGEX) && href.trim().replace(/&amp;/g, "&") === getSerializedInnerHTML(el).trim().replace(/&amp;/g, "&")) {
     const isLCP = false;
-    const imgHTML = createImageHTML(href, isLCP);
+    const imgHTML = createImageHTML(href, isLCP, forApp);
     const doc = DOMParser.parseFromString(imgHTML, "text/html");
     const replaceNode = doc.body?.firstChild || doc.firstChild;
     if (replaceNode && el.parentNode) {
@@ -1525,7 +1620,7 @@ function linkify(content, forApp, renderOptions) {
   content = content.replace(IMG_REGEX, (imglink) => {
     const isLCP = !firstImageUsed;
     firstImageUsed = true;
-    return createImageHTML(imglink, isLCP);
+    return createImageHTML(imglink, isLCP, forApp);
   });
   authorPlaceholders.forEach(({ placeholder, html }) => {
     content = content.replace(placeholder, html);
@@ -1567,7 +1662,7 @@ function text(node, forApp, renderOptions) {
   }
   if (nodeValue.match(IMG_REGEX)) {
     const isLCP = false;
-    const imageHTML = createImageHTML(nodeValue, isLCP);
+    const imageHTML = createImageHTML(nodeValue, isLCP, forApp);
     const doc = DOMParser.parseFromString(imageHTML, "text/html");
     const replaceNode = doc.body?.firstChild || doc.firstChild;
     if (replaceNode) {
@@ -1643,7 +1738,7 @@ function traverse(node, forApp, depth = 0, state = { firstImageFound: false }, p
       text(child, forApp);
     }
     if (child.nodeName.toLowerCase() === "img") {
-      img(child, state);
+      img(child, state, forApp);
     }
     if (child.nodeName.toLowerCase() === "p") {
       p(child);
@@ -1866,8 +1961,11 @@ var INLINE_CODE_RE = /`[^`\n]*`/g;
 var INDENTED_CODE_RE = /^(?: {4}|\t).+$/gm;
 var MD_IMAGE_RE = /!\[[^\]]*\]\(\s*([^)\s]+)(?:\s+["'][^"']*["'])?\s*\)/;
 var HTML_IMAGE_RE = /<img\b[^>]*?\bsrc\s*=\s*["']([^"']+)["']/i;
+var BARE_IMAGE_RE = /(^|\s)(https?:\/\/[^\s<>"'()[\]]+\.(?:tiff?|jpe?g|gif|png|svg|ico|heic|webp|arw)(?:[?#][^\s<>"'()[\]]*)?)/im;
+var MD_LINK_RE = /\[([^\]]*)\]\(\s*([^)\s]+)(?:\s+["'][^"']*["'])?\s*\)/g;
+var IMG_HREF_RE = /https?:\/\/.*\.(?:tiff?|jpe?g|gif|png|svg|ico|heic|webp|arw)/i;
 var SAFE_URL_RE = /^https?:\/\//i;
-function findFirstImageUrl(body) {
+function findFirstImageUrl(body, includeBareUrls = false) {
   if (!body) return null;
   const cleaned = body.replace(BACKTICK_FENCE_RE, "").replace(TILDE_FENCE_RE, "").replace(INLINE_CODE_RE, "").replace(INDENTED_CODE_RE, "");
   const mdMatch = cleaned.match(MD_IMAGE_RE);
@@ -1878,17 +1976,33 @@ function findFirstImageUrl(body) {
       return null;
     }
   }
-  const mdValid = !!mdMatch;
-  const htmlValid = !!(htmlMatch && htmlMatch[1] && SAFE_URL_RE.test(htmlMatch[1]));
-  if (mdValid && htmlValid) {
-    return (mdMatch.index ?? 0) < (htmlMatch.index ?? 0) ? mdMatch[1] : htmlMatch[1];
+  const candidates = [];
+  if (mdMatch) candidates.push({ url: mdMatch[1], pos: mdMatch.index ?? 0 });
+  if (htmlMatch && htmlMatch[1] && SAFE_URL_RE.test(htmlMatch[1])) {
+    candidates.push({ url: htmlMatch[1], pos: htmlMatch.index ?? 0 });
   }
-  if (mdValid) return mdMatch[1];
-  if (htmlValid) return htmlMatch[1];
-  return null;
+  if (includeBareUrls) {
+    const bareMatch = cleaned.match(BARE_IMAGE_RE);
+    if (bareMatch && bareMatch[2] && SAFE_URL_RE.test(bareMatch[2])) {
+      candidates.push({ url: bareMatch[2], pos: (bareMatch.index ?? 0) + bareMatch[1].length });
+    }
+    const deAmp = (s) => s.trim().replace(/&amp;/g, "&");
+    for (const m of cleaned.matchAll(MD_LINK_RE)) {
+      const idx = m.index ?? 0;
+      if (idx > 0 && cleaned[idx - 1] === "!") continue;
+      const href = m[2];
+      if (href && SAFE_URL_RE.test(href) && IMG_HREF_RE.test(href) && deAmp(m[1]) === deAmp(href)) {
+        candidates.push({ url: href, pos: idx });
+        break;
+      }
+    }
+  }
+  if (candidates.length === 0) return null;
+  candidates.sort((a2, b) => a2.pos - b.pos);
+  return candidates[0].url;
 }
 function proxifyFound(src, width, height, format) {
-  const decoded = he.decode(src);
+  const decoded = he2.decode(src);
   if (isGifLink(decoded)) {
     return proxifyImageSrc(decoded, 0, 0, format);
   }
@@ -1906,7 +2020,7 @@ function getImage(entry, width = 0, height = 0, format = "match") {
     }
   }
   if (meta && typeof meta.image === "string" && meta.image.length > 0) {
-    const decodedImage = he.decode(meta.image);
+    const decodedImage = he2.decode(meta.image);
     if (isGifLink(decodedImage)) {
       return proxifyImageSrc(decodedImage, 0, 0, format);
     }
@@ -1914,7 +2028,7 @@ function getImage(entry, width = 0, height = 0, format = "match") {
   }
   if (meta && meta.image && !!meta.image.length && meta.image[0]) {
     if (typeof meta.image[0] === "string") {
-      const decodedImage = he.decode(meta.image[0]);
+      const decodedImage = he2.decode(meta.image[0]);
       if (isGifLink(decodedImage)) {
         return proxifyImageSrc(decodedImage, 0, 0, format);
       }
@@ -1943,6 +2057,30 @@ function getImage(entry, width = 0, height = 0, format = "match") {
     return proxifyFound(src, width, height, format);
   }
   return null;
+}
+function getEntryImageRawUrl(obj) {
+  if (typeof obj === "string") {
+    const src = findFirstImageUrl(obj, true);
+    return src ? decodeImageSrc(src) : null;
+  }
+  let meta;
+  if (typeof obj.json_metadata === "object") {
+    meta = obj.json_metadata;
+  } else {
+    try {
+      meta = JSON.parse(obj.json_metadata);
+    } catch (e) {
+      meta = null;
+    }
+  }
+  if (meta && typeof meta.image === "string" && meta.image.length > 0) {
+    return decodeImageSrc(meta.image);
+  }
+  if (meta && meta.image && !!meta.image.length && typeof meta.image[0] === "string" && meta.image[0].length > 0) {
+    return decodeImageSrc(meta.image[0]);
+  }
+  const bodySrc = findFirstImageUrl(obj.body, true);
+  return bodySrc ? decodeImageSrc(bodySrc) : null;
 }
 function catchPostImage(obj, width = 0, height = 0, format = "match") {
   if (typeof obj === "string") {
@@ -2045,7 +2183,7 @@ function postBodySummary(entryBody, length = 200, platform = "web") {
     text2 = joint(text2.split(" "), length);
   }
   if (text2) {
-    text2 = he.decode(text2);
+    text2 = he2.decode(text2);
   }
   return text2;
 }
@@ -2065,6 +2203,6 @@ function getPostBodySummary(obj, length, platform) {
   return res;
 }
 
-export { IMAGE_SIZES, SECTION_LIST, buildSrcSet, catchPostImage, isValidPermlink, getPostBodySummary as postBodySummary, proxifyImageSrc, markdown2Html as renderPostBody, setCacheSize, setProxyBase, setSlowRenderThresholdMs, simpleMarkdownToHTML };
+export { IMAGE_SIZES, SECTION_LIST, buildPictureSources, buildSrcSet, buildSrcSetForFormat, catchPostImage, getEntryImageRawUrl, isPictureEligibleRawUrl, isValidPermlink, getPostBodySummary as postBodySummary, proxifyImageSrc, markdown2Html as renderPostBody, setCacheSize, setProxyBase, setSlowRenderThresholdMs, simpleMarkdownToHTML };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map

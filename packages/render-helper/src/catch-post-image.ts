@@ -1,6 +1,6 @@
 import { proxifyImageSrc } from './proxify-image-src'
 import { markdown2Html } from './markdown-2-html'
-import { createDoc, makeEntryCacheKey } from './helper'
+import { createDoc, makeEntryCacheKey, decodeImageSrc } from './helper'
 import { cacheGet, cacheSet } from './cache'
 import { Entry } from './types'
 import he from 'he'
@@ -28,6 +28,23 @@ const INDENTED_CODE_RE = /^(?: {4}|\t).+$/gm
 // match. Also tolerates the optional title form `![](url "title")`.
 const MD_IMAGE_RE = /!\[[^\]]*\]\(\s*([^)\s]+)(?:\s+["'][^"']*["'])?\s*\)/
 const HTML_IMAGE_RE = /<img\b[^>]*?\bsrc\s*=\s*["']([^"']+)["']/i
+// A standalone (auto-linkified) image URL the renderer turns into an <img> via
+// text.method / linkify (IMG_REGEX). Required to sit at a line start or after
+// whitespace (group 1) so it is NOT a URL already inside ![](), <img src="">, or
+// a [label](href) link — avoiding false positives on image-extension URLs that
+// the renderer does NOT surface as a standalone image. Same extension set as the
+// renderer's IMG_REGEX. Linear-time: one bounded char class + a single greedy
+// `+`, no nested quantifier.
+const BARE_IMAGE_RE = /(^|\s)(https?:\/\/[^\s<>"'()[\]]+\.(?:tiff?|jpe?g|gif|png|svg|ico|heic|webp|arw)(?:[?#][^\s<>"'()[\]]*)?)/im
+// Markdown link `[label](href)` (NOT an image — the `!` is excluded by the
+// caller). The renderer (a.method) promotes such a link to an image only when
+// the href is an image URL AND the label text equals the href. Used to find the
+// `[url](url)` image-link cover form. Global, capture label + href.
+const MD_LINK_RE = /\[([^\]]*)\]\(\s*([^)\s]+)(?:\s+["'][^"']*["'])?\s*\)/g
+// Mirrors a.method's `href.match(IMG_REGEX)` — an image URL by extension
+// (anywhere after the dot, matching the renderer). Eligibility for an avif
+// <source> is then decided separately by isPictureEligibleRawUrl.
+const IMG_HREF_RE = /https?:\/\/.*\.(?:tiff?|jpe?g|gif|png|svg|ico|heic|webp|arw)/i
 
 // The fast-path bypasses sanitize-html (which the full markdown pipeline
 // applies). The sanitizer only preserves http/https <img> sources — ftp,
@@ -40,8 +57,15 @@ const SAFE_URL_RE = /^https?:\/\//i
  * Fast-path: extract the first image URL from raw markdown without rendering
  * the whole post. Returns null if nothing matches *unambiguously* — when in
  * doubt, the caller falls back to the full markdown2Html → DOM parse path.
+ *
+ * @param includeBareUrls when true (only getEntryImageRawUrl, for the LCP
+ *   preload), also consider standalone bare image URLs the renderer
+ *   auto-linkifies into images — so a post whose first body image is a bare URL
+ *   (and which has no json_metadata.image thumbnail) is still discovered. The
+ *   default (false) keeps catchPostImage / getImage / og-image behavior
+ *   byte-identical.
  */
-function findFirstImageUrl(body: string): string | null {
+function findFirstImageUrl(body: string, includeBareUrls = false): string | null {
   if (!body) return null
   const cleaned = body
     .replace(BACKTICK_FENCE_RE, '')
@@ -64,17 +88,37 @@ function findFirstImageUrl(body: string): string | null {
     }
   }
 
-  const mdValid = !!mdMatch
-  const htmlValid = !!(htmlMatch && htmlMatch[1] && SAFE_URL_RE.test(htmlMatch[1]))
-
-  // Pick the earliest match in source order — the full markdown render would
-  // surface whichever <img> appears first in the rendered document.
-  if (mdValid && htmlValid) {
-    return (mdMatch!.index ?? 0) < (htmlMatch!.index ?? 0) ? mdMatch![1] : htmlMatch![1]
+  // Collect valid candidates with their source position; the rendered document
+  // surfaces whichever image appears first in source order.
+  const candidates: { url: string; pos: number }[] = []
+  if (mdMatch) candidates.push({ url: mdMatch[1], pos: mdMatch.index ?? 0 })
+  if (htmlMatch && htmlMatch[1] && SAFE_URL_RE.test(htmlMatch[1])) {
+    candidates.push({ url: htmlMatch[1], pos: htmlMatch.index ?? 0 })
   }
-  if (mdValid) return mdMatch![1]
-  if (htmlValid) return htmlMatch![1]
-  return null
+  if (includeBareUrls) {
+    const bareMatch = cleaned.match(BARE_IMAGE_RE)
+    if (bareMatch && bareMatch[2] && SAFE_URL_RE.test(bareMatch[2])) {
+      // position of the URL itself, past the leading start/whitespace (group 1)
+      candidates.push({ url: bareMatch[2], pos: (bareMatch.index ?? 0) + bareMatch[1].length })
+    }
+    // `[url](url)` image-link form: a markdown link the renderer promotes to an
+    // image (a.method) — href is an image URL and the label text equals it.
+    // Skip `![...]()` images (preceding `!`). Take the earliest such link.
+    const deAmp = (s: string) => s.trim().replace(/&amp;/g, '&')
+    for (const m of cleaned.matchAll(MD_LINK_RE)) {
+      const idx = m.index ?? 0
+      if (idx > 0 && cleaned[idx - 1] === '!') continue // it's an image ![](), handled above
+      const href = m[2]
+      if (href && SAFE_URL_RE.test(href) && IMG_HREF_RE.test(href) && deAmp(m[1]) === deAmp(href)) {
+        candidates.push({ url: href, pos: idx })
+        break
+      }
+    }
+  }
+
+  if (candidates.length === 0) return null
+  candidates.sort((a, b) => a.pos - b.pos)
+  return candidates[0].url
 }
 
 function proxifyFound(src: string, width: number, height: number, format: string): string {
@@ -151,6 +195,44 @@ function getImage(entry: Entry, width = 0, height = 0, format = 'match'): string
   }
 
   return null
+}
+
+/**
+ * The RAW (pre-proxify) URL of an entry's primary image, using the same
+ * discovery order as catchPostImage (json_metadata.image, then the first body
+ * image). Unlike catchPostImage it does NOT proxify — callers need the original
+ * URL (e.g. to test picture-eligibility for an LCP preload, since catchPostImage
+ * returns an already-proxified /p/ URL). Returns null when the fast path finds
+ * no unambiguous image (the caller can fall back to catchPostImage).
+ */
+export function getEntryImageRawUrl(obj: Entry | string): string | null {
+  // Decode with the SAME pipeline the renderer applies to the in-body <img>
+  // (decodeImageSrc: entities then percent-encoding), so the LCP preload's
+  // proxy hash byte-matches the body's <picture> avif <source> for &amp; /
+  // %-encoded / non-ASCII cover URLs (otherwise the preload is wasted and the
+  // LCP image double-downloads).
+  if (typeof obj === 'string') {
+    const src = findFirstImageUrl(obj, true)
+    return src ? decodeImageSrc(src) : null
+  }
+  let meta: Entry['json_metadata'] | null
+  if (typeof obj.json_metadata === 'object') {
+    meta = obj.json_metadata
+  } else {
+    try {
+      meta = JSON.parse(obj.json_metadata as string)
+    } catch (e) {
+      meta = null
+    }
+  }
+  if (meta && typeof meta.image === 'string' && meta.image.length > 0) {
+    return decodeImageSrc(meta.image)
+  }
+  if (meta && meta.image && !!meta.image.length && typeof meta.image[0] === 'string' && meta.image[0].length > 0) {
+    return decodeImageSrc(meta.image[0])
+  }
+  const bodySrc = findFirstImageUrl(obj.body, true)
+  return bodySrc ? decodeImageSrc(bodySrc) : null
 }
 
 export function catchPostImage(obj: Entry | string, width = 0, height = 0, format = 'match'): string | null {
