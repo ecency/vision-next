@@ -1,4 +1,3 @@
-import * as tus from "tus-js-client";
 import { EcencyConfigManager } from "@/config";
 import * as ls from "@/utils/local-storage";
 import { getAccessToken } from "@/utils/user-token";
@@ -152,6 +151,11 @@ async function uploadOnce(
 
   // Fall back to config endpoint if upload_url not provided
   const endpoint = upload_url || `${getEmbedEndpoint()}/uploads`;
+
+  // Load TUS on demand: this module's playback helpers (getVideoMetadata,
+  // extractPermlink, ...) are imported by the post renderer on read pages, and
+  // a top-level import would drag the ~48 KB upload client onto every post.
+  const tus = await import("tus-js-client");
 
   return new Promise<VideoUploadResult>((resolve, reject) => {
     // With parallelUploads the partial creation responses each carry their own
