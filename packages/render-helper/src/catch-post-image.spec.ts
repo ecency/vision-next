@@ -38,6 +38,16 @@ describe('LCP preload avif URL matches the in-body <picture> avif source', () =>
       expect(preloadAvif(entry)).toBe(b)
     })
   }
+
+  it('matches for a bare-text image URL cover (no markdown syntax, no json_metadata thumbnail)', () => {
+    const entry = {
+      author: 'a', permlink: 'inv-bare', last_update: '2019-05-10T09:15:21',
+      body: 'lead in\n\nhttps://files.peakd.com/x/bare-cover.png\n\ntrailing', json_metadata: '{}'
+    } as any
+    const b = bodyAvif(entry)
+    expect(b).not.toBeNull()
+    expect(preloadAvif(entry)).toBe(b)
+  })
 })
 
 describe('getEntryImageRawUrl', () => {
@@ -57,6 +67,33 @@ describe('getEntryImageRawUrl', () => {
       json_metadata: '{}'
     } as any
     expect(getEntryImageRawUrl(entry)).toBe('https://files.peakd.com/x/body.jpg')
+  })
+
+  it('captures a standalone bare-text image URL as the first body image', () => {
+    const entry = {
+      author: 'a', permlink: 'p', last_update: '2019-05-10T09:15:21',
+      body: 'lead in\n\nhttps://files.peakd.com/x/cover.png\n\ntrailing',
+      json_metadata: '{}'
+    } as any
+    expect(getEntryImageRawUrl(entry)).toBe('https://files.peakd.com/x/cover.png')
+  })
+
+  it('picks the earliest image in source order (bare-text before markdown)', () => {
+    const entry = {
+      author: 'a', permlink: 'p', last_update: '2019-05-10T09:15:21',
+      body: 'https://files.peakd.com/x/first.png\n\n![a](https://files.peakd.com/x/second.png)',
+      json_metadata: '{}'
+    } as any
+    expect(getEntryImageRawUrl(entry)).toBe('https://files.peakd.com/x/first.png')
+  })
+
+  it('does NOT capture an image-extension URL inside a [label](href) link (avoids false-positive preload)', () => {
+    const entry = {
+      author: 'a', permlink: 'p', last_update: '2019-05-10T09:15:21',
+      body: '[click here](https://files.peakd.com/x/not-a-cover.png) and some text',
+      json_metadata: '{}'
+    } as any
+    expect(getEntryImageRawUrl(entry)).toBeNull()
   })
 
   it('returns null when no image is found', () => {

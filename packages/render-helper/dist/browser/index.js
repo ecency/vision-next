@@ -1961,8 +1961,9 @@ var INLINE_CODE_RE = /`[^`\n]*`/g;
 var INDENTED_CODE_RE = /^(?: {4}|\t).+$/gm;
 var MD_IMAGE_RE = /!\[[^\]]*\]\(\s*([^)\s]+)(?:\s+["'][^"']*["'])?\s*\)/;
 var HTML_IMAGE_RE = /<img\b[^>]*?\bsrc\s*=\s*["']([^"']+)["']/i;
+var BARE_IMAGE_RE = /(^|\s)(https?:\/\/[^\s<>"'()[\]]+\.(?:tiff?|jpe?g|gif|png|svg|ico|heic|webp|arw)(?:[?#][^\s<>"'()[\]]*)?)/im;
 var SAFE_URL_RE = /^https?:\/\//i;
-function findFirstImageUrl(body) {
+function findFirstImageUrl(body, includeBareUrls = false) {
   if (!body) return null;
   const cleaned = body.replace(BACKTICK_FENCE_RE, "").replace(TILDE_FENCE_RE, "").replace(INLINE_CODE_RE, "").replace(INDENTED_CODE_RE, "");
   const mdMatch = cleaned.match(MD_IMAGE_RE);
@@ -1973,14 +1974,20 @@ function findFirstImageUrl(body) {
       return null;
     }
   }
-  const mdValid = !!mdMatch;
-  const htmlValid = !!(htmlMatch && htmlMatch[1] && SAFE_URL_RE.test(htmlMatch[1]));
-  if (mdValid && htmlValid) {
-    return (mdMatch.index ?? 0) < (htmlMatch.index ?? 0) ? mdMatch[1] : htmlMatch[1];
+  const candidates = [];
+  if (mdMatch) candidates.push({ url: mdMatch[1], pos: mdMatch.index ?? 0 });
+  if (htmlMatch && htmlMatch[1] && SAFE_URL_RE.test(htmlMatch[1])) {
+    candidates.push({ url: htmlMatch[1], pos: htmlMatch.index ?? 0 });
   }
-  if (mdValid) return mdMatch[1];
-  if (htmlValid) return htmlMatch[1];
-  return null;
+  if (includeBareUrls) {
+    const bareMatch = cleaned.match(BARE_IMAGE_RE);
+    if (bareMatch && bareMatch[2] && SAFE_URL_RE.test(bareMatch[2])) {
+      candidates.push({ url: bareMatch[2], pos: (bareMatch.index ?? 0) + bareMatch[1].length });
+    }
+  }
+  if (candidates.length === 0) return null;
+  candidates.sort((a2, b) => a2.pos - b.pos);
+  return candidates[0].url;
 }
 function proxifyFound(src, width, height, format) {
   const decoded = he2.decode(src);
@@ -2041,7 +2048,7 @@ function getImage(entry, width = 0, height = 0, format = "match") {
 }
 function getEntryImageRawUrl(obj) {
   if (typeof obj === "string") {
-    const src = findFirstImageUrl(obj);
+    const src = findFirstImageUrl(obj, true);
     return src ? decodeImageSrc(src) : null;
   }
   let meta;
@@ -2060,7 +2067,7 @@ function getEntryImageRawUrl(obj) {
   if (meta && meta.image && !!meta.image.length && typeof meta.image[0] === "string" && meta.image[0].length > 0) {
     return decodeImageSrc(meta.image[0]);
   }
-  const bodySrc = findFirstImageUrl(obj.body);
+  const bodySrc = findFirstImageUrl(obj.body, true);
   return bodySrc ? decodeImageSrc(bodySrc) : null;
 }
 function catchPostImage(obj, width = 0, height = 0, format = "match") {
