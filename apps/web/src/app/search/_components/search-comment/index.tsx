@@ -10,20 +10,8 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { SearchResult } from "@/entities";
 import { Button } from "@/features/ui";
-import * as ls from "@/utils/local-storage";
-
-enum SearchSort {
-  POPULARITY = "popularity",
-  NEWEST = "newest",
-  RELEVANCE = "relevance"
-}
-
-enum DateOpt {
-  W = "week",
-  M = "month",
-  Y = "year",
-  A = "all"
-}
+import { DateOpt } from "@/enums";
+import { SearchSort } from "@/app/decks/_components/consts";
 
 interface Props {
   disableResults?: boolean;
@@ -36,7 +24,10 @@ export function SearchComment({ disableResults }: Props) {
 
   const since = useMemo(() => {
     let sinceDate: Dayjs | undefined;
-    const dateOpt = params?.get("date") ?? ls.get("recent_date", DateOpt.Y);
+    // Default search path is all-time on purpose. Only honor an explicit date
+    // from the URL (set by the advanced form) — not a stale localStorage value,
+    // which would otherwise pin existing users to the old "last year" default.
+    const dateOpt = params?.get("date") ?? DateOpt.A;
     switch (dateOpt) {
       case DateOpt.W:
         sinceDate = dayjs().subtract(1, "week");
@@ -62,7 +53,7 @@ export function SearchComment({ disableResults }: Props) {
   } = useInfiniteQuery({
     ...getSearchApiInfiniteQueryOptions(
       params?.get("q") ?? "",
-      params?.get("sort") ?? SearchSort.NEWEST,
+      params?.get("sort") ?? SearchSort.RELEVANCE,
       params?.get("hd") !== "0",
       since,
       undefined,
