@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.14
+
+### Patch Changes
+
+- fix(sdk): adaptive node selection — cold-start order + caller-abort handling (#927)
+
 ## 2.3.12
 
 ### Patch Changes
