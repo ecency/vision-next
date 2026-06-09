@@ -550,16 +550,22 @@ function buildSrcSet(url) {
 function buildSrcSetForFormat(url, format = "match") {
   if (!url || typeof url !== "string") return "";
   const proxyPrefix = `${proxyBase}/p/`;
+  let result;
   if (url.startsWith(proxyPrefix)) {
     const rest = url.slice(proxyPrefix.length);
     const q = rest.indexOf("?");
     const phash = extractPHash(url) || (q >= 0 ? rest.slice(0, q) : rest);
-    return SRCSET_WIDTHS.map((w) => `${proxyBase}/p/${phash}?format=${format}&mode=fit&width=${w} ${w}w`).join(", ");
+    result = SRCSET_WIDTHS.map((w) => `${proxyBase}/p/${phash}?format=${format}&mode=fit&width=${w} ${w}w`).join(", ");
+  } else {
+    result = SRCSET_WIDTHS.map((w) => {
+      const proxied = proxifyForFormat(url, w, 0, format);
+      return proxied ? `${proxied} ${w}w` : "";
+    }).filter(Boolean).join(", ");
   }
-  return SRCSET_WIDTHS.map((w) => {
-    const proxied = proxifyForFormat(url, w, 0, format);
-    return proxied ? `${proxied} ${w}w` : "";
-  }).filter(Boolean).join(", ");
+  if (format !== "match" && result && !result.split(",").every((c) => c.includes(`format=${format}`))) {
+    return "";
+  }
+  return result;
 }
 var STATIC_RASTER_PATH_EXT = /\.(?:jpe?g|png|webp)$/i;
 var SIZED_PROXY_PATH = /^\/\d+x\d+\//;
@@ -584,8 +590,6 @@ function buildPictureSources(rawUrl) {
   const avif = buildSrcSetForFormat(rawUrl, "avif");
   const webp = buildSrcSetForFormat(rawUrl, "webp");
   if (!avif || !webp) return null;
-  const allTransformed = (srcset, fmt) => srcset.split(",").every((c) => c.includes("/p/") && c.includes(`format=${fmt}`));
-  if (!allTransformed(avif, "avif") || !allTransformed(webp, "webp")) return null;
   return { avif, webp };
 }
 
@@ -624,7 +628,7 @@ function sanitizeHtml(html) {
     }
   });
   return cleaned.replace(
-    /<source\b[^>]*>/gi,
+    /<source\b(?:[^>"']|"[^"]*"|'[^']*')*>/gi,
     (t) => /\btype\s*=\s*["'](?:image\/avif|image\/webp)["']/i.test(t) ? t : ""
   );
 }

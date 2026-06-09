@@ -60,7 +60,10 @@ export function sanitizeHtml(html: string): string {
   // attribute but can't remove an element, and a type-less <source> with a
   // surviving srcset would match ALL browsers (overriding the <img>). Our
   // renderer always emits a typed <source>, so this only fires on hostile input.
-  return cleaned.replace(/<source\b[^>]*>/gi, (t) =>
+  // The tag matcher tolerates a literal '>' inside a quoted attribute value
+  // (xss escapes '>' to '&gt;' in output, so this is belt-and-suspenders) by
+  // consuming quoted spans whole rather than stopping at the first '>'.
+  return cleaned.replace(/<source\b(?:[^>"']|"[^"]*"|'[^']*')*>/gi, (t) =>
     /\btype\s*=\s*["'](?:image\/avif|image\/webp)["']/i.test(t) ? t : ''
   );
 }

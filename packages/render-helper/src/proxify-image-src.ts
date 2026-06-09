@@ -199,23 +199,34 @@ export function buildSrcSetForFormat(
   // so proxyBase (a user-settable hostname) never reaches a regex compile
   // path — keeps CodeQL's hostname-regex analysis clean.
   const proxyPrefix = `${proxyBase}/p/`;
+  let result: string;
   if (url.startsWith(proxyPrefix)) {
     const rest = url.slice(proxyPrefix.length);
     const q = rest.indexOf('?');
     const phash = extractPHash(url) || (q >= 0 ? rest.slice(0, q) : rest);
-    return SRCSET_WIDTHS
+    result = SRCSET_WIDTHS
       .map(w => `${proxyBase}/p/${phash}?format=${format}&mode=fit&width=${w} ${w}w`)
+      .join(', ');
+  } else {
+    // For non-proxified URLs, proxify at each width with the requested format
+    result = SRCSET_WIDTHS
+      .map(w => {
+        const proxied = proxifyForFormat(url, w, 0, format);
+        return proxied ? `${proxied} ${w}w` : '';
+      })
+      .filter(Boolean)
       .join(', ');
   }
 
-  // For non-proxified URLs, proxify at each width with the requested format
-  return SRCSET_WIDTHS
-    .map(w => {
-      const proxied = proxifyForFormat(url, w, 0, format);
-      return proxied ? `${proxied} ${w}w` : '';
-    })
-    .filter(Boolean)
-    .join(', ');
+  // Honor the contract ("pins an explicit output format in the URL"): only
+  // return a srcset that actually carries the requested format. Legacy
+  // direct-serve hosts (images.hive.blog/WxH, steemitimages) host-swap WITHOUT
+  // routing through the /p/ transform, so they can't be transcoded — return ''
+  // rather than a srcset that silently ignores the requested avif/webp.
+  if (format !== 'match' && result && !result.split(',').every(c => c.includes(`format=${format}`))) {
+    return '';
+  }
+  return result;
 }
 
 // Static raster formats the imagehoster reliably transcodes to avif/webp.
@@ -268,16 +279,11 @@ export function buildPictureSources(
   rawUrl?: string
 ): { avif: string; webp: string } | null {
   if (!isPictureEligibleRawUrl(rawUrl)) return null;
+  // buildSrcSetForFormat returns '' when it can't honor the requested format
+  // (legacy direct-serve hosts that bypass the /p/ transform), so a non-empty
+  // pair guarantees every candidate is a proxied /p/ URL carrying the format.
   const avif = buildSrcSetForFormat(rawUrl, 'avif');
   const webp = buildSrcSetForFormat(rawUrl, 'webp');
   if (!avif || !webp) return null;
-  // Correctness gate: every candidate must have gone through the /p/ transform
-  // route carrying the requested format. If proxify hostname-swapped a legacy
-  // host (images.hive.blog / steemitimages direct-serve), the URL would lack
-  // /p/ + format and the origin would return the ORIGINAL bytes mislabeled —
-  // bail to a bare img in that case.
-  const allTransformed = (srcset: string, fmt: string): boolean =>
-    srcset.split(',').every(c => c.includes('/p/') && c.includes(`format=${fmt}`));
-  if (!allTransformed(avif, 'avif') || !allTransformed(webp, 'webp')) return null;
   return { avif, webp };
 }

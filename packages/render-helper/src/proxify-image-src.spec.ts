@@ -331,6 +331,12 @@ describe('picture / per-format helpers (cache-safe content negotiation)', () => 
       const ss = buildSrcSetForFormat('https://i.ecency.com/p/abc?format=match&mode=fit', 'webp')
       expect(ss).toContain('https://i.ecency.com/p/abc?format=webp&mode=fit&width=320 320w')
     })
+    it('returns "" for a legacy host it cannot transcode (honors the format contract)', () => {
+      // images.hive.blog/WxH host-swaps without a /p/ transform — can\'t be avif/webp
+      expect(buildSrcSetForFormat('https://images.hive.blog/0x0/a.png', 'avif')).toBe('')
+      // match (original format) is still served via the host swap
+      expect(buildSrcSetForFormat('https://images.hive.blog/0x0/a.png', 'match')).not.toBe('')
+    })
   })
 
   describe('buildPictureSources', () => {
