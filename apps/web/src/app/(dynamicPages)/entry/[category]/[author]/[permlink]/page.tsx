@@ -126,7 +126,12 @@ export default async function EntryPage({ params, searchParams }: Props) {
   //     smaller image than develop's CDN-cross-served match preload, so net LCP
   //     for that cohort is not worse.
   //   - Ineligible cover (gif/svg/extensionless/already-proxified): the body
-  //     renders a bare format=match <img>, so preload that (original behavior).
+  //     renders a bare format=match <img>, so preload that.
+  //   - rawCover === null (the fast path couldn't resolve the cover URL — e.g. a
+  //     parenthesized markdown image URL the MD parser bails on): emit NO preload.
+  //     The body may still render an avif <picture>, so a match preload here would
+  //     mismatch the avif <source> and double-download the LCP. The in-body
+  //     fetchpriority="high" <img> still prioritizes the actual fetch.
   const rawCover = getEntryImageRawUrl(entry);
   const coverPicture = rawCover ? buildPictureSources(rawCover) : null;
   const lcpMatch = catchPostImage(entry, 600, 500, "match");
@@ -163,18 +168,19 @@ export default async function EntryPage({ params, searchParams }: Props) {
           imageSizes={IMAGE_SIZES}
           fetchPriority="high"
         />
-      ) : (
-        lcpMatch && (
-          <link
-            rel="preload"
-            as="image"
-            href={lcpMatch}
-            imageSrcSet={lcpMatchSrcSet || undefined}
-            imageSizes={lcpMatchSrcSet ? IMAGE_SIZES : undefined}
-            fetchPriority="high"
-          />
-        )
-      )}
+      ) : rawCover && lcpMatch ? (
+        // Ineligible cover with a resolved raw URL → the body renders a bare
+        // format=match <img>; preload the matching rendition. (When rawCover is
+        // null we intentionally emit nothing — see the comment above.)
+        <link
+          rel="preload"
+          as="image"
+          href={lcpMatch}
+          imageSrcSet={lcpMatchSrcSet || undefined}
+          imageSizes={lcpMatchSrcSet ? IMAGE_SIZES : undefined}
+          fetchPriority="high"
+        />
+      ) : null}
       <EntryPageContextProvider>
         <MdHandler />
         <div className="app-content entry-page bg-fixed bg-contain bg-gradient-to-tr from-blue-dark-sky/20 to-white dark:from-dark-default dark:to-black">
