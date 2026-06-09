@@ -17,8 +17,8 @@ export function SearchAdvancedForm() {
   const [type, setType] = useState<SearchType>(SearchType.ALL);
   const [category, setCategory] = useState("");
   const [tags, setTags] = useState("");
-  const [date, setDate] = useLocalStorage<DateOpt>("recent_date", DateOpt.Y);
-  const [sort, setSort] = useState<SearchSort>(SearchSort.NEWEST);
+  const [date, setDate] = useLocalStorage<DateOpt>("recent_date", DateOpt.A);
+  const [sort, setSort] = useState<SearchSort>(SearchSort.RELEVANCE);
   const [hideLow, setHideLow] = useState(false);
   const [includeNsfw, setIncludeNsfw] = useState(false);
 
@@ -33,7 +33,7 @@ export function SearchAdvancedForm() {
       setSearch(searchQuery.query);
     }
 
-    setSort((params?.get("sort") as SearchSort) ?? SearchSort.NEWEST);
+    setSort((params?.get("sort") as SearchSort) ?? SearchSort.RELEVANCE);
     setHideLow(params?.get("hd") !== "0");
     setIncludeNsfw(params?.get("nsfw") === "1");
     const urlDate = params?.get("date") as DateOpt | null;
@@ -91,7 +91,7 @@ export function SearchAdvancedForm() {
 
     const params = new URLSearchParams();
     params.append("q", q);
-    params.append("date", date ?? DateOpt.Y);
+    params.append("date", date ?? DateOpt.A);
     params.append("sort", sort);
     params.append("adv", "1");
     if (!hideLow) params.append("hd", "0");
@@ -156,7 +156,7 @@ export function SearchAdvancedForm() {
         </div>
         <div className="col-span-12 sm:col-span-2 mb-4">
           <label>{i18next.t("search-comment.date")}</label>
-          <FormControl type="select" value={date ?? DateOpt.Y} onChange={dateChanged}>
+          <FormControl type="select" value={date ?? DateOpt.A} onChange={dateChanged}>
             {Object.values(DateOpt).map((x) => (
               <option value={x} key={x}>
                 {i18next.t(`search-comment.date-${x}`)}

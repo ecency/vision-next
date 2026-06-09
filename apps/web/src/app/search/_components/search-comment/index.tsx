@@ -36,7 +36,7 @@ export function SearchComment({ disableResults }: Props) {
 
   const since = useMemo(() => {
     let sinceDate: Dayjs | undefined;
-    const dateOpt = params?.get("date") ?? ls.get("recent_date", DateOpt.Y);
+    const dateOpt = params?.get("date") ?? ls.get("recent_date", DateOpt.A);
     switch (dateOpt) {
       case DateOpt.W:
         sinceDate = dayjs().subtract(1, "week");
@@ -62,7 +62,7 @@ export function SearchComment({ disableResults }: Props) {
   } = useInfiniteQuery({
     ...getSearchApiInfiniteQueryOptions(
       params?.get("q") ?? "",
-      params?.get("sort") ?? SearchSort.NEWEST,
+      params?.get("sort") ?? SearchSort.RELEVANCE,
       params?.get("hd") !== "0",
       since,
       undefined,
