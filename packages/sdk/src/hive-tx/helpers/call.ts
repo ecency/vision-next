@@ -210,6 +210,22 @@ const OUR_NODE_BIAS_MS = 700
  *  demoted when it's genuinely slow (US 6–20s) instead of being pinned #1 forever. */
 const OUR_NODE_DEMOTE_RATIO = 2.5
 
+/**
+ * Latency-ranking tuning, re-exported as a frozen bag so tests assert behaviour
+ * against the real numbers instead of mirroring literals that can silently drift.
+ * @internal — not part of the package's public API; for the co-located spec only.
+ */
+export const __LATENCY_TUNING__ = Object.freeze({
+  EWMA_ALPHA: LATENCY_EWMA_ALPHA,
+  MIN_SAMPLES: LATENCY_MIN_SAMPLES,
+  MAX_AGE_MS: LATENCY_MAX_AGE_MS,
+  REPROBE_MS: LATENCY_REPROBE_MS,
+  UNPROVEN_PRIOR_MS: LATENCY_UNPROVEN_PRIOR_MS,
+  SLOW_FAILURE_MS: LATENCY_SLOW_FAILURE_MS,
+  OUR_NODE_BIAS_MS,
+  OUR_NODE_DEMOTE_RATIO
+})
+
 /** Hosts we operate (no public rate limit). Biased so the fleet prefers its own
  *  unlimited node where it is fast, and only steps off it when it is genuinely slow.
  *  Matched by hostname so a path/trailing-slash can't defeat it. */
@@ -239,7 +255,15 @@ export class NodeHealthTracker {
         ewmaLatencyMs: undefined,
         latencySampleCount: 0,
         latencyUpdatedAt: 0,
-        lastProbeAt: 0
+        // Stamp the probe clock at creation so a brand-new (never-sampled) node is
+        // NOT treated as "overdue for re-probe" on its very first ordering pass.
+        // With lastProbeAt=0 the re-probe gate (touch <= now - LATENCY_REPROBE_MS)
+        // fired immediately, so the 2nd+ ordering on a cold worker promoted unproven
+        // nodes ahead of the configured order for no measured reason. Seeding it to
+        // "now" preserves configured order during warmup; a genuinely slow preferred
+        // node is still demoted by its EWMA score (not by epoch-zero exploration),
+        // and idle nodes are still re-probed once LATENCY_REPROBE_MS has truly elapsed.
+        lastProbeAt: Date.now()
       }
       this.health.set(node, h)
     }
@@ -497,7 +521,10 @@ export class NodeHealthTracker {
 }
 
 const rpcHealthTracker = new NodeHealthTracker()
-const restHealthTracker = new NodeHealthTracker()
+// Exported for the co-located spec only (asserting the call sites' effect on health).
+// Not re-exported by hive-tx/index.ts, so it is NOT part of the package's public API.
+// @internal
+export const restHealthTracker = new NodeHealthTracker()
 
 // ── Internal helpers ────────────────────────────────────────────────────────
 
@@ -1019,6 +1046,13 @@ export async function callREST(
     } catch (e: any) {
       // 404 is not a node issue, don't failover
       if (e?.message?.includes('HTTP 404')) {
+        throw e
+      }
+      // External abort (caller unmounted / React Query cancelled the request) is the
+      // client's decision, NOT a node fault. Mirror callRPC: bail before recording any
+      // failure or slow-latency sample so a healthy REST node (e.g. hapi) is never
+      // demoted by routine navigation/cancellation.
+      if (signal?.aborted) {
         throw e
       }
       // Only record if not already recorded by 429/503 handler above
