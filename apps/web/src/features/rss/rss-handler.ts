@@ -54,6 +54,11 @@ export function isTransientUpstreamError(e: unknown): boolean {
     /Unable to parse endpoint data/i.test(msg) ||
     /HTTP 5\d\d/.test(msg) ||
     /fetch failed/i.test(msg) ||
-    /Assert Exception:.*(Category|Tag).*does not exist/i.test(msg)
+    // Hive's bridge rejects a bad tag/category two different ways depending on
+    // the input: "...Tag does not exist" for a valid-but-missing one, and
+    // "invalid tag `Foo`" for one that breaks tag-format rules (e.g. mixed
+    // case). Crawlers hit /:filter/:Tag/rss.xml with both, so match both.
+    /Assert Exception:.*(Category|Tag).*does not exist/i.test(msg) ||
+    /Assert Exception:\s*invalid (tag|category)/i.test(msg)
   );
 }
