@@ -31,8 +31,17 @@ export function ImageZoomExtension({
                 return false;
             }
 
+            // When the <img> is inside a <picture> (responsive content
+            // negotiation), the element we wrap/replace is the <picture>, so the
+            // "linked image" check must look at the <picture>'s parent.
+            const effectiveParent =
+                parentNode.nodeName === "PICTURE" ? parentNode.parentNode : parentNode;
+            if (!effectiveParent) {
+                return false;
+            }
+
             return (
-                parentNode.nodeName !== "A" &&
+                effectiveParent.nodeName !== "A" &&
                 !x.classList.contains("medium-zoom-image") &&
                 !x.closest(".markdown-image-container")
             );
@@ -51,8 +60,14 @@ export function ImageZoomExtension({
             return;
         }
 
+        // When the <img> sits inside a <picture>, wrap/replace the whole
+        // <picture> so the <img> stays a DIRECT child of it — otherwise the
+        // <source> elements are ignored and the format=match URL loads.
+        const zoomTarget =
+            el.parentElement && el.parentElement.nodeName === "PICTURE" ? el.parentElement : el;
+
         // Verify parentElement exists before attempting manipulation
-        const parentElement = el.parentElement;
+        const parentElement = zoomTarget.parentElement;
         if (!parentElement) {
             console.warn("Image element has no parent, skipping");
             return;
@@ -61,9 +76,9 @@ export function ImageZoomExtension({
         const container = document.createElement("div");
         container.classList.add("markdown-image-container");
 
-        const clonedImage = el.cloneNode(true) as HTMLElement;
+        const clonedImage = zoomTarget.cloneNode(true) as HTMLElement;
 
-        // Caption logic
+        // Caption logic (read from the <img>, which carries title/alt/caption)
         const title = el.getAttribute("title")?.trim();
         const dataCaption = el.getAttribute("data-caption")?.trim();
         const alt = el.getAttribute("alt")?.trim();
@@ -85,8 +100,8 @@ export function ImageZoomExtension({
         }
 
         // Final check before replacing - ensure element is still in DOM
-        if (el.isConnected && el.parentElement) {
-            el.parentElement.replaceChild(container, el);
+        if (zoomTarget.isConnected && zoomTarget.parentElement) {
+            zoomTarget.parentElement.replaceChild(container, zoomTarget);
         }
       } catch (error) {
         // Handle any errors during DOM manipulation gracefully

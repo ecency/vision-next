@@ -44,7 +44,7 @@ export function text(node: HTMLElement | null, forApp: boolean, renderOptions?: 
 
   if (nodeValue.match(IMG_REGEX)) {
     const isLCP = false; // Traverse handles LCP; no need to double-count
-    const imageHTML = createImageHTML(nodeValue, isLCP);
+    const imageHTML = createImageHTML(nodeValue, isLCP, forApp);
     const doc = DOMParser.parseFromString(imageHTML, 'text/html');
     const replaceNode = doc.body?.firstChild || doc.firstChild
     if (replaceNode) {

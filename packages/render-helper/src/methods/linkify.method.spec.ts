@@ -235,9 +235,19 @@ describe('linkify() method - Content Linkification', () => {
       expect(result).toContain('i.ecency.com')
     })
 
-    it('should always use match format', () => {
+    it('emits a <picture> (avif/webp) with a format=match fallback for the web (forApp=false)', () => {
       const content = 'https://example.com/image.jpg'
       const result = linkify(content, false)
+
+      expect(result).toContain('<picture>')
+      expect(result).toContain('format=avif')
+      expect(result).toContain('format=webp')
+      expect(result).toContain('format=match') // <img> fallback
+    })
+
+    it('keeps match format only (no <picture>) for the app (forApp=true)', () => {
+      const content = 'https://example.com/image.jpg'
+      const result = linkify(content, true)
 
       expect(result).toContain('format=match')
       expect(result).not.toContain('format=webp')

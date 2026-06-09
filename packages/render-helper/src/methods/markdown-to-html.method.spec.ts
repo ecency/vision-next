@@ -172,10 +172,22 @@ describe('markdownToHTML() method', () => {
       expect(result).toContain('href="https://example.com"')
     })
 
-    it('should always proxify images with format=match (server handles format via Accept header)', () => {
+    it('emits a <picture> (avif/webp) with a format=match <img> fallback for the web (forApp=false)', () => {
       const input = '![Image](https://example.com/image.jpg)'
       const result = markdownToHTML(input, false, 'ecency.com')
+      expect(result).toContain('<picture>')
+      expect(result).toContain('type="image/avif"')
+      expect(result).toContain('format=avif')
+      expect(result).toContain('type="image/webp"')
+      expect(result).toContain('format=webp')
+      expect(result).toContain('format=match') // <img> fallback for browsers without avif/webp
+    })
+
+    it('keeps a bare format=match <img> (no <picture>) for the app (forApp=true)', () => {
+      const input = '![Image](https://example.com/image.jpg)'
+      const result = markdownToHTML(input, true, 'ecency.com')
       expect(result).toContain('format=match')
+      expect(result).not.toContain('<picture')
       expect(result).not.toContain('format=webp')
     })
 

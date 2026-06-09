@@ -1,4 +1,4 @@
-import { proxifyImageSrc, buildSrcSet, setProxyBase, getLatestUrl, extractPHash } from './proxify-image-src'
+import { proxifyImageSrc, buildSrcSet, setProxyBase, getLatestUrl, extractPHash, buildSrcSetForFormat, buildPictureSources, isPictureEligibleRawUrl } from './proxify-image-src'
 
 describe('getLatestUrl', () => {
   describe('with single proxification', () => {
@@ -275,5 +275,73 @@ describe('proxifyImageSrc transform-aware unwind (images.ecency.com uploads)', (
     expect(proxifyImageSrc(legacy, 600)).toBe(
       `https://i.ecency.com/p/${hash}?format=match&mode=fit&width=600`
     )
+  })
+})
+
+describe('picture / per-format helpers (cache-safe content negotiation)', () => {
+  beforeEach(() => setProxyBase('https://i.ecency.com'))
+
+  describe('isPictureEligibleRawUrl', () => {
+    it('accepts raw static-raster URLs (jpg/jpeg/png/webp), query/fragment tolerant', () => {
+      expect(isPictureEligibleRawUrl('https://files.peakd.com/x/a.png')).toBe(true)
+      expect(isPictureEligibleRawUrl('https://x.com/a.JPG')).toBe(true)
+      expect(isPictureEligibleRawUrl('https://x.com/a.jpeg?cb=1')).toBe(true)
+      expect(isPictureEligibleRawUrl('https://x.com/a.webp#frag')).toBe(true)
+    })
+    it('rejects animated / vector / exotic formats (origin would mislabel them)', () => {
+      for (const u of [
+        'https://x.com/a.gif', 'https://x.com/a.gif?cb=1', 'https://x.com/a.apng',
+        'https://x.com/a.svg', 'https://x.com/a.heic', 'https://x.com/a.ico',
+        'https://x.com/a.tiff', 'https://x.com/a.arw'
+      ]) expect(isPictureEligibleRawUrl(u)).toBe(false)
+    })
+    it('rejects already-proxified routes (original extension lost)', () => {
+      expect(isPictureEligibleRawUrl('https://i.ecency.com/p/abc?format=match')).toBe(false)
+      expect(isPictureEligibleRawUrl('https://images.ecency.com/p/abc')).toBe(false)
+      expect(isPictureEligibleRawUrl('https://i.ecency.com/u/foo/avatar/small')).toBe(false)
+      expect(isPictureEligibleRawUrl('https://i.ecency.com/0x0/https://x.com/a.png')).toBe(false)
+    })
+    it('rejects non-http, extensionless, and missing URLs', () => {
+      expect(isPictureEligibleRawUrl('data:image/png;base64,xxx')).toBe(false)
+      expect(isPictureEligibleRawUrl('https://x.com/no-extension')).toBe(false)
+      expect(isPictureEligibleRawUrl(undefined)).toBe(false)
+    })
+  })
+
+  describe('buildSrcSetForFormat', () => {
+    it('pins the requested format in every candidate', () => {
+      const ss = buildSrcSetForFormat('https://files.peakd.com/x/a.png', 'avif')
+      expect(ss).toContain('format=avif')
+      expect(ss).not.toContain('format=match')
+      expect(ss.split(',').length).toBe(5)
+    })
+    it('is byte-identical to buildSrcSet when format=match', () => {
+      const u = 'https://files.peakd.com/x/a.png'
+      expect(buildSrcSetForFormat(u, 'match')).toBe(buildSrcSet(u))
+    })
+    it('reuses the hash for already-/p/ URLs with no double suffix', () => {
+      const ss = buildSrcSetForFormat('https://i.ecency.com/p/abc?format=match&mode=fit', 'webp')
+      expect(ss).toContain('https://i.ecency.com/p/abc?format=webp&mode=fit&width=320 320w')
+    })
+  })
+
+  describe('buildPictureSources', () => {
+    it('returns proxied avif+webp srcsets for an eligible raw URL', () => {
+      const r = buildPictureSources('https://files.peakd.com/x/a.png')
+      expect(r).not.toBeNull()
+      expect(r!.avif).toContain('/p/')
+      expect(r!.avif).toContain('format=avif')
+      expect(r!.webp).toContain('format=webp')
+    })
+    it('returns null for ineligible URLs (gif / proxified / extensionless)', () => {
+      expect(buildPictureSources('https://x.com/a.gif')).toBeNull()
+      expect(buildPictureSources('https://i.ecency.com/p/abc?format=match')).toBeNull()
+      expect(buildPictureSources('https://x.com/no-ext')).toBeNull()
+    })
+    it('returns null when the proxy host-swaps a legacy host instead of /p/ (no transcode)', () => {
+      // images.hive.blog non-/D/ URLs get a bare hostname swap with no /p/ and no
+      // format param — the origin would return the original bytes mislabeled.
+      expect(buildPictureSources('https://images.hive.blog/0x0/a.png')).toBeNull()
+    })
   })
 })

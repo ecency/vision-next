@@ -551,4 +551,58 @@ describe('img() method - Image Processing', () => {
       expect(src).toContain('format=match')
     })
   })
+
+  describe('forApp = false: <picture> content-negotiation wrapping', () => {
+    function makeImg(src: string): HTMLElement {
+      const d = DOMParser.parseFromString('<html><body><p></p></body></html>', 'text/html')
+      const p = d.getElementsByTagName('p')[0]
+      const image = d.createElement('img')
+      image.setAttribute('src', src)
+      p.appendChild(image)
+      return image as unknown as HTMLElement
+    }
+    const parentName = (el: HTMLElement) => (el.parentNode as HTMLElement).nodeName.toLowerCase()
+
+    it('wraps an eligible raw image in <picture> with avif then webp <source>s, keeping the <img> as the format=match fallback', () => {
+      const image = makeImg('https://files.peakd.com/x/a.png')
+      img(image, { firstImageFound: false }, false)
+      const picture = image.parentNode as HTMLElement
+      expect(picture.nodeName.toLowerCase()).toBe('picture')
+      const sources = picture.getElementsByTagName('source')
+      expect(sources.length).toBe(2)
+      expect(sources[0].getAttribute('type')).toBe('image/avif')
+      expect(sources[0].getAttribute('srcset')).toContain('format=avif')
+      expect(sources[1].getAttribute('type')).toBe('image/webp')
+      expect(image.getAttribute('src')).toContain('format=match')
+    })
+
+    it('does NOT wrap when forApp is true (default — mobile/React Native)', () => {
+      const image = makeImg('https://files.peakd.com/x/a.png')
+      img(image, { firstImageFound: false }, true)
+      expect(parentName(image)).toBe('p')
+    })
+
+    it('does NOT wrap ineligible (animated gif) images', () => {
+      const image = makeImg('https://files.peakd.com/x/a.gif')
+      img(image, { firstImageFound: false }, false)
+      expect(parentName(image)).toBe('p')
+    })
+
+    it('does NOT wrap already-proxified /p/ images (extension lost)', () => {
+      const image = makeImg('https://i.ecency.com/p/abc?format=match&mode=fit')
+      img(image, { firstImageFound: false }, false)
+      expect(parentName(image)).toBe('p')
+    })
+
+    it('does not double-wrap an <img> already inside a <picture>', () => {
+      const d = DOMParser.parseFromString('<html><body><picture></picture></body></html>', 'text/html')
+      const pic = d.getElementsByTagName('picture')[0]
+      const image = d.createElement('img')
+      image.setAttribute('src', 'https://files.peakd.com/x/a.png')
+      pic.appendChild(image)
+      img(image as unknown as HTMLElement, { firstImageFound: false }, false)
+      expect((image.parentNode as HTMLElement).nodeName.toLowerCase()).toBe('picture')
+      expect(pic.getElementsByTagName('picture').length).toBe(0)
+    })
+  })
 })

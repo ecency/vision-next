@@ -1,6 +1,5 @@
 import { prefetchQuery, getQueryClient } from "@/core/react-query";
 import { getAccountFullQueryOptions, getSimilarEntriesQueryOptions } from "@ecency/sdk";
-import { buildSrcSet, catchPostImage, IMAGE_SIZES } from "@ecency/render-helper";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { EntryPageContentClient } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-client";
 import { EntryPageContentSSR } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-ssr";
@@ -103,14 +102,14 @@ export default async function EntryPage({ params, searchParams }: Props) {
     );
   }
 
-  // Preload the post's primary image as the likely LCP element.
-  // catchPostImage extracts from json_metadata.image or body, proxied via i.ecency.com.
-  // buildSrcSet emits the same `/p/<hash>?...&width=<w>` URLs the in-body LCP
-  // <img>'s srcset uses, so pairing it with IMAGE_SIZES (the single source of
-  // truth, exported by @ecency/render-helper) makes the high-priority preload
-  // resolve to the exact rendition the page renders, not a fixed 600px URL.
-  const lcpImage = catchPostImage(entry, 600, 500, "match");
-  const lcpImageSrcSet = lcpImage ? buildSrcSet(lcpImage) : "";
+  // No explicit LCP <link rel="preload"> here: the in-body LCP image is rendered
+  // as a <picture> (avif/webp/match) by render-helper with fetchpriority="high"
+  // on the <img>, so the preload scanner discovers and prioritizes it from the
+  // SSR HTML. A single typed (match) preload would mismatch the avif <source>
+  // the browser actually picks and double-download the LCP image (a typed image
+  // preload does not stop at the first supported source the way <picture> does).
+  // A future avif-typed preload would need the raw first-image URL to gate on
+  // picture-eligibility (catchPostImage returns an already-proxified URL).
 
   // Structured data: only top-level posts get Article + breadcrumb. Comments
   // carry no headline of their own and would emit an invalid Article.
@@ -134,16 +133,6 @@ export default async function EntryPage({ params, searchParams }: Props) {
 
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>
-      {lcpImage && (
-        <link
-          rel="preload"
-          as="image"
-          href={lcpImage}
-          imageSrcSet={lcpImageSrcSet || undefined}
-          imageSizes={lcpImageSrcSet ? IMAGE_SIZES : undefined}
-          fetchPriority="high"
-        />
-      )}
       <EntryPageContextProvider>
         <MdHandler />
         <div className="app-content entry-page bg-fixed bg-contain bg-gradient-to-tr from-blue-dark-sky/20 to-white dark:from-dark-default dark:to-black">

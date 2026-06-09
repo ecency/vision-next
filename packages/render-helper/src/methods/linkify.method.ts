@@ -87,7 +87,7 @@ export function linkify(content: string, forApp: boolean, renderOptions?: Render
   content = content.replace(IMG_REGEX, (imglink) => {
     const isLCP = !firstImageUsed;
     firstImageUsed = true;
-    return createImageHTML(imglink, isLCP);
+    return createImageHTML(imglink, isLCP, forApp);
   });
 
   // Restore author placeholders

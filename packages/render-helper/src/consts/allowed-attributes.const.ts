@@ -33,6 +33,13 @@ export const ALLOWED_ATTRIBUTES: XSSWhiteList = {
     'decoding',
     'itemprop'
   ],
+  // Responsive image content-negotiation wrapper emitted for web/self-hosted
+  // (forApp === false). Without these entries `xss` silently collapses the
+  // <picture>/<source> to a bare <img>. `source` attrs are further constrained
+  // in sanitize-html (srcset must be a proxy /p/ URL; type must be avif/webp;
+  // a type-less <source> is dropped post-pass).
+  'picture': [],
+  'source': ['type', 'srcset', 'sizes'],
   'span': ['class', 'id', 'data-align'],
   'iframe': ['src', 'class', 'frameborder', 'allowfullscreen', 'webkitallowfullscreen', 'mozallowfullscreen', 'sandbox'],
   'video': ['src', 'controls', 'poster'],
