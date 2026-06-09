@@ -162,8 +162,12 @@ function getImage(entry: Entry, width = 0, height = 0, format = 'match'): string
  * no unambiguous image (the caller can fall back to catchPostImage).
  */
 export function getEntryImageRawUrl(obj: Entry | string): string | null {
+  // he.decode the fast-path body URLs to match the metadata branches (and
+  // catchPostImage's proxifyFound), so an &amp;-encoded query string doesn't
+  // hash to a different proxy URL than the rendered <img>.
   if (typeof obj === 'string') {
-    return findFirstImageUrl(obj)
+    const src = findFirstImageUrl(obj)
+    return src ? he.decode(src) : null
   }
   let meta: Entry['json_metadata'] | null
   if (typeof obj.json_metadata === 'object') {
@@ -181,7 +185,8 @@ export function getEntryImageRawUrl(obj: Entry | string): string | null {
   if (meta && meta.image && !!meta.image.length && typeof meta.image[0] === 'string') {
     return he.decode(meta.image[0])
   }
-  return findFirstImageUrl(obj.body)
+  const bodySrc = findFirstImageUrl(obj.body)
+  return bodySrc ? he.decode(bodySrc) : null
 }
 
 export function catchPostImage(obj: Entry | string, width = 0, height = 0, format = 'match'): string | null {

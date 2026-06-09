@@ -30,6 +30,16 @@ describe('getEntryImageRawUrl', () => {
   it('works on a raw markdown string', () => {
     expect(getEntryImageRawUrl('![x](https://files.peakd.com/x/s.webp)')).toBe('https://files.peakd.com/x/s.webp')
   })
+
+  it('he-decodes fast-path body image URLs (no &amp; leakage into the proxy hash)', () => {
+    const entry = {
+      author: 'a', permlink: 'p', last_update: '2019-05-10T09:15:21',
+      body: 'pre ![x](https://files.peakd.com/x/a.png?w=1&amp;h=2) post',
+      json_metadata: '{}'
+    } as any
+    expect(getEntryImageRawUrl(entry)).toBe('https://files.peakd.com/x/a.png?w=1&h=2')
+    expect(getEntryImageRawUrl('![x](https://files.peakd.com/x/a.png?w=1&amp;h=2)')).toBe('https://files.peakd.com/x/a.png?w=1&h=2')
+  })
 })
 
 describe('catchPostImage', () => {

@@ -2036,7 +2036,8 @@ function getImage(entry, width = 0, height = 0, format = "match") {
 }
 function getEntryImageRawUrl(obj) {
   if (typeof obj === "string") {
-    return findFirstImageUrl(obj);
+    const src = findFirstImageUrl(obj);
+    return src ? he.decode(src) : null;
   }
   let meta;
   if (typeof obj.json_metadata === "object") {
@@ -2054,7 +2055,8 @@ function getEntryImageRawUrl(obj) {
   if (meta && meta.image && !!meta.image.length && typeof meta.image[0] === "string") {
     return he.decode(meta.image[0]);
   }
-  return findFirstImageUrl(obj.body);
+  const bodySrc = findFirstImageUrl(obj.body);
+  return bodySrc ? he.decode(bodySrc) : null;
 }
 function catchPostImage(obj, width = 0, height = 0, format = "match") {
   if (typeof obj === "string") {
