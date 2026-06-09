@@ -23,9 +23,17 @@ import {
 } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
 import { ReactNode, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import { NavbarSideMainLogout } from "./navbar-side-main-logout";
 import { NavbarSideMainMenuItem } from "./navbar-side-main-menu-item";
-import { MobileLoginQrDialog } from "../../mobile-login-qr";
+
+// Loaded on demand when the user opens mobile login, so `qrcode` (~22 KB) is
+// not bundled onto every page - the navbar renders on all routes, including
+// read-only post pages where the QR login is never used.
+const MobileLoginQrDialog = dynamic(
+  () => import("../../mobile-login-qr").then((m) => m.MobileLoginQrDialog),
+  { ssr: false }
+);
 
 interface Props {
   onHide: () => void;
@@ -184,7 +192,9 @@ export function NavbarSideMainMenu({ onHide }: Props) {
         <FragmentsDialog show={fragments && !!activeUser} setShow={(v) => setFragments(v)} />
       </EcencyConfigManager.Conditional>
 
-      <MobileLoginQrDialog show={mobileLogin} onHide={() => setMobileLogin(false)} />
+      {mobileLogin && (
+        <MobileLoginQrDialog show={mobileLogin} onHide={() => setMobileLogin(false)} />
+      )}
     </>
   );
 }
