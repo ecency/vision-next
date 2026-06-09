@@ -1,5 +1,24 @@
 import { DOMParser } from './consts'
 import type { Document } from '@xmldom/xmldom'
+import he from 'he'
+
+/**
+ * Decode an image URL the way the renderer does before proxifying, so a URL's
+ * proxy hash (base58 of the exact string) is identical whether it came from the
+ * rendered <img> (img.method) or from raw discovery (getEntryImageRawUrl) — i.e.
+ * the LCP preload byte-matches the in-body <picture> avif <source>. Decodes HTML
+ * entities (&amp;, &#NN;, &#xNN;) then percent-encoding (%XX / non-ASCII).
+ * Percent-decoding is guarded so a malformed `%` in user content can't throw
+ * (callers run at SSR time).
+ */
+export function decodeImageSrc(src: string): string {
+  const entityDecoded = he.decode(src)
+  try {
+    return decodeURIComponent(entityDecoded).trim()
+  } catch {
+    return entityDecoded.trim()
+  }
+}
 
 /**
  * Removes duplicate attributes from HTML tags.

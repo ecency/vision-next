@@ -1,4 +1,5 @@
 import type { Zoom } from "medium-zoom";
+import { zoomReplaceTarget, zoomEffectiveParent } from "./picture-zoom";
 
 /**
  * Apply medium-zoom to images in a container.
@@ -24,8 +25,7 @@ export function applyImageZoom(container: HTMLElement): Promise<Zoom | null> {
 
             // <img> inside a <picture>: the element we wrap/replace is the
             // <picture>, so the "linked image" check looks at its parent.
-            const effectiveParent =
-                parentNode.nodeName === "PICTURE" ? parentNode.parentNode : parentNode;
+            const effectiveParent = zoomEffectiveParent(parentNode);
             if (!effectiveParent) {
                 return false;
             }
@@ -53,8 +53,7 @@ export function applyImageZoom(container: HTMLElement): Promise<Zoom | null> {
             // When the <img> sits inside a <picture>, wrap/replace the whole
             // <picture> so the <img> stays a DIRECT child of it (otherwise the
             // <source>s are ignored and the format=match URL loads).
-            const zoomTarget =
-                el.parentElement && el.parentElement.nodeName === "PICTURE" ? el.parentElement : el;
+            const zoomTarget = zoomReplaceTarget(el);
 
             // Verify parentElement exists before attempting manipulation
             const parentElement = zoomTarget.parentElement;

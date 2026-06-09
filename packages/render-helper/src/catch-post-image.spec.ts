@@ -1,4 +1,44 @@
 import { catchPostImage, getEntryImageRawUrl } from './catch-post-image'
+import { markdown2Html } from './markdown-2-html'
+import { buildPictureSources } from './proxify-image-src'
+
+// The feature's central invariant: the LCP <link rel="preload"> the entry page
+// builds from getEntryImageRawUrl + buildPictureSources must byte-match the avif
+// <source> the in-body <picture> (markdown2Html forApp=false) actually requests
+// — otherwise the high-priority preload is wasted and the LCP image
+// double-downloads. Encoded / non-ASCII cover URLs are the regression-prone case.
+describe('LCP preload avif URL matches the in-body <picture> avif source', () => {
+  const firstAvif = (ss: string) => ss.split(',')[0].trim().split(/\s+/)[0].replace(/&amp;/g, '&')
+  const bodyAvif = (entry: any): string | null => {
+    const m = markdown2Html(entry, false).match(/<source type="image\/avif" srcset="([^"]+)"/)
+    return m ? firstAvif(m[1]) : null
+  }
+  const preloadAvif = (entry: any): string | null => {
+    const raw = getEntryImageRawUrl(entry)
+    const p = raw ? buildPictureSources(raw) : null
+    return p ? firstAvif(p.avif) : null
+  }
+  const urls: Record<string, string> = {
+    ascii: 'https://files.peakd.com/x/a.png',
+    'percent-encoded': 'https://files.peakd.com/x/my%20pic.png',
+    'non-ascii (cyrillic)': 'https://files.peakd.com/x/%D1%84%D0%B0%D0%B9%D0%BB.png',
+    'amp-encoded query': 'https://files.peakd.com/x/a.png?w=1&amp;h=2'
+  }
+  let i = 0
+  for (const [label, url] of Object.entries(urls)) {
+    // distinct permlink per case — the entry render cache keys on author/permlink
+    const permlink = `inv-${i++}`
+    it(`matches for a ${label} cover URL`, () => {
+      const entry = {
+        author: 'a', permlink, last_update: '2019-05-10T09:15:21',
+        body: `text ![x](${url}) more`, json_metadata: '{}'
+      } as any
+      const b = bodyAvif(entry)
+      expect(b).not.toBeNull()
+      expect(preloadAvif(entry)).toBe(b)
+    })
+  }
+})
 
 describe('getEntryImageRawUrl', () => {
   it('returns the raw (un-proxified) json_metadata.image[0]', () => {

@@ -1,6 +1,7 @@
 'use strict';
 
 var xmldom = require('@xmldom/xmldom');
+var he2 = require('he');
 var xss = require('xss');
 var multihash = require('multihashes');
 var querystring = require('querystring');
@@ -9,7 +10,6 @@ var remarkable = require('remarkable');
 var linkify$1 = require('remarkable/linkify');
 var htmlparser2 = require('htmlparser2');
 var domSerializerModule = require('dom-serializer');
-var he = require('he');
 
 function _interopDefault (e) { return e && e.__esModule ? e : { default: e }; }
 
@@ -31,12 +31,12 @@ function _interopNamespace(e) {
   return Object.freeze(n);
 }
 
+var he2__default = /*#__PURE__*/_interopDefault(he2);
 var xss__default = /*#__PURE__*/_interopDefault(xss);
 var multihash__default = /*#__PURE__*/_interopDefault(multihash);
 var querystring__default = /*#__PURE__*/_interopDefault(querystring);
 var htmlparser2__namespace = /*#__PURE__*/_interopNamespace(htmlparser2);
 var domSerializerModule__namespace = /*#__PURE__*/_interopNamespace(domSerializerModule);
-var he__default = /*#__PURE__*/_interopDefault(he);
 
 // src/consts/white-list.const.ts
 var WHITE_LIST = [
@@ -212,8 +212,14 @@ function createParser() {
   });
 }
 var DOMParser = createParser();
-
-// src/helper.ts
+function decodeImageSrc(src) {
+  const entityDecoded = he2__default.default.decode(src);
+  try {
+    return decodeURIComponent(entityDecoded).trim();
+  } catch {
+    return entityDecoded.trim();
+  }
+}
 function isSpaceChar(c) {
   return c === 32 || c === 9 || c === 10 || c === 13 || c === 12;
 }
@@ -660,9 +666,7 @@ function wrapInPicture(el, rawUrl) {
 }
 function img(el, state, forApp = true) {
   const src = el.getAttribute("src") || "";
-  const decodedSrc = decodeURIComponent(
-    src.replace(/&#(\d+);/g, (_, dec) => String.fromCharCode(dec)).replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
-  ).trim();
+  const decodedSrc = decodeImageSrc(src);
   ["onerror", "dynsrc", "lowsrc", "width", "height"].forEach((attr) => el.removeAttribute(attr));
   const isInvalid = !src || decodedSrc.startsWith("javascript") || decodedSrc.startsWith("vbscript") || decodedSrc === "x";
   if (isInvalid) {
@@ -716,11 +720,12 @@ function img(el, state, forApp = true) {
   }
 }
 function createImageHTML(src, isLCP, forApp = true) {
-  const proxified = proxifyImageSrc(src, 0, 0, "match", { forceProxy: true });
+  const decoded = decodeImageSrc(src);
+  const proxified = proxifyImageSrc(decoded, 0, 0, "match", { forceProxy: true });
   if (!proxified) return "";
   const base = trimTrailingSlash(getProxyBase());
-  const isAlreadyProxied = src.startsWith(`${base}/u/`) || new RegExp(`^${base.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}/\\d+x\\d+/`).test(src);
-  const srcset = isAlreadyProxied ? "" : buildSrcSet(src);
+  const isAlreadyProxied = decoded.startsWith(`${base}/u/`) || new RegExp(`^${base.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}/\\d+x\\d+/`).test(decoded);
+  const srcset = isAlreadyProxied ? "" : buildSrcSet(decoded);
   const loading = isLCP ? "eager" : "lazy";
   const fetch = isLCP ? 'fetchpriority="high"' : 'decoding="async"';
   const srcsetAttr = srcset ? `srcset="${srcset}" sizes="${IMAGE_SIZES}"` : "";
@@ -733,7 +738,7 @@ function createImageHTML(src, isLCP, forApp = true) {
     itemprop="image"
   />`;
   if (!forApp) {
-    const sources = buildPictureSources(src);
+    const sources = buildPictureSources(decoded);
     if (sources) {
       return `<picture><source type="image/avif" srcset="${sources.avif}" sizes="${IMAGE_SIZES}" /><source type="image/webp" srcset="${sources.webp}" sizes="${IMAGE_SIZES}" />${imgTag}</picture>`;
     }
@@ -2007,7 +2012,7 @@ function findFirstImageUrl(body) {
   return null;
 }
 function proxifyFound(src, width, height, format) {
-  const decoded = he__default.default.decode(src);
+  const decoded = he2__default.default.decode(src);
   if (isGifLink(decoded)) {
     return proxifyImageSrc(decoded, 0, 0, format);
   }
@@ -2025,7 +2030,7 @@ function getImage(entry, width = 0, height = 0, format = "match") {
     }
   }
   if (meta && typeof meta.image === "string" && meta.image.length > 0) {
-    const decodedImage = he__default.default.decode(meta.image);
+    const decodedImage = he2__default.default.decode(meta.image);
     if (isGifLink(decodedImage)) {
       return proxifyImageSrc(decodedImage, 0, 0, format);
     }
@@ -2033,7 +2038,7 @@ function getImage(entry, width = 0, height = 0, format = "match") {
   }
   if (meta && meta.image && !!meta.image.length && meta.image[0]) {
     if (typeof meta.image[0] === "string") {
-      const decodedImage = he__default.default.decode(meta.image[0]);
+      const decodedImage = he2__default.default.decode(meta.image[0]);
       if (isGifLink(decodedImage)) {
         return proxifyImageSrc(decodedImage, 0, 0, format);
       }
@@ -2066,7 +2071,7 @@ function getImage(entry, width = 0, height = 0, format = "match") {
 function getEntryImageRawUrl(obj) {
   if (typeof obj === "string") {
     const src = findFirstImageUrl(obj);
-    return src ? he__default.default.decode(src) : null;
+    return src ? decodeImageSrc(src) : null;
   }
   let meta;
   if (typeof obj.json_metadata === "object") {
@@ -2079,13 +2084,13 @@ function getEntryImageRawUrl(obj) {
     }
   }
   if (meta && typeof meta.image === "string" && meta.image.length > 0) {
-    return he__default.default.decode(meta.image);
+    return decodeImageSrc(meta.image);
   }
-  if (meta && meta.image && !!meta.image.length && typeof meta.image[0] === "string") {
-    return he__default.default.decode(meta.image[0]);
+  if (meta && meta.image && !!meta.image.length && typeof meta.image[0] === "string" && meta.image[0].length > 0) {
+    return decodeImageSrc(meta.image[0]);
   }
   const bodySrc = findFirstImageUrl(obj.body);
-  return bodySrc ? he__default.default.decode(bodySrc) : null;
+  return bodySrc ? decodeImageSrc(bodySrc) : null;
 }
 function catchPostImage(obj, width = 0, height = 0, format = "match") {
   if (typeof obj === "string") {
@@ -2188,7 +2193,7 @@ function postBodySummary(entryBody, length = 200, platform = "web") {
     text2 = joint(text2.split(" "), length);
   }
   if (text2) {
-    text2 = he__default.default.decode(text2);
+    text2 = he2__default.default.decode(text2);
   }
   return text2;
 }

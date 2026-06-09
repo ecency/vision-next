@@ -1,5 +1,5 @@
 import { proxifyImageSrc, buildSrcSet, getProxyBase, buildPictureSources } from "../proxify-image-src";
-import { trimTrailingSlash } from "../helper";
+import { trimTrailingSlash, decodeImageSrc } from "../helper";
 
 /**
  * The `sizes` value the renderer applies to in-body post images (see `img()`
@@ -46,11 +46,9 @@ function wrapInPicture(el: HTMLElement, rawUrl: string): void {
 export function img(el: HTMLElement, state?: { firstImageFound: boolean }, forApp = true): void {
   const src = el.getAttribute("src") || "";
 
-  // Normalize encoded characters
-  const decodedSrc = decodeURIComponent(
-    src.replace(/&#(\d+);/g, (_, dec) => String.fromCharCode(dec))
-      .replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
-  ).trim();
+  // Normalize encoded characters (shared with getEntryImageRawUrl so the LCP
+  // preload's proxy hash byte-matches this rendered <img>/<picture>).
+  const decodedSrc = decodeImageSrc(src);
 
   // Sanitize dangerous attributes regardless of validity
   ["onerror", "dynsrc", "lowsrc", "width", "height"].forEach(attr => el.removeAttribute(attr));
@@ -128,15 +126,19 @@ export function img(el: HTMLElement, state?: { firstImageFound: boolean }, forAp
 }
 
 export function createImageHTML(src: string, isLCP: boolean, forApp = true): string {
+  // Decode with the same pipeline as the DOM path img() so the same source URL
+  // hashes to the same proxy /p/ URL regardless of which render path produced it
+  // (and so the LCP preload, which decodes via getEntryImageRawUrl, matches).
+  const decoded = decodeImageSrc(src);
   // forceProxy: see img() — keep the fallback src unsized but proxied so uploads
   // are served WebP/AVIF rather than the original-format direct-serve bytes.
-  const proxified = proxifyImageSrc(src, 0, 0, "match", { forceProxy: true });
+  const proxified = proxifyImageSrc(decoded, 0, 0, "match", { forceProxy: true });
   if (!proxified) return '';
 
   const base = trimTrailingSlash(getProxyBase());
-  const isAlreadyProxied = src.startsWith(`${base}/u/`)
-    || new RegExp(`^${base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/\\d+x\\d+/`).test(src);
-  const srcset = isAlreadyProxied ? '' : buildSrcSet(src);
+  const isAlreadyProxied = decoded.startsWith(`${base}/u/`)
+    || new RegExp(`^${base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/\\d+x\\d+/`).test(decoded);
+  const srcset = isAlreadyProxied ? '' : buildSrcSet(decoded);
   const loading = isLCP ? 'eager' : 'lazy';
   const fetch = isLCP ? 'fetchpriority="high"' : 'decoding="async"';
   const srcsetAttr = srcset ? `srcset="${srcset}" sizes="${IMAGE_SIZES}"` : '';
@@ -150,12 +152,12 @@ export function createImageHTML(src: string, isLCP: boolean, forApp = true): str
   />`;
 
   // Web/self-hosted: wrap in <picture> with explicit avif/webp <source>s when
-  // the raw `src` is picture-eligible. Self-closing <source/> — an explicit
+  // the source is picture-eligible. Self-closing <source/> — an explicit
   // </source> throws in the downstream xmldom re-parse. The <img> stays the
   // format=match fallback. App path (forApp) keeps the bare <img> (no <picture>
   // in React Native).
   if (!forApp) {
-    const sources = buildPictureSources(src);
+    const sources = buildPictureSources(decoded);
     if (sources) {
       return `<picture><source type="image/avif" srcset="${sources.avif}" sizes="${IMAGE_SIZES}" /><source type="image/webp" srcset="${sources.webp}" sizes="${IMAGE_SIZES}" />${imgTag}</picture>`;
     }

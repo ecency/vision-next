@@ -1,4 +1,4 @@
-import { img } from './img.method'
+import { img, createImageHTML } from './img.method'
 import { DOMParser } from '../consts/dom-parser.const'
 
 describe('img() method - Image Processing', () => {
@@ -592,6 +592,20 @@ describe('img() method - Image Processing', () => {
       const image = makeImg('https://i.ecency.com/p/abc?format=match&mode=fit')
       img(image, { firstImageFound: false }, false)
       expect(parentName(image)).toBe('p')
+    })
+
+    it('createImageHTML decodes its source consistently with img() (same proxy hash for an encoded URL)', () => {
+      const url = 'https://files.peakd.com/x/my%20pic.png'
+      // DOM path (forApp=true → bare <img>, no <picture> to keep the comparison simple)
+      const d = DOMParser.parseFromString('<html><body><p></p></body></html>', 'text/html')
+      const image = d.createElement('img')
+      image.setAttribute('src', url)
+      d.getElementsByTagName('p')[0].appendChild(image)
+      img(image as unknown as HTMLElement, { firstImageFound: false }, true)
+      const domSrc = image.getAttribute('src')
+      // string path
+      const strSrc = (createImageHTML(url, false, true).match(/src="([^"]+)"/) || [])[1]
+      expect(strSrc).toBe(domSrc)
     })
 
     it('does not double-wrap an <img> already inside a <picture>', () => {

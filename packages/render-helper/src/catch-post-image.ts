@@ -1,6 +1,6 @@
 import { proxifyImageSrc } from './proxify-image-src'
 import { markdown2Html } from './markdown-2-html'
-import { createDoc, makeEntryCacheKey } from './helper'
+import { createDoc, makeEntryCacheKey, decodeImageSrc } from './helper'
 import { cacheGet, cacheSet } from './cache'
 import { Entry } from './types'
 import he from 'he'
@@ -162,12 +162,14 @@ function getImage(entry: Entry, width = 0, height = 0, format = 'match'): string
  * no unambiguous image (the caller can fall back to catchPostImage).
  */
 export function getEntryImageRawUrl(obj: Entry | string): string | null {
-  // he.decode the fast-path body URLs to match the metadata branches (and
-  // catchPostImage's proxifyFound), so an &amp;-encoded query string doesn't
-  // hash to a different proxy URL than the rendered <img>.
+  // Decode with the SAME pipeline the renderer applies to the in-body <img>
+  // (decodeImageSrc: entities then percent-encoding), so the LCP preload's
+  // proxy hash byte-matches the body's <picture> avif <source> for &amp; /
+  // %-encoded / non-ASCII cover URLs (otherwise the preload is wasted and the
+  // LCP image double-downloads).
   if (typeof obj === 'string') {
     const src = findFirstImageUrl(obj)
-    return src ? he.decode(src) : null
+    return src ? decodeImageSrc(src) : null
   }
   let meta: Entry['json_metadata'] | null
   if (typeof obj.json_metadata === 'object') {
@@ -180,13 +182,13 @@ export function getEntryImageRawUrl(obj: Entry | string): string | null {
     }
   }
   if (meta && typeof meta.image === 'string' && meta.image.length > 0) {
-    return he.decode(meta.image)
+    return decodeImageSrc(meta.image)
   }
-  if (meta && meta.image && !!meta.image.length && typeof meta.image[0] === 'string') {
-    return he.decode(meta.image[0])
+  if (meta && meta.image && !!meta.image.length && typeof meta.image[0] === 'string' && meta.image[0].length > 0) {
+    return decodeImageSrc(meta.image[0])
   }
   const bodySrc = findFirstImageUrl(obj.body)
-  return bodySrc ? he.decode(bodySrc) : null
+  return bodySrc ? decodeImageSrc(bodySrc) : null
 }
 
 export function catchPostImage(obj: Entry | string, width = 0, height = 0, format = 'match'): string | null {

@@ -2,6 +2,7 @@
 
 import type { Zoom } from "medium-zoom";
 import React, { RefObject, useEffect, useRef } from "react";
+import { zoomReplaceTarget, zoomEffectiveParent } from "../utils/picture-zoom";
 
 export function ImageZoomExtension({
  containerRef,
@@ -34,8 +35,7 @@ export function ImageZoomExtension({
             // When the <img> is inside a <picture> (responsive content
             // negotiation), the element we wrap/replace is the <picture>, so the
             // "linked image" check must look at the <picture>'s parent.
-            const effectiveParent =
-                parentNode.nodeName === "PICTURE" ? parentNode.parentNode : parentNode;
+            const effectiveParent = zoomEffectiveParent(parentNode);
             if (!effectiveParent) {
                 return false;
             }
@@ -63,8 +63,7 @@ export function ImageZoomExtension({
         // When the <img> sits inside a <picture>, wrap/replace the whole
         // <picture> so the <img> stays a DIRECT child of it — otherwise the
         // <source> elements are ignored and the format=match URL loads.
-        const zoomTarget =
-            el.parentElement && el.parentElement.nodeName === "PICTURE" ? el.parentElement : el;
+        const zoomTarget = zoomReplaceTarget(el);
 
         // Verify parentElement exists before attempting manipulation
         const parentElement = zoomTarget.parentElement;

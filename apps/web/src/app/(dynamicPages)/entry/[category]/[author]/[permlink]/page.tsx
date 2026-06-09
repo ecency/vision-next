@@ -111,13 +111,20 @@ export default async function EntryPage({ params, searchParams }: Props) {
 
   // Preload the post's primary image as the likely LCP element, matching the
   // exact rendition the in-body <picture>/<img> will request so the preload is
-  // a head start, not a double download.
+  // a head start, not a double download. (getEntryImageRawUrl shares the
+  // renderer's decodeImageSrc, so the proxy hash is byte-identical to the body.)
   //   - Eligible cover (static raster): the body renders <picture> and an
   //     avif-capable browser picks the avif <source>. Preload the SAME avif
-  //     srcset, typed image/avif — non-avif browsers skip a typed preload they
-  //     can't use (so no wasted/duplicate fetch) and still get webp/match from
-  //     <picture>. A match preload here would mismatch the avif <source> and
-  //     double-download; never preload avif AND webp (also a double download).
+  //     srcset, typed image/avif. We deliberately emit ONLY the avif preload:
+  //     unlike <picture>, multiple typed image preloads do NOT "pick the first
+  //     supported one" — a browser that supports both avif and webp would fetch
+  //     BOTH, double-downloading the LCP on the majority of clients. A match
+  //     preload would likewise mismatch the avif <source>. The trade-off: the
+  //     shrinking webp-only/no-avif tail (Safari 16.0–16.3, very old Chromium)
+  //     skips the typed preload and instead loads the body <picture>'s webp via
+  //     the in-body fetchpriority="high" <img> — no head start, but a far
+  //     smaller image than develop's CDN-cross-served match preload, so net LCP
+  //     for that cohort is not worse.
   //   - Ineligible cover (gif/svg/extensionless/already-proxified): the body
   //     renders a bare format=match <img>, so preload that (original behavior).
   const rawCover = getEntryImageRawUrl(entry);
