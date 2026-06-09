@@ -32,7 +32,9 @@ import { NavbarSideMainMenuItem } from "./navbar-side-main-menu-item";
 // read-only post pages where the QR login is never used.
 const MobileLoginQrDialog = dynamic(
   () => import("../../mobile-login-qr").then((m) => m.MobileLoginQrDialog),
-  { ssr: false }
+  // The dialog renders its own modal/spinner once mounted; render nothing while
+  // the (small) chunk streams in rather than an out-of-context placeholder.
+  { ssr: false, loading: () => null }
 );
 
 interface Props {
