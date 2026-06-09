@@ -1,12 +1,17 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { NodeHealthTracker, callRPC, callREST, callWithQuorum } from "./call";
+import {
+  NodeHealthTracker,
+  callRPC,
+  callREST,
+  callWithQuorum,
+  restHealthTracker,
+  __LATENCY_TUNING__,
+} from "./call";
 import { config } from "../config";
 
-// Implementation constants mirrored for readable assertions (kept in sync with call.ts).
-const MIN_SAMPLES = 3;
-const REPROBE_MS = 60_000;
-const MAX_AGE_MS = 5 * 60_000;
-const SLOW_FAILURE_MS = 2_000;
+// Tuning values are imported from the implementation (not re-declared here) so the
+// assertions can never silently drift out of sync with call.ts.
+const { MIN_SAMPLES, REPROBE_MS, MAX_AGE_MS, SLOW_FAILURE_MS } = __LATENCY_TUNING__;
 
 const HAPI = "https://hapi.ecency.com"; // our node (biased, no public rate limit)
 const A = "https://api.hive.blog";
@@ -31,7 +36,7 @@ afterEach(() => {
 /** Profile a node with `n` successful samples of `ms`. n>=MIN_SAMPLES ⇒ proven.
  *  Any n>=1 also makes the node recently-sampled, so the orthogonal re-probe
  *  exploration won't perturb a steady-state ordering assertion. */
-function warm(t: NodeHealthTracker, node: string, ms: number, n = MIN_SAMPLES) {
+function warm(t: NodeHealthTracker, node: string, ms: number, n: number = MIN_SAMPLES) {
   for (let i = 0; i < n; i++) t.recordSuccess(node, undefined, ms);
 }
 
@@ -39,6 +44,20 @@ describe("NodeHealthTracker — adaptive latency ordering", () => {
   it("cold start: no latency data ⇒ config order preserved (today's behavior)", () => {
     const t = new NodeHealthTracker();
     expect(t.getOrderedNodes([HAPI, A, B])).toEqual([HAPI, A, B]);
+  });
+
+  it("cold start: REPEATED orderings inside the first re-probe window stay in config order", () => {
+    // Regression guard. Fresh nodes used to be created with lastProbeAt=0, so the
+    // re-probe gate (touch <= now - REPROBE_MS) fired immediately and the 2nd ordering
+    // on a cold worker promoted an unproven, lower-priority node ahead of the
+    // configured order — with no latency reason. A cold worker must keep serving the
+    // configured order until a real latency signal OR a genuinely elapsed re-probe
+    // window justifies reordering.
+    const t = new NodeHealthTracker();
+    for (let i = 0; i < 5; i++) {
+      advance(10_000); // 5 × 10s = 50s, still within one LATENCY_REPROBE_MS window
+      expect(t.getOrderedNodes([HAPI, A, B])).toEqual([HAPI, A, B]);
+    }
   });
 
   it("profiled nodes sort fastest-first", () => {
@@ -266,6 +285,50 @@ describe("call sites feed the tracker — adaptive behavior end to end", () => {
     const firstHalf = hits.slice(0, 6).filter((h) => h === "ok").length;
     const lastHalf = hits.slice(-6).filter((h) => h === "ok").length;
     expect(lastHalf).toBeGreaterThan(firstHalf); // ok node preferred once slowfail demoted
+  });
+
+  it("callREST: an EXTERNAL abort records NO failure or latency penalty", async () => {
+    // Regression guard. callRPC bails before recording when the *caller's* signal is
+    // aborted; callREST did not — so a React-Query unmount/navigation that cancelled an
+    // in-flight REST call booked a failure + slow-latency sample against a perfectly
+    // healthy node (e.g. hapi, which is in restNodes) and could spuriously demote it.
+    // Asserted directly on the live tracker because failover spreads the (wrongful)
+    // penalty across every node it reaches, so node *ordering* alone can't see it.
+    // Unique host: restHealthTracker is a file-wide singleton, so another test's host
+    // would carry over its profile.
+    const N1 = "https://rest-keep.test";
+    config.restNodes = [N1];
+    config.retry = 2;
+    let currentAbort: AbortController | null = null;
+    vi.spyOn(globalThis, "fetch").mockImplementation(async () => {
+      advance(SLOW_FAILURE_MS + 500); // elapsed long enough to be a real slow penalty IF recorded
+      currentAbort?.abort(); // caller cancels the in-flight request
+      const err: any = new Error("The operation was aborted.");
+      err.name = "AbortError";
+      throw err;
+    });
+
+    // Several in-flight cancellations (signal is callREST's 6th arg).
+    for (let i = 0; i < 3; i++) {
+      currentAbort = new AbortController();
+      await expect(
+        callREST(
+          "balance",
+          "/accounts/{a}/balances",
+          { a: "alice" },
+          undefined,
+          undefined,
+          currentAbort.signal
+        )
+      ).rejects.toBeTruthy();
+    }
+
+    // The node was contacted (entry exists) but the aborts left it completely clean.
+    const h: any = (restHealthTracker as any).health.get(N1);
+    expect(h?.latencySampleCount ?? 0).toBe(0); // no latency sample recorded
+    expect(h?.ewmaLatencyMs).toBeUndefined(); // no EWMA penalty
+    expect(h?.apiFailures?.get?.("balance")).toBeUndefined(); // no per-API failure
+    expect(h?.consecutiveFailures ?? 0).toBe(0); // no global failure
   });
 
   it("callWithQuorum still reaches consensus (jsonRPCCall return shape intact)", async () => {
