@@ -38,6 +38,15 @@ declare function setSlowRenderThresholdMs(ms: number): void;
  */
 declare function markdown2Html(obj: Entry | string, forApp?: boolean, _webp?: boolean, parentDomain?: string, seoContext?: SeoContext, renderOptions?: RenderOptions): string;
 
+/**
+ * The RAW (pre-proxify) URL of an entry's primary image, using the same
+ * discovery order as catchPostImage (json_metadata.image, then the first body
+ * image). Unlike catchPostImage it does NOT proxify — callers need the original
+ * URL (e.g. to test picture-eligibility for an LCP preload, since catchPostImage
+ * returns an already-proxified /p/ URL). Returns null when the fast path finds
+ * no unambiguous image (the caller can fall back to catchPostImage).
+ */
+declare function getEntryImageRawUrl(obj: Entry | string): string | null;
 declare function catchPostImage(obj: Entry | string, width?: number, height?: number, format?: string): string | null;
 
 /**
@@ -93,10 +102,12 @@ declare function buildSrcSet(url?: string): string;
 declare function buildSrcSetForFormat(url?: string, format?: 'avif' | 'webp' | 'match'): string;
 /**
  * Whether a RAW (pre-proxify) image URL is safe to offer avif/webp `<source>`
- * renditions for. Requires an http(s) URL with a static-raster extension that is
- * NOT already proxified — already-proxified routes (`/p/` base58 hash, `/u/`
- * avatars, `WxH` sized) have the original extension stripped, so we can't prove
- * the underlying bytes aren't an animated gif and must fall back to a bare img.
+ * renditions for. Requires an http(s) URL whose PATHNAME ends in a static-raster
+ * extension and that is NOT already proxified — already-proxified routes (`/p/`
+ * base58 hash, `/u/` avatars, `WxH` sized) have the original extension stripped,
+ * so we can't prove the underlying bytes aren't an animated gif and must fall
+ * back to a bare img. URL parsing (not string regex on the host) keeps the host
+ * comparison exact and avoids an interpolated-hostname regex.
  */
 declare function isPictureEligibleRawUrl(rawUrl?: string): boolean;
 /**
@@ -134,4 +145,4 @@ declare function isValidPermlink(permlink: string): boolean;
  */
 declare function simpleMarkdownToHTML(input: string): string;
 
-export { type Entry, IMAGE_SIZES, type ProxifyOptions, type RenderOptions, SECTION_LIST, type SeoContext, buildPictureSources, buildSrcSet, buildSrcSetForFormat, catchPostImage, isPictureEligibleRawUrl, isValidPermlink, getPostBodySummary as postBodySummary, proxifyImageSrc, markdown2Html as renderPostBody, setCacheSize, setProxyBase, setSlowRenderThresholdMs, simpleMarkdownToHTML };
+export { type Entry, IMAGE_SIZES, type ProxifyOptions, type RenderOptions, SECTION_LIST, type SeoContext, buildPictureSources, buildSrcSet, buildSrcSetForFormat, catchPostImage, getEntryImageRawUrl, isPictureEligibleRawUrl, isValidPermlink, getPostBodySummary as postBodySummary, proxifyImageSrc, markdown2Html as renderPostBody, setCacheSize, setProxyBase, setSlowRenderThresholdMs, simpleMarkdownToHTML };

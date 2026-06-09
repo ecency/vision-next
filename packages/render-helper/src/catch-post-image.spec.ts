@@ -1,4 +1,36 @@
-import { catchPostImage } from './catch-post-image'
+import { catchPostImage, getEntryImageRawUrl } from './catch-post-image'
+
+describe('getEntryImageRawUrl', () => {
+  it('returns the raw (un-proxified) json_metadata.image[0]', () => {
+    const entry = {
+      author: 'a', permlink: 'p', last_update: '2019-05-10T09:15:21',
+      body: 'no images here',
+      json_metadata: JSON.stringify({ image: ['https://files.peakd.com/x/cover.png'] })
+    } as any
+    expect(getEntryImageRawUrl(entry)).toBe('https://files.peakd.com/x/cover.png')
+  })
+
+  it('falls back to the first body image when json_metadata has none', () => {
+    const entry = {
+      author: 'a', permlink: 'p', last_update: '2019-05-10T09:15:21',
+      body: 'intro ![x](https://files.peakd.com/x/body.jpg) more',
+      json_metadata: '{}'
+    } as any
+    expect(getEntryImageRawUrl(entry)).toBe('https://files.peakd.com/x/body.jpg')
+  })
+
+  it('returns null when no image is found', () => {
+    const entry = {
+      author: 'a', permlink: 'p', last_update: '2019-05-10T09:15:21',
+      body: 'just text', json_metadata: '{}'
+    } as any
+    expect(getEntryImageRawUrl(entry)).toBeNull()
+  })
+
+  it('works on a raw markdown string', () => {
+    expect(getEntryImageRawUrl('![x](https://files.peakd.com/x/s.webp)')).toBe('https://files.peakd.com/x/s.webp')
+  })
+})
 
 describe('catchPostImage', () => {
   describe('extracting from json_metadata', () => {

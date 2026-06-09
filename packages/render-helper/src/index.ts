@@ -1,5 +1,5 @@
 import { markdown2Html as renderPostBody, setSlowRenderThresholdMs } from './markdown-2-html'
-import { catchPostImage } from './catch-post-image'
+import { catchPostImage, getEntryImageRawUrl } from './catch-post-image'
 import { getPostBodySummary as postBodySummary } from './post-body-summary'
 import { setProxyBase, proxifyImageSrc, buildSrcSet, buildSrcSetForFormat, buildPictureSources, isPictureEligibleRawUrl } from './proxify-image-src'
 import type { ProxifyOptions } from './proxify-image-src'
@@ -15,6 +15,7 @@ import type { SeoContext } from './types/seo-context.interface'
 export {
   renderPostBody,
   catchPostImage,
+  getEntryImageRawUrl,
   postBodySummary,
   proxifyImageSrc,
   buildSrcSet,

@@ -1,5 +1,12 @@
 import { prefetchQuery, getQueryClient } from "@/core/react-query";
 import { getAccountFullQueryOptions, getSimilarEntriesQueryOptions } from "@ecency/sdk";
+import {
+  buildPictureSources,
+  buildSrcSet,
+  catchPostImage,
+  getEntryImageRawUrl,
+  IMAGE_SIZES
+} from "@ecency/render-helper";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { EntryPageContentClient } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-client";
 import { EntryPageContentSSR } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-ssr";
@@ -102,14 +109,21 @@ export default async function EntryPage({ params, searchParams }: Props) {
     );
   }
 
-  // No explicit LCP <link rel="preload"> here: the in-body LCP image is rendered
-  // as a <picture> (avif/webp/match) by render-helper with fetchpriority="high"
-  // on the <img>, so the preload scanner discovers and prioritizes it from the
-  // SSR HTML. A single typed (match) preload would mismatch the avif <source>
-  // the browser actually picks and double-download the LCP image (a typed image
-  // preload does not stop at the first supported source the way <picture> does).
-  // A future avif-typed preload would need the raw first-image URL to gate on
-  // picture-eligibility (catchPostImage returns an already-proxified URL).
+  // Preload the post's primary image as the likely LCP element, matching the
+  // exact rendition the in-body <picture>/<img> will request so the preload is
+  // a head start, not a double download.
+  //   - Eligible cover (static raster): the body renders <picture> and an
+  //     avif-capable browser picks the avif <source>. Preload the SAME avif
+  //     srcset, typed image/avif — non-avif browsers skip a typed preload they
+  //     can't use (so no wasted/duplicate fetch) and still get webp/match from
+  //     <picture>. A match preload here would mismatch the avif <source> and
+  //     double-download; never preload avif AND webp (also a double download).
+  //   - Ineligible cover (gif/svg/extensionless/already-proxified): the body
+  //     renders a bare format=match <img>, so preload that (original behavior).
+  const rawCover = getEntryImageRawUrl(entry);
+  const coverPicture = rawCover ? buildPictureSources(rawCover) : null;
+  const lcpMatch = catchPostImage(entry, 600, 500, "match");
+  const lcpMatchSrcSet = lcpMatch ? buildSrcSet(lcpMatch) : "";
 
   // Structured data: only top-level posts get Article + breadcrumb. Comments
   // carry no headline of their own and would emit an invalid Article.
@@ -133,6 +147,27 @@ export default async function EntryPage({ params, searchParams }: Props) {
 
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>
+      {coverPicture ? (
+        <link
+          rel="preload"
+          as="image"
+          type="image/avif"
+          imageSrcSet={coverPicture.avif}
+          imageSizes={IMAGE_SIZES}
+          fetchPriority="high"
+        />
+      ) : (
+        lcpMatch && (
+          <link
+            rel="preload"
+            as="image"
+            href={lcpMatch}
+            imageSrcSet={lcpMatchSrcSet || undefined}
+            imageSizes={lcpMatchSrcSet ? IMAGE_SIZES : undefined}
+            fetchPriority="high"
+          />
+        )
+      )}
       <EntryPageContextProvider>
         <MdHandler />
         <div className="app-content entry-page bg-fixed bg-contain bg-gradient-to-tr from-blue-dark-sky/20 to-white dark:from-dark-default dark:to-black">

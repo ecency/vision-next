@@ -306,6 +306,14 @@ describe('picture / per-format helpers (cache-safe content negotiation)', () => 
       expect(isPictureEligibleRawUrl('https://x.com/no-extension')).toBe(false)
       expect(isPictureEligibleRawUrl(undefined)).toBe(false)
     })
+    it('only honors the extension on the PATHNAME, not the query or fragment', () => {
+      // raster extension lives in the query/fragment but the real resource is not
+      // proven raster — must be ineligible (would otherwise emit a mislabeled <source>)
+      expect(isPictureEligibleRawUrl('https://x.com/download?file=a.png')).toBe(false)
+      expect(isPictureEligibleRawUrl('https://x.com/image.svg#thumb.png')).toBe(false)
+      // genuine raster path with an unrelated query/fragment stays eligible
+      expect(isPictureEligibleRawUrl('https://x.com/a.png?cb=1#x')).toBe(true)
+    })
   })
 
   describe('buildSrcSetForFormat', () => {

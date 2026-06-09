@@ -532,15 +532,23 @@ function buildSrcSetForFormat(url, format = "match") {
     return proxied ? `${proxied} ${w}w` : "";
   }).filter(Boolean).join(", ");
 }
-var STATIC_RASTER_EXT = /\.(?:jpe?g|png|webp)(?:[?#]|$)/i;
+var STATIC_RASTER_PATH_EXT = /\.(?:jpe?g|png|webp)$/i;
+var SIZED_PROXY_PATH = /^\/\d+x\d+\//;
 function isPictureEligibleRawUrl(rawUrl) {
   if (!rawUrl || typeof rawUrl !== "string") return false;
-  if (!/^https?:\/\//i.test(rawUrl)) return false;
-  const escaped = proxyBase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  if (rawUrl.startsWith(`${proxyBase}/p/`) || rawUrl.startsWith("https://images.ecency.com/p/") || rawUrl.startsWith(`${proxyBase}/u/`) || new RegExp(`^${escaped}/\\d+x\\d+/`).test(rawUrl)) {
+  let u;
+  try {
+    u = new URL(rawUrl);
+  } catch {
     return false;
   }
-  return STATIC_RASTER_EXT.test(rawUrl);
+  if (u.protocol !== "http:" && u.protocol !== "https:") return false;
+  const host = `${u.protocol}//${u.host}`;
+  const isProxyHost = host === proxyBase || host === "https://images.ecency.com";
+  if (isProxyHost && (u.pathname.startsWith("/p/") || u.pathname.startsWith("/u/") || SIZED_PROXY_PATH.test(u.pathname))) {
+    return false;
+  }
+  return STATIC_RASTER_PATH_EXT.test(u.pathname);
 }
 function buildPictureSources(rawUrl) {
   if (!isPictureEligibleRawUrl(rawUrl)) return null;
@@ -2022,6 +2030,28 @@ function getImage(entry, width = 0, height = 0, format = "match") {
   }
   return null;
 }
+function getEntryImageRawUrl(obj) {
+  if (typeof obj === "string") {
+    return findFirstImageUrl(obj);
+  }
+  let meta;
+  if (typeof obj.json_metadata === "object") {
+    meta = obj.json_metadata;
+  } else {
+    try {
+      meta = JSON.parse(obj.json_metadata);
+    } catch (e) {
+      meta = null;
+    }
+  }
+  if (meta && typeof meta.image === "string" && meta.image.length > 0) {
+    return he.decode(meta.image);
+  }
+  if (meta && meta.image && !!meta.image.length && typeof meta.image[0] === "string") {
+    return he.decode(meta.image[0]);
+  }
+  return findFirstImageUrl(obj.body);
+}
 function catchPostImage(obj, width = 0, height = 0, format = "match") {
   if (typeof obj === "string") {
     const fast = findFirstImageUrl(obj);
@@ -2143,6 +2173,6 @@ function getPostBodySummary(obj, length, platform) {
   return res;
 }
 
-export { IMAGE_SIZES, SECTION_LIST, buildPictureSources, buildSrcSet, buildSrcSetForFormat, catchPostImage, isPictureEligibleRawUrl, isValidPermlink, getPostBodySummary as postBodySummary, proxifyImageSrc, markdown2Html as renderPostBody, setCacheSize, setProxyBase, setSlowRenderThresholdMs, simpleMarkdownToHTML };
+export { IMAGE_SIZES, SECTION_LIST, buildPictureSources, buildSrcSet, buildSrcSetForFormat, catchPostImage, getEntryImageRawUrl, isPictureEligibleRawUrl, isValidPermlink, getPostBodySummary as postBodySummary, proxifyImageSrc, markdown2Html as renderPostBody, setCacheSize, setProxyBase, setSlowRenderThresholdMs, simpleMarkdownToHTML };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

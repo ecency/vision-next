@@ -153,6 +153,37 @@ function getImage(entry: Entry, width = 0, height = 0, format = 'match'): string
   return null
 }
 
+/**
+ * The RAW (pre-proxify) URL of an entry's primary image, using the same
+ * discovery order as catchPostImage (json_metadata.image, then the first body
+ * image). Unlike catchPostImage it does NOT proxify — callers need the original
+ * URL (e.g. to test picture-eligibility for an LCP preload, since catchPostImage
+ * returns an already-proxified /p/ URL). Returns null when the fast path finds
+ * no unambiguous image (the caller can fall back to catchPostImage).
+ */
+export function getEntryImageRawUrl(obj: Entry | string): string | null {
+  if (typeof obj === 'string') {
+    return findFirstImageUrl(obj)
+  }
+  let meta: Entry['json_metadata'] | null
+  if (typeof obj.json_metadata === 'object') {
+    meta = obj.json_metadata
+  } else {
+    try {
+      meta = JSON.parse(obj.json_metadata as string)
+    } catch (e) {
+      meta = null
+    }
+  }
+  if (meta && typeof meta.image === 'string' && meta.image.length > 0) {
+    return he.decode(meta.image)
+  }
+  if (meta && meta.image && !!meta.image.length && typeof meta.image[0] === 'string') {
+    return he.decode(meta.image[0])
+  }
+  return findFirstImageUrl(obj.body)
+}
+
 export function catchPostImage(obj: Entry | string, width = 0, height = 0, format = 'match'): string | null {
   if (typeof obj === 'string') {
     // Process string directly to avoid cache key collision

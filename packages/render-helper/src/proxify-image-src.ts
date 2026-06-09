@@ -222,29 +222,40 @@ export function buildSrcSetForFormat(
 // Animated (gif/apng), vector (svg) and exotic (heic/ico/tiff/arw) are excluded:
 // the origin returns the ORIGINAL bytes for ?format=avif on an animated source,
 // which a <source type="image/avif"> would mislabel (the browser commits to that
-// source and never reaches the <img> fallback). Query/fragment tolerant.
-const STATIC_RASTER_EXT = /\.(?:jpe?g|png|webp)(?:[?#]|$)/i;
+// source and never reaches the <img> fallback). Checked against the URL PATHNAME
+// only — a static-looking extension in the query/fragment (e.g. `?file=a.png`,
+// `x.svg#thumb.png`) does not prove the fetched resource is a static raster.
+const STATIC_RASTER_PATH_EXT = /\.(?:jpe?g|png|webp)$/i;
+// Image-proxy sized route, e.g. /600x500/<url> — already-proxified, extension lost.
+const SIZED_PROXY_PATH = /^\/\d+x\d+\//;
 
 /**
  * Whether a RAW (pre-proxify) image URL is safe to offer avif/webp `<source>`
- * renditions for. Requires an http(s) URL with a static-raster extension that is
- * NOT already proxified — already-proxified routes (`/p/` base58 hash, `/u/`
- * avatars, `WxH` sized) have the original extension stripped, so we can't prove
- * the underlying bytes aren't an animated gif and must fall back to a bare img.
+ * renditions for. Requires an http(s) URL whose PATHNAME ends in a static-raster
+ * extension and that is NOT already proxified — already-proxified routes (`/p/`
+ * base58 hash, `/u/` avatars, `WxH` sized) have the original extension stripped,
+ * so we can't prove the underlying bytes aren't an animated gif and must fall
+ * back to a bare img. URL parsing (not string regex on the host) keeps the host
+ * comparison exact and avoids an interpolated-hostname regex.
  */
 export function isPictureEligibleRawUrl(rawUrl?: string): boolean {
   if (!rawUrl || typeof rawUrl !== 'string') return false;
-  if (!/^https?:\/\//i.test(rawUrl)) return false;
-  const escaped = proxyBase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  let u: URL;
+  try {
+    u = new URL(rawUrl);
+  } catch {
+    return false;
+  }
+  if (u.protocol !== 'http:' && u.protocol !== 'https:') return false;
+  const host = `${u.protocol}//${u.host}`;
+  const isProxyHost = host === proxyBase || host === 'https://images.ecency.com';
   if (
-    rawUrl.startsWith(`${proxyBase}/p/`) ||
-    rawUrl.startsWith('https://images.ecency.com/p/') ||
-    rawUrl.startsWith(`${proxyBase}/u/`) ||
-    new RegExp(`^${escaped}/\\d+x\\d+/`).test(rawUrl)
+    isProxyHost &&
+    (u.pathname.startsWith('/p/') || u.pathname.startsWith('/u/') || SIZED_PROXY_PATH.test(u.pathname))
   ) {
     return false;
   }
-  return STATIC_RASTER_EXT.test(rawUrl);
+  return STATIC_RASTER_PATH_EXT.test(u.pathname);
 }
 
 /**
