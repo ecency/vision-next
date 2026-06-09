@@ -1991,6 +1991,8 @@ var INDENTED_CODE_RE = /^(?: {4}|\t).+$/gm;
 var MD_IMAGE_RE = /!\[[^\]]*\]\(\s*([^)\s]+)(?:\s+["'][^"']*["'])?\s*\)/;
 var HTML_IMAGE_RE = /<img\b[^>]*?\bsrc\s*=\s*["']([^"']+)["']/i;
 var BARE_IMAGE_RE = /(^|\s)(https?:\/\/[^\s<>"'()[\]]+\.(?:tiff?|jpe?g|gif|png|svg|ico|heic|webp|arw)(?:[?#][^\s<>"'()[\]]*)?)/im;
+var MD_LINK_RE = /\[([^\]]*)\]\(\s*([^)\s]+)(?:\s+["'][^"']*["'])?\s*\)/g;
+var IMG_HREF_RE = /https?:\/\/.*\.(?:tiff?|jpe?g|gif|png|svg|ico|heic|webp|arw)/i;
 var SAFE_URL_RE = /^https?:\/\//i;
 function findFirstImageUrl(body, includeBareUrls = false) {
   if (!body) return null;
@@ -2012,6 +2014,16 @@ function findFirstImageUrl(body, includeBareUrls = false) {
     const bareMatch = cleaned.match(BARE_IMAGE_RE);
     if (bareMatch && bareMatch[2] && SAFE_URL_RE.test(bareMatch[2])) {
       candidates.push({ url: bareMatch[2], pos: (bareMatch.index ?? 0) + bareMatch[1].length });
+    }
+    const deAmp = (s) => s.trim().replace(/&amp;/g, "&");
+    for (const m of cleaned.matchAll(MD_LINK_RE)) {
+      const idx = m.index ?? 0;
+      if (idx > 0 && cleaned[idx - 1] === "!") continue;
+      const href = m[2];
+      if (href && SAFE_URL_RE.test(href) && IMG_HREF_RE.test(href) && deAmp(m[1]) === deAmp(href)) {
+        candidates.push({ url: href, pos: idx });
+        break;
+      }
     }
   }
   if (candidates.length === 0) return null;

@@ -48,6 +48,17 @@ describe('LCP preload avif URL matches the in-body <picture> avif source', () =>
     expect(b).not.toBeNull()
     expect(preloadAvif(entry)).toBe(b)
   })
+
+  it('matches for an [url](url) image-link cover', () => {
+    const u = 'https://files.peakd.com/x/link-cover.png'
+    const entry = {
+      author: 'a', permlink: 'inv-link', last_update: '2019-05-10T09:15:21',
+      body: `lead in\n\n[${u}](${u})\n\ntrailing`, json_metadata: '{}'
+    } as any
+    const b = bodyAvif(entry)
+    expect(b).not.toBeNull()
+    expect(preloadAvif(entry)).toBe(b)
+  })
 })
 
 describe('getEntryImageRawUrl', () => {
@@ -91,6 +102,24 @@ describe('getEntryImageRawUrl', () => {
     const entry = {
       author: 'a', permlink: 'p', last_update: '2019-05-10T09:15:21',
       body: '[click here](https://files.peakd.com/x/not-a-cover.png) and some text',
+      json_metadata: '{}'
+    } as any
+    expect(getEntryImageRawUrl(entry)).toBeNull()
+  })
+
+  it('captures an [url](url) image-link cover (label equals href, href is an image)', () => {
+    const u = 'https://files.peakd.com/x/cover.png'
+    const entry = {
+      author: 'a', permlink: 'p', last_update: '2019-05-10T09:15:21',
+      body: `lead in\n\n[${u}](${u})\n\ntrailing`, json_metadata: '{}'
+    } as any
+    expect(getEntryImageRawUrl(entry)).toBe(u)
+  })
+
+  it('does NOT capture a [label](href) link whose label differs from href (reference link, not an image)', () => {
+    const entry = {
+      author: 'a', permlink: 'p', last_update: '2019-05-10T09:15:21',
+      body: '[https://files.peakd.com/x/other.png](https://files.peakd.com/x/a.png) text',
       json_metadata: '{}'
     } as any
     expect(getEntryImageRawUrl(entry)).toBeNull()

@@ -36,6 +36,15 @@ const HTML_IMAGE_RE = /<img\b[^>]*?\bsrc\s*=\s*["']([^"']+)["']/i
 // renderer's IMG_REGEX. Linear-time: one bounded char class + a single greedy
 // `+`, no nested quantifier.
 const BARE_IMAGE_RE = /(^|\s)(https?:\/\/[^\s<>"'()[\]]+\.(?:tiff?|jpe?g|gif|png|svg|ico|heic|webp|arw)(?:[?#][^\s<>"'()[\]]*)?)/im
+// Markdown link `[label](href)` (NOT an image — the `!` is excluded by the
+// caller). The renderer (a.method) promotes such a link to an image only when
+// the href is an image URL AND the label text equals the href. Used to find the
+// `[url](url)` image-link cover form. Global, capture label + href.
+const MD_LINK_RE = /\[([^\]]*)\]\(\s*([^)\s]+)(?:\s+["'][^"']*["'])?\s*\)/g
+// Mirrors a.method's `href.match(IMG_REGEX)` — an image URL by extension
+// (anywhere after the dot, matching the renderer). Eligibility for an avif
+// <source> is then decided separately by isPictureEligibleRawUrl.
+const IMG_HREF_RE = /https?:\/\/.*\.(?:tiff?|jpe?g|gif|png|svg|ico|heic|webp|arw)/i
 
 // The fast-path bypasses sanitize-html (which the full markdown pipeline
 // applies). The sanitizer only preserves http/https <img> sources — ftp,
@@ -91,6 +100,19 @@ function findFirstImageUrl(body: string, includeBareUrls = false): string | null
     if (bareMatch && bareMatch[2] && SAFE_URL_RE.test(bareMatch[2])) {
       // position of the URL itself, past the leading start/whitespace (group 1)
       candidates.push({ url: bareMatch[2], pos: (bareMatch.index ?? 0) + bareMatch[1].length })
+    }
+    // `[url](url)` image-link form: a markdown link the renderer promotes to an
+    // image (a.method) — href is an image URL and the label text equals it.
+    // Skip `![...]()` images (preceding `!`). Take the earliest such link.
+    const deAmp = (s: string) => s.trim().replace(/&amp;/g, '&')
+    for (const m of cleaned.matchAll(MD_LINK_RE)) {
+      const idx = m.index ?? 0
+      if (idx > 0 && cleaned[idx - 1] === '!') continue // it's an image ![](), handled above
+      const href = m[2]
+      if (href && SAFE_URL_RE.test(href) && IMG_HREF_RE.test(href) && deAmp(m[1]) === deAmp(href)) {
+        candidates.push({ url: href, pos: idx })
+        break
+      }
     }
   }
 
