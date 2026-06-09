@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.5.11
+
+### Patch Changes
+
+- render-helper: cache-safe <picture> per-format image negotiation (web/self-hosted) (#928)
+
 ## 2.5.10
 
 ### Patch Changes
