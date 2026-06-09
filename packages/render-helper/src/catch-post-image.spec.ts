@@ -133,6 +133,14 @@ describe('getEntryImageRawUrl', () => {
     expect(getEntryImageRawUrl(entry)).toBeNull()
   })
 
+  it('returns null for a parenthesized markdown image URL (MD fast-path bails) — the entry page must then skip the match preload, not preload it against the body avif <picture>', () => {
+    const entry = {
+      author: 'a', permlink: 'p', last_update: '2019-05-10T09:15:21',
+      body: '![x](https://example.com/foo_(bar).jpg)', json_metadata: '{}'
+    } as any
+    expect(getEntryImageRawUrl(entry)).toBeNull()
+  })
+
   it('works on a raw markdown string', () => {
     expect(getEntryImageRawUrl('![x](https://files.peakd.com/x/s.webp)')).toBe('https://files.peakd.com/x/s.webp')
   })
