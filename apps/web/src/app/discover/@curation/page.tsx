@@ -7,12 +7,12 @@ import {
 } from "@/app/discover/_components";
 import { LeaderBoardDuration } from "@/entities";
 import { EcencyConfigManager } from "@/config";
-import { getDynamicPropsQueryOptions, getDiscoverCurationQueryOptions } from "@ecency/sdk";
+import { getDiscoverCurationQueryOptions } from "@ecency/sdk";
 import { dehydrate, HydrationBoundary, useQuery } from "@tanstack/react-query";
 import { getQueryClient } from "@/core/react-query";
 import i18next from "i18next";
 import { Tooltip } from "@ui/tooltip";
-import { formattedNumber, vestsToHp } from "@/utils";
+import { formattedNumber } from "@/utils";
 import React from "react";
 import { Badge } from "@ui/badge";
 import { UilInfoCircle } from "@tooni/iconscout-unicons-react";
@@ -25,7 +25,6 @@ interface Props {
 export default function CurationPage({ searchParams }: Props) {
   const params = useSearchParams();
 
-  const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
   const { data } = useQuery(
     getDiscoverCurationQueryOptions((params.get("period") as LeaderBoardDuration) ?? "day")
   );
@@ -56,9 +55,9 @@ export default function CurationPage({ searchParams }: Props) {
               {data.map((r, i) => (
                 <UsersTableListItem username={r.account} i={i} key={i}>
                   <div className="text-blue-dark-sky text-sm font-semibold">
-                    {formattedNumber(vestsToHp(r.vests, dynamicProps?.hivePerMVests ?? 1), {
-                      suffix: "HP"
-                    })}
+                    {/* `vests` already holds HP — esync converts VESTS→HP at ingest.
+                        Do not run vestsToHp() here or the value is double-converted. */}
+                    {formattedNumber(r.vests, { suffix: "HP" })}
                   </div>
                   <Badge>{r.votes}</Badge>
                 </UsersTableListItem>
