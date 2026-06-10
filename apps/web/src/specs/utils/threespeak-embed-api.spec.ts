@@ -221,6 +221,24 @@ describe("uploadVideoEmbed against a legacy backend (header fallback)", () => {
     expect(seenParallel).toBe(1);
   });
 
+  it("falls back to the header path when the token carries only a permlink", async () => {
+    // Partial token response (permlink but no embed_url) must not be treated as
+    // the preferred path — it should fall through to the sequential header path.
+    stubTokenResponse({ permlink: "TOK12345" });
+    let seenParallel = -1;
+    tusMock.runUpload = (options) => {
+      seenParallel = options.parallelUploads;
+      options.onAfterResponse(mockReq(), mockRes("https://play.3speak.tv/embed?v=a/SEQ99999"));
+      options.onSuccess();
+    };
+    const { uploadVideoEmbed } = await import("@/api/threespeak-embed/api");
+    await expect(uploadVideoEmbed(bigFile(), "a", false, () => {})).resolves.toEqual({
+      embedUrl: "https://play.3speak.tv/embed?v=a/SEQ99999",
+      permlink: "SEQ99999"
+    });
+    expect(seenParallel).toBe(1);
+  });
+
   it("rejects when the backend returns no embed URL header", async () => {
     tusMock.runUpload = (options) => {
       options.onSuccess();
