@@ -18,11 +18,7 @@ import { Badge } from "@ui/badge";
 import { UilInfoCircle } from "@tooni/iconscout-unicons-react";
 import { useSearchParams } from "next/navigation";
 
-interface Props {
-  searchParams: Promise<Record<string, string | undefined>>;
-}
-
-export default function CurationPage({ searchParams }: Props) {
+export default function CurationPage() {
   const params = useSearchParams();
 
   const { data } = useQuery(
