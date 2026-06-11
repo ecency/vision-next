@@ -42,7 +42,9 @@ export async function POST(request: NextRequest) {
   // a longer sibling permlink (`/@a/p` must not match `/@a/p-2`). Plausible's
   // `matches` maps to ClickHouse `multiMatchAny` (unanchored regex), so escape the
   // path and anchor the tail with `$`.
-  const page = safeDecodeURIComponent(url);
+  // Plausible stores the pathname only, so strip any query string / fragment (e.g.
+  // a comment permalink's `#@author/permlink`) before matching what's recorded.
+  const page = safeDecodeURIComponent(url).split(/[?#]/)[0];
   const pageFilter = page.endsWith("/")
     ? ["contains", filterDimension, [page]]
     : ["matches", filterDimension, [`${escapeRegExp(page)}$`]];
