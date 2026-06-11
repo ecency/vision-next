@@ -30,9 +30,12 @@ export async function GET(request: Request): Promise<Response> {
   const target = searchParams.get("url");
   if (!target) return errorResponse(400);
 
-  // We only implement JSON. Spec: unsupported format → 501.
+  // We only implement JSON. The spec suggests 501 for an unsupported format,
+  // but our Cloudflare failover treats any origin 5xx as "origin unavailable"
+  // and rewrites it to a 502 — so return 400 (the consumer asked for a format
+  // we don't offer, i.e. a client error) to stay correct through the edge.
   const format = searchParams.get("format");
-  if (format && format !== "json") return errorResponse(501);
+  if (format && format !== "json") return errorResponse(400);
 
   const parsed = parseEntryUrl(target);
   if (!parsed) return errorResponse(404);

@@ -33,9 +33,11 @@ describe("GET /api/oembed", () => {
     expect(loadEntry).not.toHaveBeenCalled();
   });
 
-  it("returns 501 for an unsupported (non-json) format", async () => {
+  it("returns 400 for an unsupported (non-json) format", async () => {
+    // 400 not 501: a 5xx from origin gets rewritten to 502 by our CF failover.
     const res = await get(`format=xml&url=${encodeURIComponent("https://ecency.com/@alice/p")}`);
-    expect(res.status).toBe(501);
+    expect(res.status).toBe(400);
+    expect(res.headers.get("X-Robots-Tag")).toBe("noindex");
     expect(loadEntry).not.toHaveBeenCalled();
   });
 
