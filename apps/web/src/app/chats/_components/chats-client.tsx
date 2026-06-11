@@ -480,7 +480,12 @@ export function ChatsClient() {
               )}
             </div>
 
-            <div className="grid gap-4">
+            {/* grid-cols-1 => minmax(0,1fr): the single column must shrink to the
+                rail width instead of sizing to the widest card's max-content, which
+                a long (truncated, nowrap) channel name would otherwise blow out,
+                pushing the unread badge + kebab past overflow-x-hidden and clipping
+                them off the right edge. */}
+            <div className="grid grid-cols-1 gap-4">
               {/* Favorites Section */}
               {!hasSearchTerm && channelsByCategory.favorites.length > 0 && (
                 <div className="space-y-2">
@@ -493,7 +498,7 @@ export function ChatsClient() {
                     </span>
                     <div className="h-px flex-1 bg-[--border-color]" />
                   </div>
-                  <div className="grid gap-2">
+                  <div className="grid grid-cols-1 gap-2">
                     {channelsByCategory.favorites.map((channel) => {
                       const unread = getUnreadCount(channel);
                       const isMuted = Boolean(channel.is_muted);
@@ -662,7 +667,7 @@ export function ChatsClient() {
                     </span>
                     <div className="h-px flex-1 bg-[--border-color]" />
                   </div>
-                  <div className="grid gap-2">
+                  <div className="grid grid-cols-1 gap-2">
                     {channelsByCategory.directMessages.map((channel) => {
                       const unread = getUnreadCount(channel);
                       const isMuted = Boolean(channel.is_muted);
@@ -758,7 +763,7 @@ export function ChatsClient() {
                     </span>
                     <div className="h-px flex-1 bg-[--border-color]" />
                   </div>
-                  <div className="grid gap-2">
+                  <div className="grid grid-cols-1 gap-2">
                     {channelsByCategory.regularChannels.map((channel) => {
                       const unread = getUnreadCount(channel);
                       const isMuted = Boolean(channel.is_muted);
@@ -1042,7 +1047,7 @@ export function ChatsClient() {
                 <span>{i18next.t("chat.search-user")}</span>
                 {userSearchLoading && <span>{i18next.t("chat.searching")}</span>}
               </div>
-              <div className="grid gap-2">
+              <div className="grid grid-cols-1 gap-2">
                 {userSearchLoading && <div className="text-sm text-[--text-muted]">{i18next.t("chat.searching")}</div>}
                 {!userSearchLoading &&
                   userSearch?.users?.map((user) => {
@@ -1084,7 +1089,7 @@ export function ChatsClient() {
                 <span>{i18next.t("chat.joinable-channels")}</span>
                 {channelSearchLoading && <span>{i18next.t("chat.searching-channels")}</span>}
               </div>
-              <div className="grid gap-2">
+              <div className="grid grid-cols-1 gap-2">
                 {joinableChannelResults.map((channel) => (
                   <div
                     key={channel.id}
@@ -1124,7 +1129,7 @@ export function ChatsClient() {
                 <span>{i18next.t("chat.message-search-results")}</span>
                 {messageSearchLoading && <span>{i18next.t("chat.searching")}</span>}
               </div>
-              <div className="grid gap-2">
+              <div className="grid grid-cols-1 gap-2">
                 {subscribedMessageResults.map((post) => {
                   const channel = channelsById.get(post.channel_id);
                   const channelLabel = channel ? getChannelTitle(channel) : i18next.t("chat.channel-type");

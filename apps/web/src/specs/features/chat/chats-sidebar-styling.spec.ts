@@ -68,6 +68,20 @@ describe("chats sidebar styling", () => {
     expect(chatsClient).toContain("hover:border-blue-dark-sky");
   });
 
+  it("constrains channel-list grids to grid-cols-1 so a long name cannot blow out the column and clip the kebab", () => {
+    // A bare `grid gap-*` uses a single implicit `auto` column that sizes to the
+    // widest card's max-content; a long, truncated (nowrap) channel name then
+    // pushes the unread badge + kebab past overflow-x-hidden, clipping them off
+    // the right edge. grid-cols-1 (minmax(0,1fr)) makes the column shrink to the
+    // rail width so names truncate instead.
+    // The card/section grids (gap-2 / gap-4) must not be bare. (gap-1 elsewhere
+    // is the error-message list, whose text wraps and cannot blow out a column.)
+    expect(chatsClient).not.toContain('className="grid gap-2"');
+    expect(chatsClient).not.toContain('className="grid gap-4"');
+    expect(chatsClient).toContain("grid grid-cols-1 gap-2");
+    expect(chatsClient).toContain("grid grid-cols-1 gap-4");
+  });
+
   it("reserves width for every channel-actions wrapper so the kebab cannot be squeezed out at narrow widths", () => {
     // Each per-channel actions container must be flex-shrink-0; otherwise a long
     // channel name in a narrow rail could shrink/clip the kebab on some screens.
