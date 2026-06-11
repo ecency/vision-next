@@ -54,29 +54,27 @@ export function HivePostLinkRenderer({ link }: { link: string }) {
     }
 
     try {
-      const response = await fetch(`https://ecency.com${cacheKey}`, {
-        method: "GET",
-      });
-      const raw = await response.text();
-      const pageDOM = document.createElement("html");
-      pageDOM.innerHTML = raw;
+      // One small JSON call to our own oEmbed provider instead of fetching and
+      // DOM-parsing the entire post HTML page just for three meta tags. The
+      // provider derives title/description/image from the same source as the
+      // post's og: tags, so the card is unchanged — just far cheaper and
+      // CF-cacheable. Relative URL → resolves against the current origin.
+      const response = await fetch(
+        `/api/oembed?url=${encodeURIComponent(`https://ecency.com${cacheKey}`)}&format=json`,
+        { method: "GET" },
+      );
+      if (!response.ok) return;
+      const oembed = await response.json();
 
-      const rawTitle = pageDOM
-        .querySelector(`meta[property="og:title"]`)
-        ?.getAttribute("content");
-
-      if (rawTitle) {
+      if (oembed?.title) {
         const preview = {
-          title: rawTitle,
+          title: oembed.title as string,
           description:
-            pageDOM
-              .querySelector(`meta[property="og:description"]`)
-              ?.getAttribute("content")
-              ?.substring(0, 71) ?? undefined,
+            typeof oembed.description === "string"
+              ? oembed.description.substring(0, 71)
+              : undefined,
           image:
-            pageDOM
-              .querySelector(`meta[property="og:image"]`)
-              ?.getAttribute("content") ?? undefined,
+            typeof oembed.thumbnail_url === "string" ? oembed.thumbnail_url : undefined,
         };
 
         simpleCache.set(cacheKey, preview);

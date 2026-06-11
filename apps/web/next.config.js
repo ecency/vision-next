@@ -247,6 +247,18 @@ const config = {
   async headers() {
     return [
       {
+        // Clickjacking protection on every route: our pages may be framed only
+        // by ourselves. Nothing needs cross-origin framing today — the oEmbed
+        // provider returns JSON, not a framable document; HiveSigner uses popup
+        // windows, not iframes. A future type:"rich" /embed route would add a
+        // scoped frame-ancestors exception here.
+        source: "/:path*",
+        headers: [
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "Content-Security-Policy", value: "frame-ancestors 'self'" }
+        ]
+      },
+      {
         // Hashed static assets (JS, CSS, media) - immutable, cache forever
         source: "/_next/static/:path*",
         headers: [

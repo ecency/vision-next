@@ -1,8 +1,10 @@
-import { parseDate, safeDecodeURIComponent, truncate } from "@/utils";
+import { parseDate, safeDecodeURIComponent } from "@/utils";
 import { entryCanonical } from "@/utils/entry-canonical";
 import { isIndexable, ReputationSource } from "@/utils/entry-indexability";
 import { isAuthorBlacklisted } from "@/features/seo/blacklist-check";
-import { catchPostImage, postBodySummary, isValidPermlink } from "@ecency/render-helper";
+import { isValidPermlink } from "@ecency/render-helper";
+import { buildEntryCardFields } from "./entry-card-fields";
+import type { Entry } from "@/entities";
 import { Metadata } from "next";
 import { getContentQueryOptions, getProfilesQueryOptions } from "@ecency/sdk";
 import { prefetchQuery } from "@/core/react-query";
@@ -49,20 +51,10 @@ export async function generateEntryMetadata(
       }
     }
 
-    const isComment = !!entry.parent_author;
+    // Shared with the oEmbed provider so the meta-tag card and the oEmbed
+    // card can never drift (title/summary/image rules live in one place).
+    const { title, summary, image, isComment } = buildEntryCardFields(entry as Entry);
 
-    let title = truncate(entry.title, 67);
-    if (isComment) {
-      const rawCommentTitle = truncate(postBodySummary(entry.body, 12), 67);
-      title = `@${entry.author}: ${rawCommentTitle}`;
-    }
-
-    // Cap at 160 chars to use Google's full desktop snippet width (~155-160);
-    // it truncates responsively on narrower viewports.
-    const summary =
-      entry.json_metadata?.description || truncate(postBodySummary(entry.body, 210), 160);
-
-    const image = catchPostImage(entry, 1200, 630, "match");
     // Bare /@author/permlink form for this exact page.
     const fullUrl = `${base}/@${entry.author}/${entry.permlink}`;
     const authorUrl = `${base}/@${entry.author}`;
@@ -130,6 +122,21 @@ export async function generateEntryMetadata(
       },
       alternates: {
         canonical: finalCanonical,
+        // oEmbed discovery: lets consumers (WordPress/Ghost/Discourse/Notion…)
+        // auto-unfurl a pasted ecency.com post URL into a rich card. Gated to
+        // indexable posts only — suppressed/NSFW/blacklisted posts (robots set)
+        // never advertise an embed. Targets the post's own ecency.com URL
+        // (fullUrl): the provider resolves by author/permlink and rejects
+        // non-ecency hosts, so we must NOT use ogUrl/canonical here — those can
+        // be an external site when the author sets json_metadata.canonical_url.
+        types:
+          robots === undefined
+            ? {
+                "application/json+oembed": `${base}/api/oembed?url=${encodeURIComponent(
+                  fullUrl
+                )}&format=json`
+              }
+            : undefined
       },
     };
   } catch (e) {
