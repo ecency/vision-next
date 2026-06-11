@@ -31,6 +31,15 @@ body {
   --scrollbar-thumb-hover-color: theme('colors.blue.dusk');
   --scrollbar-track-color: theme('colors.light.300');
 
+  // Chat feature tokens (consumed across apps/web/src/features/chat and /app/chats)
+  --surface-color: theme('colors.white');
+  --background-color: theme('colors.light.300');
+  --text-color: theme('colors.gray.charcoal-100');
+  --text-muted: theme('colors.gray.600');
+  --primary-color: theme('colors.blue.dark-sky');
+  --primary-button-text-color: theme('colors.white');
+  --hover-color: theme('colors.light.300');
+
   background: theme('colors.white');
   color: theme('colors.gray.charcoal-100');
 }

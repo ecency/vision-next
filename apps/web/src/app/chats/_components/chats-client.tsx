@@ -32,6 +32,13 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 const TOWN_HALL_CHANNEL_NAME = "town-hall";
 
+// Per-channel kebab trigger: keep the gray-link appearance but give it real
+// affordance — a clearly visible icon in dark mode (gray-link alone is a faint
+// #6c757d glyph on the dark rail, ~3.7:1, which users miss) plus a hover/focus
+// surface so it reads as an interactive control in every desktop browser/theme.
+const KEBAB_BUTTON_CLASS =
+  "dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-default focus-visible:ring-2 focus-visible:ring-blue-dark-sky";
+
 export function ChatsClient() {
   const { activeUser } = useActiveAccount();
   const hydrated = useHydrated();
@@ -367,7 +374,7 @@ export function ChatsClient() {
             <LoginRequired />
             <button
               onClick={() => refetchBootstrap()}
-              className="mt-4 text-sm text-blue-500 hover:text-blue-600 underline"
+              className="mt-4 text-sm text-blue-dark-sky hover:text-blue-dark-sky-hover underline"
             >
               Try again
             </button>
@@ -506,8 +513,8 @@ export function ChatsClient() {
                           className={clsx(
                             "rounded border p-3 transition",
                             isActive
-                              ? "border-blue-500 bg-blue-50 dark:border-blue-600 dark:bg-blue-900/30"
-                              : "border-[--border-color] hover:border-blue-500"
+                              ? "border-blue-dark-sky bg-blue-duck-egg dark:bg-dark-default"
+                              : "border-[--border-color] hover:border-blue-dark-sky"
                           )}
                           onClickCapture={handleChannelLinkClick}
                         >
@@ -569,7 +576,7 @@ export function ChatsClient() {
                                       e.stopPropagation();
                                     }}
                                   >
-                                    <Button appearance="gray-link" icon={dotsHorizontal} aria-label={i18next.t("g.menu", { defaultValue: "Menu" })} aria-haspopup="menu" />
+                                    <Button appearance="gray-link" icon={dotsHorizontal} className={KEBAB_BUTTON_CLASS} aria-label={i18next.t("g.menu", { defaultValue: "Menu" })} aria-haspopup="menu" />
                                   </DropdownToggle>
                                   <DropdownMenu align="right">
                                     {unread > 0 && (
@@ -622,7 +629,7 @@ export function ChatsClient() {
                                         e.stopPropagation();
                                       }}
                                     >
-                                      <Button appearance="gray-link" icon={dotsHorizontal} aria-label={i18next.t("g.menu", { defaultValue: "Menu" })} aria-haspopup="menu" />
+                                      <Button appearance="gray-link" icon={dotsHorizontal} className={KEBAB_BUTTON_CLASS} aria-label={i18next.t("g.menu", { defaultValue: "Menu" })} aria-haspopup="menu" />
                                     </DropdownToggle>
                                     <DropdownMenu align="right">
                                       <DropdownItemWithIcon
@@ -671,8 +678,8 @@ export function ChatsClient() {
                           className={clsx(
                             "rounded border p-3 transition",
                             isActive
-                              ? "border-blue-500 bg-blue-50 dark:border-blue-600 dark:bg-blue-900/30"
-                              : "border-[--border-color] hover:border-blue-500"
+                              ? "border-blue-dark-sky bg-blue-duck-egg dark:bg-dark-default"
+                              : "border-[--border-color] hover:border-blue-dark-sky"
                           )}
                           onClickCapture={handleChannelLinkClick}
                         >
@@ -712,7 +719,7 @@ export function ChatsClient() {
                                     e.stopPropagation();
                                   }}
                                 >
-                                  <Button appearance="gray-link" icon={dotsHorizontal} aria-label={i18next.t("g.menu", { defaultValue: "Menu" })} aria-haspopup="menu" />
+                                  <Button appearance="gray-link" icon={dotsHorizontal} className={KEBAB_BUTTON_CLASS} aria-label={i18next.t("g.menu", { defaultValue: "Menu" })} aria-haspopup="menu" />
                                 </DropdownToggle>
                                 <DropdownMenu align="right">
                                   {unread > 0 && (
@@ -771,8 +778,8 @@ export function ChatsClient() {
                           className={clsx(
                             "rounded border p-3 transition",
                             isActive
-                              ? "border-blue-500 bg-blue-50 dark:border-blue-600 dark:bg-blue-900/30"
-                              : "border-[--border-color] hover:border-blue-500"
+                              ? "border-blue-dark-sky bg-blue-duck-egg dark:bg-dark-default"
+                              : "border-[--border-color] hover:border-blue-dark-sky"
                           )}
                           onClickCapture={handleChannelLinkClick}
                         >
@@ -819,7 +826,7 @@ export function ChatsClient() {
                                     e.stopPropagation();
                                   }}
                                 >
-                                  <Button appearance="gray-link" icon={dotsHorizontal} aria-label={i18next.t("g.menu", { defaultValue: "Menu" })} aria-haspopup="menu" />
+                                  <Button appearance="gray-link" icon={dotsHorizontal} className={KEBAB_BUTTON_CLASS} aria-label={i18next.t("g.menu", { defaultValue: "Menu" })} aria-haspopup="menu" />
                                 </DropdownToggle>
                                 <DropdownMenu align="right">
                                   {unread > 0 && (
@@ -890,8 +897,8 @@ export function ChatsClient() {
                     className={clsx(
                       "rounded border p-3 transition",
                       isActive
-                        ? "border-blue-500 bg-blue-50 dark:border-blue-600 dark:bg-blue-900/30"
-                        : "border-[--border-color] hover:border-blue-500"
+                        ? "border-blue-dark-sky bg-blue-duck-egg dark:bg-dark-default"
+                        : "border-[--border-color] hover:border-blue-dark-sky"
                     )}
                     onClickCapture={handleChannelLinkClick}
                   >
@@ -948,7 +955,7 @@ export function ChatsClient() {
                                 e.stopPropagation();
                               }}
                             >
-                              <Button appearance="gray-link" icon={dotsHorizontal} aria-label={i18next.t("g.menu", { defaultValue: "Menu" })} aria-haspopup="menu" />
+                              <Button appearance="gray-link" icon={dotsHorizontal} className={KEBAB_BUTTON_CLASS} aria-label={i18next.t("g.menu", { defaultValue: "Menu" })} aria-haspopup="menu" />
                             </DropdownToggle>
                             <DropdownMenu align="right">
                               {unread > 0 && (
@@ -1001,7 +1008,7 @@ export function ChatsClient() {
                                   e.stopPropagation();
                                 }}
                               >
-                                <Button appearance="gray-link" icon={dotsHorizontal} aria-label={i18next.t("g.menu", { defaultValue: "Menu" })} aria-haspopup="menu" />
+                                <Button appearance="gray-link" icon={dotsHorizontal} className={KEBAB_BUTTON_CLASS} aria-label={i18next.t("g.menu", { defaultValue: "Menu" })} aria-haspopup="menu" />
                               </DropdownToggle>
                               <DropdownMenu align="right">
                                 <DropdownItemWithIcon
@@ -1047,7 +1054,7 @@ export function ChatsClient() {
                         key={user.id}
                         type="button"
                         onClick={() => startDirectMessage(user.username)}
-                        className="flex items-center justify-between gap-3 rounded border border-[--border-color] bg-[--surface-color] p-2 text-left transition hover:border-blue-500"
+                        className="flex items-center justify-between gap-3 rounded border border-[--border-color] bg-[--surface-color] p-2 text-left transition hover:border-blue-dark-sky"
                       >
                         <div className="flex items-center gap-3">
                           <UserAvatar username={user.username} size="medium" className="h-9 w-9" />
@@ -1056,7 +1063,7 @@ export function ChatsClient() {
                             {secondary && <span className="text-xs text-[--text-muted]">{secondary}</span>}
                           </div>
                         </div>
-                        <span className="text-sm font-semibold text-blue-500">
+                        <span className="text-sm font-semibold text-blue-dark-sky">
                           {directChannelMutation.isPending
                             ? i18next.t("chat.starting-dm")
                             : i18next.t("chat.start-dm-button")}
@@ -1130,7 +1137,7 @@ export function ChatsClient() {
                     <Link
                       key={post.id}
                       href={messageLink}
-                      className="flex flex-col gap-1 rounded border border-[--border-color] bg-[--surface-color] p-3 transition hover:border-blue-500"
+                      className="flex flex-col gap-1 rounded border border-[--border-color] bg-[--surface-color] p-3 transition hover:border-blue-dark-sky"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1">
