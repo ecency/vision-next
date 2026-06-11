@@ -15,6 +15,10 @@ const NSFW_COMMUNITIES = new Set<string>([
 // Word-boundary match on a conservative stem list; trailing letters allowed so "porn"
 // catches "pornstar", "masturbat" catches "masturbation/masturbating", etc.
 const NSFW_TITLE_REGEX = /\b(porn|pornstar|nude|xxx|masturbat|erotica?|sextape|fetish)\w*/i;
+// Tag variant: tags are single tokens, so the title regex's \b word boundaries
+// miss compound forms ("xporn", "softnude"). Match the same stems as substrings
+// for bare tags — conservative on a public SFW surface (the tags sitemap).
+const NSFW_TAG_REGEX = /(porn|nude|xxx|masturbat|erotic|sextape|fetish)/i;
 
 export interface NsfwCheckableEntry {
   category?: string | null;
@@ -28,11 +32,12 @@ export interface NsfwCheckableEntry {
 export const isNsfwCommunity = (name: string): boolean => NSFW_COMMUNITIES.has(name);
 
 // True if a bare tag/feed name should be kept off SFW surfaces (e.g. the tags
-// sitemap shard). Applies the same curated NSFW tag/community sets and the title
-// stem regex to the tag itself, so "porn"/"nude"/etc. as a tag are excluded.
+// sitemap shard). Uses the curated NSFW tag/community sets plus a substring stem
+// match (NSFW_TAG_REGEX), so compound single-token forms like "xporn" are
+// excluded — not just bare stems the title regex's \b would catch.
 export const isNsfwTag = (tag: string): boolean => {
   const t = tag.toLowerCase().trim();
-  return NSFW_TAGS.has(t) || NSFW_COMMUNITIES.has(t) || NSFW_TITLE_REGEX.test(t);
+  return NSFW_TAGS.has(t) || NSFW_COMMUNITIES.has(t) || NSFW_TAG_REGEX.test(t);
 };
 
 export const isNsfwEntry = (entry: NsfwCheckableEntry): boolean => {

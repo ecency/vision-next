@@ -25,10 +25,13 @@ describe("sitemap-tags", () => {
       expect(isEmittableTag("café")).toBe(false);
     });
 
-    it("rejects NSFW tags", () => {
+    it("rejects NSFW tags incl. compound single-token forms (no \\b boundary)", () => {
       expect(isEmittableTag("nsfw")).toBe(false);
       expect(isEmittableTag("porn")).toBe(false);
       expect(isEmittableTag("nudeart")).toBe(false);
+      expect(isEmittableTag("xporn")).toBe(false);
+      expect(isEmittableTag("aporn")).toBe(false);
+      expect(isEmittableTag("softnude")).toBe(false);
     });
   });
 
