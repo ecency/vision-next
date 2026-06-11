@@ -19,6 +19,7 @@ import {
   useMattermostMarkChannelViewed,
   useMattermostUpdatePost,
   useMattermostPostsAround,
+  useMattermostThread,
   useMattermostJoinChannel
 } from "./mattermost-api";
 import { usePendingPosts } from "./hooks/use-pending-posts";
@@ -43,6 +44,7 @@ import {
 } from "./emoji-utils";
 import { saveDraft, loadDraft, clearDraft } from "./draft-utils";
 import { ThreadPanel } from "./components/thread-panel";
+import { mergeThreadPosts } from "./components/thread-merge";
 import { MessageInput } from "./components/message-input";
 import { type PostItem } from "./components/message-list";
 import { VirtualizedMessageList } from "./components/virtualized-message-list";
@@ -247,19 +249,31 @@ export function MattermostChannelView({ channelId }: Props) {
     return result;
   }, [posts]);
 
+  // Full thread (root + every reply), fetched from the server so the thread
+  // panel shows the whole conversation even when older messages have scrolled
+  // out of the channel's loaded window.
+  const { data: threadData } = useMattermostThread(
+    channelId,
+    threadRootId ?? undefined,
+    Boolean(threadRootId)
+  );
+
   const usersById = useMemo(() => {
-    if (!data?.pages) return {};
-    return data.pages.reduce((acc, page) => {
-      Object.entries(page.users).forEach(([id, user]) => {
-        const normalizedUser: MattermostUser = {
+    const acc: Record<string, MattermostUser> = {};
+    const fold = (users: Record<string, MattermostUser> | undefined) => {
+      if (!users) return;
+      Object.entries(users).forEach(([id, user]) => {
+        acc[id] = {
           ...user,
           username: normalizeUsername(user.username) ?? user.username
         };
-        acc[id] = normalizedUser;
       });
-      return acc;
-    }, {} as Record<string, MattermostUser>);
-  }, [data?.pages, normalizeUsername]);
+    };
+    data?.pages?.forEach((page) => fold(page.users));
+    // Authors of thread-only posts may not appear in the channel buffer.
+    fold(threadData?.users);
+    return acc;
+  }, [data?.pages, threadData?.users, normalizeUsername]);
 
   const channelData = useMemo(() => data?.pages?.[0], [data?.pages]);
 
@@ -270,7 +284,14 @@ export function MattermostChannelView({ channelId }: Props) {
     }, new Map());
   }, [posts]);
 
-  const threadRootPost = threadRootId ? postsById.get(threadRootId) ?? null : null;
+  const threadRootPost = useMemo(() => {
+    if (!threadRootId) return null;
+    return (
+      postsById.get(threadRootId) ??
+      (threadData?.posts ?? []).find((post) => post.id === threadRootId) ??
+      null
+    );
+  }, [postsById, threadRootId, threadData?.posts]);
 
   const parentPostById = useMemo(() => {
     const parents = new Map<string, MattermostPost>();
@@ -297,11 +318,8 @@ export function MattermostChannelView({ channelId }: Props) {
 
   const threadPosts = useMemo(() => {
     if (!threadRootId) return [];
-    const related = posts.filter(
-      (post) => post.id === threadRootId || post.root_id === threadRootId
-    );
-    return [...related].sort((a, b) => a.create_at - b.create_at);
-  }, [posts, threadRootId]);
+    return mergeThreadPosts(threadRootId, threadData?.posts, posts);
+  }, [posts, threadRootId, threadData?.posts]);
 
   const usersByUsername = useMemo(() => {
     return Object.values(usersById).reduce<Record<string, MattermostUser>>((acc, user) => {
