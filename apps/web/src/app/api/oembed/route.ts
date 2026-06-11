@@ -18,23 +18,26 @@ const OEMBED_HEADERS: Record<string, string> = {
 };
 
 function errorResponse(status: number): Response {
-  return new Response(null, { status, headers: { "Access-Control-Allow-Origin": "*" } });
+  return new Response(null, {
+    status,
+    headers: { "Access-Control-Allow-Origin": "*", "X-Robots-Tag": "noindex" }
+  });
 }
 
 export async function GET(request: Request): Promise<Response> {
+  const { searchParams } = new URL(request.url);
+
+  const target = searchParams.get("url");
+  if (!target) return errorResponse(400);
+
+  // We only implement JSON. Spec: unsupported format → 501.
+  const format = searchParams.get("format");
+  if (format && format !== "json") return errorResponse(501);
+
+  const parsed = parseEntryUrl(target);
+  if (!parsed) return errorResponse(404);
+
   try {
-    const { searchParams } = new URL(request.url);
-
-    const target = searchParams.get("url");
-    if (!target) return errorResponse(400);
-
-    // We only implement JSON. Spec: unsupported format → 501.
-    const format = searchParams.get("format");
-    if (format && format !== "json") return errorResponse(501);
-
-    const parsed = parseEntryUrl(target);
-    if (!parsed) return errorResponse(404);
-
     // Option A (lossless): serve card data for ANY resolvable post so our own
     // in-post link cards keep rendering for every link, including suppressed
     // ones. External auto-unfurl is constrained separately — the discovery
@@ -67,7 +70,11 @@ export async function GET(request: Request): Promise<Response> {
     }
 
     return new Response(JSON.stringify(payload), { status: 200, headers: OEMBED_HEADERS });
-  } catch {
-    return errorResponse(404);
+  } catch (e) {
+    // The post parsed and may well exist — a failure building the response is a
+    // server error, not a missing resource. Surface it (5xx) and log, the way
+    // generateEntryMetadata does, instead of masking it as a 404.
+    console.error("oembed: failed to build response for", parsed, e);
+    return errorResponse(500);
   }
 }

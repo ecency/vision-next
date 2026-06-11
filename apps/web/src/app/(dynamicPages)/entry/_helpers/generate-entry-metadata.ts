@@ -125,13 +125,15 @@ export async function generateEntryMetadata(
         // oEmbed discovery: lets consumers (WordPress/Ghost/Discourse/Notion…)
         // auto-unfurl a pasted ecency.com post URL into a rich card. Gated to
         // indexable posts only — suppressed/NSFW/blacklisted posts (robots set)
-        // never advertise an embed. Points at THIS page's own URL (ogUrl), so a
-        // reply unfurls as the reply, not its discussion root.
+        // never advertise an embed. Targets the post's own ecency.com URL
+        // (fullUrl): the provider resolves by author/permlink and rejects
+        // non-ecency hosts, so we must NOT use ogUrl/canonical here — those can
+        // be an external site when the author sets json_metadata.canonical_url.
         types:
           robots === undefined
             ? {
                 "application/json+oembed": `${base}/api/oembed?url=${encodeURIComponent(
-                  ogUrl
+                  fullUrl
                 )}&format=json`
               }
             : undefined

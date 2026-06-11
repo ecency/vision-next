@@ -17,6 +17,7 @@ vi.mock("@/utils/server-app-base", () => ({
 import { GET } from "@/app/api/oembed/route";
 import { loadEntry } from "@/app/(dynamicPages)/entry/_helpers/agent-readable";
 import { buildEntryCardFields } from "@/app/(dynamicPages)/entry/_helpers/entry-card-fields";
+import { getServerAppBase } from "@/utils/server-app-base";
 
 function get(query: string): Promise<Response> {
   return GET(new Request(`https://ecency.com/api/oembed?${query}`));
@@ -25,9 +26,10 @@ function get(query: string): Promise<Response> {
 describe("GET /api/oembed", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("returns 400 when the url param is missing", async () => {
+  it("returns 400 when the url param is missing (with noindex)", async () => {
     const res = await get("");
     expect(res.status).toBe(400);
+    expect(res.headers.get("X-Robots-Tag")).toBe("noindex");
     expect(loadEntry).not.toHaveBeenCalled();
   });
 
@@ -100,5 +102,20 @@ describe("GET /api/oembed", () => {
     const body = await res.json();
     expect(body.thumbnail_url).toBeUndefined();
     expect(body.thumbnail_width).toBeUndefined();
+  });
+
+  it("returns 500 (not 404) and logs when building the response throws", async () => {
+    vi.mocked(loadEntry).mockResolvedValue({
+      entry: { author: "alice" } as any,
+      source: "hive_condenser"
+    });
+    vi.mocked(getServerAppBase).mockRejectedValueOnce(new Error("boom"));
+    const err = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const res = await get(`url=${encodeURIComponent("https://ecency.com/@alice/my-post")}`);
+    expect(res.status).toBe(500);
+    expect(res.headers.get("X-Robots-Tag")).toBe("noindex");
+    expect(err).toHaveBeenCalled();
+    err.mockRestore();
   });
 });
