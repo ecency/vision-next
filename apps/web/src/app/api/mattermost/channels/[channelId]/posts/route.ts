@@ -59,6 +59,17 @@ export async function GET(
         order: string[];
       }>(`/posts/${thread}/thread`, token);
 
+      // The thread endpoint authorizes via the token, not the channelId in the
+      // URL, so verify the requested post actually belongs to this channel
+      // before returning (mirrors the `around` branch's check below).
+      const threadRoot = threadData.posts?.[thread];
+      if (!threadRoot || threadRoot.channel_id !== channelId) {
+        return NextResponse.json(
+          { error: "Thread not found or deleted" },
+          { status: 404 }
+        );
+      }
+
       const threadPosts = Object.values(threadData.posts ?? {})
         .filter(Boolean)
         .sort((a, b) => Number(a.create_at) - Number(b.create_at));

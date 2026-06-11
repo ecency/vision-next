@@ -284,11 +284,14 @@ export function MattermostChannelView({ channelId }: Props) {
     }, new Map());
   }, [posts]);
 
-  const threadRootPost = threadRootId
-    ? postsById.get(threadRootId) ??
+  const threadRootPost = useMemo(() => {
+    if (!threadRootId) return null;
+    return (
+      postsById.get(threadRootId) ??
       (threadData?.posts ?? []).find((post) => post.id === threadRootId) ??
       null
-    : null;
+    );
+  }, [postsById, threadRootId, threadData?.posts]);
 
   const parentPostById = useMemo(() => {
     const parents = new Map<string, MattermostPost>();
