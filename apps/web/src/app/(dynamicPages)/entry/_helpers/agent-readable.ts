@@ -72,15 +72,17 @@ export function agentNotFound(): Response {
 }
 
 /**
- * Fetch a post and return it only if it passes the same indexability gate the
- * entry page uses (blacklist + NSFW + reputation + thin-content). Anything we'd
- * noindex for Googlebot returns null here too → the route handler emits 404.
+ * Fetch a post by author/permlink WITHOUT applying the indexability gate.
  *
  * Prefers condenser_api.get_content (carries root_author/root_permlink, needed
- * for accurate container/wave detection); falls back to bridge.get_post. Mirrors
- * generate-entry-metadata.ts so gating decisions can't drift.
+ * for accurate container/wave detection); falls back to bridge.get_post.
+ * Returns null only when the post genuinely can't be resolved.
+ *
+ * Use this for surfaces that should render any real post (e.g. the oEmbed
+ * provider, which our own in-post link cards consume) and gate visibility
+ * elsewhere. For search-facing surfaces, use loadIndexableEntry instead.
  */
-export async function loadIndexableEntry(
+export async function loadEntry(
   rawAuthor: string,
   rawPermlink: string
 ): Promise<LoadedEntry | null> {
@@ -110,6 +112,25 @@ export async function loadIndexableEntry(
 
   if (!entry || !entry.body || !entry.created) return null;
 
+  return { entry, source };
+}
+
+/**
+ * Fetch a post and return it only if it passes the same indexability gate the
+ * entry page uses (blacklist + NSFW + reputation + thin-content). Anything we'd
+ * noindex for Googlebot returns null here too → the route handler emits 404.
+ *
+ * Mirrors generate-entry-metadata.ts so gating decisions can't drift.
+ */
+export async function loadIndexableEntry(
+  rawAuthor: string,
+  rawPermlink: string
+): Promise<LoadedEntry | null> {
+  const loaded = await loadEntry(rawAuthor, rawPermlink);
+  if (!loaded) return null;
+
+  const { entry } = loaded;
+
   let account: ReputationSource = null;
   let accountFetchFailed = false;
   try {
@@ -125,5 +146,5 @@ export async function loadIndexableEntry(
 
   if (!isIndexable(entry, account, accountFetchFailed, blacklist)) return null;
 
-  return { entry, source };
+  return loaded;
 }
