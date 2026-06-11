@@ -20,6 +20,7 @@
 import { getSeoRedis, SEO_REDIS_PREFIX } from "@/features/seo/seo-redis";
 import { cronAuthorized, notFound } from "@/features/seo/cron-auth";
 import { SITEMAP_SHARDS } from "@/features/seo/sitemap-shards";
+import { harvestPostTags, selectTopTags } from "@/features/seo/sitemap-tags";
 import { isIndexable, canonicalTarget } from "@/utils/entry-indexability";
 import { isNsfwCommunity } from "@/utils/nsfw-detection";
 import { Entry } from "@/entities";
@@ -54,6 +55,11 @@ const TIME_BUDGET_MS = 90_000;
 const MAX_PAGES = 150;
 const WINDOW_MS = 48 * 60 * 60_000;
 const PAGE = 20;
+// Tag hub shard: the top-N most-used tags seen in this walk, emitted as
+// /created/<tag> (the canonical, internally-linked tag feed). TAG_MIN_COUNT
+// drops one-off long-tail tags that aren't useful as standalone hub pages.
+const TAGS_LIMIT = 200;
+const TAG_MIN_COUNT = 2;
 // Communities: a small, stable hub set (not a freshness walk). list_communities
 // caps at 100/page → 5 pages ≈ top ~500 by rank. Cheap, independent of the
 // post-walk time budget.
@@ -243,6 +249,9 @@ export async function POST(req: Request): Promise<Response> {
   // community id -> newest post day (YYYY-MM-DD) seen in the freshness
   // window. Free: derived from the post walk below, no extra RPC.
   const communityLatest = new Map<string, string>();
+  // tag -> #posts using it in the freshness window. Also free from the walk;
+  // feeds the top-N /created/<tag> hub shard (tags.xml).
+  const tagCounts = new Map<string, number>();
   let startAuthor: string | undefined;
   let startPermlink: string | undefined;
   let pages = 0;
@@ -312,6 +321,9 @@ export async function POST(req: Request): Promise<Response> {
       if (!loc || !loc.startsWith(`${BASE}/`)) continue;
       postUrls.push({ loc, lastmod: (e.updated || e.created || "").slice(0, 10) });
       if (e.author) authors.add(e.author);
+      // Tag popularity from the same indexable posts (NSFW/blacklist/thin
+      // already filtered by isIndexable above). Free — no extra RPC.
+      harvestPostTags(tagCounts, e.category, e.json_metadata?.tags);
     }
   }
 
@@ -358,6 +370,13 @@ export async function POST(req: Request): Promise<Response> {
       ? { loc: `${BASE}/created/${name}`, lastmod }
       : { loc: `${BASE}/created/${name}` };
   });
+  // Top-N tag hub pages (/created/<tag>) — community ids/NSFW/long-tail dropped
+  // by selectTopTags. lastmod=nowDay: a /created feed changes whenever the tag
+  // gets a new post, and a tag only reaches the top-N because it's active.
+  const tagUrls: SitemapUrl[] = selectTopTags(tagCounts, TAGS_LIMIT, TAG_MIN_COUNT).map((tag) => ({
+    loc: `${BASE}/created/${tag}`,
+    lastmod: nowDay
+  }));
 
   // Stale-preserving guard (mirrors the blacklist/communities delta-sanity):
   // a budget- or error-truncated walk must NOT overwrite a good posts/authors
@@ -379,7 +398,7 @@ export async function POST(req: Request): Promise<Response> {
   // explicit lastGood === 0 short-circuit still covers the true bootstrap.
   const acceptWalk =
     reachedCutoff || lastGood === 0 || postUrls.length >= Math.ceil(lastGood * 0.5);
-  const WALK_DERIVED = new Set<string>(["posts.xml", "authors.xml"]);
+  const WALK_DERIVED = new Set<string>(["posts.xml", "authors.xml", "tags.xml"]);
 
   // Writer/index/route stay in lockstep: every shard we emit — and every
   // child the index points at — comes from the single shared SITEMAP_SHARDS
@@ -389,6 +408,7 @@ export async function POST(req: Request): Promise<Response> {
     "posts.xml": urlset(postUrls),
     "authors.xml": urlset(authorUrls),
     "communities.xml": urlset(communityUrls),
+    "tags.xml": urlset(tagUrls),
     "static.xml": urlset(staticUrls)
   };
 
@@ -425,6 +445,7 @@ export async function POST(req: Request): Promise<Response> {
         posts: postUrls.length,
         authors: authorUrls.length,
         communities: communityUrls.length,
+        tags: tagUrls.length,
         pages,
         ms: Date.now() - started,
         reachedCutoff,
@@ -449,6 +470,7 @@ export async function POST(req: Request): Promise<Response> {
       posts: postUrls.length,
       authors: authorUrls.length,
       communities: communityUrls.length,
+      tags: tagUrls.length,
       pages,
       ms: Date.now() - started,
       reachedCutoff,
