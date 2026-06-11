@@ -516,10 +516,10 @@ export function ChatsClient() {
                           href={buildChannelUrl(channel.id)}
                           key={channel.id}
                           className={clsx(
-                            "rounded border p-3 transition",
+                            "rounded-lg border-l-2 p-2.5 transition",
                             isActive
                               ? "border-blue-dark-sky bg-blue-duck-egg dark:bg-dark-default"
-                              : "border-[--border-color] hover:border-blue-dark-sky"
+                              : "border-transparent hover:bg-gray-100 dark:hover:bg-white/5"
                           )}
                           onClickCapture={handleChannelLinkClick}
                         >
@@ -681,10 +681,10 @@ export function ChatsClient() {
                           href={buildChannelUrl(channel.id)}
                           key={channel.id}
                           className={clsx(
-                            "rounded border p-3 transition",
+                            "rounded-lg border-l-2 p-2.5 transition",
                             isActive
                               ? "border-blue-dark-sky bg-blue-duck-egg dark:bg-dark-default"
-                              : "border-[--border-color] hover:border-blue-dark-sky"
+                              : "border-transparent hover:bg-gray-100 dark:hover:bg-white/5"
                           )}
                           onClickCapture={handleChannelLinkClick}
                         >
@@ -781,10 +781,10 @@ export function ChatsClient() {
                           href={buildChannelUrl(channel.id)}
                           key={channel.id}
                           className={clsx(
-                            "rounded border p-3 transition",
+                            "rounded-lg border-l-2 p-2.5 transition",
                             isActive
                               ? "border-blue-dark-sky bg-blue-duck-egg dark:bg-dark-default"
-                              : "border-[--border-color] hover:border-blue-dark-sky"
+                              : "border-transparent hover:bg-gray-100 dark:hover:bg-white/5"
                           )}
                           onClickCapture={handleChannelLinkClick}
                         >
@@ -900,10 +900,10 @@ export function ChatsClient() {
                     href={buildChannelUrl(channel.id)}
                     key={channel.id}
                     className={clsx(
-                      "rounded border p-3 transition",
+                      "rounded-lg border-l-2 p-2.5 transition",
                       isActive
                         ? "border-blue-dark-sky bg-blue-duck-egg dark:bg-dark-default"
-                        : "border-[--border-color] hover:border-blue-dark-sky"
+                        : "border-transparent hover:bg-gray-100 dark:hover:bg-white/5"
                     )}
                     onClickCapture={handleChannelLinkClick}
                   >
