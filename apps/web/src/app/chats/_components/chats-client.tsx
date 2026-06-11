@@ -621,7 +621,7 @@ export function ChatsClient() {
                               </div>
                             ) : (
                               unread > 0 && (
-                                <div className="ml-2" data-chat-channel-actions onClick={(e) => e.stopPropagation()}>
+                                <div className="ml-2 flex-shrink-0" data-chat-channel-actions onClick={(e) => e.stopPropagation()}>
                                   <Dropdown>
                                     <DropdownToggle
                                       onClick={(e) => {
@@ -902,8 +902,8 @@ export function ChatsClient() {
                     )}
                     onClickCapture={handleChannelLinkClick}
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="relative">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="relative flex-shrink-0">
                         {channel.type === "D" && channel.directUser ? (
                           <UserAvatar username={channel.directUser.username} size="medium" className="h-10 w-10" />
                         ) : (
@@ -941,13 +941,13 @@ export function ChatsClient() {
                       </div>
 
                       {unread > 0 && (
-                        <span className="ml-auto inline-flex min-w-[24px] justify-center rounded-full bg-[--primary-color] px-2 py-1 text-xs font-semibold text-[--primary-button-text-color]">
+                        <span className="ml-auto inline-flex min-w-[24px] flex-shrink-0 justify-center rounded-full bg-[--primary-color] px-2 py-1 text-xs font-semibold text-[--primary-button-text-color]">
                           {unread}
                         </span>
                       )}
 
                       {channel.type !== "D" ? (
-                        <div className="ml-2" data-chat-channel-actions onClick={(e) => e.stopPropagation()}>
+                        <div className="ml-2 flex-shrink-0" data-chat-channel-actions onClick={(e) => e.stopPropagation()}>
                           <Dropdown>
                             <DropdownToggle
                               onClick={(e) => {
@@ -1000,7 +1000,7 @@ export function ChatsClient() {
                               </div>
                             ) : (
                         unread > 0 && (
-                          <div className="ml-2" data-chat-channel-actions onClick={(e) => e.stopPropagation()}>
+                          <div className="ml-2 flex-shrink-0" data-chat-channel-actions onClick={(e) => e.stopPropagation()}>
                             <Dropdown>
                               <DropdownToggle
                                 onClick={(e) => {

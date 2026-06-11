@@ -68,6 +68,16 @@ describe("chats sidebar styling", () => {
     expect(chatsClient).toContain("hover:border-blue-dark-sky");
   });
 
+  it("reserves width for every channel-actions wrapper so the kebab cannot be squeezed out at narrow widths", () => {
+    // Each per-channel actions container must be flex-shrink-0; otherwise a long
+    // channel name in a narrow rail could shrink/clip the kebab on some screens.
+    const wrappers = chatsClient.match(/className="[^"]*"\s+data-chat-channel-actions/g) ?? [];
+    expect(wrappers.length).toBeGreaterThan(0);
+    for (const wrapper of wrappers) {
+      expect(wrapper).toContain("flex-shrink-0");
+    }
+  });
+
   // The chat feature consumes these custom properties; they must be defined in
   // BOTH themes or the sidebar renders without surfaces/muted text/badges.
   const requiredChatTokens = [
