@@ -7,14 +7,16 @@ import { useMemo } from "react";
 interface Props {
   totalViews: number;
   cleanedPathname: string;
+  dateRange?: [string, string];
 }
 
-export function EntryPageStatsByDevices({ totalViews, cleanedPathname }: Props) {
+export function EntryPageStatsByDevices({ totalViews, cleanedPathname, dateRange }: Props) {
   const { data: stats } = useQuery(
     getStatsQueryOptions({
       url: cleanedPathname,
       metrics: ["visits"],
-      dimensions: ["visit:device"]
+      dimensions: ["visit:device"],
+      dateRange
     })
   );
 
