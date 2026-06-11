@@ -11,7 +11,8 @@ import {
 } from "@ui/dropdown";
 import { Popover, PopoverContent } from "@ui/popover";
 import { formatRelativeTime, getAvatarUrl } from "../format-utils";
-import { getNativeEmojiFromShortcode, decodeMessageEmojis } from "../emoji-utils";
+import { getNativeEmojiFromShortcode } from "../emoji-utils";
+import { resolveReplyPreview } from "./reply-preview";
 import { MessageTranslate } from "./message-translate";
 import clsx from "clsx";
 import React, { memo, useEffect, useState } from "react";
@@ -308,20 +309,14 @@ function MessageItemInner({
               {post.root_id &&
                 (() => {
                   const rootPost = postsById.get(post.root_id!) ?? post;
-                  const parentFromPropsId = post.props?.parent_id as string | undefined;
-                  const parentPost =
-                    parentPostById.get(post.id) ||
-                    (parentFromPropsId ? postsById.get(parentFromPropsId) : undefined);
-                  const parentMessage = parentPost
-                    ? getDecodedDisplayMessage(parentPost)
-                    : typeof post.props?.parent_message === "string"
-                      ? decodeMessageEmojis(post.props.parent_message)
-                      : undefined;
-                  const parentUsername = parentPost
-                    ? getDisplayName(parentPost)
-                    : normalizeUsername(post.props?.parent_username as string | undefined);
+                  const { parentUsername, parentMessage } = resolveReplyPreview(
+                    post,
+                    postsById,
+                    parentPostById,
+                    { getDecodedDisplayMessage, getDisplayName, normalizeUsername }
+                  );
 
-                  if (!parentPost && !parentMessage && !parentUsername) return null;
+                  if (!parentMessage && !parentUsername) return null;
 
                   return (
                     <button
@@ -335,7 +330,7 @@ function MessageItemInner({
                     >
                       <span className="font-medium">{parentUsername || "conversation"}</span>
                       {parentMessage && (
-                        <span className="line-clamp-1 opacity-70"> {getDecodedDisplayMessage(postsById.get(post.root_id!) ?? post)}</span>
+                        <span className="line-clamp-1 opacity-70"> {parentMessage}</span>
                       )}
                     </button>
                   );
