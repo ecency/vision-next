@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { EcencyConfigManager } from "@/config";
 import { safeDecodeURIComponent } from "@/utils";
 
+// Escape regex metacharacters so a page path is matched literally — an author like
+// `peak.snaps` must not let `.` match an arbitrary character.
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 export async function POST(request: NextRequest) {
   const isEnabled = EcencyConfigManager.getConfigValue(
     ({ visionFeatures }) => visionFeatures.plausible.enabled
@@ -28,6 +34,21 @@ export async function POST(request: NextRequest) {
     ? filterBy
     : "event:page";
 
+  // Build the page filter. A trailing-slash URL is a prefix query — e.g. profile
+  // insights sends `/@user/` to pull every page under that user — so keep a
+  // substring `contains`. A full permlink is an exact page: use an end-anchored
+  // `matches` so we still catch every recorded shape (bare, `/hive-123/@…`,
+  // `/tag/@…`) that ENDS in the canonical `/@author/permlink`, without overmatching
+  // a longer sibling permlink (`/@a/p` must not match `/@a/p-2`). Plausible's
+  // `matches` maps to ClickHouse `multiMatchAny` (unanchored regex), so escape the
+  // path and anchor the tail with `$`.
+  // Plausible stores the pathname only, so strip any query string / fragment (e.g.
+  // a comment permalink's `#@author/permlink`) before matching what's recorded.
+  const page = safeDecodeURIComponent(url).split(/[?#]/)[0];
+  const pageFilter = page.endsWith("/")
+    ? ["contains", filterDimension, [page]]
+    : ["matches", filterDimension, [`${escapeRegExp(page)}$`]];
+
   const statsHost = EcencyConfigManager.getConfigValue(
     ({ visionFeatures }) => visionFeatures.plausible.host
   );
@@ -47,7 +68,7 @@ export async function POST(request: NextRequest) {
           ({ visionFeatures }) => visionFeatures.plausible.siteId
         ),
         metrics,
-        filters: [["contains", filterDimension, [safeDecodeURIComponent(url)]]],
+        filters: [pageFilter],
         dimensions,
         date_range: dateRange
       }),
