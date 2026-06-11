@@ -79,6 +79,31 @@ describe("resolveReplyPreview", () => {
     expect(result.parentMessage).toBe("previous message in thread");
   });
 
+  it("uses the captured parent props (not the heuristic neighbor) when parent_id is set but the parent post isn't loaded", () => {
+    // Deep in a long thread: the real parent scrolled out of the loaded window,
+    // but an unrelated earlier reply IS loaded and sits in the heuristic map.
+    // The explicit parent_id must win → fall through to the captured props,
+    // never the neighbor.
+    const reply = makePost({
+      id: "reply1",
+      user_id: "artgirl",
+      message: "thanks for the help!",
+      root_id: "root1",
+      props: {
+        parent_id: "real-parent-not-loaded",
+        parent_username: "ecency",
+        parent_message: "try clearing your cache"
+      }
+    });
+    const heuristicNeighbor = makePost({ id: "neighbor", user_id: "someoneelse", message: "an unrelated earlier reply" });
+
+    const result = resolveReplyPreview(reply, new Map(), new Map([[reply.id, heuristicNeighbor]]), helpers);
+
+    expect(result.parentUsername).toBe("ecency");
+    expect(result.parentMessage).toBe("try clearing your cache");
+    expect(result.parentMessage).not.toBe(heuristicNeighbor.message);
+  });
+
   it("guards against bad data where parent_id points at the post itself", () => {
     const reply = makePost({
       id: "reply1",

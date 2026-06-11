@@ -32,9 +32,14 @@ export function resolveReplyPreview(
   }
 ): ReplyPreview {
   const parentFromPropsId = post.props?.parent_id as string | undefined;
-  const candidate =
-    (parentFromPropsId ? postsById.get(parentFromPropsId) : undefined) ||
-    parentPostById.get(post.id);
+  // When an explicit reply target exists, resolve ONLY from it — never fall back
+  // to the chronological heuristic. If that parent post isn't in the loaded
+  // window, `candidate` stays undefined and we use the captured
+  // `parent_message`/`parent_username` props below, rather than quoting an
+  // unrelated neighbouring message from the heuristic.
+  const candidate = parentFromPropsId
+    ? postsById.get(parentFromPropsId)
+    : parentPostById.get(post.id);
   const parentPost = candidate && candidate.id !== post.id ? candidate : undefined;
 
   const parentMessage = parentPost
