@@ -59,7 +59,7 @@ export function ThreadPanel({
               className={clsx(
                 "rounded border border-[--border-color] bg-[--background-color] p-3",
                 post.id === threadRootId &&
-                  "border-blue-200 bg-blue-50 dark:border-blue-700 dark:bg-blue-900/30"
+                  "border-blue-dark-sky bg-blue-duck-egg dark:bg-dark-default"
               )}
             >
               <div className="flex items-start gap-3">

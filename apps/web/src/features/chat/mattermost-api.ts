@@ -700,6 +700,31 @@ export function useMattermostPostsAround(
   });
 }
 
+export function useMattermostThread(
+  channelId: string | undefined,
+  rootId: string | undefined,
+  enabled: boolean = true
+) {
+  return useQuery({
+    queryKey: ["mattermost-thread", channelId, rootId],
+    enabled: enabled && Boolean(channelId) && Boolean(rootId),
+    staleTime: 30000,
+    retry: 1,
+    queryFn: async () => {
+      const res = await fetch(
+        `/api/mattermost/channels/${channelId}/posts?thread=${rootId}`
+      );
+
+      if (!res.ok) {
+        const data = await safeJson<{ error?: string }>(res).catch(() => null);
+        throw new Error(data?.error || "Unable to load thread");
+      }
+
+      return (await safeJson(res)) as MattermostPostsResponse;
+    }
+  });
+}
+
 export function useMattermostDeletePost(channelId: string | undefined) {
   const queryClient = useQueryClient();
 

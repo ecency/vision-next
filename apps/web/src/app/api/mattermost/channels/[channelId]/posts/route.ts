@@ -46,7 +46,41 @@ export async function GET(
     const searchParams = req.nextUrl.searchParams;
     const before = searchParams.get("before") || "";
     const around = searchParams.get("around") || "";
+    const thread = searchParams.get("thread") || "";
     const includeOnline = searchParams.get("include_online") === "1";
+
+    // Fetch a complete thread (root + every reply), independent of what is
+    // currently loaded in the channel buffer. Used by the thread panel so it
+    // can show the full conversation even when older messages have scrolled
+    // out of the loaded window.
+    if (thread) {
+      const threadData = await mmUserFetch<{
+        posts: Record<string, any>;
+        order: string[];
+      }>(`/posts/${thread}/thread`, token);
+
+      const threadPosts = Object.values(threadData.posts ?? {})
+        .filter(Boolean)
+        .sort((a, b) => Number(a.create_at) - Number(b.create_at));
+
+      const threadUserIds = Array.from(
+        new Set(threadPosts.map((post) => post.user_id).filter(Boolean))
+      );
+
+      const threadUsers: Record<string, MattermostUser> = {};
+      if (threadUserIds.length) {
+        const fetchedUsers = await mmUserFetch<MattermostUser[]>("/users/ids", token, {
+          method: "POST",
+          body: JSON.stringify(threadUserIds)
+        });
+        for (const user of fetchedUsers) {
+          threadUsers[user.id] = user;
+        }
+      }
+
+      return NextResponse.json({ posts: threadPosts, users: threadUsers, hasMore: false });
+    }
+
     // Reduced from 60 to 40 for better performance on invalidation
     // 40 messages = ~2 screens of chat, good balance between UX and data transfer
     const perPage = searchParams.get("per_page") || "40";
