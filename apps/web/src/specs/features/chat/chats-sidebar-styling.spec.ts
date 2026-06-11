@@ -63,9 +63,14 @@ describe("chats sidebar styling", () => {
     expect(chatsClient).toContain("className={KEBAB_BUTTON_CLASS}");
   });
 
-  it("highlights the active channel with real palette tokens", () => {
+  it("uses borderless list rows: filled active state + left accent + hover fill, not bordered cards", () => {
+    // Modern messaging-list style: rows have no per-row border box. Active row is
+    // a fill plus a subtle 2px left accent; inactive rows show a hover fill.
+    expect(chatsClient).toContain("rounded-lg border-l-2 p-2.5 transition");
     expect(chatsClient).toContain("border-blue-dark-sky bg-blue-duck-egg dark:bg-dark-default");
-    expect(chatsClient).toContain("hover:border-blue-dark-sky");
+    expect(chatsClient).toContain("border-transparent hover:bg-gray-100 dark:hover:bg-white/5");
+    // The old bordered-card row must not come back.
+    expect(chatsClient).not.toContain('"rounded border p-3 transition"');
   });
 
   it("constrains channel-list grids to grid-cols-1 so a long name cannot blow out the column and clip the kebab", () => {
