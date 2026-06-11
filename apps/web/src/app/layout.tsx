@@ -2,7 +2,7 @@ import "@/styles/style.scss";
 import "@/core/sdk-init"; // Initialize SDK DMCA filters immediately (SSR)
 import Providers from "@/app/providers";
 import { HiringConsoleLog } from "@/app/_components";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { Theme } from "@/enums";
 import { BannerManager } from "@/features/banners";
 import { ServiceWorkerRecovery } from "@/features/pwa-install";
@@ -72,6 +72,10 @@ const lora = Lora({
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const theme = (await cookies()).get("theme")?.value;
+  // The /embed/* routes are loaded inside the mobile app's WebView (e.g. the
+  // Turnstile widget). Skip analytics there so automated widget loads don't
+  // register as ecency.com pageviews. Path comes from the middleware header.
+  const isEmbedRoute = ((await headers()).get("x-pathname") ?? "").startsWith("/embed");
 
   return (
     <html lang="en" className={`${lora.variable} ${inter.variable}`}>
@@ -99,7 +103,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <link rel="preconnect" href="https://hapi.ecency.com" crossOrigin="anonymous" />
         <JsonLd data={buildOrganizationJsonLd()} />
       </head>
-      <Script defer data-domain="ecency.com" data-api="/pl/api/event" src="/pl/js/script.js" />
+      {!isEmbedRoute && (
+        <Script defer data-domain="ecency.com" data-api="/pl/api/event" src="/pl/js/script.js" />
+      )}
       <body className={theme === Theme.night ? "dark" : ""}>
         <BannerManager />
         <ServiceWorkerRecovery />

@@ -92,7 +92,12 @@ export async function middleware(request: NextRequest, event: NextFetchEvent) {
     return NextResponse.rewrite(nextUrl);
   }
 
-  const response = NextResponse.next();
+  // Expose the resolved pathname to server components via a request header — the
+  // root layout reads it to skip the analytics script on the /embed/* WebView
+  // routes (server components can't otherwise see the path).
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-pathname", path);
+  const response = NextResponse.next({ request: { headers: requestHeaders } });
   await applyCacheHeaders(request, response, path, event);
   return response;
 }

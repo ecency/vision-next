@@ -59,13 +59,15 @@ interface Props {
   sitekey: string;
   /** Called with the verification token when the challenge is solved. */
   onVerify: (token: string) => void;
-  /** Called when the token expires/errors or the widget is reset — clear stored token. */
+  /** Called when the token expires or the widget is reset — clear stored token. */
   onExpire?: () => void;
+  /** Called when the challenge errors or the script fails to load. Falls back to onExpire when omitted. */
+  onError?: () => void;
   className?: string;
 }
 
 export const Turnstile = forwardRef<TurnstileHandle, Props>(function Turnstile(
-  { sitekey, onVerify, onExpire, className },
+  { sitekey, onVerify, onExpire, onError, className },
   ref
 ) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -74,8 +76,10 @@ export const Turnstile = forwardRef<TurnstileHandle, Props>(function Turnstile(
   // always invokes the current props — safe even if a caller passes inline callbacks.
   const onVerifyRef = useRef(onVerify);
   const onExpireRef = useRef(onExpire);
+  const onErrorRef = useRef(onError);
   onVerifyRef.current = onVerify;
   onExpireRef.current = onExpire;
+  onErrorRef.current = onError;
 
   const [failedToLoad, setFailedToLoad] = useState(false);
 
@@ -108,13 +112,13 @@ export const Turnstile = forwardRef<TurnstileHandle, Props>(function Turnstile(
           sitekey,
           callback: (token: string) => onVerifyRef.current(token),
           "expired-callback": () => onExpireRef.current?.(),
-          "error-callback": () => onExpireRef.current?.()
+          "error-callback": () => (onErrorRef.current ?? onExpireRef.current)?.()
         });
       })
       .catch(() => {
         if (!cancelled) {
           setFailedToLoad(true);
-          onExpireRef.current?.();
+          (onErrorRef.current ?? onExpireRef.current)?.();
         }
       });
 
