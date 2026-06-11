@@ -4942,12 +4942,22 @@ interface UseStatsQueryOptions {
      * landed on it. The API route validates this against an allow-list.
      */
     filterBy?: "event:page" | "visit:entry_page";
+    /**
+     * Plausible `date_range`. Pass a tuple `[from, to]` (ISO `YYYY-MM-DD`) to scope
+     * the query — e.g. a post's creation date through today. Scoping is essential:
+     * ClickHouse orders events by `(site_id, toDate(timestamp), …)` and partitions
+     * by month, so a bounded range prunes to a few granules instead of scanning the
+     * whole history. Omitting it falls back to the route default (`"all"`), which on
+     * a high-traffic site is a multi-second full scan. Plausible also accepts the
+     * relative keywords `"day"`, `"7d"`, `"30d"`, `"all"`.
+     */
+    dateRange?: string | [string, string];
     enabled?: boolean;
 }
-declare function getStatsQueryOptions({ url, dimensions, metrics, filterBy, enabled, }: UseStatsQueryOptions): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<StatsResponse, Error, StatsResponse, (string | string[])[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<StatsResponse, (string | string[])[], never> | undefined;
+declare function getStatsQueryOptions({ url, dimensions, metrics, filterBy, dateRange, enabled, }: UseStatsQueryOptions): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<StatsResponse, Error, StatsResponse, (string | string[] | undefined)[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<StatsResponse, (string | string[] | undefined)[], never> | undefined;
 } & {
-    queryKey: (string | string[])[] & {
+    queryKey: (string | string[] | undefined)[] & {
         [dataTagSymbol]: StatsResponse;
         [dataTagErrorSymbol]: Error;
     };

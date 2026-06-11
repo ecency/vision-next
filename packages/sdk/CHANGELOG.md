@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.15
+
+### Patch Changes
+
+- fix(entry-stats): date-scope + canonical-path Plausible queries (#943)
+
 ## 2.3.14
 
 ### Patch Changes

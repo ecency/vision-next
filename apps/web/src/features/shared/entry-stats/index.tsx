@@ -22,11 +22,26 @@ export function EntryStats({ entry }: Props) {
   const { activeUser } = useActiveAccount();
   const [showStats, setShowStats] = useState(false);
 
+  // Canonical post path (`/@author/permlink`). The recorded Plausible page varies
+  // by entry route — bare `/@author/permlink`, community `/hive-123/@author/permlink`,
+  // tag `/tag/@author/permlink` — but every shape contains this canonical suffix, so a
+  // `contains` match on it catches them all while staying anchored to this author
+  // (unlike the old bare `author/permlink`, which also matched unrelated paths).
   const pathname = useMemo(
-    () => `${entry.author}/${entry.permlink}`,
+    () => `/@${entry.author}/${entry.permlink}`,
     [entry.author, entry.permlink]
   );
   const createdDate = useMemo(() => dayjs(entry.created).format("DD MMM YYYY"), [entry.created]);
+
+  // Scope every stats query to the post's own lifetime (created → today). ClickHouse
+  // orders events by `(site_id, toDate(timestamp), …)` and partitions by month, so a
+  // bounded range prunes to a handful of granules instead of scanning all history —
+  // the difference between a sub-second lookup and the multi-second full scan that
+  // (un-scoped) used to time out and silently render 0.
+  const dateRange = useMemo<[string, string]>(
+    () => [dayjs(entry.created).format("YYYY-MM-DD"), dayjs().format("YYYY-MM-DD")],
+    [entry.created]
+  );
 
   // "Views" uses Plausible `visits` (sessions), not `pageviews`: a single user
   // refreshing the post inflates pageviews but not visits, so visits is the
@@ -35,6 +50,7 @@ export function EntryStats({ entry }: Props) {
     getStatsQueryOptions({
       url: pathname,
       metrics: ["visitors", "visits"],
+      dateRange,
       enabled: !!activeUser
     })
   );
@@ -51,6 +67,7 @@ export function EntryStats({ entry }: Props) {
       url: pathname,
       metrics: ["visit_duration"],
       filterBy: "visit:entry_page",
+      dateRange,
       enabled: !!activeUser
     })
   );
@@ -95,8 +112,16 @@ export function EntryStats({ entry }: Props) {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-            <EntryPageStatsByDevices cleanedPathname={pathname} totalViews={totalViews} />
-            <EntryPageStatsByReferrers cleanedPathname={pathname} totalViews={totalViews} />
+            <EntryPageStatsByDevices
+              cleanedPathname={pathname}
+              dateRange={dateRange}
+              totalViews={totalViews}
+            />
+            <EntryPageStatsByReferrers
+              cleanedPathname={pathname}
+              dateRange={dateRange}
+              totalViews={totalViews}
+            />
           </div>
 
           <div className="flex flex-col sm:flex-row items-center gap-4 justify-between p-4 rounded-2xl border border-[--border-color]">

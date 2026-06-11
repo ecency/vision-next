@@ -63,7 +63,13 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    return NextResponse.json(await response.json());
+    const body = await response.json();
+    // Forward Plausible's status instead of always returning 200. Previously a
+    // Plausible error (e.g. invalid date range, unknown dimension) reached the
+    // client as 200 with an `{ error }` body, so the SDK's `response.ok` guard
+    // never fired and the UI silently rendered 0. Propagating the status lets it
+    // surface/retry the same way it does for the 504/502 timeout cases above.
+    return NextResponse.json(body, { status: response.ok ? 200 : response.status });
   } catch (e) {
     // The same AbortSignal that bounds the fetch also bounds the body read,
     // so response.json() can throw TimeoutError or AbortError if the cap fires
