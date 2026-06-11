@@ -32,6 +32,13 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 const TOWN_HALL_CHANNEL_NAME = "town-hall";
 
+// Per-channel kebab trigger: keep the gray-link appearance but give it real
+// affordance — a clearly visible icon in dark mode (gray-link alone is a faint
+// #6c757d glyph on the dark rail, ~3.7:1, which users miss) plus a hover/focus
+// surface so it reads as an interactive control in every desktop browser/theme.
+const KEBAB_BUTTON_CLASS =
+  "dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-default focus-visible:ring-2 focus-visible:ring-blue-dark-sky";
+
 export function ChatsClient() {
   const { activeUser } = useActiveAccount();
   const hydrated = useHydrated();
@@ -367,7 +374,7 @@ export function ChatsClient() {
             <LoginRequired />
             <button
               onClick={() => refetchBootstrap()}
-              className="mt-4 text-sm text-blue-500 hover:text-blue-600 underline"
+              className="mt-4 text-sm text-blue-dark-sky hover:text-blue-dark-sky-hover underline"
             >
               Try again
             </button>
@@ -473,7 +480,12 @@ export function ChatsClient() {
               )}
             </div>
 
-            <div className="grid gap-4">
+            {/* grid-cols-1 => minmax(0,1fr): the single column must shrink to the
+                rail width instead of sizing to the widest card's max-content, which
+                a long (truncated, nowrap) channel name would otherwise blow out,
+                pushing the unread badge + kebab past overflow-x-hidden and clipping
+                them off the right edge. */}
+            <div className="grid grid-cols-1 gap-4">
               {/* Favorites Section */}
               {!hasSearchTerm && channelsByCategory.favorites.length > 0 && (
                 <div className="space-y-2">
@@ -486,7 +498,7 @@ export function ChatsClient() {
                     </span>
                     <div className="h-px flex-1 bg-[--border-color]" />
                   </div>
-                  <div className="grid gap-2">
+                  <div className="grid grid-cols-1 gap-2">
                     {channelsByCategory.favorites.map((channel) => {
                       const unread = getUnreadCount(channel);
                       const isMuted = Boolean(channel.is_muted);
@@ -506,8 +518,8 @@ export function ChatsClient() {
                           className={clsx(
                             "rounded border p-3 transition",
                             isActive
-                              ? "border-blue-500 bg-blue-50 dark:border-blue-600 dark:bg-blue-900/30"
-                              : "border-[--border-color] hover:border-blue-500"
+                              ? "border-blue-dark-sky bg-blue-duck-egg dark:bg-dark-default"
+                              : "border-[--border-color] hover:border-blue-dark-sky"
                           )}
                           onClickCapture={handleChannelLinkClick}
                         >
@@ -569,7 +581,7 @@ export function ChatsClient() {
                                       e.stopPropagation();
                                     }}
                                   >
-                                    <Button appearance="gray-link" icon={dotsHorizontal} aria-label={i18next.t("g.menu", { defaultValue: "Menu" })} aria-haspopup="menu" />
+                                    <Button appearance="gray-link" icon={dotsHorizontal} className={KEBAB_BUTTON_CLASS} aria-label={i18next.t("g.menu", { defaultValue: "Menu" })} aria-haspopup="menu" />
                                   </DropdownToggle>
                                   <DropdownMenu align="right">
                                     {unread > 0 && (
@@ -614,7 +626,7 @@ export function ChatsClient() {
                               </div>
                             ) : (
                               unread > 0 && (
-                                <div className="ml-2" data-chat-channel-actions onClick={(e) => e.stopPropagation()}>
+                                <div className="ml-2 flex-shrink-0" data-chat-channel-actions onClick={(e) => e.stopPropagation()}>
                                   <Dropdown>
                                     <DropdownToggle
                                       onClick={(e) => {
@@ -622,7 +634,7 @@ export function ChatsClient() {
                                         e.stopPropagation();
                                       }}
                                     >
-                                      <Button appearance="gray-link" icon={dotsHorizontal} aria-label={i18next.t("g.menu", { defaultValue: "Menu" })} aria-haspopup="menu" />
+                                      <Button appearance="gray-link" icon={dotsHorizontal} className={KEBAB_BUTTON_CLASS} aria-label={i18next.t("g.menu", { defaultValue: "Menu" })} aria-haspopup="menu" />
                                     </DropdownToggle>
                                     <DropdownMenu align="right">
                                       <DropdownItemWithIcon
@@ -655,7 +667,7 @@ export function ChatsClient() {
                     </span>
                     <div className="h-px flex-1 bg-[--border-color]" />
                   </div>
-                  <div className="grid gap-2">
+                  <div className="grid grid-cols-1 gap-2">
                     {channelsByCategory.directMessages.map((channel) => {
                       const unread = getUnreadCount(channel);
                       const isMuted = Boolean(channel.is_muted);
@@ -671,8 +683,8 @@ export function ChatsClient() {
                           className={clsx(
                             "rounded border p-3 transition",
                             isActive
-                              ? "border-blue-500 bg-blue-50 dark:border-blue-600 dark:bg-blue-900/30"
-                              : "border-[--border-color] hover:border-blue-500"
+                              ? "border-blue-dark-sky bg-blue-duck-egg dark:bg-dark-default"
+                              : "border-[--border-color] hover:border-blue-dark-sky"
                           )}
                           onClickCapture={handleChannelLinkClick}
                         >
@@ -712,7 +724,7 @@ export function ChatsClient() {
                                     e.stopPropagation();
                                   }}
                                 >
-                                  <Button appearance="gray-link" icon={dotsHorizontal} aria-label={i18next.t("g.menu", { defaultValue: "Menu" })} aria-haspopup="menu" />
+                                  <Button appearance="gray-link" icon={dotsHorizontal} className={KEBAB_BUTTON_CLASS} aria-label={i18next.t("g.menu", { defaultValue: "Menu" })} aria-haspopup="menu" />
                                 </DropdownToggle>
                                 <DropdownMenu align="right">
                                   {unread > 0 && (
@@ -751,7 +763,7 @@ export function ChatsClient() {
                     </span>
                     <div className="h-px flex-1 bg-[--border-color]" />
                   </div>
-                  <div className="grid gap-2">
+                  <div className="grid grid-cols-1 gap-2">
                     {channelsByCategory.regularChannels.map((channel) => {
                       const unread = getUnreadCount(channel);
                       const isMuted = Boolean(channel.is_muted);
@@ -771,8 +783,8 @@ export function ChatsClient() {
                           className={clsx(
                             "rounded border p-3 transition",
                             isActive
-                              ? "border-blue-500 bg-blue-50 dark:border-blue-600 dark:bg-blue-900/30"
-                              : "border-[--border-color] hover:border-blue-500"
+                              ? "border-blue-dark-sky bg-blue-duck-egg dark:bg-dark-default"
+                              : "border-[--border-color] hover:border-blue-dark-sky"
                           )}
                           onClickCapture={handleChannelLinkClick}
                         >
@@ -819,7 +831,7 @@ export function ChatsClient() {
                                     e.stopPropagation();
                                   }}
                                 >
-                                  <Button appearance="gray-link" icon={dotsHorizontal} aria-label={i18next.t("g.menu", { defaultValue: "Menu" })} aria-haspopup="menu" />
+                                  <Button appearance="gray-link" icon={dotsHorizontal} className={KEBAB_BUTTON_CLASS} aria-label={i18next.t("g.menu", { defaultValue: "Menu" })} aria-haspopup="menu" />
                                 </DropdownToggle>
                                 <DropdownMenu align="right">
                                   {unread > 0 && (
@@ -890,13 +902,13 @@ export function ChatsClient() {
                     className={clsx(
                       "rounded border p-3 transition",
                       isActive
-                        ? "border-blue-500 bg-blue-50 dark:border-blue-600 dark:bg-blue-900/30"
-                        : "border-[--border-color] hover:border-blue-500"
+                        ? "border-blue-dark-sky bg-blue-duck-egg dark:bg-dark-default"
+                        : "border-[--border-color] hover:border-blue-dark-sky"
                     )}
                     onClickCapture={handleChannelLinkClick}
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="relative">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="relative flex-shrink-0">
                         {channel.type === "D" && channel.directUser ? (
                           <UserAvatar username={channel.directUser.username} size="medium" className="h-10 w-10" />
                         ) : (
@@ -934,13 +946,13 @@ export function ChatsClient() {
                       </div>
 
                       {unread > 0 && (
-                        <span className="ml-auto inline-flex min-w-[24px] justify-center rounded-full bg-[--primary-color] px-2 py-1 text-xs font-semibold text-[--primary-button-text-color]">
+                        <span className="ml-auto inline-flex min-w-[24px] flex-shrink-0 justify-center rounded-full bg-[--primary-color] px-2 py-1 text-xs font-semibold text-[--primary-button-text-color]">
                           {unread}
                         </span>
                       )}
 
                       {channel.type !== "D" ? (
-                        <div className="ml-2" data-chat-channel-actions onClick={(e) => e.stopPropagation()}>
+                        <div className="ml-2 flex-shrink-0" data-chat-channel-actions onClick={(e) => e.stopPropagation()}>
                           <Dropdown>
                             <DropdownToggle
                               onClick={(e) => {
@@ -948,7 +960,7 @@ export function ChatsClient() {
                                 e.stopPropagation();
                               }}
                             >
-                              <Button appearance="gray-link" icon={dotsHorizontal} aria-label={i18next.t("g.menu", { defaultValue: "Menu" })} aria-haspopup="menu" />
+                              <Button appearance="gray-link" icon={dotsHorizontal} className={KEBAB_BUTTON_CLASS} aria-label={i18next.t("g.menu", { defaultValue: "Menu" })} aria-haspopup="menu" />
                             </DropdownToggle>
                             <DropdownMenu align="right">
                               {unread > 0 && (
@@ -993,7 +1005,7 @@ export function ChatsClient() {
                               </div>
                             ) : (
                         unread > 0 && (
-                          <div className="ml-2" data-chat-channel-actions onClick={(e) => e.stopPropagation()}>
+                          <div className="ml-2 flex-shrink-0" data-chat-channel-actions onClick={(e) => e.stopPropagation()}>
                             <Dropdown>
                               <DropdownToggle
                                 onClick={(e) => {
@@ -1001,7 +1013,7 @@ export function ChatsClient() {
                                   e.stopPropagation();
                                 }}
                               >
-                                <Button appearance="gray-link" icon={dotsHorizontal} aria-label={i18next.t("g.menu", { defaultValue: "Menu" })} aria-haspopup="menu" />
+                                <Button appearance="gray-link" icon={dotsHorizontal} className={KEBAB_BUTTON_CLASS} aria-label={i18next.t("g.menu", { defaultValue: "Menu" })} aria-haspopup="menu" />
                               </DropdownToggle>
                               <DropdownMenu align="right">
                                 <DropdownItemWithIcon
@@ -1035,7 +1047,7 @@ export function ChatsClient() {
                 <span>{i18next.t("chat.search-user")}</span>
                 {userSearchLoading && <span>{i18next.t("chat.searching")}</span>}
               </div>
-              <div className="grid gap-2">
+              <div className="grid grid-cols-1 gap-2">
                 {userSearchLoading && <div className="text-sm text-[--text-muted]">{i18next.t("chat.searching")}</div>}
                 {!userSearchLoading &&
                   userSearch?.users?.map((user) => {
@@ -1047,7 +1059,7 @@ export function ChatsClient() {
                         key={user.id}
                         type="button"
                         onClick={() => startDirectMessage(user.username)}
-                        className="flex items-center justify-between gap-3 rounded border border-[--border-color] bg-[--surface-color] p-2 text-left transition hover:border-blue-500"
+                        className="flex items-center justify-between gap-3 rounded border border-[--border-color] bg-[--surface-color] p-2 text-left transition hover:border-blue-dark-sky"
                       >
                         <div className="flex items-center gap-3">
                           <UserAvatar username={user.username} size="medium" className="h-9 w-9" />
@@ -1056,7 +1068,7 @@ export function ChatsClient() {
                             {secondary && <span className="text-xs text-[--text-muted]">{secondary}</span>}
                           </div>
                         </div>
-                        <span className="text-sm font-semibold text-blue-500">
+                        <span className="text-sm font-semibold text-blue-dark-sky">
                           {directChannelMutation.isPending
                             ? i18next.t("chat.starting-dm")
                             : i18next.t("chat.start-dm-button")}
@@ -1077,7 +1089,7 @@ export function ChatsClient() {
                 <span>{i18next.t("chat.joinable-channels")}</span>
                 {channelSearchLoading && <span>{i18next.t("chat.searching-channels")}</span>}
               </div>
-              <div className="grid gap-2">
+              <div className="grid grid-cols-1 gap-2">
                 {joinableChannelResults.map((channel) => (
                   <div
                     key={channel.id}
@@ -1117,7 +1129,7 @@ export function ChatsClient() {
                 <span>{i18next.t("chat.message-search-results")}</span>
                 {messageSearchLoading && <span>{i18next.t("chat.searching")}</span>}
               </div>
-              <div className="grid gap-2">
+              <div className="grid grid-cols-1 gap-2">
                 {subscribedMessageResults.map((post) => {
                   const channel = channelsById.get(post.channel_id);
                   const channelLabel = channel ? getChannelTitle(channel) : i18next.t("chat.channel-type");
@@ -1130,7 +1142,7 @@ export function ChatsClient() {
                     <Link
                       key={post.id}
                       href={messageLink}
-                      className="flex flex-col gap-1 rounded border border-[--border-color] bg-[--surface-color] p-3 transition hover:border-blue-500"
+                      className="flex flex-col gap-1 rounded border border-[--border-color] bg-[--surface-color] p-3 transition hover:border-blue-dark-sky"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1">
