@@ -27,6 +27,14 @@ export interface NsfwCheckableEntry {
 // only ever used as an additive bonus signal alongside this set.
 export const isNsfwCommunity = (name: string): boolean => NSFW_COMMUNITIES.has(name);
 
+// True if a bare tag/feed name should be kept off SFW surfaces (e.g. the tags
+// sitemap shard). Applies the same curated NSFW tag/community sets and the title
+// stem regex to the tag itself, so "porn"/"nude"/etc. as a tag are excluded.
+export const isNsfwTag = (tag: string): boolean => {
+  const t = tag.toLowerCase().trim();
+  return NSFW_TAGS.has(t) || NSFW_COMMUNITIES.has(t) || NSFW_TITLE_REGEX.test(t);
+};
+
 export const isNsfwEntry = (entry: NsfwCheckableEntry): boolean => {
   const candidates: string[] = [];
   if (entry.category) candidates.push(entry.category);

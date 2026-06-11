@@ -13,6 +13,7 @@ export const SITEMAP_SHARDS = [
   "posts.xml",
   "authors.xml",
   "communities.xml",
+  "tags.xml",
   "static.xml"
 ] as const;
 
