@@ -245,15 +245,6 @@ const config = {
     ]
   },
   async headers() {
-    // CSP violation reports are delivered to Sentry's Security endpoint, built
-    // from the (public) project DSN already configured in sentry.*.config.ts.
-    // report-to is the modern Reporting API channel; report-uri is the broadly-
-    // supported fallback. Applied to both the enforcing and report-only policies.
-    // NOTE: report-only with a broad script-src can be noisy (browser-extension
-    // injected scripts trigger violations) — tune via Sentry inbound filters /
-    // rate limits if volume is high.
-    const sentryCspReportUri =
-      "https://o4507985141956608.ingest.de.sentry.io/api/4507985146609744/security/?sentry_key=8a5c1659d1c2ba3385be28dc7235ce56";
     return [
       {
         // Clickjacking protection on every route: our pages may be framed only
@@ -266,8 +257,6 @@ const config = {
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-          // Named reporting endpoint (Reporting API) referenced by `report-to`.
-          { key: "Reporting-Endpoints", value: `csp-endpoint="${sentryCspReportUri}"` },
           // Conservative Permissions-Policy: deny only powerful features the
           // app never requests. We deliberately DO NOT restrict accelerometer,
           // gyroscope, fullscreen, picture-in-picture, encrypted-media or
@@ -295,8 +284,7 @@ const config = {
               "base-uri 'self'",
               "frame-ancestors 'self'",
               "form-action 'self'",
-              "report-to csp-endpoint",
-              `report-uri ${sentryCspReportUri}`
+              "report-uri /api/csp-report"
             ].join("; ")
           },
           // REPORT-ONLY CSP — the full inventoried policy. Reports violations
@@ -312,8 +300,12 @@ const config = {
               // Plausible is served first-party via the /pl/ rewrite, so no
               // external analytics host is needed. Turnstile + react-tweet are
               // the only external script origins.
-              "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://platform.twitter.com",
-              "script-src-elem 'self' 'unsafe-inline' https://challenges.cloudflare.com https://platform.twitter.com",
+              // Hosts after the Cloudflare/Twitter pair were surfaced by report-only
+              // monitoring as real feature dependencies: Cloudflare Insights (RUM
+              // beacon, auto-injected), TradingView (price/chart widgets), and
+              // 'wasm-unsafe-eval' for WebAssembly used by wallet/crypto libs.
+              "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://challenges.cloudflare.com https://platform.twitter.com https://static.cloudflareinsights.com https://s3.tradingview.com",
+              "script-src-elem 'self' 'unsafe-inline' https://challenges.cloudflare.com https://platform.twitter.com https://static.cloudflareinsights.com https://s3.tradingview.com",
               "style-src 'self' 'unsafe-inline'",
               "font-src 'self' data:",
               [
@@ -326,7 +318,9 @@ const config = {
                 "https://api.coingecko.com https://api.giphy.com",
                 "https://studio.3speak.tv https://embed.3speak.tv https://3speak.tv https://poll.ecency.com https://spk.good-karma.xyz",
                 "https://rpc.ankr.com https://bsc-dataseed.binance.org https://explorer.solana.com https://etherscan.io https://bscscan.com",
-                "wss://enotify.ecency.com"
+                "wss://enotify.ecency.com",
+                // Feature dependencies surfaced by report-only monitoring:
+                "https://static.cloudflareinsights.com https://hiveposh.com https://hiveapi.actifit.io"
               ].join(" "),
               [
                 "img-src 'self' data: blob:",
@@ -344,7 +338,8 @@ const config = {
                 "https://lbry.tv https://odysee.com https://ipfs.skatehive.app https://www.skatehype.com",
                 "https://archive.org https://rumble.com https://www.brighteon.com https://www.bitchute.com",
                 "https://brandnewtube.com https://www.loom.com https://aureal-embed.web.app",
-                "https://platform.twitter.com https://challenges.cloudflare.com"
+                "https://platform.twitter.com https://challenges.cloudflare.com",
+                "https://www.tradingview-widget.com https://s.tradingview.com"
               ].join(" "),
               "media-src 'self' data: blob: https://i.ecency.com https://images.ecency.com https://ipfs.skatehive.app",
               "worker-src 'self' blob:",
@@ -352,8 +347,7 @@ const config = {
               "base-uri 'self'",
               "frame-ancestors 'self'",
               "form-action 'self'",
-              "report-to csp-endpoint",
-              `report-uri ${sentryCspReportUri}`
+              "report-uri /api/csp-report"
             ].join("; ")
           }
         ]
