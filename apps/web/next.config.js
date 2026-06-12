@@ -304,8 +304,8 @@ const config = {
               // monitoring as real feature dependencies: Cloudflare Insights (RUM
               // beacon, auto-injected), TradingView (price/chart widgets), and
               // 'wasm-unsafe-eval' for WebAssembly used by wallet/crypto libs.
-              "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://challenges.cloudflare.com https://platform.twitter.com https://static.cloudflareinsights.com https://s3.tradingview.com",
-              "script-src-elem 'self' 'unsafe-inline' https://challenges.cloudflare.com https://platform.twitter.com https://static.cloudflareinsights.com https://s3.tradingview.com",
+              "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://challenges.cloudflare.com https://platform.twitter.com https://static.cloudflareinsights.com https://s3.tradingview.com https://www.google.com https://www.gstatic.com",
+              "script-src-elem 'self' 'unsafe-inline' https://challenges.cloudflare.com https://platform.twitter.com https://static.cloudflareinsights.com https://s3.tradingview.com https://www.google.com https://www.gstatic.com",
               "style-src 'self' 'unsafe-inline'",
               "font-src 'self' data:",
               [
@@ -320,12 +320,25 @@ const config = {
                 "https://rpc.ankr.com https://bsc-dataseed.binance.org https://explorer.solana.com https://etherscan.io https://bscscan.com",
                 "wss://enotify.ecency.com",
                 // Feature dependencies surfaced by report-only monitoring:
-                "https://static.cloudflareinsights.com https://hiveposh.com https://hiveapi.actifit.io"
+                "https://static.cloudflareinsights.com https://hiveposh.com https://hiveapi.actifit.io",
+                // Cloudflare Turnstile (signup) widget XHR:
+                "https://challenges.cloudflare.com",
+                // Firebase Cloud Messaging (web push):
+                "https://firebaseinstallations.googleapis.com https://fcmregistrations.googleapis.com https://fcm.googleapis.com",
+                "https://esteem-ded08.firebaseio.com wss://esteem-ded08.firebaseio.com",
+                // SDK bad-actors list:
+                "https://raw.githubusercontent.com",
+                // Tweet embeds (react-tweet — data API):
+                "https://react-tweet.vercel.app https://cdn.syndication.twimg.com",
+                // Google reCAPTCHA (key login):
+                "https://www.google.com"
               ].join(" "),
               [
                 "img-src 'self' data: blob:",
                 "https://i.ecency.com https://img.ecency.com https://images.ecency.com https://ecency.com",
                 "https://images.hive.blog https://img.youtube.com",
+                // Tweet embeds (react-tweet) media + cards, and reCAPTCHA assets:
+                "https://pbs.twimg.com https://cdn.syndication.twimg.com https://www.gstatic.com",
                 "https://media.giphy.com https://media0.giphy.com https://media1.giphy.com https://media2.giphy.com https://media3.giphy.com https://media4.giphy.com https://i.giphy.com"
               ].join(" "),
               [
@@ -339,7 +352,8 @@ const config = {
                 "https://archive.org https://rumble.com https://www.brighteon.com https://www.bitchute.com",
                 "https://brandnewtube.com https://www.loom.com https://aureal-embed.web.app",
                 "https://platform.twitter.com https://challenges.cloudflare.com",
-                "https://www.tradingview-widget.com https://s.tradingview.com"
+                "https://www.tradingview-widget.com https://s.tradingview.com",
+                "https://www.google.com"
               ].join(" "),
               "media-src 'self' data: blob: https://i.ecency.com https://images.ecency.com https://ipfs.skatehive.app",
               "worker-src 'self' blob:",
