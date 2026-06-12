@@ -569,9 +569,10 @@ const MATTERMOST_REQUIRE_SYSTEM_ADMIN =
   process.env.MATTERMOST_REQUIRE_SYSTEM_ADMIN === "true";
 
 export function hasSystemAdminRole(user: Pick<MattermostUser, "roles">): boolean {
-  // MM roles is a space-separated list (e.g. "system_user system_admin");
-  // "system_admin" is not a substring of any other MM role, so includes() is safe.
-  return user.roles?.includes("system_admin") ?? false;
+  // MM roles is a space-separated list (e.g. "system_user system_admin"). Split
+  // on whitespace and match the exact token rather than a substring, so a custom
+  // role such as "system_admin_lite" or "non_system_admin" can't satisfy it.
+  return (user.roles?.split(/\s+/) ?? []).includes("system_admin");
 }
 
 /**

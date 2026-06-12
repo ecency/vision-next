@@ -140,16 +140,22 @@ async function resolveAndValidate(url: string): Promise<ResolvedTarget> {
     throw new Error("INVALID_PROTOCOL");
   }
 
-  // Port allowlist. Article sources are always served on the default web ports,
-  // so reject any URL carrying an explicit non-standard port. This stops the
-  // proxy from being aimed at arbitrary TCP services on an otherwise-public host
-  // (internal admin panels, databases, mail, etc.) for port-scanning / request
-  // laundering. `URL.port` is "" when the port is omitted or equals the scheme
-  // default, so default-port URLs pass untouched.
-  // resolveAndValidate also runs on every redirect hop, so a redirect to
-  // host:port is rejected mid-chain too.
-  if (parsed.port !== "" && parsed.port !== "80" && parsed.port !== "443") {
-    throw new Error("BLOCKED_HOST");
+  // Port allowlist. Article sources are always served on the scheme's default
+  // web port, so reject any URL carrying an explicit non-default port. This
+  // stops the proxy from being aimed at arbitrary TCP services on an otherwise-
+  // public host (internal admin panels, databases, mail, etc.) for port-scanning
+  // / request laundering. `URL.port` is "" when the port is omitted or equals the
+  // scheme default, so default-port URLs pass untouched; an explicit port is
+  // allowed only when it matches its own scheme's default (http:80 / https:443),
+  // not cross-scheme. resolveAndValidate also runs on every redirect hop, so a
+  // redirect to host:port is rejected mid-chain too.
+  if (parsed.port !== "") {
+    const isDefaultPort =
+      (parsed.protocol === "http:" && parsed.port === "80") ||
+      (parsed.protocol === "https:" && parsed.port === "443");
+    if (!isDefaultPort) {
+      throw new Error("BLOCKED_HOST");
+    }
   }
 
   const hostname = parsed.hostname.replace(/^\[/, "").replace(/\]$/, "");

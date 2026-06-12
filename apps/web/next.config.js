@@ -245,6 +245,15 @@ const config = {
     ]
   },
   async headers() {
+    // CSP violation reports are delivered to Sentry's Security endpoint, built
+    // from the (public) project DSN already configured in sentry.*.config.ts.
+    // report-to is the modern Reporting API channel; report-uri is the broadly-
+    // supported fallback. Applied to both the enforcing and report-only policies.
+    // NOTE: report-only with a broad script-src can be noisy (browser-extension
+    // injected scripts trigger violations) — tune via Sentry inbound filters /
+    // rate limits if volume is high.
+    const sentryCspReportUri =
+      "https://o4507985141956608.ingest.de.sentry.io/api/4507985146609744/security/?sentry_key=8a5c1659d1c2ba3385be28dc7235ce56";
     return [
       {
         // Clickjacking protection on every route: our pages may be framed only
@@ -257,6 +266,8 @@ const config = {
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          // Named reporting endpoint (Reporting API) referenced by `report-to`.
+          { key: "Reporting-Endpoints", value: `csp-endpoint="${sentryCspReportUri}"` },
           // Conservative Permissions-Policy: deny only powerful features the
           // app never requests. We deliberately DO NOT restrict accelerometer,
           // gyroscope, fullscreen, picture-in-picture, encrypted-media or
@@ -283,7 +294,9 @@ const config = {
               "object-src 'none'",
               "base-uri 'self'",
               "frame-ancestors 'self'",
-              "form-action 'self'"
+              "form-action 'self'",
+              "report-to csp-endpoint",
+              `report-uri ${sentryCspReportUri}`
             ].join("; ")
           },
           // REPORT-ONLY CSP — the full inventoried policy. Reports violations
@@ -338,7 +351,9 @@ const config = {
               "object-src 'none'",
               "base-uri 'self'",
               "frame-ancestors 'self'",
-              "form-action 'self'"
+              "form-action 'self'",
+              "report-to csp-endpoint",
+              `report-uri ${sentryCspReportUri}`
             ].join("; ")
           }
         ]
