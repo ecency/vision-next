@@ -58,7 +58,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { channelId
     await ensureUserInChannel(user.id, params.channelId);
 
     await mmUserFetch(
-      `/users/${user.id}/posts/${params.postId}/reactions/${encodeURIComponent(emoji)}`,
+      `/users/${user.id}/posts/${encodeURIComponent(params.postId)}/reactions/${encodeURIComponent(emoji)}`,
       token,
       {
         method: "DELETE"

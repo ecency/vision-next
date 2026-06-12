@@ -19,7 +19,7 @@ export async function GET(_req: NextRequest, { params }: { params: { userId: str
     // contribute to the same kind of pile-up we saw on the Plausible
     // proxy path. 8s matches the CF Worker primary timeout — anything
     // slower has already been cut off at the edge.
-    const res = await fetch(`${baseUrl}/users/${params.userId}/image`, {
+    const res = await fetch(`${baseUrl}/users/${encodeURIComponent(params.userId)}/image`, {
       headers: { Authorization: `Bearer ${token}` },
       signal: AbortSignal.timeout(8000)
     });

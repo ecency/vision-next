@@ -17,7 +17,7 @@ export async function DELETE(_req: Request, { params }: { params: { channelId: s
 
   try {
     const moderation = await getMattermostCommunityModerationContext(token, params.channelId);
-    const post = await mmUserFetch<{ user_id: string }>(`/posts/${params.postId}`, token);
+    const post = await mmUserFetch<{ user_id: string }>(`/posts/${encodeURIComponent(params.postId)}`, token);
 
     const isAuthor = post.user_id === moderation.currentUser.id;
 
@@ -26,7 +26,7 @@ export async function DELETE(_req: Request, { params }: { params: { channelId: s
     }
 
     if (isAuthor) {
-      await mmUserFetch(`/posts/${params.postId}`, token, { method: "DELETE" });
+      await mmUserFetch(`/posts/${encodeURIComponent(params.postId)}`, token, { method: "DELETE" });
     } else {
       await deleteMattermostPostAsAdmin(params.postId);
     }
@@ -62,7 +62,7 @@ export async function PATCH(req: Request, { params }: { params: { channelId: str
       }
     }
 
-    const post = await mmUserFetch(`/posts/${params.postId}/patch`, token, {
+    const post = await mmUserFetch(`/posts/${encodeURIComponent(params.postId)}/patch`, token, {
       method: "PUT",
       body: JSON.stringify({ message })
     });

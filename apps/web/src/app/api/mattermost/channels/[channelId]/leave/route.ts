@@ -18,7 +18,7 @@ export async function POST(_: Request, { params }: { params: Promise<{ channelId
   try {
     const { channelId } = await params;
     const [channel, currentUser] = await Promise.all([
-      mmUserFetch<MattermostChannel>(`/channels/${channelId}`, token),
+      mmUserFetch<MattermostChannel>(`/channels/${encodeURIComponent(channelId)}`, token),
       mmUserFetch<MattermostUser>(`/users/me`, token)
     ]);
 
@@ -43,7 +43,7 @@ export async function POST(_: Request, { params }: { params: Promise<{ channelId
         ])
       });
     } else {
-      await mmUserFetch(`/channels/${channelId}/members/me`, token, { method: "DELETE" });
+      await mmUserFetch(`/channels/${encodeURIComponent(channelId)}/members/me`, token, { method: "DELETE" });
 
       // Track that the user manually left this community channel
       // so bootstrap doesn't auto-rejoin them

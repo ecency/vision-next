@@ -27,7 +27,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ channel
     const response = await mmUserFetch<{
       posts: Record<string, any>;
       order: string[];
-    }>(`/channels/${channelId}/pinned`, token);
+    }>(`/channels/${encodeURIComponent(channelId)}/pinned`, token);
 
     const posts = response.posts;
     const order = response.order;
