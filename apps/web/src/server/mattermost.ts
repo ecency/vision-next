@@ -20,6 +20,10 @@ export interface MattermostUser {
   username: string;
   email: string;
   delete_at: number; // 0 = active, >0 = deactivated (epoch ms)
+  // Space-separated Mattermost role list, e.g. "system_user system_admin".
+  // Returned by GET /users/me; optional because lighter responses (e.g.
+  // /users/ids batches) may omit it.
+  roles?: string;
 }
 
 export interface MattermostUserWithProps extends MattermostUser {
@@ -138,7 +142,7 @@ export async function ensureMattermostUser(username: string, signal?: AbortSigna
   // Step 1: Try to find existing user (only suppress 404)
   let user: MattermostUser | null = null;
   try {
-    user = await mmFetch<MattermostUser>(`/users/username/${username}`, {
+    user = await mmFetch<MattermostUser>(`/users/username/${encodeURIComponent(username)}`, {
       headers: getAdminHeaders(),
       signal
     });
@@ -186,7 +190,7 @@ export async function ensureMattermostUser(username: string, signal?: AbortSigna
       error.message.includes("app.user.save.username_exists")
     ) {
       const existing = await mmFetch<MattermostUser>(
-        `/users/username/${username}`,
+        `/users/username/${encodeURIComponent(username)}`,
         { headers: getAdminHeaders(), signal }
       );
       if (existing.delete_at > 0) {
@@ -268,7 +272,7 @@ export async function ensureChannelForCommunity(
   const teamId = requireEnv(MATTERMOST_TEAM_ID, "MATTERMOST_TEAM_ID");
   const channelName = normalizeCommunityId(community);
   try {
-    const existing = await mmFetch<{ id: string }>(`/teams/${teamId}/channels/name/${channelName}`, {
+    const existing = await mmFetch<{ id: string }>(`/teams/${teamId}/channels/name/${encodeURIComponent(channelName)}`, {
       headers: getAdminHeaders(),
       signal
     });
@@ -294,7 +298,7 @@ export async function ensureChannelForCommunity(
     // bootstrapping at once) may have created the channel between the lookup
     // and this create. Re-fetch by name; if it now exists, use it.
     try {
-      const existing = await mmFetch<{ id: string }>(`/teams/${teamId}/channels/name/${channelName}`, {
+      const existing = await mmFetch<{ id: string }>(`/teams/${teamId}/channels/name/${encodeURIComponent(channelName)}`, {
         headers: getAdminHeaders(),
         signal
       });
@@ -386,7 +390,7 @@ export async function getUserChannels(userId: string): Promise<MattermostChannel
 
 export async function findMattermostUser(username: string): Promise<MattermostUser | null> {
   try {
-    return await mmFetch<MattermostUser>(`/users/username/${username}`, {
+    return await mmFetch<MattermostUser>(`/users/username/${encodeURIComponent(username)}`, {
       headers: getAdminHeaders()
     });
   } catch (error) {
@@ -549,6 +553,68 @@ export function isMattermostUnauthorizedError(error: unknown) {
   return error instanceof MattermostError && (error.status === 401 || error.status === 403);
 }
 
+// Env-pinned super-admin username (default "ecency"), shared by every admin
+// route so the gate lives in one place instead of a hardcoded literal copied
+// across handlers.
+const MATTERMOST_SUPER_ADMIN = process.env.MATTERMOST_SUPER_ADMIN ?? "ecency";
+
+// Opt-in: ALSO require the real Mattermost `system_admin` role on the caller's
+// own account. OFF by default because the destructive admin operations run with
+// the separate global MATTERMOST_ADMIN_TOKEN (see mmFetch), so the caller's
+// personal account does not need the role for them to work — enabling this when
+// the @ecency account lacks system_admin would lock out chat moderation. Set
+// MATTERMOST_REQUIRE_SYSTEM_ADMIN=true once the super-admin account is confirmed
+// to hold the role to add this extra barrier.
+const MATTERMOST_REQUIRE_SYSTEM_ADMIN =
+  process.env.MATTERMOST_REQUIRE_SYSTEM_ADMIN === "true";
+
+export function hasSystemAdminRole(user: Pick<MattermostUser, "roles">): boolean {
+  // MM roles is a space-separated list (e.g. "system_user system_admin");
+  // "system_admin" is not a substring of any other MM role, so includes() is safe.
+  return user.roles?.includes("system_admin") ?? false;
+}
+
+/**
+ * Verifies the caller is the Mattermost super-admin, using the CALLER'S OWN
+ * personal access token (never the shared admin token). Requires the env-pinned
+ * super-admin username, plus the real `system_admin` role when
+ * MATTERMOST_REQUIRE_SYSTEM_ADMIN is enabled.
+ *
+ * The super-admin username cannot be spoofed: bootstrap binds a Mattermost
+ * username to a HiveSigner-verified Hive identity, so only the real @ecency can
+ * mint an "ecency" PAT.
+ *
+ * On success returns { user }. On failure returns { response } the route must
+ * return as-is: 401 when /users/me rejects the token, otherwise 404 (not 403,
+ * so destructive endpoints don't confirm they exist to non-admins).
+ */
+export async function requireMattermostSuperAdmin(
+  token: string
+): Promise<
+  | { user: MattermostUser; response?: undefined }
+  | { user?: undefined; response: NextResponse<{ error: string }> }
+> {
+  let currentUser: MattermostUser;
+  try {
+    currentUser = await mmUserFetch<MattermostUser>("/users/me", token);
+  } catch (error) {
+    if (isMattermostUnauthorizedError(error)) {
+      return { response: NextResponse.json({ error: "unauthorized" }, { status: 401 }) };
+    }
+    throw error;
+  }
+
+  const isSuperAdmin =
+    currentUser.username === MATTERMOST_SUPER_ADMIN &&
+    (!MATTERMOST_REQUIRE_SYSTEM_ADMIN || hasSystemAdminRole(currentUser));
+
+  if (!isSuperAdmin) {
+    return { response: NextResponse.json({ error: "not found" }, { status: 404 }) };
+  }
+
+  return { user: currentUser };
+}
+
 export function handleMattermostError(error: unknown) {
   if (isMattermostUnauthorizedError(error)) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
@@ -595,7 +661,7 @@ function isCommunityModerator(role: CommunityRole | undefined) {
 
 export async function getMattermostCommunityModerationContext(token: string, channelId: string) {
   const [channel, currentUser] = await Promise.all([
-    mmUserFetch<MattermostChannel>(`/channels/${channelId}`, token),
+    mmUserFetch<MattermostChannel>(`/channels/${encodeURIComponent(channelId)}`, token),
     mmUserFetch<MattermostUser>(`/users/me`, token)
   ]);
 

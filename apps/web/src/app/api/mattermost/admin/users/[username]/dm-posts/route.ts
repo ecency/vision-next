@@ -1,13 +1,10 @@
 import { NextResponse } from "next/server";
 import {
-  MattermostUser,
   deleteMattermostDmPostsByUserAsAdmin,
   getMattermostTokenFromCookies,
   handleMattermostError,
-  mmUserFetch
+  requireMattermostSuperAdmin
 } from "@/server/mattermost";
-
-const CHAT_SUPER_ADMIN = "ecency";
 
 /**
  * Deletes only DM and group message posts by a user.
@@ -24,10 +21,9 @@ export async function DELETE(
   }
 
   try {
-    const currentUser = await mmUserFetch<MattermostUser>("/users/me", token);
-
-    if (currentUser.username !== CHAT_SUPER_ADMIN) {
-      return NextResponse.json({ error: "forbidden" }, { status: 403 });
+    const guard = await requireMattermostSuperAdmin(token);
+    if (guard.response) {
+      return guard.response;
     }
 
     const { deleted, dmOnly, timedOut } = await deleteMattermostDmPostsByUserAsAdmin(params.username);

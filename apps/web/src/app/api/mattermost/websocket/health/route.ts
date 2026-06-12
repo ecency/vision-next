@@ -3,11 +3,8 @@ import { dirname, join } from "path";
 import { NextResponse } from "next/server";
 import {
   getMattermostTokenFromCookies,
-  mmUserFetch,
-  MattermostUser
+  requireMattermostSuperAdmin
 } from "@/server/mattermost";
-
-const CHAT_SUPER_ADMIN = "ecency";
 
 type PatchTrace = {
   patch?: string;
@@ -83,9 +80,9 @@ export async function GET() {
   }
 
   try {
-    const currentUser = await mmUserFetch<MattermostUser>("/users/me", token);
-    if (currentUser.username !== CHAT_SUPER_ADMIN) {
-      return NextResponse.json({ error: "forbidden" }, { status: 403 });
+    const guard = await requireMattermostSuperAdmin(token);
+    if (guard.response) {
+      return guard.response;
     }
   } catch {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
