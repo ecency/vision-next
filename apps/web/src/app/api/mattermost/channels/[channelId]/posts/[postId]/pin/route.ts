@@ -29,7 +29,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ channe
     } else if (moderation.channel.type === "D" || moderation.channel.type === "G") {
       // Direct message or group message - check membership
       const member = await mmUserFetch(
-        `/channels/${channelId}/members/me`,
+        `/channels/${encodeURIComponent(channelId)}/members/me`,
         token
       ).catch(() => null);
 
@@ -42,7 +42,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ channe
     const pinnedResponse = await mmUserFetch<{
       posts: Record<string, any>;
       order: string[];
-    }>(`/channels/${channelId}/pinned`, token);
+    }>(`/channels/${encodeURIComponent(channelId)}/pinned`, token);
 
     if (pinnedResponse.order && pinnedResponse.order.length >= 5) {
       return NextResponse.json(
@@ -52,7 +52,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ channe
     }
 
     // Pin the post via Mattermost API
-    await mmUserFetch(`/posts/${postId}/pin`, token, {
+    await mmUserFetch(`/posts/${encodeURIComponent(postId)}/pin`, token, {
       method: "POST"
     });
 
@@ -85,7 +85,7 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ chan
     } else if (moderation.channel.type === "D" || moderation.channel.type === "G") {
       // Direct message or group message - check membership
       const member = await mmUserFetch(
-        `/channels/${channelId}/members/me`,
+        `/channels/${encodeURIComponent(channelId)}/members/me`,
         token
       ).catch(() => null);
 
@@ -95,7 +95,7 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ chan
     }
 
     // Unpin the post via Mattermost API
-    await mmUserFetch(`/posts/${postId}/unpin`, token, {
+    await mmUserFetch(`/posts/${encodeURIComponent(postId)}/unpin`, token, {
       method: "POST"
     });
 

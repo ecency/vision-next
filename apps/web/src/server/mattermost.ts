@@ -20,6 +20,10 @@ export interface MattermostUser {
   username: string;
   email: string;
   delete_at: number; // 0 = active, >0 = deactivated (epoch ms)
+  // Space-separated Mattermost role list, e.g. "system_user system_admin".
+  // Returned by GET /users/me; optional because lighter responses (e.g.
+  // /users/ids batches) may omit it.
+  roles?: string;
 }
 
 export interface MattermostUserWithProps extends MattermostUser {
@@ -126,7 +130,7 @@ async function mmFetch<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export async function reactivateMattermostUser(userId: string, signal?: AbortSignal): Promise<void> {
-  await mmFetch(`/users/${userId}/active`, {
+  await mmFetch(`/users/${encodeURIComponent(userId)}/active`, {
     method: "PUT",
     headers: getAdminHeaders(),
     body: JSON.stringify({ active: true }),
@@ -138,7 +142,7 @@ export async function ensureMattermostUser(username: string, signal?: AbortSigna
   // Step 1: Try to find existing user (only suppress 404)
   let user: MattermostUser | null = null;
   try {
-    user = await mmFetch<MattermostUser>(`/users/username/${username}`, {
+    user = await mmFetch<MattermostUser>(`/users/username/${encodeURIComponent(username)}`, {
       headers: getAdminHeaders(),
       signal
     });
@@ -186,7 +190,7 @@ export async function ensureMattermostUser(username: string, signal?: AbortSigna
       error.message.includes("app.user.save.username_exists")
     ) {
       const existing = await mmFetch<MattermostUser>(
-        `/users/username/${username}`,
+        `/users/username/${encodeURIComponent(username)}`,
         { headers: getAdminHeaders(), signal }
       );
       if (existing.delete_at > 0) {
@@ -202,7 +206,7 @@ export async function ensureMattermostUser(username: string, signal?: AbortSigna
 export async function ensureUserInTeam(userId: string, signal?: AbortSignal) {
   const teamId = requireEnv(MATTERMOST_TEAM_ID, "MATTERMOST_TEAM_ID");
   try {
-    await mmFetch(`/teams/${teamId}/members/${userId}`, {
+    await mmFetch(`/teams/${encodeURIComponent(teamId)}/members/${encodeURIComponent(userId)}`, {
       headers: getAdminHeaders(),
       signal
     });
@@ -211,7 +215,7 @@ export async function ensureUserInTeam(userId: string, signal?: AbortSignal) {
     // not a member (or lookup failed) — add below
   }
   try {
-    await mmFetch(`/teams/${teamId}/members`, {
+    await mmFetch(`/teams/${encodeURIComponent(teamId)}/members`, {
       method: "POST",
       headers: getAdminHeaders(),
       body: JSON.stringify({ team_id: teamId, user_id: userId }),
@@ -224,7 +228,7 @@ export async function ensureUserInTeam(userId: string, signal?: AbortSignal) {
     // state instead of failing: if the user is now a member, the desired
     // state holds. Version-agnostic (no reliance on MM error-id strings).
     try {
-      await mmFetch(`/teams/${teamId}/members/${userId}`, {
+      await mmFetch(`/teams/${encodeURIComponent(teamId)}/members/${encodeURIComponent(userId)}`, {
         headers: getAdminHeaders(),
         signal
       });
@@ -243,7 +247,7 @@ export async function followMattermostThreadForUser(
   const teamId = getMattermostTeamId();
 
   try {
-    await mmFetch(`/users/${userId}/teams/${teamId}/threads/${threadId}/following`, {
+    await mmFetch(`/users/${encodeURIComponent(userId)}/teams/${encodeURIComponent(teamId)}/threads/${encodeURIComponent(threadId)}/following`, {
       method: "PUT",
       headers: getAdminHeaders(),
       body: JSON.stringify({ following })
@@ -268,7 +272,7 @@ export async function ensureChannelForCommunity(
   const teamId = requireEnv(MATTERMOST_TEAM_ID, "MATTERMOST_TEAM_ID");
   const channelName = normalizeCommunityId(community);
   try {
-    const existing = await mmFetch<{ id: string }>(`/teams/${teamId}/channels/name/${channelName}`, {
+    const existing = await mmFetch<{ id: string }>(`/teams/${encodeURIComponent(teamId)}/channels/name/${encodeURIComponent(channelName)}`, {
       headers: getAdminHeaders(),
       signal
     });
@@ -294,7 +298,7 @@ export async function ensureChannelForCommunity(
     // bootstrapping at once) may have created the channel between the lookup
     // and this create. Re-fetch by name; if it now exists, use it.
     try {
-      const existing = await mmFetch<{ id: string }>(`/teams/${teamId}/channels/name/${channelName}`, {
+      const existing = await mmFetch<{ id: string }>(`/teams/${encodeURIComponent(teamId)}/channels/name/${encodeURIComponent(channelName)}`, {
         headers: getAdminHeaders(),
         signal
       });
@@ -322,7 +326,7 @@ export async function ensureCommunityChannelMembership(
 export async function ensureUserInChannel(userId: string, channelId: string, signal?: AbortSignal) {
   try {
     // Check if user is currently a member
-    await mmFetch(`/channels/${channelId}/members/${userId}`, {
+    await mmFetch(`/channels/${encodeURIComponent(channelId)}/members/${encodeURIComponent(userId)}`, {
       headers: getAdminHeaders(),
       signal
     });
@@ -331,7 +335,7 @@ export async function ensureUserInChannel(userId: string, channelId: string, sig
     // not a member (or lookup failed) — add below
   }
   try {
-    await mmFetch(`/channels/${channelId}/members`, {
+    await mmFetch(`/channels/${encodeURIComponent(channelId)}/members`, {
       method: "POST",
       headers: getAdminHeaders(),
       body: JSON.stringify({ channel_id: channelId, user_id: userId }),
@@ -342,7 +346,7 @@ export async function ensureUserInChannel(userId: string, channelId: string, sig
     // this add. Re-check the end state: if the user is now a member, the
     // desired state holds (version-agnostic — no MM error-id matching).
     try {
-      await mmFetch(`/channels/${channelId}/members/${userId}`, {
+      await mmFetch(`/channels/${encodeURIComponent(channelId)}/members/${encodeURIComponent(userId)}`, {
         headers: getAdminHeaders(),
         signal
       });
@@ -354,7 +358,7 @@ export async function ensureUserInChannel(userId: string, channelId: string, sig
 }
 
 export async function removeUserFromChannel(userId: string, channelId: string) {
-  await mmFetch(`/channels/${channelId}/members/${userId}`, {
+  await mmFetch(`/channels/${encodeURIComponent(channelId)}/members/${encodeURIComponent(userId)}`, {
     method: "DELETE",
     headers: getAdminHeaders()
   });
@@ -374,7 +378,7 @@ export async function getUserChannels(userId: string): Promise<MattermostChannel
 
   for (let page = 0; page < MAX_PAGES; page++) {
     const pageItems = await mmFetch<MattermostChannelBasic[]>(
-      `/users/${userId}/teams/${teamId}/channels?page=${page}&per_page=${PAGE_SIZE}`,
+      `/users/${encodeURIComponent(userId)}/teams/${encodeURIComponent(teamId)}/channels?page=${page}&per_page=${PAGE_SIZE}`,
       { headers: getAdminHeaders() }
     );
     results.push(...pageItems);
@@ -386,7 +390,7 @@ export async function getUserChannels(userId: string): Promise<MattermostChannel
 
 export async function findMattermostUser(username: string): Promise<MattermostUser | null> {
   try {
-    return await mmFetch<MattermostUser>(`/users/username/${username}`, {
+    return await mmFetch<MattermostUser>(`/users/username/${encodeURIComponent(username)}`, {
       headers: getAdminHeaders()
     });
   } catch (error) {
@@ -395,7 +399,7 @@ export async function findMattermostUser(username: string): Promise<MattermostUs
 }
 
 export async function getMattermostUserWithProps(userId: string, signal?: AbortSignal): Promise<MattermostUserWithProps> {
-  return await mmFetch<MattermostUserWithProps>(`/users/${userId}`, {
+  return await mmFetch<MattermostUserWithProps>(`/users/${encodeURIComponent(userId)}`, {
     headers: getAdminHeaders(),
     signal
   });
@@ -426,7 +430,7 @@ async function isTokenValid(token: string, signal?: AbortSignal): Promise<boolea
 }
 
 async function createToken(userId: string, signal?: AbortSignal): Promise<string> {
-  const result = await mmFetch<{ token: string }>(`/users/${userId}/tokens`, {
+  const result = await mmFetch<{ token: string }>(`/users/${encodeURIComponent(userId)}/tokens`, {
     method: "POST",
     headers: getAdminHeaders(),
     body: JSON.stringify({ description: "ecency-auto" }),
@@ -439,7 +443,7 @@ async function createToken(userId: string, signal?: AbortSignal): Promise<string
   // (left_channels, DM privacy, bans, etc.)
   const user = await getMattermostUserWithProps(userId, signal);
   const mergedProps = { ...(user.props || {}), [CHAT_PAT_PROP]: result.token };
-  await mmFetch(`/users/${userId}/patch`, {
+  await mmFetch(`/users/${encodeURIComponent(userId)}/patch`, {
     method: "PUT",
     headers: getAdminHeaders(),
     body: JSON.stringify({ props: mergedProps }),
@@ -549,6 +553,69 @@ export function isMattermostUnauthorizedError(error: unknown) {
   return error instanceof MattermostError && (error.status === 401 || error.status === 403);
 }
 
+// Env-pinned super-admin username (default "ecency"), shared by every admin
+// route so the gate lives in one place instead of a hardcoded literal copied
+// across handlers.
+const MATTERMOST_SUPER_ADMIN = process.env.MATTERMOST_SUPER_ADMIN ?? "ecency";
+
+// Opt-in: ALSO require the real Mattermost `system_admin` role on the caller's
+// own account. OFF by default because the destructive admin operations run with
+// the separate global MATTERMOST_ADMIN_TOKEN (see mmFetch), so the caller's
+// personal account does not need the role for them to work — enabling this when
+// the @ecency account lacks system_admin would lock out chat moderation. Set
+// MATTERMOST_REQUIRE_SYSTEM_ADMIN=true once the super-admin account is confirmed
+// to hold the role to add this extra barrier.
+const MATTERMOST_REQUIRE_SYSTEM_ADMIN =
+  process.env.MATTERMOST_REQUIRE_SYSTEM_ADMIN === "true";
+
+export function hasSystemAdminRole(user: Pick<MattermostUser, "roles">): boolean {
+  // MM roles is a space-separated list (e.g. "system_user system_admin"). Split
+  // on whitespace and match the exact token rather than a substring, so a custom
+  // role such as "system_admin_lite" or "non_system_admin" can't satisfy it.
+  return (user.roles?.split(/\s+/) ?? []).includes("system_admin");
+}
+
+/**
+ * Verifies the caller is the Mattermost super-admin, using the CALLER'S OWN
+ * personal access token (never the shared admin token). Requires the env-pinned
+ * super-admin username, plus the real `system_admin` role when
+ * MATTERMOST_REQUIRE_SYSTEM_ADMIN is enabled.
+ *
+ * The super-admin username cannot be spoofed: bootstrap binds a Mattermost
+ * username to a HiveSigner-verified Hive identity, so only the real @ecency can
+ * mint an "ecency" PAT.
+ *
+ * On success returns { user }. On failure returns { response } the route must
+ * return as-is: 401 when /users/me rejects the token, otherwise 404 (not 403,
+ * so destructive endpoints don't confirm they exist to non-admins).
+ */
+export async function requireMattermostSuperAdmin(
+  token: string
+): Promise<
+  | { user: MattermostUser; response?: undefined }
+  | { user?: undefined; response: NextResponse<{ error: string }> }
+> {
+  let currentUser: MattermostUser;
+  try {
+    currentUser = await mmUserFetch<MattermostUser>("/users/me", token);
+  } catch (error) {
+    if (isMattermostUnauthorizedError(error)) {
+      return { response: NextResponse.json({ error: "unauthorized" }, { status: 401 }) };
+    }
+    throw error;
+  }
+
+  const isSuperAdmin =
+    currentUser.username === MATTERMOST_SUPER_ADMIN &&
+    (!MATTERMOST_REQUIRE_SYSTEM_ADMIN || hasSystemAdminRole(currentUser));
+
+  if (!isSuperAdmin) {
+    return { response: NextResponse.json({ error: "not found" }, { status: 404 }) };
+  }
+
+  return { user: currentUser };
+}
+
 export function handleMattermostError(error: unknown) {
   if (isMattermostUnauthorizedError(error)) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
@@ -595,7 +662,7 @@ function isCommunityModerator(role: CommunityRole | undefined) {
 
 export async function getMattermostCommunityModerationContext(token: string, channelId: string) {
   const [channel, currentUser] = await Promise.all([
-    mmUserFetch<MattermostChannel>(`/channels/${channelId}`, token),
+    mmUserFetch<MattermostChannel>(`/channels/${encodeURIComponent(channelId)}`, token),
     mmUserFetch<MattermostUser>(`/users/me`, token)
   ]);
 
@@ -636,7 +703,7 @@ export async function getMattermostCommunityModerationContext(token: string, cha
 }
 
 export async function deleteMattermostPostAsAdmin(postId: string) {
-  await mmFetch(`/posts/${postId}`, {
+  await mmFetch(`/posts/${encodeURIComponent(postId)}`, {
     method: "DELETE",
     headers: getAdminHeaders()
   });
@@ -681,7 +748,7 @@ export async function addUserLeftChannel(userId: string, channelName: string) {
   const leftChannels = getUserLeftChannels(user);
   leftChannels.add(channelName);
   const props = { ...(user.props || {}), [CHAT_LEFT_CHANNELS_PROP]: JSON.stringify(Array.from(leftChannels)) };
-  await mmFetch(`/users/${userId}/patch`, {
+  await mmFetch(`/users/${encodeURIComponent(userId)}/patch`, {
     method: "PUT",
     headers: getAdminHeaders(),
     body: JSON.stringify({ props })
@@ -693,7 +760,7 @@ export async function removeUserLeftChannel(userId: string, channelName: string,
   const leftChannels = getUserLeftChannels(user);
   if (!leftChannels.delete(channelName)) return;
   const props = { ...(user.props || {}), [CHAT_LEFT_CHANNELS_PROP]: JSON.stringify(Array.from(leftChannels)) };
-  await mmFetch(`/users/${userId}/patch`, {
+  await mmFetch(`/users/${encodeURIComponent(userId)}/patch`, {
     method: "PUT",
     headers: getAdminHeaders(),
     body: JSON.stringify({ props }),
@@ -704,7 +771,7 @@ export async function removeUserLeftChannel(userId: string, channelName: string,
 async function searchMattermostPostsByUserAsAdmin(username: string, page: number, perPage: number) {
   const teamId = getMattermostTeamId();
 
-  return mmFetch<{ order: string[]; posts: Record<string, any> }>(`/teams/${teamId}/posts/search`, {
+  return mmFetch<{ order: string[]; posts: Record<string, any> }>(`/teams/${encodeURIComponent(teamId)}/posts/search`, {
     method: "POST",
     headers: getAdminHeaders(),
     body: JSON.stringify({
@@ -770,7 +837,7 @@ export async function deleteMattermostDmPostsByUserAsAdmin(username: string, tim
 
   // Get all channels for the user (includes DMs and group messages)
   const channels = await mmFetch<Array<{ id: string; type: string; team_id: string }>>(
-    `/users/${targetUser.id}/channels`,
+    `/users/${encodeURIComponent(targetUser.id)}/channels`,
     { headers: getAdminHeaders() }
   );
 
@@ -870,7 +937,7 @@ export async function banMattermostUserForHoursAsAdmin(username: string, hours: 
     delete props[CHAT_BAN_PROP];
   }
 
-  await mmFetch(`/users/${adminUser.id}/patch`, {
+  await mmFetch(`/users/${encodeURIComponent(adminUser.id)}/patch`, {
     method: "PUT",
     headers: getAdminHeaders(),
     body: JSON.stringify({ props })
@@ -889,7 +956,7 @@ export async function setUserDmPrivacy(userId: string, privacy: DmPrivacyLevel) 
     props[CHAT_DM_PRIVACY_PROP] = privacy;
   }
 
-  await mmFetch(`/users/${userId}/patch`, {
+  await mmFetch(`/users/${encodeURIComponent(userId)}/patch`, {
     method: "PUT",
     headers: getAdminHeaders(),
     body: JSON.stringify({ props })
@@ -915,7 +982,7 @@ export async function deactivateMattermostUserAsAdmin(username: string) {
   }
 
   // Deactivate user (Team Edition compatible)
-  await mmFetch(`/users/${targetUser.id}`, {
+  await mmFetch(`/users/${encodeURIComponent(targetUser.id)}`, {
     method: "DELETE",
     headers: getAdminHeaders()
   });
@@ -948,7 +1015,7 @@ export async function deleteMattermostUserAccountAsAdmin(username: string) {
 
   try {
     // Try permanent deletion first (Enterprise Edition)
-    await mmFetch(`/users/${targetUser.id}?permanent=true`, {
+    await mmFetch(`/users/${encodeURIComponent(targetUser.id)}?permanent=true`, {
       method: "DELETE",
       headers: getAdminHeaders()
     });
@@ -1047,7 +1114,7 @@ export async function cleanupInactiveMattermostUsers(
   while (true) {
     // Fetch active team members page
     const members = await mmFetch<Array<{ user_id: string }>>(
-      `/teams/${teamId}/members?page=${page}&per_page=${perPage}`,
+      `/teams/${encodeURIComponent(teamId)}/members?page=${page}&per_page=${perPage}`,
       { headers: getAdminHeaders() }
     );
     if (!members.length) break;

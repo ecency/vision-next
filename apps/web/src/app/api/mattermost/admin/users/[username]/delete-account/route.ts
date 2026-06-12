@@ -1,13 +1,10 @@
 import { NextResponse } from "next/server";
 import {
-  MattermostUser,
   deleteMattermostUserAccountAsAdmin,
   getMattermostTokenFromCookies,
   handleMattermostError,
-  mmUserFetch
+  requireMattermostSuperAdmin
 } from "@/server/mattermost";
-
-const CHAT_SUPER_ADMIN = "ecency";
 
 export async function DELETE(
   _req: Request,
@@ -19,10 +16,9 @@ export async function DELETE(
   }
 
   try {
-    const currentUser = await mmUserFetch<MattermostUser>("/users/me", token);
-
-    if (currentUser.username !== CHAT_SUPER_ADMIN) {
-      return NextResponse.json({ error: "forbidden" }, { status: 403 });
+    const guard = await requireMattermostSuperAdmin(token);
+    if (guard.response) {
+      return guard.response;
     }
 
     const result = await deleteMattermostUserAccountAsAdmin(params.username);

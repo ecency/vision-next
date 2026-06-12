@@ -1,7 +1,29 @@
 import xss from 'xss'
-import {ALLOWED_ATTRIBUTES, ID_WHITELIST} from '../consts'
+import {ALLOWED_ATTRIBUTES, ID_WHITELIST, isAllowedEmbedSrc} from '../consts'
 import { getProxyBase } from '../proxify-image-src'
 import { trimTrailingSlash } from '../helper'
+
+// data-* attributes whose value is later consumed as an <iframe> src by the
+// client video extensions (dataset.embedSrc / dataset.videoHref). They MUST be
+// an absolute https:// URL on an allowed embed host — anything else (a
+// javascript:/data: same-origin XSS, or an arbitrary off-allowlist origin used
+// for phishing/redirect inside a non-sandboxed frame) is blanked here, the
+// authoritative layer. The renderer only ever emits allowlisted https values
+// (see a.method.ts), so legitimate embeds are unaffected.
+const EMBED_SRC_DATA_ATTRS = new Set(['data-embed-src', 'data-video-href'])
+
+// data-href carries a navigation target (mobile post/community/hivesigner links
+// and arbitrary external links), NOT an iframe src, so it is held to the same
+// scheme policy a.method.ts already applies to href — block javascript:, data:,
+// vbscript:, file:, etc. while allowing http(s)/mailto/hive/tel/relative.
+// Whitespace/control chars browsers ignore inside the scheme are stripped first.
+const isSafeNavValue = (value: string): boolean => {
+  const trimmed = value.trim().replace(/[\t\n\r\f\v\0]/g, '').toLowerCase()
+  if (!trimmed) return false
+  const isSafeScheme = /^(https?|mailto|hive|tel|web\+[a-z0-9.+-]+):/i.test(trimmed)
+  const isRelative = /^(\/\/|\/[^/]?|#|\?|[a-z0-9._\-]+(\/|$))/i.test(trimmed)
+  return isSafeScheme || isRelative
+}
 
 const decodeEntities = (input: string): string =>
   input
@@ -49,6 +71,11 @@ export function sanitizeHtml(html: string): string {
       ) return '';
       if (tag === 'img' && ['dynsrc', 'lowsrc'].includes(name)) return '';
       if (tag === 'span' && name === 'class' && decoded.toLowerCase().trim() === 'wr') return '';
+      // iframe-src data-* attrs: must resolve to an https:// allowed-embed-host
+      // URL or they are blanked (stored HTML/iframe injection — CVE class).
+      if (EMBED_SRC_DATA_ATTRS.has(name) && !isAllowedEmbedSrc(decoded)) return '';
+      // data-href is a navigation target; block dangerous schemes only.
+      if (name === 'data-href' && !isSafeNavValue(decoded)) return '';
       if (name === 'id') {
         if (!ID_WHITELIST.test(decoded)) return '';
       }

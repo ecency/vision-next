@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.5.12
+
+### Patch Changes
+
+- Security hardening: embed sanitization, CSP, Mattermost admin authz, import proxy (#945)
+
 ## 2.5.11
 
 ### Patch Changes

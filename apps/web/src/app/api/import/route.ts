@@ -6,6 +6,7 @@ import { Resolver } from "node:dns/promises";
 import { isIP } from "node:net";
 import { Agent } from "undici";
 import { getPost } from "@ecency/sdk";
+import { ACTIVE_USER_COOKIE_NAME } from "@/consts/cookies";
 
 // Undici dispatcher accepts a custom lookup. We pre-resolve and validate
 // every hop's IP via Node's DNS resolver, then pin the TCP connection to
@@ -137,6 +138,24 @@ async function resolveAndValidate(url: string): Promise<ResolvedTarget> {
 
   if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
     throw new Error("INVALID_PROTOCOL");
+  }
+
+  // Port allowlist. Article sources are always served on the scheme's default
+  // web port, so reject any URL carrying an explicit non-default port. This
+  // stops the proxy from being aimed at arbitrary TCP services on an otherwise-
+  // public host (internal admin panels, databases, mail, etc.) for port-scanning
+  // / request laundering. `URL.port` is "" when the port is omitted or equals the
+  // scheme default, so default-port URLs pass untouched; an explicit port is
+  // allowed only when it matches its own scheme's default (http:80 / https:443),
+  // not cross-scheme. resolveAndValidate also runs on every redirect hop, so a
+  // redirect to host:port is rejected mid-chain too.
+  if (parsed.port !== "") {
+    const isDefaultPort =
+      (parsed.protocol === "http:" && parsed.port === "80") ||
+      (parsed.protocol === "https:" && parsed.port === "443");
+    if (!isDefaultPort) {
+      throw new Error("BLOCKED_HOST");
+    }
   }
 
   const hostname = parsed.hostname.replace(/^\[/, "").replace(/\]$/, "");
@@ -506,7 +525,98 @@ const ERROR_STATUS: Record<string, number> = {
   RESPONSE_TOO_LARGE: 413
 };
 
+// ---------------------------------------------------------------------------
+// Best-effort per-client rate limit for this public fetch proxy.
+//
+// State lives in this process's memory and is NOT shared across instances, so
+// it is a cheap in-process throttle for casual scripted abuse of the open
+// proxy, not the authoritative global limit (which is enforced at the edge). It
+// is strictly enforced and never fails open. Anonymous callers get a tighter
+// bucket than apparently-logged-in callers.
+interface RateBucket {
+  tokens: number;
+  updated: number;
+}
+
+const RL_REFILL_PER_MIN = 10;
+const RL_CAPACITY_LOGGED_IN = 10;
+const RL_CAPACITY_ANON = 4;
+// Hard cap on tracked IPs so the map can't grow unbounded under a spray of
+// distinct source IPs; idle entries are also swept once the cap is exceeded.
+const RL_MAX_KEYS = 10_000;
+const RL_IDLE_MS = 10 * 60_000;
+
+const rlBuckets = new Map<string, RateBucket>();
+
+/**
+ * Best-effort client IP from the standard reverse-proxy forwarded headers, in
+ * trust order: cf-connecting-ip → x-real-ip → first hop of x-forwarded-for.
+ * Falls back to a shared key when no header is present so the limiter still
+ * applies rather than silently disengaging.
+ */
+function getClientIp(request: NextRequest): string {
+  const cf = request.headers.get("cf-connecting-ip");
+  if (cf) return cf.trim();
+  const real = request.headers.get("x-real-ip");
+  if (real) return real.trim();
+  const fwd = request.headers.get("x-forwarded-for");
+  if (fwd) return fwd.split(",")[0].trim();
+  return "unknown";
+}
+
+/** Returns true if the request is allowed, false if it should be 429'd. */
+function rateLimitOk(request: NextRequest): boolean {
+  const now = Date.now();
+
+  // Bound memory: never let the bucket map grow without limit. First sweep idle
+  // entries; then, if a spray of always-fresh IPs keeps us over the cap, hard-
+  // evict the oldest-inserted entries (Map preserves insertion order) so the
+  // map can never exceed RL_MAX_KEYS regardless of how many distinct IPs hit it.
+  if (rlBuckets.size > RL_MAX_KEYS) {
+    rlBuckets.forEach((b, k) => {
+      if (now - b.updated > RL_IDLE_MS) rlBuckets.delete(k);
+    });
+    let toEvict = rlBuckets.size - RL_MAX_KEYS;
+    if (toEvict > 0) {
+      rlBuckets.forEach((_b, k) => {
+        if (toEvict > 0) {
+          rlBuckets.delete(k);
+          toEvict -= 1;
+        }
+      });
+    }
+  }
+
+  const ip = getClientIp(request);
+  // active_user is client-set (NOT httpOnly/signed) so it is forgeable — used
+  // ONLY to choose a roomier bucket for apparently-logged-in callers, never as
+  // an auth decision.
+  const looksLoggedIn = !!request.cookies.get(ACTIVE_USER_COOKIE_NAME)?.value;
+  const capacity = looksLoggedIn ? RL_CAPACITY_LOGGED_IN : RL_CAPACITY_ANON;
+
+  let bucket = rlBuckets.get(ip);
+  if (!bucket) {
+    bucket = { tokens: capacity, updated: now };
+    rlBuckets.set(ip, bucket);
+  } else {
+    const refill = ((now - bucket.updated) / 60_000) * RL_REFILL_PER_MIN;
+    bucket.tokens = Math.min(capacity, bucket.tokens + refill);
+    bucket.updated = now;
+  }
+
+  if (bucket.tokens < 1) return false;
+  bucket.tokens -= 1;
+  return true;
+}
+
 export async function POST(request: NextRequest) {
+  if (!rateLimitOk(request)) {
+    return Response.json(
+      { error: "import-failed" },
+      { status: 429, headers: { "Retry-After": "60" } }
+    );
+  }
+
   try {
     let body: unknown;
     try {

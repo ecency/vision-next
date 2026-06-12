@@ -18,7 +18,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ cha
     const currentUser = await mmUserFetch<{ id: string }>(`/users/me`, token);
 
     await mmUserFetch(
-      `/channels/${channelId}/members/${currentUser.id}/notify_props`,
+      `/channels/${encodeURIComponent(channelId)}/members/${currentUser.id}/notify_props`,
       token,
       {
         method: "PUT",

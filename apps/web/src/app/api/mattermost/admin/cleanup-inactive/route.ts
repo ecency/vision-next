@@ -1,15 +1,12 @@
 import { NextResponse } from "next/server";
 import {
-  MattermostUser,
   cleanupInactiveMattermostUsers,
   getMattermostTokenFromCookies,
   handleMattermostError,
-  mmUserFetch
+  requireMattermostSuperAdmin
 } from "@/server/mattermost";
 
 export const maxDuration = 300;
-
-const CHAT_SUPER_ADMIN = process.env.MATTERMOST_SUPER_ADMIN ?? "ecency";
 
 export async function POST(req: Request) {
   const token = await getMattermostTokenFromCookies();
@@ -18,10 +15,9 @@ export async function POST(req: Request) {
   }
 
   try {
-    const currentUser = await mmUserFetch<MattermostUser>("/users/me", token);
-
-    if (currentUser.username !== CHAT_SUPER_ADMIN) {
-      return NextResponse.json({ error: "forbidden" }, { status: 403 });
+    const guard = await requireMattermostSuperAdmin(token);
+    if (guard.response) {
+      return guard.response;
     }
 
     let body: { inactiveDays?: number } = {};

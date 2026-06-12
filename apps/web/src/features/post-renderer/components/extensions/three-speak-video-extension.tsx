@@ -2,6 +2,7 @@
 
 import React, { RefObject, useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
+import { isAllowedEmbedSrc } from "@ecency/render-helper";
 import { injectThreeSpeakThumbnail } from "../utils/threeSpeakThumbnail";
 
 type VideoOrientation = "landscape" | "portrait" | "square";
@@ -74,6 +75,10 @@ export function ThreeSpeakVideoRenderer({
     };
   }, [orientation, container]);
 
+  // Belt-and-suspenders: never assign an off-allowlist / non-https value to the
+  // iframe src even if a hostile data-embed-src slipped past the sanitizer.
+  if (!isAllowedEmbedSrc(embedSrc)) return null;
+
   return show ? (
     <iframe
       ref={iframeRef}
@@ -92,6 +97,9 @@ export function ThreeSpeakVideoRenderer({
  * Also listens for orientation messages from the 3Speak player.
  */
 function embedThreeSpeakDirect(element: HTMLElement, embedSrc: string): () => void {
+  // Refuse to build an iframe for a value that isn't an allowed https embed.
+  if (!isAllowedEmbedSrc(embedSrc)) return () => {};
+
   const playBtn = element.querySelector(".markdown-video-play");
   if (playBtn) (playBtn as HTMLElement).style.display = "none";
 

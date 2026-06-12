@@ -3,6 +3,7 @@
 import React, { RefObject, useCallback, useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { clsx } from "clsx";
+import { isAllowedEmbedSrc } from "@ecency/render-helper";
 import { getYoutubeEmbedUrl } from "../utils/getYoutubeEmbedUrl";
 
 export function YoutubeVideoRenderer({
@@ -28,6 +29,10 @@ export function YoutubeVideoRenderer({
       if (playBtn) (playBtn as HTMLElement).style.display = "none";
     }
   }, [show, container]);
+
+  // Belt-and-suspenders: never assign an off-allowlist / non-https value to the
+  // iframe src even if a hostile data-embed-src slipped past the sanitizer.
+  if (!isAllowedEmbedSrc(embedSrc)) return null;
 
   return show ? (
     <iframe

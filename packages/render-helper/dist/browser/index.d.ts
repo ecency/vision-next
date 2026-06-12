@@ -133,6 +133,20 @@ declare function setCacheSize(size: number): void;
 
 declare const SECTION_LIST: string[];
 
+/**
+ * True iff `value` is an absolute https:// URL whose host is one the renderer
+ * is permitted to embed AND (for hosts with a known embed-path shape) whose
+ * path matches that shape. Used to validate data-embed-src / data-video-href in
+ * the sanitizer and the iframe `src` the client video extensions assign.
+ *
+ * Defensive: never throws (a malformed URL returns false), rejects every
+ * non-https scheme (javascript:, data:, http:, protocol-relative //host),
+ * compares the parsed hostname so an attacker can't smuggle an allowed host as
+ * a path/query/userinfo/subdomain-suffix segment, and constrains the path so an
+ * allowed host can't be aimed at a non-embed route.
+ */
+declare function isAllowedEmbedSrc(value?: string | null): boolean;
+
 declare function isValidPermlink(permlink: string): boolean;
 
 /**
@@ -145,4 +159,4 @@ declare function isValidPermlink(permlink: string): boolean;
  */
 declare function simpleMarkdownToHTML(input: string): string;
 
-export { type Entry, IMAGE_SIZES, type ProxifyOptions, type RenderOptions, SECTION_LIST, type SeoContext, buildPictureSources, buildSrcSet, buildSrcSetForFormat, catchPostImage, getEntryImageRawUrl, isPictureEligibleRawUrl, isValidPermlink, getPostBodySummary as postBodySummary, proxifyImageSrc, markdown2Html as renderPostBody, setCacheSize, setProxyBase, setSlowRenderThresholdMs, simpleMarkdownToHTML };
+export { type Entry, IMAGE_SIZES, type ProxifyOptions, type RenderOptions, SECTION_LIST, type SeoContext, buildPictureSources, buildSrcSet, buildSrcSetForFormat, catchPostImage, getEntryImageRawUrl, isAllowedEmbedSrc, isPictureEligibleRawUrl, isValidPermlink, getPostBodySummary as postBodySummary, proxifyImageSrc, markdown2Html as renderPostBody, setCacheSize, setProxyBase, setSlowRenderThresholdMs, simpleMarkdownToHTML };

@@ -43,6 +43,10 @@ export async function GET(
 
   try {
     const { channelId } = await params;
+    // Encode the channel id once for safe interpolation into upstream REST
+    // paths. The raw `channelId` is still used for identity comparisons and
+    // request-body fields below.
+    const channelIdPath = encodeURIComponent(channelId);
     const searchParams = req.nextUrl.searchParams;
     const before = searchParams.get("before") || "";
     const around = searchParams.get("around") || "";
@@ -57,7 +61,7 @@ export async function GET(
       const threadData = await mmUserFetch<{
         posts: Record<string, any>;
         order: string[];
-      }>(`/posts/${thread}/thread`, token);
+      }>(`/posts/${encodeURIComponent(thread)}/thread`, token);
 
       // The thread endpoint authorizes via the token, not the channelId in the
       // URL, so verify the requested post actually belongs to this channel
@@ -100,7 +104,7 @@ export async function GET(
     // This allows sharing channel/message links that work immediately
     if (around) {
       try {
-        const channel = await mmUserFetch<MattermostChannel>(`/channels/${channelId}`, token);
+        const channel = await mmUserFetch<MattermostChannel>(`/channels/${channelIdPath}`, token);
 
         // Only auto-join to public channels (type "O")
         if (channel.type === "O") {
@@ -123,14 +127,14 @@ export async function GET(
       // 20 before + 20 after = 40 total, same as regular page size
       const [beforeData, afterData, targetPost] = await Promise.all([
         mmUserFetch<{ posts: Record<string, any>; order: string[] }>(
-          `/channels/${channelId}/posts?before=${around}&per_page=20`,
+          `/channels/${channelIdPath}/posts?before=${encodeURIComponent(around)}&per_page=20`,
           token
         ).catch(() => ({ posts: {}, order: [] })),
         mmUserFetch<{ posts: Record<string, any>; order: string[] }>(
-          `/channels/${channelId}/posts?after=${around}&per_page=20`,
+          `/channels/${channelIdPath}/posts?after=${encodeURIComponent(around)}&per_page=20`,
           token
         ).catch(() => ({ posts: {}, order: [] })),
-        mmUserFetch<any>(`/posts/${around}`, token).catch(() => null)
+        mmUserFetch<any>(`/posts/${encodeURIComponent(around)}`, token).catch(() => null)
       ]);
 
       // Verify target post exists and belongs to this channel
@@ -156,15 +160,15 @@ export async function GET(
         .sort((a, b) => Number(a.create_at) - Number(b.create_at));
     } else {
       // Existing logic for before/initial pagination
-      let queryParams = `per_page=${perPage}&page=0`;
+      let queryParams = `per_page=${encodeURIComponent(perPage)}&page=0`;
       if (before) {
-        queryParams += `&before=${before}`;
+        queryParams += `&before=${encodeURIComponent(before)}`;
       }
 
       const response = await mmUserFetch<{
         posts: Record<string, any>;
         order: string[];
-      }>(`/channels/${channelId}/posts?${queryParams}`, token);
+      }>(`/channels/${channelIdPath}/posts?${queryParams}`, token);
 
       posts = response.posts;
       order = response.order;
@@ -195,7 +199,7 @@ export async function GET(
         }
 
         const pageUsers = await mmUserFetch<MattermostUser[]>(
-          `/users?in_channel=${channelId}&per_page=${perPage}&page=${page}`,
+          `/users?in_channel=${channelIdPath}&per_page=${perPage}&page=${page}`,
           token
         );
 
@@ -268,9 +272,9 @@ export async function GET(
         last_viewed_at: number;
         mention_count: number;
         msg_count: number;
-      }>(`/channels/${channelId}/members/me`, token),
+      }>(`/channels/${channelIdPath}/members/me`, token),
       getMattermostCommunityModerationContext(token, channelId),
-      mmUserFetch<{ member_count: number }>(`/channels/${channelId}/stats`, token)
+      mmUserFetch<{ member_count: number }>(`/channels/${channelIdPath}/stats`, token)
         .catch((error) => {
           console.error("Failed to fetch channel stats:", error);
           return null;
@@ -311,6 +315,10 @@ export async function POST(
 
   try {
     const { channelId } = await params;
+    // Encode the channel id once for safe interpolation into upstream REST
+    // paths. The raw `channelId` is still used for identity comparisons and
+    // request-body fields below.
+    const channelIdPath = encodeURIComponent(channelId);
     const body = await req.json();
 
     const message = body.message as string;
@@ -328,7 +336,7 @@ export async function POST(
         username: string;
         props?: Record<string, string>;
       }>(`/users/me`, token),
-      mmUserFetch<MattermostChannel>(`/channels/${channelId}`, token)
+      mmUserFetch<MattermostChannel>(`/channels/${channelIdPath}`, token)
     ]);
 
     const bannedUntil = isUserChatBanned(currentUser);
@@ -393,7 +401,7 @@ export async function POST(
     // Ensure @mentioned users are members of the public channel (async)
     // Mattermost's native @mention system will handle notifications
     if (mentionedUsers.length) {
-      mmUserFetch<MattermostChannel>(`/channels/${channelId}`, token)
+      mmUserFetch<MattermostChannel>(`/channels/${channelIdPath}`, token)
         .then((channel) => {
           if (channel.type === "O") {
             return Promise.all(
@@ -419,7 +427,7 @@ export async function POST(
 
     // Follow thread for parent author only in public channels (async)
     if (rootId && props?.parent_id && channel.type === "O") {
-      mmUserFetch<{ user_id: string }>(`/posts/${props.parent_id}`, token)
+      mmUserFetch<{ user_id: string }>(`/posts/${encodeURIComponent(String(props.parent_id))}`, token)
         .then((parentPost) => {
           if (parentPost.user_id !== currentUser.id) {
             return followMattermostThreadForUser(parentPost.user_id, rootId);

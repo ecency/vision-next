@@ -52,10 +52,19 @@ import { getPost } from "@ecency/sdk";
 import { JSDOM } from "jsdom";
 import { Readability } from "@mozilla/readability";
 
+// Unique per-call client IP so the route's per-IP rate limiter (module-level,
+// persists across tests) gives each request its own bucket instead of sharing
+// one header-less "unknown" bucket and 429-ing after a few tests.
+let ipCounter = 0;
+
 function makeRequest(body: unknown): NextRequest {
+  ipCounter += 1;
   return new NextRequest("http://localhost/api/import", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "cf-connecting-ip": `test-client-${ipCounter}`
+    },
     body: JSON.stringify(body)
   });
 }

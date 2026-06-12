@@ -23,7 +23,7 @@ export async function POST(_: Request, { params }: { params: Promise<{ channelId
   try {
     const currentUser = await mmUserFetch<MattermostUser>(`/users/me`, token);
 
-    await mmUserFetch(`/channels/${channelId}/members`, token, {
+    await mmUserFetch(`/channels/${encodeURIComponent(channelId)}/members`, token, {
       method: "POST",
       body: JSON.stringify({ channel_id: channelId, user_id: currentUser.id })
     });

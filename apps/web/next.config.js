@@ -245,6 +245,15 @@ const config = {
     ]
   },
   async headers() {
+    // CSP violation reports are delivered to Sentry's Security endpoint, built
+    // from the (public) project DSN already configured in sentry.*.config.ts.
+    // report-to is the modern Reporting API channel; report-uri is the broadly-
+    // supported fallback. Applied to both the enforcing and report-only policies.
+    // NOTE: report-only with a broad script-src can be noisy (browser-extension
+    // injected scripts trigger violations) — tune via Sentry inbound filters /
+    // rate limits if volume is high.
+    const sentryCspReportUri =
+      "https://o4507985141956608.ingest.de.sentry.io/api/4507985146609744/security/?sentry_key=8a5c1659d1c2ba3385be28dc7235ce56";
     return [
       {
         // Clickjacking protection on every route: our pages may be framed only
@@ -255,7 +264,98 @@ const config = {
         source: "/:path*",
         headers: [
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
-          { key: "Content-Security-Policy", value: "frame-ancestors 'self'" }
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          // Named reporting endpoint (Reporting API) referenced by `report-to`.
+          { key: "Reporting-Endpoints", value: `csp-endpoint="${sentryCspReportUri}"` },
+          // Conservative Permissions-Policy: deny only powerful features the
+          // app never requests. We deliberately DO NOT restrict accelerometer,
+          // gyroscope, fullscreen, picture-in-picture, encrypted-media or
+          // web-share — the whitelisted video iframe embeds (3Speak/YouTube)
+          // request those via their `allow`/`allowfullscreen` attributes, and a
+          // top-level `()` here would override the per-iframe grant.
+          {
+            key: "Permissions-Policy",
+            value:
+              "camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), browsing-topics=(), interest-cohort=()"
+          },
+          // ENFORCING CSP — only directives that cannot break JS/CSS execution
+          // or block the app's existing cross-origin fetches/frames/images. We
+          // intentionally do NOT set default-src/script-src/style-src/
+          // connect-src/img-src/frame-src here: a strict script-src would break
+          // Next.js inline hydration + next/font inline <style> + the ld+json
+          // <script>, and a default-src would block legit RPC/Sentry/embed/
+          // image hosts. Those live in the Report-Only header below until
+          // monitored and promoted. frame-ancestors 'self' preserves the
+          // existing clickjacking protection.
+          {
+            key: "Content-Security-Policy",
+            value: [
+              "object-src 'none'",
+              "base-uri 'self'",
+              "frame-ancestors 'self'",
+              "form-action 'self'",
+              "report-to csp-endpoint",
+              `report-uri ${sentryCspReportUri}`
+            ].join("; ")
+          },
+          // REPORT-ONLY CSP — the full inventoried policy. Reports violations
+          // without blocking, so it can be promoted to enforcing after
+          // monitoring. script-src/style-src keep 'unsafe-inline' because
+          // Next.js bootstrap, next/font and JSON-LD inject inline scripts/
+          // styles with no nonce plumbing in middleware (a nonce CSP would
+          // require reworking middleware + next-pwa precache; out of scope).
+          {
+            key: "Content-Security-Policy-Report-Only",
+            value: [
+              "default-src 'self'",
+              // Plausible is served first-party via the /pl/ rewrite, so no
+              // external analytics host is needed. Turnstile + react-tweet are
+              // the only external script origins.
+              "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://platform.twitter.com",
+              "script-src-elem 'self' 'unsafe-inline' https://challenges.cloudflare.com https://platform.twitter.com",
+              "style-src 'self' 'unsafe-inline'",
+              "font-src 'self' data:",
+              [
+                "connect-src 'self'",
+                "https://ecency.com https://hapi.ecency.com https://i.ecency.com https://img.ecency.com https://images.ecency.com",
+                "https://api.hive.blog https://api.deathwing.me https://api.openhive.network https://techcoderx.com https://rpc.mahdiyari.info https://api.c0ff33a.uk https://api.syncad.com",
+                "https://hivesigner.com https://hivesearcher.com https://api.hivesearcher.com",
+                "https://pl.ecency.com https://chat.ecency.com",
+                "https://o4507985141956608.ingest.de.sentry.io",
+                "https://api.coingecko.com https://api.giphy.com",
+                "https://studio.3speak.tv https://embed.3speak.tv https://3speak.tv https://poll.ecency.com https://spk.good-karma.xyz",
+                "https://rpc.ankr.com https://bsc-dataseed.binance.org https://explorer.solana.com https://etherscan.io https://bscscan.com",
+                "wss://enotify.ecency.com"
+              ].join(" "),
+              [
+                "img-src 'self' data: blob:",
+                "https://i.ecency.com https://img.ecency.com https://images.ecency.com https://ecency.com",
+                "https://images.hive.blog https://img.youtube.com",
+                "https://media.giphy.com https://media0.giphy.com https://media1.giphy.com https://media2.giphy.com https://media3.giphy.com https://media4.giphy.com https://i.giphy.com"
+              ].join(" "),
+              [
+                "frame-src 'self'",
+                "https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com",
+                "https://player.vimeo.com https://player.twitch.tv",
+                "https://play.3speak.tv https://audio.3speak.tv https://embed.3speak.tv",
+                "https://open.spotify.com https://w.soundcloud.com",
+                "https://emb.d.tube https://www.vimm.tv https://dapplr.in https://embed.truvvl.com",
+                "https://lbry.tv https://odysee.com https://ipfs.skatehive.app https://www.skatehype.com",
+                "https://archive.org https://rumble.com https://www.brighteon.com https://www.bitchute.com",
+                "https://brandnewtube.com https://www.loom.com https://aureal-embed.web.app",
+                "https://platform.twitter.com https://challenges.cloudflare.com"
+              ].join(" "),
+              "media-src 'self' data: blob: https://i.ecency.com https://images.ecency.com https://ipfs.skatehive.app",
+              "worker-src 'self' blob:",
+              "object-src 'none'",
+              "base-uri 'self'",
+              "frame-ancestors 'self'",
+              "form-action 'self'",
+              "report-to csp-endpoint",
+              `report-uri ${sentryCspReportUri}`
+            ].join("; ")
+          }
         ]
       },
       {

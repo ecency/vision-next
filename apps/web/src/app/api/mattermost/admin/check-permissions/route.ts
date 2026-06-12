@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
-import { getMattermostTokenFromCookies, mmUserFetch, MattermostUser } from "@/server/mattermost";
+import {
+  getMattermostTokenFromCookies,
+  hasSystemAdminRole,
+  mmUserFetch,
+  MattermostUser
+} from "@/server/mattermost";
 
-const CHAT_SUPER_ADMIN = "ecency";
+const CHAT_SUPER_ADMIN = process.env.MATTERMOST_SUPER_ADMIN ?? "ecency";
 
 /**
  * Diagnostic endpoint to check if the current user has proper admin permissions.
@@ -29,7 +34,7 @@ export async function GET(_req: Request): Promise<
   try {
     const currentUser = await mmUserFetch<MattermostUser>("/users/me", token);
 
-    const isSystemAdmin = currentUser.roles?.includes("system_admin") ?? false;
+    const isSystemAdmin = hasSystemAdminRole(currentUser);
     const isEcency = currentUser.username === CHAT_SUPER_ADMIN;
 
     let message = "";
