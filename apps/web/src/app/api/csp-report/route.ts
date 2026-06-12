@@ -75,23 +75,32 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 
   const dir = directive.split(" ")[0];
-  // "enforce" means the resource was actually BLOCKED by a live policy; "report"
-  // is report-only. Keep them in separate dedup slots so a report-only violation
-  // never masks a later real (enforced) block of the same directive+host — and
-  // raise an enforced block to error level since that one means something broke.
   const disposition = String(report["disposition"] || "report");
+  // Keep enforce/report in separate dedup slots so a report-only sighting never
+  // masks a later real (enforced) block of the same directive+host.
   const key = `${disposition}|${dir}|${host}`;
   if (!seen.has(key) && seen.size < MAX_UNIQUE) {
     seen.add(key);
-    Sentry.captureMessage(`CSP ${disposition}: ${dir} blocked ${host}`, {
-      level: disposition === "enforce" ? "error" : "warning",
-      tags: { csp_directive: dir, csp_host: host, csp_disposition: disposition },
-      extra: {
-        blockedUri: blocked,
-        documentUri: report["document-uri"],
-        violatedDirective: report["violated-directive"]
-      }
-    });
+    if (disposition === "enforce") {
+      // A LIVE-enforced directive actually blocked a resource — rare, and it
+      // means a real feature is broken — so surface it to Sentry as an error.
+      Sentry.captureMessage(`CSP enforce: ${dir} blocked ${host}`, {
+        level: "error",
+        tags: { csp_directive: dir, csp_host: host, csp_disposition: disposition },
+        extra: {
+          blockedUri: blocked,
+          documentUri: report["document-uri"],
+          violatedDirective: report["violated-directive"]
+        }
+      });
+    } else {
+      // report-only: informational, and high-volume on a UGC site (every host a
+      // post embeds generates one). It must NOT enter Sentry's issue stream —
+      // log it instead so the blocked hosts can be reviewed from the app logs
+      // (e.g. `grep '\[csp-report\]'`) when curating the allowlist before any
+      // directive is promoted to enforcing.
+      console.info(`[csp-report] ${dir} blocked ${host} doc=${report["document-uri"] || "?"}`);
+    }
   }
 
   return noContent();
