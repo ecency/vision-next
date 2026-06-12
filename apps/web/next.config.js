@@ -284,7 +284,7 @@ const config = {
               "base-uri 'self'",
               "frame-ancestors 'self'",
               "form-action 'self'",
-              "report-uri /api/csp-report"
+              "report-uri /api/csp-report?p=enforce"
             ].join("; ")
           },
           // REPORT-ONLY CSP — the full inventoried policy. Reports violations
@@ -347,7 +347,7 @@ const config = {
               "base-uri 'self'",
               "frame-ancestors 'self'",
               "form-action 'self'",
-              "report-uri /api/csp-report"
+              "report-uri /api/csp-report?p=report"
             ].join("; ")
           }
         ]
