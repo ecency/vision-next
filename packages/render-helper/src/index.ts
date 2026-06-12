@@ -5,7 +5,7 @@ import { setProxyBase, proxifyImageSrc, buildSrcSet, buildSrcSetForFormat, build
 import type { ProxifyOptions } from './proxify-image-src'
 import { IMAGE_SIZES } from './methods/img.method'
 import { setCacheSize } from './cache'
-import { SECTION_LIST } from './consts'
+import { SECTION_LIST, isAllowedEmbedSrc } from './consts'
 import { isValidPermlink } from "./helper";
 import { simpleMarkdownToHTML } from './methods/simple-markdown-to-html.method'
 import type { Entry } from './types/entry.interface'
@@ -28,6 +28,7 @@ export {
   setSlowRenderThresholdMs,
   SECTION_LIST,
   isValidPermlink,
+  isAllowedEmbedSrc,
   simpleMarkdownToHTML
 }
 

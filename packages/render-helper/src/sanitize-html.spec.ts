@@ -737,6 +737,97 @@ describe('sanitizeHtml', () => {
         expect(sanitizeHtml(input)).toBe(expected)
       })
     })
+
+    describe('iframe-src data attributes (stored iframe injection)', () => {
+      // The client video extensions read element.dataset.embedSrc /
+      // dataset.videoHref and assign it to an <iframe> src. On-chain HTML must
+      // not be able to smuggle a javascript:/data:/off-allowlist value through
+      // data-embed-src / data-video-href.
+
+      it('should blank a javascript: data-embed-src (same-origin XSS vector)', () => {
+        const input =
+          '<a class="markdown-video-link-speak" data-embed-src="javascript:alert(document.domain)">x</a>'
+        const out = sanitizeHtml(input)
+        expect(out).not.toContain('javascript:')
+        // the hostile value is removed; the element/class itself is preserved
+        expect(out).toContain('class="markdown-video-link-speak"')
+        expect(out).not.toContain('alert')
+      })
+
+      it('should blank a data: URL data-embed-src', () => {
+        const input =
+          '<a data-embed-src="data:text/html,<script>alert(1)</script>">x</a>'
+        const out = sanitizeHtml(input)
+        expect(out).not.toContain('data:text/html')
+        expect(out).not.toContain('<script>')
+      })
+
+      it('should blank an arbitrary off-allowlist https data-embed-src (phishing/redirect frame)', () => {
+        const input = '<a data-embed-src="https://evil.example.com/embed/x">x</a>'
+        const out = sanitizeHtml(input)
+        expect(out).not.toContain('evil.example.com')
+      })
+
+      it('should blank a subdomain-suffix spoof of an allowed embed host', () => {
+        const input = '<a data-embed-src="https://play.3speak.tv.evil.com/watch?v=x">x</a>'
+        const out = sanitizeHtml(input)
+        expect(out).not.toContain('evil.com')
+      })
+
+      it('should blank an http (non-https) data-embed-src on an allowed host', () => {
+        const input = '<a data-embed-src="http://www.youtube.com/embed/abc">x</a>'
+        const out = sanitizeHtml(input)
+        expect(out).not.toContain('http://www.youtube.com')
+      })
+
+      it('should blank a javascript: data-video-href', () => {
+        const input = '<a data-video-href="javascript:alert(1)">x</a>'
+        const out = sanitizeHtml(input)
+        expect(out).not.toContain('javascript:')
+      })
+
+      it('should preserve a legitimate 3Speak data-embed-src', () => {
+        const input =
+          '<a class="markdown-video-link markdown-video-link-speak" data-embed-src="https://play.3speak.tv/watch?v=wehmoen/xrhjxocx&amp;mode=iframe">x</a>'
+        const out = sanitizeHtml(input)
+        expect(out).toContain('data-embed-src="https://play.3speak.tv/watch?v=wehmoen/xrhjxocx&amp;mode=iframe"')
+      })
+
+      it('should preserve a legitimate YouTube data-embed-src', () => {
+        const input =
+          '<a class="markdown-video-link markdown-video-link-youtube" data-embed-src="https://www.youtube.com/embed/qK3d1eoH-Qs?autoplay=1" data-youtube="qK3d1eoH-Qs">x</a>'
+        const out = sanitizeHtml(input)
+        expect(out).toContain('data-embed-src="https://www.youtube.com/embed/qK3d1eoH-Qs?autoplay=1"')
+        expect(out).toContain('data-youtube="qK3d1eoH-Qs"')
+      })
+
+      it('should preserve a legitimate DTube data-embed-src (https with #! fragment)', () => {
+        const input =
+          '<a class="markdown-video-link markdown-video-link-dtube" data-embed-src="https://emb.d.tube/#!/scottcbusiness/g04n2bbp">x</a>'
+        const out = sanitizeHtml(input)
+        expect(out).toContain('data-embed-src="https://emb.d.tube/#!/scottcbusiness/g04n2bbp"')
+      })
+    })
+
+    describe('data-href navigation scheme (mobile link target)', () => {
+      it('should blank a javascript: data-href', () => {
+        const input = '<a data-href="javascript:alert(1)">x</a>'
+        expect(sanitizeHtml(input)).not.toContain('javascript:')
+      })
+
+      it('should preserve an https external data-href (arbitrary host allowed for navigation)', () => {
+        const input = '<a data-href="https://some-external-site.example/post/123">x</a>'
+        const out = sanitizeHtml(input)
+        expect(out).toContain('data-href="https://some-external-site.example/post/123"')
+      })
+
+      it('should preserve a hivesigner data-href', () => {
+        const input =
+          '<a class="markdown-witnesses-link" data-href="https://hivesigner.com/sign/account-witness-vote?witness=ecency&amp;approve=1">x</a>'
+        const out = sanitizeHtml(input)
+        expect(out).toContain('data-href="https://hivesigner.com/sign/account-witness-vote?witness=ecency&amp;approve=1"')
+      })
+    })
   })
 
   describe('tag filtering', () => {

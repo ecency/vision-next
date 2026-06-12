@@ -176,6 +176,73 @@ var ALLOWED_ATTRIBUTES = {
   "del": [],
   "ins": []
 };
+
+// src/consts/embed-hosts.const.ts
+var ALLOWED_EMBED_HOSTS = /* @__PURE__ */ new Set([
+  // YouTube
+  "www.youtube.com",
+  "youtube.com",
+  "www.youtube-nocookie.com",
+  "youtube-nocookie.com",
+  // Vimeo
+  "player.vimeo.com",
+  // Twitch
+  "player.twitch.tv",
+  // DTube
+  "emb.d.tube",
+  // 3Speak (video + audio)
+  "play.3speak.tv",
+  "3speak.tv",
+  "audio.3speak.tv",
+  // Loom
+  "www.loom.com",
+  // Spotify
+  "open.spotify.com",
+  // SoundCloud
+  "w.soundcloud.com",
+  // BitChute
+  "www.bitchute.com",
+  "bitchute.com",
+  // Rumble
+  "www.rumble.com",
+  "rumble.com",
+  // Brighteon
+  "www.brighteon.com",
+  "brighteon.com",
+  // VIMM
+  "www.vimm.tv",
+  // BrandNewTube
+  "brandnewtube.com",
+  // LBRY / Odysee
+  "lbry.tv",
+  "odysee.com",
+  // Skatehive / Skatehype
+  "ipfs.skatehive.app",
+  "www.skatehype.com",
+  "skatehype.com",
+  // archive.org
+  "archive.org",
+  // Truvvl
+  "embed.truvvl.com",
+  // Aureal
+  "aureal-embed.web.app",
+  "www.aureal-embed.web.app"
+  // Dapplr (player.*.dapplr.in / *.dapplr.in) — host suffix, handled below
+]);
+var ALLOWED_EMBED_HOST_SUFFIXES = [".dapplr.in"];
+function isAllowedEmbedSrc(value) {
+  if (!value) return false;
+  let url;
+  try {
+    url = new URL(value.trim());
+  } catch {
+    return false;
+  }
+  if (url.protocol !== "https:") return false;
+  const host = url.hostname.toLowerCase();
+  if (ALLOWED_EMBED_HOSTS.has(host)) return true;
+  return ALLOWED_EMBED_HOST_SUFFIXES.some((suffix) => host.endsWith(suffix));
+}
 function createParser() {
   return new DOMParser$1({
     onError(level, msg) {
@@ -571,6 +638,14 @@ function buildPictureSources(rawUrl) {
 }
 
 // src/methods/sanitize-html.method.ts
+var EMBED_SRC_DATA_ATTRS = /* @__PURE__ */ new Set(["data-embed-src", "data-video-href"]);
+var isSafeNavValue = (value) => {
+  const trimmed = value.trim().replace(/[\t\n\r\f\v\0]/g, "").toLowerCase();
+  if (!trimmed) return false;
+  const isSafeScheme = /^(https?|mailto|hive|tel|web\+[a-z0-9.+-]+):/i.test(trimmed);
+  const isRelative = /^(\/\/|\/[^/]?|#|\?|[a-z0-9._\-]+(\/|$))/i.test(trimmed);
+  return isSafeScheme || isRelative;
+};
 var decodeEntities = (input) => input.replace(/&#(\d+);?/g, (_, dec) => String.fromCodePoint(Number(dec))).replace(/&#x([0-9a-f]+);?/gi, (_, hex) => String.fromCodePoint(parseInt(hex, 16)));
 var isProxyPSrcset = (srcset) => {
   const base = trimTrailingSlash(getProxyBase());
@@ -598,6 +673,8 @@ function sanitizeHtml(html) {
       if (tag === "video" && ["src", "poster"].includes(name) && !/^https?:\/\//.test(decodedLower)) return "";
       if (tag === "img" && ["dynsrc", "lowsrc"].includes(name)) return "";
       if (tag === "span" && name === "class" && decoded.toLowerCase().trim() === "wr") return "";
+      if (EMBED_SRC_DATA_ATTRS.has(name) && !isAllowedEmbedSrc(decoded)) return "";
+      if (name === "data-href" && !isSafeNavValue(decoded)) return "";
       if (name === "id") {
         if (!ID_WHITELIST.test(decoded)) return "";
       }
@@ -2203,6 +2280,6 @@ function getPostBodySummary(obj, length, platform) {
   return res;
 }
 
-export { IMAGE_SIZES, SECTION_LIST, buildPictureSources, buildSrcSet, buildSrcSetForFormat, catchPostImage, getEntryImageRawUrl, isPictureEligibleRawUrl, isValidPermlink, getPostBodySummary as postBodySummary, proxifyImageSrc, markdown2Html as renderPostBody, setCacheSize, setProxyBase, setSlowRenderThresholdMs, simpleMarkdownToHTML };
+export { IMAGE_SIZES, SECTION_LIST, buildPictureSources, buildSrcSet, buildSrcSetForFormat, catchPostImage, getEntryImageRawUrl, isAllowedEmbedSrc, isPictureEligibleRawUrl, isValidPermlink, getPostBodySummary as postBodySummary, proxifyImageSrc, markdown2Html as renderPostBody, setCacheSize, setProxyBase, setSlowRenderThresholdMs, simpleMarkdownToHTML };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map
