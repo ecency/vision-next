@@ -230,6 +230,26 @@ var ALLOWED_EMBED_HOSTS = /* @__PURE__ */ new Set([
   // Dapplr (player.*.dapplr.in / *.dapplr.in) — host suffix, handled below
 ]);
 var ALLOWED_EMBED_HOST_SUFFIXES = [".dapplr.in"];
+var EMBED_HOST_PATH_PATTERNS = {
+  "www.youtube.com": /^\/embed\//,
+  "youtube.com": /^\/embed\//,
+  "www.youtube-nocookie.com": /^\/embed\//,
+  "youtube-nocookie.com": /^\/embed\//,
+  "player.vimeo.com": /^\/video\//,
+  "player.twitch.tv": /^\/$/,
+  // channel/video carried in the query string
+  "emb.d.tube": /^\/$/,
+  // dtube carries the ref in the #! fragment
+  "play.3speak.tv": /^\/(watch|embed)/,
+  "open.spotify.com": /^\/embed\//,
+  "www.loom.com": /^\/embed\//,
+  "www.bitchute.com": /^\/embed\//,
+  "bitchute.com": /^\/embed\//,
+  "www.rumble.com": /^\/embed\//,
+  "rumble.com": /^\/embed\//,
+  "www.brighteon.com": /^\/embed\//,
+  "brighteon.com": /^\/embed\//
+};
 function isAllowedEmbedSrc(value) {
   if (!value) return false;
   let url;
@@ -240,8 +260,11 @@ function isAllowedEmbedSrc(value) {
   }
   if (url.protocol !== "https:") return false;
   const host = url.hostname.toLowerCase();
-  if (ALLOWED_EMBED_HOSTS.has(host)) return true;
-  return ALLOWED_EMBED_HOST_SUFFIXES.some((suffix) => host.endsWith(suffix));
+  const hostAllowed = ALLOWED_EMBED_HOSTS.has(host) || ALLOWED_EMBED_HOST_SUFFIXES.some((suffix) => host.endsWith(suffix));
+  if (!hostAllowed) return false;
+  const pathPattern = EMBED_HOST_PATH_PATTERNS[host];
+  if (pathPattern && !pathPattern.test(url.pathname)) return false;
+  return true;
 }
 function createParser() {
   return new DOMParser$1({

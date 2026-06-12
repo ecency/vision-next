@@ -135,13 +135,15 @@ declare const SECTION_LIST: string[];
 
 /**
  * True iff `value` is an absolute https:// URL whose host is one the renderer
- * is permitted to embed. Used to validate data-embed-src / data-video-href in
+ * is permitted to embed AND (for hosts with a known embed-path shape) whose
+ * path matches that shape. Used to validate data-embed-src / data-video-href in
  * the sanitizer and the iframe `src` the client video extensions assign.
  *
  * Defensive: never throws (a malformed URL returns false), rejects every
- * non-https scheme (javascript:, data:, http:, protocol-relative //host), and
+ * non-https scheme (javascript:, data:, http:, protocol-relative //host),
  * compares the parsed hostname so an attacker can't smuggle an allowed host as
- * a path/query/userinfo/subdomain-suffix segment.
+ * a path/query/userinfo/subdomain-suffix segment, and constrains the path so an
+ * allowed host can't be aimed at a non-embed route.
  */
 declare function isAllowedEmbedSrc(value?: string | null): boolean;
 

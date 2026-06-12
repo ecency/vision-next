@@ -807,6 +807,17 @@ describe('sanitizeHtml', () => {
         const out = sanitizeHtml(input)
         expect(out).toContain('data-embed-src="https://emb.d.tube/#!/scottcbusiness/g04n2bbp"')
       })
+
+      it('should blank an allowed-host data-embed-src that points at a non-embed path', () => {
+        // youtube.com is allowlisted, but /redirect is an open-redirect endpoint,
+        // not an /embed/ path — host-only validation would have let it through.
+        const input =
+          '<a class="markdown-video-link markdown-video-link-youtube" data-embed-src="https://www.youtube.com/redirect?q=https://evil.example">x</a>'
+        const out = sanitizeHtml(input)
+        expect(out).not.toContain('youtube.com/redirect')
+        expect(out).not.toContain('evil.example')
+        expect(out).toContain('class="markdown-video-link markdown-video-link-youtube"')
+      })
     })
 
     describe('data-href navigation scheme (mobile link target)', () => {
