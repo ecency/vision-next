@@ -75,12 +75,17 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 
   const dir = directive.split(" ")[0];
-  const key = `${dir}|${host}`;
+  // "enforce" means the resource was actually BLOCKED by a live policy; "report"
+  // is report-only. Keep them in separate dedup slots so a report-only violation
+  // never masks a later real (enforced) block of the same directive+host — and
+  // raise an enforced block to error level since that one means something broke.
+  const disposition = String(report["disposition"] || "report");
+  const key = `${disposition}|${dir}|${host}`;
   if (!seen.has(key) && seen.size < MAX_UNIQUE) {
     seen.add(key);
-    Sentry.captureMessage(`CSP report-only: ${dir} blocked ${host}`, {
-      level: "warning",
-      tags: { csp_directive: dir, csp_host: host },
+    Sentry.captureMessage(`CSP ${disposition}: ${dir} blocked ${host}`, {
+      level: disposition === "enforce" ? "error" : "warning",
+      tags: { csp_directive: dir, csp_host: host, csp_disposition: disposition },
       extra: {
         blockedUri: blocked,
         documentUri: report["document-uri"],
