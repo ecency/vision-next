@@ -38,9 +38,15 @@ const html = `<!doctype html>
       window.ReactNativeWebView.postMessage(JSON.stringify(message));
     }
   }
+  // A script-load failure is handled locally on purpose: posting {type:"error"}
+  // over the bridge makes the native side remount the WebView, which refetches
+  // this same failing resource in a tight loop. The register button stays
+  // disabled (no token) until the user retries. The retry link must not use a
+  // javascript: href — the host WebView's origin whitelist blocks non-https
+  // navigations.
   function showRetry() {
     document.getElementById("widget").innerHTML =
-      '<span id="status">Verification failed to load. <a href="javascript:location.reload()">Retry</a></span>';
+      '<span id="status">Verification failed to load. <a href="#" onclick="event.preventDefault();location.reload()">Retry</a></span>';
   }
   window.onTurnstileLoad = function () {
     var status = document.getElementById("status");
@@ -66,7 +72,14 @@ export function GET() {
       "Content-Type": "text/html; charset=utf-8",
       // Keep the document fresh and out of edge/browser caches and indexes.
       "Cache-Control": "no-store",
-      "X-Robots-Tag": "noindex, nofollow"
+      "X-Robots-Tag": "noindex, nofollow",
+      // Lock the document down to the Turnstile challenge platform; the inline
+      // bootstrap script and style block need 'unsafe-inline'.
+      "Content-Security-Policy":
+        "default-src 'none'; script-src 'unsafe-inline' https://challenges.cloudflare.com; " +
+        "frame-src https://challenges.cloudflare.com; connect-src https://challenges.cloudflare.com; " +
+        "style-src 'unsafe-inline'; img-src data: https://challenges.cloudflare.com; " +
+        "base-uri 'none'; form-action 'none'"
     }
   });
 }
