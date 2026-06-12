@@ -16,8 +16,11 @@ export const dynamic = "force-dynamic";
 // flood. The dedup set resets on deploy, so a fresh release re-samples the
 // current violation surface (which is what we want when the policy changes).
 
-const seen = new Set<string>();
-// Caps total messages emitted per process — also bounds abuse, since report-uri
+// Separate dedup sets per disposition so the (unbounded, UGC-driven) report-only
+// long tail can't fill the budget and starve real enforced blocks out of Sentry.
+const seenReport = new Set<string>();
+const seenEnforce = new Set<string>();
+// Caps unique entries per set per process — also bounds abuse, since report-uri
 // is unauthenticated by design (browsers POST reports without credentials).
 const MAX_UNIQUE = 2000;
 const MAX_BODY_BYTES = 16 * 1024;
@@ -43,6 +46,13 @@ function hostOf(blocked: string): string {
   } catch {
     return blocked;
   }
+}
+
+// CSP report fields arrive from an unauthenticated POST; strip CR/LF and bound
+// length before interpolating into a log line, so a crafted report can't forge
+// a second synthetic [csp-report] entry.
+function clean(value: unknown): string {
+  return String(value ?? "").replace(/[\r\n]+/g, " ").slice(0, 300);
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
@@ -75,23 +85,42 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 
   const dir = directive.split(" ")[0];
-  // "enforce" means the resource was actually BLOCKED by a live policy; "report"
-  // is report-only. Keep them in separate dedup slots so a report-only violation
-  // never masks a later real (enforced) block of the same directive+host — and
-  // raise an enforced block to error level since that one means something broke.
-  const disposition = String(report["disposition"] || "report");
-  const key = `${disposition}|${dir}|${host}`;
-  if (!seen.has(key) && seen.size < MAX_UNIQUE) {
-    seen.add(key);
-    Sentry.captureMessage(`CSP ${disposition}: ${dir} blocked ${host}`, {
-      level: disposition === "enforce" ? "error" : "warning",
-      tags: { csp_directive: dir, csp_host: host, csp_disposition: disposition },
+  // Which policy posted this is taken from the per-policy report-uri marker we
+  // set in next.config.js (?p=enforce / ?p=report) — authoritative and
+  // independent of the CSP3 `disposition` field, which older browsers omit.
+  // Fall back to that field, then to report-only, when the marker is absent.
+  const policyMarker = req.nextUrl.searchParams.get("p");
+  const isEnforce = policyMarker
+    ? policyMarker === "enforce"
+    : String(report["disposition"] || "") === "enforce";
+
+  // Separate dedup sets so the report-only long tail can't starve enforce.
+  const seen = isEnforce ? seenEnforce : seenReport;
+  const key = `${dir}|${host}`;
+  if (seen.has(key) || seen.size >= MAX_UNIQUE) return noContent();
+  seen.add(key);
+
+  if (isEnforce) {
+    // A LIVE-enforced directive actually blocked a resource — rare, and it means
+    // a real feature is broken — so surface it to Sentry as an error.
+    Sentry.captureMessage(`CSP enforce: ${dir} blocked ${host}`, {
+      level: "error",
+      tags: { csp_directive: dir, csp_host: host, csp_disposition: "enforce" },
       extra: {
         blockedUri: blocked,
         documentUri: report["document-uri"],
         violatedDirective: report["violated-directive"]
       }
     });
+  } else {
+    // report-only: informational, and high-volume on a UGC site (every host a
+    // post embeds generates one). It must NOT enter Sentry's issue stream — log
+    // it (sanitized) so the blocked hosts can be reviewed from the app logs
+    // (e.g. `grep '\[csp-report\]'`) when curating the allowlist before any
+    // directive is promoted to enforcing.
+    console.info(
+      `[csp-report] ${clean(dir)} blocked ${clean(host)} doc=${clean(report["document-uri"]) || "?"}`
+    );
   }
 
   return noContent();
