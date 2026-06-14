@@ -130,8 +130,8 @@ export async function LandingPage() {
               ·
             </li>
             <li>
-              <strong className="text-blue-dark-sky dark:text-gray-pinkish">14M+</strong>{" "}
-              {t("landing-page.unique-visitors")}
+              <strong className="text-blue-dark-sky dark:text-gray-pinkish">1M+</strong>{" "}
+              {t("landing-page.daily-visitors")}
             </li>
           </ul>
         </div>
