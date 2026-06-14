@@ -1,8 +1,5 @@
-import "./_index.scss";
-import "@/styles/static-pages.scss";
 import i18next from "i18next";
 import Link from "next/link";
-import Image from "next/image";
 import { initI18next } from "@/features/i18n";
 import defaults from "@/defaults.json";
 import { LandingHeroActions } from "./landing-hero-actions";
@@ -14,380 +11,238 @@ import { LandingTrending, LandingTrendingSkeleton } from "./landing-trending";
 import { LandingExplore } from "./landing-explore";
 
 /**
- * Helper to build a <picture> element that serves webp with png/jpeg fallback.
- * This replaces the old client-side canUseWebp check with pure HTML content negotiation.
+ * Anonymous landing page — conversion-first, mobile-first.
+ *
+ * Everything above the fold (logo + hero text + CTAs + stats) is plain
+ * server-rendered HTML styled with Tailwind utilities that already ship in the
+ * global stylesheet. The page no longer imports a route-specific SCSS bundle,
+ * so the hero (the LCP element) is not gated behind a ~91KB render-blocking
+ * <link>. Heavy illustrated marketing sections were removed; the value prop is
+ * carried by a compact icon row plus the live trending strip + topic hubs,
+ * which double as crawl entry points into deep content.
+ *
+ * Inline SVG feature icons avoid pulling the @ui/svg barrel onto this path.
  */
-interface AssetPictureProps {
-  basePath: string;
-  fallbackExt?: "png" | "jpeg";
-  alt: string;
-  className?: string;
-  loading?: "lazy" | "eager";
-  width?: number;
-  height?: number;
-  sizes?: string;
-  priority?: boolean;
-}
-
-function AssetPicture({
-  basePath,
-  fallbackExt = "png",
-  alt,
-  className,
-  loading,
-  width,
-  height,
-  sizes,
-  priority
-}: AssetPictureProps) {
-  const baseUrl = defaults.base;
-  const webpSrc = `${baseUrl}/assets/${basePath}.webp`;
-  const fallbackSrc = `${baseUrl}/assets/${basePath}.${fallbackExt}`;
-
-  // Static assets are served with images.unoptimized=true, so next/image does
-  // no optimization here — it only adds a client component plus a
-  // hydration-gated preload that targets the .png fallback instead of the
-  // .webp the <picture> actually renders. A plain server-rendered <img> is in
-  // the initial HTML, lets the preload scanner discover the webp source
-  // without waiting for JS, and trims hydration work on the landing page.
-  if (priority) {
-    return (
-      <picture>
-        <source srcSet={webpSrc} type="image/webp" />
-        <img
-          src={fallbackSrc}
-          alt={alt}
-          width={width}
-          height={height}
-          className={className}
-          loading="eager"
-          fetchPriority="high"
-          decoding="async"
-          sizes={sizes}
-        />
-      </picture>
-    );
+const FEATURES = [
+  {
+    key: "own",
+    title: "landing-page.true-ownership",
+    desc: "landing-page.feature-own-desc",
+    icon: (
+      <path d="M12 2 4 6v6c0 5 3.4 7.7 8 10 4.6-2.3 8-5 8-10V6l-8-4Zm0 6a2.2 2.2 0 0 1 1 4.2V15a1 1 0 1 1-2 0v-2.8A2.2 2.2 0 0 1 12 8Z" />
+    )
+  },
+  {
+    key: "earn",
+    title: "landing-page.earn-money",
+    desc: "landing-page.feature-earn-desc",
+    icon: (
+      <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm.9 15.4v.8a.9.9 0 0 1-1.8 0v-.8a3.4 3.4 0 0 1-2.4-1.6.9.9 0 0 1 1.5-1 1.7 1.7 0 0 0 1.5.8c.9 0 1.5-.4 1.5-1s-.5-.9-1.7-1.2c-1.4-.4-2.9-.9-2.9-2.8a2.9 2.9 0 0 1 2.4-2.7v-.8a.9.9 0 0 1 1.8 0v.8a3.2 3.2 0 0 1 2.1 1.4.9.9 0 1 1-1.5 1 1.5 1.5 0 0 0-1.3-.7c-.8 0-1.4.4-1.4.9 0 .6.5.8 1.7 1.1 1.4.4 2.9 1 2.9 2.9a2.9 2.9 0 0 1-2.4 2.6Z" />
+    )
+  },
+  {
+    key: "open",
+    title: "landing-page.decentralization",
+    desc: "landing-page.feature-open-desc",
+    icon: (
+      <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm6.9 9h-3a14.7 14.7 0 0 0-1-4.6A8 8 0 0 1 18.9 11ZM12 4c.9 0 2.2 2.3 2.6 7H9.4C9.8 6.3 11.1 4 12 4ZM4.6 13h3a14.7 14.7 0 0 0 1 4.6A8 8 0 0 1 4.6 13Zm3-2h-3a8 8 0 0 1 4-4.6 14.7 14.7 0 0 0-1 4.6ZM12 20c-.9 0-2.2-2.3-2.6-7h5.2C14.2 17.7 12.9 20 12 20Zm2.4-.4a14.7 14.7 0 0 0 1-4.6h3a8 8 0 0 1-4 4.6Z" />
+    )
   }
-
-  return (
-    <picture>
-      <source srcSet={webpSrc} type="image/webp" />
-      <img
-        src={fallbackSrc}
-        alt={alt}
-        className={className}
-        loading={loading ?? "lazy"}
-        width={width}
-        height={height}
-        sizes={sizes}
-      />
-    </picture>
-  );
-}
-
-function SvgAsset({ path, alt, className }: { path: string; alt: string; className?: string }) {
-  return <img src={`${defaults.base}/assets/${path}`} alt={alt} className={className} loading="lazy" />;
-}
+];
 
 export async function LandingPage() {
   await initI18next();
   const t = i18next.t.bind(i18next);
-  const baseUrl = defaults.base;
 
   return (
-    <div className="landing-wrapper" id="landing-wrapper">
-      <div className="top-bg" />
+    <div className="landing-wrapper relative w-full">
+      {/* HERO — fully server-rendered, the LCP element */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-blue-duck-egg to-blue-dark-sky-030 dark:from-dark-default dark:to-dark-200">
+        <div className="max-w-[1000px] mx-auto px-4 pt-14 pb-12 md:pt-24 md:pb-16 text-center">
+          <img
+            src={defaults.logo}
+            alt={defaults.name}
+            width={64}
+            height={64}
+            className="mx-auto mb-6 h-14 w-14 md:h-16 md:w-16"
+            fetchPriority="high"
+          />
+          <h1 className="font-extrabold tracking-tight leading-[1.05] text-blue-dark-sky dark:text-gray-pinkish text-[2rem] sm:text-5xl md:text-6xl">
+            {t("landing-page.hero-title")}
+          </h1>
+          <p className="mt-4 mx-auto max-w-xl font-light text-gray-700 dark:text-gray-light text-lg md:text-2xl">
+            {t("landing-page.what-is-ecency")}
+          </p>
 
-      {/* Hero Section */}
-      <div className="sections first-section">
-        <div className="text-container text-center">
-          <h1>{t("landing-page.welcome-text")}</h1>
-          <div className="flex flex-wrap justify-center items-center">
-            <p className="mb-3 w-88">{t("landing-page.what-is-ecency")}</p>
-          </div>
           <LandingHeroActions />
-        </div>
-      </div>
 
-      {/* Real content first: trending posts + topic hubs for click-through + crawl discovery.
-          Trending streams via Suspense so the hero (LCP) flushes immediately and the
-          blocking ranked-posts RPC never delays first paint. */}
+          <ul className="mt-10 flex flex-wrap justify-center items-center gap-x-5 gap-y-2 p-0 m-0 list-none text-sm md:text-base text-gray-700 dark:text-gray-light">
+            <li>
+              <strong className="text-blue-dark-sky dark:text-gray-pinkish">130M+</strong>{" "}
+              {t("landing-page.posts")}
+            </li>
+            <li aria-hidden="true" className="opacity-40">
+              ·
+            </li>
+            <li>
+              <strong className="text-blue-dark-sky dark:text-gray-pinkish">200K+</strong>{" "}
+              {t("landing-page.new-users")}
+            </li>
+            <li aria-hidden="true" className="opacity-40">
+              ·
+            </li>
+            <li>
+              <strong className="text-blue-dark-sky dark:text-gray-pinkish">446M</strong>{" "}
+              {t("landing-page.points-distrubuted")}
+            </li>
+            <li aria-hidden="true" className="opacity-40">
+              ·
+            </li>
+            <li>
+              <strong className="text-blue-dark-sky dark:text-gray-pinkish">14M+</strong>{" "}
+              {t("landing-page.unique-visitors")}
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      {/* Real product first: live trending posts (SEO + click-through). Streams
+          via Suspense so the hero flushes immediately. */}
       <Suspense fallback={<LandingTrendingSkeleton />}>
         <LandingTrending />
       </Suspense>
+
+      {/* Topic hubs — crawl entry points into deep content */}
       <LandingExplore />
 
-      {/* Earn Money & True Ownership */}
-      <div className="sections second-section" id="earn-money">
-        <div className="part-top">
-          <div className="inner">
-            <AssetPicture
-              basePath="illustration-earn-money"
-              alt={t("landing-page.earn-money")}
-              width={373}
-              height={442}
-              sizes="(max-width: 640px) 280px, (max-width: 768px) 320px, (max-width: 1024px) 360px, 373px"
-              className="mx-auto sm:m-0"
-            />
-            <div className="text-group visible">
-              <h2>{t("landing-page.earn-money")}</h2>
-              <p className="mt-2 w-88 mb-5 sm:mb-0">
-                {t("landing-page.earn-money-block-chain-based")}
-                <span>
-                  <Link href="/signup?referral=ecency">{t("landing-page.join-us")}</Link>
+      {/* Why Ecency — compact value prop replacing the old illustrated sections */}
+      <section className="relative z-[2] w-full" aria-labelledby="why-heading">
+        <div className="inner max-w-[1200px] mx-auto w-full px-4 py-10">
+          <h2 id="why-heading" className="text-2xl md:text-3xl font-bold mb-6">
+            {t("landing-page.why-ecency")}
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {FEATURES.map((f) => (
+              <div
+                key={f.key}
+                className="rounded-xl border border-[--border-color] bg-white dark:bg-dark-200 p-5"
+              >
+                <span className="inline-flex items-center justify-center h-11 w-11 rounded-lg bg-blue-dark-sky-040 dark:bg-dark-default text-blue-dark-sky">
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    {f.icon}
+                  </svg>
                 </span>
-                {t("landing-page.various-digital-tokens")}
-              </p>
-              <Link className="link-read-more" href="/faq">
-                {t("landing-page.read-more")}
-              </Link>
-            </div>
+                <h3 className="mt-4 text-lg font-semibold">{t(f.title)}</h3>
+                <p className="mt-1 opacity-70">{t(f.desc)}</p>
+              </div>
+            ))}
           </div>
         </div>
+      </section>
 
-        <div className="part-bottom">
-          <div className="inner">
-            <div className="text-group">
-              <h2>{t("landing-page.true-ownership")}</h2>
-              <p className="mt-2 w-88">{t("landing-page.true-ownership-desc")}</p>
-            </div>
-            <div className="image-wrapper">
-              <AssetPicture
-                basePath="illustration-true-ownership"
-                alt={t("landing-page.true-ownership")}
-                className="landing-floating-image"
-                width={577}
-                height={446}
-                sizes="(max-width: 768px) 342px, (max-width: 1024px) 499px, 577px"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Decentralization & Open Source */}
-      <div className="sections third-section">
-        <div className="part-top sm:pt-5 lg:pt-0">
-          <div className="inner">
-            <div className="img-wrapper">
-              <AssetPicture
-                basePath="illustration-decentralization"
-                alt={t("landing-page.decentralization")}
-                className="decentralization-img"
-                width={481}
-                height={382}
-                sizes="(max-width: 768px) 80vw, (max-width: 1280px) 40vw, 33vw"
-              />
-            </div>
-            <div className="text-group visible mw-full">
-              <h2>{t("landing-page.decentralization")}</h2>
-              <p>
-                <span>
-                  <Link href="https://hive.io" target="_blank" rel="noopener noreferrer">
-                    {t("landing-page.hive-blockchain")}
-                  </Link>
-                </span>{" "}
-                {t("landing-page.decentralization-desc")}
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="part-bottom">
-          <div className="inner">
-            <div className="text-group">
-              <h2>{t("landing-page.open-source")}</h2>
-              <p>{t("landing-page.open-source-desc")}</p>
-              <Link href="/signup?referral=ecency" className="no-break">
-                {t("landing-page.feel-free-join")}
-              </Link>
-            </div>
-            <div className="img-wrapper">
-              <AssetPicture
-                basePath="illustration-open-source"
-                alt={t("landing-page.open-source")}
-                className="mechanic"
-                width={571}
-                height={460}
-                sizes="(max-width: 768px) 90vw, (max-width: 1024px) 327px, 571px"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Stats & Download */}
-      <div className="sections fourth-section">
-        <div className="part-top">
-          <div className="inner">
-            <ul>
-              <li>
-                <h3>130M+</h3>
-                <p>{t("landing-page.posts")}</p>
-              </li>
-              <li>
-                <h3>14M+</h3>
-                <p>{t("landing-page.unique-visitors")}</p>
-              </li>
-            </ul>
-            <ul>
-              <li>
-                <h3>446M</h3>
-                <p>{t("landing-page.points-distrubuted")}</p>
-              </li>
-              <li>
-                <h3>200K+</h3>
-                <p>{t("landing-page.new-users")}</p>
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div className="part-bottom" id="download">
-          <div className="inner">
-            <div className="text-group">
-              <h2>{t("landing-page.download-our-application")}</h2>
-              <p className="mt-4">{t("landing-page.download-our-application-desc-1")}</p>
-              <p>{t("landing-page.download-our-application-desc-2")}</p>
+      {/* Download */}
+      <section className="relative z-[2] w-full" id="download">
+        <div className="inner max-w-[1200px] mx-auto w-full px-4 py-10">
+          <div className="rounded-2xl border border-[--border-color] bg-blue-duck-egg dark:bg-dark-200 px-5 py-8 text-center">
+            <h2 className="text-2xl md:text-3xl font-bold">
+              {t("landing-page.download-our-application")}
+            </h2>
+            <p className="mt-2 opacity-70">{t("landing-page.download-our-application-desc-1")}</p>
+            <div className="mt-5 flex flex-wrap justify-center gap-3 [&_a]:inline-flex [&_a]:items-center [&_a]:gap-2 [&_a]:h-12 [&_a]:px-5 [&_a]:rounded-full [&_a]:border [&_a]:border-[--border-color] [&_a]:bg-white [&_a]:dark:bg-dark-default [&_a]:font-medium [&_a]:transition-shadow hover:[&_a]:shadow-md [&_img]:h-5 [&_img]:w-5 [&_svg]:h-5 [&_svg]:w-5">
               <LandingDownloadLinks
-                iosIcon={`${baseUrl}/assets/icon-apple.svg`}
-                iosIconWhite={`${baseUrl}/assets/icon-apple-white.svg`}
-                androidIcon={`${baseUrl}/assets/icon-android.png`}
-                androidIconWhite={`${baseUrl}/assets/icon-android-white.svg`}
+                iosIcon={`${defaults.base}/assets/icon-apple.svg`}
+                iosIconWhite={`${defaults.base}/assets/icon-apple-white.svg`}
+                androidIcon={`${defaults.base}/assets/icon-android.png`}
+                androidIconWhite={`${defaults.base}/assets/icon-android-white.svg`}
               />
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* History & Vision
-          dangerouslySetInnerHTML is safe here: translation values come from
-          static JSON locale files shipped with the build (en-US.json etc.),
-          never from user input. If translations ever include user-generated
-          content, sanitize with DOMPurify before inserting. */}
-      <div className="sections fifth-section" id="about">
-        <div className="part-top pt-5 sm:pt-0">
-          <div className="inner">
-            <div className="text-group sm:mt-5 lg:mt-0">
-              <h2>{t("landing-page.our-history")}</h2>
-              <p dangerouslySetInnerHTML={{ __html: t("landing-page.our-history-p-one") }} />
-              <p>{t("landing-page.our-history-p-two")}</p>
-            </div>
-            <AssetPicture basePath="our-history" alt={t("landing-page.our-history")} className="our-history" />
-          </div>
-        </div>
-        <div className="part-bottom">
-          <div className="inner">
-            <AssetPicture basePath="our-vision" alt={t("landing-page.our-vision")} className="our-vision" />
+      {/* Footer */}
+      <footer className="relative z-[2] w-full border-t border-[--border-color] mt-4">
+        <div className="inner max-w-[1200px] mx-auto w-full px-4 py-10">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <nav className="flex flex-col gap-2" aria-label={t("landing-page.about")}>
+              <Link href="#about" className="opacity-70 hover:opacity-100">
+                {t("landing-page.about")}
+              </Link>
+              <Link href="/faq" className="opacity-70 hover:opacity-100">
+                {t("landing-page.faq")}
+              </Link>
+              <Link href="/terms-of-service" className="opacity-70 hover:opacity-100">
+                {t("landing-page.terms-of-service")}
+              </Link>
+              <Link href="/privacy-policy" className="opacity-70 hover:opacity-100">
+                {t("landing-page.privacy-policy")}
+              </Link>
+            </nav>
+            <nav className="flex flex-col gap-2" aria-label={t("landing-page.discover")}>
+              <Link href="/discover" className="opacity-70 hover:opacity-100">
+                {t("landing-page.discover")}
+              </Link>
+              <span className="opacity-70 hover:opacity-100">
+                <LandingSignInLink />
+              </span>
+              <Link href="/communities" className="opacity-70 hover:opacity-100">
+                {t("landing-page.communities")}
+              </Link>
+              <Link href="/faq" className="opacity-70 hover:opacity-100">
+                {t("landing-page.help")}
+              </Link>
+              <Link href="/mobile" className="opacity-70 hover:opacity-100">
+                {t("landing-page.get-mobile-app")}
+              </Link>
+            </nav>
 
-            <div className="text-group pb-0 sm:pb-5 md:pb-0">
-              <h2>{t("landing-page.our-vision")}</h2>
-              <p dangerouslySetInnerHTML={{ __html: t("landing-page.our-vision-p-one") }} />
-              <p dangerouslySetInnerHTML={{ __html: t("landing-page.our-vision-p-two") }} />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Team & Footer */}
-      <div className="sections sixth-section">
-        <div className="part-top">
-          <div className="inner">
-            <div className="text-group">
-              <h2>{t("landing-page.our-team")}</h2>
-              <ul>
-                <li className="last-element">
-                  <Link href="/contributors">
-                    {t("landing-page.community-contributors")}
+            <div className="col-span-2">
+              <h2 className="text-lg font-semibold">{t("landing-page.subscribe-us")}</h2>
+              <div className="mt-3 [&_form]:flex [&_form]:gap-2 [&_input]:flex-1 [&_input]:h-11 [&_input]:px-3 [&_input]:rounded-lg [&_input]:border [&_input]:border-[--border-color] [&_input]:bg-white [&_input]:dark:bg-dark-200 [&_button]:h-11 [&_button]:px-5 [&_button]:rounded-lg [&_button]:bg-blue-dark-sky [&_button]:text-white [&_button]:font-medium">
+                <LandingSubscribeForm />
+              </div>
+              <p className="mt-2 text-sm opacity-60">{t("landing-page.subscribe-paragraph")}</p>
+              <ul className="mt-4 flex gap-4 p-0 m-0 list-none [&_img]:h-6 [&_img]:w-6 [&_a]:opacity-70 hover:[&_a]:opacity-100">
+                <li>
+                  <Link href="https://youtube.com/ecency" target="_blank" rel="noopener noreferrer">
+                    <img src={`${defaults.base}/assets/footer-youtube.svg`} alt="YouTube" />
                   </Link>
-                  <Link href="/witnesses">{t("landing-page.blockchain-witnesses")}</Link>
+                </li>
+                <li>
+                  <Link
+                    href="https://twitter.com/ecency_official"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <img src={`${defaults.base}/assets/footer-twitter.svg`} alt="X" />
+                  </Link>
+                </li>
+                <li>
+                  <Link href="https://t.me/ecency" target="_blank" rel="noopener noreferrer">
+                    <img src={`${defaults.base}/assets/footer-telegram.svg`} alt="Telegram" />
+                  </Link>
+                </li>
+                <li>
+                  <Link href="https://discord.me/ecency" target="_blank" rel="noopener noreferrer">
+                    <img src={`${defaults.base}/assets/footer-discord.svg`} alt="Discord" />
+                  </Link>
                 </li>
               </ul>
             </div>
+          </div>
 
-            <div className="image-container">
-              <AssetPicture basePath="our-team" alt={t("landing-page.our-team")} className="our-team together" />
-            </div>
+          <div className="mt-8 flex items-center gap-3 border-t border-[--border-color] pt-6">
+            <img src={defaults.logo} alt={defaults.name} width={36} height={36} className="h-9 w-9" />
+            <p className="m-0 text-sm opacity-60">{t("landing-page.copy-rights")}</p>
           </div>
         </div>
-        <div className="part-bottom sm:pt-5 lg:pt-[auto]">
-          <div className="inner">
-            <div className="links-and-form">
-              <div className="links">
-                <ul className="first-column">
-                  <li>
-                    <Link href="#about">{t("landing-page.about")}</Link>
-                  </li>
-                  <li>
-                    <Link href="/faq">{t("landing-page.faq")}</Link>
-                  </li>
-                  <li>
-                    <Link href="/terms-of-service">
-                      {t("landing-page.terms-of-service")}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/privacy-policy">{t("landing-page.privacy-policy")}</Link>
-                  </li>
-                </ul>
-                <ul className="second-column">
-                  <li>
-                    <Link href="/discover">{t("landing-page.discover")}</Link>
-                  </li>
-                  <li>
-                    <LandingSignInLink />
-                  </li>
-                  <li>
-                    <Link href="/communities">{t("landing-page.communities")}</Link>
-                  </li>
-                  <li>
-                    <Link href="/faq">{t("landing-page.help")}</Link>
-                  </li>
-                  <li>
-                    <Link href="/mobile">{t("landing-page.get-mobile-app")}</Link>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="subscribe-form">
-                <h2>{t("landing-page.subscribe-us")}</h2>
-                <LandingSubscribeForm />
-
-                <p>{t("landing-page.subscribe-paragraph")}</p>
-
-                <div className="socials w-full hidden lg:block">
-                  <ul className="p-0 m-0 flex justify-between w-[50%]">
-                    <li>
-                      <Link href="https://youtube.com/ecency" target="_blank" rel="noopener noreferrer">
-                        <SvgAsset path="footer-youtube.svg" alt="youtube" />
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="https://twitter.com/ecency_official" target="_blank" rel="noopener noreferrer">
-                        <SvgAsset path="footer-twitter.svg" alt="twitter" />
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="https://t.me/ecency" target="_blank" rel="noopener noreferrer">
-                        <SvgAsset path="footer-telegram.svg" alt="telegram" />
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="https://discord.me/ecency" target="_blank" rel="noopener noreferrer">
-                        <SvgAsset path="footer-discord.svg" alt="discord" />
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-            <div className="site-icon">
-              <Link href="#">
-                <Image width={100} height={100} src={defaults.logo} alt="ecency logo" />
-              </Link>
-              <p className="copy-right">{t("landing-page.copy-rights")}</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      </footer>
     </div>
   );
 }

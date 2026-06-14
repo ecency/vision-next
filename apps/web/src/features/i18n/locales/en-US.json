@@ -2702,7 +2702,12 @@
   },
   "landing-page": {
     "welcome-text": "Ecency",
+    "hero-title": "Own your words. Earn for them.",
     "what-is-ecency": "Freespeech, True ownership, rewarding communities on Web3",
+    "why-ecency": "Why Ecency",
+    "feature-own-desc": "Your account and content live on the blockchain — truly yours, no one can take them away.",
+    "feature-earn-desc": "Get rewarded in crypto for your posts, curation and engagement.",
+    "feature-open-desc": "Open source and powered by Hive. Real free speech, no limits, no middlemen.",
     "powered-by-hive": "powered by Hive",
     "how-it-works": "HOW IT WORKS?",
     "get-started": "JOIN NOW",
