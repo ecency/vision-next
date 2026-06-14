@@ -152,12 +152,10 @@ const config = {
       "framer-motion",
       "@sentry/nextjs",
       "@sentry/browser",
-      // @ecency/sdk is safe (pure re-export entrypoint). @ecency/wallets is
-      // intentionally NOT optimized: its index runs rememberScryptBsvVersion()
-      // as a module side effect, and optimizePackageImports rewrites named
-      // imports to bypass the entrypoint, which would skip that guard and
-      // reopen duplicate scrypt/bitcore global errors in wallet flows.
-      "@ecency/sdk",
+      // NOTE: do not add @ecency/sdk / @ecency/wallets here. optimizePackageImports
+      // on the large SDK barrel pushed the production build past CI's ~4GB heap
+      // (OOM, exit 134); @ecency/wallets also has a module-side-effect entrypoint
+      // (rememberScryptBsvVersion) that the optimization would bypass.
     ]
   },
 
