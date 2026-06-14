@@ -1,37 +1,25 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { QueryIdentifiers } from "../react-query";
-import { getPostsRankedQueryOptions, QueryKeys } from "@ecency/sdk";
-import { useDataLimit } from "@/utils/data-limit";
+import { QueryKeys } from "@ecency/sdk";
 import { formatError } from "@/api/format-error";
 import { usePinPostMutation } from "@/api/sdk-mutations";
 import { Community, Entry } from "@/entities";
-import { isCommunity } from "@/utils";
 import { clone } from "remeda";
 import { error, success } from "@/features/shared";
 import i18next from "i18next";
 
+// The pin flag is already carried per-entry on `entry.stats.is_pinned` (same
+// bridge.get_ranked_posts source that stamped it), so we no longer fetch a whole
+// community ranked list per card just to derive it (that was an extra network
+// call + query observer on every card in the feed). Kept as a LIVE observer on
+// the ENTRY_PIN_TRACK key, seeded from entry.stats, so the optimistic
+// setQueryData in useCommunityPin (below) still flips the in-menu pin label.
 export function useCommunityPinCache(entry: Entry) {
-  const dataLimit = useDataLimit();
-  const { data: rankedPosts } = useQuery({
-    ...getPostsRankedQueryOptions(
-      "created",
-      "",
-      "",
-      dataLimit,
-      entry.category,
-      "",
-      isCommunity(entry.category)
-    )
-  });
-
   return useQuery({
     queryKey: [QueryIdentifiers.ENTRY_PIN_TRACK, entry.post_id],
-    queryFn: async () =>
-      rankedPosts?.find(
-        (x) =>
-          x.author === entry.author && x.permlink === entry.permlink && x.stats?.is_pinned === true
-      ) !== undefined,
-    initialData: entry.stats?.is_pinned ?? false
+    queryFn: () => entry.stats?.is_pinned ?? false,
+    initialData: entry.stats?.is_pinned ?? false,
+    staleTime: Infinity
   });
 }
 

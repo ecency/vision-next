@@ -1,7 +1,7 @@
 "use client";
 
 import { ListStyle } from "@/enums";
-import React, { PropsWithChildren, useEffect, useRef, useState, useMemo } from "react";
+import { PropsWithChildren, useEffect, useRef, useState } from "react";
 import { useGlobalStore } from "@/core/global-store";
 import { usePostsFeedQuery } from "@/api/queries";
 import { Entry, SearchResponse } from "@/entities";
@@ -34,7 +34,6 @@ export function FeedLayout(props: PropsWithChildren<Props>) {
 
   const [pending, setPending] = useState<Entry[]>([]);
   const [extra, setExtra] = useState<Entry[]>([]);
-  const [now, setNow] = useState(Date.now());
   const latest = useRef<Entry | null>(null);
 
   const firstPageEntries: Entry[] =
@@ -75,7 +74,6 @@ export function FeedLayout(props: PropsWithChildren<Props>) {
           props.observer
         )
       );
-      setNow(Date.now());
       if (!resp || resp.length === 0) return;
 
       // Update existing entries with latest stats
@@ -169,15 +167,10 @@ export function FeedLayout(props: PropsWithChildren<Props>) {
                   sectionParam={props.filter}
                   isPromoted={false}
                   showEmptyPlaceholder={false}
-                  now={now}
               />
           )}
 
-          {React.Children.map(props.children, (child) =>
-              React.isValidElement(child)
-                  ? React.cloneElement(child as React.ReactElement<{ now?: number }>, { now })
-                  : child
-          )}
+          {props.children}
         </div>
       </div>
   );

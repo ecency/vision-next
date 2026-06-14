@@ -15,12 +15,11 @@ interface Props {
   filter: string;
   tag: string;
   observer?: string;
-  now?: number;
 }
 
 type Page = Entry[] | SearchResponse;
 
-export function FeedList({ filter, tag, observer, now }: Props) {
+export function FeedList({ filter, tag, observer }: Props) {
   const searchParams = useSearchParams();
   const noReblog = searchParams?.get("no-reblog") === "true";
   const visionFeatures = EcencyConfigManager.CONFIG.visionFeatures;
@@ -88,7 +87,6 @@ export function FeedList({ filter, tag, observer, now }: Props) {
         isPromoted={visionFeatures.promotions.enabled}
         promotedEntries={promotedPosts ?? []}
         showEmptyPlaceholder={false}
-        now={now}
       />
 
       {/* Show empty state ONLY for personalized feeds, never for global feeds */}
