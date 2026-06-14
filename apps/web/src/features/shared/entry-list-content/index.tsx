@@ -47,7 +47,8 @@ export function EntryListContent({
                       entry={p}
                       promoted={true}
                       order={4}
-                      community={community}                    />
+                      community={community}
+                    />
                   );
                 }
               }
@@ -61,7 +62,8 @@ export function EntryListContent({
                   key={`${e.author}-${e.permlink}`}
                   entry={e}
                   order={i}
-                  community={community}                />
+                  community={community}
+                />
               );
             } else {
               l.push(
@@ -70,7 +72,8 @@ export function EntryListContent({
                   key={`${e.author}-${e.permlink}`}
                   entry={e}
                   order={i}
-                  community={community}                />
+                  community={community}
+                />
               );
             }
             return [...l];
