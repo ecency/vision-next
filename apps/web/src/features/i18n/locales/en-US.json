@@ -2360,7 +2360,9 @@
     "about": {
       "page-title": "About",
       "intro-title": "What is <span>Ecency</span>",
-      "intro-content": "Ecency is beautiful and handy wrapper interface around the Hive blockchain network allowing you to create your own posts, surf your feeds, vote what you like, write comments, read replies, do all major Hive functions in your daily social surfing as well as wallet actions and other extras such as search, discover different tags etc.",
+      "intro-content": "Ecency is a fast, open source social experience built on the Hive blockchain. You can publish posts, follow your feeds, vote on what you like, comment, manage your wallet, search and discover communities and tags, all from one place. Your content and your account keys stay yours, with no gatekeepers and no hidden algorithm deciding what you can say.",
+      "intro-content-2": "We are a small, community driven team that has been building on Hive since 2016, first as Esteem and today as Ecency. Our mission is simple. Bring real free speech, true ownership and rewarding communities to everyone, on web, desktop and mobile. Everything we build is open source, so anyone can join, contribute and earn alongside us.",
+      "intro-content-3": "Creators earn crypto rewards for posts, comments and curation, and Ecency Points add extra ways to boost content and grow your audience. If you believe the social web should be owned by its people, you are in the right place.",
       "faq-title": "FAQ",
       "faqs": "All FAQs",
       "contact-title": "Contacts",
