@@ -171,7 +171,7 @@ export async function LandingPage() {
         <div className="inner max-w-[1200px] mx-auto w-full px-4 py-10">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <nav className="flex flex-col gap-2" aria-label={t("landing-page.about")}>
-              <Link href="#about" className="opacity-70 hover:opacity-100">
+              <Link href="/about" className="opacity-70 hover:opacity-100">
                 {t("landing-page.about")}
               </Link>
               <Link href="/faq" className="opacity-70 hover:opacity-100">
@@ -239,7 +239,9 @@ export async function LandingPage() {
 
           <div className="mt-8 flex items-center gap-3 border-t border-[--border-color] pt-6">
             <img src={defaults.logo} alt={defaults.name} width={36} height={36} className="h-9 w-9" />
-            <p className="m-0 text-sm opacity-60">{t("landing-page.copy-rights")}</p>
+            <p className="m-0 text-sm opacity-60">
+              {t("landing-page.copy-rights", { year: new Date().getFullYear() })}
+            </p>
           </div>
         </div>
       </footer>

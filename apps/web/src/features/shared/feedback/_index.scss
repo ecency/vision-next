@@ -28,6 +28,12 @@
   animation: feedback-item-enter 0.2s ease-out;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .feedback-item-enter {
+    animation: none;
+  }
+}
+
 .feedback-container {
   display: flex;
   flex-direction: column-reverse;

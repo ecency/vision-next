@@ -96,10 +96,11 @@ export function NavbarDesktop({
             aria-label={i18next.t("entry-index.faq")}
           />
         </Tooltip>
-        {isDesktop && (step !== 1 || transparentVerify) && (
-          <div className="max-w-[400px] w-full">
-            <Search />
-          </div>
+        {(step !== 1 || transparentVerify) && (
+          // Slot is always rendered so it reserves its flex space (no layout
+          // shift when Search mounts). Only the heavy Search itself is gated on
+          // isDesktop, so its chunk never loads on mobile.
+          <div className="max-w-[400px] w-full">{isDesktop && <Search />}</div>
         )}
         <div className="flex items-center ml-3 gap-3">
           <NavbarPerksButton />
