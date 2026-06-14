@@ -152,6 +152,8 @@ const config = {
       "framer-motion",
       "@sentry/nextjs",
       "@sentry/browser",
+      "@ecency/sdk",
+      "@ecency/wallets",
     ]
   },
 
