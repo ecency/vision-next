@@ -53,6 +53,27 @@ function loadSentry(): Promise<SentryModule | null> {
 }
 
 let initPromise: Promise<void> | null = null;
+let initFailures = 0;
+const MAX_INIT_FAILURES = 3;
+// Hard cap on the pre-init buffer so a persistently-failing load can never grow
+// it without bound (drops the oldest entries first).
+const MAX_QUEUE = 100;
+
+// Reset the load/init state so a later call can retry (CDN blip, chunk fetch
+// error, or init throw). After MAX_INIT_FAILURES, give up permanently and clear
+// the buffers so they can't grow forever.
+function onInitFailure(e?: unknown) {
+  initFailures += 1;
+  initPromise = null;
+  loadPromise = null;
+  mod = null;
+  if (e) console.warn("Sentry init failed:", e);
+  if (initFailures >= MAX_INIT_FAILURES) {
+    queued.length = 0;
+    earlyErrors.length = 0;
+    console.warn("Sentry disabled after repeated load/init failures.");
+  }
+}
 
 /**
  * Load + initialize the real SDK (once), then replay anything buffered.
@@ -64,14 +85,17 @@ function ensureInit(): Promise<void> {
   // any capture in practice). Return WITHOUT memoizing so the call made right
   // after configure can still initialize — memoizing a no-op here would wedge it.
   if (!options) return Promise.resolve();
+  if (initFailures >= MAX_INIT_FAILURES) return Promise.resolve();
   if (initPromise) return initPromise;
+  const opts = options;
   initPromise = loadSentry().then((m) => {
-    if (!m) return;
+    if (!m) {
+      onInitFailure();
+      return;
+    }
     try {
-      if (options) {
-        m.init(options);
-        m.setTag("source", "client");
-      }
+      m.init(opts);
+      m.setTag("source", "client");
       if (isBrowser) {
         window.removeEventListener("error", earlyErrorHandler);
         window.removeEventListener("unhandledrejection", earlyRejectionHandler);
@@ -94,13 +118,20 @@ function ensureInit(): Promise<void> {
         }
       }
     } catch (e) {
-      console.warn("Sentry init failed, error tracking disabled:", e);
+      // init threw: reset so a later capture can retry instead of wedging.
+      onInitFailure(e);
     }
   });
   return initPromise;
 }
 
-function call(method: string, args: unknown[]) {
+// forceInit: telemetry calls (captures) trigger the load before the idle gate so
+// a genuine error doesn't wait out the timeout. Pure context setters
+// (setUser/setTag) only BUFFER — they do NOT force the load — so a returning
+// logged-in user whose ClientInit calls setUser on mount does not eagerly fetch
+// the SDK; the buffered context is replayed when the idle gate (or a real
+// capture) initializes it. This preserves the lazy-load win for logged-in users.
+function call(method: string, args: unknown[], forceInit: boolean) {
   if (initialized && mod) {
     try {
       (mod as unknown as Record<string, (...a: unknown[]) => unknown>)[method](...args);
@@ -109,10 +140,9 @@ function call(method: string, args: unknown[]) {
     }
     return;
   }
+  if (queued.length >= MAX_QUEUE) queued.shift();
   queued.push({ method, args });
-  // First real use triggers the load even before the idle gate fires, so a
-  // genuine error does not wait out the full idle timeout.
-  void ensureInit();
+  if (forceInit) void ensureInit();
 }
 
 /**
@@ -120,20 +150,24 @@ function call(method: string, args: unknown[]) {
  * CLIENT. Methods buffer-then-replay until the SDK is initialized.
  */
 export const sentry = {
+  // Captures force the load (real telemetry).
   captureException: (...args: Parameters<SentryModule["captureException"]>) =>
-    call("captureException", args),
+    call("captureException", args, true),
   captureMessage: (...args: Parameters<SentryModule["captureMessage"]>) =>
-    call("captureMessage", args),
+    call("captureMessage", args, true),
   captureFeedback: (...args: Parameters<SentryModule["captureFeedback"]>) =>
-    call("captureFeedback", args),
-  setUser: (...args: Parameters<SentryModule["setUser"]>) => call("setUser", args),
-  setTag: (...args: Parameters<SentryModule["setTag"]>) => call("setTag", args),
+    call("captureFeedback", args, true),
+  // Context-only: buffer but do NOT force the load (see call() note).
+  setUser: (...args: Parameters<SentryModule["setUser"]>) => call("setUser", args, false),
+  setTag: (...args: Parameters<SentryModule["setTag"]>) => call("setTag", args, false),
   // Sentry's withScope is overloaded ((scope, cb) | (cb)); the app only uses the
   // single-callback form, so type it explicitly to keep the scope param typed.
-  withScope: (callback: (scope: SentryNS.Scope) => void) => call("withScope", [callback]),
-  // flush only matters once loaded; before that there is nothing buffered to send.
+  // The callback captures, so it forces the load like other telemetry.
+  withScope: (callback: (scope: SentryNS.Scope) => void) => call("withScope", [callback], true),
+  // Gate on `initialized` (not `mod`): if init threw, `mod` may be set on an
+  // uninitialized client. Returns true when nothing is loaded (nothing to flush).
   flush: async (...args: Parameters<SentryModule["flush"]>) => {
-    if (mod) return mod.flush(...args);
+    if (initialized && mod) return mod.flush(...args);
     return true;
   }
 };
@@ -145,11 +179,16 @@ export const sentry = {
  */
 export function configureLazySentry(opts: Options) {
   options = opts;
+  if (!isBrowser) return;
 
-  if (isBrowser && process.env.NODE_ENV === "production") {
-    window.addEventListener("error", earlyErrorHandler);
-    window.addEventListener("unhandledrejection", earlyRejectionHandler);
+  // Buffer errors that occur in the brief window before the SDK initializes,
+  // in every environment (replayed once init completes).
+  window.addEventListener("error", earlyErrorHandler);
+  window.addEventListener("unhandledrejection", earlyRejectionHandler);
 
+  if (process.env.NODE_ENV === "production") {
+    // Defer init to idle / first interaction so the SDK bytes stay off the
+    // critical path.
     if ("requestIdleCallback" in window) {
       (window as unknown as { requestIdleCallback: (cb: () => void, o?: { timeout: number }) => void })
         .requestIdleCallback(() => void ensureInit(), { timeout: 5000 });

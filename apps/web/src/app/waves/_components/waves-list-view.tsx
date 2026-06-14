@@ -69,7 +69,7 @@ export function WavesListView({ host, feedType, username }: Props) {
         message
       });
       sentry.captureException(error, {
-        data: { host, feedType, tag }
+        extra: { host, feedType, tag }
       });
     }
   }, [error, feedType, host, isError, tag]);
