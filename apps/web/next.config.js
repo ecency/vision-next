@@ -152,6 +152,12 @@ const config = {
       "framer-motion",
       "@sentry/nextjs",
       "@sentry/browser",
+      // @ecency/sdk is safe (pure re-export entrypoint). @ecency/wallets is
+      // intentionally NOT optimized: its index runs rememberScryptBsvVersion()
+      // as a module side effect, and optimizePackageImports rewrites named
+      // imports to bypass the entrypoint, which would skip that guard and
+      // reopen duplicate scrypt/bitcore global errors in wallet flows.
+      "@ecency/sdk",
     ]
   },
 

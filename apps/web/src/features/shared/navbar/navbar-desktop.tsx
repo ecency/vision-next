@@ -5,18 +5,28 @@ import { NavbarMainSidebar } from "@/features/shared/navbar/navbar-main-sidebar"
 import { NavbarMainSidebarToggle } from "@/features/shared/navbar/navbar-main-sidebar-toggle";
 import { NavbarNotificationsButton } from "@/features/shared/navbar/navbar-notifications-button";
 import { NavbarPerksButton } from "@/features/shared/navbar/navbar-perks-button";
-import { Search } from "@/features/shared/navbar/search";
 import { NavbarSide } from "@/features/shared/navbar/sidebar/navbar-side";
 import { UilComment, UilEditAlt, UilQuestionCircle } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
 import { Tooltip } from "@ui/tooltip";
 import { classNameObject } from "@ui/util";
 import i18next from "i18next";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { NavbarTextMenu } from "./navbar-text-menu";
 import { useHydrated } from "@/api/queries";
 import { useMattermostUnread } from "@/features/chat/mattermost-api";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+
+// The desktop search (input + suggester + transfer/bookmarks/drafts/gallery
+// modules) is heavy. The desktop navbar is `hidden md:flex` but still mounts on
+// mobile, so a static import shipped all of that into the mobile critical path
+// purely as waste. Load it as a separate chunk and only mount it once the
+// viewport is actually desktop-width — never on phones.
+const Search = dynamic(
+  () => import("@/features/shared/navbar/search").then((m) => ({ default: m.Search })),
+  { ssr: false }
+);
 
 interface Props {
   step?: number;
@@ -43,6 +53,18 @@ export function NavbarDesktop({
   const { data: unread } = useMattermostUnread(Boolean(activeUser && hydrated));
 
   const [showSidebar, setShowSidebar] = useState(false);
+
+  // SSR-safe desktop detection: false on the server and on phones, true only
+  // once a >=768px viewport is confirmed on the client. Gates the heavy Search
+  // so its chunk is never fetched on mobile.
+  const [isDesktop, setIsDesktop] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const update = () => setIsDesktop(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
 
   return (
     <div
@@ -75,9 +97,10 @@ export function NavbarDesktop({
           />
         </Tooltip>
         {(step !== 1 || transparentVerify) && (
-          <div className="max-w-[400px] w-full">
-            <Search />
-          </div>
+          // Slot is always rendered so it reserves its flex space (no layout
+          // shift when Search mounts). Only the heavy Search itself is gated on
+          // isDesktop, so its chunk never loads on mobile.
+          <div className="max-w-[400px] w-full">{isDesktop && <Search />}</div>
         )}
         <div className="flex items-center ml-3 gap-3">
           <NavbarPerksButton />

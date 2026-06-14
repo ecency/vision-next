@@ -11,6 +11,29 @@
   }
 }
 
+// Entrance for each toast (replaces framer-motion's initial/animate). Slides up
+// from below while fading in.
+@keyframes feedback-item-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(48px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.feedback-item-enter {
+  animation: feedback-item-enter 0.2s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feedback-item-enter {
+    animation: none;
+  }
+}
+
 .feedback-container {
   display: flex;
   flex-direction: column-reverse;

@@ -2702,7 +2702,12 @@
   },
   "landing-page": {
     "welcome-text": "Ecency",
+    "hero-title": "Own your words. Earn for them.",
     "what-is-ecency": "Freespeech, True ownership, rewarding communities on Web3",
+    "why-ecency": "Why Ecency",
+    "feature-own-desc": "Your account and content live on the blockchain — truly yours, no one can take them away.",
+    "feature-earn-desc": "Get rewarded in crypto for your posts, curation and engagement.",
+    "feature-open-desc": "Open source and powered by Hive. Real free speech, no limits, no middlemen.",
     "powered-by-hive": "powered by Hive",
     "how-it-works": "HOW IT WORKS?",
     "get-started": "JOIN NOW",
@@ -2762,7 +2767,7 @@
     "enter-your-email-adress": "Enter your email address",
     "send": "Send",
     "subscribe-paragraph": "Be first to know what's happening in decentralized web.",
-    "copy-rights": "©2025 Ecency. All rights reserved.",
+    "copy-rights": "©{{year}} Ecency. All rights reserved.",
     "success-message-subscribe": "You are subscribed to our newsletters!",
     "validation-email": "A valid email is required",
     "error-occured": "A server error has been occurred."
