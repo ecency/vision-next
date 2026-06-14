@@ -119,7 +119,7 @@ export default function About() {
             <a
               className="contacts-link"
               target="_blank"
-              href="mailto:info@esteem.app?subject=Feedback"
+              href="mailto:hello@ecency.com?subject=Feedback"
               rel="noopener noreferrer"
             >
               {mailSvg} {i18next.t("static.about.contact-email")}
