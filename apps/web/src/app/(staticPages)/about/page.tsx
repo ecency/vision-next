@@ -34,6 +34,8 @@ export default function About() {
                 <h1 className="about-title" />
               </Tsx>
               <p>{i18next.t("static.about.intro-content")}</p>
+              <p>{i18next.t("static.about.intro-content-2")}</p>
+              <p>{i18next.t("static.about.intro-content-3")}</p>
             </div>
             <div className="sub-cloud">
               <div className="cloud-1" />
