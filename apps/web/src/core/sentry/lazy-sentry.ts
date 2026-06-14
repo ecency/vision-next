@@ -36,6 +36,12 @@ const earlyRejectionHandler = (e: PromiseRejectionEvent) => {
   earlyErrors.push(e.reason);
 };
 
+function removeEarlyListeners() {
+  if (!isBrowser) return;
+  window.removeEventListener("error", earlyErrorHandler);
+  window.removeEventListener("unhandledrejection", earlyRejectionHandler);
+}
+
 function loadSentry(): Promise<SentryModule | null> {
   if (mod) return Promise.resolve(mod);
   if (!loadPromise) {
@@ -69,6 +75,10 @@ function onInitFailure(e?: unknown) {
   mod = null;
   if (e) console.warn("Sentry init failed:", e);
   if (initFailures >= MAX_INIT_FAILURES) {
+    // Give up permanently: clear the buffers AND detach the window listeners,
+    // otherwise earlyErrors would keep growing on every error event for the
+    // page lifetime (ensureInit no longer drains it once we have given up).
+    removeEarlyListeners();
     queued.length = 0;
     earlyErrors.length = 0;
     console.warn("Sentry disabled after repeated load/init failures.");
@@ -96,10 +106,7 @@ function ensureInit(): Promise<void> {
     try {
       m.init(opts);
       m.setTag("source", "client");
-      if (isBrowser) {
-        window.removeEventListener("error", earlyErrorHandler);
-        window.removeEventListener("unhandledrejection", earlyRejectionHandler);
-      }
+      removeEarlyListeners();
       initialized = true;
       // Replay buffered method calls in order.
       for (const c of queued.splice(0)) {
