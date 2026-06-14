@@ -21,7 +21,7 @@ import { EcencyAnalytics } from "@ecency/sdk";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import i18next from "i18next";
 import { usePublishState } from "../_hooks";
-import * as Sentry from "@sentry/nextjs";
+import { sentry } from "@/core/sentry/lazy-sentry";
 import { SUBMIT_DESCRIPTION_MAX_LENGTH } from "@/app/submit/_consts";
 import { useActiveAccount } from "@/core/hooks";
 
@@ -181,7 +181,7 @@ export function usePublishApi() {
       try {
         await validatePostCreating(entry.author, entry.permlink, 3);
       } catch (e) {
-        Sentry.captureException(e, {
+        sentry.captureException(e, {
           extra: { username: entry.author }
         });
       }

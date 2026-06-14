@@ -2,7 +2,7 @@ import { Account, ActiveUser } from "@/entities";
 import * as ls from "@/utils/local-storage";
 import Cookies from "js-cookie";
 import { ACTIVE_USER_COOKIE_NAME } from "@/consts";
-import * as Sentry from "@sentry/nextjs";
+import { sentry } from "@/core/sentry/lazy-sentry";
 
 const makeActiveUser = (username: string): ActiveUser => ({
   username,
@@ -47,14 +47,14 @@ export const createAuthenticationActions = (
       Cookies.set(ACTIVE_USER_COOKIE_NAME, name, { expires: 365 });
       set({ activeUser: nextActiveUser });
 
-      Sentry.setUser({
+      sentry.setUser({
         username: name
       });
     } else {
       ls.remove("active_user");
       Cookies.remove(ACTIVE_USER_COOKIE_NAME);
       set({ activeUser: nextActiveUser });
-      Sentry.setUser(null);
+      sentry.setUser(null);
     }
   }
 });

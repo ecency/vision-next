@@ -7,7 +7,7 @@ import { User } from "@/entities";
 import { useGlobalStore } from "@/core/global-store";
 import { useHsLoginRefresh, useRecordUserActivity } from "@/api/mutations";
 import { useCallback } from "react";
-import * as Sentry from "@sentry/nextjs";
+import { sentry } from "@/core/sentry/lazy-sentry";
 import Image from "next/image";
 import i18next from "i18next";
 import { UilSpinner } from "@tooni/iconscout-unicons-react";
@@ -53,7 +53,7 @@ export function AuthPage() {
 
       router.push(`/@${user.username}/feed`);
     } catch (e) {
-      Sentry.captureException(e);
+      sentry.captureException(e);
     }
   }, [
     addUser,

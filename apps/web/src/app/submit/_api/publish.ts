@@ -11,7 +11,7 @@ import { BeneficiaryRoute, Entry, FullAccount, RewardType } from "@/entities";
 import { createPermlink, isCommunity, makeCommentOptions, tempEntry } from "@/utils";
 import i18next from "i18next";
 import { error, success } from "@/features/shared";
-import * as Sentry from "@sentry/nextjs";
+import { sentry } from "@/core/sentry/lazy-sentry";
 import { useRouter } from "next/navigation";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { postBodySummary } from "@ecency/render-helper";
@@ -173,7 +173,7 @@ export function usePublishApi(onClear: () => void) {
         try {
           await validatePostCreating(entry.author, entry.permlink, 3);
         } catch (e) {
-          Sentry.captureException(e, {
+          sentry.captureException(e, {
             extra: { username: entry.author }
           });
         }

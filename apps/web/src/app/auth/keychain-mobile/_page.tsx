@@ -6,7 +6,7 @@ import { User } from "@/entities";
 import { useGlobalStore } from "@/core/global-store";
 import { useHsLoginRefresh, useRecordUserActivity } from "@/api/mutations";
 import { useCallback, useState } from "react";
-import * as Sentry from "@sentry/nextjs";
+import { sentry } from "@/core/sentry/lazy-sentry";
 import Image from "next/image";
 import i18next from "i18next";
 import { UilSpinner } from "@tooni/iconscout-unicons-react";
@@ -85,7 +85,7 @@ export function KeychainMobileAuthPage() {
 
       router.push(`/@${user.username}/feed`);
     } catch (e) {
-      Sentry.captureException(e);
+      sentry.captureException(e);
       const detail = e instanceof Error ? e.message : String(e);
       setErrorMessage(`${i18next.t("login.keychain-mobile-error", { defaultValue: "Login failed. Please try again." })}\n${detail}`);
     }

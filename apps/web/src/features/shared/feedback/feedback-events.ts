@@ -1,7 +1,7 @@
 import { ErrorTypes } from "@/enums";
 import { random } from "@/utils";
 import i18next from "i18next";
-import * as Sentry from "@sentry/nextjs";
+import { sentry } from "@/core/sentry/lazy-sentry";
 import { formatError } from "@/api/format-error";
 import { ConsoleHistoryEntry, getConsoleHistory } from "@/utils/console-msg";
 
@@ -95,7 +95,7 @@ export const consumeErrorFeedbackContext = (id: string): ErrorFeedbackExtras | u
 };
 
 /**
- * Handles known app errors and conditionally reports to Sentry.
+ * Handles known app errors and conditionally reports to sentry.
  * @returns true if error was handled and should NOT be rethrown.
  */
 export function handleAndReportError(err: any, contextTag?: string): boolean {
@@ -120,10 +120,10 @@ export function handleAndReportError(err: any, contextTag?: string): boolean {
   });
 
   if (contextTag) {
-    Sentry.setTag("context", contextTag);
+    sentry.setTag("context", contextTag);
   }
 
-  Sentry.withScope((scope) => {
+  sentry.withScope((scope) => {
     scope.setExtra("feedbackMessage", message);
     if (contextTag) {
       scope.setExtra("feedbackId", `${contextTag}-${Date.now()}`);
@@ -136,7 +136,7 @@ export function handleAndReportError(err: any, contextTag?: string): boolean {
       scope.setTag("context", contextTag);
     }
     scope.setTag("reported_via", "handleAndReportError");
-    Sentry.captureException(err);
+    sentry.captureException(err);
   });
   return false; // ❌ unexpected, should throw
 }
