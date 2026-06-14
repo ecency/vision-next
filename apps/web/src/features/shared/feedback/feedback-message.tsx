@@ -16,7 +16,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useRef, useState } from "react";
 import { useMount, useUnmount } from "react-use";
-import * as Sentry from "@sentry/nextjs";
+import { sentry } from "@/core/sentry/lazy-sentry";
 import { getConsoleHistory } from "@/utils/console-msg";
 import { useGlobalStore } from "@/core/global-store";
 
@@ -140,7 +140,7 @@ export function FeedbackMessage({ feedback, onClose }: Props) {
 
                 const context = consumeErrorFeedbackContext(feedback.id);
 
-                Sentry.withScope((scope) => {
+                sentry.withScope((scope) => {
                   scope.setExtra("feedbackId", feedback.id);
                   scope.setExtra("feedbackMessage", feedback.message);
 
@@ -160,7 +160,7 @@ export function FeedbackMessage({ feedback, onClose }: Props) {
                   scope.setTag("reported_via", "feedback-toast-report");
 
                   const errorPayload = context?.error ?? new Error(feedback.message);
-                  Sentry.captureException(errorPayload);
+                  sentry.captureException(errorPayload);
                 });
 
                 handleClose();

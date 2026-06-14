@@ -26,7 +26,7 @@ import { useWavesGrid } from "@/app/waves/_hooks";
 import { useWavesTagFilter } from "@/app/waves/_context";
 import { Button } from "@ui/button";
 import i18next from "i18next";
-import * as Sentry from "@sentry/nextjs";
+import { sentry } from "@/core/sentry/lazy-sentry";
 
 interface Props {
   host: string;
@@ -68,8 +68,8 @@ export function WavesListView({ host, feedType, username }: Props) {
         tag,
         message
       });
-      Sentry.captureException(error, {
-        data: { host, feedType, tag }
+      sentry.captureException(error, {
+        extra: { host, feedType, tag }
       });
     }
   }, [error, feedType, host, isError, tag]);
