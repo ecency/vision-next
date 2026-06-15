@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { describe, expect, it, vi } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -261,5 +261,22 @@ describe("EntryListItem", () => {
 
     expect(screen.getByTestId("entry-vote-btn")).toBeInTheDocument();
     expect(screen.getByTestId("entry-menu")).toBeInTheDocument();
+  });
+
+  it("mounts the deferred action bar when focus enters the card (keyboard backstop)", async () => {
+    const entry = mockEntry({
+      author: "alice",
+      permlink: "deep-post",
+      title: "Deep In The Feed",
+      category: "hive-1"
+    });
+
+    renderItem(entry, { order: 5 });
+    expect(screen.queryByTestId("entry-vote-btn")).not.toBeInTheDocument();
+
+    // Focusing a server-rendered card link (here the author link) mounts the
+    // card's deferred action bar so keyboard users reach the controls.
+    fireEvent.focusIn(screen.getByTestId("profile-link"));
+    await waitFor(() => expect(screen.getByTestId("entry-vote-btn")).toBeInTheDocument());
   });
 });

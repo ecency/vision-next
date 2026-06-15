@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { useInViewport } from "react-in-viewport";
 
 interface Props {
@@ -13,15 +13,15 @@ interface Props {
   placeholder: ReactNode;
   /** When true, render `children` immediately (e.g. above-the-fold cards). */
   disabled?: boolean;
+  /**
+   * Externally-driven mount, e.g. the parent card detected keyboard focus on one
+   * of its (server-rendered, focusable) links and wants the deferred controls
+   * available before focus reaches them.
+   */
+  forceShow?: boolean;
   /** How early (before entering the viewport) to mount. */
   rootMargin?: string;
   className?: string;
-  /**
-   * Accessible name for the placeholder while deferred. Makes the wrapper
-   * keyboard-focusable so a keyboard/screen-reader user who tabs to it mounts
-   * the real subtree (a backstop to the rootMargin + scroll-follows-focus).
-   */
-  ariaLabel?: string;
 }
 
 /**
@@ -34,27 +34,33 @@ interface Props {
  * mismatch. `react-in-viewport`'s observer attaches in a post-paint effect, the
  * same primitive DetectBottom already uses inside SSR'd lists.
  *
- * Accessibility: keyboard (focus) and touch also mount the real subtree, so
- * off-screen controls reached by tabbing/touch are never dead. Above-the-fold
- * cards pass `disabled` so their controls are interactive immediately.
+ * Accessibility: the rootMargin (cards mount well before the viewport, and
+ * scroll-follows-focus brings a card into view as the user tabs to its links) +
+ * touch (`onTouchStart`) + the parent's `forceShow` (focus on the card) keep the
+ * deferred controls reachable for keyboard, screen-reader and touch users.
+ * Above-the-fold cards pass `disabled` so their controls are interactive
+ * immediately. The placeholder itself is NOT made focusable — that dropped focus
+ * to <body> when it swapped to children on mount.
  */
 export function HydrateOnVisible({
   children,
   placeholder,
   disabled = false,
+  forceShow = false,
   rootMargin = "600px 0px",
-  className,
-  ariaLabel
+  className
 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const [shown, setShown] = useState(false);
-  const { inViewport } = useInViewport(ref, { rootMargin });
+  // Stable options object so useInViewport doesn't re-create its observer.
+  const options = useMemo(() => ({ rootMargin }), [rootMargin]);
+  const { inViewport } = useInViewport(ref, options);
 
   useEffect(() => {
     if (!disabled && inViewport) setShown(true);
   }, [disabled, inViewport]);
 
-  if (disabled || shown) {
+  if (disabled || forceShow || shown) {
     return (
       <div ref={ref} className={className}>
         {children}
@@ -62,18 +68,8 @@ export function HydrateOnVisible({
     );
   }
 
-  // Placeholder is keyboard-focusable (tabIndex=0) so focus/touch mounts the
-  // real controls; combined with the rootMargin this keeps the deferred
-  // controls reachable for keyboard, screen-reader and touch users.
   return (
-    <div
-      ref={ref}
-      className={className}
-      tabIndex={0}
-      aria-label={ariaLabel}
-      onFocus={() => setShown(true)}
-      onTouchStart={() => setShown(true)}
-    >
+    <div ref={ref} className={className} onTouchStart={() => setShown(true)}>
       {placeholder}
     </div>
   );

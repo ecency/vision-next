@@ -54,6 +54,11 @@ export function EntryListItemComponent({
 }: Props) {
   const pageAccount = account as FullAccount;
 
+  // Keyboard backstop for the deferred action bar: once focus enters this card
+  // (its server-rendered title/author/tag links), mount the action controls so a
+  // keyboard/screen-reader user reaches them by the time they tab that far.
+  const [actionsFocused, setActionsFocused] = React.useState(false);
+
   const isCrossPost = !!entryProp.original_entry;
   const entry = entryProp.original_entry || entryProp;
   const pinned = entry?.stats?.is_pinned ?? pageAccount?.profile?.pinned;
@@ -73,6 +78,7 @@ export function EntryListItemComponent({
         [filter ?? ""]: !!filter
       })}
       id={(entry.author + entry.permlink).replace(/[0-9]/g, "")}
+      onFocusCapture={() => setActionsFocused(true)}
     >
       <EntryListItemClientInit />
       <EntryListItemCrossPost entry={entryProp} />
@@ -142,7 +148,7 @@ export function EntryListItemComponent({
           duplicate reply-count link (redundant with the body permalink). */}
       <HydrateOnVisible
         disabled={order < 2}
-        ariaLabel={i18next.t("entry-list-item.actions", { defaultValue: "Post actions" })}
+        forceShow={actionsFocused}
         placeholder={
           <div
             className="w-full flex md:w-auto md:inline-flex items-center gap-2 md:gap-3 rounded-xl border border-[--border-color] px-2 py-1 text-sm"

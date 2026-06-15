@@ -61,16 +61,15 @@ describe("HydrateOnVisible", () => {
     expect(screen.queryByTestId("placeholder")).not.toBeInTheDocument();
   });
 
-  it("mounts children on keyboard focus", async () => {
+  it("renders children when forceShow is set (parent-driven keyboard mount)", () => {
     setInViewport(false);
-    const { container } = render(
-      <HydrateOnVisible placeholder={Placeholder} ariaLabel="Post actions">
+    render(
+      <HydrateOnVisible placeholder={Placeholder} forceShow>
         <Children />
       </HydrateOnVisible>
     );
-    expect(screen.getByTestId("placeholder")).toBeInTheDocument();
-    fireEvent.focus(container.firstChild as Element);
-    await waitFor(() => expect(screen.getByTestId("children")).toBeInTheDocument());
+    expect(screen.getByTestId("children")).toBeInTheDocument();
+    expect(screen.queryByTestId("placeholder")).not.toBeInTheDocument();
   });
 
   it("mounts children on touch (off-screen touch users)", async () => {
