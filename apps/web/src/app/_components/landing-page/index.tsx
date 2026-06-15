@@ -93,7 +93,7 @@ export async function LandingPage() {
           {/* Brand wordmark instead of the logo mark — the navbar already
               carries the logo, so the hero leads with the name as text. Text
               keeps the hero an all-text LCP (no image request). */}
-          <p className="mb-5 font-extrabold tracking-tight text-blue-dark-sky dark:text-gray-pinkish text-3xl md:text-4xl">
+          <p className="mb-4 font-extrabold tracking-tight text-blue-dark-sky dark:text-gray-pinkish text-xl sm:text-2xl md:text-3xl">
             {defaults.name}
           </p>
           <h1 className="font-extrabold tracking-tight leading-[1.05] text-blue-dark-sky dark:text-gray-pinkish text-[2rem] sm:text-5xl md:text-6xl">
