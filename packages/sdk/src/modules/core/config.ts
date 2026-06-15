@@ -1,5 +1,9 @@
 import { QueryClient } from "@tanstack/react-query";
-import { config as hiveTxConfig, setNodes as setHiveTxNodes } from "../../hive-tx";
+import {
+  config as hiveTxConfig,
+  setNodes as setHiveTxNodes,
+  setUserAgent as setHiveTxUserAgent,
+} from "../../hive-tx";
 
 // Safe environment variable access for browser builds
 // In browser builds, tsup will replace process.env.* with literal values at compile time
@@ -114,6 +118,17 @@ export namespace ConfigManager {
    */
   export function setHiveNodes(nodes: string[]) {
     setHiveTxNodes(nodes);
+  }
+
+  /**
+   * Set the User-Agent sent on server-side (Node) requests to Hive nodes.
+   * Lets an app label its own SSR/server traffic (otherwise Node's fetch sends a
+   * bare `node` UA). No effect in browsers (User-Agent is a forbidden header) or
+   * React Native (keeps its native UA). Delegates to the unified hive-tx setter.
+   * @param userAgent - The User-Agent string (e.g. "ecency-web-ssr (+https://ecency.com)")
+   */
+  export function setUserAgent(userAgent: string) {
+    setHiveTxUserAgent(userAgent);
   }
 
   /**

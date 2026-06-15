@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { callRPCBroadcast, RPCError } from "./call";
-import { config } from "../config";
+import { callRPCBroadcast, callRPC, callREST, RPCError } from "./call";
+import { config, setUserAgent } from "../config";
 
 const ORIGINAL_NODES = [...config.nodes];
 const ORIGINAL_TIMEOUT = config.broadcastTimeout;
@@ -134,5 +134,56 @@ describe("callRPCBroadcast — browser-style failover", () => {
       callRPCBroadcast("condenser_api.broadcast_transaction_synchronous", [{}])
     ).rejects.toThrow(/aborted/i);
     expect(fetchSpy).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("server-side User-Agent identity", () => {
+  // Vitest runs the package specs under Node, so isNodeRuntime is true here and
+  // the configured User-Agent must be attached to every outgoing request.
+  const ORIGINAL_REST = [...config.restNodes];
+  const ORIGINAL_UA = config.userAgent;
+
+  afterEach(() => {
+    config.restNodes = ORIGINAL_REST;
+    config.userAgent = ORIGINAL_UA;
+  });
+
+  function headersOf(init: any): Record<string, string> {
+    return (init?.headers ?? {}) as Record<string, string>;
+  }
+
+  it("attaches the configured User-Agent on JSON-RPC (callRPC) requests", async () => {
+    config.userAgent = "ecency-sdk-test/1.2.3";
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockImplementation(async (_input: any, init: any) =>
+        jsonOk(readJsonRpcId(init), { ok: true })
+      );
+    await callRPC("condenser_api.get_dynamic_global_properties", []);
+    const headers = headersOf(fetchSpy.mock.calls[0]![1]);
+    expect(headers["User-Agent"]).toBe("ecency-sdk-test/1.2.3");
+    // The JSON-RPC content type must survive the header merge.
+    expect(headers["Content-Type"]).toBe("application/json");
+  });
+
+  it("attaches the configured User-Agent on REST (callREST) requests", async () => {
+    config.restNodes = ["https://rest-a.test"];
+    config.userAgent = "ecency-sdk-test/9.9.9";
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(
+      async () =>
+        new Response(JSON.stringify({ ok: true }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        })
+    );
+    await callREST("status", "/status");
+    expect(headersOf(fetchSpy.mock.calls[0]![1])["User-Agent"]).toBe("ecency-sdk-test/9.9.9");
+  });
+
+  it("setUserAgent trims input and ignores blank values", () => {
+    setUserAgent("  custom-ua/1.0  ");
+    expect(config.userAgent).toBe("custom-ua/1.0");
+    setUserAgent("   ");
+    expect(config.userAgent).toBe("custom-ua/1.0"); // unchanged by blank input
   });
 });

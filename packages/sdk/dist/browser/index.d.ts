@@ -1,7 +1,7 @@
 import * as _tanstack_react_query from '@tanstack/react-query';
 import { MutationKey, UseMutationOptions, QueryClient, QueryKey, InfiniteData, UseQueryOptions, UseInfiniteQueryOptions, useMutation } from '@tanstack/react-query';
-import { O as Operation, R as PrivateKey, i as BroadcastResult, g as Authority, S as PublicKey, P as OperationName, aj as operations } from './hive-DfGQ3XAe.js';
-export { A as AccountCreateOperation, f as AssetSymbol, u as CustomJsonOperation, $ as HiveTxTransaction, M as Memo, N as OperationBody, _ as Signature, ae as callREST, af as callRPC, ag as callRPCBroadcast, ah as callWithQuorum, ai as hiveTxConfig, al as hiveTxUtils } from './hive-DfGQ3XAe.js';
+import { O as Operation, R as PrivateKey, i as BroadcastResult, g as Authority, S as PublicKey, P as OperationName, aj as operations } from './hive-fkgMnAQs.js';
+export { A as AccountCreateOperation, f as AssetSymbol, u as CustomJsonOperation, $ as HiveTxTransaction, M as Memo, N as OperationBody, _ as Signature, ae as callREST, af as callRPC, ag as callRPCBroadcast, ah as callWithQuorum, ai as hiveTxConfig, am as hiveTxUtils } from './hive-fkgMnAQs.js';
 
 interface AiGenerationPrice {
     aspect_ratio: string;
@@ -1015,6 +1015,14 @@ declare namespace ConfigManager {
      * @param nodes - Array of Hive RPC node URLs
      */
     function setHiveNodes(nodes: string[]): void;
+    /**
+     * Set the User-Agent sent on server-side (Node) requests to Hive nodes.
+     * Lets an app label its own SSR/server traffic (otherwise Node's fetch sends a
+     * bare `node` UA). No effect in browsers (User-Agent is a forbidden header) or
+     * React Native (keeps its native UA). Delegates to the unified hive-tx setter.
+     * @param userAgent - The User-Agent string (e.g. "ecency-web-ssr (+https://ecency.com)")
+     */
+    function setUserAgent(userAgent: string): void;
     /**
      * Set DMCA filtering lists
      * @param lists - DMCA lists object containing accounts/tags/posts arrays

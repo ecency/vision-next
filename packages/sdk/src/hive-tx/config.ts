@@ -48,6 +48,19 @@ export const config = {
   } as Partial<Record<APIMethods, string[]>>,
 
   /**
+   * User-Agent sent on server-side (Node) HTTP requests to Hive nodes.
+   *
+   * Node's built-in fetch (undici) sends a bare `User-Agent: node` when none is
+   * set, which is indistinguishable from any random Node script in node/CDN
+   * analytics. A descriptive value lets operators tell their own SSR/server
+   * traffic apart from anonymous scrapers. Only applied in Node — browsers
+   * forbid overriding User-Agent (it is silently dropped) and React Native sets
+   * its own native UA, so client and mobile traffic are untouched. Override via
+   * `ConfigManager.setUserAgent()` (or `setUserAgent()` from `@ecency/sdk/hive`).
+   */
+  userAgent: 'ecency-sdk',
+
+  /**
    * The Hive blockchain chain ID for transaction signing and verification.
    */
   chain_id: 'beeab0de00000000000000000000000000000000000000000000000000000000',
@@ -104,4 +117,17 @@ export const setNodes = (nodes: string[]): void => {
   ]
   if (!validNodes.length) return
   config.nodes = validNodes
+}
+
+/**
+ * Validated setter for the User-Agent sent on server-side (Node) requests.
+ * Trims the input and ignores an empty value so a bad input can't blank out the
+ * header. Like `setNodes`, it lives in the React-free `hive-tx` core so it is
+ * reachable from both the full `@ecency/sdk` entry (via
+ * `ConfigManager.setUserAgent`) and the lean `@ecency/sdk/hive` server/CLI entry.
+ */
+export const setUserAgent = (ua: string): void => {
+  const value = (ua ?? '').trim()
+  if (!value) return
+  config.userAgent = value
 }
