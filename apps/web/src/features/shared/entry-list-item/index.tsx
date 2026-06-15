@@ -28,6 +28,7 @@ import { EntryListItemProvider } from "@/features/shared/entry-list-item/entry-l
 import { EntryListItemNsfwContent } from "@/features/shared/entry-list-item/entry-list-item-nsfw-content";
 import { EntryListItemClientInit } from "@/features/shared/entry-list-item/entry-list-item-client-init";
 import { EntryListItemPollIcon } from "@/features/shared/entry-list-item/entry-list-item-poll-icon";
+import { HydrateOnVisible } from "@/features/shared/hydrate-on-visible";
 import { UilComment } from "@tooni/iconscout-unicons-react";
 
 setProxyBase(defaults.imageServer);
@@ -53,6 +54,11 @@ export function EntryListItemComponent({
 }: Props) {
   const pageAccount = account as FullAccount;
 
+  // Keyboard backstop for the deferred action bar: once focus enters this card
+  // (its server-rendered title/author/tag links), mount the action controls so a
+  // keyboard/screen-reader user reaches them by the time they tab that far.
+  const [actionsFocused, setActionsFocused] = React.useState(false);
+
   const isCrossPost = !!entryProp.original_entry;
   const entry = entryProp.original_entry || entryProp;
   const pinned = entry?.stats?.is_pinned ?? pageAccount?.profile?.pinned;
@@ -72,6 +78,7 @@ export function EntryListItemComponent({
         [filter ?? ""]: !!filter
       })}
       id={(entry.author + entry.permlink).replace(/[0-9]/g, "")}
+      onFocusCapture={() => setActionsFocused(true)}
     >
       <EntryListItemClientInit />
       <EntryListItemCrossPost entry={entryProp} />
@@ -132,7 +139,28 @@ export function EntryListItemComponent({
             promoted, so don't strip their priority — order alone is correct. */}
         <EntryListItemMutedContent entry={entryProp} isThumbLcp={order < 2} />
       </div>
-      <div>
+      {/* The action bar is the heavy interactive cluster (vote/payout/votes/
+          reblog/menu = many query observers + floating-ui popovers). Defer its
+          hydration until near-viewport for below-the-fold cards; the top cards
+          (order < 2) stay interactive immediately. Title/body/thumbnail, author
+          (ProfilePopover), tag and timestamp are OUTSIDE this island, so they
+          remain in the server HTML for SEO. The only link inside is the
+          duplicate reply-count link (redundant with the body permalink). */}
+      <HydrateOnVisible
+        disabled={order < 2}
+        forceShow={actionsFocused}
+        placeholder={
+          <div
+            className="w-full flex md:w-auto md:inline-flex items-center gap-2 md:gap-3 rounded-xl border border-[--border-color] px-2 py-1 text-sm"
+            aria-hidden="true"
+          >
+            <span className="h-4 w-8 rounded bg-gray-200 dark:bg-dark-200" />
+            <span className="h-4 w-10 rounded bg-gray-200 dark:bg-dark-200" />
+            <span className="h-4 w-8 rounded bg-gray-200 dark:bg-dark-200" />
+            <span className="h-4 w-6 rounded bg-gray-200 dark:bg-dark-200" />
+          </div>
+        }
+      >
         <div className="w-full flex md:w-auto md:inline-flex items-center gap-2 md:gap-3 rounded-xl border border-[--border-color] px-2 py-1 text-sm">
           <EntryVoteBtn isPostSlider={true} entry={entry} account={account} />
           <EntryPayout entry={entry} />
@@ -157,7 +185,7 @@ export function EntryListItemComponent({
           <div className="border-r border-[--border-color] w-[1px] h-4" />
           <EntryMenu alignBottom={order >= 1} entry={entry} />
         </div>
-      </div>
+      </HydrateOnVisible>
     </div>
   );
 }
