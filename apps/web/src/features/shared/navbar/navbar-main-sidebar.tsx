@@ -1,3 +1,5 @@
+"use client";
+
 import {
   UilCloudComputing,
   UilColumns,
@@ -18,7 +20,7 @@ import { Button } from "@ui/button";
 import i18next from "i18next";
 import { closeSvg } from "@ui/svg";
 import { SwitchLang } from "@/features/shared";
-import { Search } from "@/features/shared/navbar/search";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ModalSidebar } from "@ui/modal/modal-sidebar";
@@ -27,6 +29,16 @@ import defaults from "@/defaults";
 import { useHydrated } from "@/api/queries";
 import { useMattermostUnread } from "@/features/chat/mattermost-api";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+
+// The full search experience (suggester + transfer/gallery/bookmarks graph) is
+// heavy and only appears inside the opened main sidebar, so load it as a
+// separate chunk instead of eagerly on every route. This was the last static
+// importer of the search module keeping it in the eager navbar/layout bundle;
+// the desktop and mobile navbar searches are already dynamic.
+const Search = dynamic(
+  () => import("@/features/shared/navbar/search").then((m) => ({ default: m.Search })),
+  { ssr: false }
+);
 
 interface Props {
   show: boolean;
