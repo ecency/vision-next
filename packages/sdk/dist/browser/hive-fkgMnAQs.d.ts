@@ -786,6 +786,18 @@ declare const config: {
      */
     restNodesByApi: Partial<Record<APIMethods, string[]>>;
     /**
+     * User-Agent sent on server-side (Node) HTTP requests to Hive nodes.
+     *
+     * Node's built-in fetch (undici) sends a bare `User-Agent: node` when none is
+     * set, which is indistinguishable from any random Node script in node/CDN
+     * analytics. A descriptive value lets operators tell their own SSR/server
+     * traffic apart from anonymous scrapers. Only applied in Node — browsers
+     * forbid overriding User-Agent (it is silently dropped) and React Native sets
+     * its own native UA, so client and mobile traffic are untouched. Override via
+     * `ConfigManager.setUserAgent()` (or `setUserAgent()` from `@ecency/sdk/hive`).
+     */
+    userAgent: string;
+    /**
      * The Hive blockchain chain ID for transaction signing and verification.
      */
     chain_id: string;
@@ -828,6 +840,14 @@ declare const config: {
  * cross-bundle single-instance guarantee is a separate (build-level) concern.
  */
 declare const setNodes: (nodes: string[]) => void;
+/**
+ * Validated setter for the User-Agent sent on server-side (Node) requests.
+ * Trims the input and ignores an empty value so a bad input can't blank out the
+ * header. Like `setNodes`, it lives in the React-free `hive-tx` core so it is
+ * reachable from both the full `@ecency/sdk` entry (via
+ * `ConfigManager.setUserAgent`) and the lean `@ecency/sdk/hive` server/CLI entry.
+ */
+declare const setUserAgent: (ua: string) => void;
 
 type Memo = {
     /**
@@ -993,4 +1013,4 @@ declare namespace utils {
   export { type utils_WitnessProps as WitnessProps, utils_buildWitnessSetProperties as buildWitnessSetProperties, utils_makeBitMaskFilter as makeBitMaskFilter, utils_operations as operations, utils_validateUsername as validateUsername };
 }
 
-export { Transaction as $, type AccountCreateOperation as A, type Beneficiary as B, type CallResponse as C, type DeclineVotingRightsOperation as D, type EscrowApproveOperation as E, type EscrowReleaseOperation as F, type EscrowTransferOperation as G, type Extension as H, type FeedPublishOperation as I, type LimitOrderCreate2Operation as J, type LimitOrderCreateOperation as K, type LimitOrderCancelOperation as L, Memo as M, type OperationBody as N, type Operation as O, type OperationName as P, type Price as Q, PrivateKey as R, PublicKey as S, type RecoverAccountOperation as T, type RecurrentTransferOperation as U, type RemoveProposalOperation as V, type RequestAccountRecoveryOperation as W, type ResetAccountOperation as X, type SetResetAccountOperation as Y, type SetWithdrawVestingRouteOperation as Z, Signature as _, type AccountCreateWithDelegationOperation as a, type TransactionStatus as a0, type TransactionType as a1, type TransferFromSavingsOperation as a2, type TransferOperation as a3, type TransferToSavingsOperation as a4, type TransferToVestingOperation as a5, type UpdateProposalOperation as a6, type UpdateProposalVotesOperation as a7, type VoteOperation as a8, type WithdrawVestingOperation as a9, type WitnessProps$1 as aa, type WitnessSetPropertiesOperation as ab, type WitnessSetPropertiesParams as ac, type WitnessUpdateOperation as ad, callREST as ae, callRPC as af, callRPCBroadcast as ag, callWithQuorum as ah, config as ai, operations as aj, setNodes as ak, utils as al, type AccountUpdate2Operation as b, type AccountUpdateOperation as c, type AccountWitnessProxyOperation as d, type AccountWitnessVoteOperation as e, type AssetSymbol as f, type Authority as g, type BroadcastError as h, type BroadcastResult as i, type CancelTransferFromSavingsOperation as j, type ChainProperties as k, type ChangeRecoveryAccountOperation as l, type ClaimAccountOperation as m, type ClaimRewardBalanceOperation as n, type CollateralizedConvertOperation as o, type CommentOperation as p, type CommentOptionsOperation as q, type ConvertOperation as r, type CreateClaimedAccountOperation as s, type CreateProposalOperation as t, type CustomJsonOperation as u, type CustomOperation as v, type DelegateVestingSharesOperation as w, type DeleteCommentOperation as x, type DigestData as y, type EscrowDisputeOperation as z };
+export { Transaction as $, type AccountCreateOperation as A, type Beneficiary as B, type CallResponse as C, type DeclineVotingRightsOperation as D, type EscrowApproveOperation as E, type EscrowReleaseOperation as F, type EscrowTransferOperation as G, type Extension as H, type FeedPublishOperation as I, type LimitOrderCreate2Operation as J, type LimitOrderCreateOperation as K, type LimitOrderCancelOperation as L, Memo as M, type OperationBody as N, type Operation as O, type OperationName as P, type Price as Q, PrivateKey as R, PublicKey as S, type RecoverAccountOperation as T, type RecurrentTransferOperation as U, type RemoveProposalOperation as V, type RequestAccountRecoveryOperation as W, type ResetAccountOperation as X, type SetResetAccountOperation as Y, type SetWithdrawVestingRouteOperation as Z, Signature as _, type AccountCreateWithDelegationOperation as a, type TransactionStatus as a0, type TransactionType as a1, type TransferFromSavingsOperation as a2, type TransferOperation as a3, type TransferToSavingsOperation as a4, type TransferToVestingOperation as a5, type UpdateProposalOperation as a6, type UpdateProposalVotesOperation as a7, type VoteOperation as a8, type WithdrawVestingOperation as a9, type WitnessProps$1 as aa, type WitnessSetPropertiesOperation as ab, type WitnessSetPropertiesParams as ac, type WitnessUpdateOperation as ad, callREST as ae, callRPC as af, callRPCBroadcast as ag, callWithQuorum as ah, config as ai, operations as aj, setNodes as ak, setUserAgent as al, utils as am, type AccountUpdate2Operation as b, type AccountUpdateOperation as c, type AccountWitnessProxyOperation as d, type AccountWitnessVoteOperation as e, type AssetSymbol as f, type Authority as g, type BroadcastError as h, type BroadcastResult as i, type CancelTransferFromSavingsOperation as j, type ChainProperties as k, type ChangeRecoveryAccountOperation as l, type ClaimAccountOperation as m, type ClaimRewardBalanceOperation as n, type CollateralizedConvertOperation as o, type CommentOperation as p, type CommentOptionsOperation as q, type ConvertOperation as r, type CreateClaimedAccountOperation as s, type CreateProposalOperation as t, type CustomJsonOperation as u, type CustomOperation as v, type DelegateVestingSharesOperation as w, type DeleteCommentOperation as x, type DigestData as y, type EscrowDisputeOperation as z };

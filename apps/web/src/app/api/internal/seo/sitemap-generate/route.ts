@@ -28,7 +28,7 @@ import defaults from "@/defaults";
 // Hive-only entry: this is a server route handler — avoid pulling the
 // React/react-query surface of the main SDK entry into it. `setNodes` is the
 // same validated setter `ConfigManager.setHiveNodes` delegates to.
-import { callRPC, setNodes } from "@ecency/sdk/hive";
+import { callRPC, setNodes, setUserAgent } from "@ecency/sdk/hive";
 // App's curated RPC list (Ecency-first). The app applies this via
 // ConfigManager in sdk-init, but App Router route handlers never execute the
 // root layout, so sdk-init never runs here — configure the hive entry
@@ -148,6 +148,10 @@ export async function POST(req: Request): Promise<Response> {
   // before any callRPC below. Idempotent and re-applied each run so a hot
   // route module can't drift from public-nodes.json.
   setNodes(publicNodes);
+  // App Router route handlers never run sdk-init (no root layout), so label this
+  // route's server-side RPC traffic the same way sdk-init labels the rest of web
+  // SSR — otherwise it would go out as the default `ecency-sdk` UA.
+  setUserAgent("ecency-web-ssr (+https://ecency.com)");
 
   const started = Date.now();
   const cutoff = started - WINDOW_MS;

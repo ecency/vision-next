@@ -33,6 +33,13 @@ ConfigManager.setPrivateApiHost(privateApiHost);
 ConfigManager.setImageHost(defaults.imageServer);
 ConfigManager.setHiveNodes(publicNodes);
 
+// Label server-side (SSR) Hive requests so this traffic is identifiable in node
+// analytics instead of the bare `node` User-Agent that Node's fetch sends by
+// default. No effect in the browser (User-Agent is a forbidden header there).
+if (isServer) {
+  ConfigManager.setUserAgent("ecency-web-ssr (+https://ecency.com)");
+}
+
 // Initialize DMCA filtering immediately at module load time
 // This ensures the lists are available before any React Query fetches execute
 // Files are in public/dmca/ for both bundling and mobile app access

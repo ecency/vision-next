@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.16
+
+### Patch Changes
+
+- feat(sdk): label server-side Hive requests with a real User-Agent (#962)
+
 ## 2.3.15
 
 ### Patch Changes

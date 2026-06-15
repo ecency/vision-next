@@ -3,6 +3,45 @@ import { CallResponse } from '../types'
 import type { APIMethods } from '../api-types'
 import { sleep } from './sleep'
 
+// ── Server identity (User-Agent) ────────────────────────────────────────────
+
+/**
+ * True only when running under Node.js (SSR / server / CLI). Computed once.
+ *
+ * We attach a descriptive `User-Agent` exclusively here because that is the only
+ * place it (a) takes effect and (b) is wanted:
+ *  - Node's undici fetch otherwise sends a bare `User-Agent: node`, which is
+ *    indistinguishable from any anonymous script in node/CDN analytics.
+ *  - Browsers treat `User-Agent` as a forbidden header and silently drop any
+ *    override, so setting it there is pointless (and we avoid the churn).
+ *  - React Native sets its own native UA (e.g. the mobile app's own string);
+ *    overriding it would relabel real mobile traffic, so we explicitly exclude
+ *    it via `navigator.product === 'ReactNative'`.
+ */
+const isNodeRuntime: boolean = (() => {
+  try {
+    const isReactNative =
+      typeof navigator !== 'undefined' && (navigator as any).product === 'ReactNative'
+    return (
+      !isReactNative &&
+      typeof process !== 'undefined' &&
+      process.versions != null &&
+      process.versions.node != null
+    )
+  } catch {
+    return false
+  }
+})()
+
+/**
+ * Headers that identify the caller on server-side requests. Returns the
+ * configured `User-Agent` only under Node; an empty object everywhere else so
+ * browser and React Native requests are left exactly as they were.
+ */
+function serverIdentityHeaders(): Record<string, string> {
+  return isNodeRuntime ? { 'User-Agent': config.userAgent } : {}
+}
+
 // ── Error Types ─────────────────────────────────────────────────────────────
 
 export class RPCError extends Error {
@@ -665,7 +704,7 @@ const jsonRPCCall = async (
     const res = await fetch(url, {
       method: 'POST',
       body: JSON.stringify(body),
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...serverIdentityHeaders() },
       signal
     })
 
@@ -1019,7 +1058,8 @@ export async function callREST(
     const restCallStart = Date.now()
     try {
       const response = await fetch(url.toString(), {
-        signal: restSignal
+        signal: restSignal,
+        headers: serverIdentityHeaders()
       })
       if (response.status === 404) {
         throw new Error('HTTP 404 - Hint: can happen on wrong params')
