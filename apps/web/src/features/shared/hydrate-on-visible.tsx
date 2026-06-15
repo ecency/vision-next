@@ -16,6 +16,12 @@ interface Props {
   /** How early (before entering the viewport) to mount. */
   rootMargin?: string;
   className?: string;
+  /**
+   * Accessible name for the placeholder while deferred. Makes the wrapper
+   * keyboard-focusable so a keyboard/screen-reader user who tabs to it mounts
+   * the real subtree (a backstop to the rootMargin + scroll-follows-focus).
+   */
+  ariaLabel?: string;
 }
 
 /**
@@ -37,15 +43,16 @@ export function HydrateOnVisible({
   placeholder,
   disabled = false,
   rootMargin = "600px 0px",
-  className
+  className,
+  ariaLabel
 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const [shown, setShown] = useState(false);
   const { inViewport } = useInViewport(ref, { rootMargin });
 
   useEffect(() => {
-    if (inViewport) setShown(true);
-  }, [inViewport]);
+    if (!disabled && inViewport) setShown(true);
+  }, [disabled, inViewport]);
 
   if (disabled || shown) {
     return (
@@ -55,11 +62,16 @@ export function HydrateOnVisible({
     );
   }
 
+  // Placeholder is keyboard-focusable (tabIndex=0) so focus/touch mounts the
+  // real controls; combined with the rootMargin this keeps the deferred
+  // controls reachable for keyboard, screen-reader and touch users.
   return (
     <div
       ref={ref}
       className={className}
-      onFocusCapture={() => setShown(true)}
+      tabIndex={0}
+      aria-label={ariaLabel}
+      onFocus={() => setShown(true)}
       onTouchStart={() => setShown(true)}
     >
       {placeholder}

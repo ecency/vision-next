@@ -142,6 +142,7 @@ export function EntryListItemComponent({
           duplicate reply-count link (redundant with the body permalink). */}
       <HydrateOnVisible
         disabled={order < 2}
+        ariaLabel={i18next.t("entry-list-item.actions", { defaultValue: "Post actions" })}
         placeholder={
           <div
             className="w-full flex md:w-auto md:inline-flex items-center gap-2 md:gap-3 rounded-xl border border-[--border-color] px-2 py-1 text-sm"

@@ -41,14 +41,36 @@ describe("HydrateOnVisible", () => {
   });
 
   it("swaps to children once the element enters the viewport", async () => {
+    setInViewport(false);
+    const { rerender } = render(
+      <HydrateOnVisible placeholder={Placeholder}>
+        <Children />
+      </HydrateOnVisible>
+    );
+    // First paint (server-equivalent) must show the placeholder, not children.
+    expect(screen.getByTestId("placeholder")).toBeInTheDocument();
+    expect(screen.queryByTestId("children")).not.toBeInTheDocument();
+
     setInViewport(true);
-    render(
+    rerender(
       <HydrateOnVisible placeholder={Placeholder}>
         <Children />
       </HydrateOnVisible>
     );
     await waitFor(() => expect(screen.getByTestId("children")).toBeInTheDocument());
     expect(screen.queryByTestId("placeholder")).not.toBeInTheDocument();
+  });
+
+  it("mounts children on keyboard focus", async () => {
+    setInViewport(false);
+    const { container } = render(
+      <HydrateOnVisible placeholder={Placeholder} ariaLabel="Post actions">
+        <Children />
+      </HydrateOnVisible>
+    );
+    expect(screen.getByTestId("placeholder")).toBeInTheDocument();
+    fireEvent.focus(container.firstChild as Element);
+    await waitFor(() => expect(screen.getByTestId("children")).toBeInTheDocument());
   });
 
   it("mounts children on touch (off-screen touch users)", async () => {
