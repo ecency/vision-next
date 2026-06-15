@@ -1,12 +1,7 @@
 import { EcencyConfigManager } from "@/config";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
-import { BookmarksDialog } from "@/features/shared/bookmarks";
-import { DraftsDialog } from "@/features/shared/drafts";
-import { FragmentsDialog } from "@/features/shared/fragments";
-import { GalleryDialog } from "@/features/shared/gallery";
 import { preloadLoginDialog } from "@/features/shared";
-import { SchedulesDialog } from "@/features/shared/schedules";
 import {
   UilArchive,
   UilClock,
@@ -34,6 +29,33 @@ const MobileLoginQrDialog = dynamic(
   () => import("../../mobile-login-qr").then((m) => m.MobileLoginQrDialog),
   // The dialog renders its own modal/spinner once mounted; render nothing while
   // the (small) chunk streams in rather than an out-of-context placeholder.
+  { ssr: false, loading: () => null }
+);
+
+// These user dialogs are reachable only after the user opens the sidebar menu
+// and clicks the matching item. A static import would bundle all five graphs
+// (gallery/drafts/bookmarks/schedules/fragments) into the shared navbar chunk
+// that loads on every route - including read-only pages where they are never
+// used. Defer them; each render is gated on its open flag below, so the chunk
+// is fetched on first open, not on page load. Mirrors MobileLoginQrDialog.
+const GalleryDialog = dynamic(
+  () => import("@/features/shared/gallery").then((m) => m.GalleryDialog),
+  { ssr: false, loading: () => null }
+);
+const DraftsDialog = dynamic(
+  () => import("@/features/shared/drafts").then((m) => m.DraftsDialog),
+  { ssr: false, loading: () => null }
+);
+const BookmarksDialog = dynamic(
+  () => import("@/features/shared/bookmarks").then((m) => m.BookmarksDialog),
+  { ssr: false, loading: () => null }
+);
+const SchedulesDialog = dynamic(
+  () => import("@/features/shared/schedules").then((m) => m.SchedulesDialog),
+  { ssr: false, loading: () => null }
+);
+const FragmentsDialog = dynamic(
+  () => import("@/features/shared/fragments").then((m) => m.FragmentsDialog),
   { ssr: false, loading: () => null }
 );
 
@@ -167,31 +189,37 @@ export function NavbarSideMainMenu({ onHide }: Props) {
       <EcencyConfigManager.Conditional
         condition={({ visionFeatures }) => visionFeatures.gallery.enabled}
       >
-        <GalleryDialog setShow={(v) => setGallery(v)} show={gallery} />
+        {gallery && <GalleryDialog setShow={(v) => setGallery(v)} show={gallery} />}
       </EcencyConfigManager.Conditional>
 
       <EcencyConfigManager.Conditional
         condition={({ visionFeatures }) => visionFeatures.drafts.enabled}
       >
-        <DraftsDialog show={drafts} setShow={(v) => setDrafts(v)} />
+        {drafts && <DraftsDialog show={drafts} setShow={(v) => setDrafts(v)} />}
       </EcencyConfigManager.Conditional>
 
       <EcencyConfigManager.Conditional
         condition={({ visionFeatures }) => visionFeatures.bookmarks.enabled}
       >
-        <BookmarksDialog show={bookmarks && !!activeUser} setShow={(v) => setBookmarks(v)} />
+        {bookmarks && (
+          <BookmarksDialog show={bookmarks && !!activeUser} setShow={(v) => setBookmarks(v)} />
+        )}
       </EcencyConfigManager.Conditional>
 
       <EcencyConfigManager.Conditional
         condition={({ visionFeatures }) => visionFeatures.schedules.enabled}
       >
-        <SchedulesDialog show={schedules && !!activeUser} setShow={(v) => setSchedules(v)} />
+        {schedules && (
+          <SchedulesDialog show={schedules && !!activeUser} setShow={(v) => setSchedules(v)} />
+        )}
       </EcencyConfigManager.Conditional>
 
       <EcencyConfigManager.Conditional
         condition={({ visionFeatures }) => visionFeatures.fragments.enabled}
       >
-        <FragmentsDialog show={fragments && !!activeUser} setShow={(v) => setFragments(v)} />
+        {fragments && (
+          <FragmentsDialog show={fragments && !!activeUser} setShow={(v) => setFragments(v)} />
+        )}
       </EcencyConfigManager.Conditional>
 
       {mobileLogin && (
