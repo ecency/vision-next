@@ -280,7 +280,7 @@ importers:
         version: 8.55.0
       '@sentry/nextjs':
         specifier: ^8.55.0
-        version: 8.55.0(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(next@15.5.18(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.93.2))(react@19.2.3)(webpack@5.104.1(esbuild@0.27.7)(postcss@8.5.12))
+        version: 8.55.0(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(next@15.5.18(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.93.2))(react@19.2.3)(webpack@5.104.1(esbuild@0.27.7)(postcss@8.5.13))
       '@sentry/profiling-node':
         specifier: ^8.55.0
         version: 8.55.0
@@ -478,10 +478,10 @@ importers:
         version: 15.5.18(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.93.2)
       next-pwa:
         specifier: ^5.6.0
-        version: 5.6.0(@babel/core@7.29.0)(@types/babel__core@7.20.5)(esbuild@0.27.7)(next@15.5.18(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.93.2))(webpack@5.104.1(esbuild@0.27.7)(postcss@8.5.12))
+        version: 5.6.0(@babel/core@7.29.0)(@types/babel__core@7.20.5)(esbuild@0.27.7)(next@15.5.18(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.93.2))(webpack@5.104.1(esbuild@0.27.7)(postcss@8.5.13))
       next-ws:
         specifier: ^2.1.11
-        version: 2.1.11(@babel/preset-env@7.28.3(@babel/core@7.29.0))(next@15.5.18(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.93.2))(react@19.2.3)(ws@8.18.3(bufferutil@4.1.0)(utf-8-validate@6.0.6))
+        version: 2.1.11(@babel/preset-env@7.28.3(@babel/core@7.29.0))(next@15.5.18(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.93.2))(react@19.2.3)(ws@8.21.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))
       numeral:
         specifier: ^2.0.6
         version: 2.0.6
@@ -574,10 +574,10 @@ importers:
         version: 14.0.0
       webpack:
         specifier: ^5.104.1
-        version: 5.104.1(esbuild@0.27.7)(postcss@8.5.12)
+        version: 5.104.1(esbuild@0.27.7)(postcss@8.5.13)
       ws:
-        specifier: ^8.18.3
-        version: 8.18.3(bufferutil@4.1.0)(utf-8-validate@6.0.6)
+        specifier: ^8.21.0
+        version: 8.21.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)
       xss:
         specifier: ^1.0.15
         version: 1.0.15
@@ -683,7 +683,7 @@ importers:
         version: 4.1.8(vitest@4.1.8)
       autoprefixer:
         specifier: ^10.0.1
-        version: 10.4.21(postcss@8.5.12)
+        version: 10.4.21(postcss@8.5.13)
       baseline-browser-mapping:
         specifier: ^2.9.11
         version: 2.9.11
@@ -695,7 +695,7 @@ importers:
         version: 15.5.15(eslint@8.57.1)(typescript@5.9.3)
       postcss:
         specifier: ^8
-        version: 8.5.12
+        version: 8.5.13
       prettier:
         specifier: ^3.1.0
         version: 3.6.2
@@ -7101,8 +7101,8 @@ packages:
     resolution: {integrity: sha512-PS08Iboia9mts/2ygV3eLpY5ghnUcfLV/EXTOW1E2qYxJKGGBUtNjN76FYHnMs36RmARn41bC0AZmn+rR0OVpQ==}
     engines: {node: ^10 || ^12 || >=14}
 
-  postcss@8.5.12:
-    resolution: {integrity: sha512-W62t/Se6rA0Az3DfCL0AqJwXuKwBeYg6nOaIgzP+xZ7N5BFCI7DYi1qs6ygUYT6rvfi6t9k65UMLJC+PHZpDAA==}
+  postcss@8.5.13:
+    resolution: {integrity: sha512-qif0+jGGZoLWdHey3UFHHWP0H7Gbmsk8T5VEqyYFbWqPr1XqvLGBbk/sl8V5exGmcYJklJOhOQq1pV9IcsiFag==}
     engines: {node: ^10 || ^12 || >=14}
 
   postcss@8.5.15:
@@ -8809,8 +8809,8 @@ packages:
     resolution: {integrity: sha512-+QU2zd6OTD8XWIJCbffaiQeH9U73qIqafo1x6V1snCWYGJf6cVE0cDR4D8xRzcEnfI21IFrUPzPGtcPf8AC+Rw==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
 
-  ws@7.5.10:
-    resolution: {integrity: sha512-+dbF1tHwZpXcbOJdVOkzLDxZP1ailvSxM6ZweXTegylPny803bFhA+vqBYw4s31NSAk4S2Qz+AKXK9a4wkdjcQ==}
+  ws@7.5.11:
+    resolution: {integrity: sha512-zS54Oen9bITtp7kp2XM3AydrCIq1D+HwJOuH+c+e4LfpL/lotP5osijd+UoMnxwAam1GN8R4KtLAyIrIcBNpiA==}
     engines: {node: '>=8.3.0'}
     peerDependencies:
       bufferutil: ^4.0.1
@@ -8821,8 +8821,8 @@ packages:
       utf-8-validate:
         optional: true
 
-  ws@8.18.3:
-    resolution: {integrity: sha512-PEIGCY5tSlUt50cqyMXfCzX+oOPqN0vuGqWzbcJ2xvnkzkq46oOpz7dQaTDBdfICb4N14+GARUDw2XV2N4tvzg==}
+  ws@8.21.0:
+    resolution: {integrity: sha512-Vsp28b7DRcimFQvrqu2Wek3z1iYxDCWqHYB8Qsnk/S4RfaCQzPGPyBNuVjJV3cd6UiKtUtp6sNM77gWvzcCH+g==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       bufferutil: ^4.0.1
@@ -12132,7 +12132,7 @@ snapshots:
 
   '@sentry/core@8.55.0': {}
 
-  '@sentry/nextjs@8.55.0(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(next@15.5.18(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.93.2))(react@19.2.3)(webpack@5.104.1(esbuild@0.27.7)(postcss@8.5.12))':
+  '@sentry/nextjs@8.55.0(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(next@15.5.18(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.93.2))(react@19.2.3)(webpack@5.104.1(esbuild@0.27.7)(postcss@8.5.13))':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/semantic-conventions': 1.37.0
@@ -12143,7 +12143,7 @@ snapshots:
       '@sentry/opentelemetry': 8.55.0(@opentelemetry/api@1.9.0)(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.37.0)
       '@sentry/react': 8.55.0(react@19.2.3)
       '@sentry/vercel-edge': 8.55.0
-      '@sentry/webpack-plugin': 2.22.7(webpack@5.104.1(esbuild@0.27.7)(postcss@8.5.12))
+      '@sentry/webpack-plugin': 2.22.7(webpack@5.104.1(esbuild@0.27.7)(postcss@8.5.13))
       chalk: 3.0.0
       next: 15.5.18(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.93.2)
       resolve: 1.22.8
@@ -12238,12 +12238,12 @@ snapshots:
       '@opentelemetry/api': 1.9.0
       '@sentry/core': 8.55.0
 
-  '@sentry/webpack-plugin@2.22.7(webpack@5.104.1(esbuild@0.27.7)(postcss@8.5.12))':
+  '@sentry/webpack-plugin@2.22.7(webpack@5.104.1(esbuild@0.27.7)(postcss@8.5.13))':
     dependencies:
       '@sentry/bundler-plugin-core': 2.22.7
       unplugin: 1.0.1
       uuid: 9.0.1
-      webpack: 5.104.1(esbuild@0.27.7)(postcss@8.5.12)
+      webpack: 5.104.1(esbuild@0.27.7)(postcss@8.5.13)
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -13580,14 +13580,14 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  autoprefixer@10.4.21(postcss@8.5.12):
+  autoprefixer@10.4.21(postcss@8.5.13):
     dependencies:
       browserslist: 4.26.3
       caniuse-lite: 1.0.30001749
       fraction.js: 4.3.7
       normalize-range: 0.1.2
       picocolors: 1.1.1
-      postcss: 8.5.12
+      postcss: 8.5.13
       postcss-value-parser: 4.2.0
 
   available-typed-arrays@1.0.7:
@@ -13615,14 +13615,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  babel-loader@8.4.1(@babel/core@7.29.0)(webpack@5.104.1(esbuild@0.27.7)(postcss@8.5.12)):
+  babel-loader@8.4.1(@babel/core@7.29.0)(webpack@5.104.1(esbuild@0.27.7)(postcss@8.5.13)):
     dependencies:
       '@babel/core': 7.29.0
       find-cache-dir: 3.3.2
       loader-utils: 2.0.4
       make-dir: 3.1.0
       schema-utils: 2.7.1
-      webpack: 5.104.1(esbuild@0.27.7)(postcss@8.5.12)
+      webpack: 5.104.1(esbuild@0.27.7)(postcss@8.5.13)
 
   babel-plugin-polyfill-corejs2@0.4.14(@babel/core@7.28.4):
     dependencies:
@@ -13846,10 +13846,10 @@ snapshots:
 
   classnames@2.3.1: {}
 
-  clean-webpack-plugin@4.0.0(webpack@5.104.1(esbuild@0.27.7)(postcss@8.5.12)):
+  clean-webpack-plugin@4.0.0(webpack@5.104.1(esbuild@0.27.7)(postcss@8.5.13)):
     dependencies:
       del: 4.1.1
-      webpack: 5.104.1(esbuild@0.27.7)(postcss@8.5.12)
+      webpack: 5.104.1(esbuild@0.27.7)(postcss@8.5.13)
 
   client-only@0.0.1: {}
 
@@ -15282,9 +15282,9 @@ snapshots:
 
   isobject@3.0.1: {}
 
-  isomorphic-ws@4.0.1(ws@7.5.10(bufferutil@4.1.0)(utf-8-validate@6.0.6)):
+  isomorphic-ws@4.0.1(ws@7.5.11(bufferutil@4.1.0)(utf-8-validate@6.0.6)):
     dependencies:
-      ws: 7.5.10(bufferutil@4.1.0)(utf-8-validate@6.0.6)
+      ws: 7.5.11(bufferutil@4.1.0)(utf-8-validate@6.0.6)
 
   istanbul-lib-coverage@3.2.2: {}
 
@@ -15329,11 +15329,11 @@ snapshots:
       delay: 5.0.0
       es6-promisify: 5.0.0
       eyes: 0.1.8
-      isomorphic-ws: 4.0.1(ws@7.5.10(bufferutil@4.1.0)(utf-8-validate@6.0.6))
+      isomorphic-ws: 4.0.1(ws@7.5.11(bufferutil@4.1.0)(utf-8-validate@6.0.6))
       json-stringify-safe: 5.0.1
       stream-json: 1.9.1
       uuid: 8.3.2
-      ws: 7.5.10(bufferutil@4.1.0)(utf-8-validate@6.0.6)
+      ws: 7.5.11(bufferutil@4.1.0)(utf-8-validate@6.0.6)
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -15424,7 +15424,7 @@ snapshots:
       whatwg-encoding: 3.1.1
       whatwg-mimetype: 4.0.0
       whatwg-url: 14.2.0
-      ws: 8.18.3(bufferutil@4.1.0)(utf-8-validate@6.0.6)
+      ws: 8.21.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)
       xml-name-validator: 5.0.0
     transitivePeerDependencies:
       - bufferutil
@@ -15852,14 +15852,14 @@ snapshots:
 
   neo-async@2.6.2: {}
 
-  next-pwa@5.6.0(@babel/core@7.29.0)(@types/babel__core@7.20.5)(esbuild@0.27.7)(next@15.5.18(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.93.2))(webpack@5.104.1(esbuild@0.27.7)(postcss@8.5.12)):
+  next-pwa@5.6.0(@babel/core@7.29.0)(@types/babel__core@7.20.5)(esbuild@0.27.7)(next@15.5.18(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.93.2))(webpack@5.104.1(esbuild@0.27.7)(postcss@8.5.13)):
     dependencies:
-      babel-loader: 8.4.1(@babel/core@7.29.0)(webpack@5.104.1(esbuild@0.27.7)(postcss@8.5.12))
-      clean-webpack-plugin: 4.0.0(webpack@5.104.1(esbuild@0.27.7)(postcss@8.5.12))
+      babel-loader: 8.4.1(@babel/core@7.29.0)(webpack@5.104.1(esbuild@0.27.7)(postcss@8.5.13))
+      clean-webpack-plugin: 4.0.0(webpack@5.104.1(esbuild@0.27.7)(postcss@8.5.13))
       globby: 11.1.0
       next: 15.5.18(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.93.2)
-      terser-webpack-plugin: 5.3.14(esbuild@0.27.7)(webpack@5.104.1(esbuild@0.27.7)(postcss@8.5.12))
-      workbox-webpack-plugin: 6.6.0(@types/babel__core@7.20.5)(webpack@5.104.1(esbuild@0.27.7)(postcss@8.5.12))
+      terser-webpack-plugin: 5.3.14(esbuild@0.27.7)(webpack@5.104.1(esbuild@0.27.7)(postcss@8.5.13))
+      workbox-webpack-plugin: 6.6.0(@types/babel__core@7.20.5)(webpack@5.104.1(esbuild@0.27.7)(postcss@8.5.13))
       workbox-window: 6.6.0
     transitivePeerDependencies:
       - '@babel/core'
@@ -15870,14 +15870,14 @@ snapshots:
       - uglify-js
       - webpack
 
-  next-ws@2.1.11(@babel/preset-env@7.28.3(@babel/core@7.29.0))(next@15.5.18(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.93.2))(react@19.2.3)(ws@8.18.3(bufferutil@4.1.0)(utf-8-validate@6.0.6)):
+  next-ws@2.1.11(@babel/preset-env@7.28.3(@babel/core@7.29.0))(next@15.5.18(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.93.2))(react@19.2.3)(ws@8.21.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)):
     dependencies:
       jscodeshift: 17.3.0(@babel/preset-env@7.28.3(@babel/core@7.29.0))
       minimist: 1.2.8
       next: 15.5.18(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.93.2)
       react: 19.2.3
       semver: 7.7.3
-      ws: 8.18.3(bufferutil@4.1.0)(utf-8-validate@6.0.6)
+      ws: 8.21.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)
     transitivePeerDependencies:
       - '@babel/preset-env'
       - supports-color
@@ -16122,24 +16122,24 @@ snapshots:
 
   possible-typed-array-names@1.1.0: {}
 
-  postcss-import@15.1.0(postcss@8.5.12):
+  postcss-import@15.1.0(postcss@8.5.13):
     dependencies:
-      postcss: 8.5.12
+      postcss: 8.5.13
       postcss-value-parser: 4.2.0
       read-cache: 1.0.0
       resolve: 1.22.10
 
-  postcss-js@4.1.0(postcss@8.5.12):
+  postcss-js@4.1.0(postcss@8.5.13):
     dependencies:
       camelcase-css: 2.0.1
-      postcss: 8.5.12
+      postcss: 8.5.13
 
-  postcss-load-config@6.0.1(jiti@1.21.7)(postcss@8.5.12)(tsx@4.21.0):
+  postcss-load-config@6.0.1(jiti@1.21.7)(postcss@8.5.13)(tsx@4.21.0):
     dependencies:
       lilconfig: 3.1.3
     optionalDependencies:
       jiti: 1.21.7
-      postcss: 8.5.12
+      postcss: 8.5.13
       tsx: 4.21.0
 
   postcss-load-config@6.0.1(jiti@2.6.1)(postcss@8.5.15)(tsx@4.21.0):
@@ -16150,9 +16150,9 @@ snapshots:
       postcss: 8.5.15
       tsx: 4.21.0
 
-  postcss-nested@6.2.0(postcss@8.5.12):
+  postcss-nested@6.2.0(postcss@8.5.13):
     dependencies:
-      postcss: 8.5.12
+      postcss: 8.5.13
       postcss-selector-parser: 6.1.2
 
   postcss-selector-parser@6.1.2:
@@ -16168,7 +16168,7 @@ snapshots:
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
-  postcss@8.5.12:
+  postcss@8.5.13:
     dependencies:
       nanoid: 3.3.12
       picocolors: 1.1.1
@@ -16778,7 +16778,7 @@ snapshots:
       buffer: 6.0.3
       eventemitter3: 5.0.4
       uuid: 11.1.1
-      ws: 8.18.3(bufferutil@4.1.0)(utf-8-validate@6.0.6)
+      ws: 8.21.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)
     optionalDependencies:
       bufferutil: 4.1.0
       utf-8-validate: 6.0.6
@@ -17309,11 +17309,11 @@ snapshots:
       normalize-path: 3.0.0
       object-hash: 3.0.0
       picocolors: 1.1.1
-      postcss: 8.5.12
-      postcss-import: 15.1.0(postcss@8.5.12)
-      postcss-js: 4.1.0(postcss@8.5.12)
-      postcss-load-config: 6.0.1(jiti@1.21.7)(postcss@8.5.12)(tsx@4.21.0)
-      postcss-nested: 6.2.0(postcss@8.5.12)
+      postcss: 8.5.13
+      postcss-import: 15.1.0(postcss@8.5.13)
+      postcss-js: 4.1.0(postcss@8.5.13)
+      postcss-load-config: 6.0.1(jiti@1.21.7)(postcss@8.5.13)(tsx@4.21.0)
+      postcss-nested: 6.2.0(postcss@8.5.13)
       postcss-selector-parser: 6.1.2
       resolve: 1.22.10
       sucrase: 3.35.0
@@ -17336,27 +17336,27 @@ snapshots:
 
   term-size@2.2.1: {}
 
-  terser-webpack-plugin@5.3.14(esbuild@0.27.7)(webpack@5.104.1(esbuild@0.27.7)(postcss@8.5.12)):
+  terser-webpack-plugin@5.3.14(esbuild@0.27.7)(webpack@5.104.1(esbuild@0.27.7)(postcss@8.5.13)):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       jest-worker: 27.5.1
       schema-utils: 4.3.3
       serialize-javascript: 6.0.2
       terser: 5.44.0
-      webpack: 5.104.1(esbuild@0.27.7)(postcss@8.5.12)
+      webpack: 5.104.1(esbuild@0.27.7)(postcss@8.5.13)
     optionalDependencies:
       esbuild: 0.27.7
 
-  terser-webpack-plugin@5.6.0(esbuild@0.27.7)(postcss@8.5.12)(webpack@5.104.1(esbuild@0.27.7)(postcss@8.5.12)):
+  terser-webpack-plugin@5.6.0(esbuild@0.27.7)(postcss@8.5.13)(webpack@5.104.1(esbuild@0.27.7)(postcss@8.5.13)):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       jest-worker: 27.5.1
       schema-utils: 4.3.3
       terser: 5.47.1
-      webpack: 5.104.1(esbuild@0.27.7)(postcss@8.5.12)
+      webpack: 5.104.1(esbuild@0.27.7)(postcss@8.5.13)
     optionalDependencies:
       esbuild: 0.27.7
-      postcss: 8.5.12
+      postcss: 8.5.13
 
   terser-webpack-plugin@5.6.0(esbuild@0.27.7)(postcss@8.5.15)(webpack@5.104.1(esbuild@0.27.7)(postcss@8.5.15)):
     dependencies:
@@ -17981,7 +17981,7 @@ snapshots:
       opener: 1.5.2
       picocolors: 1.1.1
       sirv: 2.0.4
-      ws: 7.5.10(bufferutil@4.1.0)(utf-8-validate@6.0.6)
+      ws: 7.5.11(bufferutil@4.1.0)(utf-8-validate@6.0.6)
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -17997,7 +17997,7 @@ snapshots:
 
   webpack-virtual-modules@0.6.2: {}
 
-  webpack@5.104.1(esbuild@0.27.7)(postcss@8.5.12):
+  webpack@5.104.1(esbuild@0.27.7)(postcss@8.5.13):
     dependencies:
       '@types/eslint-scope': 3.7.7
       '@types/estree': 1.0.9
@@ -18021,7 +18021,7 @@ snapshots:
       neo-async: 2.6.2
       schema-utils: 4.3.3
       tapable: 2.3.3
-      terser-webpack-plugin: 5.6.0(esbuild@0.27.7)(postcss@8.5.12)(webpack@5.104.1(esbuild@0.27.7)(postcss@8.5.12))
+      terser-webpack-plugin: 5.6.0(esbuild@0.27.7)(postcss@8.5.13)(webpack@5.104.1(esbuild@0.27.7)(postcss@8.5.13))
       watchpack: 2.5.1
       webpack-sources: 3.4.1
     transitivePeerDependencies:
@@ -18258,12 +18258,12 @@ snapshots:
 
   workbox-sw@6.6.0: {}
 
-  workbox-webpack-plugin@6.6.0(@types/babel__core@7.20.5)(webpack@5.104.1(esbuild@0.27.7)(postcss@8.5.12)):
+  workbox-webpack-plugin@6.6.0(@types/babel__core@7.20.5)(webpack@5.104.1(esbuild@0.27.7)(postcss@8.5.13)):
     dependencies:
       fast-json-stable-stringify: 2.1.0
       pretty-bytes: 5.6.0
       upath: 1.2.0
-      webpack: 5.104.1(esbuild@0.27.7)(postcss@8.5.12)
+      webpack: 5.104.1(esbuild@0.27.7)(postcss@8.5.13)
       webpack-sources: 1.4.3
       workbox-build: 6.6.0(@types/babel__core@7.20.5)
     transitivePeerDependencies:
@@ -18300,12 +18300,12 @@ snapshots:
       imurmurhash: 0.1.4
       signal-exit: 4.1.0
 
-  ws@7.5.10(bufferutil@4.1.0)(utf-8-validate@6.0.6):
+  ws@7.5.11(bufferutil@4.1.0)(utf-8-validate@6.0.6):
     optionalDependencies:
       bufferutil: 4.1.0
       utf-8-validate: 6.0.6
 
-  ws@8.18.3(bufferutil@4.1.0)(utf-8-validate@6.0.6):
+  ws@8.21.0(bufferutil@4.1.0)(utf-8-validate@6.0.6):
     optionalDependencies:
       bufferutil: 4.1.0
       utf-8-validate: 6.0.6
