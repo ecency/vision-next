@@ -180,10 +180,18 @@ describe("server-side User-Agent identity", () => {
     expect(headersOf(fetchSpy.mock.calls[0]![1])["User-Agent"]).toBe("ecency-sdk-test/9.9.9");
   });
 
-  it("setUserAgent trims input and ignores blank values", () => {
+  it("setUserAgent trims input and ignores blank/invalid values", () => {
     setUserAgent("  custom-ua/1.0  ");
     expect(config.userAgent).toBe("custom-ua/1.0");
     setUserAgent("   ");
     expect(config.userAgent).toBe("custom-ua/1.0"); // unchanged by blank input
+    // CRLF / control characters are rejected (header-injection guard) so the
+    // previous valid value is kept rather than storing a header that would make
+    // every subsequent fetch throw.
+    setUserAgent("evil/1.0\r\nX-Injected: 1");
+    expect(config.userAgent).toBe("custom-ua/1.0");
+    // Non-string input from plain-JS callers is ignored, not thrown on.
+    setUserAgent(undefined as unknown as string);
+    expect(config.userAgent).toBe("custom-ua/1.0");
   });
 });

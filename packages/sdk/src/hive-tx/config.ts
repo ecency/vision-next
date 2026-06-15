@@ -127,7 +127,14 @@ export const setNodes = (nodes: string[]): void => {
  * `ConfigManager.setUserAgent`) and the lean `@ecency/sdk/hive` server/CLI entry.
  */
 export const setUserAgent = (ua: string): void => {
-  const value = (ua ?? '').trim()
-  if (!value) return
+  // Defensive against plain-JS / React Native callers that may pass a non-string
+  // despite the `string` type (avoids throwing on `.trim()`).
+  if (typeof ua !== 'string') return
+  const value = ua.trim()
+  // Ignore blank values, and reject control characters (CR, LF, and other
+  // C0/DEL controls). An invalid header value would otherwise be stored and make
+  // every subsequent fetch throw, and rejecting CR/LF closes a header-injection
+  // vector for any caller that builds the UA from untrusted input.
+  if (!value || /[\u0000-\u001f\u007f]/.test(value)) return
   config.userAgent = value
 }
