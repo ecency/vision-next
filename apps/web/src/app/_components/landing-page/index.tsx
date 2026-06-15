@@ -90,10 +90,12 @@ export async function LandingPage() {
       {/* HERO — fully server-rendered, the LCP element */}
       <section className="relative overflow-hidden bg-gradient-to-b from-blue-duck-egg to-blue-dark-sky-030 dark:from-dark-default dark:to-dark-200">
         <div className="max-w-[1000px] mx-auto px-4 pt-14 pb-12 md:pt-24 md:pb-16 text-center">
-          {/* Brand wordmark instead of the logo mark — the navbar already
-              carries the logo, so the hero leads with the name as text. Text
-              keeps the hero an all-text LCP (no image request). */}
-          <p className="mb-4 font-extrabold tracking-tight text-blue-dark-sky dark:text-gray-pinkish text-xl sm:text-2xl md:text-3xl">
+          {/* Brand kicker (eyebrow) above the headline. The navbar already
+              carries the logo, so the hero leads with the name as a small,
+              uppercase, letter-spaced label - distinct in treatment from the
+              headline so it reads as a brand prefix, not a competing heading.
+              Text only, so the hero stays an all-text LCP (no image request). */}
+          <p className="mb-3 font-bold uppercase tracking-[0.2em] text-blue-dark-sky dark:text-gray-pinkish text-sm md:text-base">
             {defaults.name}
           </p>
           <h1 className="font-extrabold tracking-tight leading-[1.05] text-blue-dark-sky dark:text-gray-pinkish text-[2rem] sm:text-5xl md:text-6xl">

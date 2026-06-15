@@ -13,8 +13,11 @@ export function AnonUserButtons() {
     <></>
   ) : (
     <div className="login-required flex ml-2 gap-2">
+      {/* Login is the secondary action (outline); Signup is the primary CTA
+          (solid) so the conversion path is visually emphasized for new visitors. */}
       <Button
         className="btn-login"
+        outline={true}
         onClick={() => toggleUIProp("login")}
         onMouseEnter={preloadLoginDialog}
         onFocus={preloadLoginDialog}
@@ -23,7 +26,7 @@ export function AnonUserButtons() {
         {i18next.t("g.login")}
       </Button>
 
-      <Button href="/signup" className="flex items-center justify-center" outline={true}>
+      <Button href="/signup" className="flex items-center justify-center">
         {i18next.t("g.signup")}
       </Button>
     </div>
