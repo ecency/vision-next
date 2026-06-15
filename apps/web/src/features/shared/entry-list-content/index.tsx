@@ -14,7 +14,6 @@ interface Props {
   showEmptyPlaceholder?: boolean;
   account?: Account;
   community?: Community;
-  now?: number;
 }
 
 export function EntryListContent({
@@ -26,8 +25,7 @@ export function EntryListContent({
   username,
   showEmptyPlaceholder = true,
   account,
-  community,
-  now
+  community
 }: Props) {
   let dataToRender = [...entries];
 
@@ -50,7 +48,6 @@ export function EntryListContent({
                       promoted={true}
                       order={4}
                       community={community}
-                      now={now}
                     />
                   );
                 }
@@ -66,7 +63,6 @@ export function EntryListContent({
                   entry={e}
                   order={i}
                   community={community}
-                  now={now}
                 />
               );
             } else {
@@ -77,7 +73,6 @@ export function EntryListContent({
                   entry={e}
                   order={i}
                   community={community}
-                  now={now}
                 />
               );
             }

@@ -1,12 +1,53 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import {
   dateToFormatted,
   dateToFormattedUtc,
   dateToFullRelative,
   dateToRelative,
 } from "@/utils";
+
+// ONE shared, ref-counted ticker for all relative TimeLabels. Previously the
+// feed threaded a `now` prop down and bumped it every 30s, which busted
+// React.memo on every card (a recurring long task). Here each relative TimeLabel
+// subscribes to a single module-level 60s interval via useSyncExternalStore, so
+// only the small <span>s re-render on a tick — not the cards — and there is
+// exactly one interval (started on first subscriber, cleared on last) with no
+// per-component interval leak across client navigations.
+const tickListeners = new Set<() => void>();
+let tickInterval: ReturnType<typeof setInterval> | null = null;
+let tickVersion = 0;
+
+function subscribeTick(cb: () => void) {
+  tickListeners.add(cb);
+  if (!tickInterval) {
+    tickInterval = setInterval(() => {
+      tickVersion += 1;
+      tickListeners.forEach((l) => l());
+    }, 60000);
+  }
+  return () => {
+    tickListeners.delete(cb);
+    if (tickListeners.size === 0 && tickInterval) {
+      clearInterval(tickInterval);
+      tickInterval = null;
+    }
+  };
+}
+const getTickSnapshot = () => tickVersion;
+const noopSubscribe = () => () => {};
+const getZero = () => 0;
+
+// Subscribe to the shared ticker only when the label is time-relative (absolute
+// dates never change, so they never tick / re-render).
+function useTick(active: boolean): number {
+  return useSyncExternalStore(
+    active ? subscribeTick : noopSubscribe,
+    active ? getTickSnapshot : getZero,
+    getZero
+  );
+}
 
 type Mode = "relative" | "fullRelative" | "absolute";
 
@@ -40,6 +81,10 @@ export function TimeLabel({
   const [display, setDisplay] = useState<string | null>(null);
   const [localFormatted, setLocalFormatted] = useState<string | null>(null);
 
+  // Self-tick: re-runs the formatting effect ~once a minute for relative modes,
+  // so timestamps stay fresh without the parent re-rendering the whole card.
+  const tick = useTick(mode === "relative" || mode === "fullRelative");
+
   // Numeric UTC — identical on server and client, no hydration mismatch.
   const ssrSafe = dateToFormattedUtc(created);
 
@@ -48,7 +93,9 @@ export function TimeLabel({
     if (mode === "absolute") setDisplay(dateToFormatted(created, format));
     else if (mode === "fullRelative") setDisplay(dateToFullRelative(created));
     else setDisplay(dateToRelative(created));
-  }, [created, refresh, mode, format]);
+    // `refresh` is still honored (waves drives its own ticker); `tick` is the
+    // shared self-ticker.
+  }, [created, refresh, mode, format, tick]);
 
   return (
     <span className={className} title={localFormatted ?? ssrSafe} suppressHydrationWarning>
