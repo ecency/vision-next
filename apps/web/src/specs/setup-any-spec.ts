@@ -6,6 +6,28 @@ import { TextDecoder, TextEncoder } from "util";
 Object.defineProperty(globalThis, "TextEncoder", { value: TextEncoder, writable: true, configurable: true });
 Object.defineProperty(globalThis, "TextDecoder", { value: TextDecoder, writable: true, configurable: true });
 
+// jsdom has no IntersectionObserver. Stub it so components using
+// react-in-viewport (DetectBottom, HydrateOnVisible, EntryListItem) don't throw
+// in tests; it never fires, so observed elements stay "not in viewport".
+if (!("IntersectionObserver" in globalThis)) {
+  class IntersectionObserverStub {
+    readonly root = null;
+    readonly rootMargin = "";
+    readonly thresholds = [];
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+    takeRecords() {
+      return [];
+    }
+  }
+  Object.defineProperty(globalThis, "IntersectionObserver", {
+    value: IntersectionObserverStub,
+    writable: true,
+    configurable: true
+  });
+}
+
 // Mock uuid to avoid crypto dependency issues
 vi.mock("uuid", () => ({
   v4: vi.fn(() => "test-uuid-1234")

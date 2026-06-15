@@ -230,4 +230,36 @@ describe("EntryListItem", () => {
     const titleLink = titleNode.closest("a");
     expect(titleLink).toHaveAttribute("href", "/@origauthor/original-permlink");
   });
+
+  it("defers the action bar for below-the-fold cards while keeping title + author in the markup", () => {
+    const entry = mockEntry({
+      author: "alice",
+      permlink: "deep-post",
+      title: "Deep In The Feed",
+      category: "hive-1"
+    });
+
+    // order >= 2 => not the above-the-fold LCP card => action bar is deferred
+    // (placeholder) until near-viewport. The IntersectionObserver stub never
+    // fires, so it stays deferred for the test.
+    renderItem(entry, { order: 5 });
+
+    // SEO-critical content remains in the server markup (outside the island).
+    expect(screen.getByText("Deep In The Feed")).toBeInTheDocument();
+    expect(screen.getByTestId("user-avatar")).toHaveTextContent("alice");
+    expect(screen.getByTestId("profile-link")).toHaveAttribute("href", "/@alice");
+
+    // The heavy interactive cluster is NOT mounted yet.
+    expect(screen.queryByTestId("entry-vote-btn")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("entry-menu")).not.toBeInTheDocument();
+  });
+
+  it("renders the action bar immediately for the top (order < 2) cards", () => {
+    const entry = mockEntry({ author: "bob", permlink: "top-post", title: "Top Post" });
+
+    renderItem(entry, { order: 0 });
+
+    expect(screen.getByTestId("entry-vote-btn")).toBeInTheDocument();
+    expect(screen.getByTestId("entry-menu")).toBeInTheDocument();
+  });
 });
