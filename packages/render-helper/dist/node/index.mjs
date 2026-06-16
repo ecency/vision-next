@@ -1213,14 +1213,15 @@ function a(el, forApp, parentDomain = "ecency.com", seoContext, renderOptions) {
       el.setAttribute("data-start-time", startTime);
     }
     if (renderOptions?.embedVideosDirectly) {
+      const directSrc = `https://www.youtube.com/embed/${vid}`;
       const wrapper = el.ownerDocument.createElement("span");
       wrapper.setAttribute("class", "er-youtube-frame");
       wrapper.setAttribute("style", "display:block");
       const iframe2 = el.ownerDocument.createElement("iframe");
       iframe2.setAttribute("class", "youtube-player");
-      iframe2.setAttribute("src", embedSrc);
+      iframe2.setAttribute("src", directSrc);
       iframe2.setAttribute("title", "YouTube video");
-      iframe2.setAttribute("allow", "accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share");
+      iframe2.setAttribute("allow", "accelerometer; encrypted-media; gyroscope; picture-in-picture; web-share");
       iframe2.setAttribute("allowfullscreen", "");
       wrapper.appendChild(iframe2);
       el.appendChild(wrapper);
@@ -1357,12 +1358,13 @@ function a(el, forApp, parentDomain = "ecency.com", seoContext, renderOptions) {
           el.textContent = "";
         }
         if (renderOptions?.embedVideosDirectly) {
+          const directSrc = `${videoHref}&autoplay=false`;
           const wrapper = el.ownerDocument.createElement("span");
           wrapper.setAttribute("class", "er-speak-frame");
           wrapper.setAttribute("style", "display:block");
           const iframe2 = el.ownerDocument.createElement("iframe");
           iframe2.setAttribute("class", "speak-iframe");
-          iframe2.setAttribute("src", videoHref);
+          iframe2.setAttribute("src", directSrc);
           iframe2.setAttribute("title", "3Speak video");
           iframe2.setAttribute("allow", "accelerometer; encrypted-media; gyroscope; picture-in-picture; web-share");
           iframe2.setAttribute("allowfullscreen", "");
@@ -1475,7 +1477,7 @@ function a(el, forApp, parentDomain = "ecency.com", seoContext, renderOptions) {
 }
 
 // src/methods/iframe.method.ts
-function iframe(el, parentDomain = "ecency.com", forApp = false) {
+function iframe(el, parentDomain = "ecency.com", forApp = false, renderOptions) {
   if (!el || !el.parentNode) {
     return;
   }
@@ -1518,7 +1520,8 @@ function iframe(el, parentDomain = "ecency.com", forApp = false) {
       normalizedSrc = `${normalizedSrc}&mode=iframe`;
     }
     const hasAutoplay = /[?&]autoplay=/.test(normalizedSrc);
-    let s = hasAutoplay ? normalizedSrc : `${normalizedSrc}&autoplay=true`;
+    const autoplayDefault = renderOptions?.embedVideosDirectly ? "false" : "true";
+    let s = hasAutoplay ? normalizedSrc : `${normalizedSrc}&autoplay=${autoplayDefault}`;
     if (forApp && !/[?&]layout=/.test(s)) {
       s = `${s}&layout=mobile`;
     }
@@ -1832,7 +1835,7 @@ function traverse(node, forApp, depth = 0, state = { firstImageFound: false }, p
       a(child, forApp, parentDomain, seoContext, renderOptions);
     }
     if (child.nodeName.toLowerCase() === "iframe") {
-      iframe(child, parentDomain, forApp);
+      iframe(child, parentDomain, forApp, renderOptions);
     }
     if (child.nodeName === "#text") {
       text(child, forApp);

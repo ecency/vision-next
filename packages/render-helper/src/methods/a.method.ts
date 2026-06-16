@@ -610,14 +610,19 @@ export function a(el: HTMLElement | null, forApp: boolean, parentDomain: string 
     }
 
     if (renderOptions?.embedVideosDirectly) {
+      // Waves/thread feed: embed inline but never autoplay. A feed scrolling
+      // past several videos that all start playing at once is disorienting, so
+      // load the player paused (no autoplay=1, no autoplay permission). The
+      // click-to-play path elsewhere keeps using embedSrc via data-embed-src.
+      const directSrc = `https://www.youtube.com/embed/${vid}`
       const wrapper = el.ownerDocument.createElement('span')
       wrapper.setAttribute('class', 'er-youtube-frame')
       wrapper.setAttribute('style', 'display:block')
       const iframe = el.ownerDocument.createElement('iframe')
       iframe.setAttribute('class', 'youtube-player')
-      iframe.setAttribute('src', embedSrc)
+      iframe.setAttribute('src', directSrc)
       iframe.setAttribute('title', 'YouTube video')
-      iframe.setAttribute('allow', 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share')
+      iframe.setAttribute('allow', 'accelerometer; encrypted-media; gyroscope; picture-in-picture; web-share')
       iframe.setAttribute('allowfullscreen', '')
       wrapper.appendChild(iframe)
       el.appendChild(wrapper)
@@ -812,13 +817,19 @@ export function a(el: HTMLElement | null, forApp: boolean, parentDomain: string 
         }
 
         if (renderOptions?.embedVideosDirectly) {
+          // Waves/thread feed: embed inline but never autoplay. The 3Speak
+          // player autoplays by default, which is disorienting in a feed of
+          // many videos, so request autoplay=false explicitly. The
+          // click-to-play path elsewhere keeps using videoHref via
+          // data-embed-src (autoplay after the user clicks is fine).
+          const directSrc = `${videoHref}&autoplay=false`
           // Use span (not div) to avoid invalid nesting inside <p> tags
           const wrapper = el.ownerDocument.createElement('span')
           wrapper.setAttribute('class', 'er-speak-frame')
           wrapper.setAttribute('style', 'display:block')
           const iframe = el.ownerDocument.createElement('iframe')
           iframe.setAttribute('class', 'speak-iframe')
-          iframe.setAttribute('src', videoHref)
+          iframe.setAttribute('src', directSrc)
           iframe.setAttribute('title', '3Speak video')
           iframe.setAttribute('allow', 'accelerometer; encrypted-media; gyroscope; picture-in-picture; web-share')
           iframe.setAttribute('allowfullscreen', '')
