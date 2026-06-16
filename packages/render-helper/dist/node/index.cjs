@@ -1549,8 +1549,12 @@ function iframe(el, parentDomain = "ecency.com", forApp = false, renderOptions) 
       normalizedSrc = `${normalizedSrc}&mode=iframe`;
     }
     const hasAutoplay = /[?&]autoplay=/.test(normalizedSrc);
-    const autoplayDefault = renderOptions?.embedVideosDirectly ? "false" : "true";
-    let s = hasAutoplay ? normalizedSrc : `${normalizedSrc}&autoplay=${autoplayDefault}`;
+    let s;
+    if (renderOptions?.embedVideosDirectly) {
+      s = hasAutoplay ? normalizedSrc.replace(/([?&]autoplay=)[^&]*/i, "$1false") : `${normalizedSrc}&autoplay=false`;
+    } else {
+      s = hasAutoplay ? normalizedSrc : `${normalizedSrc}&autoplay=true`;
+    }
     if (forApp && !/[?&]layout=/.test(s)) {
       s = `${s}&layout=mobile`;
     }

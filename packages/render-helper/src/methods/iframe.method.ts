@@ -63,14 +63,19 @@ export function iframe(el: HTMLElement | null, parentDomain: string = 'ecency.co
       normalizedSrc = `${normalizedSrc}&mode=iframe`;
     }
 
-    // Add autoplay if not present. Waves/thread feeds embed inline
-    // (embedVideosDirectly) and must not autoplay, so default those to
-    // autoplay=false; everywhere else keeps the default autoplay=true.
+    // Waves/thread feeds embed inline (embedVideosDirectly) and must never
+    // autoplay: force autoplay=false even when the src already carries
+    // autoplay=true. Everywhere else, add autoplay=true only when absent so
+    // an author-supplied value is preserved.
     const hasAutoplay = /[?&]autoplay=/.test(normalizedSrc);
-    const autoplayDefault = renderOptions?.embedVideosDirectly ? 'false' : 'true';
-    let s = hasAutoplay
-      ? normalizedSrc
-      : `${normalizedSrc}&autoplay=${autoplayDefault}`;
+    let s: string;
+    if (renderOptions?.embedVideosDirectly) {
+      s = hasAutoplay
+        ? normalizedSrc.replace(/([?&]autoplay=)[^&]*/i, '$1false')
+        : `${normalizedSrc}&autoplay=false`;
+    } else {
+      s = hasAutoplay ? normalizedSrc : `${normalizedSrc}&autoplay=true`;
+    }
 
     // Add mobile layout parameter when rendering for app
     if (forApp && !/[?&]layout=/.test(s)) {
