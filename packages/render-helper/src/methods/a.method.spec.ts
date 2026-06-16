@@ -799,6 +799,26 @@ describe('a() method - Link Processing', () => {
         expect(el.getAttribute('data-youtube')).toBe('dQw4w9WgXcQ')
       })
 
+      it('should embed inline without autoplay in waves (embedVideosDirectly)', () => {
+        const parent = doc.createElement('div')
+        const el = doc.createElement('a')
+        const href = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+        el.setAttribute('href', href)
+        el.textContent = href
+        parent.appendChild(el)
+
+        a(el, false, 'ecency.com', undefined, { embedVideosDirectly: true })
+
+        const iframe = el.getElementsByTagName('iframe')[0]
+        expect(iframe).toBeTruthy()
+        expect(iframe.getAttribute('src')).toBe('https://www.youtube.com/embed/dQw4w9WgXcQ')
+        expect(iframe.getAttribute('src')).not.toContain('autoplay')
+        expect(iframe.getAttribute('allow')).not.toContain('autoplay')
+        // click-to-play path (non-waves) still autoplays after the user clicks
+        expect(el.getAttribute('data-embed-src')).toBe('https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1')
+        expect(el.getAttribute('class')).toContain('er-youtube')
+      })
+
       it('should handle youtu.be short URLs', () => {
         const parent = doc.createElement('div')
         const el = doc.createElement('a')
@@ -1082,6 +1102,25 @@ describe('a() method - Link Processing', () => {
 
         expect(el.getAttribute('class')).toContain('markdown-video-link-speak')
         expect(el.getAttribute('data-embed-src')).toBe('https://play.3speak.tv/watch?v=username/permlink&mode=iframe')
+      })
+
+      it('should embed inline without autoplay in waves (embedVideosDirectly)', () => {
+        const parent = doc.createElement('div')
+        const el = doc.createElement('a')
+        const href = 'https://3speak.tv/watch?v=username/permlink'
+        el.setAttribute('href', href)
+        el.textContent = href
+        parent.appendChild(el)
+
+        a(el, false, 'ecency.com', undefined, { embedVideosDirectly: true })
+
+        const iframe = el.getElementsByTagName('iframe')[0]
+        expect(iframe).toBeTruthy()
+        expect(iframe.getAttribute('src')).toContain('autoplay=false')
+        expect(iframe.getAttribute('src')).not.toContain('autoplay=true')
+        // click-to-play path (non-waves) keeps the player default via data-embed-src
+        expect(el.getAttribute('data-embed-src')).toBe('https://play.3speak.tv/watch?v=username/permlink&mode=iframe')
+        expect(el.getAttribute('class')).toContain('er-speak')
       })
 
       it('should handle 3Speak with thumbnail', () => {

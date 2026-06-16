@@ -1,7 +1,8 @@
 import { ARCH_REGEX, DAPPLR_REGEX, LBRY_REGEX, TRUVVL_REGEX, ODYSEE_REGEX, SKATEHIVE_IPFS_REGEX, SKATEHYPE_EMBED_REGEX, BITCHUTE_REGEX, RUMBLE_REGEX, BRIGHTEON_REGEX, VIMEO_EMBED_REGEX, SPEAK_EMBED_REGEX, SPEAK_AUDIO_EMBED_REGEX, VIMM_EMBED_REGEX, D_TUBE_EMBED_REGEX, SPOTIFY_EMBED_REGEX, SOUNDCLOUD_EMBED_REGEX, TWITCH_EMBED_REGEX, YOUTUBE_EMBED_REGEX, BRAND_NEW_TUBE_REGEX, LOOM_EMBED_REGEX, AUREAL_EMBED_REGEX } from '../consts'
 import { stripQueryString } from '../helper'
+import { RenderOptions } from '../types'
 
-export function iframe(el: HTMLElement | null, parentDomain: string = 'ecency.com', forApp: boolean = false): void {
+export function iframe(el: HTMLElement | null, parentDomain: string = 'ecency.com', forApp: boolean = false, renderOptions?: RenderOptions): void {
   if (!el || !el.parentNode) {
     return;
   }
@@ -62,11 +63,19 @@ export function iframe(el: HTMLElement | null, parentDomain: string = 'ecency.co
       normalizedSrc = `${normalizedSrc}&mode=iframe`;
     }
 
-    // Add autoplay if not present
+    // Waves/thread feeds embed inline (embedVideosDirectly) and must never
+    // autoplay: force autoplay=false even when the src already carries
+    // autoplay=true. Everywhere else, add autoplay=true only when absent so
+    // an author-supplied value is preserved.
     const hasAutoplay = /[?&]autoplay=/.test(normalizedSrc);
-    let s = hasAutoplay
-      ? normalizedSrc
-      : `${normalizedSrc}&autoplay=true`;
+    let s: string;
+    if (renderOptions?.embedVideosDirectly) {
+      s = hasAutoplay
+        ? normalizedSrc.replace(/([?&]autoplay=)[^&]*/i, '$1false')
+        : `${normalizedSrc}&autoplay=false`;
+    } else {
+      s = hasAutoplay ? normalizedSrc : `${normalizedSrc}&autoplay=true`;
+    }
 
     // Add mobile layout parameter when rendering for app
     if (forApp && !/[?&]layout=/.test(s)) {

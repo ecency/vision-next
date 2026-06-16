@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.5.13
+
+### Patch Changes
+
+- fix: don't autoplay videos in waves feed (#965)
+
 ## 2.5.12
 
 ### Patch Changes

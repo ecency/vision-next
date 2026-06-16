@@ -390,6 +390,37 @@ describe('iframe() method - Iframe Sanitization', () => {
       expect(src).toContain('autoplay=false')
     })
 
+    it('should default to autoplay=false in waves (embedVideosDirectly)', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('iframe')
+      el.setAttribute('src', 'https://3speak.co/embed?v=video123')
+      parent.appendChild(el)
+
+      iframe(el, 'ecency.com', false, { embedVideosDirectly: true })
+
+      const src = el.getAttribute('src')!
+      expect(src).toContain('play.3speak.tv')
+      expect(src).toContain('mode=iframe')
+      expect(src).toContain('autoplay=false')
+      expect(src).not.toContain('autoplay=true')
+    })
+
+    it('should override a baked-in autoplay=true in waves (embedVideosDirectly)', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('iframe')
+      el.setAttribute('src', 'https://3speak.co/embed?v=video123&autoplay=true')
+      parent.appendChild(el)
+
+      iframe(el, 'ecency.com', false, { embedVideosDirectly: true })
+
+      const src = el.getAttribute('src')!
+      expect(src).toContain('play.3speak.tv')
+      expect(src).toContain('autoplay=false')
+      expect(src).not.toContain('autoplay=true')
+      // still exactly one autoplay param, just flipped to false
+      expect(src.match(/autoplay=/g)).toHaveLength(1)
+    })
+
     it('should handle 3speak URLs with multiple query parameters', () => {
       const parent = doc.createElement('div')
       const el = doc.createElement('iframe')
