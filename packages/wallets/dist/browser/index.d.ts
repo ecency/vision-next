@@ -100,6 +100,9 @@ type TransferableCurrency = EcencyWalletCurrency.ETH | EcencyWalletCurrency.BNB 
 interface ExternalTransferPayload {
     to: string;
     amount: string;
+    /** EVM only: the linked wallet address. The send is blocked if the active
+     *  MetaMask account does not match it (funds safety). */
+    expectedFrom?: string;
 }
 declare function useExternalTransfer(currency: TransferableCurrency): _tanstack_react_query.UseMutationResult<{
     txHash: string;
@@ -244,7 +247,7 @@ declare function estimateEvmGas(from: string, to: string, valueHex: string, curr
 }>;
 declare function formatWei(wei: bigint, decimals?: number): string;
 declare function parseToWei(amount: string): string;
-declare function sendEvmTransfer(to: string, amountWei: string, currency: EcencyWalletCurrency): Promise<string>;
+declare function sendEvmTransfer(to: string, amountWei: string, currency: EcencyWalletCurrency, expectedFrom?: string): Promise<string>;
 
 declare function getSolExplorerUrl(signature: string): string;
 declare function parseToLamports(amount: string): bigint;

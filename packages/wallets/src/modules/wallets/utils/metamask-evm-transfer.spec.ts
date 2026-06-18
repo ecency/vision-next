@@ -1,5 +1,6 @@
-import { describe, it, expect } from "vitest";
-import { parseToWei, formatWei } from "./metamask-evm-transfer";
+import { describe, it, expect, vi, afterEach } from "vitest";
+import { parseToWei, formatWei, sendEvmTransfer } from "./metamask-evm-transfer";
+import { EcencyWalletCurrency } from "@/modules/wallets/enums";
 
 describe("parseToWei", () => {
   it("converts whole ETH to wei hex", () => {
@@ -69,5 +70,55 @@ describe("formatWei", () => {
 
   it("trims trailing zeros", () => {
     expect(formatWei(1500000000000000000n)).toBe("1.5");
+  });
+});
+
+describe("sendEvmTransfer (linked-account guard)", () => {
+  const LINKED = "0xAbCdeF0000000000000000000000000000000001";
+  const OTHER = "0x0000000000000000000000000000000000000002";
+
+  function mockEthereum(activeAccount: string) {
+    const sendTx = vi.fn().mockResolvedValue("0xhash");
+    const request = vi.fn(async ({ method }: { method: string }) => {
+      switch (method) {
+        case "eth_chainId":
+          return "0x1"; // matches ETH config -> ensureEvmChain returns early
+        case "eth_requestAccounts":
+          return [activeAccount];
+        case "eth_sendTransaction":
+          return sendTx();
+        default:
+          return null;
+      }
+    });
+    (globalThis as any).window = { ethereum: { isMetaMask: true, request } };
+    return { sendTx };
+  }
+
+  afterEach(() => {
+    delete (globalThis as any).window;
+    vi.restoreAllMocks();
+  });
+
+  it("throws ACCOUNT_MISMATCH and does not send when the active account differs from the linked wallet", async () => {
+    const { sendTx } = mockEthereum(OTHER);
+    await expect(
+      sendEvmTransfer("0xrecipient", "0x1", EcencyWalletCurrency.ETH, LINKED)
+    ).rejects.toThrow("ACCOUNT_MISMATCH");
+    expect(sendTx).not.toHaveBeenCalled();
+  });
+
+  it("sends when the active account matches the linked wallet (case-insensitive)", async () => {
+    const { sendTx } = mockEthereum(LINKED.toLowerCase());
+    const hash = await sendEvmTransfer("0xrecipient", "0x1", EcencyWalletCurrency.ETH, LINKED);
+    expect(hash).toBe("0xhash");
+    expect(sendTx).toHaveBeenCalledTimes(1);
+  });
+
+  it("sends without a guard when no expectedFrom is given", async () => {
+    const { sendTx } = mockEthereum(OTHER);
+    const hash = await sendEvmTransfer("0xrecipient", "0x1", EcencyWalletCurrency.ETH);
+    expect(hash).toBe("0xhash");
+    expect(sendTx).toHaveBeenCalledTimes(1);
   });
 });
