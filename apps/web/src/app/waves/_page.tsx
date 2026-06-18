@@ -39,10 +39,12 @@ export function WavesPage() {
       }
 
       if (selectedTag) {
-        setSelectedTag(null);
+        // Tags live on the For You feed; picking one while on Following moves the
+        // user to For You (where the tag actually applies) instead of dropping it.
+        setStoredFeedType("for-you");
       }
     }
-  }, [feedType, grid, selectedTag, setGrid, setSelectedTag]);
+  }, [feedType, grid, selectedTag, setGrid, setStoredFeedType]);
 
   useEffect(() => {
     if (!activeUser && feedType === "following") {
@@ -58,6 +60,12 @@ export function WavesPage() {
     if (nextFeed === "following" && !activeUser) {
       toggleUiProp("login");
       return;
+    }
+
+    // Following has no tag filter; drop any active tag when switching to it so the
+    // effect above doesn't immediately bounce the user back to For You.
+    if (nextFeed === "following" && selectedTag) {
+      setSelectedTag(null);
     }
 
     setStoredFeedType(nextFeed);
