@@ -64,8 +64,6 @@ export const WavesListItem = React.memo(function WavesListItem({
   const { inViewport } = useInViewport(rootRef);
 
   const tagFilter = useOptionalWavesTagFilter();
-  const isTagFiltered = feedType === "for-you" && !!tagFilter?.selectedTag;
-  const shouldHideEngagementCounts = feedType === "following" || isTagFiltered;
 
   const handleTagClick = useCallback(
     (tag: string) => {
@@ -324,9 +322,6 @@ export const WavesListItem = React.memo(function WavesListItem({
             pure={false}
             onEdit={() => setShowEditModal(true)}
             commentsSlot={commentSlot}
-            showVoteSummary={!shouldHideEngagementCounts}
-            showCommentCount={!shouldHideEngagementCounts}
-            showPayout={!shouldHideEngagementCounts}
           />
 
           <Modal centered={true} show={showEditModal} onHide={() => setShowEditModal(false)}>
