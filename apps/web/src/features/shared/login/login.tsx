@@ -15,11 +15,12 @@ import { LoginUsersList } from "./login-users-list";
 import { ExtensionInstallList, useShowExtensionInstall } from "../extension-install-list";
 import { ExtensionChooser } from "../extension-chooser";
 import { error } from "../feedback";
+import { decideExtensionLoginAction } from "./extension-login-action";
 import { motion } from "framer-motion";
 import { TabItem } from "@/features/ui";
 import clsx from "clsx";
 import { shouldUseKeychainMobile } from "@/utils/client";
-import { DetectedExtension, HiveExtensionId, getDetectedExtensions, getPreferredExtensionId, setPreferredExtensionId } from "@/utils/hive-extensions";
+import { DetectedExtension, HiveExtensionId, getDetectedExtensions, setPreferredExtensionId } from "@/utils/hive-extensions";
 
 export default function Login() {
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
@@ -99,37 +100,27 @@ export default function Login() {
     // after the last poll, so we must never act on a stale empty snapshot.
     const detected = getDetectedExtensions();
     setDetectedExtensions(detected);
-    const liveHasExtensions = detected.length > 0 || shouldUseKeychainMobile();
 
-    if (!liveHasExtensions) {
-      setShowExtensionsInfo(true);
-      return;
-    }
-    if (!username) {
-      error(i18next.t("login.write-username"));
-      return;
-    }
-    if (detected.length > 1) {
-      // If a saved preference matches a detected extension, use it directly
-      const savedId = getPreferredExtensionId();
-      if (!savedId || !detected.some((ext) => ext.id === savedId)) {
+    const action = decideExtensionLoginAction(detected, username, shouldUseKeychainMobile());
+    switch (action.kind) {
+      // "install" and "picker" both open the modal; its body renders the install
+      // list or the ExtensionChooser based on detectedExtensions.length.
+      case "install":
+      case "picker":
         setShowExtensionsInfo(true);
         return;
-      }
-      if (isLoginByKeychainPending) return;
-      loginByKeychain(savedId).catch(() => {
-        /* Already handled in onError of the mutation */
-      });
-      return;
+      case "needUsername":
+        error(i18next.t("login.write-username"));
+        return;
+      case "login":
+        if (isLoginByKeychainPending) return;
+        // Sign with the explicit extension so detection and signing can never
+        // resolve to different extensions.
+        loginByKeychain(action.extId).catch(() => {
+          /* Already handled in onError of the mutation */
+        });
+        return;
     }
-    if (isLoginByKeychainPending) {
-      return;
-    }
-    // Exactly one extension: sign with it explicitly so detection and signing can
-    // never resolve to different extensions.
-    loginByKeychain(detected[0]?.id).catch(() => {
-      /* Already handled in onError of the mutation */
-    });
   };
 
   const handleSelectExtension = (extId: HiveExtensionId) => {
