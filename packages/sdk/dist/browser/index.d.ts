@@ -3387,6 +3387,7 @@ interface Entry$1 {
     json_metadata: JsonMetadata | null;
     max_accepted_payout: string;
     net_rshares: number;
+    net_votes?: number;
     parent_author?: string;
     parent_permlink?: string;
     payout: number;
