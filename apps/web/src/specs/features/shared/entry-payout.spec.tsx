@@ -103,21 +103,40 @@ describe("EntryPayout", () => {
     expect(getByTestId("formatted-currency")).toHaveTextContent("$10.000");
   });
 
-  it("uses entry.payout directly for search results (entry.id > 0) without a popover", () => {
+  it("uses entry.payout directly for search results (numeric payout, no max_accepted_payout)", () => {
     const entry = mockEntry({
       id: 123, // present only in search results
       payout: 4.2,
-      // these would otherwise sum to a different number; must be ignored
+      // Real search-API results expose a numeric payout and have NO asset-string
+      // payout fields, so the search branch is taken and entry.payout is shown.
       pending_payout_value: "99.000 HBD",
       author_payout_value: "0.000 HBD",
       curator_payout_value: "0.000 HBD",
-      max_accepted_payout: "1000000.000 HBD"
+      max_accepted_payout: undefined
     });
 
     const { getByTestId } = render(<EntryPayout entry={entry} />);
 
-    // search branch: shownPayout = entry.payout = 4.2
+    // search branch: shownPayout = entry.payout = 4.2 (asset strings ignored)
     expect(getByTestId("formatted-currency")).toHaveTextContent("$4.200");
+  });
+
+  it("sums payout for wave entries (id set + asset-string payouts, no numeric payout)", () => {
+    // Post-normalizer wave entry: has an id (like a search result) AND
+    // max_accepted_payout + asset-string payouts but no numeric payout. It must
+    // NOT take the search branch (which would render $0.000) — it sums instead.
+    const entry = mockEntry({
+      id: 4242,
+      payout: undefined,
+      max_accepted_payout: "1000000.000 HBD",
+      pending_payout_value: "1.234 HBD",
+      author_payout_value: "0.000 HBD",
+      curator_payout_value: "0.000 HBD"
+    });
+
+    const { getByTestId } = render(<EntryPayout entry={entry} />);
+
+    expect(getByTestId("formatted-currency")).toHaveTextContent("$1.234");
   });
 
   it("falls back to 0 when there is no max_accepted_payout and no search payout", () => {

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.18
+
+### Patch Changes
+
+- feat(waves): show payout + correct vote count on waves cards (#971)
+
 ## 2.3.17
 
 ### Patch Changes

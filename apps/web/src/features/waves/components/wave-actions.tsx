@@ -1,4 +1,12 @@
-import { EntryMenu, EntryStats, EntryTipBtn, EntryVoteBtn, EntryVotes, UserAvatar } from "@/features/shared";
+import {
+  EntryMenu,
+  EntryPayout,
+  EntryStats,
+  EntryTipBtn,
+  EntryVoteBtn,
+  EntryVotes,
+  UserAvatar
+} from "@/features/shared";
 import { commentSvg, voteSvg } from "@/app/decks/_components/icons";
 import { Button } from "@ui/button";
 import i18next from "i18next";
@@ -20,6 +28,7 @@ interface Props {
   showStats?: boolean;
   showVoteSummary?: boolean;
   showCommentCount?: boolean;
+  showPayout?: boolean;
   postTips?: PostTipsResponse;
 }
 
@@ -35,6 +44,7 @@ export function WaveActions({
   showStats = false,
   showVoteSummary = true,
   showCommentCount = true,
+  showPayout = true,
   postTips
 }: Props) {
   const { activeUser } = useActiveAccount();
@@ -45,6 +55,7 @@ export function WaveActions({
         <div className="thread-item-actions" onClick={(e) => e.stopPropagation()}>
           <div>
             <EntryVoteBtn entry={entry!} isPostSlider={false} />
+            {showPayout && <EntryPayout entry={entry!} />}
             {showStats && <EntryStats entry={entry!} />}
             <EntryVotes entry={entry!} icon={voteSvg} hideCount={!showVoteSummary} />
             <Button

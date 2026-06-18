@@ -38,6 +38,13 @@ export function normalizeWaveEntryFromApi(
   return {
     ...entry,
     id: entry.id ?? entry.post_id,
+    // The private-api waves feeds omit max_accepted_payout; default it (and the
+    // payout strings) to the Hive shape so payout-rendering consumers run their
+    // pending+author+curator summation instead of treating the value as missing.
+    max_accepted_payout: entry.max_accepted_payout || "1000000.000 HBD",
+    pending_payout_value: entry.pending_payout_value || "0.000 HBD",
+    author_payout_value: entry.author_payout_value || "0.000 HBD",
+    curator_payout_value: entry.curator_payout_value || "0.000 HBD",
     host,
     container,
     parent
