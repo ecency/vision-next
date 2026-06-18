@@ -50,7 +50,9 @@ async function ensureHiveSnap(): Promise<void> {
   if (!snap) {
     throw new Error(i18next.t("login.metamask-snap-unavailable"));
   }
-  if (snap.version && !isSnapVersionAtLeast(snap.version, MIN_SNAP_VERSION)) {
+  // A snap with no reported version is treated as outdated: signing relies on the
+  // >= 1.7.0 behavior, so fail safe rather than proceed and break cryptically.
+  if (!snap.version || !isSnapVersionAtLeast(snap.version, MIN_SNAP_VERSION)) {
     throw new Error(i18next.t("login.metamask-snap-outdated"));
   }
 }
