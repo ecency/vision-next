@@ -17,7 +17,13 @@ export const EntryPayout = ({ entry }: Props) => {
   const [showPopover, setShowPopover] = useState(false);
 
   const check = entry.max_accepted_payout;
-  const searchPayout = entry.id || 0; //id exist in search results, post_id in rpc results
+  // Real search-API results expose a numeric `payout` and lack the asset-string
+  // payout fields. Waves/RPC entries also carry an `id`, so detecting a search
+  // result by id alone misrouted waves here and overrode the summed payout with a
+  // missing numeric payout (rendering $0.000). Require the numeric payout AND the
+  // absence of max_accepted_payout so only true search results take this branch.
+  const isSearchResult =
+    (entry.id || 0) > 0 && typeof entry.payout === "number" && !entry.max_accepted_payout;
 
   let isPayoutDeclined,
     pendingPayout,
@@ -40,11 +46,11 @@ export const EntryPayout = ({ entry }: Props) => {
     shownPayout = payoutLimitHit && maxPayout > 0 ? maxPayout : totalPayout;
   }
 
-  if (searchPayout > 0) {
+  if (isSearchResult) {
     shownPayout = entry.payout;
   }
 
-  return searchPayout <= 0 ? (
+  return !isSearchResult ? (
     <div className="noselection">
       <Popover
         directContent={
