@@ -154,8 +154,11 @@ export function parseChainError(error: any): ParsedChainError {
     };
   }
 
-  // Missing active authority (from web operations.ts line 50)
-  if (testPattern(/missing active authority/i)) {
+  // Missing active authority. Hive nodes return "missing required active
+  // authority"; web operations.ts also throws the short form. Match both so the
+  // auth fallback (auth-upgrade dialog) fires instead of misclassifying as a
+  // generic chain error.
+  if (testPattern(/missing (required )?active authority/i)) {
     return {
       message: "Missing active authority. This operation requires your active key.",
       type: ErrorType.MISSING_AUTHORITY,
@@ -163,8 +166,8 @@ export function parseChainError(error: any): ParsedChainError {
     };
   }
 
-  // Missing owner authority (from web operations.ts line 52)
-  if (testPattern(/missing owner authority/i)) {
+  // Missing owner authority ("missing required owner authority" or short form)
+  if (testPattern(/missing (required )?owner authority/i)) {
     return {
       message: "Missing owner authority. This operation requires your owner key.",
       type: ErrorType.MISSING_AUTHORITY,
