@@ -137,10 +137,22 @@ export function ExternalTransferDialog({ currency, username, show, onHide }: Pro
   }, [amount, usdPrice]);
 
   useEffect(() => {
-    if (!isEvm || !show || typeof window === "undefined" || !window.ethereum) return;
-    window.ethereum.request({ method: "eth_requestAccounts" })
-      .then((accounts: any) => setConnectedAddress(accounts?.[0]))
+    if (!isEvm || !show || typeof window === "undefined" || !window.ethereum?.isMetaMask) return;
+    let cancelled = false;
+    // Silent read for the address-mismatch check: eth_accounts returns only
+    // already-connected accounts and never prompts. We must NOT call
+    // eth_requestAccounts here, or merely opening the Send dialog pops a MetaMask
+    // connect prompt. The actual connect/sign prompt happens at confirm time
+    // inside the transfer mutation (see handleConfirm).
+    window.ethereum
+      .request({ method: "eth_accounts" })
+      .then((accounts: any) => {
+        if (!cancelled) setConnectedAddress(accounts?.[0]);
+      })
       .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
   }, [isEvm, show]);
 
   // Gas estimation for EVM
