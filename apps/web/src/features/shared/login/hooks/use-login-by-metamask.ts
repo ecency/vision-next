@@ -10,6 +10,22 @@ import { formatError } from "@/api/format-error";
 
 const HIVE_SNAP_ID = "npm:@hiveio/metamask-snap";
 
+// Login signs via the snap's hive_encrypt(number[]) branch, which only exists in
+// @hiveio/metamask-snap >= 1.7.0. Request that range so MetaMask prompts an
+// upgrade, and verify the resolved version so an older pinned/cached snap fails
+// with a clear message instead of a generic toast.
+const MIN_SNAP_VERSION = "1.7.0";
+
+/** True when semver `version` is >= `min` (major.minor.patch; ignores pre-release). */
+export function isSnapVersionAtLeast(version: string, min: string): boolean {
+  const parse = (v: string) => v.split(".").map((n) => parseInt(n, 10) || 0);
+  const [a = 0, b = 0, c = 0] = parse(version);
+  const [x = 0, y = 0, z = 0] = parse(min);
+  if (a !== x) return a > x;
+  if (b !== y) return b > y;
+  return c >= z;
+}
+
 interface HivePublicKey {
   publicKey: string;
   role?: string;
@@ -25,10 +41,18 @@ function requireEthereum() {
 }
 
 async function ensureHiveSnap(): Promise<void> {
-  await requireEthereum().request({
+  const result = (await requireEthereum().request({
     method: "wallet_requestSnaps",
-    params: { [HIVE_SNAP_ID]: {} }
-  });
+    params: { [HIVE_SNAP_ID]: { version: `^${MIN_SNAP_VERSION}` } }
+  })) as Record<string, { version?: string }> | undefined;
+
+  const snap = result?.[HIVE_SNAP_ID];
+  if (!snap) {
+    throw new Error(i18next.t("login.metamask-snap-unavailable"));
+  }
+  if (snap.version && !isSnapVersionAtLeast(snap.version, MIN_SNAP_VERSION)) {
+    throw new Error(i18next.t("login.metamask-snap-outdated"));
+  }
 }
 
 async function getHivePublicKeys(): Promise<HivePublicKey[]> {
@@ -126,6 +150,13 @@ export function useLoginByMetaMask(username: string) {
       // 6. Complete login
       await loginInApp(code, null, accountData, "metamask");
     },
-    onError: (e) => error(...formatError(e))
+    onError: (e: any) => {
+      // User dismissed the MetaMask / snap prompt (EIP-1193 4001): benign, so
+      // don't show a scary error toast for a deliberate cancel.
+      if (e?.code === 4001 || /user rejected|user denied/i.test(e?.message ?? "")) {
+        return;
+      }
+      error(...formatError(e));
+    }
   });
 }

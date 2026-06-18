@@ -318,6 +318,8 @@
     "metamask-not-found": "MetaMask not found. Please install MetaMask browser extension.",
     "metamask-no-keys": "Could not get Hive keys from MetaMask snap",
     "metamask-key-mismatch": "MetaMask Hive keys do not match this account. Make sure you are using the same MetaMask wallet used during signup.",
+    "metamask-snap-unavailable": "Could not reach the Hive snap. Unlock MetaMask and try again.",
+    "metamask-snap-outdated": "Please update the Hive snap in MetaMask, then try again.",
     "keychain": "Keychain",
     "extensions": "Extensions",
     "extensions-info-title": "Browser Extensions",
