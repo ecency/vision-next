@@ -137,10 +137,22 @@ export function ExternalTransferDialog({ currency, username, show, onHide }: Pro
   }, [amount, usdPrice]);
 
   useEffect(() => {
-    if (!isEvm || !show || typeof window === "undefined" || !window.ethereum) return;
-    window.ethereum.request({ method: "eth_requestAccounts" })
-      .then((accounts: any) => setConnectedAddress(accounts?.[0]))
+    if (!isEvm || !show || typeof window === "undefined" || !window.ethereum?.isMetaMask) return;
+    let cancelled = false;
+    // Silent read for the address-mismatch check: eth_accounts returns only
+    // already-connected accounts and never prompts. We must NOT call
+    // eth_requestAccounts here, or merely opening the Send dialog pops a MetaMask
+    // connect prompt. The actual connect/sign prompt happens at confirm time
+    // inside the transfer mutation (see handleConfirm).
+    window.ethereum
+      .request({ method: "eth_accounts" })
+      .then((accounts: any) => {
+        if (!cancelled) setConnectedAddress(accounts?.[0]);
+      })
       .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
   }, [isEvm, show]);
 
   // Gas estimation for EVM
@@ -162,19 +174,31 @@ export function ExternalTransferDialog({ currency, username, show, onHide }: Pro
   const handleConfirm = useCallback(async () => {
     setStep("signing");
     try {
-      const result = await transfer.mutateAsync({ to, amount });
+      // Pass the linked wallet address so the EVM send is blocked at the source if
+      // the active MetaMask account does not match it (funds safety). The dialog's
+      // open-time read is silent (eth_accounts) and only powers the proactive
+      // warning; the hard guarantee lives in sendEvmTransfer, atomic with its
+      // account read. externalAddress is the SOL address for SOL (ignored there).
+      const result = await transfer.mutateAsync({ to, amount, expectedFrom: externalAddress });
       setTxHash(result.txHash);
       setStep("success");
     } catch (err: unknown) {
       const rpcErr = err as { code?: number; message?: string };
-      if (rpcErr?.code === USER_REJECTED_REQUEST) {
+      if (rpcErr?.message === "ACCOUNT_MISMATCH") {
+        setErrorMessage(
+          i18next.t("external-transfer.account-mismatch", {
+            defaultValue:
+              "Your connected MetaMask account does not match your linked wallet. Switch to the linked account in MetaMask and try again."
+          })
+        );
+      } else if (rpcErr?.code === USER_REJECTED_REQUEST) {
         setErrorMessage(i18next.t("external-transfer.cancelled", { defaultValue: "Transaction cancelled by user." }));
       } else {
         setErrorMessage(rpcErr?.message || "Transfer failed");
       }
       setStep("error");
     }
-  }, [transfer, to, amount]);
+  }, [transfer, to, amount, isEvm, externalAddress]);
 
   const explorerUrl = useMemo(() => {
     if (!txHash) return undefined;

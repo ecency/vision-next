@@ -11,6 +11,9 @@ export type TransferableCurrency =
 interface ExternalTransferPayload {
   to: string;
   amount: string;
+  /** EVM only: the linked wallet address. The send is blocked if the active
+   *  MetaMask account does not match it (funds safety). */
+  expectedFrom?: string;
 }
 
 export function useExternalTransfer(currency: TransferableCurrency) {
@@ -18,12 +21,12 @@ export function useExternalTransfer(currency: TransferableCurrency) {
 
   return useMutation({
     mutationKey: ["ecency-wallets", "external-transfer", currency],
-    mutationFn: async ({ to, amount }: ExternalTransferPayload) => {
+    mutationFn: async ({ to, amount, expectedFrom }: ExternalTransferPayload) => {
       switch (currency) {
         case EcencyWalletCurrency.ETH:
         case EcencyWalletCurrency.BNB: {
           const valueHex = parseToWei(amount);
-          const txHash = await sendEvmTransfer(to, valueHex, currency);
+          const txHash = await sendEvmTransfer(to, valueHex, currency, expectedFrom);
           return { txHash, currency };
         }
         case EcencyWalletCurrency.SOL: {

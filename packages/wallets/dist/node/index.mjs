@@ -795,12 +795,15 @@ function parseToWei(amount) {
   const wei = BigInt(whole) * WEI_PER_ETH + BigInt(paddedFraction);
   return "0x" + wei.toString(16);
 }
-async function sendEvmTransfer(to, amountWei, currency) {
+async function sendEvmTransfer(to, amountWei, currency, expectedFrom) {
   const ethereum = getEthereum();
   await ensureEvmChain(currency);
   const accounts = await ethereum.request({ method: "eth_requestAccounts" });
   const from = accounts[0];
   if (!from) throw new Error("No MetaMask account connected");
+  if (expectedFrom && from.toLowerCase() !== expectedFrom.toLowerCase()) {
+    throw new Error("ACCOUNT_MISMATCH");
+  }
   const txHash = await ethereum.request({
     method: "eth_sendTransaction",
     params: [{
@@ -920,12 +923,12 @@ function useExternalTransfer(currency) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationKey: ["ecency-wallets", "external-transfer", currency],
-    mutationFn: async ({ to, amount }) => {
+    mutationFn: async ({ to, amount, expectedFrom }) => {
       switch (currency) {
         case "ETH" /* ETH */:
         case "BNB" /* BNB */: {
           const valueHex = parseToWei(amount);
-          const txHash = await sendEvmTransfer(to, valueHex, currency);
+          const txHash = await sendEvmTransfer(to, valueHex, currency, expectedFrom);
           return { txHash, currency };
         }
         case "SOL" /* SOL */: {

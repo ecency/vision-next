@@ -140,7 +140,8 @@ export function parseToWei(amount: string): string {
 export async function sendEvmTransfer(
   to: string,
   amountWei: string,
-  currency: EcencyWalletCurrency
+  currency: EcencyWalletCurrency,
+  expectedFrom?: string
 ): Promise<string> {
   const ethereum = getEthereum();
 
@@ -149,6 +150,15 @@ export async function sendEvmTransfer(
   const accounts = await ethereum.request<string[]>({ method: "eth_requestAccounts" });
   const from = accounts[0];
   if (!from) throw new Error("No MetaMask account connected");
+
+  // Funds safety: never send from an account other than the linked wallet. The
+  // active MetaMask account can differ from the one the user linked (multiple
+  // accounts, switched account, or access just granted to a different one). This
+  // comparison is atomic with the account read above and is the single source of
+  // truth for the EVM send. Throws a sentinel the caller maps to a message.
+  if (expectedFrom && from.toLowerCase() !== expectedFrom.toLowerCase()) {
+    throw new Error("ACCOUNT_MISMATCH");
+  }
 
   const txHash = await ethereum.request<string>({
     method: "eth_sendTransaction",
