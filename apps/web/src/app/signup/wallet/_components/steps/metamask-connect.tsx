@@ -182,10 +182,15 @@ export function MetamaskConnect({ username, onVerified, onBack }: Props) {
           setIsLoadingChainAddresses(false);
         }
       }
-    } catch (e) {
+    } catch (e: any) {
+      setIsLoadingChainAddresses(false);
+      // User dismissed the MetaMask connect prompt (EIP-1193 4001): benign cancel,
+      // so don't surface it as an error.
+      if (e?.code === 4001 || /user rejected|user denied/i.test(e?.message ?? "")) {
+        return;
+      }
       console.error("[MetaMask connect] failed:", e);
       error(i18next.t("signup-wallets.metamask.connect-error"));
-      setIsLoadingChainAddresses(false);
     } finally {
       setIsConnecting(false);
     }
@@ -213,7 +218,12 @@ export function MetamaskConnect({ username, onVerified, onBack }: Props) {
 
       success(i18next.t("signup-wallets.validate-funds.validation-success"));
       onVerified(selectedCurrency, connectedAddress, availableAddresses);
-    } catch {
+    } catch (e: any) {
+      // User dismissed the personal_sign dialog (EIP-1193 4001): benign cancel,
+      // so don't surface it as an error (matches connectMetaMask above).
+      if (e?.code === 4001 || /user rejected|user denied/i.test(e?.message ?? "")) {
+        return;
+      }
       error(i18next.t("signup-wallets.metamask.sign-rejected"));
     } finally {
       setIsSigning(false);

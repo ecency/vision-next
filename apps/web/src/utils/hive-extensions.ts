@@ -283,6 +283,42 @@ function getPeakVaultInstance(): PeakVaultApi | null {
 // Internal: Keychain-compatible sign/broadcast (callback-based)
 // ---------------------------------------------------------------------------
 
+/**
+ * Fast liveness ping. Keychain-compatible extensions (Keychain, Hive Keeper) run
+ * a Manifest V3 service worker that idles after ~30s; the first request to a
+ * sleeping or crashed worker can silently never call back, leaving the user on a
+ * 60s spinner. requestHandshake wakes the worker and confirms it is reachable, so
+ * a genuinely dead worker fails fast with an actionable message instead. Resolves
+ * for instances that do not expose requestHandshake (the sign request handles
+ * those directly).
+ */
+function pingKeychain(keychain: KeyChainImpl, timeoutMs = 6000): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (typeof keychain.requestHandshake !== "function") {
+      resolve();
+      return;
+    }
+    let settled = false;
+    const fail = () => {
+      if (settled) return;
+      settled = true;
+      reject(new Error("Extension is not responding. Click its icon to wake it, then try again."));
+    };
+    const timeoutId = setTimeout(fail, timeoutMs);
+    try {
+      keychain.requestHandshake(() => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timeoutId);
+        resolve();
+      });
+    } catch {
+      clearTimeout(timeoutId);
+      fail();
+    }
+  });
+}
+
 function signBufferViaKeychain(
   keychain: KeyChainImpl,
   account: string,
@@ -290,32 +326,35 @@ function signBufferViaKeychain(
   authType: AuthorityTypes,
   rpc: string | null
 ): Promise<TxResponse> {
-  return new Promise((resolve, reject) => {
-    let settled = false;
-    const timeoutId = setTimeout(() => {
-      if (!settled) {
-        settled = true;
-        reject(new Error("Extension request timed out. Please try again."));
-      }
-    }, 60000);
+  return pingKeychain(keychain).then(
+    () =>
+      new Promise<TxResponse>((resolve, reject) => {
+        let settled = false;
+        const timeoutId = setTimeout(() => {
+          if (!settled) {
+            settled = true;
+            reject(new Error("Extension request timed out. Please try again."));
+          }
+        }, 60000);
 
-    keychain.requestSignBuffer(
-      account,
-      message,
-      authType,
-      (resp: TxResponse) => {
-        if (settled) return;
-        settled = true;
-        clearTimeout(timeoutId);
-        if (!resp.success) {
-          reject(new Error(extensionErrorMessage(resp, "Operation cancelled")));
-          return;
-        }
-        resolve(resp);
-      },
-      rpc
-    );
-  });
+        keychain.requestSignBuffer(
+          account,
+          message,
+          authType,
+          (resp: TxResponse) => {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timeoutId);
+            if (!resp.success) {
+              reject(new Error(extensionErrorMessage(resp, "Operation cancelled")));
+              return;
+            }
+            resolve(resp);
+          },
+          rpc
+        );
+      })
+  );
 }
 
 /**
@@ -362,7 +401,12 @@ function broadcastViaKeychain(
       );
     });
 
-  return attempt(rpc).then((response) => {
+  // Wake the (possibly idle Manifest V3) worker first so a sleeping/crashed
+  // extension fails fast on votes/posts/transfers too, not just login. The
+  // fallback-node retry below does not re-ping: the worker is already awake.
+  return pingKeychain(keychain)
+    .then(() => attempt(rpc))
+    .then((response) => {
     if (response.success) {
       return response.result;
     }

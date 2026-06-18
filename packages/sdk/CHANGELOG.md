@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.17
+
+### Patch Changes
+
+- fix(sdk): classify "missing required active/owner authority" for auth fallback (#967)
+
 ## 2.3.16
 
 ### Patch Changes

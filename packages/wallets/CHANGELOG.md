@@ -5,6 +5,8 @@
 ### Patch Changes
 
 - fix(web): stop external-transfer dialog from auto-prompting MetaMask connect (#969)
+- Updated dependencies []:
+  - @ecency/sdk@2.3.17
 
 ## 5.0.15
 

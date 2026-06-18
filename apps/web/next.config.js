@@ -269,8 +269,14 @@ const config = {
           // top-level `()` here would override the per-iframe grant.
           {
             key: "Permissions-Policy",
+            // NOTE: do not re-add `interest-cohort=()` or `browsing-topics=()`.
+            // interest-cohort (FLoC) was removed from Chromium and is unrecognized
+            // in every current browser, so it logged a console warning on every
+            // page. browsing-topics is unrecognized outside Chromium-with-Privacy-
+            // Sandbox and warns there too. The app uses neither API, so the opt-out
+            // tokens bought nothing but console noise.
             value:
-              "camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), browsing-topics=(), interest-cohort=()"
+              "camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=()"
           },
           // ENFORCING CSP — only directives that cannot break JS/CSS execution
           // or block the app's existing cross-origin fetches/frames/images. We
