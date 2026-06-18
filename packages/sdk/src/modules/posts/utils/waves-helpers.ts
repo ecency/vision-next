@@ -8,6 +8,8 @@ function normalizeContainer(entry: EntryWithPostId, host: string): WaveEntry {
   return {
     ...entry,
     id: entry.id ?? entry.post_id,
+    // The private-api waves feeds send the publish time as `timestamp`, not `created`.
+    created: entry.created ?? (entry as unknown as { timestamp?: string }).timestamp,
     host
   } as WaveEntry;
 }
@@ -38,6 +40,10 @@ export function normalizeWaveEntryFromApi(
   return {
     ...entry,
     id: entry.id ?? entry.post_id,
+    // The private-api waves feeds (following / tag / account) send the publish
+    // time as `timestamp`, not `created`; map it so the relative time renders on
+    // every card (the For You feed already carries a real `created` from Hive RPC).
+    created: entry.created ?? (entry as unknown as { timestamp?: string }).timestamp,
     // The private-api waves feeds omit max_accepted_payout; default it (and the
     // payout strings) to the Hive shape so payout-rendering consumers run their
     // pending+author+curator summation instead of treating the value as missing.
