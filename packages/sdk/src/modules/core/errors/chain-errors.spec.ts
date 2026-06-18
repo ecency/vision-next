@@ -117,6 +117,25 @@ describe("chain-errors", () => {
       expect(result.message).toContain("posting authority");
     });
 
+    // The chain emits "missing required active/owner authority"; the classifier
+    // must match that exact wording so the auth-upgrade fallback fires (regression
+    // for a MetaMask/posting-only user attempting an active op).
+    it("should parse the chain's 'missing required active authority' wording", () => {
+      const error = new Error("missing required active authority:alice");
+      const result = parseChainError(error);
+
+      expect(result.type).toBe(ErrorType.MISSING_AUTHORITY);
+      expect(shouldTriggerAuthFallback(error)).toBe(true);
+    });
+
+    it("should parse the chain's 'missing required owner authority' wording", () => {
+      const error = new Error("missing required owner authority:alice");
+      const result = parseChainError(error);
+
+      expect(result.type).toBe(ErrorType.MISSING_AUTHORITY);
+      expect(shouldTriggerAuthFallback(error)).toBe(true);
+    });
+
     it("should parse token expired error", () => {
       const error = { message: "Token expired" };
       const result = parseChainError(error);
