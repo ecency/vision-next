@@ -174,6 +174,26 @@ export function ExternalTransferDialog({ currency, username, show, onHide }: Pro
   const handleConfirm = useCallback(async () => {
     setStep("signing");
     try {
+      // For EVM, confirm the active MetaMask account matches the linked wallet
+      // before sending. The dialog-open read is silent (eth_accounts), so a
+      // not-yet-connected user reaches here without an address comparison, and
+      // sendEvmTransfer would otherwise connect and send from accounts[0] without
+      // re-checking. Connecting here (the user clicked Send) is expected.
+      if (isEvm && typeof window !== "undefined" && window.ethereum?.isMetaMask) {
+        const accounts: any = await window.ethereum.request({ method: "eth_requestAccounts" });
+        const active: string | undefined = accounts?.[0];
+        setConnectedAddress(active);
+        if (active && externalAddress && active.toLowerCase() !== externalAddress.toLowerCase()) {
+          setErrorMessage(
+            i18next.t("external-transfer.account-mismatch", {
+              defaultValue:
+                "Your connected MetaMask account does not match your linked wallet. Switch to the linked account in MetaMask and try again."
+            })
+          );
+          setStep("error");
+          return;
+        }
+      }
       const result = await transfer.mutateAsync({ to, amount });
       setTxHash(result.txHash);
       setStep("success");
@@ -186,7 +206,7 @@ export function ExternalTransferDialog({ currency, username, show, onHide }: Pro
       }
       setStep("error");
     }
-  }, [transfer, to, amount]);
+  }, [transfer, to, amount, isEvm, externalAddress]);
 
   const explorerUrl = useMemo(() => {
     if (!txHash) return undefined;
