@@ -401,7 +401,12 @@ function broadcastViaKeychain(
       );
     });
 
-  return attempt(rpc).then((response) => {
+  // Wake the (possibly idle Manifest V3) worker first so a sleeping/crashed
+  // extension fails fast on votes/posts/transfers too, not just login. The
+  // fallback-node retry below does not re-ping: the worker is already awake.
+  return pingKeychain(keychain)
+    .then(() => attempt(rpc))
+    .then((response) => {
     if (response.success) {
       return response.result;
     }
