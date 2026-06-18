@@ -326,6 +326,7 @@ export const WavesListItem = React.memo(function WavesListItem({
             commentsSlot={commentSlot}
             showVoteSummary={!shouldHideEngagementCounts}
             showCommentCount={!shouldHideEngagementCounts}
+            showPayout={!shouldHideEngagementCounts}
           />
 
           <Modal centered={true} show={showEditModal} onHide={() => setShowEditModal(false)}>

@@ -66,6 +66,9 @@ export interface Entry {
   json_metadata: JsonMetadata | null;
   max_accepted_payout: string;
   net_rshares: number;
+  // Post-level upvote count. The waves private-api feeds (esync) return this but
+  // no active_votes, so it is the vote-count source for those feeds.
+  net_votes?: number;
   parent_author?: string;
   parent_permlink?: string;
   payout: number;

@@ -50,6 +50,7 @@ export function EntryVotes({ entry: initialEntry, icon, hideCount = false }: Pro
     () =>
       entry?.stats?.total_votes ||
       (entry?.active_votes && entry?.active_votes?.length) ||
+      entry?.net_votes ||
       entry?.total_votes ||
       0,
     [entry]
