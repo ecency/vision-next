@@ -19,7 +19,7 @@ import { motion } from "framer-motion";
 import { TabItem } from "@/features/ui";
 import clsx from "clsx";
 import { shouldUseKeychainMobile } from "@/utils/client";
-import { DetectedExtension, HiveExtensionId, getDetectedExtensions, getPreferredExtensionId, setPreferredExtensionId } from "@/utils/hive-extensions";
+import { DetectedExtension, HiveExtensionId, getDetectedExtensions, setPreferredExtensionId } from "@/utils/hive-extensions";
 
 export default function Login() {
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
@@ -110,16 +110,11 @@ export default function Login() {
       return;
     }
     if (detected.length > 1) {
-      // If a saved preference matches a detected extension, use it directly
-      const savedId = getPreferredExtensionId();
-      if (!savedId || !detected.some((ext) => ext.id === savedId)) {
-        setShowExtensionsInfo(true);
-        return;
-      }
-      if (isLoginByKeychainPending) return;
-      loginByKeychain(savedId).catch(() => {
-        /* Already handled in onError of the mutation */
-      });
+      // Multiple Hive extensions installed: always show the picker so the user
+      // chooses the wallet that actually holds this account's keys. We do NOT
+      // auto-route by a saved preference here - login can target a different
+      // account than last time, and signing with the wrong extension would fail.
+      setShowExtensionsInfo(true);
       return;
     }
     if (isLoginByKeychainPending) {
