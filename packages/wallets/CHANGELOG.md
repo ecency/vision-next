@@ -1,5 +1,11 @@
 # @ecency/wallets
 
+## 5.0.16
+
+### Patch Changes
+
+- fix(web): stop external-transfer dialog from auto-prompting MetaMask connect (#969)
+
 ## 5.0.15
 
 ### Patch Changes
