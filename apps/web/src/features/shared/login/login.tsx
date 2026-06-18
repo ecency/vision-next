@@ -14,6 +14,7 @@ import { LoginUserByKey } from "./login-user-by-key";
 import { LoginUsersList } from "./login-users-list";
 import { ExtensionInstallList, useShowExtensionInstall } from "../extension-install-list";
 import { ExtensionChooser } from "../extension-chooser";
+import { error } from "../feedback";
 import { motion } from "framer-motion";
 import { TabItem } from "@/features/ui";
 import clsx from "clsx";
@@ -57,9 +58,35 @@ export default function Login() {
   const [showExtensionsInfo, setShowExtensionsInfo] = useState(false);
   const showExtensionInstall = useShowExtensionInstall();
 
+  // Browser extensions inject their globals (window.hive_keychain /
+  // window.hive.providers / window.peakvault) asynchronously, often AFTER this
+  // component mounts. A single mount-time snapshot therefore misses a genuinely
+  // installed extension and wrongly shows the install list. Re-detect on a short
+  // poll (mirrors initKeychain's runWithRetries grace) and on window focus so the
+  // button self-corrects as the extension comes online.
   useEffect(() => {
-    setDetectedExtensions(getDetectedExtensions());
-    setUseKeychainMobile(shouldUseKeychainMobile());
+    let cancelled = false;
+    const detect = () => {
+      if (cancelled) return;
+      const detected = getDetectedExtensions();
+      setDetectedExtensions((prev) =>
+        prev.length === detected.length && prev.every((e, i) => e.id === detected[i].id)
+          ? prev
+          : detected
+      );
+      setUseKeychainMobile(shouldUseKeychainMobile());
+    };
+    detect();
+    const intervalId = setInterval(detect, 200);
+    const stopId = setTimeout(() => clearInterval(intervalId), 2000);
+    const onFocus = () => detect();
+    window.addEventListener("focus", onFocus);
+    return () => {
+      cancelled = true;
+      clearInterval(intervalId);
+      clearTimeout(stopId);
+      window.removeEventListener("focus", onFocus);
+    };
   }, []);
 
   const hasExtensions = detectedExtensions.length > 0 || useKeychainMobile;
@@ -68,22 +95,39 @@ export default function Login() {
     : i18next.t("login.extensions");
 
   const handleExtensionLogin = () => {
-    if (!hasExtensions) {
+    // Re-read detection at click time: an extension may have injected its globals
+    // after the last poll, so we must never act on a stale empty snapshot.
+    const detected = getDetectedExtensions();
+    setDetectedExtensions(detected);
+    const liveHasExtensions = detected.length > 0 || shouldUseKeychainMobile();
+
+    if (!liveHasExtensions) {
       setShowExtensionsInfo(true);
       return;
     }
-    if (detectedExtensions.length > 1) {
+    if (!username) {
+      error(i18next.t("login.write-username"));
+      return;
+    }
+    if (detected.length > 1) {
       // If a saved preference matches a detected extension, use it directly
       const savedId = getPreferredExtensionId();
-      if (!savedId || !detectedExtensions.some((ext) => ext.id === savedId)) {
+      if (!savedId || !detected.some((ext) => ext.id === savedId)) {
         setShowExtensionsInfo(true);
         return;
       }
+      if (isLoginByKeychainPending) return;
+      loginByKeychain(savedId).catch(() => {
+        /* Already handled in onError of the mutation */
+      });
+      return;
     }
     if (isLoginByKeychainPending) {
       return;
     }
-    loginByKeychain().catch(() => {
+    // Exactly one extension: sign with it explicitly so detection and signing can
+    // never resolve to different extensions.
+    loginByKeychain(detected[0]?.id).catch(() => {
       /* Already handled in onError of the mutation */
     });
   };
@@ -91,8 +135,13 @@ export default function Login() {
   const handleSelectExtension = (extId: HiveExtensionId) => {
     setPreferredExtensionId(extId);
     setShowExtensionsInfo(false);
-    if (isLoginByKeychainPending || !username) return;
-    loginByKeychain().catch(() => {});
+    if (isLoginByKeychainPending) return;
+    if (!username) {
+      // Don't silently swallow the click: tell the user what's missing.
+      error(i18next.t("login.write-username"));
+      return;
+    }
+    loginByKeychain(extId).catch(() => {});
   };
 
   return (
