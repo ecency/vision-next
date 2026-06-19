@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.19
+
+### Patch Changes
+
+- fix(waves): publish time on custom feeds + tag selection on Following (#974)
+
 ## 2.3.18
 
 ### Patch Changes
