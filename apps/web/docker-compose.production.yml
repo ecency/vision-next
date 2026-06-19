@@ -41,6 +41,15 @@ services:
       rollback_config:
         parallelism: 1
         order: start-first
+      # Per-replica memory backstop. Web replicas plateau around 3.7GiB RSS
+      # (with MALLOC_ARENA_MAX=2 below); this cap sits above that so a genuine
+      # runaway is cgroup-OOM-killed and restarted in isolation instead of the
+      # host global OOM-killer picking an arbitrary victim (on the smaller US
+      # box it hit sshd/qemu-ga). Well above the EU/SG plateaus too, so it never
+      # false-trips a healthy replica.
+      resources:
+        limits:
+          memory: 5G
     environment:
       - USE_PRIVATE
       - INTERNAL_API_HOST=http://vapi:4000
@@ -57,6 +66,15 @@ services:
       - THREESPEAK_EMBED_API_KEY
       - SEO_CRON_SECRET
       - SEO_BLACKLIST_URL
+      # Cap glibc malloc arenas (default 8*cores) so freed memory is returned to
+      # the OS instead of being retained per-arena. Cuts Next.js SSR RSS (which
+      # ran ~2x the V8 heap due to arena fragmentation) with no latency cost:
+      # rendering is single-threaded, so arena lock contention does not apply.
+      - MALLOC_ARENA_MAX=2
+      # Bound the V8 old-space so a pathological single render crashes (and the
+      # replica restarts) rather than ballooning the heap unbounded. Heap working
+      # set is ~2GiB, so 3GiB leaves headroom without clipping normal renders.
+      - NODE_OPTIONS=--max-old-space-size=3072
     restart: always
     ports:
       - "3000:3000"
