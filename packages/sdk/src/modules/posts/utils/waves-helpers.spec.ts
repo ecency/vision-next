@@ -144,6 +144,36 @@ describe('waves-helpers', () => {
       expect(result?.created).toBe('2024-01-01T00:00:00')
       expect(result?.stats).toEqual({ total_votes: 10 })
     })
+
+    it('should map `timestamp` to `created` when `created` is absent', () => {
+      // The private-api waves feeds (following / tag / account) send the publish
+      // time as `timestamp`, not `created`; without this the card shows no time.
+      const entry = {
+        author: 'testuser',
+        permlink: 'test-post',
+        post_id: 12345,
+        timestamp: '2024-05-01T12:00:00'
+      } as any
+
+      const result = normalizeWaveEntryFromApi(entry, mockHost)
+
+      expect(result?.created).toBe('2024-05-01T12:00:00')
+      expect(result?.container.created).toBe('2024-05-01T12:00:00')
+    })
+
+    it('should prefer an existing `created` over `timestamp`', () => {
+      const entry = {
+        author: 'testuser',
+        permlink: 'test-post',
+        post_id: 12345,
+        created: '2024-01-01T00:00:00',
+        timestamp: '2024-05-01T12:00:00'
+      } as any
+
+      const result = normalizeWaveEntryFromApi(entry, mockHost)
+
+      expect(result?.created).toBe('2024-01-01T00:00:00')
+    })
   })
 
   describe('mapThreadItemsToWaveEntries', () => {
