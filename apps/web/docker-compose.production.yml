@@ -45,11 +45,12 @@ services:
       # (with MALLOC_ARENA_MAX=2 below); this cap sits above that so a genuine
       # runaway is cgroup-OOM-killed and restarted in isolation instead of the
       # host global OOM-killer picking an arbitrary victim (on the smaller US
-      # box it hit sshd/qemu-ga). Well above the EU/SG plateaus too, so it never
-      # false-trips a healthy replica.
+      # box it hit sshd/qemu-ga). 4.5GiB keeps 3 replicas (13.5GiB) under the
+      # 15GiB US box with headroom for redis/vapi/OS, and stays above the EU/SG
+      # plateaus too, so it never false-trips a healthy replica.
       resources:
         limits:
-          memory: 5G
+          memory: 4608M
     environment:
       - USE_PRIVATE
       - INTERNAL_API_HOST=http://vapi:4000
