@@ -145,7 +145,7 @@ describe('waves-helpers', () => {
       expect(result?.stats).toEqual({ total_votes: 10 })
     })
 
-    it('should map esync `timestamp` to `created` when `created` is absent', () => {
+    it('should map `timestamp` to `created` when `created` is absent', () => {
       // The private-api waves feeds (following / tag / account) send the publish
       // time as `timestamp`, not `created`; without this the card shows no time.
       const entry = {
