@@ -2802,6 +2802,17 @@
     "insufficient-resource-message": "You don't have enough resource credits. Please boost your account/buy Hive power or wait  few hours for refill",
     "report": "Report"
   },
+  "rc-precheck": {
+    "low-rc-message": "You're low on Resource Credits, so this may not go through. Top up now, or wait a few hours for them to refill.",
+    "low-rc-short": "Low on Resource Credits, this may not go through.",
+    "top-up": "Top up RC"
+  },
+  "rc-topup": {
+    "title": "Top up Resource Credits",
+    "sub-title": "Spend Points for a short-term RC boost so you can keep posting",
+    "success-message": "Your RC top-up is on the way. It will appear shortly.",
+    "already-active": "You already have an active RC top-up until {{date}}."
+  },
   "perks": {
     "page-title": "Welcome to Perks",
     "title": "Ecency perks",

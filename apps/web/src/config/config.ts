@@ -88,6 +88,9 @@ const CONFIG = {
       promotions: {
         enabled: true
       },
+      rcTopup: {
+        enabled: false
+      },
       editHistory: {
         enabled: true
       },

@@ -108,6 +108,7 @@ export {
 // Ecency-Specific Operations
 export {
   buildBoostPlusOp,
+  buildRcDelegationOp,
   buildPromoteOp,
   buildPointTransferOp,
   buildMultiPointTransferOps,
