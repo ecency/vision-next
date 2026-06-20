@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Entry, FullAccount } from "@/entities";
+import { Entry } from "@/entities";
 import { error } from "@/features/shared";
 import i18next from "i18next";
 import { useUpdateProfile } from "@/api/mutations/update-profile";
@@ -22,36 +22,15 @@ export function usePinToBlog(entry: Entry, onSuccess: () => void) {
       }
 
       const ownEntry = activeUser && activeUser.username === entry.author;
-      const { profile, name } = account;
+      const { name } = account;
 
-      if (ownEntry && pin && profile && activeUser) {
+      if (ownEntry && activeUser) {
+        // Send ONLY the field we are changing. The SDK reads the current
+        // on-chain profile and deep-merges, so re-sending other fields here
+        // (especially with `|| ""` fallbacks built from a possibly stale or
+        // unloaded snapshot) would risk overwriting them with empty values.
         await updateProfile({
-          nextProfile: {
-            name: profile?.name || "",
-            about: profile?.about || "",
-            cover_image: profile?.cover_image || "",
-            profile_image: profile?.profile_image || "",
-            website: profile?.website || "",
-            location: profile?.location || "",
-            pinned: entry.permlink
-          }
-        });
-
-        // Invalidate account query to refresh profile data
-        qc.invalidateQueries({
-          queryKey: QueryKeys.accounts.full(name)
-        });
-      } else if (ownEntry && !pin && profile && activeUser) {
-        await updateProfile({
-          nextProfile: {
-            name: profile?.name || "",
-            about: profile?.about || "",
-            cover_image: profile?.cover_image || "",
-            profile_image: profile?.profile_image || "",
-            website: profile?.website || "",
-            location: profile?.location || "",
-            pinned: ""
-          }
+          nextProfile: { pinned: pin ? entry.permlink : "" }
         });
 
         // Invalidate account query to refresh profile data
