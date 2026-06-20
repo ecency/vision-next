@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAccountFullQueryOptions } from "../queries";
 import { AccountProfile, FullAccount } from "../types";
 import {
+  buildPostingJsonMetadata,
   buildProfileMetadata,
   extractAccountProfile,
 } from "../utils/profile-metadata";
@@ -73,15 +74,17 @@ export function useAccountUpdate(
     ["accounts", "update"],
     username,
     (payload: Partial<Payload>) => {
-      if (!data) {
+      // Prefer the freshest cached snapshot. onMutate has just refetched the
+      // account from chain, so this reflects the current on-chain profile
+      // rather than a possibly stale/unloaded render-time value.
+      const account =
+        queryClient.getQueryData<FullAccount>(
+          getAccountFullQueryOptions(username).queryKey
+        ) ?? data;
+
+      if (!account) {
         throw new Error("[SDK][Accounts] – cannot update not existing account");
       }
-
-      const profile = buildProfileMetadata({
-        existingProfile: extractAccountProfile(data),
-        profile: payload.profile,
-        tokens: payload.tokens,
-      });
 
       return [
         [
@@ -90,8 +93,13 @@ export function useAccountUpdate(
             account: username!,
             json_metadata: "",
             extensions: [] as [],
-            posting_json_metadata: JSON.stringify({
-              profile,
+            // Read-modify-write the FULL on-chain metadata: deep-merge the
+            // profile and preserve any non-`profile` top-level keys, so a
+            // partial update never wipes unrelated fields.
+            posting_json_metadata: buildPostingJsonMetadata({
+              existingPostingJsonMetadata: account.posting_json_metadata,
+              profile: payload.profile,
+              tokens: payload.tokens,
             }),
           },
         ],
@@ -124,6 +132,26 @@ export function useAccountUpdate(
     },
     auth,
     undefined,
-    { broadcastMode }
+    {
+      broadcastMode,
+      // Before merging, force a fresh on-chain read so a stale or unloaded
+      // cached snapshot cannot cause a partial update (e.g. pinning a post,
+      // which sets only `pinned`) to overwrite the existing profile with a
+      // near-empty object. Best-effort: if the refetch fails, the op builder
+      // falls back to the cached snapshot.
+      onMutate: async () => {
+        if (!username) {
+          return;
+        }
+        try {
+          await queryClient.fetchQuery({
+            ...getAccountFullQueryOptions(username),
+            staleTime: 0,
+          });
+        } catch {
+          // Ignore – fall back to whatever is already cached.
+        }
+      },
+    }
   );
 }
