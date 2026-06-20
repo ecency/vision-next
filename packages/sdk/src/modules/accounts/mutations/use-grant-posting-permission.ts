@@ -8,12 +8,7 @@ export interface GrantPostingPermissionPayload {
   grantedAccount: string;
   weightThreshold: number;
   memoKey: string;
-  /**
-   * @deprecated Ignored. Granting posting authority no longer rewrites account
-   * metadata (it broadcasts account_update2 with empty, "no change" metadata),
-   * so supplying this has no effect. Kept optional for backward compatibility.
-   */
-  jsonMetadata?: string;
+  jsonMetadata: string;
 }
 
 export function useGrantPostingPermission(
