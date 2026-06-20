@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.21
+
+### Patch Changes
+
+- feat: Resource Credits pre-publish check + RC top-up purchase client (#978)
+
 ## 2.3.20
 
 ### Patch Changes

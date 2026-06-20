@@ -38,6 +38,36 @@ export function buildBoostPlusOp(
 }
 
 /**
+ * Builds an Ecency RC top-up operation (custom_json): a short-term, RC-only
+ * delegation to the user's OWN account, paid for with Ecency Points. Distinct
+ * from Boost Plus (which delegates Hive Power). The RC amount is fixed
+ * server-side, so the user only chooses a duration. Signed with active
+ * authority because it spends Points. The actual on-chain `delegate_rc` is
+ * broadcast by the Ecency relay account, not here.
+ * @param user - User account (payer and recipient of the RC)
+ * @param duration - Delegation duration in days (must be a valid finite number)
+ * @returns Custom JSON operation for the RC top-up
+ */
+export function buildRcDelegationOp(user: string, duration: number): Operation {
+  if (!user || !Number.isInteger(duration) || duration <= 0) {
+    throw new Error("[SDK][buildRcDelegationOp] Missing or invalid parameters");
+  }
+
+  return [
+    "custom_json",
+    {
+      id: "ecency_rc_delegation",
+      json: JSON.stringify({
+        user,
+        duration,
+      }),
+      required_auths: [user],
+      required_posting_auths: [],
+    },
+  ];
+}
+
+/**
  * Builds an Ecency promote operation (custom_json).
  * @param user - User account
  * @param author - Post author

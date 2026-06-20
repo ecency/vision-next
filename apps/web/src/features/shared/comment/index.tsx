@@ -33,6 +33,7 @@ import {
 } from "@ecency/sdk";
 import { isCommunity } from "@/utils";
 import { EntryPageContext } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/context";
+import { RcPrecheckBanner } from "@/features/shared/rc-precheck";
 
 setProxyBase(defaults.imageServer);
 
@@ -323,6 +324,7 @@ export function Comment({
             </div>
           </div>
         </div>
+        <RcPrecheckBanner operation="comment_operation" className="mt-2" />
         <div className="comment-buttons flex items-center mt-3">
           {!isMobile && (
             <span className="comment-submit-hint mr-auto text-xs opacity-60">

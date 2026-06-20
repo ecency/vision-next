@@ -60,6 +60,7 @@ export { useLimitOrderCancelMutation } from "./use-limit-order-cancel-mutation";
 export { useProposalCreateMutation } from "./use-proposal-create-mutation";
 export { usePinPostMutation } from "./use-pin-post-mutation";
 export { useBoostPlusMutation } from "./use-boost-plus-mutation";
+export { useRcDelegationMutation } from "./use-rc-delegation-mutation";
 export { useSetLastReadMutation } from "./use-set-last-read-mutation";
 export { useCreateAccountMutation } from "./use-create-account-mutation";
 export { useGrantPostingPermissionMutation } from "./use-grant-posting-permission-mutation";

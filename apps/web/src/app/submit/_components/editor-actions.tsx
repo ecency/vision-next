@@ -11,6 +11,7 @@ import { formatError } from "@/api/format-error";
 import { BeneficiaryRoute, Draft, Entry, RewardType } from "@/entities";
 import { useRouter } from "next/navigation";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { RcPrecheckBanner } from "@/features/shared/rc-precheck";
 
 interface Props {
   editingEntry: Entry | null;
@@ -84,17 +85,17 @@ export function EditorActions({
               return;
             }
 
-              doSchedule({
-                title,
-                tags,
-                body,
-                reward,
-                reblogSwitch,
-                beneficiaries,
-                schedule,
-                description,
-                selectedThumbnail
-              }).catch((err) => error(...formatError(err)));
+            doSchedule({
+              title,
+              tags,
+              body,
+              reward,
+              reblogSwitch,
+              beneficiaries,
+              schedule,
+              description,
+              selectedThumbnail
+            }).catch((err) => error(...formatError(err)));
           }}
         >
           {i18next.t("submit.schedule")}
@@ -102,120 +103,125 @@ export function EditorActions({
       </LoginRequired>
     </div>
   ) : (
-    <div className="flex items-center justify-end border-b border-[--border-color] gap-2 p-2">
+    <>
       {editingEntry === null && (
-        <>
-          {isDraftEmpty ? (
-            <EcencyConfigManager.Conditional
-              condition={({ visionFeatures }) => visionFeatures.drafts.enabled}
-            >
+        <RcPrecheckBanner operation="comment_operation" className="mx-2 mt-2" />
+      )}
+      <div className="flex items-center justify-end border-b border-[--border-color] gap-2 p-2">
+        {editingEntry === null && (
+          <>
+            {isDraftEmpty ? (
+              <EcencyConfigManager.Conditional
+                condition={({ visionFeatures }) => visionFeatures.drafts.enabled}
+              >
+                <LoginRequired>
+                  <Button
+                    size="sm"
+                    outline={true}
+                    className="mr-[6px]"
+                    onClick={() => setDrafts(!drafts)}
+                    icon={contentLoadSvg}
+                    iconPlacement="left"
+                    isLoading={savingDraft}
+                    loadingText={i18next.t("submit.saving")}
+                  >
+                    {i18next.t("submit.load-draft")}
+                  </Button>
+                </LoginRequired>
+              </EcencyConfigManager.Conditional>
+            ) : (
               <LoginRequired>
                 <Button
                   size="sm"
                   outline={true}
                   className="mr-[6px]"
-                  onClick={() => setDrafts(!drafts)}
-                  icon={contentLoadSvg}
+                  icon={contentSaveSvg}
                   iconPlacement="left"
                   isLoading={savingDraft}
                   loadingText={i18next.t("submit.saving")}
+                  onClick={() => {
+                    if (!validate()) {
+                      return;
+                    }
+                    saveDraft({
+                      tags,
+                      title,
+                      body,
+                      description,
+                      selectedThumbnail,
+                      editingDraft,
+                      beneficiaries,
+                      reward
+                    }).catch((err) => error(...formatError(err)));
+                  }}
                 >
-                  {i18next.t("submit.load-draft")}
+                  {editingDraft === null
+                    ? i18next.t("submit.save-draft")
+                    : i18next.t("submit.update-draft")}
                 </Button>
               </LoginRequired>
-            </EcencyConfigManager.Conditional>
-          ) : (
+            )}
             <LoginRequired>
               <Button
                 size="sm"
-                outline={true}
-                className="mr-[6px]"
-                icon={contentSaveSvg}
+                isLoading={publishing}
+                loadingText={i18next.t("submit.publishing")}
                 iconPlacement="left"
-                isLoading={savingDraft}
-                loadingText={i18next.t("submit.saving")}
                 onClick={() => {
                   if (!validate()) {
                     return;
                   }
-                  saveDraft({
+
+                  publish({
+                    reblogSwitch,
+                    title,
+                    tags,
+                    body,
+                    description,
+                    reward,
+                    beneficiaries,
+                    selectedThumbnail
+                  }).catch((err) => error(...formatError(err)));
+                }}
+              >
+                {i18next.t("submit.publish")}
+              </Button>
+            </LoginRequired>
+          </>
+        )}
+        {activeUser && <DraftsDialog show={drafts} setShow={setDrafts} />}
+
+        {editingEntry !== null && (
+          <>
+            <Button size="sm" appearance="secondary" outline={true} onClick={cancelUpdate}>
+              {i18next.t("submit.cancel-update")}
+            </Button>
+            <LoginRequired>
+              <Button
+                size="sm"
+                isLoading={updating}
+                loadingText={i18next.t("submit.updating")}
+                onClick={() => {
+                  if (!validate()) {
+                    return;
+                  }
+
+                  update({
+                    editingEntry,
                     tags,
                     title,
                     body,
                     description,
-                    selectedThumbnail,
-                    editingDraft,
-                    beneficiaries,
-                    reward
+                    selectedThumbnail
                   }).catch((err) => error(...formatError(err)));
                 }}
               >
-                {editingDraft === null
-                  ? i18next.t("submit.save-draft")
-                  : i18next.t("submit.update-draft")}
+                {i18next.t("submit.update")}
               </Button>
             </LoginRequired>
-          )}
-          <LoginRequired>
-            <Button
-              size="sm"
-              isLoading={publishing}
-              loadingText={i18next.t("submit.publishing")}
-              iconPlacement="left"
-              onClick={() => {
-                if (!validate()) {
-                  return;
-                }
-
-                publish({
-                  reblogSwitch,
-                  title,
-                  tags,
-                  body,
-                  description,
-                  reward,
-                  beneficiaries,
-                  selectedThumbnail
-                }).catch((err) => error(...formatError(err)));
-              }}
-            >
-              {i18next.t("submit.publish")}
-            </Button>
-          </LoginRequired>
-        </>
-      )}
-      {activeUser && <DraftsDialog show={drafts} setShow={setDrafts} />}
-
-      {editingEntry !== null && (
-        <>
-          <Button size="sm" appearance="secondary" outline={true} onClick={cancelUpdate}>
-            {i18next.t("submit.cancel-update")}
-          </Button>
-          <LoginRequired>
-            <Button
-              size="sm"
-              isLoading={updating}
-              loadingText={i18next.t("submit.updating")}
-              onClick={() => {
-                if (!validate()) {
-                  return;
-                }
-
-                update({
-                  editingEntry,
-                  tags,
-                  title,
-                  body,
-                  description,
-                  selectedThumbnail
-                }).catch((err) => error(...formatError(err)));
-              }}
-            >
-              {i18next.t("submit.update")}
-            </Button>
-          </LoginRequired>
-        </>
-      )}
-    </div>
+          </>
+        )}
+      </div>
+    </>
   );
 }

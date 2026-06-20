@@ -11,6 +11,7 @@ import { Account, Entry } from "@/entities";
 import { Spinner } from "@ui/spinner";
 import { useActiveAccount } from "@/core/hooks";
 import { useQuery } from "@tanstack/react-query";
+import { RcPrecheckBanner } from "@/features/shared/rc-precheck";
 
 type Mode = "up" | "down";
 
@@ -179,6 +180,9 @@ export function EntryVoteDialog({
 
   return (
     <>
+      {!isPaidOut && (
+        <RcPrecheckBanner operation="vote_operation" compact className="mb-2" />
+      )}
       {!isPaidOut && mode === "up" && (
         <>
           <div className="voting-controls voting-controls-up">
