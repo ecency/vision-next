@@ -83,6 +83,66 @@ export function extractAccountProfile(
   return parseProfileMetadata(data?.posting_json_metadata);
 }
 
+/**
+ * Parse the FULL root object of posting_json_metadata, not just its `profile`
+ * key. Returns {} for missing/invalid input or a non-object root.
+ *
+ * `parseProfileMetadata` intentionally returns only `parsed.profile`; this
+ * helper exists so writers can carry forward any sibling top-level keys that
+ * live alongside `profile` (data other Hive apps may store there) instead of
+ * dropping them on the next update.
+ */
+export function parsePostingMetadataRoot(
+  postingJsonMetadata?: string | null
+): Record<string, unknown> {
+  if (!postingJsonMetadata) {
+    return {};
+  }
+
+  try {
+    const parsed = JSON.parse(postingJsonMetadata);
+    if (isPlainObject(parsed)) {
+      return parsed;
+    }
+  } catch (err) {
+    console.warn("[SDK] Failed to parse posting_json_metadata root:", err, {
+      length: postingJsonMetadata?.length ?? 0,
+    });
+  }
+
+  return {};
+}
+
+/**
+ * Build the serialized `posting_json_metadata` string for an account_update2
+ * operation. It deep-merges the profile (via {@link buildProfileMetadata}) over
+ * the account's CURRENT on-chain profile AND preserves any non-`profile`
+ * top-level keys present in the existing metadata, so a partial profile update
+ * (e.g. only `pinned` or only `tokens`) never clobbers unrelated fields.
+ */
+export function buildPostingJsonMetadata({
+  existingPostingJsonMetadata,
+  profile,
+  tokens,
+}: {
+  existingPostingJsonMetadata?: string | null;
+  profile?: Partial<AccountProfile> | null;
+  tokens?: ProfileTokens | null;
+}): string {
+  const root = parsePostingMetadataRoot(existingPostingJsonMetadata);
+  const existingProfile = isPlainObject(root.profile)
+    ? (root.profile as AccountProfile)
+    : ({} as AccountProfile);
+
+  const mergedProfile = buildProfileMetadata({
+    existingProfile,
+    profile,
+    tokens,
+  });
+
+  return JSON.stringify({ ...root, profile: mergedProfile });
+}
+
 export function buildProfileMetadata({
   existingProfile,
   profile,

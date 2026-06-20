@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAccountFullQueryOptions } from "../queries";
 import { AccountProfile, FullAccount } from "../types";
 import {
+  buildPostingJsonMetadata,
   buildProfileMetadata,
   extractAccountProfile,
 } from "../utils/profile-metadata";
@@ -77,12 +78,6 @@ export function useAccountUpdate(
         throw new Error("[SDK][Accounts] – cannot update not existing account");
       }
 
-      const profile = buildProfileMetadata({
-        existingProfile: extractAccountProfile(data),
-        profile: payload.profile,
-        tokens: payload.tokens,
-      });
-
       return [
         [
           "account_update2",
@@ -90,8 +85,13 @@ export function useAccountUpdate(
             account: username!,
             json_metadata: "",
             extensions: [] as [],
-            posting_json_metadata: JSON.stringify({
-              profile,
+            // Read-modify-write the FULL on-chain metadata: deep-merge the
+            // profile and preserve any non-`profile` top-level keys, so a
+            // partial update never wipes unrelated fields.
+            posting_json_metadata: buildPostingJsonMetadata({
+              existingPostingJsonMetadata: data.posting_json_metadata,
+              profile: payload.profile,
+              tokens: payload.tokens,
             }),
           },
         ],

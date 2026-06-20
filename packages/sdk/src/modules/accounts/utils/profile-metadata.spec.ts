@@ -2,7 +2,9 @@ import { describe, it, expect } from 'vitest'
 import {
   parseProfileMetadata,
   extractAccountProfile,
-  buildProfileMetadata
+  buildProfileMetadata,
+  parsePostingMetadataRoot,
+  buildPostingJsonMetadata
 } from './profile-metadata'
 import { AccountProfile, FullAccount } from '../types'
 
@@ -254,6 +256,106 @@ describe('profile-metadata utilities', () => {
       expect(result.about).toBe('Updated Bio')
       expect(result.location).toBe('City1')
       expect(result.website).toBe('https://example.com')
+    })
+  })
+
+  describe('parsePostingMetadataRoot', () => {
+    it('should return the full root object including non-profile keys', () => {
+      const metadata = JSON.stringify({
+        profile: { name: 'Test User' },
+        // sibling key that some other Hive app might store
+        extra_app_data: { foo: 'bar' }
+      })
+
+      const result = parsePostingMetadataRoot(metadata)
+      expect(result.profile).toEqual({ name: 'Test User' })
+      expect(result.extra_app_data).toEqual({ foo: 'bar' })
+    })
+
+    it('should return empty object for null / undefined / empty / invalid input', () => {
+      expect(parsePostingMetadataRoot(null)).toEqual({})
+      expect(parsePostingMetadataRoot(undefined)).toEqual({})
+      expect(parsePostingMetadataRoot('')).toEqual({})
+      expect(parsePostingMetadataRoot('not json')).toEqual({})
+    })
+
+    it('should return empty object when root is not a plain object', () => {
+      expect(parsePostingMetadataRoot(JSON.stringify(['a', 'b']))).toEqual({})
+      expect(parsePostingMetadataRoot(JSON.stringify('string'))).toEqual({})
+    })
+  })
+
+  describe('buildPostingJsonMetadata', () => {
+    it('should preserve all existing profile fields on a partial update (pin regression)', () => {
+      // Reproduces the "pin reset my avatar/details" incident: a partial update
+      // that only sets `pinned` must NOT drop the rest of the profile.
+      const existing = JSON.stringify({
+        profile: {
+          name: 'Melinda',
+          about: 'Bio',
+          cover_image: 'https://img/cover.jpg',
+          profile_image: 'https://img/avatar.jpg',
+          website: 'https://example.com',
+          location: 'Wisconsin',
+          tokens: [{ symbol: 'POB', type: 'ENGINE', meta: { show: true } }],
+          version: 2
+        }
+      })
+
+      const out = JSON.parse(
+        buildPostingJsonMetadata({
+          existingPostingJsonMetadata: existing,
+          profile: { pinned: 'my-pinned-post' }
+        })
+      )
+
+      expect(out.profile.pinned).toBe('my-pinned-post')
+      expect(out.profile.name).toBe('Melinda')
+      expect(out.profile.profile_image).toBe('https://img/avatar.jpg')
+      expect(out.profile.cover_image).toBe('https://img/cover.jpg')
+      expect(out.profile.about).toBe('Bio')
+      expect(out.profile.website).toBe('https://example.com')
+      expect(out.profile.location).toBe('Wisconsin')
+      expect(out.profile.tokens).toHaveLength(1)
+      expect(out.profile.version).toBe(2)
+    })
+
+    it('should preserve non-profile top-level sibling keys', () => {
+      const existing = JSON.stringify({
+        profile: { name: 'Old' },
+        third_party: { keep: 'me' }
+      })
+
+      const out = JSON.parse(
+        buildPostingJsonMetadata({
+          existingPostingJsonMetadata: existing,
+          profile: { name: 'New' }
+        })
+      )
+
+      expect(out.profile.name).toBe('New')
+      expect(out.third_party).toEqual({ keep: 'me' })
+    })
+
+    it('should always set profile version to 2', () => {
+      const out = JSON.parse(
+        buildPostingJsonMetadata({
+          existingPostingJsonMetadata: JSON.stringify({ profile: { name: 'T' } }),
+          profile: { about: 'b' }
+        })
+      )
+      expect(out.profile.version).toBe(2)
+    })
+
+    it('should produce a valid profile when there is no existing metadata', () => {
+      const out = JSON.parse(
+        buildPostingJsonMetadata({
+          existingPostingJsonMetadata: '',
+          profile: { name: 'Fresh' }
+        })
+      )
+      expect(out.profile.name).toBe('Fresh')
+      expect(out.profile.version).toBe(2)
     })
   })
 })

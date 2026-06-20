@@ -209,9 +209,12 @@ export function buildClaimAccountOp(creator: string, fee: string): Operation {
  * @param currentPosting - Current posting authority
  * @param grantedAccount - Account to grant permission to
  * @param weightThreshold - Weight threshold of the granted account
- * @param memoKey - Memo public key (required by Hive blockchain)
- * @param jsonMetadata - Account JSON metadata (required by Hive blockchain)
- * @returns Account update operation with modified posting authority
+ * @param memoKey - Memo public key
+ * @param _jsonMetadata - Deprecated/ignored. This op only changes posting
+ *   authority and must NOT rewrite metadata; kept for call-signature
+ *   compatibility. Previously this value was (incorrectly) written into the
+ *   op's `json_metadata`, which could clobber the account's metadata.
+ * @returns account_update2 operation with modified posting authority only
  */
 export function buildGrantPostingPermissionOp(
   account: string,
@@ -219,7 +222,7 @@ export function buildGrantPostingPermissionOp(
   grantedAccount: string,
   weightThreshold: number,
   memoKey: string,
-  jsonMetadata: string
+  _jsonMetadata?: string
 ): Operation {
   if (!account || !currentPosting || !grantedAccount || !memoKey) {
     throw new Error("[SDK][buildGrantPostingPermissionOp] Missing required parameters");
@@ -247,13 +250,18 @@ export function buildGrantPostingPermissionOp(
   // Sort account_auths alphabetically for consistency
   newPosting.account_auths.sort((a, b) => (a[0] > b[0] ? 1 : -1));
 
+  // Use account_update2 with empty metadata strings: an empty string means
+  // "no change", so this only updates the posting authority and never touches
+  // json_metadata or posting_json_metadata.
   return [
-    "account_update",
+    "account_update2",
     {
       account,
       posting: newPosting,
       memo_key: memoKey,
-      json_metadata: jsonMetadata,
+      json_metadata: "",
+      posting_json_metadata: "",
+      extensions: [] as [],
     },
   ];
 }
@@ -264,16 +272,19 @@ export function buildGrantPostingPermissionOp(
  * @param account - Account revoking permission
  * @param currentPosting - Current posting authority
  * @param revokedAccount - Account to revoke permission from
- * @param memoKey - Memo public key (required by Hive blockchain)
- * @param jsonMetadata - Account JSON metadata (required by Hive blockchain)
- * @returns Account update operation with modified posting authority
+ * @param memoKey - Memo public key
+ * @param _jsonMetadata - Deprecated/ignored. This op only changes posting
+ *   authority and must NOT rewrite metadata; kept for call-signature
+ *   compatibility. Previously this value was (incorrectly) written into the
+ *   op's `json_metadata`, which could clobber the account's metadata.
+ * @returns account_update2 operation with modified posting authority only
  */
 export function buildRevokePostingPermissionOp(
   account: string,
   currentPosting: Authority,
   revokedAccount: string,
   memoKey: string,
-  jsonMetadata: string
+  _jsonMetadata?: string
 ): Operation {
   if (!account || !currentPosting || !revokedAccount || !memoKey) {
     throw new Error("[SDK][buildRevokePostingPermissionOp] Missing required parameters");
@@ -286,13 +297,18 @@ export function buildRevokePostingPermissionOp(
     ),
   };
 
+  // Use account_update2 with empty metadata strings: an empty string means
+  // "no change", so this only updates the posting authority and never touches
+  // json_metadata or posting_json_metadata.
   return [
-    "account_update",
+    "account_update2",
     {
       account,
       posting: newPosting,
       memo_key: memoKey,
-      json_metadata: jsonMetadata,
+      json_metadata: "",
+      posting_json_metadata: "",
+      extensions: [] as [],
     },
   ];
 }
