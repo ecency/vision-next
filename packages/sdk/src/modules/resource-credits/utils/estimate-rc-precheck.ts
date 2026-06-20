@@ -79,7 +79,8 @@ export function estimateRcPrecheck({
     return { ...EMPTY, ready: true, currentMana, maxMana };
   }
 
-  const estimatedCost = avgCost * buffer;
+  const safeBuffer = Number.isFinite(buffer) && buffer > 0 ? buffer : 1.2;
+  const estimatedCost = avgCost * safeBuffer;
   const willLikelyFail = currentMana < estimatedCost;
 
   return {

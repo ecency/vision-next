@@ -33,8 +33,8 @@ export function getRcDelegationActiveQueryOptions(username: string, accessToken:
 
       const responseData = (await response.json()) as { user?: string; expires?: string };
 
-      return responseData && responseData.expires
-        ? { user: responseData.user as string, expires: new Date(responseData.expires) }
+      return responseData && responseData.expires && responseData.user
+        ? { user: responseData.user, expires: new Date(responseData.expires) }
         : null;
     },
     enabled: !!username && !!accessToken

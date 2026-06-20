@@ -49,8 +49,8 @@ export function buildBoostPlusOp(
  * @returns Custom JSON operation for the RC top-up
  */
 export function buildRcDelegationOp(user: string, duration: number): Operation {
-  if (!user || !Number.isFinite(duration)) {
-    throw new Error("[SDK][buildRcDelegationOp] Missing required parameters");
+  if (!user || !Number.isInteger(duration) || duration <= 0) {
+    throw new Error("[SDK][buildRcDelegationOp] Missing or invalid parameters");
   }
 
   return [

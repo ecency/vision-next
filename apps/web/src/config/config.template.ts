@@ -90,7 +90,7 @@ const CONFIG = {
         enabled: true
       },
       rcTopup: {
-        enabled: true
+        enabled: false
       },
       editHistory: {
         enabled: true

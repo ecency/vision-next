@@ -5,10 +5,17 @@ import i18next from "i18next";
 import { Button } from "@ui/button";
 import { alertCircleSvg } from "@/assets/img/svg";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import dynamic from "next/dynamic";
 import { EcencyConfigManager } from "@/config";
-import { RcTopupDialog } from "@/features/shared/rc-topup";
 import { useRcPrecheck } from "./use-rc-precheck";
 import type { RcPrecheckOperation } from "@ecency/sdk";
+
+// Lazy-load the purchase dialog so its mutation/SDK import chain is not pulled
+// into every comment/editor/vote render until a user actually opens it.
+const RcTopupDialog = dynamic(
+  () => import("@/features/shared/rc-topup").then((m) => m.RcTopupDialog),
+  { ssr: false }
+);
 
 interface Props {
   operation?: RcPrecheckOperation;
@@ -47,7 +54,7 @@ export function RcPrecheckBanner({
     if (rcTopupEnabled) {
       setShowTopup(true);
     } else {
-      window.open(`/purchase?username=${username}&type=boost`, "_blank");
+      window.open(`/purchase?username=${username}&type=boost`, "_blank", "noopener");
     }
   };
 

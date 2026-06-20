@@ -25,16 +25,15 @@ vi.mock("@/features/shared/textarea-autocomplete", () => ({
       id?: string;
     }
   >(({ value, onChange, placeholder, id }, ref) => (
-      <textarea
-        ref={ref}
-        id={id}
-        placeholder={placeholder}
-        value={value ?? ""}
-        onChange={onChange}
-        data-testid="comment-textarea"
-      />
-    )
-  )
+    <textarea
+      ref={ref}
+      id={id}
+      placeholder={placeholder}
+      value={value ?? ""}
+      onChange={onChange}
+      data-testid="comment-textarea"
+    />
+  ))
 }));
 
 vi.mock("@/features/shared/comment/comment-preview", () => ({
@@ -45,6 +44,10 @@ vi.mock("@/features/shared", () => ({
   AvailableCredits: () => null,
   LoginRequired: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
   handleAndReportError: vi.fn(() => true)
+}));
+
+vi.mock("@/features/shared/rc-precheck", () => ({
+  RcPrecheckBanner: () => null
 }));
 
 vi.mock("@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/context", () => ({

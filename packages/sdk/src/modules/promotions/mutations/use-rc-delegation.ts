@@ -27,6 +27,7 @@ export function useRcDelegation(
         await auth.adapter.invalidateQueries([
           QueryKeys.accounts.full(username),
           QueryKeys.resourceCredits.account(username!),
+          ["promotions", "rc-delegation-active", username]
         ]);
       }
     },

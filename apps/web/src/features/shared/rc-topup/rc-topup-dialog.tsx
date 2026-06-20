@@ -37,7 +37,7 @@ export function RcTopupDialog({ onHide }: Props) {
 
   const { data: prices } = useQuery({
     ...getRcDelegationPricesQueryOptions(accessToken),
-    select: (data) => data.sort((a, b) => a.duration - b.duration)
+    select: (data) => [...data].sort((a, b) => a.duration - b.duration)
   });
 
   const [step, setStep] = useState(1);
@@ -52,7 +52,7 @@ export function RcTopupDialog({ onHide }: Props) {
     )
   );
 
-  const { data: activeTopup } = useQuery(
+  const { data: activeTopup, isLoading: activeLoading } = useQuery(
     getRcDelegationActiveQueryOptions(activeUser?.username ?? "", accessToken)
   );
 
@@ -72,8 +72,8 @@ export function RcTopupDialog({ onHide }: Props) {
     [activeTopup]
   );
   const canSubmit = useMemo(
-    () => !balanceError && !isAlreadyActive && duration > 0,
-    [balanceError, isAlreadyActive, duration]
+    () => !balanceError && !isAlreadyActive && !activeLoading && duration > 0,
+    [balanceError, isAlreadyActive, activeLoading, duration]
   );
 
   const inProgress = isPending;
@@ -146,7 +146,7 @@ export function RcTopupDialog({ onHide }: Props) {
                     <FormControl
                       type="select"
                       value={duration}
-                      onChange={(e: ChangeEvent<any>) => setDuration(+e.target.value)}
+                      onChange={(e: ChangeEvent<HTMLSelectElement>) => setDuration(+e.target.value)}
                       disabled={inProgress}
                     >
                       {prices?.map(({ price, duration }) => (

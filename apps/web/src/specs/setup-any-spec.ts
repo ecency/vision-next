@@ -3,8 +3,16 @@ import { TextDecoder, TextEncoder } from "util";
 
 // Polyfill for jsdom environment — use defineProperty because jsdom v26
 // shadows simple global assignments with its own window descriptors.
-Object.defineProperty(globalThis, "TextEncoder", { value: TextEncoder, writable: true, configurable: true });
-Object.defineProperty(globalThis, "TextDecoder", { value: TextDecoder, writable: true, configurable: true });
+Object.defineProperty(globalThis, "TextEncoder", {
+  value: TextEncoder,
+  writable: true,
+  configurable: true
+});
+Object.defineProperty(globalThis, "TextDecoder", {
+  value: TextDecoder,
+  writable: true,
+  configurable: true
+});
 
 // jsdom has no IntersectionObserver. Stub it so components using
 // react-in-viewport (DetectBottom, HydrateOnVisible, EntryListItem) don't throw
@@ -63,17 +71,54 @@ vi.mock("@ecency/sdk", () => ({
   CONFIG: {
     hiveNodes: [],
     privateApiHost: "https://ecency.com",
-    imageHost: "https://images.ecency.com",
+    imageHost: "https://images.ecency.com"
   },
   getBookmarksQueryOptions: vi.fn(),
-  getAccountFullQueryOptions: vi.fn(() => ({ queryKey: ['account'], queryFn: vi.fn() })),
-  getAccountDelegationsQueryOptions: vi.fn((username) => ({ queryKey: ['assets', 'account-delegations', username], queryFn: vi.fn() })),
-  getBoostPlusPricesQueryOptions: vi.fn(() => ({ queryKey: ['boost-prices'], queryFn: vi.fn() })),
-  getPointsQueryOptions: vi.fn(() => ({ queryKey: ['points'], queryFn: vi.fn() })),
-  getSpotlightsQueryOptions: vi.fn(() => ({ queryKey: ['notifications', 'spotlights'], queryFn: vi.fn() })),
-  getBoostPlusAccountPricesQueryOptions: vi.fn(() => ({ queryKey: ['boost-account'], queryFn: vi.fn() })),
+  getAccountFullQueryOptions: vi.fn(() => ({ queryKey: ["account"], queryFn: vi.fn() })),
+  getAccountDelegationsQueryOptions: vi.fn((username) => ({
+    queryKey: ["assets", "account-delegations", username],
+    queryFn: vi.fn()
+  })),
+  getBoostPlusPricesQueryOptions: vi.fn(() => ({ queryKey: ["boost-prices"], queryFn: vi.fn() })),
+  getPointsQueryOptions: vi.fn(() => ({ queryKey: ["points"], queryFn: vi.fn() })),
+  getSpotlightsQueryOptions: vi.fn(() => ({
+    queryKey: ["notifications", "spotlights"],
+    queryFn: vi.fn()
+  })),
+  getBoostPlusAccountPricesQueryOptions: vi.fn(() => ({
+    queryKey: ["boost-account"],
+    queryFn: vi.fn()
+  })),
+  getAccountRcQueryOptions: vi.fn(() => ({
+    queryKey: ["resource-credits", "account"],
+    queryFn: vi.fn()
+  })),
+  getRcStatsQueryOptions: vi.fn(() => ({
+    queryKey: ["resource-credits", "stats"],
+    queryFn: vi.fn()
+  })),
+  estimateRcPrecheck: vi.fn(() => ({
+    ready: false,
+    willLikelyFail: false,
+    currentMana: 0,
+    maxMana: 0,
+    avgCost: 0,
+    estimatedCost: 0,
+    deficit: 0,
+    remaining: 0
+  })),
+  getRcDelegationPricesQueryOptions: vi.fn(() => ({
+    queryKey: ["rc-delegation-prices"],
+    queryFn: vi.fn()
+  })),
+  getRcDelegationActiveQueryOptions: vi.fn(() => ({
+    queryKey: ["rc-delegation-active"],
+    queryFn: vi.fn()
+  })),
+  useRcDelegation: vi.fn(() => ({ mutateAsync: vi.fn() })),
+  buildRcDelegationOp: vi.fn(() => ({})),
   getDeletedEntryQueryOptions: vi.fn((author, permlink) => ({
-    queryKey: ['posts', 'deleted-entry', `@${author}/${permlink}`],
+    queryKey: ["posts", "deleted-entry", `@${author}/${permlink}`],
     queryFn: vi.fn()
   })),
   useBookmarkAdd: vi.fn(),
@@ -93,7 +138,7 @@ vi.mock("@ecency/sdk", () => ({
   hiveTxUtils: { operations: {}, makeBitMaskFilter: vi.fn() },
   hiveTxConfig: { nodes: [], timeout: 1000, address_prefix: "STM" },
   dedupeAndSortKeyAuths: vi.fn((...args: any[]) => args[0] || []),
-  buildGrantPostingPermissionOp: vi.fn(),
+  buildGrantPostingPermissionOp: vi.fn()
 }));
 
 vi.mock("@/features/post-renderer", () => ({
