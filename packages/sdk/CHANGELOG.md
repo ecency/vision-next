@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.20
+
+### Patch Changes
+
+- fix(sdk): preserve unrelated metadata on account_update2 writes (#976)
+
 ## 2.3.19
 
 ### Patch Changes
