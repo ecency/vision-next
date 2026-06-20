@@ -41,6 +41,13 @@ export class Transaction {
       } else {
         this.transaction = options.transaction
       }
+      // A transaction built externally (e.g. from a hive-uri signing request)
+      // may omit the `signatures` array. sign(), addSignature() and broadcast()
+      // all assume it exists, so normalize it here to avoid
+      // "Cannot read property 'push' of undefined" on sign.
+      if (this.transaction && !Array.isArray(this.transaction.signatures)) {
+        this.transaction.signatures = []
+      }
       this.txId = this.digest().txId
     }
     if (options?.expiration) {
