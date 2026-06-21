@@ -146,6 +146,16 @@ export function RcTopupDialog({ onHide }: Props) {
                       readOnly={true}
                       value={`${activeUserPoints?.points ?? "0.000"} POINTS`}
                     />
+                    <div className="pl-3 mt-1">
+                      <a
+                        href="/perks/points"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-dark-sky hover:underline text-sm font-semibold"
+                      >
+                        {i18next.t("rc-topup.get-points")}
+                      </a>
+                    </div>
                     {balanceError && <small className="pl-3 text-red">{balanceError}</small>}
                     {isAlreadyActive && (
                       <div>

@@ -42,6 +42,11 @@ export function PointsPage() {
           imageSrc="/assets/undraw-credit-card.svg"
           title={i18next.t("perks.buy-points-qr-title")}
           description={i18next.t("perks.buy-points-qr-description")}
+          steps={[
+            i18next.t("perks.buy-points-qr-step-1"),
+            i18next.t("perks.buy-points-qr-step-2"),
+            i18next.t("perks.buy-points-qr-step-3")
+          ]}
           buttonText={i18next.t("perks.buy-points-qr-button")}
           onClick={() => setShowPurchaseQr(true)}
         />
@@ -51,6 +56,11 @@ export function PointsPage() {
           imageSrc="/assets/undraw-transfer.svg"
           title={i18next.t("perks.buy-points-hive-title")}
           description={i18next.t("perks.buy-points-hive-description")}
+          steps={[
+            i18next.t("perks.buy-points-hive-step-1"),
+            i18next.t("perks.buy-points-hive-step-2"),
+            i18next.t("perks.buy-points-hive-step-3")
+          ]}
           buttonText={i18next.t("perks.buy-points-hive-button")}
           onClick={() => router.push("/perks/points/buy-with-hive")}
         />
