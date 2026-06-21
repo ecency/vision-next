@@ -349,6 +349,18 @@ function pingKeychain(keychain: KeyChainImpl, timeoutMs = 6000): Promise<void> {
   });
 }
 
+// Timeout for a Keychain sign/broadcast request AFTER the worker passed the 6s
+// liveness handshake. An idle/crashed Manifest V3 worker can answer
+// requestHandshake yet silently drop the actual request, so the callback never
+// fires; without this the user sees a dead 60s spinner. 30s surfaces that fast
+// with an actionable message while still leaving ample time to approve the
+// popup. The message deliberately steers the user away from a blind retry on a
+// broadcast (which could double-submit) by tying the retry to "no popup
+// appeared" -- the genuine dropped-request case.
+const KEYCHAIN_REQUEST_TIMEOUT_MS = 30000;
+const KEYCHAIN_TIMEOUT_MESSAGE =
+  "Keychain didn't respond. If no popup appeared, click its icon to wake it, then try again.";
+
 function signBufferViaKeychain(
   keychain: KeyChainImpl,
   account: string,
@@ -363,9 +375,9 @@ function signBufferViaKeychain(
         const timeoutId = setTimeout(() => {
           if (!settled) {
             settled = true;
-            reject(new Error("Extension request timed out. Please try again."));
+            reject(new Error(KEYCHAIN_TIMEOUT_MESSAGE));
           }
-        }, 60000);
+        }, KEYCHAIN_REQUEST_TIMEOUT_MS);
 
         keychain.requestSignBuffer(
           account,
@@ -413,9 +425,9 @@ function broadcastViaKeychain(
       const timeoutId = setTimeout(() => {
         if (!settled) {
           settled = true;
-          reject(new Error("Extension request timed out. Please try again."));
+          reject(new Error(KEYCHAIN_TIMEOUT_MESSAGE));
         }
-      }, 60000);
+      }, KEYCHAIN_REQUEST_TIMEOUT_MS);
 
       keychain.requestBroadcast(
         account,

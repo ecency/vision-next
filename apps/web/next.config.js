@@ -261,12 +261,20 @@ const config = {
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-          // Conservative Permissions-Policy: deny only powerful features the
-          // app never requests. We deliberately DO NOT restrict accelerometer,
+          // Conservative Permissions-Policy: deny powerful features the app
+          // never requests. We deliberately DO NOT restrict accelerometer,
           // gyroscope, fullscreen, picture-in-picture, encrypted-media or
           // web-share — the whitelisted video iframe embeds (3Speak/YouTube)
           // request those via their `allow`/`allowfullscreen` attributes, and a
           // top-level `()` here would override the per-iframe grant.
+          // EXCEPTION — payment: delegated to Stripe (self + js.stripe.com +
+          // *.js.stripe.com) so the Payment Element can initialize the Google Pay /
+          // Apple Pay wallet frames. Stripe stamps allow="payment" on its own nested
+          // frames and sub-delegates to pay.google.com / Apple Pay, so those wallet
+          // origins are NOT (and must not be) listed here. The prior `payment=()`
+          // disabled the feature document-wide and blocked the wallets ("payment is
+          // not allowed in this document"); card entry does not use the Payment
+          // Request API, so cards were unaffected.
           {
             key: "Permissions-Policy",
             // NOTE: do not re-add `interest-cohort=()` or `browsing-topics=()`.
@@ -276,7 +284,7 @@ const config = {
             // Sandbox and warns there too. The app uses neither API, so the opt-out
             // tokens bought nothing but console noise.
             value:
-              "camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=()"
+              "camera=(), microphone=(), geolocation=(), payment=(self \"https://js.stripe.com\" \"https://*.js.stripe.com\"), usb=(), magnetometer=()"
           },
           // ENFORCING CSP — only directives that cannot break JS/CSS execution
           // or block the app's existing cross-origin fetches/frames/images. We
