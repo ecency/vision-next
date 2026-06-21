@@ -74,7 +74,7 @@ export function RcPrecheckBanner({
           <span
             role="button"
             tabIndex={0}
-            className="shrink-0 cursor-pointer font-semibold text-orange hover:underline"
+            className="shrink-0 cursor-pointer font-semibold text-blue-dark-sky hover:underline"
             onClick={onTopUp}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
@@ -103,7 +103,7 @@ export function RcPrecheckBanner({
           <span className="mt-[2px] shrink-0 text-orange">{alertCircleSvg}</span>
           <span>{i18next.t("rc-precheck.low-rc-message")}</span>
         </div>
-        <Button size="sm" appearance="warning" className="self-end sm:self-auto" onClick={onTopUp}>
+        <Button size="sm" className="self-end sm:self-auto" onClick={onTopUp}>
           {i18next.t("rc-precheck.top-up")}
         </Button>
       </div>
