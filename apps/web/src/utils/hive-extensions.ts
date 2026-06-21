@@ -292,8 +292,15 @@ function getHiveKeeperInstance(): KeyChainImpl | null {
 
 function getKeychainInstance(): KeyChainImpl | null {
   if (typeof window === "undefined") return null;
-  return getProviderByRdns("com.hivekeychain")
-    || ((window as any).hive_keychain ?? null);
+  const fromRegistry = getProviderByRdns("com.hivekeychain");
+  if (fromRegistry) return fromRegistry;
+  // Skip Keeper's backward-compat self-alias on window.hive_keychain (it carries
+  // isKeeper; a real Keychain never does). Returning it here would resolve a
+  // stale "keychain" preference to a non-null instance, so the caller's
+  // "preferred extension no longer available" cleanup would never clear it and
+  // signing would route through the alias instead of the live window.hive path.
+  const keychain = (window as any).hive_keychain;
+  return keychain && !keychain.isKeeper ? keychain : null;
 }
 
 function getPeakVaultInstance(): PeakVaultApi | null {

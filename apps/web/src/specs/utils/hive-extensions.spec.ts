@@ -216,4 +216,33 @@ describe("Hive Keeper resolution (window.hive primary)", () => {
     expect(ids).toContain("hive-keeper");
     expect(ids).toContain("keychain");
   });
+
+  it("clears a stale 'keychain' preference in a Keeper-only browser and signs via window.hive", async () => {
+    const order: string[] = [];
+    const keeper: any = {
+      isKeeper: true,
+      requestHandshake: (cb: () => void) => {
+        order.push("handshake");
+        cb();
+      },
+      requestSignBuffer: (_a: string, _m: string, _t: string, cb: (r: any) => void) => {
+        order.push("sign");
+        cb({ success: true, result: "signature" });
+      }
+    };
+    (window as any).hive = keeper;
+    // Keeper's backward-compat self-alias - NOT a real Keychain.
+    (window as any).hive_keychain = keeper;
+    // Stale preference from before the user switched to a Keeper-only setup.
+    localStorage.setItem("ecency_preferred_hive_extension", "keychain");
+
+    const resp = await signBufferWithExtension("alice", "message", "Posting");
+
+    // Signed through the live window.hive path (handshake then sign)...
+    expect(order).toEqual(["handshake", "sign"]);
+    expect(resp).toMatchObject({ success: true, result: "signature" });
+    // ...and the stale "keychain" preference self-healed because the alias no
+    // longer resolves to a usable Keychain instance.
+    expect(localStorage.getItem("ecency_preferred_hive_extension")).toBeNull();
+  });
 });
