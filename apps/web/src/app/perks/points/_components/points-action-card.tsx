@@ -31,8 +31,8 @@ export function PointsActionCard({
         <div className="opacity-50">{description}</div>
         {steps && steps.length > 0 && (
           <ol className="mt-3 flex flex-col gap-1 text-sm opacity-70 list-decimal list-inside">
-            {steps.map((step, i) => (
-              <li key={i}>{step}</li>
+            {steps.map((step) => (
+              <li key={step}>{step}</li>
             ))}
           </ol>
         )}
