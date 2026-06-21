@@ -19,14 +19,40 @@ export interface PeakVaultApi {
   ) => Promise<{ success: boolean; error: string; account: string; publicKey?: string; result: any }>;
 }
 
+/** A Hive Unified Wallet Protocol provider registry entry (window.hive.providers[]). */
+export interface HiveWalletProviderEntry {
+  name: string;
+  rdns: string;
+  provider: KeyChainImpl;
+}
+
+/**
+ * A Keychain-compatible wallet global, plus the optional Hive Unified Wallet
+ * Protocol identity flags and provider registry that Keeper sets on window.hive.
+ */
+export type HiveWalletApi = KeyChainImpl & {
+  isKeeper?: boolean;
+  isKeychain?: boolean;
+  isVault?: boolean;
+  providers?: HiveWalletProviderEntry[];
+};
+
 export interface AppWindow extends Window {
   usePrivate: boolean;
   nws?: WebSocket;
   comTag?: {};
-  hive_keychain?: KeyChainImpl;
-  /** Hive Keeper extension (Ecency) - same API as Keychain */
-  hive?: KeyChainImpl;
-  /** Hive Keeper sets this to true when injected */
+  hive_keychain?: HiveWalletApi;
+  /**
+   * Hive Keeper extension (Ecency) - same API as Keychain. Keeper owns this
+   * global, sets `isKeeper`, and registers the unified-protocol `providers`
+   * registry on it.
+   */
+  hive?: HiveWalletApi;
+  /**
+   * Set by Keeper's content script in its own isolated world only. It is NOT
+   * visible to page scripts, so do not gate Keeper detection/resolution on it -
+   * use `window.hive.isKeeper` instead.
+   */
   hive_extension?: boolean;
   /** Peak Vault extension (PeakD) - promise-based API */
   peakvault?: PeakVaultApi;
