@@ -314,8 +314,8 @@ const config = {
               // monitoring as real feature dependencies: Cloudflare Insights (RUM
               // beacon, auto-injected), TradingView (price/chart widgets), and
               // 'wasm-unsafe-eval' for WebAssembly used by wallet/crypto libs.
-              "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://challenges.cloudflare.com https://platform.twitter.com https://static.cloudflareinsights.com https://s3.tradingview.com https://www.google.com https://www.gstatic.com https://js.stripe.com",
-              "script-src-elem 'self' 'unsafe-inline' https://challenges.cloudflare.com https://platform.twitter.com https://static.cloudflareinsights.com https://s3.tradingview.com https://www.google.com https://www.gstatic.com https://js.stripe.com",
+              "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://challenges.cloudflare.com https://platform.twitter.com https://static.cloudflareinsights.com https://s3.tradingview.com https://www.google.com https://www.gstatic.com https://js.stripe.com https://*.js.stripe.com",
+              "script-src-elem 'self' 'unsafe-inline' https://challenges.cloudflare.com https://platform.twitter.com https://static.cloudflareinsights.com https://s3.tradingview.com https://www.google.com https://www.gstatic.com https://js.stripe.com https://*.js.stripe.com",
               "style-src 'self' 'unsafe-inline'",
               "font-src 'self' data:",
               [
@@ -342,8 +342,9 @@ const config = {
                 "https://react-tweet.vercel.app https://cdn.syndication.twimg.com",
                 // Google reCAPTCHA (key login):
                 "https://www.google.com",
-                // Stripe.js (card payments) tokenization/3DS XHR:
-                "https://api.stripe.com"
+                // Stripe.js (card payments): tokenization/3DS (api), Radar device
+                // fingerprinting (m.stripe.*), and metrics (q.stripe.com):
+                "https://api.stripe.com https://maps.stripe.com https://m.stripe.com https://m.stripe.network https://q.stripe.com"
               ].join(" "),
               [
                 "img-src 'self' data: blob:",
@@ -366,8 +367,9 @@ const config = {
                 "https://platform.twitter.com https://challenges.cloudflare.com",
                 "https://www.tradingview-widget.com https://s.tradingview.com",
                 "https://www.google.com",
-                // Stripe.js (card payments): the Payment Element + 3DS challenge frames
-                "https://js.stripe.com https://hooks.stripe.com"
+                // Stripe.js (card payments): Payment Element + 3DS challenge frames
+                // (js.stripe.com + per-origin subdomains, hooks) and Radar fingerprinting:
+                "https://js.stripe.com https://*.js.stripe.com https://hooks.stripe.com https://m.stripe.network"
               ].join(" "),
               "media-src 'self' data: blob: https://i.ecency.com https://images.ecency.com https://ipfs.skatehive.app",
               "worker-src 'self' blob:",
