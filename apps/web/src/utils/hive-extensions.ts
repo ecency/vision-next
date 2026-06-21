@@ -5,8 +5,15 @@
  * falls back to legacy per-global detection for wallets that haven't adopted
  * the protocol yet:
  * - Hive Keychain (window.hive_keychain)
- * - Hive Keeper (window.hive + window.hive_extension)
+ * - Hive Keeper (window.hive, flagged with window.hive.isKeeper)
  * - Peak Vault (window.peakvault)
+ *
+ * Keeper owns window.hive and is the only extension that has adopted the
+ * unified protocol so far. We key off the page-visible window.hive.isKeeper
+ * flag it sets, NOT window.hive_extension: that marker is written only in
+ * Keeper's content-script (isolated) world and is never visible to this page
+ * script, so relying on it silently fails (resolves no Keeper instance and
+ * hangs on a 60s sign timeout).
  *
  * Provides a single detection + broadcast/sign API so the rest of the app
  * doesn't need to know which extension the user has installed.
@@ -73,11 +80,19 @@ export function getDetectedExtensions(): DetectedExtension[] {
     }
   }
 
-  // Legacy per-global detection (fills in wallets not yet in providers)
-  if ((window as any).hive && (window as any).hive_extension) {
+  // Direct detection (fills in wallets not yet in providers).
+  const hive = (window as any).hive;
+  // Keeper flags its own window.hive with isKeeper. (window.hive_extension is a
+  // content-script-world marker that never reaches this page script, so it
+  // can't be used here.)
+  if (hive?.isKeeper) {
     add({ id: "hive-keeper", name: "Hive Keeper", icon: "/assets/keeper.svg" });
   }
-  if ((window as any).hive_keychain) {
+  // Keeper aliases itself onto window.hive_keychain for backward compatibility,
+  // so a Keeper-only browser would otherwise surface a phantom "Keychain"
+  // choice. Skip that self-alias; a real Keychain never sets isKeeper.
+  const keychain = (window as any).hive_keychain;
+  if (keychain && !keychain.isKeeper) {
     add({ id: "keychain", name: "Keychain", icon: "/assets/keychain.png" });
   }
   if ((window as any).peakvault) {
@@ -96,7 +111,7 @@ export function hasAnyHiveExtension(): boolean {
   if (providers?.some((p) => Boolean(RDNS_MAP[p.rdns]))) return true;
   return !!(
     (window as any).hive_keychain ||
-    ((window as any).hive && (window as any).hive_extension) ||
+    (window as any).hive?.isKeeper ||
     (window as any).peakvault
   );
 }
@@ -263,8 +278,16 @@ function getKeychainLikeInstance(): KeyChainImpl | null {
 
 function getHiveKeeperInstance(): KeyChainImpl | null {
   if (typeof window === "undefined") return null;
-  return getProviderByRdns("com.ecency.keeper")
-    || ((window as any).hive && (window as any).hive_extension ? (window as any).hive : null);
+  const hive = (window as any).hive;
+  // Keeper owns window.hive and is the only extension that has adopted the
+  // unified protocol, so prefer that live object directly: it is the instance
+  // Keeper wired its own response listener to, so sign/broadcast requests round
+  // trip reliably. Going through the providers registry can hand back a stale
+  // or non-live object (login then hangs on a 60s timeout with no popup).
+  if (hive?.isKeeper) return hive;
+  // Another wallet may own window.hive (e.g. Peak Vault loaded first): fall back
+  // to Keeper's entry in the providers registry.
+  return getProviderByRdns("com.ecency.keeper");
 }
 
 function getKeychainInstance(): KeyChainImpl | null {

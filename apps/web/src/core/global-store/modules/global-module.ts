@@ -166,8 +166,10 @@ export function createGlobalActions(set: (state: Partial<State>) => void, getSta
           return true;
         }
 
-        // Prefer Hive Keeper (guarded by hive_extension flag) then Keychain
-        const hiveExtension = (w.hive_extension && w.hive) || w.hive_keychain;
+        // Prefer Hive Keeper (it owns window.hive and flags isKeeper on it),
+        // then Keychain. window.hive_extension lives only in Keeper's
+        // content-script world and is not visible here, so it can't be used.
+        const hiveExtension = (w.hive?.isKeeper && w.hive) || w.hive_keychain;
 
         if (!hiveExtension) {
           return false;
