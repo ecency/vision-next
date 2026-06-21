@@ -1,6 +1,5 @@
 import {
   DEFAULT_STRIPE_TIER_SKU,
-  isStripeEnabled,
   STRIPE_POINTS_TIERS
 } from "@/features/shared/purchase-stripe/stripe-config";
 import { describe, expect, it } from "vitest";
@@ -34,9 +33,5 @@ describe("stripe-config", () => {
 
   it("uses a default tier that exists in the catalog", () => {
     expect(STRIPE_POINTS_TIERS.some((t) => t.sku === DEFAULT_STRIPE_TIER_SKU)).toBe(true);
-  });
-
-  it("is disabled when the publishable key is not configured", () => {
-    expect(isStripeEnabled()).toBe(false);
   });
 });

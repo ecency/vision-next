@@ -19,7 +19,9 @@ interface Props {
   show: boolean;
   setShow: (v: boolean) => void;
   defaultSku?: string;
-  onDelivered?: (points: number) => void;
+  /** Resume straight into the delivery poll after a redirect-method return (the PaymentIntent id). */
+  resumePaymentIntent?: string;
+  onDelivered?: (points?: number) => void;
 }
 
 type Step = "select" | "pay" | "delivering" | "done" | "error";
@@ -33,7 +35,13 @@ const isDarkMode = () =>
  * status until the worker delivers. Credits the authenticated user (vapi forces it).
  * Card payment is hidden entirely when the publishable key is unconfigured.
  */
-export function StripePointsDialog({ show, setShow, defaultSku, onDelivered }: Props) {
+export function StripePointsDialog({
+  show,
+  setShow,
+  defaultSku,
+  resumePaymentIntent,
+  onDelivered
+}: Props) {
   const { activeUser } = useActiveAccount();
   const username = activeUser?.username;
 
@@ -51,20 +59,27 @@ export function StripePointsDialog({ show, setShow, defaultSku, onDelivered }: P
   // Fresh per-checkout nonce on open; full reset on open/close.
   useEffect(() => {
     if (show) {
-      setNonce(typeof crypto !== "undefined" ? crypto.randomUUID() : `${Date.now()}`);
-      setStep("select");
+      // randomUUID is missing on insecure-origin / older WebViews; fall back safely.
+      setNonce(
+        typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+          ? crypto.randomUUID()
+          : `${Date.now()}-${Math.random().toString(36).slice(2)}`
+      );
       setSku(defaultSku ?? DEFAULT_STRIPE_TIER_SKU);
       setClientSecret("");
       setDeliveredPoints(undefined);
       setErrorMsg("");
       pollingRef.current = true;
+      // Returning from a redirect-based method: skip straight to the delivery poll.
+      setStep(resumePaymentIntent ? "delivering" : "select");
     } else {
       pollingRef.current = false;
     }
-  }, [show, defaultSku]);
+  }, [show, defaultSku, resumePaymentIntent]);
 
-  // The PaymentIntent id is the prefix of the client secret (pi_xxx_secret_yyy).
-  const paymentIntentId = clientSecret ? clientSecret.split("_secret_")[0] : "";
+  // The PaymentIntent id is the resume value (redirect return) or the client-secret prefix.
+  const paymentIntentId =
+    resumePaymentIntent || (clientSecret ? clientSecret.split("_secret_")[0] : "");
 
   const startPayment = useCallback(async () => {
     setErrorMsg("");
@@ -111,6 +126,8 @@ export function StripePointsDialog({ show, setShow, defaultSku, onDelivered }: P
       }
       if (tries >= 20) {
         // Paid but not delivered after ~40s: reassure rather than error; it is in flight.
+        // Still notify the caller so it can refetch the balance once it lands.
+        onDelivered?.();
         setStep("done");
         return;
       }

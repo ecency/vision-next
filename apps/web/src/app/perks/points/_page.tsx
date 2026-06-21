@@ -10,7 +10,7 @@ import { getPointsQueryOptions, useClaimPoints } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import i18next from "i18next";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PointsActionCard, PointsBasicInfo } from "./_components";
 import { formatError } from "@/api/format-error";
 import { getAccessToken } from "@/utils";
@@ -21,7 +21,24 @@ export function PointsPage() {
 
   const [showPurchaseQr, setShowPurchaseQr] = useState(false);
   const [showStripe, setShowStripe] = useState(false);
+  const [resumePi, setResumePi] = useState<string | undefined>(undefined);
   const router = useRouter();
+
+  // Resume the card flow after a redirect-based payment method returns here (Stripe
+  // appends payment_intent + redirect_status to the URL). Card payments resolve
+  // in-place and never hit this; it covers wallet/redirect methods if enabled.
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const params = new URLSearchParams(window.location.search);
+    const pi = params.get("payment_intent");
+    if (pi && params.get("redirect_status") === "succeeded") {
+      setResumePi(pi);
+      setShowStripe(true);
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, []);
 
   const canClaim = useMemo(
     () => activeUserPoints?.uPoints && parseInt(activeUserPoints?.uPoints) !== 0,
@@ -107,7 +124,16 @@ export function PointsPage() {
         setShow={setShowPurchaseQr}
       />
       {isStripeEnabled() && (
-        <StripePointsDialog show={showStripe} setShow={setShowStripe} />
+        <StripePointsDialog
+          show={showStripe}
+          setShow={(v) => {
+            setShowStripe(v);
+            if (!v) {
+              setResumePi(undefined);
+            }
+          }}
+          resumePaymentIntent={resumePi}
+        />
       )}
     </div>
   );

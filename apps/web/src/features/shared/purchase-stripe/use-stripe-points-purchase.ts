@@ -1,6 +1,6 @@
 import { appAxios } from "@/api/axios";
 import { apiBase } from "@/api/helper";
-import { getAccessToken } from "@/utils";
+import { ensureValidToken } from "@/utils";
 import { useMutation } from "@tanstack/react-query";
 
 export interface CreateIntentResult {
@@ -26,7 +26,9 @@ export function useCreateStripeIntent(username?: string) {
   return useMutation({
     mutationKey: ["stripe-create-intent", username],
     mutationFn: async ({ sku, nonce }: { sku: string; nonce: string }) => {
-      const code = getAccessToken(username ?? "");
+      // Await the background token refresh first (a long-lived session can hold a stale
+      // token that getAccessToken would return as-is, failing this first call).
+      const code = await ensureValidToken(username ?? "");
       if (!code) {
         throw new Error("stripe-points.not-authenticated");
       }
@@ -47,7 +49,7 @@ export async function fetchStripeOrderStatus(
   username: string,
   paymentIntent: string
 ): Promise<StripeOrderStatus> {
-  const code = getAccessToken(username);
+  const code = await ensureValidToken(username);
   if (!code) {
     throw new Error("stripe-points.not-authenticated");
   }

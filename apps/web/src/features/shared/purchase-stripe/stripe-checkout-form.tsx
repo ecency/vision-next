@@ -30,24 +30,29 @@ export function StripeCheckoutForm({ returnUrl, payLabel, onPaid, onError }: Pro
       return;
     }
     setSubmitting(true);
-    const { error, paymentIntent } = await stripe.confirmPayment({
-      elements,
-      redirect: "if_required",
-      confirmParams: { return_url: returnUrl }
-    });
-    setSubmitting(false);
-
-    if (error) {
-      // card declined / validation / network -- surface Stripe's localized message
-      onError(error.message ?? i18next.t("stripe-points.pay-failed"));
-      return;
+    try {
+      // Card confirms in-place; a redirect-based method (if enabled in the dashboard)
+      // navigates to return_url and the perks/points page resumes the flow on return.
+      const { error, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        redirect: "if_required",
+        confirmParams: { return_url: returnUrl }
+      });
+      if (error) {
+        // card declined / validation / network -- surface Stripe's localized message
+        onError(error.message ?? i18next.t("stripe-points.pay-failed"));
+        return;
+      }
+      if (paymentIntent && ["succeeded", "processing"].includes(paymentIntent.status)) {
+        onPaid();
+        return;
+      }
+      // requires_action handled by Stripe.js; anything else here is unexpected
+      onError(i18next.t("stripe-points.pay-failed"));
+    } finally {
+      // guarantee the button unlocks even if confirmPayment throws
+      setSubmitting(false);
     }
-    if (paymentIntent && ["succeeded", "processing"].includes(paymentIntent.status)) {
-      onPaid();
-      return;
-    }
-    // requires_action handled by Stripe.js; anything else here is unexpected
-    onError(i18next.t("stripe-points.pay-failed"));
   };
 
   return (
