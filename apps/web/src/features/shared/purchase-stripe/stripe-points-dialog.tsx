@@ -29,6 +29,13 @@ type Step = "select" | "pay" | "delivering" | "done" | "error";
 const isDarkMode = () =>
   typeof document !== "undefined" && document.documentElement.classList.contains("dark");
 
+// A fresh per-checkout nonce; guarded for insecure-origin / older WebViews where
+// crypto.randomUUID is absent.
+const genNonce = (): string =>
+  typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
 /**
  * Reusable card-payment dialog for buying Points. Flow: pick a tier -> create a
  * PaymentIntent via vapi -> confirm with the Stripe Payment Element -> poll the order
@@ -59,12 +66,7 @@ export function StripePointsDialog({
   // Fresh per-checkout nonce on open; full reset on open/close.
   useEffect(() => {
     if (show) {
-      // randomUUID is missing on insecure-origin / older WebViews; fall back safely.
-      setNonce(
-        typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-          ? crypto.randomUUID()
-          : `${Date.now()}-${Math.random().toString(36).slice(2)}`
-      );
+      setNonce(genNonce());
       setSku(defaultSku ?? DEFAULT_STRIPE_TIER_SKU);
       setClientSecret("");
       setDeliveredPoints(undefined);
@@ -216,7 +218,14 @@ export function StripePointsDialog({
             <Alert appearance="danger">
               {errorMsg || i18next.t("stripe-points.create-failed")}
             </Alert>
-            <Button appearance="secondary" onClick={() => setStep("select")}>
+            <Button
+              appearance="secondary"
+              onClick={() => {
+                // fresh nonce so a retry with a different tier never reuses a prior intent
+                setNonce(genNonce());
+                setStep("select");
+              }}
+            >
               {i18next.t("stripe-points.try-again")}
             </Button>
           </div>

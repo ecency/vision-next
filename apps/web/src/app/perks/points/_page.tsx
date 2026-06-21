@@ -33,10 +33,19 @@ export function PointsPage() {
     }
     const params = new URLSearchParams(window.location.search);
     const pi = params.get("payment_intent");
-    if (pi && params.get("redirect_status") === "succeeded") {
+    if (!pi) {
+      return;
+    }
+    const status = params.get("redirect_status");
+    // Clear Stripe's params from the address bar regardless of outcome.
+    window.history.replaceState({}, "", window.location.pathname);
+    if (status === "succeeded" || status === "processing") {
+      // still in flight -> resume into the delivery poll
       setResumePi(pi);
       setShowStripe(true);
-      window.history.replaceState({}, "", window.location.pathname);
+    } else {
+      // failed / requires_payment_method / canceled -> tell the user
+      error(i18next.t("stripe-points.pay-failed"));
     }
   }, []);
 
