@@ -15,6 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NEXT_PUBLIC_GMAPS_API_KEY: ${{ secrets.GMAPS_API_KEY }}
+      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.STRIPE_PUB_KEY }}
       NEXT_PUBLIC_GMAPS_MAP_ID: ${{ secrets.GMAPS_MAP_ID }}
     strategy:
       matrix:
@@ -70,6 +71,7 @@ jobs:
             SENTRY_RELEASE=ecency-next@${{ github.sha }}
             SENTRY_ENVIRONMENT=staging
             NEXT_PUBLIC_GMAPS_API_KEY=${{ secrets.GMAPS_API_KEY }}
+            NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${{ secrets.STRIPE_PUB_KEY }}
             NEXT_PUBLIC_GMAPS_MAP_ID=${{ secrets.GMAPS_MAP_ID }}
             PNPM_VERSION=10.18.1
 
