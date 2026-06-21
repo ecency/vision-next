@@ -5,11 +5,12 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { error, success } from "@/features/shared/feedback";
 import { LoginRequired } from "@/features/shared/login-required";
 import { PurchaseQrDialog, PurchaseTypes } from "@/features/shared/purchase-qr";
+import { StripePointsDialog, isStripeEnabled } from "@/features/shared/purchase-stripe";
 import { getPointsQueryOptions, useClaimPoints } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import i18next from "i18next";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PointsActionCard, PointsBasicInfo } from "./_components";
 import { formatError } from "@/api/format-error";
 import { getAccessToken } from "@/utils";
@@ -19,7 +20,34 @@ export function PointsPage() {
   const { data: activeUserPoints } = useQuery(getPointsQueryOptions(activeUser?.username));
 
   const [showPurchaseQr, setShowPurchaseQr] = useState(false);
+  const [showStripe, setShowStripe] = useState(false);
+  const [resumePi, setResumePi] = useState<string | undefined>(undefined);
   const router = useRouter();
+
+  // Resume the card flow after a redirect-based payment method returns here (Stripe
+  // appends payment_intent + redirect_status to the URL). Card payments resolve
+  // in-place and never hit this; it covers wallet/redirect methods if enabled.
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const params = new URLSearchParams(window.location.search);
+    const pi = params.get("payment_intent");
+    if (!pi) {
+      return;
+    }
+    const status = params.get("redirect_status");
+    // Clear Stripe's params from the address bar regardless of outcome.
+    window.history.replaceState({}, "", window.location.pathname);
+    if (status === "succeeded" || status === "processing") {
+      // still in flight -> resume into the delivery poll
+      setResumePi(pi);
+      setShowStripe(true);
+    } else {
+      // failed / requires_payment_method / canceled -> tell the user
+      error(i18next.t("stripe-points.pay-failed"));
+    }
+  }, []);
 
   const canClaim = useMemo(
     () => activeUserPoints?.uPoints && parseInt(activeUserPoints?.uPoints) !== 0,
@@ -51,6 +79,17 @@ export function PointsPage() {
           onClick={() => setShowPurchaseQr(true)}
         />
       </LoginRequired>
+      {isStripeEnabled() && (
+        <LoginRequired>
+          <PointsActionCard
+            imageSrc="/assets/undraw-credit-card.svg"
+            title={i18next.t("perks.buy-points-card-title")}
+            description={i18next.t("perks.buy-points-card-description")}
+            buttonText={i18next.t("perks.buy-points-card-button")}
+            onClick={() => setShowStripe(true)}
+          />
+        </LoginRequired>
+      )}
       <LoginRequired>
         <PointsActionCard
           imageSrc="/assets/undraw-transfer.svg"
@@ -93,6 +132,18 @@ export function PointsPage() {
         show={showPurchaseQr}
         setShow={setShowPurchaseQr}
       />
+      {isStripeEnabled() && (
+        <StripePointsDialog
+          show={showStripe}
+          setShow={(v) => {
+            setShowStripe(v);
+            if (!v) {
+              setResumePi(undefined);
+            }
+          }}
+          resumePaymentIntent={resumePi}
+        />
+      )}
     </div>
   );
 }
