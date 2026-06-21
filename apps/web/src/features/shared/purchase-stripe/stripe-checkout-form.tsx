@@ -57,7 +57,15 @@ export function StripeCheckoutForm({ returnUrl, payLabel, onPaid, onError }: Pro
 
   return (
     <form onSubmit={submit} className="flex flex-col gap-4">
-      <PaymentElement onReady={() => setReady(true)} />
+      {/* Wallets (Google Pay / Apple Pay) explicitly opted in. They render only
+          when the Permissions-Policy `payment` feature is delegated to Stripe (see
+          next.config.js), the browser/device supports a wallet, and -- for Apple
+          Pay -- the domain is registered in the Stripe Dashboard. Card entry is
+          unaffected by all of that. */}
+      <PaymentElement
+        onReady={() => setReady(true)}
+        options={{ wallets: { applePay: "auto", googlePay: "auto" } }}
+      />
       <Button
         type="submit"
         full={true}
