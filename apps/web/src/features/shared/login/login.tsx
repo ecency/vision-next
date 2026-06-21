@@ -114,6 +114,14 @@ export default function Login() {
         return;
       case "login":
         if (isLoginByKeychainPending) return;
+        // Persist the chosen extension (mirrors handleSelectExtension) so later
+        // signing/broadcast resolves to the SAME extension the user logged in
+        // with. This path fires when exactly one extension is detected and never
+        // recorded a preference; if the user later enables a SECOND extension
+        // (e.g. Keeper alongside Keychain), the broadcast auto-detect — which is
+        // Keeper-first — would otherwise hijack signing and silently drop the
+        // request (dead 60s spinner). extId is defined here (length === 1).
+        if (action.extId) setPreferredExtensionId(action.extId);
         // Sign with the explicit extension so detection and signing can never
         // resolve to different extensions.
         loginByKeychain(action.extId).catch(() => {
