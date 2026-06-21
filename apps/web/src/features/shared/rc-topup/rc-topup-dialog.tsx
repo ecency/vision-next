@@ -11,7 +11,7 @@ import {
   getPointsQueryOptions,
   getRcDelegationActiveQueryOptions
 } from "@ecency/sdk";
-import { getAccessToken } from "@/utils";
+import { ensureValidToken } from "@/utils";
 import dayjs from "@/utils/dayjs";
 import i18next from "i18next";
 import { LinearProgress } from "@/features/shared";
@@ -32,8 +32,28 @@ interface Props {
  */
 export function RcTopupDialog({ onHide }: Props) {
   const { activeUser } = useActiveAccount();
+  const username = activeUser?.username;
 
-  const accessToken = (activeUser && getAccessToken(activeUser.username)) || "";
+  // Resolve a guaranteed-fresh access token before the token-gated price/active
+  // queries. getAccessToken() returns a STALE token for expired/legacy sessions,
+  // which 401s the private API and leaves the dialog with no duration options;
+  // ensureValidToken awaits the background refresh first.
+  const [accessToken, setAccessToken] = useState("");
+  useEffect(() => {
+    let cancelled = false;
+    if (!username) {
+      setAccessToken("");
+      return;
+    }
+    ensureValidToken(username).then((token) => {
+      if (!cancelled) {
+        setAccessToken(token ?? "");
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [username]);
 
   const { data: prices } = useQuery({
     ...getRcDelegationPricesQueryOptions(accessToken),
