@@ -5,6 +5,7 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { error, success } from "@/features/shared/feedback";
 import { LoginRequired } from "@/features/shared/login-required";
 import { PurchaseQrDialog, PurchaseTypes } from "@/features/shared/purchase-qr";
+import { StripePointsDialog, isStripeEnabled } from "@/features/shared/purchase-stripe";
 import { getPointsQueryOptions, useClaimPoints } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import i18next from "i18next";
@@ -19,6 +20,7 @@ export function PointsPage() {
   const { data: activeUserPoints } = useQuery(getPointsQueryOptions(activeUser?.username));
 
   const [showPurchaseQr, setShowPurchaseQr] = useState(false);
+  const [showStripe, setShowStripe] = useState(false);
   const router = useRouter();
 
   const canClaim = useMemo(
@@ -51,6 +53,17 @@ export function PointsPage() {
           onClick={() => setShowPurchaseQr(true)}
         />
       </LoginRequired>
+      {isStripeEnabled() && (
+        <LoginRequired>
+          <PointsActionCard
+            imageSrc="/assets/undraw-credit-card.svg"
+            title={i18next.t("perks.buy-points-card-title")}
+            description={i18next.t("perks.buy-points-card-description")}
+            buttonText={i18next.t("perks.buy-points-card-button")}
+            onClick={() => setShowStripe(true)}
+          />
+        </LoginRequired>
+      )}
       <LoginRequired>
         <PointsActionCard
           imageSrc="/assets/undraw-transfer.svg"
@@ -93,6 +106,9 @@ export function PointsPage() {
         show={showPurchaseQr}
         setShow={setShowPurchaseQr}
       />
+      {isStripeEnabled() && (
+        <StripePointsDialog show={showStripe} setShow={setShowStripe} />
+      )}
     </div>
   );
 }
