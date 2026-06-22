@@ -20,10 +20,30 @@ const withPWA = require("next-pwa")({
   // stranding users on a stale cache that served mismatched chunks ("Element
   // type is invalid: undefined" → persistent 500).
   buildExcludes: [/\.map$/],
+  // Keep the ~1.6MB geo-tag cities dataset OUT of the install-time precache so
+  // it isn't eagerly downloaded for every user — it's fetched on demand when
+  // the geo-tag dialog opens and runtime-cached (see /geo rule below).
+  publicExcludes: ["!noprecache/**/*", "!geo/**/*"],
   // Raise the max size to precache large chunks:
   maximumFileSizeToCacheInBytes: 8 * 1024 * 1024, // 8MB
   // Advanced caching strategies for better performance
   runtimeCaching: [
+    {
+      // Geo-tag cities dataset: fetched once when the picker opens, then served
+      // from cache (it's a static, versioned data blob).
+      urlPattern: /\/geo\/.*\.json$/i,
+      handler: "CacheFirst",
+      options: {
+        cacheName: "ecency-geo-data",
+        expiration: {
+          maxEntries: 4,
+          maxAgeSeconds: 30 * 24 * 60 * 60 // 30 days
+        },
+        cacheableResponse: {
+          statuses: [0, 200]
+        }
+      }
+    },
     {
       // Cache API responses with network-first strategy
       urlPattern: /^https:\/\/ecency\.com\/api\/.*/i,
@@ -408,6 +428,13 @@ const config = {
         source: "/scripts/:path*",
         headers: [
           { key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }
+        ]
+      },
+      {
+        // Geo-tag cities dataset — stable URL, infrequently updated data blob.
+        source: "/geo/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=2592000" }
         ]
       }
     ];

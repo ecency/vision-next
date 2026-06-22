@@ -110,8 +110,17 @@ const CONFIG = {
       publish: {
         geoPicker: {
           enabled: true,
-          gMapsMapId: process.env.NEXT_PUBLIC_GMAPS_MAP_ID,
-          gMapsApiKey: process.env.NEXT_PUBLIC_GMAPS_API_KEY
+          // Open-source geocoder (Photon by Komoot) used for the search
+          // fallback + reverse geocoding. Self-hostable — override via env.
+          geocoderHost: process.env.NEXT_PUBLIC_GEOCODER_HOST || "https://photon.komoot.io",
+          // Code-split cities dataset served from /public for instant offline
+          // typeahead (kept out of the JS bundle).
+          citiesDataUrl: "/geo/cities.min.json",
+          // Map tiles. Defaults to OpenStreetMap; point at a tile provider /
+          // self-hosted server for production-scale traffic.
+          tileUrl:
+            process.env.NEXT_PUBLIC_MAP_TILE_URL ||
+            "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
         }
       },
       aiImageGenerator: {
