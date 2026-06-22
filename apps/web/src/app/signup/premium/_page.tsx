@@ -15,6 +15,7 @@ import { appleSvg, googleSvg } from "@ui/svg";
 import { useGlobalStore } from "@/core/global-store";
 import { useQueryClient } from "@tanstack/react-query";
 import qrcode from "qrcode";
+import { error } from "@/features/shared/feedback";
 import { Turnstile, TurnstileHandle } from "@/features/shared/turnstile";
 import { isStripeEnabled } from "@/features/shared/purchase-stripe/stripe-config";
 import { StripeAccountCheckout } from "@/features/shared/purchase-stripe/stripe-account-checkout";
@@ -43,6 +44,8 @@ export function PremiumSignUp() {
   const [paymentUrl, setPaymentUrl] = useState("");
   const [showCheckout, setShowCheckout] = useState(false);
   const [captchaToken, setCaptchaToken] = useState("");
+  const [resumePi, setResumePi] = useState<string | undefined>(undefined);
+  const [resumeUsername, setResumeUsername] = useState("");
 
   // Card payment is the primary path when the publishable key is configured; the mobile-app
   // QR/IAP is the graceful fallback when it is not.
@@ -66,6 +69,34 @@ export function PremiumSignUp() {
       setReferral(lsReferral);
     }
   });
+
+  // Resume the card flow after a redirect-based payment method returns here (Stripe appends
+  // payment_intent + redirect_status to the URL). Card + wallets + 3DS confirm in-page and
+  // never hit this; it only fires if a redirect-only APM is ever enabled. The buyer is
+  // anonymous, so the checkout carries the username back on the URL (?u=) to keep polling the
+  // already-created order without re-minting or re-spending the captcha.
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const search = new URLSearchParams(window.location.search);
+    const pi = search.get("payment_intent");
+    if (!pi) {
+      return;
+    }
+    const status = search.get("redirect_status");
+    const u = search.get("u") || "";
+    // Clear Stripe's (and our) params from the address bar regardless of outcome.
+    window.history.replaceState({}, "", window.location.pathname);
+    if ((status === "succeeded" || status === "processing") && u) {
+      setResumeUsername(u);
+      setResumePi(pi);
+      setShowCheckout(true);
+    } else {
+      error(i18next.t("sign-up.account-pay-failed"));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (!username && !usernameTouched) return;
@@ -197,11 +228,18 @@ export function PremiumSignUp() {
 
         {showCheckout ? (
           <StripeAccountCheckout
-            meta={{ username, email, referral: referral || undefined }}
+            meta={{
+              username: resumePi ? resumeUsername : username,
+              email,
+              referral: referral || undefined
+            }}
             captchaToken={captchaToken}
+            resumePaymentIntent={resumePi}
             onBack={() => {
               setShowCheckout(false);
               setCaptchaToken("");
+              setResumePi(undefined);
+              setResumeUsername("");
               // the Turnstile token is single-use; request a fresh challenge for a retry
               turnstileRef.current?.reset();
             }}

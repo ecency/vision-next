@@ -21,6 +21,14 @@ interface Props {
   captchaToken: string;
   /** Back to the form. The caller MUST reset the Turnstile (the token is consumed here). */
   onBack: () => void;
+  /**
+   * Resume an already-created order after a redirect-based payment method bounced the buyer
+   * away and back (Stripe re-appends payment_intent to returnUrl). When set, the PaymentIntent
+   * is NOT re-minted and the single-use captcha token is NOT touched -- we jump straight to
+   * polling delivery for this intent. Only reachable if a redirect-only APM is ever enabled
+   * in the Stripe dashboard (card + wallets + 3DS all confirm in-page via redirect:if_required).
+   */
+  resumePaymentIntent?: string;
 }
 
 type Step = "creating" | "pay" | "delivering" | "done" | "error";
@@ -32,6 +40,19 @@ const genNonce = (): string =>
   typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
     ? crypto.randomUUID()
     : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+// Carry the (public) username on returnUrl so an anonymous redirect-resume can still poll the
+// order -- the status endpoint filters by username + payment_intent, and the username only ever
+// lived in form state which a redirect-return loses. Stripe appends its own payment_intent
+// params on return without clobbering ours. No PII (email/referral) is carried.
+const buildReturnUrl = (username: string): string => {
+  if (typeof window === "undefined") {
+    return "";
+  }
+  const u = new URL(window.location.href);
+  u.searchParams.set("u", username);
+  return u.toString();
+};
 
 function createIntentError(e: any): string {
   const status = e?.response?.status;
@@ -47,9 +68,11 @@ function createIntentError(e: any): string {
  * token is single-use and already collected), confirms with the Stripe Payment Element, then
  * polls the anonymous order status until the worker records the account request. Account keys
  * are created + emailed by the onboard service, so "done" means requested, not delivered.
+ * When `resumePaymentIntent` is set the order already exists (redirect-return), so minting is
+ * skipped and we go straight to polling.
  */
-export function StripeAccountCheckout({ meta, captchaToken, onBack }: Props) {
-  const [step, setStep] = useState<Step>("creating");
+export function StripeAccountCheckout({ meta, captchaToken, onBack, resumePaymentIntent }: Props) {
+  const [step, setStep] = useState<Step>(resumePaymentIntent ? "delivering" : "creating");
   const [nonce] = useState(genNonce);
   const [clientSecret, setClientSecret] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
@@ -73,6 +96,12 @@ export function StripeAccountCheckout({ meta, captchaToken, onBack }: Props) {
   // captcha token under a StrictMode double-mount / re-render; mountedRef (NOT a per-mount
   // closure) gates the state-setters so the resolved result is never swallowed.
   useEffect(() => {
+    // Redirect-resume: the order already exists. Latch startedRef and bail so we never re-mint
+    // or re-spend the (already-consumed) single-use captcha token.
+    if (resumePaymentIntent) {
+      startedRef.current = true;
+      return;
+    }
     if (startedRef.current) {
       return;
     }
@@ -96,7 +125,8 @@ export function StripeAccountCheckout({ meta, captchaToken, onBack }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const paymentIntentId = clientSecret ? clientSecret.split("_secret_")[0] : "";
+  const paymentIntentId =
+    resumePaymentIntent || (clientSecret ? clientSecret.split("_secret_")[0] : "");
 
   // After the card is confirmed, poll until the account request is recorded.
   useEffect(() => {
@@ -128,6 +158,10 @@ export function StripeAccountCheckout({ meta, captchaToken, onBack }: Props) {
       } catch {
         // transient (network / not-yet-recorded) -- keep polling
       }
+      // re-check after the await/catch: bail if unmounted (no state-update, no reschedule)
+      if (!mountedRef.current) {
+        return;
+      }
       if (tries >= 20) {
         // Paid but not recorded after ~40s: reassure -- it is in flight + the email follows.
         setStep("done");
@@ -151,7 +185,7 @@ export function StripeAccountCheckout({ meta, captchaToken, onBack }: Props) {
           options={{ clientSecret, appearance: { theme: isDarkMode() ? "night" : "stripe" } }}
         >
           <StripeCheckoutForm
-            returnUrl={typeof window !== "undefined" ? window.location.href : ""}
+            returnUrl={buildReturnUrl(meta.username)}
             payLabel={i18next.t("sign-up.account-pay", { usd: `$${STRIPE_ACCOUNT_USD.toFixed(2)}` })}
             onPaid={() => setStep("delivering")}
             onError={(m) => {
