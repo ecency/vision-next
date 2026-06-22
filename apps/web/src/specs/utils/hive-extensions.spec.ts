@@ -2,6 +2,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   broadcastWithExtension,
   getDetectedExtensions,
+  getPreferredExtensionId,
+  resolveKeychainInstance,
+  setPreferredExtensionId,
   signBufferWithExtension
 } from "../../utils/hive-extensions";
 
@@ -233,16 +236,64 @@ describe("Hive Keeper resolution (window.hive primary)", () => {
     (window as any).hive = keeper;
     // Keeper's backward-compat self-alias - NOT a real Keychain.
     (window as any).hive_keychain = keeper;
-    // Stale preference from before the user switched to a Keeper-only setup.
-    localStorage.setItem("ecency_preferred_hive_extension", "keychain");
+    // Stale per-user preference from before the user switched to a Keeper-only setup.
+    setPreferredExtensionId("alice", "keychain");
 
     const resp = await signBufferWithExtension("alice", "message", "Posting");
 
     // Signed through the live window.hive path (handshake then sign)...
     expect(order).toEqual(["handshake", "sign"]);
     expect(resp).toMatchObject({ success: true, result: "signature" });
-    // ...and the stale "keychain" preference self-healed because the alias no
-    // longer resolves to a usable Keychain instance.
-    expect(localStorage.getItem("ecency_preferred_hive_extension")).toBeNull();
+    // ...and alice's stale "keychain" preference self-healed because the alias
+    // no longer resolves to a usable Keychain instance.
+    expect(getPreferredExtensionId("alice")).toBeNull();
+  });
+});
+
+describe("per-username extension preference", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    delete (window as any).hive;
+    delete (window as any).hive_keychain;
+    delete (window as any).peakvault;
+  });
+
+  it("remembers a different extension per account", () => {
+    setPreferredExtensionId("alice", "keychain");
+    setPreferredExtensionId("bob", "hive-keeper");
+
+    expect(getPreferredExtensionId("alice")).toBe("keychain");
+    expect(getPreferredExtensionId("bob")).toBe("hive-keeper");
+  });
+
+  it("does not leak one account's choice to another", () => {
+    setPreferredExtensionId("alice", "keychain");
+    expect(getPreferredExtensionId("bob")).toBeNull();
+  });
+
+  it("falls back to the legacy global preference for accounts without a per-user choice", () => {
+    localStorage.setItem("ecency_preferred_hive_extension", "hive-keeper");
+    expect(getPreferredExtensionId("newcomer")).toBe("hive-keeper");
+    // A per-user choice overrides the legacy global.
+    setPreferredExtensionId("newcomer", "keychain");
+    expect(getPreferredExtensionId("newcomer")).toBe("keychain");
+  });
+
+  it("resolveKeychainInstance honors the account's choice over Keeper-first auto-detect", () => {
+    const keeper: any = { isKeeper: true };
+    const keychain: any = { isKeeper: false };
+    (window as any).hive = keeper;
+    (window as any).hive_keychain = keychain;
+
+    // alice chose Keychain: must resolve the real Keychain, never the Keeper.
+    setPreferredExtensionId("alice", "keychain");
+    expect(resolveKeychainInstance("alice")).toBe(keychain);
+
+    // bob chose Keeper: resolves the live window.hive.
+    setPreferredExtensionId("bob", "hive-keeper");
+    expect(resolveKeychainInstance("bob")).toBe(keeper);
+
+    // No choice → Keeper-first auto-detect (unchanged legacy behavior).
+    expect(resolveKeychainInstance("carol")).toBe(keeper);
   });
 });

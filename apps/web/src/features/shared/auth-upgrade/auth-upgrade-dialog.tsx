@@ -75,9 +75,9 @@ export function AuthUpgradeDialog() {
   const handleChooseExtension = useCallback((extId: HiveExtensionId) => {
     setChoosing(false);
     setRequest(null);
-    setPreferredExtensionId(extId);
+    if (activeUser?.username) setPreferredExtensionId(activeUser.username, extId);
     resolveAuthUpgrade("keychain");
-  }, []);
+  }, [activeUser?.username]);
 
   if (!request) return null;
 

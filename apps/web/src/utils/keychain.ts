@@ -1,12 +1,13 @@
 import { Symbol } from "./parse-asset";
 import { AppWindow, AuthorityTypes, Keys, TxResponse } from "@/types";
 import { extensionErrorMessage } from "./extension-error";
+import { resolveKeychainInstance } from "./hive-extensions";
 
 declare var window: AppWindow;
 
 export const handshake = (): Promise<void> =>
   new Promise<void>((resolve, reject) => {
-    const keychain = window.hive_keychain;
+    const keychain = resolveKeychainInstance();
     if (!keychain) {
       reject(new Error("Hive Keychain extension is unavailable or disabled."));
       return;
@@ -23,7 +24,7 @@ export const signBuffer = (
   rpc: string | null = null
 ): Promise<TxResponse> =>
   new Promise<TxResponse>((resolve, reject) => {
-    const keychain = window.hive_keychain;
+    const keychain = resolveKeychainInstance(account);
     if (!keychain) {
       reject(new Error("Hive Keychain extension is unavailable or disabled."));
       return;
@@ -52,7 +53,7 @@ export const addAccountAuthority = (
   rpc: string | null = null
 ): Promise<TxResponse> =>
   new Promise<TxResponse>((resolve, reject) => {
-    const keychain = window.hive_keychain;
+    const keychain = resolveKeychainInstance(account);
     if (!keychain) {
       reject(new Error("Hive Keychain extension is unavailable or disabled."));
       return;
@@ -81,7 +82,7 @@ export const removeAccountAuthority = (
   rpc: string | null = null
 ): Promise<TxResponse> =>
   new Promise<TxResponse>((resolve, reject) => {
-    const keychain = window.hive_keychain;
+    const keychain = resolveKeychainInstance(account);
     if (!keychain) {
       reject(new Error("Hive Keychain extension is unavailable or disabled."));
       return;
@@ -112,7 +113,7 @@ export const transfer = (
   rpc: string | null = null
 ): Promise<TxResponse> =>
   new Promise<TxResponse>((resolve, reject) => {
-    const keychain = window.hive_keychain;
+    const keychain = resolveKeychainInstance(account);
     if (!keychain) {
       reject(new Error("Hive Keychain extension is unavailable or disabled."));
       return;
@@ -145,7 +146,7 @@ export const customJson = (
   rpc: string | null = null
 ): Promise<TxResponse> =>
   new Promise<TxResponse>((resolve, reject) => {
-    const keychain = window.hive_keychain;
+    const keychain = resolveKeychainInstance(account);
     if (!keychain) {
       reject(new Error("Hive Keychain extension is unavailable or disabled."));
       return;
@@ -174,7 +175,7 @@ export const broadcast = (
   rpc: string | null = null
 ): Promise<TxResponse> =>
   new Promise<TxResponse>((resolve, reject) => {
-    const keychain = window.hive_keychain;
+    const keychain = resolveKeychainInstance(account);
 
     if (!keychain) {
       reject(new Error("Hive Keychain extension is unavailable or disabled."));
@@ -208,7 +209,7 @@ export const broadcast = (
 
 export const addAccount = (username: string, keys: Keys): Promise<TxResponse> =>
   new Promise<TxResponse>((resolve, reject) => {
-    const keychain = window.hive_keychain;
+    const keychain = resolveKeychainInstance(username);
     if (!keychain) {
       reject(new Error("Hive Keychain extension is unavailable or disabled."));
       return;
@@ -230,7 +231,7 @@ export const witnessVote = (
   rpc: string | null = null
 ): Promise<TxResponse> =>
   new Promise<TxResponse>((resolve, reject) => {
-    const keychain = window.hive_keychain;
+    const keychain = resolveKeychainInstance(account);
     if (!keychain) {
       reject(new Error("Hive Keychain extension is unavailable or disabled."));
       return;
@@ -257,7 +258,7 @@ export const witnessProxy = (
   rpc: string | null = null
 ): Promise<TxResponse> =>
   new Promise<TxResponse>((resolve, reject) => {
-    const keychain = window.hive_keychain;
+    const keychain = resolveKeychainInstance(account);
     if (!keychain) {
       reject(new Error("Hive Keychain extension is unavailable or disabled."));
       return;
