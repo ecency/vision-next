@@ -136,11 +136,28 @@ const PREFERRED_EXTENSION_KEY = "ecency_preferred_hive_extension";
 // account on Keychain and another on Keeper keeps the right wallet for each.
 const PREFERRED_EXTENSION_MAP_KEY = "ecency_preferred_hive_extension_by_user";
 
+const VALID_EXTENSION_IDS: readonly HiveExtensionId[] = ["keychain", "hive-keeper", "peakvault"];
+
+/** Narrow an untrusted localStorage value to a known extension id. */
+function asHiveExtensionId(value: unknown): HiveExtensionId | null {
+  return typeof value === "string" && (VALID_EXTENSION_IDS as readonly string[]).includes(value)
+    ? (value as HiveExtensionId)
+    : null;
+}
+
 function readPreferenceMap(): Record<string, HiveExtensionId> {
   try {
     const raw = localStorage.getItem(PREFERRED_EXTENSION_MAP_KEY);
     const parsed = raw ? JSON.parse(raw) : null;
-    return parsed && typeof parsed === "object" ? (parsed as Record<string, HiveExtensionId>) : {};
+    if (!parsed || typeof parsed !== "object") return {};
+    // Drop any entry whose value isn't a known extension id (corrupted or
+    // hand-edited storage) so getPreferredExtensionId never returns garbage.
+    const clean: Record<string, HiveExtensionId> = {};
+    for (const [user, id] of Object.entries(parsed as Record<string, unknown>)) {
+      const valid = asHiveExtensionId(id);
+      if (valid) clean[user] = valid;
+    }
+    return clean;
   } catch {
     return {};
   }
@@ -179,7 +196,7 @@ export function getPreferredExtensionId(username?: string): HiveExtensionId | nu
       const fromUser = readPreferenceMap()[username];
       if (fromUser) return fromUser;
     }
-    return (localStorage.getItem(PREFERRED_EXTENSION_KEY) as HiveExtensionId | null) || null;
+    return asHiveExtensionId(localStorage.getItem(PREFERRED_EXTENSION_KEY));
   } catch {
     return null;
   }

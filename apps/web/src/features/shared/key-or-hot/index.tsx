@@ -40,7 +40,14 @@ export function KeyOrHot({ inProgress, onKey, onHot, onKc, onMetaMask, keyOnly, 
   const canRenderKeychain = !isMetaMaskUser && onKc && (!isMobileBrowser || useKcMobile || isInAppBrowser());
   const username = activeUser?.username;
   const [choosing, setChoosing] = useState(false);
-  const detectedExtensions = getDetectedExtensions();
+  // Peak Vault can't sign owner-authority operations (broadcastWithExtension
+  // rejects them), so don't offer it for owner flows (e.g. key rotation) where
+  // a compatible extension would otherwise be available.
+  const supportsAuthority = (id: HiveExtensionId) =>
+    authority !== "owner" || id !== "peakvault";
+  const detectedExtensions = getDetectedExtensions().filter((e) =>
+    supportsAuthority(e.id)
+  );
   const extensionLabel = useKcMobile
     ? i18next.t("key-or-hot.with-keychain-mobile", { defaultValue: "Sign with Keychain Mobile" })
     : i18next.t("key-or-hot.with-extension", { defaultValue: "Sign with Extension" });
@@ -50,7 +57,9 @@ export function KeyOrHot({ inProgress, onKey, onHot, onKc, onMetaMask, keyOnly, 
   // otherwise persist the lone extension (per username) and sign. The persisted
   // choice makes the downstream broadcast target it instead of Keeper-first.
   const handleExtensionSign = useCallback(() => {
-    const detected = getDetectedExtensions();
+    const detected = getDetectedExtensions().filter(
+      (e) => authority !== "owner" || e.id !== "peakvault"
+    );
     if (detected.length > 1) {
       setChoosing(true);
       return;
@@ -59,7 +68,7 @@ export function KeyOrHot({ inProgress, onKey, onHot, onKc, onMetaMask, keyOnly, 
       setPreferredExtensionId(username, detected[0].id);
     }
     onKc?.();
-  }, [username, onKc]);
+  }, [authority, username, onKc]);
 
   const handleChooseExtension = useCallback(
     (extId: HiveExtensionId) => {

@@ -279,6 +279,19 @@ describe("per-username extension preference", () => {
     expect(getPreferredExtensionId("newcomer")).toBe("keychain");
   });
 
+  it("ignores a corrupted or unknown preference value", () => {
+    // Hand-edited / corrupted per-user map entry.
+    localStorage.setItem(
+      "ecency_preferred_hive_extension_by_user",
+      JSON.stringify({ alice: "evil-injected" })
+    );
+    expect(getPreferredExtensionId("alice")).toBeNull();
+
+    // Corrupted legacy global value is likewise ignored.
+    localStorage.setItem("ecency_preferred_hive_extension", "evil-injected");
+    expect(getPreferredExtensionId("bob")).toBeNull();
+  });
+
   it("resolveKeychainInstance honors the account's choice over Keeper-first auto-detect", () => {
     const keeper: any = { isKeeper: true };
     const keychain: any = { isKeeper: false };

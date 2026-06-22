@@ -124,7 +124,11 @@ describe("KeyOrHot - extension picker (respects the user's chosen extension)", (
     // auto-detects Keeper-first and hijacks a Keychain user.
     expect(ext.setPreferredExtensionId).toHaveBeenCalledWith("alice", "keychain");
     expect(props.onKc).toHaveBeenCalledTimes(1);
-    expect(ext.calls).toEqual(["persist"]);
+    // Order matters: persist must happen BEFORE onKc, or the downstream
+    // broadcast auto-detects (Keeper-first) before the choice is recorded.
+    const persistOrder = ext.setPreferredExtensionId.mock.invocationCallOrder[0];
+    const signOrder = props.onKc.mock.invocationCallOrder[0];
+    expect(persistOrder).toBeLessThan(signOrder);
   });
 
   it("with more than one extension, opens the chooser and routes to the picked one", () => {
@@ -142,6 +146,40 @@ describe("KeyOrHot - extension picker (respects the user's chosen extension)", (
     // Picking Keychain persists Keychain (not Keeper) then signs.
     fireEvent.click(screen.getByRole("button", { name: /keychain/i }));
     expect(ext.setPreferredExtensionId).toHaveBeenCalledWith("alice", "keychain");
+    expect(props.onKc).toHaveBeenCalledTimes(1);
+  });
+
+  it("excludes Peak Vault for owner-authority flows (it can't sign owner ops)", () => {
+    ext.detected = [
+      { id: "hive-keeper", name: "Hive Keeper", icon: "/assets/keeper.svg" },
+      { id: "keychain", name: "Keychain", icon: "/assets/keychain.png" },
+      { id: "peakvault", name: "Peak Vault", icon: "/assets/peakvault.svg" }
+    ];
+    render(<KeyOrHot {...props} authority="owner" />);
+
+    fireEvent.click(screen.getByRole("button", { name: /key-or-hot\.with-extension/i }));
+
+    // Chooser shows Keeper and Keychain, but never Peak Vault for owner ops.
+    expect(screen.getByText("login.extensions-select-description")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /hive keeper/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /keychain/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /peak vault/i })).not.toBeInTheDocument();
+  });
+
+  it("owner flow with Keychain + Peak Vault signs Keychain directly (Peak Vault excluded, no chooser)", () => {
+    ext.detected = [
+      { id: "keychain", name: "Keychain", icon: "/assets/keychain.png" },
+      { id: "peakvault", name: "Peak Vault", icon: "/assets/peakvault.svg" }
+    ];
+    render(<KeyOrHot {...props} authority="owner" />);
+
+    fireEvent.click(screen.getByRole("button", { name: /key-or-hot\.with-extension/i }));
+
+    // After excluding Peak Vault only Keychain remains => signs directly, no
+    // chooser, and never persists/sign with peakvault for an owner op.
+    expect(screen.queryByText("login.extensions-select-description")).not.toBeInTheDocument();
+    expect(ext.setPreferredExtensionId).toHaveBeenCalledWith("alice", "keychain");
+    expect(ext.setPreferredExtensionId).not.toHaveBeenCalledWith("alice", "peakvault");
     expect(props.onKc).toHaveBeenCalledTimes(1);
   });
 });
