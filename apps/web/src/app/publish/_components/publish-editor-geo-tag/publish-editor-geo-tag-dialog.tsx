@@ -1,34 +1,50 @@
 "use client";
 
 import { EcencyConfigManager } from "@/config";
-import { Alert, Button, Modal, ModalBody, ModalFooter, ModalHeader } from "@/features/ui";
-import { AdvancedMarker, APIProvider, Map, useAdvancedMarkerRef } from "@vis.gl/react-google-maps";
+import { error } from "@/features/shared/feedback";
+import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "@/features/ui";
 import i18next from "i18next";
-import { useCallback, useEffect, useState } from "react";
-import { PublishEditorGeoTagAutocomplete } from "./publish-editor-geo-tag-autocomplete";
-import { PublishEditorGeoTagMapHandler } from "./publish-editor-geo-tag-map-handler";
+import dynamic from "next/dynamic";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { reverseGeocode } from "./geo-search";
+import { GeoCoordinates, GeoLocation } from "./geo-tag-types";
+import { PublishEditorGeoTagSearch } from "./publish-editor-geo-tag-search";
 
 interface Props {
-  initialLocation?: { coordinates: { lat: number; lng: number }; address?: string };
+  initialLocation?: GeoLocation;
   show: boolean;
   setShow: (v: boolean) => void;
-  onPick: (data: { coordinates: { lat: number; lng: number }; address?: string }) => void;
+  onPick: (data: GeoLocation) => void;
   onClear: () => void;
 }
 
-declare global {
-  interface Window {
-    initAutocomplete: () => void;
-  }
-}
+const GEOCODER_HOST = EcencyConfigManager.getConfigValue(
+  ({ visionFeatures }) => visionFeatures.publish.geoPicker.geocoderHost
+);
+const CITIES_URL = EcencyConfigManager.getConfigValue(
+  ({ visionFeatures }) => visionFeatures.publish.geoPicker.citiesDataUrl
+);
+const TILE_URL = EcencyConfigManager.getConfigValue(
+  ({ visionFeatures }) => visionFeatures.publish.geoPicker.tileUrl
+);
 
-const G_MAPS_API_KEY = EcencyConfigManager.getConfigValue(
-  ({ visionFeatures }) => visionFeatures.publish.geoPicker.gMapsApiKey
-);
-const G_MAPS_MAP_ID = EcencyConfigManager.getConfigValue(
-  ({ visionFeatures }) => visionFeatures.publish.geoPicker.gMapsMapId
-);
-const IS_GMAPS_CONFIGURED = Boolean(G_MAPS_API_KEY);
+// Leaflet touches `window` at import time, so the map must never be evaluated
+// during SSR — load it client-side only with a skeleton fallback.
+const PublishEditorGeoTagMap = dynamic(() => import("./publish-editor-geo-tag-map"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-[320px] w-full items-center justify-center rounded-xl bg-gray-100 text-sm text-gray-500 dark:bg-dark-200 dark:text-gray-400">
+      {i18next.t("publish.geo-tag.loading-map")}
+    </div>
+  )
+});
+
+function toCoordinates(value?: GeoLocation): GeoCoordinates | undefined {
+  if (!value?.coordinates) return undefined;
+  const lat = Number(value.coordinates.lat);
+  const lng = Number(value.coordinates.lng);
+  return Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : undefined;
+}
 
 export function PublishEditorGeoTagDialog({
   initialLocation,
@@ -37,89 +53,122 @@ export function PublishEditorGeoTagDialog({
   onPick,
   onClear
 }: Props) {
-  const [markerRef, marker] = useAdvancedMarkerRef();
+  const [marker, setMarker] = useState<GeoCoordinates | undefined>(() =>
+    toCoordinates(initialLocation)
+  );
+  const [address, setAddress] = useState<string>(initialLocation?.address ?? "");
+  const [flyNonce, setFlyNonce] = useState(initialLocation ? 1 : 0);
+  const [detecting, setDetecting] = useState(false);
 
-  const [selectedAddress, setSelectedAddress] = useState<string>(initialLocation?.address ?? "");
-  const [selectedPosition, setSelectedPosition] = useState<
-    { lat: number; lng: number } | undefined
-  >(initialLocation?.coordinates);
-  const [selectedPlace, setSelectedPlace] = useState<google.maps.places.PlaceResult | null>(null);
+  const reverseAbortRef = useRef<AbortController | null>(null);
 
-  useEffect(() => {
-    if (selectedPlace?.geometry?.location) {
-      setSelectedPosition({
-        lat: selectedPlace.geometry.location.lat(),
-        lng: selectedPlace.geometry.location.lng()
+  useEffect(() => () => reverseAbortRef.current?.abort(), []);
+
+  const fillAddressFor = useCallback((coords: GeoCoordinates) => {
+    reverseAbortRef.current?.abort();
+    const controller = new AbortController();
+    reverseAbortRef.current = controller;
+    reverseGeocode(GEOCODER_HOST, coords.lat, coords.lng, controller.signal)
+      .then((label) => {
+        if (!controller.signal.aborted) setAddress(label);
+      })
+      .catch(() => {
+        /* aborted or offline — keep whatever address we have */
       });
-      setSelectedAddress(selectedPlace.formatted_address ?? "");
+  }, []);
+
+  // Search suggestion / detected place: move the pin and recenter the map.
+  const handleSelect = useCallback((location: GeoLocation) => {
+    const coords = toCoordinates(location);
+    if (!coords) return;
+    // Cancel a reverse-geocode still in flight from a prior map pick, otherwise
+    // it could resolve later and overwrite this selection's address.
+    reverseAbortRef.current?.abort();
+    setMarker(coords);
+    setAddress(location.address ?? "");
+    setFlyNonce((n) => n + 1);
+  }, []);
+
+  // Map click / pin drag: move the pin in place, then resolve the address.
+  const handleMapPick = useCallback(
+    (coords: GeoCoordinates) => {
+      setMarker(coords);
+      fillAddressFor(coords);
+    },
+    [fillAddressFor]
+  );
+
+  const handleDetect = useCallback(() => {
+    if (!navigator?.geolocation) {
+      error(i18next.t("publish.geo-tag.detect-unsupported"));
+      return;
     }
-  }, [selectedPlace]);
+
+    setDetecting(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setMarker(coords);
+        setFlyNonce((n) => n + 1);
+        fillAddressFor(coords);
+        setDetecting(false);
+      },
+      () => {
+        setDetecting(false);
+        error(i18next.t("publish.geo-tag.detect-error"));
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+    );
+  }, [fillAddressFor]);
 
   const handleSave = useCallback(() => {
+    if (!marker) return;
     onPick({
-      coordinates: selectedPosition ?? { lat: 0, lng: 0 },
-      address: selectedAddress
+      coordinates: marker,
+      address: address.trim() || `${marker.lat.toFixed(5)}, ${marker.lng.toFixed(5)}`
     });
-  }, [selectedAddress, selectedPosition]);
+  }, [marker, address, onPick]);
 
   return (
     <Modal centered={true} show={show} onHide={() => setShow(false)}>
       <ModalHeader closeButton={true}>
         <div>
           <div>{i18next.t("publish.geo-tag.title")}</div>
-          <div className="text-xs font-normal">{i18next.t("publish.geo-tag.subtitle")}</div>
+          <div className="text-xs font-normal opacity-75">
+            {i18next.t("publish.geo-tag.subtitle")}
+          </div>
         </div>
       </ModalHeader>
       <ModalBody>
-        {initialLocation && (
-          <div className="pb-4">
-            <span className="opacity-50">{i18next.t("publish.geo-tag.selected-location")}: </span>
-            <span>{initialLocation.address}</span>
-          </div>
-        )}
-        {!IS_GMAPS_CONFIGURED && (
-          <Alert appearance="warning" className="mb-4">
-            {i18next.t("publish.geo-tag.missing-config", {
-              defaultValue:
-                "Google Maps integration is not configured. Set NEXT_PUBLIC_GMAPS_API_KEY and NEXT_PUBLIC_GMAPS_MAP_ID environment variables to enable geotagging."
-            })}
-          </Alert>
-        )}
-        {IS_GMAPS_CONFIGURED && (
-          <APIProvider apiKey={G_MAPS_API_KEY ?? ""} libraries={["places", "geocoding"]}>
-            <PublishEditorGeoTagAutocomplete
-              selectedAddress={selectedAddress}
-              setSelectedPlace={setSelectedPlace}
-            />
+        <PublishEditorGeoTagSearch
+          value={address}
+          geocoderHost={GEOCODER_HOST}
+          citiesUrl={CITIES_URL}
+          detecting={detecting}
+          onSelect={handleSelect}
+          onDetect={handleDetect}
+        />
 
-            <div className="rounded-xl overflow-hidden">
-              <Map
-                mapId={G_MAPS_MAP_ID}
-                defaultZoom={1}
-                defaultCenter={{ lat: 0, lng: 0 }}
-                gestureHandling="greedy"
-                disableDefaultUI={true}
-                className="h-[300px]"
-                onClick={(e: any) => {
-                  if (marker) {
-                    setSelectedPosition({ lat: e.detail.latLng.lat, lng: e.detail.latLng.lng });
-                    marker.position = { lat: e.detail.latLng.lat, lng: e.detail.latLng.lng };
-                  }
-                }}
-              >
-                <AdvancedMarker ref={markerRef} />
-              </Map>
-            </div>
-            <PublishEditorGeoTagMapHandler
-              initialLocation={initialLocation}
-              place={selectedPlace}
-              marker={marker}
-              selectedPosition={selectedPosition}
-              setSelectedPosition={setSelectedPosition}
-              setSelectedAddress={setSelectedAddress}
-            />
-          </APIProvider>
-        )}
+        <div className="relative z-0 overflow-hidden rounded-xl border border-gray-200 dark:border-dark-600">
+          <PublishEditorGeoTagMap
+            position={marker}
+            flyNonce={flyNonce}
+            tileUrl={TILE_URL}
+            onPick={handleMapPick}
+          />
+        </div>
+
+        <div className="mt-2 flex items-center justify-between gap-2 text-xs text-gray-500 dark:text-gray-400">
+          <span>{i18next.t("publish.geo-tag.map-hint")}</span>
+          {marker && (
+            <span className="shrink-0 font-mono">
+              {marker.lat.toFixed(4)}, {marker.lng.toFixed(4)}
+            </span>
+          )}
+        </div>
+        <div className="mt-1 text-[11px] text-gray-400 dark:text-gray-500">
+          {i18next.t("publish.geo-tag.attribution")}
+        </div>
       </ModalBody>
       <ModalFooter className="flex justify-end gap-2">
         <Button appearance="gray" size="sm" onClick={onClear}>

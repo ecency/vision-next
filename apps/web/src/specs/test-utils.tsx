@@ -451,8 +451,9 @@ export type VisionFeaturesConfig = {
   publish?: {
     geoPicker?: {
       enabled: boolean;
-      gMapsMapId?: string;
-      gMapsApiKey?: string;
+      geocoderHost?: string;
+      citiesDataUrl?: string;
+      tileUrl?: string;
     };
   };
 };

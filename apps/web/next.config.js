@@ -20,10 +20,30 @@ const withPWA = require("next-pwa")({
   // stranding users on a stale cache that served mismatched chunks ("Element
   // type is invalid: undefined" → persistent 500).
   buildExcludes: [/\.map$/],
+  // Keep the ~1.6MB geo-tag cities dataset OUT of the install-time precache so
+  // it isn't eagerly downloaded for every user — it's fetched on demand when
+  // the geo-tag dialog opens and runtime-cached (see /geo rule below).
+  publicExcludes: ["!noprecache/**/*", "!geo/**/*"],
   // Raise the max size to precache large chunks:
   maximumFileSizeToCacheInBytes: 8 * 1024 * 1024, // 8MB
   // Advanced caching strategies for better performance
   runtimeCaching: [
+    {
+      // Geo-tag cities dataset: fetched once when the picker opens, then served
+      // from cache (it's a static, versioned data blob).
+      urlPattern: /\/geo\/.*\.json$/i,
+      handler: "CacheFirst",
+      options: {
+        cacheName: "ecency-geo-data",
+        expiration: {
+          maxEntries: 4,
+          maxAgeSeconds: 30 * 24 * 60 * 60 // 30 days
+        },
+        cacheableResponse: {
+          statuses: [0, 200]
+        }
+      }
+    },
     {
       // Cache API responses with network-first strategy
       urlPattern: /^https:\/\/ecency\.com\/api\/.*/i,
@@ -84,6 +104,27 @@ const withPWA = require("next-pwa")({
 });
 const appPackage = require("./package.json");
 const { execSync } = require("child_process");
+
+// Derive a CSP source ("scheme://host") from a configured URL/tile pattern so
+// the geo-tag picker's geocoder + map tiles are allow-listed even when pointed
+// at a self-hosted host via env. A "{s}." tile subdomain placeholder becomes a
+// CSP wildcard.
+function cspOrigin(urlOrPattern, fallback) {
+  const raw = urlOrPattern || fallback;
+  const m = String(raw).match(/^(https?:\/\/[^/]+)/i);
+  if (!m) return fallback;
+  return m[1].replace(/\{s\}\./, "*.").replace(/\{s\}/, "*");
+}
+
+// Geo-tag picker external origins (default to the public Photon + OSM tiles).
+const GEO_GEOCODER_ORIGIN = cspOrigin(
+  process.env.NEXT_PUBLIC_GEOCODER_HOST,
+  "https://photon.komoot.io"
+);
+const GEO_TILE_ORIGIN = cspOrigin(
+  process.env.NEXT_PUBLIC_MAP_TILE_URL,
+  "https://tile.openstreetmap.org"
+);
 
 const config = {
   // Required for @sentry/nextjs v8 source-map upload — the plugin only
@@ -267,6 +308,10 @@ const config = {
           // web-share — the whitelisted video iframe embeds (3Speak/YouTube)
           // request those via their `allow`/`allowfullscreen` attributes, and a
           // top-level `()` here would override the per-iframe grant.
+          // EXCEPTION — geolocation: the publish geo-tag picker's "Use my
+          // location" button calls navigator.geolocation, so it is granted to
+          // the first-party document only (self). A bare `geolocation=()` blocks
+          // it document-wide and the button silently fails.
           // EXCEPTION — payment: delegated to Stripe (self + js.stripe.com +
           // *.js.stripe.com) so the Payment Element can initialize the Google Pay /
           // Apple Pay wallet frames. Stripe stamps allow="payment" on its own nested
@@ -284,7 +329,7 @@ const config = {
             // Sandbox and warns there too. The app uses neither API, so the opt-out
             // tokens bought nothing but console noise.
             value:
-              "camera=(), microphone=(), geolocation=(), payment=(self \"https://js.stripe.com\" \"https://*.js.stripe.com\"), usb=(), magnetometer=()"
+              "camera=(), microphone=(), geolocation=(self), payment=(self \"https://js.stripe.com\" \"https://*.js.stripe.com\"), usb=(), magnetometer=()"
           },
           // ENFORCING CSP — only directives that cannot break JS/CSS execution
           // or block the app's existing cross-origin fetches/frames/images. We
@@ -352,7 +397,10 @@ const config = {
                 "https://www.google.com",
                 // Stripe.js (card payments): tokenization/3DS (api), Radar device
                 // fingerprinting (m.stripe.*), and metrics (q.stripe.com):
-                "https://api.stripe.com https://maps.stripe.com https://m.stripe.com https://m.stripe.network https://q.stripe.com"
+                "https://api.stripe.com https://maps.stripe.com https://m.stripe.com https://m.stripe.network https://q.stripe.com",
+                // Geo-tag picker: open-source geocoder (Photon by default; the
+                // offline cities dataset is fetched same-origin from /geo).
+                GEO_GEOCODER_ORIGIN
               ].join(" "),
               [
                 "img-src 'self' data: blob:",
@@ -360,7 +408,9 @@ const config = {
                 "https://images.hive.blog https://img.youtube.com",
                 // Tweet embeds (react-tweet) media + cards, and reCAPTCHA assets:
                 "https://pbs.twimg.com https://cdn.syndication.twimg.com https://www.gstatic.com",
-                "https://media.giphy.com https://media0.giphy.com https://media1.giphy.com https://media2.giphy.com https://media3.giphy.com https://media4.giphy.com https://i.giphy.com"
+                "https://media.giphy.com https://media0.giphy.com https://media1.giphy.com https://media2.giphy.com https://media3.giphy.com https://media4.giphy.com https://i.giphy.com",
+                // Geo-tag picker map tiles (OpenStreetMap by default):
+                GEO_TILE_ORIGIN
               ].join(" "),
               [
                 "frame-src 'self'",
@@ -408,6 +458,13 @@ const config = {
         source: "/scripts/:path*",
         headers: [
           { key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }
+        ]
+      },
+      {
+        // Geo-tag cities dataset — stable URL, infrequently updated data blob.
+        source: "/geo/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=2592000" }
         ]
       }
     ];

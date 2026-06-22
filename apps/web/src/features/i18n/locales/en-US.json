@@ -3295,8 +3295,18 @@
     "geo-tag": {
       "title": "Post's geo tag",
       "subtitle": "In collaboration with WorldMapPin.com",
-      "location-placeholder": "Write location...",
-      "selected-location": "Already selected location"
+      "search-placeholder": "Search for a city or place…",
+      "detect-location": "Use my location",
+      "detecting": "Locating…",
+      "searching": "Searching…",
+      "no-results": "No matches found. Try refining your search.",
+      "results-count": "{{count}} place found",
+      "results-count_other": "{{count}} places found",
+      "detect-error": "We couldn't access your location. Check your browser's location permission and try again.",
+      "detect-unsupported": "Location detection isn't supported by this browser.",
+      "map-hint": "Click the map or drag the pin to fine-tune the exact spot.",
+      "loading-map": "Loading map…",
+      "attribution": "Places by GeoNames · Map data © OpenStreetMap contributors"
     },
     "community-beneficiary": {
       "reward": "Community reward",

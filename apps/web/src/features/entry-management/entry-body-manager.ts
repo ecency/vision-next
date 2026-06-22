@@ -33,9 +33,28 @@ export namespace EntryBodyManagement {
       location?: { coordinates: { lat: number; lng: number }; address?: string }
     ) {
       if (location) {
-        const lat = location.coordinates.lat.toFixed(6);
-        const lng = location.coordinates.lng.toFixed(6);
-        body += `\n\n[//]:# (!worldmappin ${lat} lat ${lng} long ${location.address} d3scr)`;
+        // Coordinates can arrive as strings (regex-parsed from an existing post
+        // body, or persisted by other clients), so coerce before formatting.
+        const lat = Number(location.coordinates.lat);
+        const lng = Number(location.coordinates.lng);
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+          return body;
+        }
+
+        // The marker is a markdown comment `[//]:# (...)` that terminates at the
+        // first ")", so any "(" / ")" or newline in the address would truncate
+        // the directive and leak the remainder as visible post text. Many real
+        // place names contain parentheses (e.g. "Frankfurt (Oder)"), so strip
+        // those characters before serializing.
+        const address = (location.address ?? "")
+          .replace(/[()]/g, "")
+          .replace(/[\r\n]+/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+
+        body += `\n\n[//]:# (!worldmappin ${lat.toFixed(6)} lat ${lng.toFixed(
+          6
+        )} long ${address} d3scr)`;
       }
 
       return body;
