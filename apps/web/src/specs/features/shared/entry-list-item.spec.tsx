@@ -72,6 +72,7 @@ vi.mock("@/features/shared", async () => {
       Real.createElement("span", { "data-testid": "entry-payout" }, entry.pending_payout_value),
     EntryVotes: () => Real.createElement("span", { "data-testid": "entry-votes" }),
     EntryReblogBtn: () => Real.createElement("span", { "data-testid": "entry-reblog-btn" }),
+    EntryTipBtn: () => Real.createElement("span", { "data-testid": "entry-tip-btn" }),
     EntryMenu: () => Real.createElement("span", { "data-testid": "entry-menu" })
   };
 });
@@ -261,6 +262,14 @@ describe("EntryListItem", () => {
 
     expect(screen.getByTestId("entry-vote-btn")).toBeInTheDocument();
     expect(screen.getByTestId("entry-menu")).toBeInTheDocument();
+  });
+
+  it("renders the tip (gift) button in the action bar — parity with the mobile tip action", () => {
+    const entry = mockEntry({ author: "bob", permlink: "top-post", title: "Top Post" });
+
+    renderItem(entry, { order: 0 });
+
+    expect(screen.getByTestId("entry-tip-btn")).toBeInTheDocument();
   });
 
   it("mounts the deferred action bar when focus enters the card (keyboard backstop)", async () => {

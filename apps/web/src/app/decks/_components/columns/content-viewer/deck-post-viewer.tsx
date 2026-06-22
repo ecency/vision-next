@@ -10,6 +10,7 @@ import { arrowLeftSvg } from "@ui/svg";
 import i18next from "i18next";
 import {
   EntryInfo,
+  EntryTipBtn,
   EntryVoteBtn,
   EntryVotes,
   PostContentRenderer
@@ -73,6 +74,7 @@ export const DeckPostViewer = ({ entry: initialEntry, onClose, backTitle }: Prop
           <div style={{ paddingRight: 4 }}>{commentSvg}</div>
           {entry.children}
         </div>
+        <EntryTipBtn entry={entry} />
       </div>
       <div className="px-3 dark:[&>*>.comment-preview]:bg-dark-default">
         <DeckPostViewerCommentBox entry={entry} onReplied={() => {}} />

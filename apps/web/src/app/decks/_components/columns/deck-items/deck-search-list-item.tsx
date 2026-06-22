@@ -9,6 +9,7 @@ import {
   EntryMenu,
   EntryPayout,
   EntryReblogBtn,
+  EntryTipBtn,
   EntryVoteBtn,
   EntryVotes,
   ProfileLink
@@ -279,6 +280,7 @@ export const SearchListItem = ({
           </Link>
 
           <EntryReblogBtn entry={entry} />
+          <EntryTipBtn entry={entry} />
           <EntryMenu alignBottom={false} entry={entry} />
         </div>
       </div>

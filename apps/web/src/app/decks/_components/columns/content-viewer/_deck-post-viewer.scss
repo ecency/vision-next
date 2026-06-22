@@ -106,7 +106,7 @@
     border-bottom: 1px solid $border-color;
     background-color: rgba($primary, 0.05);
 
-    .btn, .entry-votes, .entry-vote-btn, .comments {
+    .btn, .entry-votes, .entry-vote-btn, .comments, .entry-tip-btn {
       color: $secondary;
 
       @include padding(0);
@@ -115,6 +115,17 @@
 
       &:hover, &:active {
         color: $primary;
+      }
+    }
+
+    // The tip button colours its own inner span blue via `@apply text-blue-dark-sky`.
+    // Force it to inherit the muted action-bar colour so the gift icon matches its
+    // grey siblings in this deck post action bar.
+    .entry-tip-btn .inner-btn {
+      color: inherit;
+
+      svg {
+        opacity: 1;
       }
     }
 
