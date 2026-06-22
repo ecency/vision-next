@@ -193,6 +193,7 @@ export function AccountRecovery() {
         <ModalBody>
           <KeyOrHot
             inProgress={isPending}
+            authority="owner"
             onKey={(key) => handleSign("key", key)}
             onKc={() => handleSign("keychain")}
             onHot={() => handleSign("hivesigner")}

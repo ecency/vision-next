@@ -129,34 +129,96 @@ export function getPreferredExtension(): DetectedExtension | null {
 // User preference (stored in localStorage for persistence across sessions)
 // ---------------------------------------------------------------------------
 
+// Legacy single global preference (pre per-user). Kept read-only as a fallback
+// so existing users aren't reset to auto-detect on first load after this change.
 const PREFERRED_EXTENSION_KEY = "ecency_preferred_hive_extension";
+// Per-username preference map: { [username]: HiveExtensionId }. A user with one
+// account on Keychain and another on Keeper keeps the right wallet for each.
+const PREFERRED_EXTENSION_MAP_KEY = "ecency_preferred_hive_extension_by_user";
+
+const VALID_EXTENSION_IDS: readonly HiveExtensionId[] = ["keychain", "hive-keeper", "peakvault"];
+
+/** Narrow an untrusted localStorage value to a known extension id. */
+function asHiveExtensionId(value: unknown): HiveExtensionId | null {
+  return typeof value === "string" && (VALID_EXTENSION_IDS as readonly string[]).includes(value)
+    ? (value as HiveExtensionId)
+    : null;
+}
+
+function readPreferenceMap(): Record<string, HiveExtensionId> {
+  try {
+    const raw = localStorage.getItem(PREFERRED_EXTENSION_MAP_KEY);
+    const parsed = raw ? JSON.parse(raw) : null;
+    if (!parsed || typeof parsed !== "object") return {};
+    // Drop any entry whose value isn't a known extension id (corrupted or
+    // hand-edited storage) so getPreferredExtensionId never returns garbage.
+    const clean: Record<string, HiveExtensionId> = {};
+    for (const [user, id] of Object.entries(parsed as Record<string, unknown>)) {
+      const valid = asHiveExtensionId(id);
+      if (valid) clean[user] = valid;
+    }
+    return clean;
+  } catch {
+    return {};
+  }
+}
 
 /**
- * Set the user's preferred extension. Stored in localStorage.
+ * Remember the extension a specific account chose to sign with. Stored per
+ * username in localStorage so each account keeps its own wallet choice. Pass
+ * id=null to forget the account's preference (e.g. the chosen extension was
+ * uninstalled).
  */
-export function setPreferredExtensionId(id: HiveExtensionId | null): void {
-  if (typeof window === "undefined") return;
+export function setPreferredExtensionId(username: string, id: HiveExtensionId | null): void {
+  if (typeof window === "undefined" || !username) return;
   try {
+    const map = readPreferenceMap();
     if (id) {
-      localStorage.setItem(PREFERRED_EXTENSION_KEY, id);
+      map[username] = id;
     } else {
-      localStorage.removeItem(PREFERRED_EXTENSION_KEY);
+      delete map[username];
     }
+    localStorage.setItem(PREFERRED_EXTENSION_MAP_KEY, JSON.stringify(map));
   } catch {
     // Storage blocked (private browsing, quota exceeded) - non-fatal
   }
 }
 
 /**
- * Get the user's preferred extension from localStorage.
+ * Read the preferred extension for an account. Falls back to the legacy global
+ * preference (so users who set one before per-user storage aren't reset), then
+ * to null (auto-detect).
  */
-export function getPreferredExtensionId(): HiveExtensionId | null {
+export function getPreferredExtensionId(username?: string): HiveExtensionId | null {
   if (typeof window === "undefined") return null;
   try {
-    return localStorage.getItem(PREFERRED_EXTENSION_KEY) as HiveExtensionId | null;
+    if (username) {
+      const fromUser = readPreferenceMap()[username];
+      if (fromUser) return fromUser;
+    }
+    return asHiveExtensionId(localStorage.getItem(PREFERRED_EXTENSION_KEY));
   } catch {
     return null;
   }
+}
+
+/**
+ * Resolve the Keychain-compatible extension instance to use for `account`,
+ * honoring that account's saved preference. The legacy per-op helpers in
+ * utils/keychain.ts call specialized methods (requestTransfer,
+ * requestWitnessVote, ...) on a single instance, so they need the chosen
+ * Keeper/Keychain rather than whatever owns window.hive_keychain (which Keeper
+ * aliases). A "keychain" preference resolves strictly to the real Keychain (or
+ * null, surfacing "unavailable" rather than silently signing through Keeper);
+ * Peak Vault has no callback API for these specialized requests, so a Peak Vault
+ * preference / no preference falls through to Keeper-first auto-detect.
+ */
+export function resolveKeychainInstance(account?: string): KeyChainImpl | null {
+  if (typeof window === "undefined") return null;
+  const extId = getPreferredExtensionId(account);
+  if (extId === "keychain") return getKeychainInstance();
+  if (extId === "hive-keeper") return getHiveKeeperInstance();
+  return getKeychainLikeInstance();
 }
 
 // ---------------------------------------------------------------------------
@@ -174,7 +236,7 @@ export function signBufferWithExtension(
   rpc: string | null = null,
   preferredId?: HiveExtensionId
 ): Promise<TxResponse> {
-  const extId = preferredId ?? getPreferredExtensionId();
+  const extId = preferredId ?? getPreferredExtensionId(account);
   if (extId) {
     const resolved =
       extId === "peakvault" ? null :
@@ -186,7 +248,7 @@ export function signBufferWithExtension(
     if (resolved) return signBufferViaKeychain(resolved, account, message, authType, rpc);
 
     // Preferred extension no longer available - clear stale preference
-    if (!preferredId) setPreferredExtensionId(null);
+    if (!preferredId) setPreferredExtensionId(account, null);
   }
 
   // Auto-detection fallback
@@ -220,7 +282,7 @@ export function broadcastWithExtension(
   rpc: string | null = null,
   preferredId?: HiveExtensionId
 ): Promise<any> {
-  const extId = preferredId ?? getPreferredExtensionId();
+  const extId = preferredId ?? getPreferredExtensionId(account);
   if (extId) {
     const resolved =
       extId === "peakvault" ? null :
@@ -235,7 +297,7 @@ export function broadcastWithExtension(
     if (resolved) return broadcastViaKeychain(resolved, account, operations, keyType, rpc);
 
     // Preferred extension no longer available - clear stale preference
-    if (!preferredId) setPreferredExtensionId(null);
+    if (!preferredId) setPreferredExtensionId(account, null);
   }
 
   // Auto-detection fallback

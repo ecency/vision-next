@@ -75,16 +75,21 @@ export function AuthUpgradeDialog() {
   const handleChooseExtension = useCallback((extId: HiveExtensionId) => {
     setChoosing(false);
     setRequest(null);
-    setPreferredExtensionId(extId);
+    if (activeUser?.username) setPreferredExtensionId(activeUser.username, extId);
     resolveAuthUpgrade("keychain");
-  }, []);
+  }, [activeUser?.username]);
 
   if (!request) return null;
 
   const authority = (request.authority || "active") as "posting" | "active" | "owner";
   const isMetaMaskUser = activeUser && getLoginType(activeUser.username) === "metamask";
   const useKcMobile = shouldUseKeychainMobile(activeUser?.username);
-  const detectedExtensions = getDetectedExtensions();
+  // Peak Vault can't sign owner-authority operations, so don't offer it for
+  // owner flows (e.g. change_recovery_account) where its broadcast would be
+  // rejected even though a compatible extension is available.
+  const detectedExtensions = getDetectedExtensions().filter(
+    (e) => authority !== "owner" || e.id !== "peakvault"
+  );
   // The unified "Sign with Extension" button shows when an extension is
   // installed, or there's a Keychain Mobile / in-app deep-link path. On desktop
   // with no extension we show install links instead (below) — never a dead-end.
@@ -103,6 +108,13 @@ export function AuthUpgradeDialog() {
     if (detectedExtensions.length > 1) {
       setChoosing(true);
       return;
+    }
+    // Persist the lone extension (like KeyOrHot / WalletOperationSign) so a later
+    // broadcast targets it instead of auto-resolving Keeper-first. Without this a
+    // Keychain-only user who then installs Keeper would get hijacked on the next
+    // active-authority sign.
+    if (detectedExtensions.length === 1 && activeUser?.username) {
+      setPreferredExtensionId(activeUser.username, detectedExtensions[0].id);
     }
     setRequest(null);
     resolveAuthUpgrade("keychain");

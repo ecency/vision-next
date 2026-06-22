@@ -121,7 +121,7 @@ export default function Login() {
         // (e.g. Keeper alongside Keychain), the broadcast auto-detect — which is
         // Keeper-first — would otherwise hijack signing and silently drop the
         // request (dead 60s spinner). extId is defined here (length === 1).
-        if (action.extId) setPreferredExtensionId(action.extId);
+        if (action.extId) setPreferredExtensionId(username, action.extId);
         // Sign with the explicit extension so detection and signing can never
         // resolve to different extensions.
         loginByKeychain(action.extId).catch(() => {
@@ -132,7 +132,7 @@ export default function Login() {
   };
 
   const handleSelectExtension = (extId: HiveExtensionId) => {
-    setPreferredExtensionId(extId);
+    setPreferredExtensionId(username, extId);
     setShowExtensionsInfo(false);
     if (isLoginByKeychainPending) return;
     if (!username) {

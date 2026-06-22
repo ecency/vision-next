@@ -11,8 +11,15 @@ const h = vi.hoisted(() => ({
     { id: "keychain", name: "Keychain", icon: "/assets/keychain.png" }
   ] as { id: string; name: string; icon: string }[],
   kcMobile: false,
+  username: "testuser",
   setPreferredExtensionId: vi.fn(),
   resolveAuthUpgrade: vi.fn()
+}));
+
+// The dialog only renders for a signed-in user; the global mock returns a null
+// active user, so provide a username so the per-user preference is persisted.
+vi.mock("@/core/hooks/use-active-account", () => ({
+  useActiveAccount: () => ({ activeUser: { username: h.username } })
 }));
 
 // The global test setup stubs @/utils down to a couple of exports; restore the
@@ -29,7 +36,8 @@ vi.mock("@/utils/client", async (importOriginal) => ({
 vi.mock("@/utils/hive-extensions", () => ({
   getDetectedExtensions: () => h.detected,
   hasAnyHiveExtension: () => h.detected.length > 0,
-  setPreferredExtensionId: (id: string | null) => h.setPreferredExtensionId(id)
+  setPreferredExtensionId: (username: string, id: string | null) =>
+    h.setPreferredExtensionId(username, id)
 }));
 
 vi.mock("@/features/shared/auth-upgrade/auth-upgrade-events", () => ({
@@ -90,7 +98,7 @@ describe("AuthUpgradeDialog extension picker", () => {
     // Picking one stores it so broadcastWithExtension targets that extension's
     // own API instead of falling back to Keeper-first.
     fireEvent.click(screen.getByRole("button", { name: /keychain/i }));
-    expect(h.setPreferredExtensionId).toHaveBeenCalledWith("keychain");
+    expect(h.setPreferredExtensionId).toHaveBeenCalledWith("testuser", "keychain");
     expect(h.resolveAuthUpgrade).toHaveBeenCalledWith("keychain");
   });
 
@@ -100,7 +108,19 @@ describe("AuthUpgradeDialog extension picker", () => {
     fireEvent.click(screen.getByRole("button", { name: /key-or-hot\.with-extension/i }));
     fireEvent.click(screen.getByRole("button", { name: /hive keeper/i }));
 
-    expect(h.setPreferredExtensionId).toHaveBeenCalledWith("hive-keeper");
+    expect(h.setPreferredExtensionId).toHaveBeenCalledWith("testuser", "hive-keeper");
+    expect(h.resolveAuthUpgrade).toHaveBeenCalledWith("keychain");
+  });
+
+  it("persists the lone extension on the single-extension sign path (no chooser)", () => {
+    h.detected = [{ id: "keychain", name: "Keychain", icon: "/assets/keychain.png" }];
+    openDialog();
+
+    // One extension => sign directly, but still record the choice so a later
+    // broadcast (after the user installs a second extension) isn't hijacked.
+    fireEvent.click(screen.getByRole("button", { name: /key-or-hot\.with-extension/i }));
+    expect(screen.queryByText("login.extensions-select-description")).toBeNull();
+    expect(h.setPreferredExtensionId).toHaveBeenCalledWith("testuser", "keychain");
     expect(h.resolveAuthUpgrade).toHaveBeenCalledWith("keychain");
   });
 
