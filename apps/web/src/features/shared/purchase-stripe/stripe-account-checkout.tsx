@@ -112,7 +112,8 @@ export function StripeAccountCheckout({ meta, captchaToken, onBack }: Props) {
       tries += 1;
       try {
         const st = await fetchStripeAccountStatus(meta.username, paymentIntentId);
-        if (!pollingRef.current) {
+        // re-check after the await: the component may have unmounted during the request
+        if (!mountedRef.current) {
           return;
         }
         if (st.status === "success") {
