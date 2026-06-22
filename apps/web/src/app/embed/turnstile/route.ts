@@ -72,16 +72,14 @@ export function GET() {
       "Content-Type": "text/html; charset=utf-8",
       // Keep the document fresh and out of edge/browser caches and indexes.
       "Cache-Control": "no-store",
-      "X-Robots-Tag": "noindex, nofollow",
-      // Lock the document down to the Turnstile challenge platform. The inline
-      // bootstrap script + style block need 'unsafe-inline', and Turnstile
-      // compiles WebAssembly for its challenge, which 'wasm-unsafe-eval' allows
-      // (without it the widget stalls on "Verifying…").
-      "Content-Security-Policy":
-        "default-src 'none'; script-src 'unsafe-inline' 'wasm-unsafe-eval' https://challenges.cloudflare.com; " +
-        "frame-src https://challenges.cloudflare.com; connect-src https://challenges.cloudflare.com; " +
-        "style-src 'unsafe-inline'; img-src data: https://challenges.cloudflare.com; " +
-        "base-uri 'none'; form-action 'none'"
+      "X-Robots-Tag": "noindex, nofollow"
+      // NOTE: a per-response Content-Security-Policy is intentionally NOT set here.
+      // next.config.js sets a site-wide CSP for source "/:path*", and that global
+      // header overrides any CSP a route handler returns (verified on prod: the
+      // browser receives the global policy, not a route-level one). A tighter
+      // embed-only CSP would have to be wired in next.config.js, not here. The
+      // widget needs challenges.cloudflare.com for script/frame/connect/img; the
+      // global report-only policy already allows it.
     }
   });
 }
