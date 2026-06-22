@@ -18,7 +18,18 @@ export function useCitiesSearch(citiesUrl: string) {
       if (!res.ok) {
         throw new Error(`Failed to load cities dataset (${res.status})`);
       }
-      return (await res.json()) as CitiesDataset;
+      // Validate the shape before indexing so a malformed/unexpected response
+      // surfaces as a query error (graceful offline-empty state) rather than
+      // crashing buildCityIndex on `data.cities.map`.
+      const json = (await res.json()) as Partial<CitiesDataset>;
+      if (
+        !Array.isArray(json?.cities) ||
+        !json.countries ||
+        typeof json.countries !== "object"
+      ) {
+        throw new Error("Invalid cities dataset schema");
+      }
+      return json as CitiesDataset;
     },
     staleTime: Infinity,
     gcTime: Infinity,

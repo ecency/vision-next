@@ -200,7 +200,7 @@ export function PublishEditorGeoTagSearch({
             ref={inputRef}
             type="text"
             role="combobox"
-            aria-expanded={showList}
+            aria-expanded={showDropdown}
             aria-controls="geo-tag-suggestions"
             aria-autocomplete="list"
             aria-activedescendant={
@@ -267,9 +267,12 @@ export function PublishEditorGeoTagSearch({
       </div>
 
       {showDropdown && (showList || busy || showEmpty) && (
-        <div className="absolute left-0 right-0 top-full z-10 mt-1 max-h-64 overflow-y-auto rounded-xl border border-gray-200 bg-white py-1 shadow-lg dark:border-dark-600 dark:bg-dark-200">
+        <div
+          id="geo-tag-suggestions"
+          className="absolute left-0 right-0 top-full z-10 mt-1 max-h-64 overflow-y-auto rounded-xl border border-gray-200 bg-white py-1 shadow-lg dark:border-dark-600 dark:bg-dark-200"
+        >
           {showList && (
-            <ul id="geo-tag-suggestions" role="listbox">
+            <ul role="listbox">
               {results.map((s, i) => (
                 <li
                   key={s.id}

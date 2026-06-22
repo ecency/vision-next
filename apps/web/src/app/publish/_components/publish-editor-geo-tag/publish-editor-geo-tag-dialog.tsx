@@ -81,6 +81,9 @@ export function PublishEditorGeoTagDialog({
   const handleSelect = useCallback((location: GeoLocation) => {
     const coords = toCoordinates(location);
     if (!coords) return;
+    // Cancel a reverse-geocode still in flight from a prior map pick, otherwise
+    // it could resolve later and overwrite this selection's address.
+    reverseAbortRef.current?.abort();
     setMarker(coords);
     setAddress(location.address ?? "");
     setFlyNonce((n) => n + 1);
