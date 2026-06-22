@@ -11,6 +11,7 @@ import {
   EntryMenu,
   EntryPayout,
   EntryReblogBtn,
+  EntryTipBtn,
   EntryVoteBtn,
   EntryVotes,
   ProfileLink,
@@ -182,6 +183,7 @@ export function EntryListItemComponent({
             </a>
           )}
           <EntryReblogBtn entry={entry} />
+          <EntryTipBtn entry={entry} />
           <div className="border-r border-[--border-color] w-[1px] h-4" />
           <EntryMenu alignBottom={order >= 1} entry={entry} />
         </div>

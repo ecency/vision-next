@@ -8,6 +8,7 @@ import { SortOrder } from "@/enums";
 import {
   EntryDeleteBtn,
   EntryPayout,
+  EntryTipBtn,
   EntryVoteBtn,
   EntryVotes,
   ProfileLink,
@@ -335,6 +336,7 @@ export const DiscussionItem = memo(function DiscussionItem({
                   {i18next.t("g.reply")}
                 </a>
               )}
+              <EntryTipBtn entry={entry} />
               {community && canMute && (
                 <MuteBtn
                   entry={entry}
