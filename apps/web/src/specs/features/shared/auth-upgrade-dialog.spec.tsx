@@ -112,6 +112,18 @@ describe("AuthUpgradeDialog extension picker", () => {
     expect(h.resolveAuthUpgrade).toHaveBeenCalledWith("keychain");
   });
 
+  it("persists the lone extension on the single-extension sign path (no chooser)", () => {
+    h.detected = [{ id: "keychain", name: "Keychain", icon: "/assets/keychain.png" }];
+    openDialog();
+
+    // One extension => sign directly, but still record the choice so a later
+    // broadcast (after the user installs a second extension) isn't hijacked.
+    fireEvent.click(screen.getByRole("button", { name: /key-or-hot\.with-extension/i }));
+    expect(screen.queryByText("login.extensions-select-description")).toBeNull();
+    expect(h.setPreferredExtensionId).toHaveBeenCalledWith("testuser", "keychain");
+    expect(h.resolveAuthUpgrade).toHaveBeenCalledWith("keychain");
+  });
+
   it("returns from the chooser to the sign options via Back without cancelling", () => {
     openDialog();
     fireEvent.click(screen.getByRole("button", { name: /key-or-hot\.with-extension/i }));
