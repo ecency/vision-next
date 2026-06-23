@@ -320,6 +320,7 @@ export const DiscussionItem = memo(function DiscussionItem({
               <EntryVoteBtn entry={entry} isPostSlider={false} />
               <EntryPayout entry={entry} />
               <EntryVotes entry={entry} />
+              <EntryTipBtn entry={entry} />
               {canComment && (
                 <a
                   className={`reply-btn ${edit ? "disabled" : ""}`}
@@ -336,7 +337,6 @@ export const DiscussionItem = memo(function DiscussionItem({
                   {i18next.t("g.reply")}
                 </a>
               )}
-              <EntryTipBtn entry={entry} />
               {community && canMute && (
                 <MuteBtn
                   entry={entry}

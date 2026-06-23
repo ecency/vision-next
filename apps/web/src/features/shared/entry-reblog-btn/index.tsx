@@ -32,20 +32,38 @@ export function EntryReblogBtn({ entry }: Props) {
         [activeUser, data, reblogs]
     );
 
+    const reblogLabel = reblogged
+        ? i18next.t("entry-reblog.delete-reblog")
+        : i18next.t("entry-reblog.reblog");
+
     const content = (
         <div
             className={`entry-reblog-btn ${reblogged ? "reblogged" : ""} ${
                 isPending ? "in-progress" : ""
             }`}
-        >
-            <Tooltip
-                content={
-                    reblogged
-                        ? i18next.t("entry-reblog.delete-reblog")
-                        : i18next.t("entry-reblog.reblog")
+            role="button"
+            tabIndex={0}
+            aria-label={reblogLabel}
+            aria-pressed={reblogged}
+            aria-disabled={isPending}
+            onKeyDown={(e) => {
+                // While a reblog is in flight the SCSS sets pointer-events:none to
+                // block a double-submit via mouse; mirror that for the keyboard
+                // path (which pointer-events can't reach) so Enter/Space can't
+                // reopen the confirm popover and fire a second request.
+                if (isPending) return;
+                if (e.key === "Enter" || e.key === " ") {
+                    // Activation lives on the click handler injected by the
+                    // wrapping LoginRequired / PopoverConfirm, so bridge the
+                    // keyboard event to it. Makes the control reachable and
+                    // operable without a mouse (matches EntryVoteBtn/EntryTipBtn).
+                    e.preventDefault();
+                    (e.currentTarget as HTMLElement).click();
                 }
-            >
-                <a className="inner-btn">
+            }}
+        >
+            <Tooltip content={reblogLabel}>
+                <a className="inner-btn" aria-hidden={true}>
                     {repeatSvg}
                     <span>{data?.reblogs && data.reblogs > 0 ? data.reblogs : ""}</span>
                 </a>
