@@ -5,11 +5,8 @@ const mockCallRPC = vi.hoisted(() => vi.fn())
 const mockGetVisibleFirstLevelThreadItems = vi.hoisted(() => vi.fn())
 const mockMapThreadItemsToWaveEntries = vi.hoisted(() => vi.fn())
 
-vi.mock('@/modules/core', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@/modules/core')>()
-  return { ...actual }
-})
-
+// Only callRPC needs stubbing; @/modules/core (QueryKeys) is used as-is. The
+// hive-tx subpath mock below is intercepted even when imported via the core barrel.
 vi.mock('@/modules/core/hive-tx', () => ({
   callRPC: mockCallRPC
 }))
@@ -28,7 +25,8 @@ function makeContainer(permlink: string, postId: number) {
 // Drive the first page of the infinite query (pageParam === undefined).
 function loadFirstPage(host = HOST) {
   const options = getWavesByHostQueryOptions(host)
-  return (options.queryFn as any)({ pageParam: undefined })
+  type QueryFn = NonNullable<typeof options.queryFn>
+  return (options.queryFn as QueryFn)({ pageParam: undefined } as Parameters<QueryFn>[0])
 }
 
 describe('getWavesByHostQueryOptions getThreads', () => {
