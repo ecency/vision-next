@@ -35,6 +35,7 @@ const mockAccountData = {
 
 describe("Step3ReviewKeys - login type badges", () => {
   beforeEach(() => {
+    localStorage.clear();
     (useActiveAccount as any).mockReturnValue({
       activeUser: { username: "testuser" }
     });
@@ -60,6 +61,26 @@ describe("Step3ReviewKeys - login type badges", () => {
     render(<Step3ReviewKeys onNext={vi.fn()} onBack={vi.fn()} />);
     const badges = screen.getAllByText("HiveSigner");
     expect(badges.length).toBeGreaterThan(0);
+  });
+
+  it("shows Keeper badge for a keychain login with a saved Keeper preference", () => {
+    (getLoginType as any).mockReturnValue("keychain");
+    localStorage.setItem(
+      "ecency_preferred_hive_extension_by_user",
+      JSON.stringify({ testuser: "hive-keeper" })
+    );
+    render(<Step3ReviewKeys onNext={vi.fn()} onBack={vi.fn()} />);
+    expect(screen.getAllByText("Keeper").length).toBeGreaterThan(0);
+  });
+
+  it("shows Vault badge for a keychain login with a saved Peak Vault preference", () => {
+    (getLoginType as any).mockReturnValue("keychain");
+    localStorage.setItem(
+      "ecency_preferred_hive_extension_by_user",
+      JSON.stringify({ testuser: "peakvault" })
+    );
+    render(<Step3ReviewKeys onNext={vi.fn()} onBack={vi.fn()} />);
+    expect(screen.getAllByText("Vault").length).toBeGreaterThan(0);
   });
 
   it("disables checkboxes when only one key per authority", () => {

@@ -9,6 +9,7 @@ import { useCopyToClipboard } from "react-use";
 import { ManageKeyPasswordDialog } from "./manage-key-password-dialog";
 import { useRevealedKeysStore, useKeyDerivationStore } from "../_hooks";
 import { getLoginType } from "@/utils/user-token";
+import { resolveExtensionAwareLoginType } from "@/utils/login-extension";
 
 type Keys = Record<string, [string, number][]>;
 
@@ -41,7 +42,10 @@ export function ManageKey({ keyName, onRevoke }: Props) {
 
   const [showReveal, setShowReveal] = useState(false);
 
-  const loginType = getLoginType(activeUser?.username ?? "");
+  const loginType = resolveExtensionAwareLoginType(
+    getLoginType(activeUser?.username ?? ""),
+    activeUser?.username ?? ""
+  );
 
   const getLoginTypeBadge = () => {
     switch (loginType) {
@@ -49,6 +53,10 @@ export function ManageKey({ keyName, onRevoke }: Props) {
         return { label: "MetaMask", className: "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300" };
       case "keychain":
         return { label: "Keychain", className: "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300" };
+      case "keeper":
+        return { label: "Keeper", className: "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300" };
+      case "peakvault":
+        return { label: "Vault", className: "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300" };
       case "hivesigner":
         return { label: "HiveSigner", className: "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300" };
       default:
