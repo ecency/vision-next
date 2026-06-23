@@ -278,11 +278,16 @@ a {
   }
 }
 
+// "list-item" is also a Tailwind display utility (`.list-item{display:list-item}`),
+// and our list rows (voters, friends, subscribers, RC delegations, search results,
+// <ListItem>, etc.) reuse that class name. They therefore compute display:list-item
+// and inherit a disc marker (list-style-type defaults to disc). It is normally
+// hidden only because the parent grid blockifies the row — so any time the grid
+// CSS isn't applied (first paint / partial CSS) a stray bullet appears.
+// The previous `::marker { display:none; visibility:hidden; content:"" }` guard is
+// a no-op in several engines (display/visibility/content overrides on ::marker are
+// not universally honored). list-style:none removes the marker in every browser
+// and in every CSS-load state.
 .list-item {
-  &::marker {
-    content: "";
-    display: none;
-    opacity: 0;
-    visibility: hidden;
-  }
+  list-style: none;
 }

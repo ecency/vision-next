@@ -171,6 +171,11 @@
   }
 
   @media (max-width: $sm-break) {
+    // The placeholder inherits aspect-ratio:16/9 from the .item-image mixin.
+    // With min-height:220px and an auto width, the browser derives the width
+    // from the height (220 * 16/9 = ~391px) — a fixed width that won't shrink
+    // and overflows narrow viewports. Pin it to the container width instead.
+    width: 100%;
     min-height: 220px;
   }
 }
