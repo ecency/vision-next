@@ -1,6 +1,6 @@
 "use client";
 
-import { Component, ErrorInfo, ReactNode } from "react";
+import { Component, ReactNode } from "react";
 import dynamic from "next/dynamic";
 import i18next from "i18next";
 
@@ -46,11 +46,13 @@ class TweetErrorBoundary extends Component<BoundaryProps, { hasError: boolean }>
     return { hasError: true };
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // react-tweet throws inside its own render when X's syndication data shape
-    // shifts (a field it iterates becomes undefined). Catch it so one
-    // unavailable/changed tweet degrades to a link instead of crashing the post.
-    console.error("react-tweet render failed:", error, errorInfo);
+  componentDidCatch(error: Error) {
+    // Expected, handled case — not a crash: react-tweet throws inside its own
+    // render when X's syndication payload is incomplete (the tweet is deleted /
+    // protected / age-restricted, or a field it iterates is absent). We already
+    // degrade to a "view on X" link, so log a single quiet warning instead of an
+    // error + component stack that looks like a real failure (and inflates Sentry).
+    console.warn(`[SafeTweet] tweet ${this.props.id} unavailable; showing fallback link (${error.message})`);
   }
 
   render() {
