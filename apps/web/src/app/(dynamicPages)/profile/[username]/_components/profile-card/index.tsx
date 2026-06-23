@@ -171,21 +171,37 @@ export function ProfileCard({ account }: Props) {
           </ProfileCardExtraProperty>
         )}
 
-        {data?.profile?.website && (
-          <ProfileCardExtraProperty
-            icon={<UilGlobe className="w-5 h-5" />}
-            label={i18next.t("profile-edit.website")}
-          >
-            <Link
-              target="_external"
-              rel="nofollow ugc noopener"
-              className="break-all"
-              href={`https://${data?.profile.website.replace(/^(https?|ftp):\/\//, "")}`}
+        {(() => {
+          const rawWebsite = data?.profile?.website;
+          if (!rawWebsite) return null;
+          const href = `https://${rawWebsite.replace(/^(https?|ftp):\/\//, "")}`;
+          let validUrl: string | null = null;
+          try {
+            new URL(href);
+            validUrl = href;
+          } catch {
+            // invalid URL – skip rendering as a link
+          }
+          return (
+            <ProfileCardExtraProperty
+              icon={<UilGlobe className="w-5 h-5" />}
+              label={i18next.t("profile-edit.website")}
             >
-              {data?.profile.website}
-            </Link>
-          </ProfileCardExtraProperty>
-        )}
+              {validUrl ? (
+                <Link
+                  target="_external"
+                  rel="nofollow ugc noopener"
+                  className="break-all"
+                  href={validUrl}
+                >
+                  {rawWebsite}
+                </Link>
+              ) : (
+                <span className="break-all">{rawWebsite}</span>
+              )}
+            </ProfileCardExtraProperty>
+          );
+        })()}
 
         {data?.created && (
           <ProfileCardExtraProperty
