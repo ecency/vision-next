@@ -23,6 +23,16 @@ import { useQueryClient } from "@tanstack/react-query";
 const TURNSTILE_SITEKEY =
   process.env.NEXT_PUBLIC_TURNSTILE_SITEKEY || "0x4AAAAAADe6jH7FIi9dBzgR";
 
+// The onboard signup API returns a numeric `code` plus an English `message`.
+// Prefer a translated string keyed by code and fall back to the backend message
+// (then a generic error) so we never surface a bare numeric code or a raw key.
+function resolveSignupError(code?: number | string, message?: string): string {
+  const fallback = message || i18next.t("g.server-error");
+  return code
+    ? i18next.t(`sign-up.error-codes.${code}`, { defaultValue: fallback })
+    : fallback;
+}
+
 export function FreeSignUp() {
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
   const queryClient = useQueryClient();
@@ -152,6 +162,10 @@ export function FreeSignUp() {
     }
 
     setInProgress(true);
+    // Start each attempt fresh: clear any prior error so a thrown failure without a
+    // code/message (e.g. a network error) can't leave a stale, misleading message
+    // on screen while the Turnstile silently resets.
+    setRegistrationError("");
     try {
       if (!captchaToken) {
         error(i18next.t("login.captcha-check-required"));
@@ -160,7 +174,12 @@ export function FreeSignUp() {
 
       const response = await signUp(username, email, referral, captchaToken);
       if (response?.data?.code) {
-        setRegistrationError(String(response.data.code));
+        setRegistrationError(
+          resolveSignupError(
+            response.data.code as number,
+            response.data.message as string | undefined
+          )
+        );
         // Turnstile tokens are single-use; drop it and re-challenge so a retry works.
         setCaptchaToken("");
         turnstileRef.current?.reset();
@@ -170,9 +189,9 @@ export function FreeSignUp() {
       }
     } catch (e) {
       if (e instanceof Error && "data" in e) {
-        const errorData = (e as { data?: { message?: string } }).data;
-        if (errorData?.message) {
-          setRegistrationError(errorData.message);
+        const errorData = (e as { data?: { code?: number; message?: string } }).data;
+        if (errorData?.code || errorData?.message) {
+          setRegistrationError(resolveSignupError(errorData?.code, errorData?.message));
         }
       }
       // Token is consumed on a verification attempt; reset for the next try.
