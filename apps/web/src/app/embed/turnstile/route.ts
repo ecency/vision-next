@@ -70,8 +70,16 @@ export function GET() {
   return new Response(html, {
     headers: {
       "Content-Type": "text/html; charset=utf-8",
-      // Keep the document fresh and out of edge/browser caches and indexes.
-      "Cache-Control": "no-store",
+      // Static, identical-for-everyone document (the Turnstile challenge runs client-side
+      // via the CF script; nothing here is per-user or sensitive). Edge-cache it so every
+      // mobile signup does not re-render on origin SSR: `no-store` forced a fresh origin
+      // render per load and ~25% of those 504'd when SSR was busy, blanking the widget.
+      // s-maxage lets the CF worker edge-cache (it stores any HTML with s-maxage + no
+      // no-store). max-age=0 keeps the WebView/browser revalidating every load; we omit
+      // stale-while-revalidate on purpose -- the worker uses a hard s-maxage TTL (no SWR),
+      // so SWR would only let a PRIVATE cache serve a day-old widget after a deploy / sitekey
+      // change, for no edge benefit. Still noindex.
+      "Cache-Control": "public, max-age=0, s-maxage=3600",
       "X-Robots-Tag": "noindex, nofollow"
       // NOTE: a per-response Content-Security-Policy is intentionally NOT set here.
       // next.config.js sets a site-wide CSP for source "/:path*", and that global
