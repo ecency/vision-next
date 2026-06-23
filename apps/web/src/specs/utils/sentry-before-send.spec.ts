@@ -157,3 +157,36 @@ describe("beforeSend — $RS hydration-resume reclassification", () => {
     expect(ev.fingerprint).toBeUndefined();
   });
 });
+
+describe("beforeSend — Chrome botnet 'document' access is dropped", () => {
+  // Synthetic botnet handler reads .document off a null/undefined receiver.
+  // Two real Chrome grammars must both be dropped, but only for 'document'.
+  const BOTNET_FRAME = { function: "HTMLDocument.c" } as unknown as { filename?: string };
+
+  it("drops the modern plural format (Chrome 91+)", () => {
+    const ev = makeEvent("Cannot read properties of null (reading 'document')", [BOTNET_FRAME]);
+    expect(beforeSend(ev)).toBeNull();
+  });
+
+  it("drops the old singular format (Chrome ≤90 / Chrome Mobile 79)", () => {
+    const ev = makeEvent("Cannot read property 'document' of null", [BOTNET_FRAME]);
+    expect(beforeSend(ev)).toBeNull();
+  });
+
+  it("drops the 'undefined' variant of the singular format", () => {
+    const ev = makeEvent("Cannot read property 'document' of undefined", [BOTNET_FRAME]);
+    expect(beforeSend(ev)).toBeNull();
+  });
+
+  it("does NOT over-match a different property (parentNode) with the same frame", () => {
+    // Guards the document-only intent: making the (reading '…') clause loose
+    // would wrongly sweep up parentNode null-reads too.
+    const ev = makeEvent("Cannot read properties of null (reading 'parentNode')", [BOTNET_FRAME]);
+    expect(beforeSend(ev)).toBe(ev);
+  });
+
+  it("does NOT drop the document read without the synthetic botnet frame", () => {
+    const ev = makeEvent("Cannot read properties of null (reading 'document')", [APP_FRAME]);
+    expect(beforeSend(ev)).toBe(ev);
+  });
+});
