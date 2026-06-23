@@ -19,6 +19,13 @@
 
   .entry-page-content {
     flex-grow: 1;
+    // Flex items default to min-width:auto, so this column refuses to shrink
+    // below its content's min-content width. On narrow phones an imageless card
+    // (see .item-image.noImage) has a ~391px intrinsic width, which pushed the
+    // whole column past the viewport inside the overflow-hidden .app-content,
+    // clipping the right edge of every card (and the action bar). min-width:0
+    // lets it shrink to the available width.
+    min-width: 0;
     min-height: 100vh;
 
     &.loading {
