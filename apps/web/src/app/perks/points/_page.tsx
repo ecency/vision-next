@@ -67,7 +67,7 @@ export function PointsPage() {
 
       <LoginRequired>
         <PointsActionCard
-          imageSrc="/assets/undraw-credit-card.svg"
+          imageSrc="/assets/undraw-qr-points.svg"
           title={i18next.t("perks.buy-points-qr-title")}
           description={i18next.t("perks.buy-points-qr-description")}
           steps={[
