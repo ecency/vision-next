@@ -162,6 +162,10 @@ export function FreeSignUp() {
     }
 
     setInProgress(true);
+    // Start each attempt fresh: clear any prior error so a thrown failure without a
+    // code/message (e.g. a network error) can't leave a stale, misleading message
+    // on screen while the Turnstile silently resets.
+    setRegistrationError("");
     try {
       if (!captchaToken) {
         error(i18next.t("login.captcha-check-required"));
