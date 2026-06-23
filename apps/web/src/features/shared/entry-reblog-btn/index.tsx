@@ -45,7 +45,13 @@ export function EntryReblogBtn({ entry }: Props) {
             tabIndex={0}
             aria-label={reblogLabel}
             aria-pressed={reblogged}
+            aria-disabled={isPending}
             onKeyDown={(e) => {
+                // While a reblog is in flight the SCSS sets pointer-events:none to
+                // block a double-submit via mouse; mirror that for the keyboard
+                // path (which pointer-events can't reach) so Enter/Space can't
+                // reopen the confirm popover and fire a second request.
+                if (isPending) return;
                 if (e.key === "Enter" || e.key === " ") {
                     // Activation lives on the click handler injected by the
                     // wrapping LoginRequired / PopoverConfirm, so bridge the
