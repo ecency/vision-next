@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.22
+
+### Patch Changes
+
+- fix(waves): guard get_discussion so one failed container can't empty the For-you feed (#992)
+
 ## 2.3.21
 
 ### Patch Changes

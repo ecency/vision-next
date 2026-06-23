@@ -1,6 +1,6 @@
 import { infiniteQueryOptions } from "@tanstack/react-query";
 import { QueryKeys } from "@/modules/core";
-import { WaveEntry } from "../types";
+import { Entry, WaveEntry } from "../types";
 import {
   getVisibleFirstLevelThreadItems,
   mapThreadItemsToWaveEntries
@@ -72,7 +72,20 @@ async function getThreads(
         continue;
       }
 
-      const visibleItems = await getVisibleFirstLevelThreadItems(container);
+      let visibleItems: Entry[];
+      try {
+        visibleItems = await getVisibleFirstLevelThreadItems(container);
+      } catch (err) {
+        // A transient bridge.get_discussion failure (RPC timeout, node error, or
+        // an oversized response on a large late-day container) must not collapse
+        // the whole feed. Treat this container as temporarily unavailable and scan
+        // the next one — mirroring the empty-container handling below and the
+        // get_account_posts guard above. The query's refetch interval retries it.
+        console.error("[SDK] getThreads get_discussion error:", err);
+        startAuthor = container.author;
+        startPermlink = container.permlink;
+        continue;
+      }
 
       if (visibleItems.length === 0) {
         startAuthor = container.author;
