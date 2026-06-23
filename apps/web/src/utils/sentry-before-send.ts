@@ -185,9 +185,12 @@ export function beforeSend(event: SentryErrorEvent): SentryErrorEvent | null {
     return null;
   }
 
-  // Chrome botnet traffic - null/undefined document access from synthetic handler
+  // Chrome botnet traffic - null/undefined document access from synthetic handler.
+  // Matches both the old singular format ("Cannot read property '…' of null",
+  // Chrome ≤90 / Chrome Mobile 79) and the modern plural format
+  // ("Cannot read properties of null (reading '…')", Chrome 91+).
   if (
-    /Cannot read properties of (null|undefined) \(reading 'document'\)/.test(
+    /Cannot read propert(?:y|ies) of (null|undefined) \(reading 'document'\)/.test(
       message
     ) &&
     stackStr.includes("HTMLDocument.c")
