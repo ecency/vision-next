@@ -48,7 +48,13 @@ export function WavesListView({ feedType, username }: Props) {
     return getWavesFeedQueryOptions({ observer });
   }, [feedType, tag, username, observer]);
 
-  const { data, fetchNextPage, isError, error, hasNextPage, refetch } = useInfiniteQuery(queryOptions);
+  // The Following feed needs a username; without one `following` drops and the
+  // query would silently become the unfiltered combined feed, so gate it until
+  // the active user is known.
+  const { data, fetchNextPage, isError, error, hasNextPage, refetch } = useInfiniteQuery({
+    ...queryOptions,
+    enabled: feedType !== "following" || !!username
+  });
   const previousErrorMessage = useRef<string | undefined>(undefined);
 
   useEffect(() => {

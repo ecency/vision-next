@@ -118,7 +118,7 @@ export function getWavesFeedQueryOptions(params: WavesFeedParams = {}) {
   const { containers, tag, following, author, observer, limit } = normalized;
 
   return infiniteQueryOptions({
-    queryKey: QueryKeys.posts.wavesFeed({ containers, tag, following, author, observer }),
+    queryKey: QueryKeys.posts.wavesFeed({ containers, tag, following, author, observer, limit }),
     initialPageParam: undefined as string | undefined,
 
     queryFn: ({ pageParam, signal }) => fetchWavesFeedPage(normalized, pageParam, signal),
@@ -143,10 +143,13 @@ export function getWavesFeedQueryOptions(params: WavesFeedParams = {}) {
  */
 export function getWavesLatestFeedQueryOptions(params: WavesFeedParams = {}) {
   const normalized = normalizeParams(params);
-  const { containers, tag, following, author, observer } = normalized;
+  const { containers, tag, following, author, observer, limit } = normalized;
 
   return queryOptions({
-    queryKey: [...QueryKeys.posts.wavesFeed({ containers, tag, following, author, observer }), "latest"],
+    queryKey: [
+      ...QueryKeys.posts.wavesFeed({ containers, tag, following, author, observer, limit }),
+      "latest"
+    ],
     staleTime: 0,
     queryFn: ({ signal }) => fetchWavesFeedPage(normalized, undefined, signal)
   });

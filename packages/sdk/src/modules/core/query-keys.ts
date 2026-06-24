@@ -143,6 +143,7 @@ export const QueryKeys = {
         following?: string;
         author?: string;
         observer?: string;
+        limit?: number;
       } = {}
     ) => [
       "posts",
@@ -152,6 +153,7 @@ export const QueryKeys = {
       params.following ?? "",
       params.author ?? "",
       params.observer ?? "",
+      params.limit ?? 0,
       [...(params.containers ?? [])].sort().join(",")
     ],
     wavesByHost: (host: string) =>
