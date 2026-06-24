@@ -12,7 +12,6 @@ import i18next from "i18next";
 import { Button } from "@ui/button";
 import { WaveFormToolbar } from "@/features/waves/components/wave-form/wave-form-toolbar";
 import { useWaveSubmit } from "@/features/waves";
-import { useOptionalWavesHost } from "@/app/waves/_context";
 import axios from "axios";
 import { uploadImage } from "@ecency/sdk";
 import { ensureValidToken } from "@/utils";
@@ -45,13 +44,17 @@ const WaveFormComponent = ({
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const { clearActivePoll, setActivePoll } = useContext(PollsContext);
 
-  const wavesHostContext = useOptionalWavesHost();
-  const [threadHost, setThreadHost] = useLocalStorage(PREFIX + "_wf_th", "ecency.waves");
+  // Waves always publish to the Ecency waves container, even though the feed is
+  // unified across containers.
+  const [threadHost] = useLocalStorage(PREFIX + "_wf_th", "ecency.waves");
   const [text, setText, clearText] = useLocalStorage(PREFIX + "_wf_t", "");
   const [image, setImage, clearImage] = useLocalStorage<string>(PREFIX + "_wf_i", "");
   const [imageName, setImageName, clearImageName] = useLocalStorage<string>(PREFIX + "_wf_in", "");
   const [video, setVideo, clearVideo] = useLocalStorage<string>(PREFIX + "_wf_v", "");
-  const [videoThumbnail, setVideoThumbnail, clearVideoThumbnail] = useLocalStorage<string>(PREFIX + "_wf_vt", "");
+  const [videoThumbnail, setVideoThumbnail, clearVideoThumbnail] = useLocalStorage<string>(
+    PREFIX + "_wf_vt",
+    ""
+  );
   const [showVideoUpload, setShowVideoUpload] = useState(false);
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -77,9 +80,7 @@ const WaveFormComponent = ({
   useEffect(() => {
     if (entry) {
       const body = entry.body ?? "";
-      let nextText = body
-        .replace(/<br\s*\/?>(\n)?/gi, "\n")
-        .replace(/<\/?p[^>]*>/gi, "");
+      let nextText = body.replace(/<br\s*\/?>(\n)?/gi, "\n").replace(/<\/?p[^>]*>/gi, "");
       const nextImage = entry.body.match(/\!\[.*\]\(.+\)/g)?.[0];
       if (nextImage) {
         setImage(
@@ -110,14 +111,6 @@ const WaveFormComponent = ({
     router.replace("/waves");
   }, [entry, router, searchParams, setText]);
 
-  const contextHost = wavesHostContext?.host;
-
-  useEffect(() => {
-    if (contextHost && contextHost !== threadHost) {
-      setThreadHost(contextHost);
-    }
-  }, [contextHost, setThreadHost, threadHost]);
-
   const clear = useCallback(() => {
     setText("");
     clearImage();
@@ -135,18 +128,8 @@ const WaveFormComponent = ({
   const formInteractivityDisabled = isAccountLoading || isPending;
 
   const submitDisabled = useMemo(
-    () =>
-      formInteractivityDisabled ||
-      !text ||
-      !threadHost ||
-      (isReply && exceedsCharacterLimit),
-    [
-      exceedsCharacterLimit,
-      formInteractivityDisabled,
-      isReply,
-      text,
-      threadHost
-    ]
+    () => formInteractivityDisabled || !text || !threadHost || (isReply && exceedsCharacterLimit),
+    [exceedsCharacterLimit, formInteractivityDisabled, isReply, text, threadHost]
   );
 
   const handleEmojiPick = useCallback(
@@ -242,10 +225,7 @@ const WaveFormComponent = ({
   return (
     <div ref={rootRef} className="wave-form relative flex items-start px-4 py-3 w-full">
       {!hideAvatar && activeUsername && (
-        <UserAvatar
-          username={activeUsername}
-          size={replySource ? "deck-item" : "medium"}
-        />
+        <UserAvatar username={activeUsername} size={replySource ? "deck-item" : "medium"} />
       )}
       <div className="pl-3 w-full">
         {replySource && (

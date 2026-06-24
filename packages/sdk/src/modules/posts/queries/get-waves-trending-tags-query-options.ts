@@ -7,21 +7,23 @@ interface WavesTrendingTagResponse {
   posts: number;
 }
 
-export function getWavesTrendingTagsQueryOptions(host: string, hours = 24) {
+export function getWavesTrendingTagsQueryOptions(host?: string, hours = 24) {
+  // Omit the container for combined trending tags across all containers.
+  const container = host?.trim() || undefined;
+
   return queryOptions({
-    queryKey: QueryKeys.posts.wavesTrendingTags(host, hours),
+    queryKey: QueryKeys.posts.wavesTrendingTags(container ?? "", hours),
     queryFn: async ({ signal }): Promise<WaveTrendingTag[]> => {
       try {
         const baseUrl = ConfigManager.getValidatedBaseUrl();
         const url = new URL("/private-api/waves/trending/tags", baseUrl);
-        url.searchParams.set("container", host);
+        if (container) {
+          url.searchParams.set("container", container);
+        }
         url.searchParams.set("hours", hours.toString());
 
         const response = await fetch(url.toString(), {
           method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
           signal,
         });
 

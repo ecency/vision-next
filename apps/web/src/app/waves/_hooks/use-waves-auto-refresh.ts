@@ -1,51 +1,15 @@
 import { useEffect, useState } from "react";
-import { getAccountPostsQueryOptions } from "@ecency/sdk";
-import { ProfileFilter } from "@/enums";
-import { Entry, WaveEntry } from "@/entities";
-import { getContentRepliesQueryOptions } from "@ecency/sdk";
+import { getWavesLatestFeedQueryOptions } from "@ecency/sdk";
+import { WaveEntry } from "@/entities";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { QueryClient, useQueryClient } from "@tanstack/react-query";
 
-async function fetchLatestWaves(host: string, queryClient: QueryClient) {
-  let containers = (
-    (await queryClient.fetchQuery(
-      getAccountPostsQueryOptions(host, ProfileFilter.posts, "", "", 1)
-    )) as WaveEntry[]
-  )?.map((c) => ({ ...c, id: c.post_id, host }));
-
-  if (!containers || containers.length === 0) {
-    return [] as WaveEntry[];
-  }
-
+async function fetchLatestWaves(queryClient: QueryClient) {
   const items = (await queryClient.fetchQuery(
-    getContentRepliesQueryOptions(host, containers[0].permlink)
-  )) as Entry[];
+    getWavesLatestFeedQueryOptions()
+  )) as WaveEntry[];
 
-  if (items.length === 0) {
-    return [] as WaveEntry[];
-  }
-
-  return items
-    .map(
-      (item) =>
-        ({
-          ...item,
-          id: item.post_id,
-          host,
-          container: containers[0],
-          parent: items.find(
-            (i) =>
-              i.author === item.parent_author &&
-              i.permlink === item.parent_permlink &&
-              i.author !== host
-          )
-        }) as WaveEntry
-    )
-    .filter((i) => i.container.post_id !== i.post_id)
-    .sort(
-      (a, b) =>
-        new Date(b.created).getTime() - new Date(a.created).getTime()
-    );
+  return items ?? [];
 }
 
 export function useWavesAutoRefresh(latest?: WaveEntry) {
@@ -64,7 +28,9 @@ export function useWavesAutoRefresh(latest?: WaveEntry) {
         return;
       }
 
-      const items = await fetchLatestWaves(latest.host, queryClient);
+      // Page one of the combined feed is the newest waves across every
+      // container; surface the ones newer than the top of the loaded feed.
+      const items = await fetchLatestWaves(queryClient);
       EcencyEntriesCacheManagement.updateEntryQueryData(items);
       const latestTime = new Date(latest.created).getTime();
       const fresh = items.filter(

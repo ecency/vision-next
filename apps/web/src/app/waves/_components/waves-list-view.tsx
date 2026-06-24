@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  getWavesByHostQueryOptions,
-  getWavesByTagQueryOptions,
-  getWavesFollowingQueryOptions,
-  QueryKeys
-} from "@ecency/sdk";
+import { getWavesFeedQueryOptions } from "@ecency/sdk";
 import { WavesListItem } from "@/app/waves/_components/waves-list-item";
 import { DetectBottom } from "@/features/shared";
 import { WavesListLoader } from "@/app/waves/_components/waves-list-loader";
@@ -29,25 +24,26 @@ import i18next from "i18next";
 import { sentry } from "@/core/sentry/lazy-sentry";
 
 interface Props {
-  host: string;
   feedType: WavesFeedType;
   username?: string;
 }
 
-export function WavesListView({ host, feedType, username }: Props) {
+export function WavesListView({ feedType, username }: Props) {
   const { selectedTag } = useWavesTagFilter();
   const tag = feedType === "for-you" ? selectedTag : null;
+  // All three feeds are now one combined, cross-container, keyset-paginated
+  // endpoint; tag and following are just filters on the same stream.
   const queryOptions = useMemo(() => {
     if (tag) {
-      return getWavesByTagQueryOptions(host, tag);
+      return getWavesFeedQueryOptions({ tag });
     }
 
     if (feedType === "following") {
-      return getWavesFollowingQueryOptions(host, username);
+      return getWavesFeedQueryOptions({ following: username });
     }
 
-    return getWavesByHostQueryOptions(host);
-  }, [feedType, host, tag, username]);
+    return getWavesFeedQueryOptions();
+  }, [feedType, tag, username]);
 
   const { data, fetchNextPage, isError, error, hasNextPage, refetch } = useInfiniteQuery(queryOptions);
   const previousErrorMessage = useRef<string | undefined>(undefined);
@@ -63,16 +59,15 @@ export function WavesListView({ host, feedType, username }: Props) {
       previousErrorMessage.current = message;
       // eslint-disable-next-line no-console
       console.error("[Waves] Failed to load feed", {
-        host,
         feedType,
         tag,
         message
       });
       sentry.captureException(error, {
-        extra: { host, feedType, tag }
+        extra: { feedType, tag }
       });
     }
-  }, [error, feedType, host, isError, tag]);
+  }, [error, feedType, isError, tag]);
   const { data: promoted } = useQuery({
     ...getPromotedPostsQuery<WaveEntry>("waves"),
     enabled: !tag
@@ -80,17 +75,9 @@ export function WavesListView({ host, feedType, username }: Props) {
   const dataFlow = useInfiniteDataFlow(data);
   const [grid] = useWavesGrid();
   const queryClient = useQueryClient();
-  const wavesQueryKey = useMemo(() => {
-    if (tag) {
-      return QueryKeys.posts.wavesByTag(host, tag);
-    }
-
-    if (feedType === "following") {
-      return QueryKeys.posts.wavesFollowing(host, username ?? "");
-    }
-
-    return QueryKeys.posts.wavesByHost(host);
-  }, [feedType, host, tag, username]);
+  // Reuse the query's own (normalized) key so the refresh-popup cache write
+  // always targets exactly what useInfiniteQuery reads, with no drift.
+  const wavesQueryKey = queryOptions.queryKey;
   const combinedDataFlow = useMemo(() => {
     if (!promoted || tag) {
       return dataFlow;
@@ -135,13 +122,11 @@ export function WavesListView({ host, feedType, username }: Props) {
     try {
       const parsed = JSON.parse(storedValue) as WavesFeedScrollState;
       const currentUrl = `${window.location.pathname}${window.location.search}`;
-      const hostMatches = !parsed.host || parsed.host === host;
       const feedMatches = !parsed.feedType || parsed.feedType === feedType;
       const gridMatches = !parsed.grid || parsed.grid === grid;
       const urlMatches = !parsed.url || parsed.url === currentUrl;
 
       if (
-        hostMatches &&
         gridMatches &&
         typeof parsed.scrollY === "number" &&
         urlMatches &&
@@ -154,7 +139,7 @@ export function WavesListView({ host, feedType, username }: Props) {
     } finally {
       sessionStorage.removeItem(WAVES_FEED_SCROLL_STORAGE_KEY);
     }
-  }, [feedType, grid, host]);
+  }, [feedType, grid]);
 
   useEffect(() => {
     if (pendingScroll === null) {
@@ -175,7 +160,9 @@ export function WavesListView({ host, feedType, username }: Props) {
     };
   }, [combinedDataFlow.length, pendingScroll]);
 
-  const shouldShowDetectBottom = feedType === "for-you" && !tag && hasNextPage;
+  // Every feed type now paginates via the keyset cursor, so infinite scroll
+  // is enabled across For You, Following and Tag (not just For You).
+  const shouldShowDetectBottom = hasNextPage;
 
   if (isError && combinedDataFlow.length === 0) {
     return (
@@ -220,7 +207,7 @@ export function WavesListView({ host, feedType, username }: Props) {
             }
 
             queryClient.setQueryData<
-              InfiniteData<WaveEntry[], WaveEntry | undefined>
+              InfiniteData<WaveEntry[], string | undefined>
             >(wavesQueryKey, (prev) => {
               if (!prev) {
                 return {
@@ -261,7 +248,6 @@ export function WavesListView({ host, feedType, username }: Props) {
           item={item}
           onExpandReplies={() => setReplyingEntry(item)}
           now={now}
-          currentHost={host}
           feedType={feedType}
         />
       ))}

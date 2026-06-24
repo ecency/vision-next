@@ -7,16 +7,18 @@ import i18next from "i18next";
 import { Button } from "@ui/button";
 import { Spinner } from "@ui/spinner";
 import clsx from "clsx";
-import { useWavesHost, useWavesTagFilter } from "@/app/waves/_context";
+import { useWavesTagFilter } from "@/app/waves/_context";
 
 const TRENDING_TAGS_LIMIT = 12;
 const TRENDING_TAGS_HOURS = 24;
 
 export function WavesTrendingTagsCard() {
-  const { host } = useWavesHost();
   const { selectedTag, setSelectedTag } = useWavesTagFilter();
 
-  const { data, isLoading, isError } = useQuery(getWavesTrendingTagsQueryOptions(host, TRENDING_TAGS_HOURS));
+  // Combined trending tags across all containers (matches the unified feed).
+  const { data, isLoading, isError } = useQuery(
+    getWavesTrendingTagsQueryOptions(undefined, TRENDING_TAGS_HOURS)
+  );
 
   // Pinned locale so SSR == client (avoids React #418 hydration mismatch).
   const numberFormatter = useMemo(() => new Intl.NumberFormat("en-US"), []);

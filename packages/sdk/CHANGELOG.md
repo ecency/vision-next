@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.23
+
+### Patch Changes
+
+- waves: single combined cross-container feed (#1004)
+
 ## 2.3.22
 
 ### Patch Changes

@@ -7,14 +7,13 @@ import { WavesCreateCard, WavesListView, WavesMasonryView } from "@/app/waves/_c
 import { useWavesGrid } from "@/app/waves/_hooks";
 import { Button } from "@ui/button";
 import i18next from "i18next";
-import { useWavesHost, useWavesTagFilter } from "@/app/waves/_context";
+import { useWavesTagFilter } from "@/app/waves/_context";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
 import clsx from "clsx";
 import { WavesFeedType } from "@/app/waves/_constants";
 
 export function WavesPage() {
-  const { host } = useWavesHost();
   const [grid, setGrid] = useWavesGrid();
   const { selectedTag, setSelectedTag } = useWavesTagFilter();
   const { activeUser } = useActiveAccount();
@@ -129,9 +128,9 @@ export function WavesPage() {
         </div>
       )}
       {grid === "feed" && (
-        <WavesListView host={host} feedType={feedType} username={activeUser?.username} />
+        <WavesListView feedType={feedType} username={activeUser?.username} />
       )}
-      {grid === "masonry" && !selectedTag && !isFollowing && <WavesMasonryView host={host} />}
+      {grid === "masonry" && !selectedTag && !isFollowing && <WavesMasonryView />}
     </>
   );
 }

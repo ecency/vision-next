@@ -17,7 +17,7 @@ import { getTailwindBreakpoint } from "@/core/tailwind";
 import { clsx } from "clsx";
 import { useWavesGrid } from "@/app/waves/_hooks";
 import "./common.scss";
-import { WavesHostProvider, WavesTagFilterProvider } from "@/app/waves/_context";
+import { WavesTagFilterProvider } from "@/app/waves/_context";
 import { usePathname } from "next/navigation";
 
 interface Props {
@@ -68,45 +68,43 @@ export default function WavesLayout(props: PropsWithChildren<Props>) {
   }, [pathname]);
 
   return (
-    <WavesHostProvider>
-      <WavesTagFilterProvider>
-        <div className="waves-page-layout bg-blue-duck-egg dark:bg-dark-700 min-h-[100vh]">
-          <Feedback />
-          <ScrollToTop />
-          <Navbar experimental={true} />
-          <div className="pt-16 pb-24 md:pt-[108px] md:pb-0 max-w-[1600px] md:px-6 lg:px-8 mx-auto grid grid-cols-12 gap-4 md:gap-6 xl:gap-8">
-            <div className="hidden md:col-span-4 xl:col-span-3 md:flex flex-col gap-4 xl:gap-8">
-              {isWaveDetails && waveAuthor ? (
-                <WaveAuthorCard username={waveAuthor} />
-              ) : (
-                <WavesProfileCard />
-              )}
-              <WavePromoteCard />
-              <ClientOnly>
-                {grid === "masonry" ||
-                  (width < getTailwindBreakpoint("xl") && (
-                    <>
-                      <WavesTrendingTagsCard />
-                      <WaveFollowsCard />
-                    </>
-                  ))}
-              </ClientOnly>
-            </div>
-            <div
-              className={clsx(
-                grid === "masonry" && "col-span-12 md:col-span-7 lg:col-span-8 xl:col-span-9",
-                grid === "feed" && "col-span-12 md:col-span-7 lg:col-span-8 xl:col-span-6"
-              )}
-            >
-              {props.children}
-            </div>
-            <div className="hidden xl:col-span-3 xl:flex flex-col gap-4 md:gap-6 xl:gap-8">
-              <WavesTrendingTagsCard />
-              <WaveFollowsCard />
-            </div>
+    <WavesTagFilterProvider>
+      <div className="waves-page-layout bg-blue-duck-egg dark:bg-dark-700 min-h-[100vh]">
+        <Feedback />
+        <ScrollToTop />
+        <Navbar experimental={true} />
+        <div className="pt-16 pb-24 md:pt-[108px] md:pb-0 max-w-[1600px] md:px-6 lg:px-8 mx-auto grid grid-cols-12 gap-4 md:gap-6 xl:gap-8">
+          <div className="hidden md:col-span-4 xl:col-span-3 md:flex flex-col gap-4 xl:gap-8">
+            {isWaveDetails && waveAuthor ? (
+              <WaveAuthorCard username={waveAuthor} />
+            ) : (
+              <WavesProfileCard />
+            )}
+            <WavePromoteCard />
+            <ClientOnly>
+              {grid === "masonry" ||
+                (width < getTailwindBreakpoint("xl") && (
+                  <>
+                    <WavesTrendingTagsCard />
+                    <WaveFollowsCard />
+                  </>
+                ))}
+            </ClientOnly>
+          </div>
+          <div
+            className={clsx(
+              grid === "masonry" && "col-span-12 md:col-span-7 lg:col-span-8 xl:col-span-9",
+              grid === "feed" && "col-span-12 md:col-span-7 lg:col-span-8 xl:col-span-6"
+            )}
+          >
+            {props.children}
+          </div>
+          <div className="hidden xl:col-span-3 xl:flex flex-col gap-4 md:gap-6 xl:gap-8">
+            <WavesTrendingTagsCard />
+            <WaveFollowsCard />
           </div>
         </div>
-      </WavesTagFilterProvider>
-    </WavesHostProvider>
+      </div>
+    </WavesTagFilterProvider>
   );
 }
