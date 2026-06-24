@@ -32,6 +32,7 @@ import { ProfileInfo } from "../profile-info";
 import { ResourceCreditsInfo } from "../rc-info";
 import "./_index.scss";
 import { ProfileCardExtraProperty } from "./profile-card-extra-property";
+import { profileWebsiteHref } from "./website-href";
 import { FinalizeCommunityBanner } from "../finalize-community-banner";
 import { useActiveAccount } from "@/core/hooks";
 
@@ -49,6 +50,12 @@ export function ProfileCard({ account }: Props) {
 
   // Use the account prop directly instead of re-fetching (already prefetched by layout)
   const data = account;
+  // Profile `website` is free-text; only link it when it forms a valid URL,
+  // otherwise Next.js <Link> throws while prefetching (ECENCY-NEXT-1GE5).
+  const websiteHref = useMemo(
+    () => profileWebsiteHref(data?.profile?.website),
+    [data?.profile?.website]
+  );
   const { data: rcData } = useQuery(getAccountRcQueryOptions(account.name));
   const { data: relationshipBetweenAccounts } = useQuery({
     ...getRelationshipBetweenAccountsQueryOptions(account?.name, activeUsername ?? undefined),
@@ -171,37 +178,25 @@ export function ProfileCard({ account }: Props) {
           </ProfileCardExtraProperty>
         )}
 
-        {(() => {
-          const rawWebsite = data?.profile?.website;
-          if (!rawWebsite) return null;
-          const href = `https://${rawWebsite.replace(/^(https?|ftp):\/\//, "")}`;
-          let validUrl: string | null = null;
-          try {
-            new URL(href);
-            validUrl = href;
-          } catch {
-            // invalid URL – skip rendering as a link
-          }
-          return (
-            <ProfileCardExtraProperty
-              icon={<UilGlobe className="w-5 h-5" />}
-              label={i18next.t("profile-edit.website")}
-            >
-              {validUrl ? (
-                <Link
-                  target="_external"
-                  rel="nofollow ugc noopener"
-                  className="break-all"
-                  href={validUrl}
-                >
-                  {rawWebsite}
-                </Link>
-              ) : (
-                <span className="break-all">{rawWebsite}</span>
-              )}
-            </ProfileCardExtraProperty>
-          );
-        })()}
+        {data?.profile?.website && (
+          <ProfileCardExtraProperty
+            icon={<UilGlobe className="w-5 h-5" />}
+            label={i18next.t("profile-edit.website")}
+          >
+            {websiteHref ? (
+              <Link
+                target="_external"
+                rel="nofollow ugc noopener"
+                className="break-all"
+                href={websiteHref}
+              >
+                {data?.profile?.website}
+              </Link>
+            ) : (
+              <span className="break-all">{data?.profile?.website}</span>
+            )}
+          </ProfileCardExtraProperty>
+        )}
 
         {data?.created && (
           <ProfileCardExtraProperty
