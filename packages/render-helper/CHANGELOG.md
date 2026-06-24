@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.5.14
+
+### Patch Changes
+
+- Liketu Speak: audio player, footer cleanup, indexability (#1005)
+
 ## 2.5.13
 
 ### Patch Changes
