@@ -3060,6 +3060,7 @@
     "not-available": "This wave is no longer available",
     "not-available-hint": "It may have been deleted by its author.",
     "back-to-waves": "Back to Waves"
+    "source-ecency": "Published via Ecency"
   },
   "events": {
     "muted": "User is muted",

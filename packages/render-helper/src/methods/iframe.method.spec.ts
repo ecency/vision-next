@@ -836,7 +836,9 @@ describe('iframe() method - Iframe Sanitization', () => {
   })
 
   describe('Skatehive IPFS Iframes', () => {
-    it('should allow Skatehive IPFS embed', () => {
+    // The gateway serves a raw mp4, so an <iframe> would become an autoplaying
+    // media document. We render a controlled <video> with no autoplay instead.
+    it('should convert a Skatehive IPFS embed into a controlled <video> (no autoplay)', () => {
       const parent = doc.createElement('div')
       const el = doc.createElement('iframe')
       el.setAttribute('src', 'https://ipfs.skatehive.app/ipfs/QmHash123')
@@ -844,8 +846,15 @@ describe('iframe() method - Iframe Sanitization', () => {
 
       iframe(el)
 
-      expect(hasChildWithTag(parent, 'iframe')).toBe(true)
-      expect(el.getAttribute('allowfullscreen')).toBe('true')
+      // iframe is replaced by a <video>
+      expect(hasChildWithTag(parent, 'iframe')).toBe(false)
+      expect(hasChildWithTag(parent, 'video')).toBe(true)
+
+      const video = findChildWithTag(parent, 'video')
+      expect(video.getAttribute('src')).toBe('https://ipfs.skatehive.app/ipfs/QmHash123')
+      expect(video.getAttribute('controls')).toBe('')
+      // critical: never autoplays
+      expect(video.getAttribute('autoplay')).toBeNull()
     })
   })
 
