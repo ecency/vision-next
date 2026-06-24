@@ -17,7 +17,7 @@ export function EntryPayoutDetail({ entry }: Props) {
 
   const payoutDate = dateToFullRelative(entry.payout_at);
 
-  const beneficiary = entry.beneficiaries;
+  const beneficiary = entry.beneficiaries ?? [];
   const pendingPayout = parseAsset(entry.pending_payout_value).amount;
   const authorPayout = parseAsset(entry.author_payout_value).amount;
   const curatorPayout = parseAsset(entry.curator_payout_value).amount;
