@@ -137,13 +137,21 @@ export const QueryKeys = {
     trendingTagsWithStats: (limit: number) =>
       ["posts", "trending-tags", "stats", limit],
     wavesFeed: (
-      params: { containers?: string[]; tag?: string; following?: string } = {}
+      params: {
+        containers?: string[];
+        tag?: string;
+        following?: string;
+        author?: string;
+        observer?: string;
+      } = {}
     ) => [
       "posts",
       "waves",
       "feed",
       params.tag ?? "",
       params.following ?? "",
+      params.author ?? "",
+      params.observer ?? "",
       [...(params.containers ?? [])].sort().join(",")
     ],
     wavesByHost: (host: string) =>
