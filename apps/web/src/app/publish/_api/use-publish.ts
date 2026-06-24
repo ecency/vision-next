@@ -1,6 +1,11 @@
 import { validatePostCreating } from "@ecency/sdk";
 import { enforceThreeSpeakBeneficiary } from "@/api/threespeak-embed";
 import { linkThreeSpeakEmbed } from "@/api/threespeak-embed/link-after-broadcast";
+import {
+  DECENTMEMES_FRONTEND,
+  enforceDecentMemesBeneficiary,
+  ensureDecentMemesTag
+} from "@/api/decentmemes";
 import { useCommentMutation, useReblogMutation } from "@/api/sdk-mutations";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { getQueryClient } from "@/core/react-query";
@@ -40,7 +45,8 @@ export function usePublishApi() {
     isReblogToCommunity,
     poll,
     postLinks,
-    location
+    location,
+    decentMemes
   } = usePublishState();
 
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
@@ -116,6 +122,10 @@ export function usePublishApi() {
 
       const [parentPermlink] = tags!;
 
+      // DecentMemes: a meme was added when at least one template id was collected.
+      const hasMeme = !!decentMemes && decentMemes.templateIds.length > 0;
+      const finalTags = hasMeme ? ensureDecentMemesTag(tags ?? []) : tags;
+
       const metaBuilder = await EntryMetadataManagement.EntryMetadataManager.shared
         .builder()
         .default()
@@ -124,15 +134,30 @@ export function usePublishApi() {
         .withSummary(
           metaDescription || postBodySummary(cleanBody, SUBMIT_DESCRIPTION_MAX_LENGTH)
         )
-        .withTags(tags)
+        .withTags(finalTags)
         .withPostLinks(postLinks)
         .withLocation(location)
         .withSelectedThumbnail(selectedThumbnail);
       const jsonMeta = metaBuilder
         .withPoll(poll)
+        .withDecentMemes(
+          hasMeme
+            ? { templateIds: decentMemes!.templateIds, frontend: DECENTMEMES_FRONTEND }
+            : undefined
+        )
         .build();
 
-      const finalBeneficiaries = enforceThreeSpeakBeneficiary(beneficiaries, cleanBody);
+      let finalBeneficiaries = enforceThreeSpeakBeneficiary(beneficiaries, cleanBody);
+      if (hasMeme) {
+        // Merge the widget-supplied meme beneficiaries on our own terms: never
+        // trust its numbers - cap to Hive's 8-slot / 100% limits and keep the
+        // user's own beneficiaries intact.
+        finalBeneficiaries = enforceDecentMemesBeneficiary(
+          finalBeneficiaries,
+          decentMemes!.beneficiaries,
+          author
+        ).beneficiaries;
+      }
 
       const options = makeCommentOptions(author, permlink, reward as RewardType, finalBeneficiaries);
 

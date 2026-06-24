@@ -68,6 +68,9 @@ interface PublishStateContextValue {
   skipAutoThumbnailSelection: boolean;
   clearSelectedThumbnail: () => void;
   hasThreeSpeakVideo: boolean;
+  decentMemes: { templateIds: string[]; beneficiaries: BeneficiaryRoute[] } | null;
+  addDecentMemesResult: (result: { templateId: string; beneficiaries: BeneficiaryRoute[] }) => void;
+  clearDecentMemes: () => void;
 }
 
 const PublishStateContext = createContext<PublishStateContextValue | undefined>(undefined);
@@ -94,6 +97,38 @@ export function PublishStateProvider({ children }: { children: React.ReactNode }
   >(undefined);
   const hasThreeSpeakVideo = useMemo(() => hasThreeSpeakEmbed(content), [content]);
   const [poll, setPoll] = usePublishPollState(false);
+  const [decentMemes, setDecentMemes] = useState<{
+    templateIds: string[];
+    beneficiaries: BeneficiaryRoute[];
+  } | null>(null);
+
+  const clearDecentMemes = useCallback(() => setDecentMemes(null), []);
+
+  // Accumulate every meme added to the post: collect unique template ids and
+  // sum the widget-supplied beneficiary weights per account. Final capping
+  // against Hive limits happens at publish time (enforceDecentMemesBeneficiary).
+  const addDecentMemesResult = useCallback(
+    (result: { templateId: string; beneficiaries: BeneficiaryRoute[] }) => {
+      setDecentMemes((prev) => {
+        const templateIds = Array.from(
+          new Set([...(prev?.templateIds ?? []), result.templateId].filter(Boolean))
+        );
+        const byAccount = new Map<string, number>();
+        [...(prev?.beneficiaries ?? []), ...result.beneficiaries].forEach((b) => {
+          if (!b?.account || !(b.weight > 0)) {
+            return;
+          }
+          byAccount.set(b.account, (byAccount.get(b.account) ?? 0) + b.weight);
+        });
+        const beneficiaries = Array.from(byAccount.entries()).map(([account, weight]) => ({
+          account,
+          weight
+        }));
+        return { templateIds, beneficiaries };
+      });
+    },
+    []
+  );
 
   const clearSchedule = useCallback(() => setSchedule(undefined), []);
   const clearSelectedThumbnail = useCallback(() => setSelectedThumbnail(""), []);
@@ -212,6 +247,7 @@ export function PublishStateProvider({ children }: { children: React.ReactNode }
     clearPostLinks();
     clearEntryImages();
     clearLocation();
+    clearDecentMemes();
     setIsReblogToCommunity(false);
   }, [
     setBeneficiaries,
@@ -227,6 +263,7 @@ export function PublishStateProvider({ children }: { children: React.ReactNode }
     clearPostLinks,
     clearEntryImages,
     clearLocation,
+    clearDecentMemes,
     setIsReblogToCommunity
   ]);
 
@@ -265,7 +302,10 @@ export function PublishStateProvider({ children }: { children: React.ReactNode }
         clearLocation,
         skipAutoThumbnailSelection,
         clearSelectedThumbnail: _clearSelectedThumbnail,
-        hasThreeSpeakVideo
+        hasThreeSpeakVideo,
+        decentMemes,
+        addDecentMemesResult,
+        clearDecentMemes
       }}
     >
       {children}

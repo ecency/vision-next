@@ -432,6 +432,8 @@ const config = {
                 "https://platform.twitter.com https://challenges.cloudflare.com",
                 "https://www.tradingview-widget.com https://s.tradingview.com",
                 "https://www.google.com",
+                // DecentMemes meme-maker widget (embedded in the publish composer):
+                "https://decentmemes.com",
                 // Stripe.js (card payments): Payment Element + 3DS challenge frames
                 // (js.stripe.com + per-origin subdomains, hooks) and Radar fingerprinting:
                 "https://js.stripe.com https://*.js.stripe.com https://hooks.stripe.com https://m.stripe.network"
