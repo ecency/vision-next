@@ -1,6 +1,7 @@
 import { BeneficiaryRoute } from "@/entities";
 import {
   aggregateMemeBeneficiaries,
+  DECENTMEMES_COMMENT_MAX_WEIGHT,
   DECENTMEMES_POST_MAX_WEIGHT,
   enforceDecentMemesBeneficiary,
   ensureDecentMemesTag,
@@ -92,6 +93,33 @@ describe("DecentMemes beneficiaries", () => {
         [{ account: "alice", weight: 9000 }]
       );
       expect(totalWeight(beneficiaries)).toBeLessThanOrEqual(DECENTMEMES_POST_MAX_WEIGHT);
+      expect(dropped).toBe(true);
+    });
+
+    it("caps at the 30% comment maximum when given the comment limit", () => {
+      const { beneficiaries, dropped } = enforceDecentMemesBeneficiary(
+        [],
+        [
+          { account: "alice", weight: 500 },
+          { account: "bob", weight: 1000 },
+          { account: "ecency", weight: 100 }
+        ],
+        undefined,
+        DECENTMEMES_COMMENT_MAX_WEIGHT
+      );
+      // 1600 total is under the 3000 comment cap, so nothing is scaled/dropped.
+      expect(totalWeight(beneficiaries)).toBe(1600);
+      expect(dropped).toBe(false);
+    });
+
+    it("scales a comment meme set down to the 30% cap when it exceeds it", () => {
+      const { beneficiaries, dropped } = enforceDecentMemesBeneficiary(
+        [],
+        [{ account: "alice", weight: 9000 }],
+        undefined,
+        DECENTMEMES_COMMENT_MAX_WEIGHT
+      );
+      expect(totalWeight(beneficiaries)).toBeLessThanOrEqual(DECENTMEMES_COMMENT_MAX_WEIGHT);
       expect(dropped).toBe(true);
     });
 

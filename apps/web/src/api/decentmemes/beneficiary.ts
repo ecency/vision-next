@@ -18,6 +18,12 @@ export const HIVE_MAX_TOTAL_WEIGHT = 10000;
 export const DECENTMEMES_POST_MAX_WEIGHT = 1000;
 
 /**
+ * On a comment / Wave the widget spec allows a larger total (creator 5% +
+ * submitter 10% + 1% frontend), capped at 30% (3000 basis points).
+ */
+export const DECENTMEMES_COMMENT_MAX_WEIGHT = 3000;
+
+/**
  * Lightweight Hive account-name check (defense-in-depth - the widget is the
  * primary authority for who its templates pay). Mirrors the pattern used
  * elsewhere in the app: starts with a letter, 3-16 chars, lowercase letters /
@@ -91,12 +97,13 @@ export interface EnforceResult {
 export function enforceDecentMemesBeneficiary(
   existing: BeneficiaryRoute[] = [],
   memeBeneficiaries: { account?: string; weight?: number }[] = [],
-  author?: string
+  author?: string,
+  maxMemeWeight: number = DECENTMEMES_POST_MAX_WEIGHT
 ): EnforceResult {
   let dropped = false;
 
   // 1. Clean the widget input (invalid account names / weights are dropped) and
-  //    cap the meme contribution to the post max (10%).
+  //    cap the meme contribution to the per-context maximum (10% post / 30% comment).
   let meme = aggregateMemeBeneficiaries(memeBeneficiaries);
   if (author) {
     // Hive rejects any comment_options where a beneficiary equals the author,
@@ -104,7 +111,7 @@ export function enforceDecentMemesBeneficiary(
     // failing the whole broadcast.
     meme = meme.filter((b) => b.account !== author);
   }
-  const postCapped = scaleToCap(meme, DECENTMEMES_POST_MAX_WEIGHT);
+  const postCapped = scaleToCap(meme, maxMemeWeight);
   if (totalWeight(postCapped) < totalWeight(meme)) {
     dropped = true;
   }

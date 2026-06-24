@@ -1,6 +1,6 @@
 "use client";
 
-import { Entry, WaveEntry } from "@/entities";
+import { BeneficiaryRoute, Entry, WaveEntry } from "@/entities";
 import { useWaveCreate } from "@/features/waves/components/wave-form/api";
 import { useWaveCreateReply } from "@/features/waves/components/wave-form/api/use-wave-create-reply";
 import { useLocalStorage } from "react-use";
@@ -20,6 +20,7 @@ interface Body {
   video: string;
   videoThumbnail: string;
   host: string;
+  decentMemes?: { templateIds: string[]; beneficiaries: BeneficiaryRoute[] };
 }
 
 export function useWaveSubmit(
@@ -40,7 +41,15 @@ export function useWaveSubmit(
 
   return useMutation({
     mutationKey: ["wave-form-submit", username, replySource, editingEntry],
-    mutationFn: async ({ text, image, imageName, video, videoThumbnail, host }: Body) => {
+    mutationFn: async ({
+      text,
+      image,
+      imageName,
+      video,
+      videoThumbnail,
+      host,
+      decentMemes
+    }: Body) => {
       // Check if user is logged in
       if (!username) {
         toggleUIProp("login");
@@ -111,7 +120,8 @@ export function useWaveSubmit(
           host,
           raw: content,
           editingEntry,
-          videoThumbnail: videoThumbnail || undefined
+          videoThumbnail: videoThumbnail || undefined,
+          decentMemes
         });
         threadItem = created.entry;
         // For a NEW wave, reflect the container create() actually resolved

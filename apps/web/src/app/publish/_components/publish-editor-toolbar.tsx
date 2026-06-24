@@ -116,9 +116,9 @@ const AiAssistDialog = dynamic(
 
 // Code-split the meme maker (iframe + postMessage bridge) so it adds nothing to
 // the initial editor bundle - it only loads when the user clicks the button.
-const PublishMemeMakerDialog = dynamic(
-  () => import("./publish-meme-maker-dialog").then((m) => ({
-    default: m.PublishMemeMakerDialog
+const MemeMakerDialog = dynamic(
+  () => import("@/features/decentmemes").then((m) => ({
+    default: m.MemeMakerDialog
   })),
   { ssr: false }
 );
@@ -778,7 +778,7 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
           />
         )}
         {showMemeMaker && (
-          <PublishMemeMakerDialog
+          <MemeMakerDialog
             show={showMemeMaker}
             setShow={setShowMemeMaker}
             onMemeCreated={({ url, alt, templateId, beneficiaries }) => {

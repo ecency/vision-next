@@ -42,7 +42,14 @@ function resolveWidgetTheme(theme: Theme): "light" | "dark" {
   return "light";
 }
 
-export function PublishMemeMakerDialog({ show, setShow, onMemeCreated }: Props) {
+/**
+ * Shared DecentMemes meme-maker dialog. Embeds the third-party widget as a
+ * code-split iframe, talks to it over postMessage (strict origin check), and on
+ * "Add to post" re-uploads the returned PNG through Ecency's own image pipeline
+ * before handing the hosted URL + template + beneficiaries back to the caller.
+ * Used by both the long-form publish composer and the Waves composer.
+ */
+export function MemeMakerDialog({ show, setShow, onMemeCreated }: Props) {
   const theme = useGlobalStore((s) => s.theme);
   const widgetTheme = resolveWidgetTheme(theme);
 
