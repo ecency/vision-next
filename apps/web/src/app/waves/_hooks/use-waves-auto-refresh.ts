@@ -25,6 +25,11 @@ export function useWavesAutoRefresh(latest?: WaveEntry, observer?: string) {
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
+    // clearTimeout only cancels the next scheduled poll; a fetch already in
+    // flight when observer/latest changes can still resolve afterwards. This
+    // flag makes its continuation a no-op so it can't repopulate the popup with
+    // stale-observer (e.g. now-muted) waves.
+    let cancelled = false;
 
     async function check() {
       setNow(Date.now());
@@ -37,6 +42,9 @@ export function useWavesAutoRefresh(latest?: WaveEntry, observer?: string) {
       // Page one of the combined feed is the newest waves across every
       // container; surface the ones newer than the top of the loaded feed.
       const items = await fetchLatestWaves(queryClient, observer);
+      if (cancelled) {
+        return;
+      }
       EcencyEntriesCacheManagement.updateEntryQueryData(items);
       const latestTime = new Date(latest.created).getTime();
       const fresh = items.filter(
@@ -52,7 +60,10 @@ export function useWavesAutoRefresh(latest?: WaveEntry, observer?: string) {
 
     check();
 
-    return () => clearTimeout(timer);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, [latest, observer, queryClient]);
 
   return { newWaves, clear: () => setNewWaves([]), now };
