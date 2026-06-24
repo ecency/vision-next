@@ -44,8 +44,10 @@ const WaveFormComponent = ({
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const { clearActivePoll, setActivePoll } = useContext(PollsContext);
 
-  // Waves always publish to the Ecency waves container, even though the feed is
-  // unified across containers.
+  // Waves always publish to an Ecency-owned waves container (never third-party
+  // containers), even though the feed is unified across all of them. This is the
+  // requested host; use-wave-create resolves the real container at submit time,
+  // preferring hive.flow over ecency.waves (see ECENCY_WAVES_HOSTS).
   const [threadHost] = useLocalStorage(PREFIX + "_wf_th", "ecency.waves");
   const [text, setText, clearText] = useLocalStorage(PREFIX + "_wf_t", "");
   const [image, setImage, clearImage] = useLocalStorage<string>(PREFIX + "_wf_i", "");

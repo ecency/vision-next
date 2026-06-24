@@ -103,19 +103,22 @@ export function useWaveSubmit(
           editingEntry: editingEntry,
           videoThumbnail: videoThumbnail || undefined
         })) as WaveEntry;
+        if (host) {
+          threadItem.host = host;
+        }
       } else {
-        const { entry } = await create({
+        const created = await create({
           host,
           raw: content,
           editingEntry,
           videoThumbnail: videoThumbnail || undefined
         });
-        threadItem = entry;
+        threadItem = created.entry;
+        // create() resolves the actual container (hive.flow vs ecency.waves);
+        // reflect that on the item rather than the requested host.
+        threadItem.host = created.host ?? host;
       }
 
-      if (host) {
-        threadItem.host = host;
-      }
       threadItem.id = threadItem.post_id;
 
       return threadItem;
