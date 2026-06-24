@@ -3056,7 +3056,8 @@
     "replying": "Replying...",
     "success-reply": "You have replied successfully",
     "success-reply-edit": "You have edited successfully",
-    "muted-post": "Muted author's post"
+    "muted-post": "Muted author's post",
+    "source-ecency": "Published via Ecency"
   },
   "events": {
     "muted": "User is muted",

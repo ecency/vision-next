@@ -10,6 +10,8 @@ import { UilArrowRight, UilMultiply } from "@tooni/iconscout-unicons-react";
 import { TimeLabel } from "@/features/shared";
 import clsx from "clsx";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { appName } from "@/utils";
+import Image from "next/image";
 
 interface Props {
   entry: WaveEntry;
@@ -35,6 +37,10 @@ export function WavesListItemHeader({
   onClose
 }: Props) {
   const { activeUser } = useActiveAccount();
+
+  // Show a small Ecency logo when the wave was published from an Ecency client
+  // (web "ecency/x.y-vision" or "ecency-mobile"), mirroring the post "via" badge.
+  const isEcency = appName(entry.json_metadata?.app).toLowerCase().includes("ecency");
 
   return (
     <div
@@ -74,33 +80,45 @@ export function WavesListItemHeader({
         </div>
       </div>
 
-      {onClose ? (
-        <Button
-          noPadding={true}
-          appearance="gray-link"
-          size="sm"
-          icon={<UilMultiply />}
-          onClick={(e: { stopPropagation: () => void; }) => {
-            e.stopPropagation();
-            onClose();
-          }}
-          aria-label={i18next.t("g.close")}
-          title={i18next.t("g.close")}
-        />
-      ) : (
-        status === "default" &&
-        interactable && (
+      <div className="flex items-center gap-2 shrink-0">
+        {isEcency && (
+          <Image
+            className="ecency-source-badge"
+            src="/assets/logo-circle.svg"
+            alt={i18next.t("waves.source-ecency")}
+            title={i18next.t("waves.source-ecency")}
+            width={16}
+            height={16}
+          />
+        )}
+        {onClose ? (
           <Button
             noPadding={true}
             appearance="gray-link"
-            icon={<UilArrowRight />}
-            iconPlacement="right"
             size="sm"
-            aria-label={i18next.t("waves.view-thread", { defaultValue: "View thread" })}
+            icon={<UilMultiply />}
+            onClick={(e: { stopPropagation: () => void; }) => {
+              e.stopPropagation();
+              onClose();
+            }}
+            aria-label={i18next.t("g.close")}
+            title={i18next.t("g.close")}
           />
-        )
-      )}
-      {status === "pending" && <Spinner className="w-4 h-4" />}
+        ) : (
+          status === "default" &&
+          interactable && (
+            <Button
+              noPadding={true}
+              appearance="gray-link"
+              icon={<UilArrowRight />}
+              iconPlacement="right"
+              size="sm"
+              aria-label={i18next.t("waves.view-thread", { defaultValue: "View thread" })}
+            />
+          )
+        )}
+        {status === "pending" && <Spinner className="w-4 h-4" />}
+      </div>
     </div>
   );
 }
