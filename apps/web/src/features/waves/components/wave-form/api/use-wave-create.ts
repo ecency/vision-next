@@ -56,15 +56,32 @@ export function useWaveCreate() {
         return;
       }
 
-      const prependToFirstPage = (data?: InfiniteData<WaveEntry[]>) =>
-        data
-          ? {
-              ...data,
-              pages: data.pages.map((page, index) =>
-                index === 0 ? [entry, ...page] : page
-              )
-            }
-          : data;
+      const prependToFirstPage = (data?: InfiniteData<WaveEntry[]>) => {
+        if (!data) {
+          return data;
+        }
+
+        // Skip if the wave is already in the cache (e.g. the 60s auto-refresh
+        // poll already rewrote page 0), so we never render it twice. A wave is
+        // uniquely identified by author + permlink (entry.id is not reliable).
+        const alreadyPresent = data.pages.some((page) =>
+          page.some(
+            (existing) =>
+              existing.author === entry.author && existing.permlink === entry.permlink
+          )
+        );
+
+        if (alreadyPresent) {
+          return data;
+        }
+
+        return {
+          ...data,
+          pages: data.pages.map((page, index) =>
+            index === 0 ? [entry, ...page] : page
+          )
+        };
+      };
 
       // The live Waves list is now the combined cross-container feed; show the
       // new wave at the top of it immediately.

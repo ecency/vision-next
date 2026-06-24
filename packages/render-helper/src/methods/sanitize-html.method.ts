@@ -66,9 +66,14 @@ export function sanitizeHtml(html: string): string {
       if (tag === 'source' && name === 'srcset' && !isProxyPSrcset(decoded)) return '';
       if (tag === 'source' && name === 'type' && decodedLower !== 'image/avif' && decodedLower !== 'image/webp') return '';
       if (
-        tag === 'video' && ['src', 'poster'].includes(name) &&
+        (tag === 'video' || tag === 'audio') && ['src', 'poster'].includes(name) &&
         !/^https?:\/\//.test(decodedLower)
       ) return '';
+      // Clamp audio preload to a lightweight hint: our player emits
+      // preload="metadata", and an author-supplied preload="auto" on untrusted
+      // posts would eagerly fetch large third-party audio before any click.
+      if (tag === 'audio' && name === 'preload' &&
+        decodedLower !== 'metadata' && decodedLower !== 'none') return '';
       if (tag === 'img' && ['dynsrc', 'lowsrc'].includes(name)) return '';
       if (tag === 'span' && name === 'class' && decoded.toLowerCase().trim() === 'wr') return '';
       // iframe-src data-* attrs: must resolve to an https:// allowed-embed-host

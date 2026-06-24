@@ -15,6 +15,7 @@ import {
   CCC_REGEX,
   SPEAK_REGEX,
   SPEAK_AUDIO_REGEX,
+  LIKETU_AUDIO_REGEX,
   TWITCH_REGEX,
   TWITTER_REGEX,
   VIMEO_REGEX,
@@ -875,6 +876,23 @@ export function a(el: HTMLElement | null, forApp: boolean, parentDomain: string 
     ifr.setAttribute('src', finalSrc)
     ifr.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups')
     el.appendChild(ifr)
+
+    return
+  }
+
+  // Detect Liketu Speak voice posts: render the cdn.liketu.com audio file as a
+  // native player. The link text is descriptive ("Listen to the original
+  // voice"), so match on the href only, not textContent.
+  if (href.match(LIKETU_AUDIO_REGEX)) {
+    el.setAttribute('class', 'markdown-audio-link markdown-audio-link-liketu')
+    el.removeAttribute('href')
+    el.textContent = ''
+
+    const audio = el.ownerDocument.createElement('audio')
+    audio.setAttribute('controls', '')
+    audio.setAttribute('preload', 'metadata')
+    audio.setAttribute('src', href)
+    el.appendChild(audio)
 
     return
   }

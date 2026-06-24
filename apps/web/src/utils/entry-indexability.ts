@@ -25,6 +25,7 @@ export const CONTAINER_ACCOUNTS = new Set<string>([
   "ecency.waves",
   "peak.snaps",
   "liketu.moments",
+  "liketu.speak",
   "hive.flow",
 ]);
 

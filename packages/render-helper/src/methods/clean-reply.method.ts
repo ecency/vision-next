@@ -24,6 +24,12 @@ export function cleanReply(s: string): string {
     .filter(item => item.toLowerCase().includes('▶️ [watch on 3speak](https://3speak') === false)
     .filter(item => item.toLowerCase().includes('<sup><sub>posted via [inji.com]') === false)
     .filter(item => item.toLowerCase().includes('view this post on [liketu]') === false)
+    .filter(item => {
+      // Match the actual Liketu Speak boilerplate footer (both distinctive
+      // parts) so a legitimate reply that merely mentions the phrase survives.
+      const l = item.toLowerCase();
+      return !(l.includes('posted from liketu speak') && l.includes('auto-transcrib'));
+    })
     .filter(item => item.toLowerCase().includes('[via Inbox]') === false)
     .filter(item => item.toLowerCase().includes('<sub>[via apps from](') === false)
     .join('\n') : '')

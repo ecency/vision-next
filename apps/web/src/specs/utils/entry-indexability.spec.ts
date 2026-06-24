@@ -245,8 +245,15 @@ describe("isContainerTree", () => {
       isContainerTree(makeEntry({ depth: 1, parent_author: "ecency.waves" }))
     ).toBe(true);
   });
-  it("all five container accounts recognised", () => {
-    for (const a of ["leothreads", "ecency.waves", "peak.snaps", "liketu.moments", "hive.flow"]) {
+  it("all six container accounts recognised", () => {
+    for (const a of [
+      "leothreads",
+      "ecency.waves",
+      "peak.snaps",
+      "liketu.moments",
+      "liketu.speak",
+      "hive.flow"
+    ]) {
       expect(CONTAINER_ACCOUNTS.has(a)).toBe(true);
     }
   });
