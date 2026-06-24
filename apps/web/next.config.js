@@ -12,14 +12,21 @@ const withPWA = require("next-pwa")({
   // runtime against freshly-cached chunks.
   skipWaiting: true,
   clientsClaim: true,
-  // Never precache source maps. We upload them to Sentry and then delete them
-  // from the build output (deleteSourcemapsAfterUpload), so the .map URLs 404 in
-  // production. Workbox's precacheAndRoute fetches every precache entry during
-  // SW install and rejects the whole install on any non-OK response — so a SW
-  // that precached the (now-missing) .map files could never install/update,
-  // stranding users on a stale cache that served mismatched chunks ("Element
-  // type is invalid: undefined" → persistent 500).
-  buildExcludes: [/\.map$/],
+  // Every entry below is fetched during SW install, and Workbox rejects the
+  // WHOLE install on any non-200 (or redirected) response — so the new SW never
+  // activates and returning users stay pinned to their old cached build,
+  // regardless of how many times we deploy. Three families are not cleanly
+  // servable in production and must be kept out of the precache:
+  //   - *.map → uploaded to Sentry then deleted from the build output, so the
+  //     .map URLs 404.
+  //   - app-build-manifest.json → a build-time manifest Next.js does not serve
+  //     under /_next in production, so it 404s.
+  //   - dynamic-route chunks under chunks/app/**/[seg]/** → their bracketed
+  //     filenames are percent-encoded in the manifest (%5B…%5D) and the server
+  //     307-redirects the encoded URL to the decoded path; cache.put() throws on
+  //     a redirected response, which also fails the install. Match the literal
+  //     "[" and the encoded "%5B" so it holds whichever form the manifest uses.
+  buildExcludes: [/\.map$/, /app-build-manifest\.json$/, /(\[|%5B)/],
   // Keep the ~1.6MB geo-tag cities dataset OUT of the install-time precache so
   // it isn't eagerly downloaded for every user — it's fetched on demand when
   // the geo-tag dialog opens and runtime-cached (see /geo rule below).
