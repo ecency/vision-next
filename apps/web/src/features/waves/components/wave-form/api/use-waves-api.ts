@@ -3,6 +3,7 @@ import { useContext } from "react";
 import { PollsContext } from "@/features/polls";
 import { Entry, FullAccount, WaveEntry } from "@/entities";
 import { createReplyPermlink, createWavePermlink, tempEntry } from "@/utils";
+import { isEcencyWavesHost } from "@/features/waves/enums/wave-hosts";
 import { EntryMetadataManagement } from "@/features/entry-management";
 import { useCommentMutation } from "@/api/sdk-mutations";
 import type { CommentPayload } from "@ecency/sdk";
@@ -10,7 +11,11 @@ import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { validatePostCreating } from "@ecency/sdk";
 import { getQueryClient } from "@/core/react-query";
-import { getAccountFullQueryOptions, getDiscussionsQueryOptions, SortOrder as SDKSortOrder } from "@ecency/sdk";
+import {
+  getAccountFullQueryOptions,
+  getDiscussionsQueryOptions,
+  SortOrder as SDKSortOrder
+} from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks";
 import { SortOrder } from "@/enums";
 import { enforceThreeSpeakBeneficiary } from "@/api/threespeak-embed/beneficiary";
@@ -63,7 +68,9 @@ export function useWavesApi() {
 
       let permlink = editingEntry?.permlink ?? createReplyPermlink(entry.author);
 
-      if (host === "ecency.waves" && !editingEntry) {
+      // Ecency's own waves (ecency.waves and, once live, hive.flow) use the
+      // dedicated `wave-*` permlink scheme; other containers use a reply permlink.
+      if (isEcencyWavesHost(host) && !editingEntry) {
         permlink = createWavePermlink();
       }
       const tags = raw.match(/\#[a-zA-Z0-9]+/g)?.map((tag) => tag.replace("#", "")) ?? ["ecency"];
@@ -142,7 +149,12 @@ export function useWavesApi() {
 
       if (!editingEntry) {
         // Inline cache update for discussions list
-        const options = getDiscussionsQueryOptions(entry, SDKSortOrder.created, true, entry?.author);
+        const options = getDiscussionsQueryOptions(
+          entry,
+          SDKSortOrder.created,
+          true,
+          entry?.author
+        );
         queryClient.setQueryData<Entry[]>(options.queryKey, (data) => [...(data ?? []), tempReply]);
         updateRepliesCount(entry.children + 1, entry);
       }

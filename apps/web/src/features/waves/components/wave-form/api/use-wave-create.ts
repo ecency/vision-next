@@ -8,7 +8,8 @@ import { error } from "@/features/shared";
 import { formatError } from "@/api/format-error";
 import { useWavesApi } from "./use-waves-api";
 import { useCommunityApi } from "./use-community-api";
-import { WaveEntry } from "@/entities";
+import { ECENCY_WAVES_HOSTS, isEcencyWavesHost } from "@/features/waves/enums/wave-hosts";
+import { Entry, WaveEntry } from "@/entities";
 
 export function useWaveCreate() {
   const queryClient = useQueryClient();
@@ -32,22 +33,68 @@ export function useWaveCreate() {
       if (host === "dbuzz") {
         return {
           host,
-          entry: (await communityBasedApiRequest({ host, raw, editingEntry, videoThumbnail })) as WaveEntry
+          entry: (await communityBasedApiRequest({
+            host,
+            raw,
+            editingEntry,
+            videoThumbnail
+          })) as WaveEntry
         };
       }
 
-      const hostEntries = await queryClient.fetchQuery(
-        getAccountPostsQueryOptions(host, ProfileFilter.posts)
-      );
+      // Resolve which container account to publish into and its latest anchor
+      // post. For Ecency's own waves (the standard composer), prefer hive.flow
+      // and fall back to ecency.waves: walk ECENCY_WAVES_HOSTS and take the
+      // first host that currently has a live anchor post. hive.flow is inert
+      // today, so this is ecency.waves until it launches, then switches over
+      // automatically. Explicit non-Ecency hosts (decks: leothreads /
+      // liketu.moments / ...) are used as requested.
+      let resolvedHost = host;
+      let entry: Entry | undefined;
+      let lastError: unknown;
 
-      if (!hostEntries) {
+      if (isEcencyWavesHost(host)) {
+        for (const candidate of ECENCY_WAVES_HOSTS) {
+          try {
+            const entries = await queryClient.fetchQuery(
+              getAccountPostsQueryOptions(candidate, ProfileFilter.posts)
+            );
+            if (entries && entries.length > 0) {
+              resolvedHost = candidate;
+              entry = entries[0];
+              break;
+            }
+          } catch (e) {
+            // hive.flow is pre-provisioned and may not resolve yet, so tolerate
+            // its failure and try the next preferred container. Remember the
+            // error so a genuine outage on the fallback (ecency.waves) is
+            // surfaced rather than masked as a missing host.
+            lastError = e;
+          }
+        }
+      } else {
+        const hostEntries = await queryClient.fetchQuery(
+          getAccountPostsQueryOptions(host, ProfileFilter.posts)
+        );
+        entry = hostEntries?.[0];
+      }
+
+      if (!entry) {
+        if (lastError) {
+          throw lastError;
+        }
         throw new Error(i18next.t("decks.threads-form.no-threads-host"));
       }
 
-      const entry = hostEntries[0];
       return {
-        host,
-        entry: (await generalApiRequest({ entry, raw, editingEntry, host, videoThumbnail })) as WaveEntry,
+        host: resolvedHost,
+        entry: (await generalApiRequest({
+          entry,
+          raw,
+          editingEntry,
+          host: resolvedHost,
+          videoThumbnail
+        })) as WaveEntry,
         isEditing: !!editingEntry
       };
     },
@@ -66,8 +113,7 @@ export function useWaveCreate() {
         // uniquely identified by author + permlink (entry.id is not reliable).
         const alreadyPresent = data.pages.some((page) =>
           page.some(
-            (existing) =>
-              existing.author === entry.author && existing.permlink === entry.permlink
+            (existing) => existing.author === entry.author && existing.permlink === entry.permlink
           )
         );
 
@@ -77,9 +123,7 @@ export function useWaveCreate() {
 
         return {
           ...data,
-          pages: data.pages.map((page, index) =>
-            index === 0 ? [entry, ...page] : page
-          )
+          pages: data.pages.map((page, index) => (index === 0 ? [entry, ...page] : page))
         };
       };
 

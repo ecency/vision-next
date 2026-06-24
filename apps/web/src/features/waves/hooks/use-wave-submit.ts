@@ -103,19 +103,27 @@ export function useWaveSubmit(
           editingEntry: editingEntry,
           videoThumbnail: videoThumbnail || undefined
         })) as WaveEntry;
+        if (host) {
+          threadItem.host = host;
+        }
       } else {
-        const { entry } = await create({
+        const created = await create({
           host,
           raw: content,
           editingEntry,
           videoThumbnail: videoThumbnail || undefined
         });
-        threadItem = entry;
+        threadItem = created.entry;
+        // For a NEW wave, reflect the container create() actually resolved
+        // (hive.flow vs ecency.waves). For an edit, created.entry already
+        // carries the wave's existing host (it's the edited entry); don't
+        // relabel it to the resolved host, or the cached edit could end up
+        // under the wrong container once hive.flow is live.
+        if (!editingEntry) {
+          threadItem.host = created.host ?? host;
+        }
       }
 
-      if (host) {
-        threadItem.host = host;
-      }
       threadItem.id = threadItem.post_id;
 
       return threadItem;
