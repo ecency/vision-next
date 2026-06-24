@@ -51,6 +51,7 @@ export function useWaveCreate() {
       // liketu.moments / ...) are used as requested.
       let resolvedHost = host;
       let entry: Entry | undefined;
+      let lastError: unknown;
 
       if (isEcencyWavesHost(host)) {
         for (const candidate of ECENCY_WAVES_HOSTS) {
@@ -63,8 +64,12 @@ export function useWaveCreate() {
               entry = entries[0];
               break;
             }
-          } catch {
-            // hive.flow is pre-provisioned and may not resolve yet; try the next host.
+          } catch (e) {
+            // hive.flow is pre-provisioned and may not resolve yet, so tolerate
+            // its failure and try the next preferred container. Remember the
+            // error so a genuine outage on the fallback (ecency.waves) is
+            // surfaced rather than masked as a missing host.
+            lastError = e;
           }
         }
       } else {
@@ -75,6 +80,9 @@ export function useWaveCreate() {
       }
 
       if (!entry) {
+        if (lastError) {
+          throw lastError;
+        }
         throw new Error(i18next.t("decks.threads-form.no-threads-host"));
       }
 

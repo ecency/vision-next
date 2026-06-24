@@ -114,9 +114,14 @@ export function useWaveSubmit(
           videoThumbnail: videoThumbnail || undefined
         });
         threadItem = created.entry;
-        // create() resolves the actual container (hive.flow vs ecency.waves);
-        // reflect that on the item rather than the requested host.
-        threadItem.host = created.host ?? host;
+        // For a NEW wave, reflect the container create() actually resolved
+        // (hive.flow vs ecency.waves). For an edit, created.entry already
+        // carries the wave's existing host (it's the edited entry); don't
+        // relabel it to the resolved host, or the cached edit could end up
+        // under the wrong container once hive.flow is live.
+        if (!editingEntry) {
+          threadItem.host = created.host ?? host;
+        }
       }
 
       threadItem.id = threadItem.post_id;
