@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.24
+
+### Patch Changes
+
+- waves: server-side observer mute filter + author feed param (#1006)
+
 ## 2.3.23
 
 ### Patch Changes

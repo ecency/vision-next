@@ -1238,7 +1238,10 @@ declare const QueryKeys: {
             containers?: string[];
             tag?: string;
             following?: string;
-        }) => string[];
+            author?: string;
+            observer?: string;
+            limit?: number;
+        }) => (string | number)[];
         readonly wavesByHost: (host: string) => string[];
         readonly wavesByTag: (host: string, tag: string) => string[];
         readonly wavesFollowing: (host: string, username: string) => string[];
@@ -4010,6 +4013,10 @@ interface WavesFeedParams {
     tag?: string;
     /** Only waves from accounts this user follows (across all containers). */
     following?: string;
+    /** Only this author's waves (across all containers); the per-author feed. */
+    author?: string;
+    /** The viewing user; exclude authors they currently mute. */
+    observer?: string;
     /** Page size (default 20). */
     limit?: number;
 }
@@ -4022,10 +4029,10 @@ interface WavesFeedParams {
  * replacing the per-container chain-RPC scan. The optional `tag` / `following`
  * filters narrow the same stream without changing the cursor.
  */
-declare function getWavesFeedQueryOptions(params?: WavesFeedParams): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<WavesFeedEntry[], Error, _tanstack_react_query.InfiniteData<WavesFeedEntry[], unknown>, string[], string | undefined>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<WavesFeedEntry[], string[], string | undefined> | undefined;
+declare function getWavesFeedQueryOptions(params?: WavesFeedParams): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<WavesFeedEntry[], Error, _tanstack_react_query.InfiniteData<WavesFeedEntry[], unknown>, (string | number)[], string | undefined>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<WavesFeedEntry[], (string | number)[], string | undefined> | undefined;
 } & {
-    queryKey: string[] & {
+    queryKey: (string | number)[] & {
         [dataTagSymbol]: _tanstack_react_query.InfiniteData<WavesFeedEntry[], unknown>;
         [dataTagErrorSymbol]: Error;
     };
@@ -4035,10 +4042,10 @@ declare function getWavesFeedQueryOptions(params?: WavesFeedParams): _tanstack_r
  * key, for the "new waves" poll. Separate from {@link getWavesFeedQueryOptions}
  * so refreshing it never truncates the infinite feed's loaded pages.
  */
-declare function getWavesLatestFeedQueryOptions(params?: WavesFeedParams): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<WavesFeedEntry[], Error, WavesFeedEntry[], string[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<WavesFeedEntry[], string[], never> | undefined;
+declare function getWavesLatestFeedQueryOptions(params?: WavesFeedParams): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<WavesFeedEntry[], Error, WavesFeedEntry[], (string | number)[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<WavesFeedEntry[], (string | number)[], never> | undefined;
 } & {
-    queryKey: string[] & {
+    queryKey: (string | number)[] & {
         [dataTagSymbol]: WavesFeedEntry[];
         [dataTagErrorSymbol]: Error;
     };

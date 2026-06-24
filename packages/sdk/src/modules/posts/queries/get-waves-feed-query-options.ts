@@ -25,6 +25,10 @@ export interface WavesFeedParams {
   tag?: string;
   /** Only waves from accounts this user follows (across all containers). */
   following?: string;
+  /** Only this author's waves (across all containers); the per-author feed. */
+  author?: string;
+  /** The viewing user; exclude authors they currently mute. */
+  observer?: string;
   /** Page size (default 20). */
   limit?: number;
 }
@@ -33,6 +37,8 @@ interface NormalizedFeedParams {
   containers: string[];
   tag?: string;
   following?: string;
+  author?: string;
+  observer?: string;
   limit: number;
 }
 
@@ -41,12 +47,14 @@ function normalizeParams(params: WavesFeedParams): NormalizedFeedParams {
     containers: params.containers ?? [],
     tag: params.tag?.trim() || undefined,
     following: params.following?.trim().toLowerCase() || undefined,
+    author: params.author?.trim().toLowerCase() || undefined,
+    observer: params.observer?.trim().toLowerCase() || undefined,
     limit: params.limit ?? DEFAULT_FEED_LIMIT
   };
 }
 
 async function fetchWavesFeedPage(
-  { containers, tag, following, limit }: NormalizedFeedParams,
+  { containers, tag, following, author, observer, limit }: NormalizedFeedParams,
   cursor: string | undefined,
   signal?: AbortSignal
 ): Promise<WavesFeedEntry[]> {
@@ -62,6 +70,12 @@ async function fetchWavesFeedPage(
   }
   if (following) {
     url.searchParams.set("following", following);
+  }
+  if (author) {
+    url.searchParams.set("author", author);
+  }
+  if (observer) {
+    url.searchParams.set("observer", observer);
   }
 
   const response = await fetch(url.toString(), {
@@ -101,10 +115,10 @@ async function fetchWavesFeedPage(
  */
 export function getWavesFeedQueryOptions(params: WavesFeedParams = {}) {
   const normalized = normalizeParams(params);
-  const { containers, tag, following, limit } = normalized;
+  const { containers, tag, following, author, observer, limit } = normalized;
 
   return infiniteQueryOptions({
-    queryKey: QueryKeys.posts.wavesFeed({ containers, tag, following }),
+    queryKey: QueryKeys.posts.wavesFeed({ containers, tag, following, author, observer, limit }),
     initialPageParam: undefined as string | undefined,
 
     queryFn: ({ pageParam, signal }) => fetchWavesFeedPage(normalized, pageParam, signal),
@@ -129,10 +143,13 @@ export function getWavesFeedQueryOptions(params: WavesFeedParams = {}) {
  */
 export function getWavesLatestFeedQueryOptions(params: WavesFeedParams = {}) {
   const normalized = normalizeParams(params);
-  const { containers, tag, following } = normalized;
+  const { containers, tag, following, author, observer, limit } = normalized;
 
   return queryOptions({
-    queryKey: [...QueryKeys.posts.wavesFeed({ containers, tag, following }), "latest"],
+    queryKey: [
+      ...QueryKeys.posts.wavesFeed({ containers, tag, following, author, observer, limit }),
+      "latest"
+    ],
     staleTime: 0,
     queryFn: ({ signal }) => fetchWavesFeedPage(normalized, undefined, signal)
   });

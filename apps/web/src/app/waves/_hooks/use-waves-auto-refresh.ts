@@ -4,21 +4,32 @@ import { WaveEntry } from "@/entities";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { QueryClient, useQueryClient } from "@tanstack/react-query";
 
-async function fetchLatestWaves(queryClient: QueryClient) {
+async function fetchLatestWaves(queryClient: QueryClient, observer?: string) {
   const items = (await queryClient.fetchQuery(
-    getWavesLatestFeedQueryOptions()
+    getWavesLatestFeedQueryOptions({ observer })
   )) as WaveEntry[];
 
   return items ?? [];
 }
 
-export function useWavesAutoRefresh(latest?: WaveEntry) {
+export function useWavesAutoRefresh(latest?: WaveEntry, observer?: string) {
   const [newWaves, setNewWaves] = useState<WaveEntry[]>([]);
   const [now, setNow] = useState(Date.now());
   const queryClient = useQueryClient();
 
+  // When the viewer changes (login/logout), drop any queued popup waves: they
+  // were polled under the previous observer and may include now-muted authors.
+  useEffect(() => {
+    setNewWaves([]);
+  }, [observer]);
+
   useEffect(() => {
     let timer: NodeJS.Timeout;
+    // clearTimeout only cancels the next scheduled poll; a fetch already in
+    // flight when observer/latest changes can still resolve afterwards. This
+    // flag makes its continuation a no-op so it can't repopulate the popup with
+    // stale-observer (e.g. now-muted) waves.
+    let cancelled = false;
 
     async function check() {
       setNow(Date.now());
@@ -30,7 +41,10 @@ export function useWavesAutoRefresh(latest?: WaveEntry) {
 
       // Page one of the combined feed is the newest waves across every
       // container; surface the ones newer than the top of the loaded feed.
-      const items = await fetchLatestWaves(queryClient);
+      const items = await fetchLatestWaves(queryClient, observer);
+      if (cancelled) {
+        return;
+      }
       EcencyEntriesCacheManagement.updateEntryQueryData(items);
       const latestTime = new Date(latest.created).getTime();
       const fresh = items.filter(
@@ -46,8 +60,11 @@ export function useWavesAutoRefresh(latest?: WaveEntry) {
 
     check();
 
-    return () => clearTimeout(timer);
-  }, [latest, queryClient]);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [latest, observer, queryClient]);
 
   return { newWaves, clear: () => setNewWaves([]), now };
 }

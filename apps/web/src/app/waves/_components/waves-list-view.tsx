@@ -33,19 +33,28 @@ export function WavesListView({ feedType, username }: Props) {
   const tag = feedType === "for-you" ? selectedTag : null;
   // All three feeds are now one combined, cross-container, keyset-paginated
   // endpoint; tag and following are just filters on the same stream.
+  // The logged-in user is the observer: server-side mute filtering keeps each
+  // page full of waves they can see (client-side filtering would shrink pages).
+  const observer = username || undefined;
   const queryOptions = useMemo(() => {
     if (tag) {
-      return getWavesFeedQueryOptions({ tag });
+      return getWavesFeedQueryOptions({ tag, observer });
     }
 
     if (feedType === "following") {
-      return getWavesFeedQueryOptions({ following: username });
+      return getWavesFeedQueryOptions({ following: username, observer });
     }
 
-    return getWavesFeedQueryOptions();
-  }, [feedType, tag, username]);
+    return getWavesFeedQueryOptions({ observer });
+  }, [feedType, tag, username, observer]);
 
-  const { data, fetchNextPage, isError, error, hasNextPage, refetch } = useInfiniteQuery(queryOptions);
+  // The Following feed needs a username; without one `following` drops and the
+  // query would silently become the unfiltered combined feed, so gate it until
+  // the active user is known.
+  const { data, fetchNextPage, isError, error, hasNextPage, refetch } = useInfiniteQuery({
+    ...queryOptions,
+    enabled: feedType !== "following" || !!username
+  });
   const previousErrorMessage = useRef<string | undefined>(undefined);
 
   useEffect(() => {
@@ -104,7 +113,8 @@ export function WavesListView({ feedType, username }: Props) {
   const [replyingEntry, setReplyingEntry] = useState<WaveEntry>();
   const shouldAutoRefresh = feedType === "for-you" && !tag;
   const { newWaves, clear, now } = useWavesAutoRefresh(
-    shouldAutoRefresh ? dataFlow[0] : undefined
+    shouldAutoRefresh ? dataFlow[0] : undefined,
+    observer
   );
   const [pendingScroll, setPendingScroll] = useState<number | null>(null);
 
