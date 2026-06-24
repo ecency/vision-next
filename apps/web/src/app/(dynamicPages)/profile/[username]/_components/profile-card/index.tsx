@@ -32,6 +32,7 @@ import { ProfileInfo } from "../profile-info";
 import { ResourceCreditsInfo } from "../rc-info";
 import "./_index.scss";
 import { ProfileCardExtraProperty } from "./profile-card-extra-property";
+import { profileWebsiteHref } from "./website-href";
 import { FinalizeCommunityBanner } from "../finalize-community-banner";
 import { useActiveAccount } from "@/core/hooks";
 
@@ -49,6 +50,12 @@ export function ProfileCard({ account }: Props) {
 
   // Use the account prop directly instead of re-fetching (already prefetched by layout)
   const data = account;
+  // Profile `website` is free-text; only link it when it forms a valid URL,
+  // otherwise Next.js <Link> throws while prefetching (ECENCY-NEXT-1GE5).
+  const websiteHref = useMemo(
+    () => profileWebsiteHref(data?.profile?.website),
+    [data?.profile?.website]
+  );
   const { data: rcData } = useQuery(getAccountRcQueryOptions(account.name));
   const { data: relationshipBetweenAccounts } = useQuery({
     ...getRelationshipBetweenAccountsQueryOptions(account?.name, activeUsername ?? undefined),
@@ -176,14 +183,18 @@ export function ProfileCard({ account }: Props) {
             icon={<UilGlobe className="w-5 h-5" />}
             label={i18next.t("profile-edit.website")}
           >
-            <Link
-              target="_external"
-              rel="nofollow ugc noopener"
-              className="break-all"
-              href={`https://${data?.profile.website.replace(/^(https?|ftp):\/\//, "")}`}
-            >
-              {data?.profile.website}
-            </Link>
+            {websiteHref ? (
+              <Link
+                target="_external"
+                rel="nofollow ugc noopener"
+                className="break-all"
+                href={websiteHref}
+              >
+                {data?.profile?.website}
+              </Link>
+            ) : (
+              <span className="break-all">{data?.profile?.website}</span>
+            )}
           </ProfileCardExtraProperty>
         )}
 
