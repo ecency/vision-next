@@ -5,6 +5,7 @@ import { getDimensionsFromDataUrl } from "./get-dimensions-from-data-url";
 import { extractMetaData, makeApp } from "@/utils/posting";
 import { makeEntryPath } from "@/utils/make-path";
 import { Entry, MetaData } from "@/entities";
+import { DECENTMEMES_METADATA_VERSION } from "@/api/decentmemes";
 
 const DEFAULT_TAGS = ["ecency"];
 
@@ -152,6 +153,17 @@ export class EntryMetadataBuilder {
     };
 
     return this;
+  }
+
+  public withDecentMemes(data?: { templateIds: string[]; frontend?: string }): this {
+    if (!data || !data.templateIds || data.templateIds.length === 0) {
+      return this;
+    }
+    return this.withField("decentmemes", {
+      v: DECENTMEMES_METADATA_VERSION,
+      templateIds: data.templateIds,
+      ...(data.frontend ? { frontend: data.frontend } : {})
+    });
   }
 
   public build(): MetaData {

@@ -2,10 +2,12 @@ import React, { ReactNode, useContext, useState } from "react";
 import { WaveFormToolbarImagePicker } from "./wave-form-toolbar-image-picker";
 import { WaveFormEmojiPicker } from "./wave-form-emoji-picker";
 import { Button } from "@ui/button";
-import { UilChart, UilVideo } from "@tooni/iconscout-unicons-react";
+import { UilChart, UilImageShare, UilVideo } from "@tooni/iconscout-unicons-react";
 import { AiImageIcon } from "@/features/shared/ai-image-icon";
+import { LoginRequired } from "@/features/shared";
 import { PollsContext, PollsCreation } from "@/features/polls";
 import { EcencyConfigManager } from "@/config";
+import { BeneficiaryRoute } from "@/entities";
 import i18next from "i18next";
 import dynamic from "next/dynamic";
 
@@ -16,8 +18,22 @@ const AiImageGeneratorDialog = dynamic(
   { ssr: false }
 );
 
+// Code-split: the meme maker (iframe + postMessage) only loads on click.
+const MemeMakerDialog = dynamic(
+  () => import("@/features/decentmemes").then((m) => ({
+    default: m.MemeMakerDialog
+  })),
+  { ssr: false }
+);
+
 interface Props {
   onAddImage: (url: string, name: string) => void;
+  onAddMeme?: (data: {
+    url: string;
+    name: string;
+    templateId: string;
+    beneficiaries: BeneficiaryRoute[];
+  }) => void;
   onEmojiPick: (value: string) => void;
   onAddVideo: (value: string) => void;
   onShowVideoUpload?: () => void;
@@ -30,6 +46,7 @@ interface Props {
 
 export const WaveFormToolbar = ({
   onAddImage,
+  onAddMeme,
   onEmojiPick,
   onShowVideoUpload,
   hasVideo,
@@ -41,6 +58,7 @@ export const WaveFormToolbar = ({
   const { activePoll, setActivePoll, clearActivePoll } = useContext(PollsContext);
   const [show, setShow] = useState(false);
   const [showAiGenerator, setShowAiGenerator] = useState(false);
+  const [showMemeMaker, setShowMemeMaker] = useState(false);
 
   return (
     <div className="flex items-center justify-between py-1.5 border-t border-[--border-color]">
@@ -78,6 +96,20 @@ export const WaveFormToolbar = ({
             aria-label={i18next.t("ai-image-generator.toolbar-button")}
           />
         </EcencyConfigManager.Conditional>
+        <EcencyConfigManager.Conditional
+          condition={({ visionFeatures }) => visionFeatures.decentMemes.enabled}
+        >
+          <LoginRequired>
+            <Button
+              appearance="gray-link"
+              icon={<UilImageShare />}
+              onClick={() => setShowMemeMaker(true)}
+              disabled={disabled}
+              aria-label={i18next.t("decentmemes.toolbar-button")}
+              title={i18next.t("decentmemes.toolbar-button")}
+            />
+          </LoginRequired>
+        </EcencyConfigManager.Conditional>
         <PollsCreation
           existingPoll={activePoll}
           show={show}
@@ -95,6 +127,16 @@ export const WaveFormToolbar = ({
           onInsert={(url) => {
             onAddImage(url, "ai-generated");
             setShowAiGenerator(false);
+          }}
+        />
+      )}
+      {showMemeMaker && (
+        <MemeMakerDialog
+          show={showMemeMaker}
+          setShow={setShowMemeMaker}
+          onMemeCreated={({ url, alt, templateId, beneficiaries }) => {
+            onAddMeme?.({ url, name: alt, templateId, beneficiaries });
+            setShowMemeMaker(false);
           }}
         />
       )}

@@ -113,6 +113,15 @@ const AiAssistDialog = dynamic(
   })),
   { ssr: false }
 );
+
+// Code-split the meme maker (iframe + postMessage bridge) so it adds nothing to
+// the initial editor bundle - it only loads when the user clicks the button.
+const MemeMakerDialog = dynamic(
+  () => import("@/features/decentmemes").then((m) => ({
+    default: m.MemeMakerDialog
+  })),
+  { ssr: false }
+);
 import clsx from "clsx";
 import { TEXT_COLORS, normalizeTextColor } from "../_constants/text-colors";
 
@@ -202,6 +211,7 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
   const [showGeoTag, setShowGeoTag] = useState(false);
   const [showAiGenerator, setShowAiGenerator] = useState(false);
   const [showAiAssist, setShowAiAssist] = useState(false);
+  const [showMemeMaker, setShowMemeMaker] = useState(false);
   const [isFocusingTable, setIsFocusingTable] = useState(false);
 
   const activeTextColor = editor?.getAttributes("textStyle")?.color as string | undefined;
@@ -564,6 +574,22 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
           </StyledTooltip>
         </EcencyConfigManager.Conditional>
 
+        <EcencyConfigManager.Conditional
+          condition={({ visionFeatures }) => visionFeatures.decentMemes.enabled}
+        >
+          <StyledTooltip content={i18next.t("decentmemes.toolbar-button")}>
+            <LoginRequired>
+              <Button
+                appearance="gray-link"
+                size="sm"
+                icon={<UilImageShare />}
+                onClick={() => setShowMemeMaker(true)}
+                aria-label={i18next.t("decentmemes.toolbar-button")}
+              />
+            </LoginRequired>
+          </StyledTooltip>
+        </EcencyConfigManager.Conditional>
+
         {/*Dialogs*/}
         <PublishEditorToolbarFragments
           showFragments={showFragments}
@@ -748,6 +774,25 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
                 }
                 error(i18next.t("ai-assist.error-generic"));
               }
+            }}
+          />
+        )}
+        {showMemeMaker && (
+          <MemeMakerDialog
+            show={showMemeMaker}
+            setShow={setShowMemeMaker}
+            onMemeCreated={({ url, alt, templateId, beneficiaries }) => {
+              editor
+                ?.chain()
+                .focus()
+                .insertContent([
+                  { type: "image", attrs: { src: url, alt } },
+                  { type: "paragraph" },
+                  { type: "paragraph" }
+                ])
+                .run();
+              publishState.addDecentMemesResult({ templateId, imageUrl: url, beneficiaries });
+              setShowMemeMaker(false);
             }}
           />
         )}

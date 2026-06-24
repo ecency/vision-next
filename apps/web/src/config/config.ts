@@ -127,6 +127,15 @@ const CONFIG = {
       },
       aiAssist: {
         enabled: true
+      },
+      decentMemes: {
+        enabled: true,
+        // Third-party meme maker embedded as an iframe in the publish composer.
+        widgetUrl: "https://decentmemes.com/widget/",
+        // Exact origin used to validate inbound postMessage events (no trailing slash).
+        origin: "https://decentmemes.com",
+        // Routes the optional 1% "frontend" beneficiary slot to this Hive account.
+        frontendAccount: "ecency"
       }
     },
     service: {

@@ -13,4 +13,5 @@ export interface MetaData {
   links?: string[];
   links_meta?: Record<string, { image: string; summary: string; title: string }>;
   location?: { coordinates: { lat: number; lng: number }; address?: string };
+  decentmemes?: { v: number; templateIds: string[]; frontend?: string };
 }

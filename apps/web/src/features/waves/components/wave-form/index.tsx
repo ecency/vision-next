@@ -2,7 +2,7 @@
 
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import "./_index.scss";
-import { Entry, WaveEntry } from "@/entities";
+import { BeneficiaryRoute, Entry, WaveEntry } from "@/entities";
 import { PollsContext, PollsManager, useEntryPollExtractor } from "@/features/polls";
 import { useLocalStorage } from "react-use";
 import { PREFIX } from "@/utils/local-storage";
@@ -52,6 +52,14 @@ const WaveFormComponent = ({
   const [text, setText, clearText] = useLocalStorage(PREFIX + "_wf_t", "");
   const [image, setImage, clearImage] = useLocalStorage<string>(PREFIX + "_wf_i", "");
   const [imageName, setImageName, clearImageName] = useLocalStorage<string>(PREFIX + "_wf_in", "");
+  // When the current image is a DecentMemes meme, keep its template + beneficiary
+  // data alongside the image URL. The `imageUrl` guard means that if the image is
+  // later replaced (regular picker / AI), the stale meme data is ignored at submit.
+  const [decentMemes, setDecentMemes, clearDecentMemes] = useLocalStorage<{
+    templateIds: string[];
+    beneficiaries: BeneficiaryRoute[];
+    imageUrl: string;
+  } | null>(PREFIX + "_wf_dm", null);
   const [video, setVideo, clearVideo] = useLocalStorage<string>(PREFIX + "_wf_v", "");
   const [videoThumbnail, setVideoThumbnail, clearVideoThumbnail] = useLocalStorage<string>(
     PREFIX + "_wf_vt",
@@ -117,10 +125,19 @@ const WaveFormComponent = ({
     setText("");
     clearImage();
     clearImageName();
+    clearDecentMemes();
     clearActivePoll();
     clearVideo();
     clearVideoThumbnail();
-  }, [clearActivePoll, clearImage, clearImageName, clearVideo, clearVideoThumbnail, setText]);
+  }, [
+    clearActivePoll,
+    clearImage,
+    clearImageName,
+    clearDecentMemes,
+    clearVideo,
+    clearVideoThumbnail,
+    setText
+  ]);
 
   const { mutateAsync: submit, isPending } = useWaveSubmit(entry, replySource, (item) => {
     clear();
@@ -266,6 +283,15 @@ const WaveFormComponent = ({
             setImage(url);
             setImageName(name);
           }}
+          onAddMeme={({ url, name, templateId, beneficiaries }) => {
+            setImage(url);
+            setImageName(name);
+            setDecentMemes({
+              templateIds: [templateId].filter(Boolean),
+              beneficiaries,
+              imageUrl: url
+            });
+          }}
           onEmojiPick={handleEmojiPick}
           onAddVideo={setVideo}
           onShowVideoUpload={() => {
@@ -285,7 +311,17 @@ const WaveFormComponent = ({
                   image: image!!,
                   host: threadHost!!,
                   video: video!!,
-                  videoThumbnail: videoThumbnail!!
+                  videoThumbnail: videoThumbnail!!,
+                  // Only attach meme data when the current image is still the meme.
+                  decentMemes:
+                    decentMemes &&
+                    decentMemes.imageUrl === image &&
+                    decentMemes.templateIds.length > 0
+                      ? {
+                          templateIds: decentMemes.templateIds,
+                          beneficiaries: decentMemes.beneficiaries
+                        }
+                      : undefined
                 })
               }
               disabled={submitDisabled}

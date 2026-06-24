@@ -4,6 +4,7 @@ import {
   SUBMIT_TITLE_MAX_LENGTH
 } from "@/app/submit/_consts";
 import { hasThreeSpeakEmbed } from "@/api/threespeak-embed";
+import { DecentMemesEntry } from "@/api/decentmemes";
 import { BeneficiaryRoute, Entry } from "@/entities";
 import { extractMetaData } from "@/utils";
 import dayjs from "@/utils/dayjs";
@@ -68,6 +69,10 @@ interface PublishStateContextValue {
   skipAutoThumbnailSelection: boolean;
   clearSelectedThumbnail: () => void;
   hasThreeSpeakVideo: boolean;
+  decentMemes: DecentMemesEntry[];
+  addDecentMemesResult: (entry: DecentMemesEntry) => void;
+  setDecentMemes: (entries: DecentMemesEntry[]) => void;
+  clearDecentMemes: () => void;
 }
 
 const PublishStateContext = createContext<PublishStateContextValue | undefined>(undefined);
@@ -94,6 +99,16 @@ export function PublishStateProvider({ children }: { children: React.ReactNode }
   >(undefined);
   const hasThreeSpeakVideo = useMemo(() => hasThreeSpeakEmbed(content), [content]);
   const [poll, setPoll] = usePublishPollState(false);
+  const [decentMemes, setDecentMemes] = useState<DecentMemesEntry[]>([]);
+
+  const clearDecentMemes = useCallback(() => setDecentMemes([]), []);
+
+  // Track each meme added to the post, keyed by its hosted image URL. Dropping
+  // memes whose image was removed, and capping against Hive limits, both happen
+  // at publish time (collectPresentMemeAttribution + enforceDecentMemesBeneficiary).
+  const addDecentMemesResult = useCallback((entry: DecentMemesEntry) => {
+    setDecentMemes((prev) => [...prev.filter((m) => m.imageUrl !== entry.imageUrl), entry]);
+  }, []);
 
   const clearSchedule = useCallback(() => setSchedule(undefined), []);
   const clearSelectedThumbnail = useCallback(() => setSelectedThumbnail(""), []);
@@ -212,6 +227,7 @@ export function PublishStateProvider({ children }: { children: React.ReactNode }
     clearPostLinks();
     clearEntryImages();
     clearLocation();
+    clearDecentMemes();
     setIsReblogToCommunity(false);
   }, [
     setBeneficiaries,
@@ -227,6 +243,7 @@ export function PublishStateProvider({ children }: { children: React.ReactNode }
     clearPostLinks,
     clearEntryImages,
     clearLocation,
+    clearDecentMemes,
     setIsReblogToCommunity
   ]);
 
@@ -265,7 +282,11 @@ export function PublishStateProvider({ children }: { children: React.ReactNode }
         clearLocation,
         skipAutoThumbnailSelection,
         clearSelectedThumbnail: _clearSelectedThumbnail,
-        hasThreeSpeakVideo
+        hasThreeSpeakVideo,
+        decentMemes,
+        addDecentMemesResult,
+        setDecentMemes,
+        clearDecentMemes
       }}
     >
       {children}

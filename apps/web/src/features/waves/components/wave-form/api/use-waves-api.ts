@@ -4,6 +4,13 @@ import { PollsContext } from "@/features/polls";
 import { Entry, FullAccount, WaveEntry } from "@/entities";
 import { createReplyPermlink, createWavePermlink, tempEntry } from "@/utils";
 import { isEcencyWavesHost } from "@/features/waves/enums/wave-hosts";
+import {
+  DECENTMEMES_COMMENT_MAX_WEIGHT,
+  DECENTMEMES_FRONTEND,
+  DecentMemesPayload,
+  enforceDecentMemesBeneficiary,
+  ensureDecentMemesTag
+} from "@/api/decentmemes";
 import { EntryMetadataManagement } from "@/features/entry-management";
 import { useCommentMutation } from "@/api/sdk-mutations";
 import type { CommentPayload } from "@ecency/sdk";
@@ -20,6 +27,8 @@ import { useActiveAccount } from "@/core/hooks";
 import { SortOrder } from "@/enums";
 import { enforceThreeSpeakBeneficiary } from "@/api/threespeak-embed/beneficiary";
 import { linkThreeSpeakEmbed } from "@/api/threespeak-embed/link-after-broadcast";
+import { info } from "@/features/shared";
+import i18next from "i18next";
 
 export function useWavesApi() {
   const queryClient = useQueryClient();
@@ -37,13 +46,17 @@ export function useWavesApi() {
       raw,
       editingEntry,
       host,
-      videoThumbnail
+      videoThumbnail,
+      decentMemes,
+      isReply
     }: {
       entry: Entry;
       raw: string;
       editingEntry?: WaveEntry;
       host?: string;
       videoThumbnail?: string;
+      decentMemes?: DecentMemesPayload;
+      isReply?: boolean;
     }) => {
       if (!username) {
         throw new Error("[Wave][Thread-base][API] – No active user");
@@ -73,7 +86,18 @@ export function useWavesApi() {
       if (isEcencyWavesHost(host) && !editingEntry) {
         permlink = createWavePermlink();
       }
-      const tags = raw.match(/\#[a-zA-Z0-9]+/g)?.map((tag) => tag.replace("#", "")) ?? ["ecency"];
+      // DecentMemes applies to new waves on Ecency's own containers
+      // (ecency.waves / hive.flow) and to any reply created from the Ecency
+      // composer (the parent's container does not change who authored the
+      // reply). Third-party new-wave hosts (leothreads / liketu / dbuzz) are
+      // excluded.
+      const applyDecentMemes =
+        !!decentMemes && decentMemes.templateIds.length > 0 && (isReply || isEcencyWavesHost(host));
+
+      const baseTags = raw.match(/\#[a-zA-Z0-9]+/g)?.map((tag) => tag.replace("#", "")) ?? [
+        "ecency"
+      ];
+      const tags = applyDecentMemes ? ensureDecentMemesTag(baseTags) : baseTags;
 
       const builder = EntryMetadataManagement.EntryMetadataManager.shared
         .builder()
@@ -84,6 +108,13 @@ export function useWavesApi() {
 
       if (videoThumbnail) {
         await builder.withSelectedThumbnail(videoThumbnail);
+      }
+
+      if (applyDecentMemes) {
+        builder.withDecentMemes({
+          templateIds: decentMemes!.templateIds,
+          frontend: DECENTMEMES_FRONTEND
+        });
       }
 
       const jsonMeta = builder.build();
@@ -101,8 +132,21 @@ export function useWavesApi() {
         rootPermlink: entry.permlink
       };
 
-      // Add 3Speak beneficiary when the wave contains a video embed
-      const beneficiaries = enforceThreeSpeakBeneficiary([], raw);
+      // Add 3Speak beneficiary when the wave contains a video embed, then merge
+      // the DecentMemes meme beneficiaries (comment caps: 30% max) on top.
+      let beneficiaries = enforceThreeSpeakBeneficiary([], raw);
+      if (applyDecentMemes) {
+        const enforced = enforceDecentMemesBeneficiary(
+          beneficiaries,
+          decentMemes!.beneficiaries,
+          username,
+          DECENTMEMES_COMMENT_MAX_WEIGHT
+        );
+        beneficiaries = enforced.beneficiaries;
+        if (enforced.dropped) {
+          info(i18next.t("decentmemes.beneficiaries-trimmed"));
+        }
+      }
       if (beneficiaries.length > 0) {
         commentPayload.options = {
           beneficiaries: beneficiaries.map((b) => ({

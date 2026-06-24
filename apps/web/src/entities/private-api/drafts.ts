@@ -1,10 +1,11 @@
-import { BeneficiaryRoute, MetaData, RewardType } from "../operations";
+import { BeneficiaryRoute, DecentMemesEntry, MetaData, RewardType } from "../operations";
 import { PollSnapshot } from "@/features/polls";
 
 export interface DraftMetadata extends MetaData {
   beneficiaries: BeneficiaryRoute[];
   rewardType: RewardType;
   poll?: PollSnapshot;
+  decentMemes?: DecentMemesEntry[];
 }
 
 export interface Draft {

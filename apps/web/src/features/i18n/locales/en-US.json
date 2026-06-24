@@ -1831,6 +1831,15 @@
     "filter-no-match": "No match",
     "recently-used": "Recently Used"
   },
+  "decentmemes": {
+    "toolbar-button": "Make a meme",
+    "dialog-title": "Meme maker",
+    "beneficiary-note": "Adding a meme routes a small beneficiary reward to the meme creator, plus 1% to Ecency.",
+    "unavailable-title": "Meme maker is unavailable",
+    "unavailable-description": "We couldn't load the meme maker right now. Please try again later.",
+    "upload-error": "Could not add the meme to your post. Please try again.",
+    "beneficiaries-trimmed": "Some meme rewards were trimmed to fit the beneficiary limits."
+  },
   "gif-picker": {
     "filter-placeholder": "Filter",
     "credits": "Powered by GIPHY",

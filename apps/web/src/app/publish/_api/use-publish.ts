@@ -1,6 +1,12 @@
 import { validatePostCreating } from "@ecency/sdk";
 import { enforceThreeSpeakBeneficiary } from "@/api/threespeak-embed";
 import { linkThreeSpeakEmbed } from "@/api/threespeak-embed/link-after-broadcast";
+import {
+  collectPresentMemeAttribution,
+  DECENTMEMES_FRONTEND,
+  enforceDecentMemesBeneficiary,
+  ensureDecentMemesTag
+} from "@/api/decentmemes";
 import { useCommentMutation, useReblogMutation } from "@/api/sdk-mutations";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { getQueryClient } from "@/core/react-query";
@@ -9,7 +15,7 @@ import { FullAccount, RewardType } from "@/entities";
 import { EntryBodyManagement, EntryMetadataManagement } from "@/features/entry-management";
 import { PollSnapshot } from "@/features/polls";
 import { QueryKeys, type Poll } from "@ecency/sdk";
-import { success } from "@/features/shared";
+import { info, success } from "@/features/shared";
 import {
   createPermlink,
   isCommunity,
@@ -40,7 +46,8 @@ export function usePublishApi() {
     isReblogToCommunity,
     poll,
     postLinks,
-    location
+    location,
+    decentMemes
   } = usePublishState();
 
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
@@ -116,6 +123,12 @@ export function usePublishApi() {
 
       const [parentPermlink] = tags!;
 
+      // DecentMemes: reconcile tracked memes against the final body so a meme
+      // whose image was deleted no longer contributes a tag / metadata / beneficiary.
+      const memeAttribution = collectPresentMemeAttribution(decentMemes, cleanBody);
+      const hasMeme = memeAttribution.templateIds.length > 0;
+      const finalTags = hasMeme ? ensureDecentMemesTag(tags ?? []) : tags;
+
       const metaBuilder = await EntryMetadataManagement.EntryMetadataManager.shared
         .builder()
         .default()
@@ -124,15 +137,34 @@ export function usePublishApi() {
         .withSummary(
           metaDescription || postBodySummary(cleanBody, SUBMIT_DESCRIPTION_MAX_LENGTH)
         )
-        .withTags(tags)
+        .withTags(finalTags)
         .withPostLinks(postLinks)
         .withLocation(location)
         .withSelectedThumbnail(selectedThumbnail);
       const jsonMeta = metaBuilder
         .withPoll(poll)
+        .withDecentMemes(
+          hasMeme
+            ? { templateIds: memeAttribution.templateIds, frontend: DECENTMEMES_FRONTEND }
+            : undefined
+        )
         .build();
 
-      const finalBeneficiaries = enforceThreeSpeakBeneficiary(beneficiaries, cleanBody);
+      let finalBeneficiaries = enforceThreeSpeakBeneficiary(beneficiaries, cleanBody);
+      if (hasMeme) {
+        // Merge the widget-supplied meme beneficiaries on our own terms: never
+        // trust its numbers - cap to Hive's 8-slot / 100% limits and keep the
+        // user's own beneficiaries intact.
+        const enforced = enforceDecentMemesBeneficiary(
+          finalBeneficiaries,
+          memeAttribution.beneficiaries,
+          author
+        );
+        finalBeneficiaries = enforced.beneficiaries;
+        if (enforced.dropped) {
+          info(i18next.t("decentmemes.beneficiaries-trimmed"));
+        }
+      }
 
       const options = makeCommentOptions(author, permlink, reward as RewardType, finalBeneficiaries);
 

@@ -10,6 +10,7 @@ import { useWavesApi } from "./use-waves-api";
 import { useCommunityApi } from "./use-community-api";
 import { ECENCY_WAVES_HOSTS, isEcencyWavesHost } from "@/features/waves/enums/wave-hosts";
 import { Entry, WaveEntry } from "@/entities";
+import { DecentMemesPayload } from "@/api/decentmemes";
 
 export function useWaveCreate() {
   const queryClient = useQueryClient();
@@ -23,12 +24,14 @@ export function useWaveCreate() {
       host,
       raw,
       editingEntry,
-      videoThumbnail
+      videoThumbnail,
+      decentMemes
     }: {
       host: string;
       raw: string;
       editingEntry?: WaveEntry;
       videoThumbnail?: string;
+      decentMemes?: DecentMemesPayload;
     }) => {
       if (host === "dbuzz") {
         return {
@@ -93,7 +96,8 @@ export function useWaveCreate() {
           raw,
           editingEntry,
           host: resolvedHost,
-          videoThumbnail
+          videoThumbnail,
+          decentMemes
         })) as WaveEntry,
         isEditing: !!editingEntry
       };
