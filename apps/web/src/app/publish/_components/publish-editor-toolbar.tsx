@@ -791,7 +791,7 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
                   { type: "paragraph" }
                 ])
                 .run();
-              publishState.addDecentMemesResult({ templateId, beneficiaries });
+              publishState.addDecentMemesResult({ templateId, imageUrl: url, beneficiaries });
               setShowMemeMaker(false);
             }}
           />

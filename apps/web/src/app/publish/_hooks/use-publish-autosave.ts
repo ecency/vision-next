@@ -31,7 +31,8 @@ export function usePublishAutosave() {
     selectedThumbnail,
     poll,
     postLinks,
-    location
+    location,
+    decentMemes
   } = usePublishState();
 
   const { mutateAsync: saveToDraft } = useSaveDraftApi(draftId);
@@ -68,7 +69,8 @@ export function usePublishAutosave() {
         selectedThumbnail,
         poll,
         postLinks,
-        location
+        location,
+        decentMemes
       };
       if (isEqual(prevSnapshotRef.current, snapshot)) return;
 
@@ -100,6 +102,7 @@ export function usePublishAutosave() {
       poll,
       postLinks,
       location,
+      decentMemes,
       isActiveTab
     ]
   );

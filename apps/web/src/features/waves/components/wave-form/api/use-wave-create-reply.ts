@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
-import { BeneficiaryRoute, Entry, WaveEntry } from "@/entities";
+import { Entry, WaveEntry } from "@/entities";
+import { DecentMemesPayload } from "@/api/decentmemes";
 import { error, success } from "@/features/shared";
 import { formatError } from "@/api/format-error";
 import { useWavesApi } from "./use-waves-api";
@@ -21,7 +22,7 @@ export function useWaveCreateReply() {
       raw: string;
       editingEntry?: WaveEntry;
       videoThumbnail?: string;
-      decentMemes?: { templateIds: string[]; beneficiaries: BeneficiaryRoute[] };
+      decentMemes?: DecentMemesPayload;
     }) =>
       generalApiRequest({
         entry: parent,

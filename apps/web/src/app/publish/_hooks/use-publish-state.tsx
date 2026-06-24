@@ -4,6 +4,7 @@ import {
   SUBMIT_TITLE_MAX_LENGTH
 } from "@/app/submit/_consts";
 import { hasThreeSpeakEmbed } from "@/api/threespeak-embed";
+import { DecentMemesEntry } from "@/api/decentmemes";
 import { BeneficiaryRoute, Entry } from "@/entities";
 import { extractMetaData } from "@/utils";
 import dayjs from "@/utils/dayjs";
@@ -68,8 +69,9 @@ interface PublishStateContextValue {
   skipAutoThumbnailSelection: boolean;
   clearSelectedThumbnail: () => void;
   hasThreeSpeakVideo: boolean;
-  decentMemes: { templateIds: string[]; beneficiaries: BeneficiaryRoute[] } | null;
-  addDecentMemesResult: (result: { templateId: string; beneficiaries: BeneficiaryRoute[] }) => void;
+  decentMemes: DecentMemesEntry[];
+  addDecentMemesResult: (entry: DecentMemesEntry) => void;
+  setDecentMemes: (entries: DecentMemesEntry[]) => void;
   clearDecentMemes: () => void;
 }
 
@@ -97,38 +99,16 @@ export function PublishStateProvider({ children }: { children: React.ReactNode }
   >(undefined);
   const hasThreeSpeakVideo = useMemo(() => hasThreeSpeakEmbed(content), [content]);
   const [poll, setPoll] = usePublishPollState(false);
-  const [decentMemes, setDecentMemes] = useState<{
-    templateIds: string[];
-    beneficiaries: BeneficiaryRoute[];
-  } | null>(null);
+  const [decentMemes, setDecentMemes] = useState<DecentMemesEntry[]>([]);
 
-  const clearDecentMemes = useCallback(() => setDecentMemes(null), []);
+  const clearDecentMemes = useCallback(() => setDecentMemes([]), []);
 
-  // Accumulate every meme added to the post: collect unique template ids and
-  // sum the widget-supplied beneficiary weights per account. Final capping
-  // against Hive limits happens at publish time (enforceDecentMemesBeneficiary).
-  const addDecentMemesResult = useCallback(
-    (result: { templateId: string; beneficiaries: BeneficiaryRoute[] }) => {
-      setDecentMemes((prev) => {
-        const templateIds = Array.from(
-          new Set([...(prev?.templateIds ?? []), result.templateId].filter(Boolean))
-        );
-        const byAccount = new Map<string, number>();
-        [...(prev?.beneficiaries ?? []), ...result.beneficiaries].forEach((b) => {
-          if (!b?.account || !(b.weight > 0)) {
-            return;
-          }
-          byAccount.set(b.account, (byAccount.get(b.account) ?? 0) + b.weight);
-        });
-        const beneficiaries = Array.from(byAccount.entries()).map(([account, weight]) => ({
-          account,
-          weight
-        }));
-        return { templateIds, beneficiaries };
-      });
-    },
-    []
-  );
+  // Track each meme added to the post, keyed by its hosted image URL. Dropping
+  // memes whose image was removed, and capping against Hive limits, both happen
+  // at publish time (collectPresentMemeAttribution + enforceDecentMemesBeneficiary).
+  const addDecentMemesResult = useCallback((entry: DecentMemesEntry) => {
+    setDecentMemes((prev) => [...prev.filter((m) => m.imageUrl !== entry.imageUrl), entry]);
+  }, []);
 
   const clearSchedule = useCallback(() => setSchedule(undefined), []);
   const clearSelectedThumbnail = useCallback(() => setSelectedThumbnail(""), []);
@@ -305,6 +285,7 @@ export function PublishStateProvider({ children }: { children: React.ReactNode }
         hasThreeSpeakVideo,
         decentMemes,
         addDecentMemesResult,
+        setDecentMemes,
         clearDecentMemes
       }}
     >

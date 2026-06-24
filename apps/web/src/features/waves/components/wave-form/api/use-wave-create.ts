@@ -9,7 +9,8 @@ import { formatError } from "@/api/format-error";
 import { useWavesApi } from "./use-waves-api";
 import { useCommunityApi } from "./use-community-api";
 import { ECENCY_WAVES_HOSTS, isEcencyWavesHost } from "@/features/waves/enums/wave-hosts";
-import { BeneficiaryRoute, Entry, WaveEntry } from "@/entities";
+import { Entry, WaveEntry } from "@/entities";
+import { DecentMemesPayload } from "@/api/decentmemes";
 
 export function useWaveCreate() {
   const queryClient = useQueryClient();
@@ -30,7 +31,7 @@ export function useWaveCreate() {
       raw: string;
       editingEntry?: WaveEntry;
       videoThumbnail?: string;
-      decentMemes?: { templateIds: string[]; beneficiaries: BeneficiaryRoute[] };
+      decentMemes?: DecentMemesPayload;
     }) => {
       if (host === "dbuzz") {
         return {

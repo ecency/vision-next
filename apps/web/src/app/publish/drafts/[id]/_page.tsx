@@ -43,6 +43,7 @@ export default function PublishPage() {
     setSelectedThumbnail,
     setEntryImages,
     setPoll,
+    setDecentMemes,
     clearAll
   } = usePublishState();
 
@@ -62,6 +63,7 @@ export default function PublishPage() {
       setSelectedThumbnail(draft.meta?.image?.[0] ?? "");
       setEntryImages(draft.meta?.image ?? []);
       setPoll(normalizePollSnapshot(draft.meta?.poll));
+      setDecentMemes(draft.meta?.decentMemes ?? []);
     },
     () => setStep("no-draft")
   );

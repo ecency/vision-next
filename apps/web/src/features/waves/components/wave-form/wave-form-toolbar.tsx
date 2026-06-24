@@ -4,6 +4,7 @@ import { WaveFormEmojiPicker } from "./wave-form-emoji-picker";
 import { Button } from "@ui/button";
 import { UilChart, UilImageShare, UilVideo } from "@tooni/iconscout-unicons-react";
 import { AiImageIcon } from "@/features/shared/ai-image-icon";
+import { LoginRequired } from "@/features/shared";
 import { PollsContext, PollsCreation } from "@/features/polls";
 import { EcencyConfigManager } from "@/config";
 import { BeneficiaryRoute } from "@/entities";
@@ -98,14 +99,16 @@ export const WaveFormToolbar = ({
         <EcencyConfigManager.Conditional
           condition={({ visionFeatures }) => visionFeatures.decentMemes.enabled}
         >
-          <Button
-            appearance="gray-link"
-            icon={<UilImageShare />}
-            onClick={() => setShowMemeMaker(true)}
-            disabled={disabled}
-            aria-label={i18next.t("decentmemes.toolbar-button")}
-            title={i18next.t("decentmemes.toolbar-button")}
-          />
+          <LoginRequired>
+            <Button
+              appearance="gray-link"
+              icon={<UilImageShare />}
+              onClick={() => setShowMemeMaker(true)}
+              disabled={disabled}
+              aria-label={i18next.t("decentmemes.toolbar-button")}
+              title={i18next.t("decentmemes.toolbar-button")}
+            />
+          </LoginRequired>
         </EcencyConfigManager.Conditional>
         <PollsCreation
           existingPoll={activePoll}

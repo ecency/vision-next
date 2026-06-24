@@ -1,6 +1,7 @@
 "use client";
 
-import { BeneficiaryRoute, Entry, WaveEntry } from "@/entities";
+import { Entry, WaveEntry } from "@/entities";
+import { DecentMemesPayload } from "@/api/decentmemes";
 import { useWaveCreate } from "@/features/waves/components/wave-form/api";
 import { useWaveCreateReply } from "@/features/waves/components/wave-form/api/use-wave-create-reply";
 import { useLocalStorage } from "react-use";
@@ -20,7 +21,7 @@ interface Body {
   video: string;
   videoThumbnail: string;
   host: string;
-  decentMemes?: { templateIds: string[]; beneficiaries: BeneficiaryRoute[] };
+  decentMemes?: DecentMemesPayload;
 }
 
 export function useWaveSubmit(

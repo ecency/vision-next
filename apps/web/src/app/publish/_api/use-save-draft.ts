@@ -37,7 +37,8 @@ export function useSaveDraftApi(draftId?: string) {
     selectedThumbnail,
     poll,
     postLinks,
-    location
+    location,
+    decentMemes
   } = usePublishState();
 
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
@@ -72,7 +73,8 @@ export function useSaveDraftApi(draftId?: string) {
         ...meta,
         beneficiaries: beneficiaries ?? [],
         rewardType: (reward as RewardType) ?? "default",
-        poll
+        poll,
+        decentMemes: decentMemes ?? []
       };
 
       const token = await ensureValidToken(username);

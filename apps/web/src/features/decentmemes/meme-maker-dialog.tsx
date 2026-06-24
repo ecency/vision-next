@@ -185,6 +185,12 @@ export function MemeMakerDialog({ show, setShow, onMemeCreated }: Props) {
               className="w-full rounded-lg"
               style={{ height: 640, border: 0 }}
               allow="clipboard-write"
+              // Sandboxed for defense-in-depth: blocks top-level navigation,
+              // downloads, etc. `allow-same-origin` is kept so the widget can use
+              // its own origin's storage; postMessage works regardless. Tightening
+              // further (dropping same-origin) would need confirmation that the
+              // widget does not rely on its own cookies/localStorage.
+              sandbox="allow-scripts allow-same-origin allow-popups"
               onLoad={onFrameLoad}
               onError={() => setStatus("error")}
             />

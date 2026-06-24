@@ -1,6 +1,7 @@
 import { BeneficiaryRoute } from "@/entities";
 import {
   aggregateMemeBeneficiaries,
+  collectPresentMemeAttribution,
   DECENTMEMES_COMMENT_MAX_WEIGHT,
   DECENTMEMES_POST_MAX_WEIGHT,
   enforceDecentMemesBeneficiary,
@@ -199,6 +200,53 @@ describe("DecentMemes beneficiaries", () => {
       const tags = Array.from({ length: 10 }, (_, i) => `tag${i}`);
       expect(ensureDecentMemesTag(tags)).toBe(tags);
       expect(ensureDecentMemesTag(tags)).not.toContain("decentmemes");
+    });
+  });
+
+  describe("collectPresentMemeAttribution", () => {
+    const entries = [
+      {
+        templateId: "t1",
+        imageUrl: "https://i.ecency.com/a.png",
+        beneficiaries: [{ account: "alice", weight: 300 }]
+      },
+      {
+        templateId: "t2",
+        imageUrl: "https://i.ecency.com/b.png",
+        beneficiaries: [{ account: "bob", weight: 200 }]
+      }
+    ];
+
+    it("keeps only memes whose image is still in the body", () => {
+      const body = "hello ![meme](https://i.ecency.com/a.png) world";
+      const { templateIds, beneficiaries } = collectPresentMemeAttribution(entries, body);
+      expect(templateIds).toEqual(["t1"]);
+      expect(beneficiaries).toEqual([{ account: "alice", weight: 300 }]);
+    });
+
+    it("returns empty attribution when no meme image remains", () => {
+      const { templateIds, beneficiaries } = collectPresentMemeAttribution(
+        entries,
+        "no images here"
+      );
+      expect(templateIds).toEqual([]);
+      expect(beneficiaries).toEqual([]);
+    });
+
+    it("aggregates beneficiaries and dedupes template ids across present memes", () => {
+      const body = "![](https://i.ecency.com/a.png) ![](https://i.ecency.com/b.png)";
+      const withDup = [
+        ...entries,
+        {
+          templateId: "t1",
+          imageUrl: "https://i.ecency.com/a.png",
+          beneficiaries: [{ account: "alice", weight: 100 }]
+        }
+      ];
+      const { templateIds, beneficiaries } = collectPresentMemeAttribution(withDup, body);
+      expect(templateIds.sort()).toEqual(["t1", "t2"]);
+      expect(beneficiaries).toContainEqual({ account: "alice", weight: 400 });
+      expect(beneficiaries).toContainEqual({ account: "bob", weight: 200 });
     });
   });
 });

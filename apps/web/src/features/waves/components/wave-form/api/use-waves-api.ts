@@ -1,12 +1,13 @@
 import { v4 } from "uuid";
 import { useContext } from "react";
 import { PollsContext } from "@/features/polls";
-import { BeneficiaryRoute, Entry, FullAccount, WaveEntry } from "@/entities";
+import { Entry, FullAccount, WaveEntry } from "@/entities";
 import { createReplyPermlink, createWavePermlink, tempEntry } from "@/utils";
 import { isEcencyWavesHost } from "@/features/waves/enums/wave-hosts";
 import {
   DECENTMEMES_COMMENT_MAX_WEIGHT,
   DECENTMEMES_FRONTEND,
+  DecentMemesPayload,
   enforceDecentMemesBeneficiary,
   ensureDecentMemesTag
 } from "@/api/decentmemes";
@@ -26,6 +27,8 @@ import { useActiveAccount } from "@/core/hooks";
 import { SortOrder } from "@/enums";
 import { enforceThreeSpeakBeneficiary } from "@/api/threespeak-embed/beneficiary";
 import { linkThreeSpeakEmbed } from "@/api/threespeak-embed/link-after-broadcast";
+import { info } from "@/features/shared";
+import i18next from "i18next";
 
 export function useWavesApi() {
   const queryClient = useQueryClient();
@@ -52,7 +55,7 @@ export function useWavesApi() {
       editingEntry?: WaveEntry;
       host?: string;
       videoThumbnail?: string;
-      decentMemes?: { templateIds: string[]; beneficiaries: BeneficiaryRoute[] };
+      decentMemes?: DecentMemesPayload;
       isReply?: boolean;
     }) => {
       if (!username) {
@@ -133,12 +136,16 @@ export function useWavesApi() {
       // the DecentMemes meme beneficiaries (comment caps: 30% max) on top.
       let beneficiaries = enforceThreeSpeakBeneficiary([], raw);
       if (applyDecentMemes) {
-        beneficiaries = enforceDecentMemesBeneficiary(
+        const enforced = enforceDecentMemesBeneficiary(
           beneficiaries,
           decentMemes!.beneficiaries,
           username,
           DECENTMEMES_COMMENT_MAX_WEIGHT
-        ).beneficiaries;
+        );
+        beneficiaries = enforced.beneficiaries;
+        if (enforced.dropped) {
+          info(i18next.t("decentmemes.beneficiaries-trimmed"));
+        }
       }
       if (beneficiaries.length > 0) {
         commentPayload.options = {

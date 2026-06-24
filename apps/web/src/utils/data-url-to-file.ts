@@ -4,6 +4,12 @@
  * which expects a `File` rather than a raw `Blob`.
  */
 export async function dataUrlToFile(dataUrl: string, filename = "meme.png"): Promise<File> {
+  // Defense-in-depth: only ever fetch a base64 data: URI. This guards against a
+  // buggy/compromised widget emitting an http(s) URL, which would otherwise turn
+  // into a live cross-origin request from the user's browser.
+  if (typeof dataUrl !== "string" || !dataUrl.startsWith("data:")) {
+    throw new Error("dataUrlToFile: expected a data: URI");
+  }
   const blob = await (await fetch(dataUrl)).blob();
   const type = blob.type || "image/png";
   // Strip any path components a widget might include in the suggested name.

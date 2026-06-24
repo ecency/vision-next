@@ -2,6 +2,7 @@ import { validatePostCreating } from "@ecency/sdk";
 import { enforceThreeSpeakBeneficiary } from "@/api/threespeak-embed";
 import { linkThreeSpeakEmbed } from "@/api/threespeak-embed/link-after-broadcast";
 import {
+  collectPresentMemeAttribution,
   DECENTMEMES_FRONTEND,
   enforceDecentMemesBeneficiary,
   ensureDecentMemesTag
@@ -14,7 +15,7 @@ import { FullAccount, RewardType } from "@/entities";
 import { EntryBodyManagement, EntryMetadataManagement } from "@/features/entry-management";
 import { PollSnapshot } from "@/features/polls";
 import { QueryKeys, type Poll } from "@ecency/sdk";
-import { success } from "@/features/shared";
+import { info, success } from "@/features/shared";
 import {
   createPermlink,
   isCommunity,
@@ -122,8 +123,10 @@ export function usePublishApi() {
 
       const [parentPermlink] = tags!;
 
-      // DecentMemes: a meme was added when at least one template id was collected.
-      const hasMeme = !!decentMemes && decentMemes.templateIds.length > 0;
+      // DecentMemes: reconcile tracked memes against the final body so a meme
+      // whose image was deleted no longer contributes a tag / metadata / beneficiary.
+      const memeAttribution = collectPresentMemeAttribution(decentMemes, cleanBody);
+      const hasMeme = memeAttribution.templateIds.length > 0;
       const finalTags = hasMeme ? ensureDecentMemesTag(tags ?? []) : tags;
 
       const metaBuilder = await EntryMetadataManagement.EntryMetadataManager.shared
@@ -142,7 +145,7 @@ export function usePublishApi() {
         .withPoll(poll)
         .withDecentMemes(
           hasMeme
-            ? { templateIds: decentMemes!.templateIds, frontend: DECENTMEMES_FRONTEND }
+            ? { templateIds: memeAttribution.templateIds, frontend: DECENTMEMES_FRONTEND }
             : undefined
         )
         .build();
@@ -152,11 +155,15 @@ export function usePublishApi() {
         // Merge the widget-supplied meme beneficiaries on our own terms: never
         // trust its numbers - cap to Hive's 8-slot / 100% limits and keep the
         // user's own beneficiaries intact.
-        finalBeneficiaries = enforceDecentMemesBeneficiary(
+        const enforced = enforceDecentMemesBeneficiary(
           finalBeneficiaries,
-          decentMemes!.beneficiaries,
+          memeAttribution.beneficiaries,
           author
-        ).beneficiaries;
+        );
+        finalBeneficiaries = enforced.beneficiaries;
+        if (enforced.dropped) {
+          info(i18next.t("decentmemes.beneficiaries-trimmed"));
+        }
       }
 
       const options = makeCommentOptions(author, permlink, reward as RewardType, finalBeneficiaries);
