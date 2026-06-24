@@ -1,6 +1,6 @@
 "use client";
 
-import { getWavesByHostQueryOptions } from "@ecency/sdk";
+import { getWavesFeedQueryOptions } from "@ecency/sdk";
 import { useInfiniteDataFlow } from "@/utils";
 import { useMemo, useState } from "react";
 import { WaveEntry } from "@/entities";
@@ -12,13 +12,9 @@ import { useWavesAutoRefresh } from "@/app/waves/_hooks";
 import { WavesRefreshPopup } from "@/app/waves/_components";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
-interface Props {
-  host: string;
-}
-
-export function WavesMasonryView({ host }: Props) {
+export function WavesMasonryView() {
   const { data, fetchNextPage, isError, hasNextPage, refetch } = useInfiniteQuery(
-    getWavesByHostQueryOptions(host)
+    getWavesFeedQueryOptions()
   );
   const dataFlow = useInfiniteDataFlow(data);
   const { newWaves, clear, now } = useWavesAutoRefresh(dataFlow[0]);
@@ -69,7 +65,6 @@ export function WavesMasonryView({ host }: Props) {
                           item={item}
                           onExpandReplies={() => setReplyingEntry(item)}
                           now={now}
-                          currentHost={host}
                       />
                   ))}
               </div>
