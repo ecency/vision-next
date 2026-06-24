@@ -44,7 +44,8 @@ export function useWavesApi() {
       editingEntry,
       host,
       videoThumbnail,
-      decentMemes
+      decentMemes,
+      isReply
     }: {
       entry: Entry;
       raw: string;
@@ -52,6 +53,7 @@ export function useWavesApi() {
       host?: string;
       videoThumbnail?: string;
       decentMemes?: { templateIds: string[]; beneficiaries: BeneficiaryRoute[] };
+      isReply?: boolean;
     }) => {
       if (!username) {
         throw new Error("[Wave][Thread-base][API] – No active user");
@@ -81,10 +83,13 @@ export function useWavesApi() {
       if (isEcencyWavesHost(host) && !editingEntry) {
         permlink = createWavePermlink();
       }
-      // DecentMemes is only applied to Ecency's own waves containers, never to
-      // third-party hosts (decks: leothreads / liketu / dbuzz) or replies.
+      // DecentMemes applies to new waves on Ecency's own containers
+      // (ecency.waves / hive.flow) and to any reply created from the Ecency
+      // composer (the parent's container does not change who authored the
+      // reply). Third-party new-wave hosts (leothreads / liketu / dbuzz) are
+      // excluded.
       const applyDecentMemes =
-        isEcencyWavesHost(host) && !!decentMemes && decentMemes.templateIds.length > 0;
+        !!decentMemes && decentMemes.templateIds.length > 0 && (isReply || isEcencyWavesHost(host));
 
       const baseTags = raw.match(/\#[a-zA-Z0-9]+/g)?.map((tag) => tag.replace("#", "")) ?? [
         "ecency"

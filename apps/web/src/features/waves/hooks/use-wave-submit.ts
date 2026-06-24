@@ -110,7 +110,8 @@ export function useWaveSubmit(
           parent: replySource,
           raw: content,
           editingEntry: editingEntry,
-          videoThumbnail: videoThumbnail || undefined
+          videoThumbnail: videoThumbnail || undefined,
+          decentMemes
         })) as WaveEntry;
         if (host) {
           threadItem.host = host;
