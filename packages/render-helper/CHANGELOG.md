@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.5.15
+
+### Patch Changes
+
+- fix(render-helper): stop Skatehive IPFS videos autoplaying in waves (#1012)
+
 ## 2.5.14
 
 ### Patch Changes
