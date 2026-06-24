@@ -56,18 +56,26 @@ export function useWaveCreate() {
         return;
       }
 
+      const prependToFirstPage = (data?: InfiniteData<WaveEntry[]>) =>
+        data
+          ? {
+              ...data,
+              pages: data.pages.map((page, index) =>
+                index === 0 ? [entry, ...page] : page
+              )
+            }
+          : data;
+
+      // The live Waves list is now the combined cross-container feed; show the
+      // new wave at the top of it immediately.
+      queryClient.setQueryData<InfiniteData<WaveEntry[]>>(
+        QueryKeys.posts.wavesFeed({}),
+        prependToFirstPage
+      );
+      // Legacy single-host feed (decks) kept in sync.
       queryClient.setQueryData<InfiniteData<WaveEntry[]>>(
         QueryKeys.posts.wavesByHost(host),
-        (data) => {
-          if (!data) {
-            return data;
-          }
-
-          return {
-            ...data,
-            pages: data.pages.map((page, index) => (index === 0 ? [entry, ...page] : page))
-          };
-        }
+        prependToFirstPage
       );
     },
     onError: (e) => error(...formatError(e))

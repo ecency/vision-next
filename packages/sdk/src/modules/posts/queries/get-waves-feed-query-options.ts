@@ -66,9 +66,6 @@ async function fetchWavesFeedPage(
 
   const response = await fetch(url.toString(), {
     method: "GET",
-    headers: {
-      "Content-Type": "application/json"
-    },
     signal
   });
 
@@ -112,8 +109,10 @@ export function getWavesFeedQueryOptions(params: WavesFeedParams = {}) {
 
     queryFn: ({ pageParam, signal }) => fetchWavesFeedPage(normalized, pageParam, signal),
 
-    // Keyset pagination: the last (oldest) row's opaque cursor is the next page
-    // param. A short page (fewer than `limit` rows) means the feed is exhausted.
+    // Keyset pagination. A short page (fewer than `limit` rows) is the
+    // end-of-feed signal; on a full page the server always returns the next
+    // cursor on the last row. Stopping (rather than looping) is the safe
+    // fallback if that cursor were ever absent.
     getNextPageParam: (lastPage: WavesFeedEntry[]) => {
       if (lastPage.length < limit) {
         return undefined;

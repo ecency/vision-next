@@ -1,6 +1,6 @@
 "use client";
 
-import { getWavesFeedQueryOptions, QueryKeys } from "@ecency/sdk";
+import { getWavesFeedQueryOptions } from "@ecency/sdk";
 import { WavesListItem } from "@/app/waves/_components/waves-list-item";
 import { DetectBottom } from "@/features/shared";
 import { WavesListLoader } from "@/app/waves/_components/waves-list-loader";
@@ -75,17 +75,9 @@ export function WavesListView({ feedType, username }: Props) {
   const dataFlow = useInfiniteDataFlow(data);
   const [grid] = useWavesGrid();
   const queryClient = useQueryClient();
-  const wavesQueryKey = useMemo(() => {
-    if (tag) {
-      return QueryKeys.posts.wavesFeed({ tag });
-    }
-
-    if (feedType === "following") {
-      return QueryKeys.posts.wavesFeed({ following: username });
-    }
-
-    return QueryKeys.posts.wavesFeed({});
-  }, [feedType, tag, username]);
+  // Reuse the query's own (normalized) key so the refresh-popup cache write
+  // always targets exactly what useInfiniteQuery reads, with no drift.
+  const wavesQueryKey = queryOptions.queryKey;
   const combinedDataFlow = useMemo(() => {
     if (!promoted || tag) {
       return dataFlow;
@@ -170,7 +162,7 @@ export function WavesListView({ feedType, username }: Props) {
 
   // Every feed type now paginates via the keyset cursor, so infinite scroll
   // is enabled across For You, Following and Tag (not just For You).
-  const shouldShowDetectBottom = !tag && hasNextPage;
+  const shouldShowDetectBottom = hasNextPage;
 
   if (isError && combinedDataFlow.length === 0) {
     return (
