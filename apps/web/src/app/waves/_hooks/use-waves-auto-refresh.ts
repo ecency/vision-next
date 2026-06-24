@@ -17,6 +17,12 @@ export function useWavesAutoRefresh(latest?: WaveEntry, observer?: string) {
   const [now, setNow] = useState(Date.now());
   const queryClient = useQueryClient();
 
+  // When the viewer changes (login/logout), drop any queued popup waves: they
+  // were polled under the previous observer and may include now-muted authors.
+  useEffect(() => {
+    setNewWaves([]);
+  }, [observer]);
+
   useEffect(() => {
     let timer: NodeJS.Timeout;
 
