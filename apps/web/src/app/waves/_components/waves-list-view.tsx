@@ -216,11 +216,14 @@ export function WavesListView({ feedType, username }: Props) {
                 };
               }
 
-              const existingIds = new Set(
-                prev.pages.flatMap((page) => page.map((entry) => entry.id))
+              // A wave is uniquely identified by author + permlink (entry.id is
+              // not reliable across the feed sources).
+              const keyOf = (entry: WaveEntry) => `${entry.author}/${entry.permlink}`;
+              const existingKeys = new Set(
+                prev.pages.flatMap((page) => page.map(keyOf))
               );
               const deduped = wavesToInsert.filter(
-                (entry) => !existingIds.has(entry.id)
+                (entry) => !existingKeys.has(keyOf(entry))
               );
 
               if (deduped.length === 0) {

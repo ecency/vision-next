@@ -544,10 +544,17 @@ describe('sanitizeHtml', () => {
       expect(sanitizeHtml(input)).toBe(expected)
     })
 
-    it('should strip audio tags (not in whitelist)', () => {
-      const input = '<audio src="https://example.com/audio.mp3" controls></audio>'
-      const expected = ''
-      expect(sanitizeHtml(input)).toBe(expected)
+    it('should allow audio tags with an http(s) src', () => {
+      const out = sanitizeHtml('<audio src="https://example.com/audio.mp3" controls></audio>')
+      expect(out).toContain('<audio')
+      expect(out).toContain('src="https://example.com/audio.mp3"')
+      expect(out).toContain('controls')
+    })
+
+    it('should strip a non-http(s) audio src', () => {
+      const out = sanitizeHtml('<audio src="javascript:alert(1)" controls></audio>')
+      expect(out).not.toContain('javascript:')
+      expect(out).toContain('<audio')
     })
 
     it('should allow safe iframe with allowed attributes', () => {

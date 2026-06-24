@@ -43,6 +43,7 @@ export const ALLOWED_ATTRIBUTES: XSSWhiteList = {
   'span': ['class', 'id', 'data-align'],
   'iframe': ['src', 'class', 'frameborder', 'allowfullscreen', 'webkitallowfullscreen', 'mozallowfullscreen', 'sandbox'],
   'video': ['src', 'controls', 'poster'],
+  'audio': ['src', 'controls', 'preload'],
   'div': ['class', 'id', 'data-align'],
   'strong': [],
   'b': [],

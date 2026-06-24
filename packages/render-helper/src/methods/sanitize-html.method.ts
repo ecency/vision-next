@@ -66,7 +66,7 @@ export function sanitizeHtml(html: string): string {
       if (tag === 'source' && name === 'srcset' && !isProxyPSrcset(decoded)) return '';
       if (tag === 'source' && name === 'type' && decodedLower !== 'image/avif' && decodedLower !== 'image/webp') return '';
       if (
-        tag === 'video' && ['src', 'poster'].includes(name) &&
+        (tag === 'video' || tag === 'audio') && ['src', 'poster'].includes(name) &&
         !/^https?:\/\//.test(decodedLower)
       ) return '';
       if (tag === 'img' && ['dynsrc', 'lowsrc'].includes(name)) return '';
