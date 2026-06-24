@@ -178,9 +178,18 @@ export function iframe(el: HTMLElement | null, parentDomain: string = 'ecency.co
   }
 
   // IPFS Skatehive
+  // The skatehive IPFS gateway serves the raw video file directly (content-type
+  // video/mp4), so an <iframe src=…> loads a browser *media document*, which
+  // Chrome autoplays on load regardless of the `allow` attribute. Render a real
+  // <video controls> instead so playback is user-initiated and never autoplays
+  // (the sanitizer keeps only src/controls/poster on <video>, so an autoplay
+  // attribute could not survive here anyway). Same behaviour in waves and posts.
   if (src.match(SKATEHIVE_IPFS_REGEX)) {
-    el.setAttribute('src', src);
-    el.setAttribute('allowfullscreen', 'true');
+    const video = el.ownerDocument.createElement('video');
+    video.setAttribute('src', src);
+    video.setAttribute('controls', '');
+    el.parentNode.insertBefore(video, el);
+    el.parentNode.removeChild(el);
     return;
   }
 

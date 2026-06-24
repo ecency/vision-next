@@ -1615,8 +1615,11 @@ function iframe(el, parentDomain = "ecency.com", forApp = false, renderOptions) 
     return;
   }
   if (src.match(SKATEHIVE_IPFS_REGEX)) {
-    el.setAttribute("src", src);
-    el.setAttribute("allowfullscreen", "true");
+    const video = el.ownerDocument.createElement("video");
+    video.setAttribute("src", src);
+    video.setAttribute("controls", "");
+    el.parentNode.insertBefore(video, el);
+    el.parentNode.removeChild(el);
     return;
   }
   if (src.match(SKATEHYPE_EMBED_REGEX)) {
