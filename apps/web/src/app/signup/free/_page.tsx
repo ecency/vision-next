@@ -134,6 +134,16 @@ export function FreeSignUp() {
       return;
     }
 
+    // Re-run the account-name rule synchronously. usernameError is set by a
+    // debounced effect and the input is only `required`, so a fast type-then-submit
+    // (or autofill + Enter) could otherwise carry a chain-invalid name (e.g. a
+    // dot-segment under 3 chars like `name.uk`) through to the backend.
+    const usernameRuleError = getUsernameError(username);
+    if (usernameRuleError) {
+      setUsernameError(usernameRuleError);
+      return;
+    }
+
     if (usernameError || referralError || emailError) {
       return;
     }
