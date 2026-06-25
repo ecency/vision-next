@@ -6,6 +6,7 @@ import { useDebounce } from "react-use";
 import i18next from "i18next";
 import { useQuery } from "@tanstack/react-query";
 import { checkUsernameWalletsPendingQueryOptions, getAccountsQueryOptions } from "@ecency/sdk";
+import { getUsernameError } from "@/utils";
 
 interface Props {
   initialUsername: string;
@@ -34,26 +35,9 @@ export function SignupWalletChooseUsername({ initialUsername, onAvailableUsernam
       return i18next.t("sign-up.username-in-use");
     }
 
-    if (username.length < 2) {
-      return i18next.t("sign-up.username-max-length-error");
-    } else if (username.length > 16) {
-      return i18next.t("sign-up.username-min-length-error");
-    } else {
-      const parts = username.split(".");
-      for (const item of parts) {
-        if (item.length < 3) {
-          return i18next.t("sign-up.username-min-length-error");
-        } else if (!/^[\x00-\x7F]*$/.test(item[0])) {
-          return i18next.t("sign-up.username-no-ascii-first-letter-error");
-        } else if (!/^([a-zA-Z0-9]|-|\.)+$/.test(item)) {
-          return i18next.t("sign-up.username-contains-symbols-error");
-        } else if (item.includes("--")) {
-          return i18next.t("sign-up.username-contains-double-hyphens");
-        } else if (/^\d/.test(item)) {
-          return i18next.t("sign-up.username-starts-number");
-        }
-      }
-    }
+    // Single source of truth for chain-validity + exchange/uid policy. Keeps this
+    // step from drifting from the other signup flows (see getUsernameError).
+    return getUsernameError(username) ?? undefined;
   }, [existingAccount, username, hasTouched, data]);
   const canCreateAccount = useMemo(
     () => !usernameError && username && isSuccess,

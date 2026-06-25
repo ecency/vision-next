@@ -392,6 +392,8 @@
     "username-starts-number": "Should not start with Numbers",
     "username-required": "Username is required",
     "username-in-use": "This username already exists. Set another one",
+    "username-resembles-exchange": "This username is too similar to a crypto exchange account and may confuse others. Please choose a more unique name.",
+    "username-restricted-prefix": "Usernames that start with 'uid' followed by numbers are not allowed, as they are commonly used to impersonate others. Please choose a different name.",
     "referral-invalid": "This referral is invalid. Please, try another one",
     "referral-min-length-error": "Length of referral should be at least 3 characters",
     "referral-max-length-error": "Length of referral should be no more than 16 characters",
