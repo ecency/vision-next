@@ -23,6 +23,7 @@ describe("getUsernameError", () => {
     expect(getUsernameError("mybittrex")).toBe("sign-up.username-resembles-exchange");
     expect(getUsernameError("coinex")).toBe("sign-up.username-resembles-exchange");
     expect(getUsernameError("bitgethive")).toBe("sign-up.username-resembles-exchange");
+    expect(getUsernameError("bitget")).toBe("sign-up.username-resembles-exchange"); // brand core
   });
 
   it("rejects the uid + digits impersonation pattern", () => {

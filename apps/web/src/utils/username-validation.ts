@@ -63,6 +63,9 @@ const GENERIC_EXCHANGE_SUFFIXES = ["deposit", "exchange", "steem", "hive", "pro"
 // "deepcrypto8" -> "deepcrypto"). Single-token names without such a tail
 // ("bittrex", "blocktrades", "changelly") are returned unchanged, so their
 // ordinary-word prefixes ("block", "change") never become a match target.
+// Strips a single (outermost) suffix, which covers every account in the current
+// list; a future account with a compounded tail (e.g. "brandproexchange") would
+// need this extended to strip iteratively.
 function exchangeBrandCore(normalized: string): string {
     const core = normalized.replace(/\d+$/, "");
     const suffix = GENERIC_EXCHANGE_SUFFIXES.find(
@@ -101,7 +104,8 @@ function levenshtein(a: string, b: string): number {
  */
 export function isExchangeLikeUsername(username: string): boolean {
     const candidate = normalizeForExchangeMatch(username);
-    // Too short to meaningfully resemble any (>= 7 char) exchange account name.
+    // Cheap early-out for 1-2 char inputs; anything still short simply fails every
+    // rule below (brand cores are >= 4, full names >= 7, embed/typo need length).
     if (candidate.length < 3) return false;
 
     return EXCHANGE_ACCOUNTS.some((account) => {
@@ -109,7 +113,9 @@ export function isExchangeLikeUsername(username: string): boolean {
         if (!exchange) return false;
         const core = exchangeBrandCore(exchange);
 
-        // 1. exact match against the full account or its (>= 4 char) brand core
+        // 1. exact match against the full account or its (>= 4 char) brand core.
+        //    The >= 4 guard drops the only sub-4 core ("mxc", from "mxchive"), so a
+        //    3-char fragment can't over-match; "mxchive" is still caught in full.
         if (candidate === exchange) return true;
         if (core.length >= 4 && candidate === core) return true;
 
