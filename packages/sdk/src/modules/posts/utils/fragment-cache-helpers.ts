@@ -30,12 +30,12 @@ export function applyFragmentUpdate(
  * id/timestamps.
  */
 export function buildAddedFragment(
-  response: Fragment,
+  response: Fragment | null | undefined,
   vars: { title: string; body: string }
 ): Fragment {
   return {
-    ...response,
+    ...(response ?? {}),
     title: vars.title,
     body: vars.body
-  };
+  } as Fragment;
 }

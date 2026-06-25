@@ -1,9 +1,8 @@
 import { vi } from "vitest";
 import React from "react";
-import { render } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { EntryPayout } from "@/features/shared/entry-payout";
-import { mockEntry } from "@/specs/test-utils";
+import { createTestQueryClient, mockEntry, renderWithQueryClient } from "@/specs/test-utils";
 
 // The component imports FormattedCurrency from the @/features/shared barrel,
 // which pulls in many heavy components. Replace it with a deterministic stub so
@@ -20,6 +19,24 @@ vi.mock("@/utils", async () => ({
   ...(await vi.importActual("@/utils")),
   random: vi.fn(),
   getAccessToken: vi.fn(() => "mock-token")
+}));
+
+// EntryPayout now subscribes to the entry cache (like EntryVotes). Bridge
+// getEntryQuery to a plain query keyed by author/permlink whose initialData is
+// the passed entry, so each test renders from its prop and can also drive the
+// cached value directly.
+vi.mock("@/core/caches", () => ({
+  EcencyEntriesCacheManagement: {
+    getEntryQuery: (initialEntry: any) => ({
+      queryKey: ["entry", initialEntry?.author, initialEntry?.permlink],
+      queryFn: () => initialEntry,
+      initialData: initialEntry,
+      // No mount refetch, so a setQueryData (the optimistic vote update) is not
+      // clobbered by the stub queryFn returning the stale initialEntry.
+      staleTime: Infinity,
+      enabled: !!initialEntry
+    })
+  }
 }));
 
 // EntryPayoutDetail (rendered lazily inside the popover) reads the dynamic-props
@@ -43,7 +60,7 @@ describe("EntryPayout", () => {
       post_id: 42
     });
 
-    const { getByTestId } = render(<EntryPayout entry={entry} />);
+    const { getByTestId } = renderWithQueryClient(<EntryPayout entry={entry} />);
 
     // 1.500 + 0 + 0 = 1.5, FormattedCurrency stub renders with fixAt=3
     expect(getByTestId("formatted-currency")).toHaveTextContent("$1.500");
@@ -59,7 +76,7 @@ describe("EntryPayout", () => {
       post_id: 7
     });
 
-    const { getByTestId } = render(<EntryPayout entry={entry} />);
+    const { getByTestId } = renderWithQueryClient(<EntryPayout entry={entry} />);
 
     // 0 + 2.25 + 0.75 = 3.0
     expect(getByTestId("formatted-currency")).toHaveTextContent("$3.000");
@@ -75,7 +92,7 @@ describe("EntryPayout", () => {
       post_id: 99
     });
 
-    const { container } = render(<EntryPayout entry={entry} />);
+    const { container } = renderWithQueryClient(<EntryPayout entry={entry} />);
 
     const badge = container.querySelector(".entry-payout");
     expect(badge).not.toBeNull();
@@ -95,7 +112,7 @@ describe("EntryPayout", () => {
       post_id: 5
     });
 
-    const { container, getByTestId } = render(<EntryPayout entry={entry} />);
+    const { container, getByTestId } = renderWithQueryClient(<EntryPayout entry={entry} />);
 
     const badge = container.querySelector(".entry-payout");
     expect(badge).toHaveClass("payout-limit-hit");
@@ -115,7 +132,7 @@ describe("EntryPayout", () => {
       max_accepted_payout: undefined
     });
 
-    const { getByTestId } = render(<EntryPayout entry={entry} />);
+    const { getByTestId } = renderWithQueryClient(<EntryPayout entry={entry} />);
 
     // search branch: shownPayout = entry.payout = 4.2 (asset strings ignored)
     expect(getByTestId("formatted-currency")).toHaveTextContent("$4.200");
@@ -134,7 +151,7 @@ describe("EntryPayout", () => {
       curator_payout_value: "0.000 HBD"
     });
 
-    const { getByTestId } = render(<EntryPayout entry={entry} />);
+    const { getByTestId } = renderWithQueryClient(<EntryPayout entry={entry} />);
 
     expect(getByTestId("formatted-currency")).toHaveTextContent("$1.234");
   });
@@ -146,8 +163,36 @@ describe("EntryPayout", () => {
       post_id: 0
     });
 
-    const { getByTestId } = render(<EntryPayout entry={entry} />);
+    const { getByTestId } = renderWithQueryClient(<EntryPayout entry={entry} />);
 
     expect(getByTestId("formatted-currency")).toHaveTextContent("$0.000");
+  });
+
+  // Regression (waves): the action bar receives the original feed row as its
+  // prop, so EntryPayout must read from the entry cache (not the prop) for an
+  // optimistic vote's payout bump to render before the feed refetches. Here the
+  // cache (as written by the optimistic vote update) holds a bumped payout while
+  // the prop still has the stale feed value.
+  it("renders payout from the entry cache, not the stale prop", () => {
+    const entry = mockEntry({
+      author: "alice",
+      permlink: "wave-1",
+      max_accepted_payout: "1000000.000 HBD",
+      pending_payout_value: "0.000 HBD",
+      author_payout_value: "0.000 HBD",
+      curator_payout_value: "0.000 HBD",
+      id: undefined,
+      post_id: 4242
+    });
+
+    const queryClient = createTestQueryClient();
+    queryClient.setQueryData(["entry", "alice", "wave-1"], {
+      ...entry,
+      pending_payout_value: "1.500 HBD"
+    });
+
+    const { getByTestId } = renderWithQueryClient(<EntryPayout entry={entry} />, { queryClient });
+
+    expect(getByTestId("formatted-currency")).toHaveTextContent("$1.500");
   });
 });

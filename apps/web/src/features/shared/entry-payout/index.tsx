@@ -8,13 +8,22 @@ import { parseAsset } from "@/utils";
 import { FormattedCurrency } from "@/features/shared";
 import { classNameObject } from "@ui/util";
 import { Entry } from "@/entities";
+import { EcencyEntriesCacheManagement } from "@/core/caches";
+import { useQuery } from "@tanstack/react-query";
 
 interface Props {
   entry: Entry;
 }
 
-export const EntryPayout = ({ entry }: Props) => {
+export const EntryPayout = ({ entry: initialEntry }: Props) => {
   const [showPopover, setShowPopover] = useState(false);
+
+  // Subscribe to the entry cache like EntryVotes does, so an optimistic vote's
+  // payout bump renders immediately. The waves list passes the original feed row
+  // as the prop (WaveActions receives `item`, not the cache-aware entry), so
+  // without this the payout stayed stale until the feed refetched.
+  const { data } = useQuery(EcencyEntriesCacheManagement.getEntryQuery(initialEntry));
+  const entry = data ?? initialEntry;
 
   const check = entry.max_accepted_payout;
   // Real search-API results expose a numeric `payout` and lack the asset-string

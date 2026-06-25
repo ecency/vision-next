@@ -68,4 +68,15 @@ describe("buildAddedFragment", () => {
     expect(result.title).toBe("Hello");
     expect(result.body).toBe("World");
   });
+
+  it("tolerates a null/undefined response without throwing", () => {
+    expect(buildAddedFragment(null, { title: "Hello", body: "World" })).toMatchObject({
+      title: "Hello",
+      body: "World"
+    });
+    expect(buildAddedFragment(undefined, { title: "Hello", body: "World" })).toMatchObject({
+      title: "Hello",
+      body: "World"
+    });
+  });
 });

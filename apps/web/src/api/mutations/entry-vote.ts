@@ -39,13 +39,21 @@ export function useEntryVote(entry?: Entry | null) {
       // on it (the previous behavior) dropped the optimistic count/payout bump
       // for waves and fell back to a slow refetch. The SDK's deferred
       // invalidation reconciles the authoritative values afterwards.
-      const { newVotes, nextVoteCount, nextPayout } = deriveOptimisticVote(
-        entry,
-        weight,
-        estimated,
-        activeUser.username
-      );
-      updateVotes(newVotes, nextPayout, nextVoteCount);
+      //
+      // The vote is already broadcast at this point, so a failure in this local
+      // cache update must not bubble up as a vote error; the deferred
+      // invalidation reconciles regardless.
+      try {
+        const { newVotes, nextVoteCount, nextPayout } = deriveOptimisticVote(
+          entry,
+          weight,
+          estimated,
+          activeUser.username
+        );
+        updateVotes(newVotes, nextPayout, nextVoteCount);
+      } catch {
+        // no-op: reconciled by the SDK's deferred invalidation
+      }
     },
   };
 }
