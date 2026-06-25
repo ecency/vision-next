@@ -14,5 +14,6 @@ export const EXCHANGE_ACCOUNTS = [
   "poloniex",
   "upbit-exchange",
   "onepagex",
-  "bdhivesteem"
+  "bdhivesteem",
+  "bitgethive"
 ];

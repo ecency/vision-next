@@ -6,6 +6,7 @@ import { useDebounce } from "react-use";
 import i18next from "i18next";
 import { useQuery } from "@tanstack/react-query";
 import { checkUsernameWalletsPendingQueryOptions, getAccountsQueryOptions } from "@ecency/sdk";
+import { hasRestrictedUsernamePrefix, isExchangeLikeUsername } from "@/utils";
 
 interface Props {
   initialUsername: string;
@@ -52,6 +53,17 @@ export function SignupWalletChooseUsername({ initialUsername, onAvailableUsernam
         } else if (/^\d/.test(item)) {
           return i18next.t("sign-up.username-starts-number");
         }
+      }
+
+      // Block names that look like a known exchange deposit account (see
+      // isExchangeLikeUsername) to avoid confusion with unrecoverable transfers.
+      if (isExchangeLikeUsername(username)) {
+        return i18next.t("sign-up.username-resembles-exchange");
+      }
+
+      // Block the "uid" + digits pattern commonly abused for impersonation.
+      if (hasRestrictedUsernamePrefix(username)) {
+        return i18next.t("sign-up.username-restricted-prefix");
       }
     }
   }, [existingAccount, username, hasTouched, data]);
