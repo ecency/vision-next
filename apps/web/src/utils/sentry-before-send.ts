@@ -178,27 +178,22 @@ export function beforeSend(event: SentryErrorEvent): SentryErrorEvent | null {
   }
 
   // Firefox-specific iframe teardown error following a React hydration
-  // mismatch (#418) on profile pages. Symptom — when hydration fails,
-  // React tears down the tree and an iframe's contentWindow becomes null
-  // while some downstream code still tries to access .document on it.
-  // V8-based engines produce a different message for the same access
-  // (`Cannot read properties of null (reading 'document')`) so matching
-  // on the Firefox phrasing alone is engine-specific, but we *also*
-  // require browser=Firefox and a profile-page URL so unrelated iframe
-  // bugs in other surfaces aren't silently dropped. Sample 1% to keep
-  // trend visibility.
-  // TODO(hydration): investigate Firefox-only hydration drift on profile
-  // pages (`/@user/...`) — likely a locale/Date/Intl mismatch or a value
-  // that differs between SSR and the first client render.
+  // mismatch (#418). Symptom — when hydration fails, React tears down the
+  // tree and an iframe's contentWindow becomes null while some downstream
+  // code still tries to access .document on it. This occurs on any page
+  // that renders post content with embedded iframes (profile pages, feeds,
+  // hot/trending, etc.). V8-based engines produce a different message for
+  // the same access (`Cannot read properties of null (reading 'document')`),
+  // so matching on the Firefox phrasing alone is sufficiently specific.
+  // TODO(hydration): investigate Firefox-only hydration drift —
+  // likely a locale/Date/Intl mismatch or a value that differs between
+  // SSR and the first client render.
   // event.contexts is loosely typed by @sentry/types; coerce to string.
   const browserName = String(event.contexts?.browser?.name ?? "");
-  const url = String(event.request?.url ?? "");
   if (
     message.includes("can't access property \"document\"") &&
     message.includes("contentWindow is null") &&
-    /Firefox/i.test(browserName) &&
-    /\/@/.test(url) &&
-    Math.random() > 0.01
+    /Firefox/i.test(browserName)
   ) {
     return null;
   }
