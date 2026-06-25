@@ -71,6 +71,15 @@ ENTRYPOINT ["/tini", "--"]
 
 ENV NODE_ENV=production
 
+# ffmpeg powers the /api/speak-audio endpoint, which transcodes Liketu "Speak"
+# voice posts (Opus/WebM) to AAC/m4a so iOS AVPlayer (react-native-video, Safari)
+# can play them. Runtime-only dependency; the build stage does not need it.
+# Installed before the app artifacts COPY so this apt layer caches across
+# code-only deploys.
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends ffmpeg \
+  && rm -rf /var/lib/apt/lists/*
+
 # Carry the Sentry release identifier into the runtime container.
 # Build-args don't cross stage boundaries automatically — each stage that
 # needs them must redeclare ARG. Without this the server and edge runtimes
