@@ -51,6 +51,7 @@ describe("getUsernameError", () => {
     expect(getUsernameError("a2345678901234567")).toBe("sign-up.username-max-length-error");
     expect(getUsernameError("1abc")).toBe("sign-up.username-starts-number");
     expect(getUsernameError("ab_cd")).toBe("sign-up.username-contains-symbols-error");
+    expect(getUsernameError("ab--cd")).toBe("sign-up.username-contains-double-hyphens");
   });
 
   it("rejects dot-boundary names (empty leading/trailing segment)", () => {

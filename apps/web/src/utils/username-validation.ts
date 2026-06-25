@@ -20,6 +20,9 @@ export function getUsernameError(username: string): string | null {
         if (/^\d/.test(segment)) {
             return i18next.t("sign-up.username-starts-number");
         }
+        if (segment.includes("--")) {
+            return i18next.t("sign-up.username-contains-double-hyphens");
+        }
         if (segment.startsWith("-") || segment.endsWith("-")) {
             return i18next.t("sign-up.username-invalid-hyphen-position");
         }
