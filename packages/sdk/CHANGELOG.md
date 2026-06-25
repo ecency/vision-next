@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.25
+
+### Patch Changes
+
+- fix: restore snippet edit + optimistic wave vote updates (#1016)
+
 ## 2.3.24
 
 ### Patch Changes
