@@ -214,3 +214,62 @@ describe("beforeSend — webkit.messageHandlers (non-WKWebView) is dropped", () 
     expect(beforeSend(ev)).toBe(ev);
   });
 });
+
+describe("beforeSend — synthetic DOM Event capture is dropped", () => {
+  // ECENCY-NEXT-1F6Y: captureException handed a DOM `Event`/`ErrorEvent` instead
+  // of an Error (failed resource load onerror, or a promise rejected with the raw
+  // browser event). The SDK wraps the non-Error input as a SYNTHETIC exception
+  // whose `type` is the DOM interface name and whose only frame is its own capture
+  // call. No app frame, no actionable info, overwhelmingly bot/crawler traffic —
+  // dropped as noise. Requires BOTH the DOM type AND the synthetic flag.
+  function makeSynthetic(
+    type: "Event" | "ErrorEvent",
+    opts: { synthetic?: boolean; frames?: { filename?: string }[] } = {}
+  ): Ev {
+    return {
+      exception: {
+        values: [
+          {
+            type,
+            value: `Event \`${type}\` (type=error) captured as exception`,
+            stacktrace: { frames: opts.frames ?? [{ filename: "@sentry/core/exports.js" }] },
+            mechanism: { type: "generic", handled: true, synthetic: opts.synthetic ?? true }
+          }
+        ]
+      }
+    } as unknown as Ev;
+  }
+
+  it("drops a synthetic DOM Event captured as exception", () => {
+    expect(beforeSend(makeSynthetic("Event"))).toBeNull();
+  });
+
+  it("drops a synthetic ErrorEvent captured as exception", () => {
+    expect(beforeSend(makeSynthetic("ErrorEvent"))).toBeNull();
+  });
+
+  it("does NOT drop a DOM-Event-typed exception that is NOT synthetic", () => {
+    // Without the synthetic flag we can't be sure the SDK fabricated it from a
+    // non-Error input, so keep it rather than risk dropping a real capture.
+    const ev = makeSynthetic("Event", { synthetic: false, frames: [APP_FRAME] });
+    expect(beforeSend(ev)).toBe(ev);
+  });
+
+  it("does NOT drop a synthetic capture whose type is a real Error", () => {
+    // `synthetic: true` alone (e.g. a captured non-Error string/object the app
+    // threw with context) must NOT be swept up — only DOM Event types are.
+    const ev = {
+      exception: {
+        values: [
+          {
+            type: "TypeError",
+            value: "boom",
+            stacktrace: { frames: [APP_FRAME] },
+            mechanism: { type: "generic", handled: true, synthetic: true }
+          }
+        ]
+      }
+    } as unknown as Ev;
+    expect(beforeSend(ev)).toBe(ev);
+  });
+});

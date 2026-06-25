@@ -29,6 +29,24 @@ export function beforeSend(event: SentryErrorEvent): SentryErrorEvent | null {
   const frames = event.exception?.values?.[0]?.stacktrace?.frames ?? [];
   const stackStr = JSON.stringify(frames);
 
+  // ECENCY-NEXT-1F6Y: a DOM `Event`/`ErrorEvent` handed to captureException
+  // instead of an Error. A failed resource load (<img>/<script>/<link> firing
+  // `onerror`) or a promise rejected with the raw browser event reaches the SDK,
+  // which wraps the non-Error input as a SYNTHETIC exception whose `type` is the
+  // DOM interface name ("Event"/"ErrorEvent") and whose only frame is the SDK's
+  // own capture call (no app frame, no actionable info). These are environmental
+  // — overwhelmingly bot/crawler traffic failing resource fetches on post pages,
+  // never an Ecency bug — and were the project's #1-volume issue, repeatedly
+  // tripping the "Critical errors" alert. You never `throw new Event()`, so a real
+  // error can't carry this type; we additionally require the `synthetic` flag so a
+  // (hypothetical) deliberately-captured Event with real context is still kept.
+  if (
+    (exceptionType === "Event" || exceptionType === "ErrorEvent") &&
+    event.exception?.values?.[0]?.mechanism?.synthetic
+  ) {
+    return null;
+  }
+
   // Deploy/version skew: a stale tab requests a chunk whose module id changed in
   // a newer build, so the webpack runtime is handed an undefined module factory
   // (Chrome "reading 'call'", Firefox "e[c] is undefined", Safari "evaluating
