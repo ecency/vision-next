@@ -2,6 +2,7 @@ import { CONFIG, getBoundFetch, getQueryClient } from "@/modules/core";
 import { InfiniteData, useMutation } from "@tanstack/react-query";
 import { Fragment } from "../types";
 import { getFragmentsQueryOptions } from "../queries";
+import { applyFragmentUpdate } from "../utils/fragment-cache-helpers";
 import { WrappedResponse } from "@/modules/core/types";
 
 export function useEditFragment(
@@ -43,21 +44,19 @@ export function useEditFragment(
     onSuccess(response, variables) {
       const queryClient = getQueryClient();
 
+      // The /fragments-update endpoint returns a minimal acknowledgement, not the
+      // full fragment, so writing the raw response into the cache blanked out the
+      // edited snippet. Rebuild the fragment from the submitted values instead.
+      const applyUpdate = (fragment: Fragment): Fragment =>
+        applyFragmentUpdate(fragment, response, variables);
+
       // Update regular query cache
       queryClient.setQueryData<Fragment[]>(
         getFragmentsQueryOptions(username, code).queryKey,
-        (data) => {
-          if (!data) {
-            return [];
-          }
-
-          const index = data.findIndex(({ id }) => id === variables.fragmentId);
-          if (index >= 0) {
-            data[index] = response;
-          }
-
-          return [...data];
-        }
+        (data) =>
+          data?.map((fragment) =>
+            fragment.id === variables.fragmentId ? applyUpdate(fragment) : fragment
+          ) ?? []
       );
 
       // Update infinite query cache - update fragment in all pages
@@ -71,7 +70,7 @@ export function useEditFragment(
             pages: oldData.pages.map((page) => ({
               ...page,
               data: page.data.map((fragment) =>
-                fragment.id === variables.fragmentId ? response : fragment
+                fragment.id === variables.fragmentId ? applyUpdate(fragment) : fragment
               ),
             })),
           };

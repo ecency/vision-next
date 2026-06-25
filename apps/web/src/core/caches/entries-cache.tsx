@@ -90,8 +90,13 @@ export namespace EcencyEntriesCacheManagement {
   export function useUpdateVotes(entry?: Entry | null) {
     const qc = useQueryClient();
     return {
-      update: (votes: EntryVote[], payout: number) => {
+      // `totalVotes` lets callers pass an explicit count. Feed-sourced entries
+      // (e.g. the unified waves feed) ship a `net_votes` count but no
+      // `active_votes` array, so `votes.length` understates the real total; the
+      // caller derives the correct next count and passes it here.
+      update: (votes: EntryVote[], payout: number, totalVotes?: number) => {
         if (!entry) return;
+        const nextTotalVotes = totalVotes ?? votes.length;
         mutateEntryInstance(
           entry,
           (value) => ({
@@ -99,10 +104,11 @@ export namespace EcencyEntriesCacheManagement {
             active_votes: votes,
             stats: {
               ...entry.stats || { gray: false, hide: false, flag_weight: 0, total_votes: 0 },
-              total_votes: votes.length,
+              total_votes: nextTotalVotes,
               flag_weight: entry?.stats?.flag_weight || 0
             },
-            total_votes: votes.length,
+            total_votes: nextTotalVotes,
+            net_votes: nextTotalVotes,
             payout,
             pending_payout_value: String(payout)
           }),

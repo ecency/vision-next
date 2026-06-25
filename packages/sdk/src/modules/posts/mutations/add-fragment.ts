@@ -2,6 +2,7 @@ import { CONFIG, getBoundFetch, getQueryClient } from "@/modules/core";
 import { InfiniteData, useMutation } from "@tanstack/react-query";
 import { Fragment } from "../types";
 import { getFragmentsQueryOptions } from "../queries";
+import { buildAddedFragment } from "../utils/fragment-cache-helpers";
 import { WrappedResponse } from "@/modules/core/types";
 
 export function useAddFragment(username: string, code: string | undefined) {
@@ -28,13 +29,18 @@ export function useAddFragment(username: string, code: string | undefined) {
       );
       return response.json() as Promise<Fragment>;
     },
-    onSuccess(response) {
+    onSuccess(response, variables) {
       const queryClient = getQueryClient();
+
+      // Reaffirm the submitted title/body over the server acknowledgement so a
+      // freshly added snippet never renders blank if the response omits them,
+      // while keeping any server-provided id/timestamps.
+      const newFragment = buildAddedFragment(response, variables);
 
       // Update regular query cache
       queryClient.setQueryData<Fragment[]>(
         getFragmentsQueryOptions(username, code).queryKey,
-        (data) => [response, ...(data ?? [])]
+        (data) => [newFragment, ...(data ?? [])]
       );
 
       // Update infinite query cache - add new fragment to first page
@@ -47,7 +53,7 @@ export function useAddFragment(username: string, code: string | undefined) {
             ...oldData,
             pages: oldData.pages.map((page, index) =>
               index === 0
-                ? { ...page, data: [response, ...page.data] }
+                ? { ...page, data: [newFragment, ...page.data] }
                 : page
             ),
           };
