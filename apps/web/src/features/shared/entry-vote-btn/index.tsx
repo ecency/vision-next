@@ -133,19 +133,26 @@ export function EntryVoteBtn({ entry: originalEntry, isPostSlider, account }: Pr
       return null;
     }
   }, [activeUser, entry, isVoted, queryClient]);
-  const toggleDialog = useCallback(async () => {
-    //if dialog is closing do nothing and close
-    if (!dialog) {
-      try {
-        const preVote = await getPreviousVote();
-        setPreviousVotedValue(preVote);
-      } catch (e) {
-        console.error("entry-vote-btn failed to toggle dialog", e);
-        setPreviousVotedValue(undefined);
-      }
+  const toggleDialog = useCallback(() => {
+    // Closing: just close.
+    if (dialog) {
+      setDialog(false);
+      return;
     }
 
-    setDialog(!dialog);
+    // Opening: open the slider immediately so the tap paints without waiting on
+    // getPreviousVote(), which can do a network fetch for the user's prior vote
+    // on an already-voted post (session-cache miss). Awaiting it here used to
+    // block the dialog open and inflate INP on that interaction. The dialog
+    // syncs to the resolved value reactively once it arrives (see the
+    // previousVotedValue effect in entry-vote-dialog).
+    setDialog(true);
+    getPreviousVote()
+      .then((preVote) => setPreviousVotedValue(preVote ?? undefined))
+      .catch((e) => {
+        console.error("entry-vote-btn failed to load previous vote", e);
+        setPreviousVotedValue(undefined);
+      });
   }, [dialog, getPreviousVote]);
 
   return (

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import * as ls from "@/utils/local-storage";
 import { Button } from "@ui/button";
 import i18next from "i18next";
@@ -81,6 +81,28 @@ export function EntryVoteDialog({
   const [wrongValueDown, setWrongValueDown] = useState(false);
   const [showRemove, setShowRemove] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
+
+  // The parent now opens this dialog immediately and resolves the user's
+  // previous vote in the background (so the open isn't blocked on a network
+  // fetch — an INP win), where it used to mount this dialog only after the value
+  // was already known. When that value arrives after mount, apply it to the
+  // slider the same way the initial state above would have. Apply it exactly
+  // once (the first truthy value) so a re-render can't yank the slider back
+  // after the user starts adjusting it.
+  const appliedPreviousRef = useRef(false);
+  useEffect(() => {
+    if (appliedPreviousRef.current || !previousVotedValue) {
+      return;
+    }
+    appliedPreviousRef.current = true;
+    if (upVoted) {
+      setUpSliderVal(previousVotedValue);
+      setInitialVoteValues((v) => ({ ...v, up: previousVotedValue }));
+    } else if (downVoted) {
+      setDownSliderVal(previousVotedValue);
+      setInitialVoteValues((v) => ({ ...v, down: previousVotedValue }));
+    }
+  }, [previousVotedValue, upVoted, downVoted]);
 
   const isPaidOut = entry.is_paidout;
 
