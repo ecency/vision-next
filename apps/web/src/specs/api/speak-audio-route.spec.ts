@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { NextRequest } from "next/server";
 
 vi.mock("@ecency/sdk/hive", () => ({ callRPC: vi.fn() }));
@@ -10,6 +10,7 @@ import {
   parseRange,
   isValidAuthor,
   isValidPermlink,
+  buildAudioResponse,
   GET
 } from "@/app/api/speak-audio/route";
 import { callRPC } from "@ecency/sdk/hive";
@@ -151,6 +152,34 @@ describe("parseRange", () => {
   });
 });
 
+describe("buildAudioResponse cache safety", () => {
+  const body = Buffer.from("0123456789"); // size 10
+
+  it("serves the full 200 with the immutable cache + Accept-Ranges", async () => {
+    const res = buildAudioResponse(body, null);
+    expect(res.status).toBe(200);
+    expect(res.headers.get("cache-control")).toContain("immutable");
+    expect(res.headers.get("accept-ranges")).toBe("bytes");
+    expect(res.headers.get("content-length")).toBe("10");
+    expect(Buffer.from(await res.arrayBuffer()).toString()).toBe("0123456789");
+  });
+
+  it("serves a 206 partial as no-store so it can't poison the cached full response", async () => {
+    const res = buildAudioResponse(body, "bytes=2-5");
+    expect(res.status).toBe(206);
+    expect(res.headers.get("cache-control")).toBe("no-store");
+    expect(res.headers.get("content-range")).toBe("bytes 2-5/10");
+    expect(Buffer.from(await res.arrayBuffer()).toString()).toBe("2345");
+  });
+
+  it("returns a 416 (no-store) for an unsatisfiable range", async () => {
+    const res = buildAudioResponse(body, "bytes=100-200");
+    expect(res.status).toBe(416);
+    expect(res.headers.get("cache-control")).toBe("no-store");
+    expect(res.headers.get("content-range")).toBe("bytes */10");
+  });
+});
+
 describe("isValidAuthor / isValidPermlink", () => {
   it("accepts well-formed refs", () => {
     expect(isValidAuthor("erilej")).toBe(true);
@@ -173,6 +202,8 @@ describe("GET /api/speak-audio (author/permlink lookup)", () => {
   const get = (q: string) => GET(new NextRequest(`https://x/api/speak-audio?${q}`));
 
   const mockRpc = callRPC as ReturnType<typeof vi.fn>;
+
+  beforeEach(() => mockRpc.mockReset());
 
   it("400 INVALID_REF for a malformed author/permlink (no lookup)", async () => {
     const res = await get("author=UP&permlink=x");
@@ -210,5 +241,13 @@ describe("GET /api/speak-audio (author/permlink lookup)", () => {
     const res = await get("author=erilej&permlink=boom");
     expect(res.status).toBe(502);
     expect(res.headers.get("cache-control")).toBe("no-store");
+  });
+
+  it("retries a null lookup (lagging node) before returning a transient NOT_SPEAK", async () => {
+    mockRpc.mockResolvedValue(null); // every node returns null
+    const res = await get("author=erilej&permlink=fresh-wave");
+    expect(res.status).toBe(404);
+    expect(res.headers.get("cache-control")).toBe("no-store");
+    expect(mockRpc).toHaveBeenCalledTimes(3); // 1 initial + 2 retries
   });
 });

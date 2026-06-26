@@ -41,6 +41,10 @@ const ALLOWED_HOST = "cdn.liketu.com";
 const ALLOWED_EXT = /\.(?:webm|mp3|m4a|ogg|wav)$/i;
 
 const LOOKUP_TIMEOUT_MS = 8_000;
+// A lagging Hive node can briefly return null for a freshly-posted wave; retry a
+// couple of times with a short backoff before concluding the clip is absent.
+const POST_LOOKUP_RETRIES = 2;
+const LOOKUP_RETRY_DELAY_MS = 350;
 const FETCH_TIMEOUT_MS = 15_000;
 const FFMPEG_TIMEOUT_MS = 30_000;
 const MAX_INPUT_BYTES = 25 * 1024 * 1024; // 25MB — voice clips are well under 1MB
@@ -83,6 +87,8 @@ function safeJsonParse(s: string): unknown {
     return null;
   }
 }
+
+const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 /**
  * Validate an on-chain speak audio URL: https + exact cdn.liketu.com host +
@@ -373,8 +379,8 @@ export function parseRange(
   return { start, end: Math.min(end, size - 1) };
 }
 
-/** Build the audio response, honouring a Range request (206/416) when present. */
-function buildAudioResponse(output: Buffer, rangeHeader: string | null): Response {
+/** Build the audio response, honouring a Range request (206/416) when present. Exported for tests. */
+export function buildAudioResponse(output: Buffer, rangeHeader: string | null): Response {
   const size = output.byteLength;
   const range = parseRange(rangeHeader, size);
   if (range === "unsatisfiable") {
@@ -387,10 +393,18 @@ function buildAudioResponse(output: Buffer, rangeHeader: string | null): Respons
     const chunk = output.subarray(range.start, range.end + 1);
     return new Response(new Uint8Array(chunk), {
       status: 206,
-      headers: audioHeaders({
+      headers: {
+        "Content-Type": "audio/mp4",
+        "Accept-Ranges": "bytes",
         "Content-Range": `bytes ${range.start}-${range.end}/${size}`,
-        "Content-Length": String(chunk.byteLength)
-      })
+        "Content-Length": String(chunk.byteLength),
+        // A partial must NEVER be cached as the canonical object: only the full
+        // 200 carries the immutable cache, so a 206 can't poison the cache for a
+        // later no-Range request. (Cloudflare fetches the full object on a range
+        // miss and serves ranges from it, so this doesn't hurt the hit rate.)
+        "Cache-Control": "no-store",
+        "X-Content-Type-Options": "nosniff"
+      }
     });
   }
   // Node Buffer isn't a DOM BodyInit; hand the Response a plain Uint8Array view.
@@ -413,14 +427,26 @@ export async function GET(request: NextRequest) {
   // media file before anything is fetched.
   let url: URL;
   try {
-    const post = await callRPC<{ json_metadata?: unknown } | null>(
-      "bridge.get_post",
-      { author, permlink, observer: "" },
-      LOOKUP_TIMEOUT_MS
-    );
+    // The wave came from the feed, so it exists on chain. Retry a null result a
+    // couple of times (a lagging node can momentarily miss a fresh post) before
+    // concluding it's absent; the NOT_SPEAK 404 below is no-store, so it's
+    // transient either way.
+    let post: { json_metadata?: unknown } | null = null;
+    for (let attempt = 0; attempt <= POST_LOOKUP_RETRIES; attempt++) {
+      post = await callRPC<{ json_metadata?: unknown } | null>(
+        "bridge.get_post",
+        { author, permlink, observer: "" },
+        LOOKUP_TIMEOUT_MS
+      );
+      if (post) break;
+      if (attempt < POST_LOOKUP_RETRIES) await delay(LOOKUP_RETRY_DELAY_MS);
+    }
+    if (!post) {
+      return jsonError("NOT_SPEAK", 404);
+    }
     // bridge.get_post usually returns json_metadata already parsed, but tolerate a
     // raw JSON string too.
-    const raw = post?.json_metadata;
+    const raw = post.json_metadata;
     const meta = (typeof raw === "string" ? safeJsonParse(raw) : raw) as
       | { speak?: { audio_url?: string } }
       | null
