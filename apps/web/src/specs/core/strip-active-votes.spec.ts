@@ -165,6 +165,13 @@ describe("stripActiveVotesFromValue (props channel, e.g. profile initialFeed)", 
     expect(out.pages[0][0].stats.total_votes).toBe(3);
   });
 
+  it("strips a plain Entry[] (the profile entryList incl. pinned entry)", () => {
+    const list = [entry({ permlink: "pinned" }), entry({ permlink: "a" })];
+    const out = stripActiveVotesFromValue(list, undefined) as any[];
+    expect(out[0].active_votes).toEqual([]);
+    expect(out[1].active_votes).toEqual([]);
+  });
+
   it("returns the value unchanged for a logged-in user", () => {
     const feed = { pages: [[entry({ permlink: "p1" })]], pageParams: [null] };
     const out = stripActiveVotesFromValue(feed, "alice");

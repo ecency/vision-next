@@ -1,10 +1,7 @@
 import { ProfileEntriesList, ProfileSearchContent } from "./_components";
 import { prefetchGetPostsFeedQuery } from "@/api/queries";
 import { prefetchQuery, getQueryClient, fetchInfiniteQuery } from "@/core/react-query";
-import {
-  stripActiveVotesFromDehydratedState,
-  stripActiveVotesFromValue
-} from "@/core/react-query/strip-active-votes";
+import { stripActiveVotesFromDehydratedState } from "@/core/react-query/strip-active-votes";
 import { cookies } from "next/headers";
 import { ACTIVE_USER_COOKIE_NAME } from "@/consts";
 import { getAccountFullQueryOptions, getSearchApiInfiniteQueryOptions } from "@ecency/sdk";
@@ -70,10 +67,7 @@ export default async function Page({ params, searchParams }: Props) {
         .slice()
         .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at))
     : undefined;
-  const initialFeed = stripActiveVotesFromValue(
-    prefetchedFeed as InfiniteData<Entry[], unknown> | undefined,
-    loggedInUser
-  );
+  const initialFeed = prefetchedFeed as InfiniteData<Entry[], unknown> | undefined;
 
   if (!account) {
     return notFound();
@@ -84,7 +78,12 @@ export default async function Page({ params, searchParams }: Props) {
       {searchData && searchData.length > 0 ? (
         <ProfileSearchContent items={searchData} />
       ) : (
-        <ProfileEntriesList section="posts" account={account} initialFeed={initialFeed} />
+        <ProfileEntriesList
+          section="posts"
+          account={account}
+          initialFeed={initialFeed}
+          currentUser={loggedInUser}
+        />
       )}
     </HydrationBoundary>
   );
