@@ -17,17 +17,15 @@ import { PROFILE_POPOVER_AUTHOR_CLASS } from "@/features/shared/profile-popover/
 export const ProfilePopover = ({ entry }: { entry: Entry }) => {
   const author = entry.original_entry ? entry.original_entry.author : entry.author;
   const [armed, setArmed] = useState(false);
-  const [show, setShow] = useState(false);
 
-  const arm = useCallback(() => {
-    setArmed(true);
-    setShow(true);
-  }, []);
+  const arm = useCallback(() => setArmed(true), []);
 
   if (!armed) {
     // Desktop arms on hover/focus; touch arms on a deliberate tap (onClick, not
     // onTouchStart — the latter would fire mid-scroll when a finger merely
-    // starts on the label and pop the mobile sheet by accident).
+    // starts on the label and pop the mobile sheet by accident). The mounted
+    // card opens itself via `defaultShow`, so the arming interaction also opens
+    // the popover.
     return (
       <div role="presentation" onMouseEnter={arm} onFocus={arm} onClick={arm}>
         <div className={PROFILE_POPOVER_AUTHOR_CLASS}>{author}</div>
@@ -35,5 +33,5 @@ export const ProfilePopover = ({ entry }: { entry: Entry }) => {
     );
   }
 
-  return <ProfilePopoverCard author={author} show={show} setShow={setShow} />;
+  return <ProfilePopoverCard author={author} />;
 };

@@ -32,6 +32,11 @@ interface Props {
   stopPropagationForChild?: boolean;
   placement?: Placement;
   behavior?: "hover" | "click";
+  // Seed the initial open state for an UNCONTROLLED popover (no `setShow`). Lets
+  // a deferred-mount caller open the popover on the same interaction that
+  // mounts it, while leaving the popover's own hover/click handlers fully in
+  // control afterwards. Ignored when `show`/`setShow` are provided.
+  defaultShow?: boolean;
 }
 
 export function Popover(
@@ -46,7 +51,8 @@ export function Popover(
     "placement",
     "stopPropagationForChild",
     "behavior",
-    "directContent"
+    "directContent",
+    "defaultShow"
   ]);
 
   const { refs, floatingStyles } = useFloating({
@@ -58,7 +64,9 @@ export function Popover(
 
   useClickAway(refs.floating as any, () => props.behavior === "click" && show && setShow(false));
 
-  const [show, setShow] = useState((props as ShowProps).show ?? false);
+  const [show, setShow] = useState(
+    (props as ShowProps).show ?? (props as Props).defaultShow ?? false
+  );
 
   const isMounted = useMountedState();
   const windowSize = useWindowSize();

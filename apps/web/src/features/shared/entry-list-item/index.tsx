@@ -75,10 +75,6 @@ export function EntryListItemComponent({
     <div
       className={classNameObject({
         "entry-list-item": true,
-        // Below-the-fold cards skip render/layout/paint until scrolled near the
-        // viewport. The two LCP-candidate cards (order < 2) are excluded so the
-        // above-the-fold paint is never gated on this.
-        "entry-list-item--deferred-render": order >= 2,
         "promoted-item": promoted,
         [filter ?? ""]: !!filter
       })}

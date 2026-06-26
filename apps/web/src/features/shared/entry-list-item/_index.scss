@@ -1,15 +1,5 @@
 @import "src/styles/vars_mixins";
 
-// Below-the-fold cards (order >= 2) are skipped by the renderer until they
-// scroll near the viewport, cutting style/layout/paint work during hydration of
-// a long feed. `contain-intrinsic-size: auto <estimate>` reserves height so the
-// scrollbar stays stable; the browser remembers each card's real size after it
-// first renders, so the estimate only affects not-yet-seen cards.
-.entry-list-item--deferred-render {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 460px;
-}
-
 .entry-list-item {
 
   @media (max-width: $sm-break) {
