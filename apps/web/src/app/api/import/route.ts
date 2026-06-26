@@ -206,8 +206,10 @@ function parseHiveUrl(url: string): { author: string; permlink: string } | null 
       return null;
     }
 
-    // Patterns: /@author/permlink or /category/@author/permlink
-    const segments = parsed.pathname.split("/").filter(Boolean);
+    // Patterns: /@author/permlink or /category/@author/permlink. Decode each
+    // segment first so percent-encoded handles (e.g. /%40author/ from shared or
+    // indexed URLs) are matched, not just the literal "@author" form.
+    const segments = parsed.pathname.split("/").filter(Boolean).map((s) => decodeURIComponent(s));
 
     for (let i = 0; i < segments.length; i++) {
       if (segments[i].startsWith("@") && segments[i + 1]) {

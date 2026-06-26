@@ -64,9 +64,20 @@ export function getSafeChatImageUrl(url: string, width = 1024) {
   return proxied || null;
 }
 
+// Canonical Hive frontend hosts whose /@author/permlink URLs are recognized as
+// post links. Kept in sync with WHITE_LIST in @ecency/render-helper, and used
+// both to enhance post links and to avoid splitting an in-URL @author into a
+// chat mention.
+const HIVE_POST_LINK_HOSTS =
+  "ecency\\.com|peakd\\.com|hive\\.blog|leofinance\\.io|inleo\\.io|snapie\\.io|hivesuite\\.app";
+
+const HIVE_POST_LINK_MENTION_REGEX = new RegExp(
+  `https?://(?:www\\.)?(?:${HIVE_POST_LINK_HOSTS})/[^\\s]*@(?:[a-zA-Z][a-zA-Z0-9.-]{1,15})`,
+  "i"
+);
+
 function isPartOfEcencyPostLink(before: string, mention: string, after: string) {
-  const combined = `${before}${mention}${after}`;
-  return /https?:\/\/(?:www\.)?ecency\.com\/[^\s]*@(?:[a-zA-Z][a-zA-Z0-9.-]{1,15})/i.test(combined);
+  return HIVE_POST_LINK_MENTION_REGEX.test(`${before}${mention}${after}`);
 }
 
 function trimTrailingLinkPunctuation(link: string) {
@@ -162,7 +173,11 @@ export function useMessageRendering({
   );
 
   const ECENCY_POST_LINK_REGEX = useMemo(
-    () => /https?:\/\/(?:www\.)?(?:ecency\.com|peakd\.com|hive\.blog|leofinance\.io|inleo\.io|snapie\.io|hivesuite\.app)\/[^\s]*@(?:[a-zA-Z][a-zA-Z0-9.-]{1,15})\/[^\s)]+/gi,
+    () =>
+      new RegExp(
+        `https?://(?:www\\.)?(?:${HIVE_POST_LINK_HOSTS})/[^\\s]*@(?:[a-zA-Z][a-zA-Z0-9.-]{1,15})/[^\\s)]+`,
+        "gi"
+      ),
     []
   );
 

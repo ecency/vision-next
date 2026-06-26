@@ -146,7 +146,8 @@ describe("POST /api/import", () => {
   it.each([
     "https://snapie.io/@testuser/test-post",
     "https://snapie.io/hive/@testuser/test-post",
-    "https://hivesuite.app/@testuser/test-post"
+    "https://hivesuite.app/@testuser/test-post",
+    "https://hivesuite.app/%40testuser/test-post"
   ])("resolves %s as an on-chain Hive post", async (url) => {
     vi.mocked(getPost).mockResolvedValue({
       title: "Test Title",
