@@ -48,7 +48,10 @@ const MAX_CONCURRENT_TRANSCODES = 4;
 let activeTranscodes = 0;
 
 class CodedError extends Error {
-  constructor(public code: string, public status: number) {
+  constructor(
+    public code: string,
+    public status: number
+  ) {
     super(code);
   }
 }
@@ -104,11 +107,24 @@ function expandIPv6(ip: string): string {
   return [...left, ...mid, ...right].map((g) => g.padStart(4, "0")).join(":");
 }
 
-/** True for non-globally-routable IPs (defense-in-depth against DNS rebinding). */
-function isPrivateIP(ip: string): boolean {
+/**
+ * True for non-globally-routable IPs (defense-in-depth against DNS rebinding).
+ * Mirrors apps/web/src/app/api/import/route.ts — handles IPv4-mapped IPv6 in
+ * both dotted and hex form, plus the reserved/special-use ranges. Exported for tests.
+ */
+export function isPrivateIP(ip: string): boolean {
   let normalized = ip;
   const v4Mapped = ip.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/i);
-  if (v4Mapped) normalized = v4Mapped[1];
+  if (v4Mapped) {
+    normalized = v4Mapped[1];
+  }
+  // IPv4-mapped IPv6 in hex form, e.g. ::ffff:0a00:0001 == 10.0.0.1
+  const v4MappedHex = ip.match(/^::ffff:([0-9a-f]{1,4}):([0-9a-f]{1,4})$/i);
+  if (v4MappedHex) {
+    const high = parseInt(v4MappedHex[1], 16);
+    const low = parseInt(v4MappedHex[2], 16);
+    normalized = `${(high >> 8) & 0xff}.${high & 0xff}.${(low >> 8) & 0xff}.${low & 0xff}`;
+  }
 
   if (isIP(normalized) === 4) {
     const [a, b, c] = normalized.split(".").map(Number);
@@ -118,8 +134,13 @@ function isPrivateIP(ip: string): boolean {
     if (a === 127) return true; // loopback
     if (a === 169 && b === 254) return true; // link-local
     if (a === 172 && b >= 16 && b <= 31) return true; // RFC1918
+    if (a === 192 && b === 0 && c === 0) return true; // 192.0.0.0/24 IETF protocol
+    if (a === 192 && b === 0 && c === 2) return true; // 192.0.2.0/24 TEST-NET-1
+    if (a === 192 && b === 88 && c === 99) return true; // 192.88.99.0/24 6to4 relay
     if (a === 192 && b === 168) return true; // RFC1918
-    if (a === 192 && b === 0 && c === 0) return true; // IETF protocol
+    if (a === 198 && b >= 18 && b <= 19) return true; // 198.18.0.0/15 benchmarking
+    if (a === 198 && b === 51 && c === 100) return true; // 198.51.100.0/24 TEST-NET-2
+    if (a === 203 && b === 0 && c === 113) return true; // 203.0.113.0/24 TEST-NET-3
     if (a >= 224) return true; // multicast + reserved
     return false;
   }
@@ -131,6 +152,9 @@ function isPrivateIP(ip: string): boolean {
     const g1 = parseInt(full.slice(0, 4), 16);
     if (g1 >= 0xfc00 && g1 <= 0xfdff) return true; // fc00::/7 ULA
     if ((g1 & 0xffc0) === 0xfe80) return true; // fe80::/10 link-local
+    if (full.startsWith("2001:0db8")) return true; // 2001:db8::/32 documentation
+    if (full.startsWith("2001:0000")) return true; // 2001::/32 Teredo
+    if (full.startsWith("0100:0000:0000:0000")) return true; // 100::/64 discard
     if (g1 >= 0xff00) return true; // ff00::/8 multicast
     return false;
   }
@@ -180,9 +204,14 @@ async function resolveAndPin(hostname: string): Promise<Agent> {
 
 /** Download the source audio with the pinned dispatcher, timeout and size cap. */
 async function fetchAudio(url: URL): Promise<Buffer> {
-  const dispatcher = await resolveAndPin(url.hostname);
+  // parseSpeakSource already pinned the host, but rebuild the request URL against
+  // a CONSTANT base so the authority can only ever be cdn.liketu.com regardless of
+  // any URL-parsing quirk (userinfo, etc.). Only the validated path + query carry
+  // over — the user value never controls the request host.
+  const safeUrl = new URL(`${url.pathname}${url.search}`, `https://${ALLOWED_HOST}`);
+  const dispatcher = await resolveAndPin(safeUrl.hostname);
   try {
-    const res = await fetch(url.toString(), {
+    const res = await fetch(safeUrl, {
       redirect: "error", // a content-addressed CDN file should never redirect
       signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       ...({ dispatcher } as { dispatcher: Agent })
@@ -244,8 +273,12 @@ async function transcodeToAac(input: Buffer, ext: string): Promise<Buffer> {
         (err) => (err ? reject(new CodedError("TRANSCODE_FAILED", 502)) : resolve())
       );
     });
+    // Only reached when ffmpeg exited 0. Still verify the output is a real MP4
+    // (the `ftyp` box sits at the start) so a truncated/partial file from an
+    // edge-case exit can never be served — and cached — as valid audio.
     const out = await readFile(outPath);
-    if (out.byteLength === 0 || out.byteLength > MAX_OUTPUT_BYTES) {
+    const looksLikeMp4 = out.subarray(0, 16).includes(Buffer.from("ftyp"));
+    if (out.byteLength === 0 || out.byteLength > MAX_OUTPUT_BYTES || !looksLikeMp4) {
       throw new CodedError("TRANSCODE_FAILED", 502);
     }
     return out;
@@ -254,51 +287,116 @@ async function transcodeToAac(input: Buffer, ext: string): Promise<Buffer> {
   }
 }
 
+function jsonError(code: string, status: number, extra?: Record<string, string>): Response {
+  // Errors must never be cached — a cached 503 BUSY or 4xx would outlive its cause.
+  return Response.json(
+    { error: code },
+    { status, headers: { "Cache-Control": "no-store", ...extra } }
+  );
+}
+
+const audioHeaders = (extra: Record<string, string>): Record<string, string> => ({
+  "Content-Type": "audio/mp4",
+  "Accept-Ranges": "bytes",
+  "Cache-Control": AUDIO_CACHE_CONTROL,
+  "X-Content-Type-Options": "nosniff",
+  ...extra
+});
+
+/**
+ * Parse a single HTTP Range header against a known content size. Returns the
+ * inclusive byte range, "unsatisfiable" for an out-of-bounds range, or null when
+ * there is no honourable single range. Exported for tests.
+ */
+export function parseRange(
+  rangeHeader: string | null,
+  size: number
+): { start: number; end: number } | "unsatisfiable" | null {
+  if (!rangeHeader) return null;
+  const m = /^bytes=(\d*)-(\d*)$/.exec(rangeHeader.trim());
+  if (!m) return null;
+  const hasStart = m[1] !== "";
+  const hasEnd = m[2] !== "";
+  if (!hasStart && !hasEnd) return null;
+
+  let start: number;
+  let end: number;
+  if (!hasStart) {
+    // suffix range: final N bytes
+    const n = parseInt(m[2], 10);
+    if (!Number.isFinite(n) || n <= 0) return "unsatisfiable";
+    start = Math.max(0, size - n);
+    end = size - 1;
+  } else {
+    start = parseInt(m[1], 10);
+    end = hasEnd ? parseInt(m[2], 10) : size - 1;
+  }
+  if (Number.isNaN(start) || Number.isNaN(end) || start > end || start >= size) {
+    return "unsatisfiable";
+  }
+  return { start, end: Math.min(end, size - 1) };
+}
+
+/** Build the audio response, honouring a Range request (206/416) when present. */
+function buildAudioResponse(output: Buffer, rangeHeader: string | null): Response {
+  const size = output.byteLength;
+  const range = parseRange(rangeHeader, size);
+  if (range === "unsatisfiable") {
+    return new Response(null, {
+      status: 416,
+      headers: { "Content-Range": `bytes */${size}`, "Cache-Control": "no-store" }
+    });
+  }
+  if (range) {
+    const chunk = output.subarray(range.start, range.end + 1);
+    return new Response(new Uint8Array(chunk), {
+      status: 206,
+      headers: audioHeaders({
+        "Content-Range": `bytes ${range.start}-${range.end}/${size}`,
+        "Content-Length": String(chunk.byteLength)
+      })
+    });
+  }
+  // Node Buffer isn't a DOM BodyInit; hand the Response a plain Uint8Array view.
+  return new Response(new Uint8Array(output), {
+    status: 200,
+    headers: audioHeaders({ "Content-Length": String(size) })
+  });
+}
+
 export async function GET(request: NextRequest) {
   let url: URL;
   try {
     url = parseSpeakSource(request.nextUrl.searchParams.get("src"));
   } catch (e) {
     const err = e as CodedError;
-    return Response.json({ error: err.code }, { status: err.status ?? 400 });
+    return jsonError(err.code ?? "INVALID_SRC", err.status ?? 400);
   }
 
-  if (activeTranscodes >= MAX_CONCURRENT_TRANSCODES) {
-    return Response.json(
-      { error: "BUSY" },
-      { status: 503, headers: { "Retry-After": "2" } }
-    );
-  }
-
-  activeTranscodes += 1;
   try {
+    // Fetch first (I/O, already size/timeout-capped). The concurrency cap guards
+    // only the CPU-bound ffmpeg step below, so slow downloads can't starve it.
     const input = await fetchAudio(url);
     const ext = (url.pathname.match(ALLOWED_EXT)?.[0] ?? ".webm").toLowerCase();
-    const output = await transcodeToAac(input, ext);
 
-    // Node Buffer isn't a DOM BodyInit; hand the Response a plain Uint8Array view.
-    return new Response(new Uint8Array(output), {
-      status: 200,
-      headers: {
-        "Content-Type": "audio/mp4",
-        "Content-Length": String(output.byteLength),
-        "Cache-Control": AUDIO_CACHE_CONTROL,
-        "X-Content-Type-Options": "nosniff"
-      }
-    });
+    if (activeTranscodes >= MAX_CONCURRENT_TRANSCODES) {
+      return jsonError("BUSY", 503, { "Retry-After": "2" });
+    }
+    activeTranscodes += 1;
+    let output: Buffer;
+    try {
+      output = await transcodeToAac(input, ext);
+    } finally {
+      activeTranscodes -= 1;
+    }
+
+    return buildAudioResponse(output, request.headers.get("range"));
   } catch (e) {
     const err = e as CodedError;
-    const status = typeof err?.status === "number" ? err.status : 502;
-    const code =
-      err instanceof Error && (err.name === "TimeoutError" || err.name === "AbortError")
-        ? "FETCH_TIMEOUT"
-        : err?.code ?? "TRANSCODE_FAILED";
-    // Never let an error response get cached.
-    return Response.json(
-      { error: code },
-      { status: code === "FETCH_TIMEOUT" ? 504 : status, headers: { "Cache-Control": "no-store" } }
-    );
-  } finally {
-    activeTranscodes -= 1;
+    const isTimeout =
+      err instanceof Error && (err.name === "TimeoutError" || err.name === "AbortError");
+    const code = isTimeout ? "FETCH_TIMEOUT" : (err?.code ?? "TRANSCODE_FAILED");
+    const status = isTimeout ? 504 : typeof err?.status === "number" ? err.status : 502;
+    return jsonError(code, status);
   }
 }

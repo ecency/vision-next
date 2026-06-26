@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect } from "vitest";
 
-import { parseSpeakSource } from "@/app/api/speak-audio/route";
+import { parseSpeakSource, isPrivateIP, parseRange } from "@/app/api/speak-audio/route";
 
 const LIKETU =
   "https://cdn.liketu.com/liketu/speak/erilej/re-liketu-speak-x/1781649490185-abc.webm";
@@ -62,5 +62,70 @@ describe("parseSpeakSource", () => {
   it("validation errors carry a 4xx status", () => {
     expect(reject(undefined).status).toBe(400);
     expect(reject("https://evil.com/x/clip.webm").status).toBe(400);
+  });
+});
+
+describe("isPrivateIP", () => {
+  it.each([
+    "10.0.0.1",
+    "127.0.0.1",
+    "192.168.1.1",
+    "172.16.0.1",
+    "169.254.0.1",
+    "100.64.0.1", // CGNAT
+    "198.18.0.1", // benchmarking
+    "192.0.2.5", // TEST-NET-1
+    "203.0.113.9", // TEST-NET-3
+    "::1",
+    "fe80::1",
+    "fc00::1",
+    "2001:db8::1",
+    "::ffff:10.0.0.1", // IPv4-mapped (dotted)
+    "::ffff:0a00:0001" // IPv4-mapped (hex) == 10.0.0.1 — the gap a reviewer flagged
+  ])("flags %s as private/reserved", (ip) => {
+    expect(isPrivateIP(ip)).toBe(true);
+  });
+
+  it.each(["8.8.8.8", "1.1.1.1", "138.199.37.232", "2606:4700:4700::1111"])(
+    "treats public %s as public",
+    (ip) => {
+      expect(isPrivateIP(ip)).toBe(false);
+    }
+  );
+
+  it("treats an unparseable address as unsafe", () => {
+    expect(isPrivateIP("not-an-ip")).toBe(true);
+  });
+});
+
+describe("parseRange", () => {
+  const SIZE = 1000;
+  it("returns null when there is no range header or no honourable range", () => {
+    expect(parseRange(null, SIZE)).toBeNull();
+    expect(parseRange("bytes=abc", SIZE)).toBeNull();
+    expect(parseRange("bytes=-", SIZE)).toBeNull();
+  });
+
+  it("parses a closed range", () => {
+    expect(parseRange("bytes=0-99", SIZE)).toEqual({ start: 0, end: 99 });
+  });
+
+  it("parses an open-ended range to the last byte", () => {
+    expect(parseRange("bytes=500-", SIZE)).toEqual({ start: 500, end: 999 });
+  });
+
+  it("parses a suffix range as the final N bytes", () => {
+    expect(parseRange("bytes=-200", SIZE)).toEqual({ start: 800, end: 999 });
+    // suffix larger than the file clamps to the whole file
+    expect(parseRange("bytes=-5000", SIZE)).toEqual({ start: 0, end: 999 });
+  });
+
+  it("clamps an end past EOF", () => {
+    expect(parseRange("bytes=900-9999", SIZE)).toEqual({ start: 900, end: 999 });
+  });
+
+  it("reports out-of-range as unsatisfiable", () => {
+    expect(parseRange("bytes=1000-1100", SIZE)).toBe("unsatisfiable");
+    expect(parseRange("bytes=50-10", SIZE)).toBe("unsatisfiable");
   });
 });
