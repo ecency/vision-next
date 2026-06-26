@@ -1,7 +1,18 @@
 // @vitest-environment node
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
+import { NextRequest } from "next/server";
 
-import { parseSpeakSource, isPrivateIP, parseRange } from "@/app/api/speak-audio/route";
+vi.mock("@ecency/sdk/hive", () => ({ callRPC: vi.fn() }));
+
+import {
+  parseSpeakSource,
+  isPrivateIP,
+  parseRange,
+  isValidAuthor,
+  isValidPermlink,
+  GET
+} from "@/app/api/speak-audio/route";
+import { callRPC } from "@ecency/sdk/hive";
 
 const LIKETU =
   "https://cdn.liketu.com/liketu/speak/erilej/re-liketu-speak-x/1781649490185-abc.webm";
@@ -137,5 +148,67 @@ describe("parseRange", () => {
   it("reports out-of-range as unsatisfiable", () => {
     expect(parseRange("bytes=1000-1100", SIZE)).toBe("unsatisfiable");
     expect(parseRange("bytes=50-10", SIZE)).toBe("unsatisfiable");
+  });
+});
+
+describe("isValidAuthor / isValidPermlink", () => {
+  it("accepts well-formed refs", () => {
+    expect(isValidAuthor("erilej")).toBe(true);
+    expect(isValidAuthor("good-karma")).toBe(true);
+    expect(isValidPermlink("re-liketu-speak-2026-04-19-01-mqh83la5-pdfh8j")).toBe(true);
+  });
+
+  it("rejects malformed refs", () => {
+    expect(isValidAuthor(null)).toBe(false);
+    expect(isValidAuthor("")).toBe(false);
+    expect(isValidAuthor("UPPER")).toBe(false);
+    expect(isValidAuthor("a")).toBe(false); // too short
+    expect(isValidAuthor("has space")).toBe(false);
+    expect(isValidPermlink("Has-Capital")).toBe(false);
+    expect(isValidPermlink("under_score")).toBe(false);
+  });
+});
+
+describe("GET /api/speak-audio (author/permlink lookup)", () => {
+  const get = (q: string) => GET(new NextRequest(`https://x/api/speak-audio?${q}`));
+
+  const mockRpc = callRPC as ReturnType<typeof vi.fn>;
+
+  it("400 INVALID_REF for a malformed author/permlink (no lookup)", async () => {
+    const res = await get("author=UP&permlink=x");
+    expect(res.status).toBe(400);
+    expect(res.headers.get("cache-control")).toBe("no-store");
+    expect(callRPC).not.toHaveBeenCalled();
+  });
+
+  it("404 NOT_SPEAK when the looked-up post has no speak audio", async () => {
+    mockRpc.mockResolvedValueOnce({ json_metadata: { app: "ecency" } });
+    const res = await get("author=erilej&permlink=not-a-voice-post");
+    expect(res.status).toBe(404);
+  });
+
+  it("rejects a crafted on-chain audio_url that isn't a liketu media file", async () => {
+    // An attacker posting a wave with a hostile audio_url must still be rejected:
+    // the looked-up URL is validated before any fetch.
+    mockRpc.mockResolvedValueOnce({
+      json_metadata: { speak: { audio_url: "https://evil.com/x.webm" } }
+    });
+    const res = await get("author=erilej&permlink=crafted");
+    expect(res.status).toBe(400);
+  });
+
+  it("tolerates a json_metadata returned as a raw JSON string", async () => {
+    mockRpc.mockResolvedValueOnce({
+      json_metadata: JSON.stringify({ speak: { audio_url: "https://evil.com/x.webm" } })
+    });
+    const res = await get("author=erilej&permlink=stringmeta");
+    expect(res.status).toBe(400); // still validated -> rejected, proving the string was parsed
+  });
+
+  it("502 LOOKUP_FAILED when the bridge lookup throws", async () => {
+    mockRpc.mockRejectedValueOnce(new Error("rpc down"));
+    const res = await get("author=erilej&permlink=boom");
+    expect(res.status).toBe(502);
+    expect(res.headers.get("cache-control")).toBe("no-store");
   });
 });

@@ -1,4 +1,7 @@
 import { NextRequest } from "next/server";
+// React-free SDK entry: this server route only needs a raw bridge RPC, not the
+// full @ecency/sdk (react-query). @ecency/sdk/hive ships just the tx/RPC engine.
+import { callRPC } from "@ecency/sdk/hive";
 import { Resolver } from "node:dns/promises";
 import { isIP, type LookupFunction } from "node:net";
 import { Agent } from "undici";
@@ -14,16 +17,21 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // -----------------------------------------------------------------------------
-// /api/speak-audio?src=<cdn.liketu.com ...webm>
+// /api/speak-audio?author=<a>&permlink=<p>
 //
 // Liketu "Speak" voice posts store their audio as Opus-in-WebM on cdn.liketu.com.
 // Browsers (and Android/ExoPlayer) play that natively, but iOS AVPlayer — what
 // react-native-video and Safari use — cannot demux WebM or decode Opus. This
 // endpoint transcodes the clip to AAC/m4a so every client can play it.
 //
-// The source audio is immutable (content-addressed CDN path), so the response is
-// marked immutable + long-TTL: Cloudflare edge-caches each clip and the origin
-// only transcodes on a cache miss (a handful per day at Speak's volume).
+// The clip URL is NOT taken from the request: the endpoint looks the wave up on
+// chain (getPost) and reads json_metadata.speak.audio_url, then validates it is a
+// cdn.liketu.com /liketu/ media file. So the fetch target is derived from trusted
+// on-chain data rather than a user-supplied URL.
+//
+// The audio is immutable (content-addressed), so the response is immutable +
+// long-TTL: Cloudflare edge-caches each clip and the origin only transcodes on a
+// cache miss (a handful per day at Speak's volume).
 // -----------------------------------------------------------------------------
 
 const ALLOWED_HOST = "cdn.liketu.com";
@@ -32,6 +40,7 @@ const ALLOWED_HOST = "cdn.liketu.com";
 // obviously-wrong inputs early.
 const ALLOWED_EXT = /\.(?:webm|mp3|m4a|ogg|wav)$/i;
 
+const LOOKUP_TIMEOUT_MS = 8_000;
 const FETCH_TIMEOUT_MS = 15_000;
 const FFMPEG_TIMEOUT_MS = 30_000;
 const MAX_INPUT_BYTES = 25 * 1024 * 1024; // 25MB — voice clips are well under 1MB
@@ -59,9 +68,26 @@ class CodedError extends Error {
   }
 }
 
+// Hive account names: 3-16 chars, lowercase letters/digits/dot/hyphen. Exported
+// for tests. Keeps the looked-up reference well-formed before it reaches getPost.
+export const isValidAuthor = (a: string | null): a is string => !!a && /^[a-z0-9.-]{3,16}$/.test(a);
+
+// Permlinks: lowercase letters/digits/hyphens (bounded length). Exported for tests.
+export const isValidPermlink = (p: string | null): p is string =>
+  !!p && /^[a-z0-9-]{1,256}$/.test(p);
+
+function safeJsonParse(s: string): unknown {
+  try {
+    return JSON.parse(s);
+  } catch {
+    return null;
+  }
+}
+
 /**
- * Synchronous URL validation: https + exact host allowlist + audio extension +
- * default port only. Exported for unit tests. Returns the parsed URL.
+ * Validate an on-chain speak audio URL: https + exact cdn.liketu.com host +
+ * default port + audio extension + /liketu/ media path. Throws a CodedError on
+ * any failure. Exported for unit tests. Returns the parsed URL.
  */
 export function parseSpeakSource(src: unknown): URL {
   if (!src || typeof src !== "string") {
@@ -375,12 +401,40 @@ function buildAudioResponse(output: Buffer, rangeHeader: string | null): Respons
 }
 
 export async function GET(request: NextRequest) {
+  const author = request.nextUrl.searchParams.get("author");
+  const permlink = request.nextUrl.searchParams.get("permlink");
+  if (!isValidAuthor(author) || !isValidPermlink(permlink)) {
+    return jsonError("INVALID_REF", 400);
+  }
+
+  // Derive the audio URL from the on-chain post (trusted lookup), NOT from a
+  // request parameter, so the eventual fetch target is never directly user-
+  // controlled. The looked-up URL is still validated as a cdn.liketu.com /liketu/
+  // media file before anything is fetched.
   let url: URL;
   try {
-    url = parseSpeakSource(request.nextUrl.searchParams.get("src"));
+    const post = await callRPC<{ json_metadata?: unknown } | null>(
+      "bridge.get_post",
+      { author, permlink, observer: "" },
+      LOOKUP_TIMEOUT_MS
+    );
+    // bridge.get_post usually returns json_metadata already parsed, but tolerate a
+    // raw JSON string too.
+    const raw = post?.json_metadata;
+    const meta = (typeof raw === "string" ? safeJsonParse(raw) : raw) as
+      | { speak?: { audio_url?: string } }
+      | null
+      | undefined;
+    const audioUrl = meta?.speak?.audio_url;
+    if (!audioUrl) {
+      return jsonError("NOT_SPEAK", 404);
+    }
+    url = parseSpeakSource(audioUrl);
   } catch (e) {
-    const err = e as CodedError;
-    return jsonError(err.code ?? "INVALID_SRC", err.status ?? 400);
+    const coded = e instanceof CodedError ? e : null;
+    // CodedError => the on-chain URL failed host/path/ext validation; anything
+    // else => the bridge lookup itself failed. Never leak a stray errno.
+    return coded ? jsonError(coded.code, coded.status) : jsonError("LOOKUP_FAILED", 502);
   }
 
   try {
