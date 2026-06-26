@@ -41,9 +41,12 @@ const MAX_OUTPUT_BYTES = 30 * 1024 * 1024;
 // changes. Long max-age + s-maxage lets both the browser and the CF edge pin it.
 const AUDIO_CACHE_CONTROL = "public, max-age=31536000, s-maxage=31536000, immutable";
 
-// Bound concurrent ffmpeg processes so a burst of cache-miss requests can't
-// saturate the box CPU. Excess requests get a short 503 + Retry-After; CF and
-// the client retry, and by then the cache is usually warm.
+// Bound concurrent source downloads (memory + connections) separately from ffmpeg
+// (CPU): a slow download must not hold a CPU slot, and a cache-miss burst must not
+// buffer unbounded input. Excess on either gate gets a short 503 + Retry-After; CF
+// and the client retry, and by then the cache is usually warm.
+const MAX_CONCURRENT_FETCHES = 8;
+let activeFetches = 0;
 const MAX_CONCURRENT_TRANSCODES = 4;
 let activeTranscodes = 0;
 
@@ -204,14 +207,14 @@ async function resolveAndPin(hostname: string): Promise<Agent> {
 
 /** Download the source audio with the pinned dispatcher, timeout and size cap. */
 async function fetchAudio(url: URL): Promise<Buffer> {
-  // parseSpeakSource already pinned the host, but rebuild the request URL against
-  // a CONSTANT base so the authority can only ever be cdn.liketu.com regardless of
-  // any URL-parsing quirk (userinfo, etc.). Only the validated path + query carry
-  // over — the user value never controls the request host.
-  const safeUrl = new URL(`${url.pathname}${url.search}`, `https://${ALLOWED_HOST}`);
-  const dispatcher = await resolveAndPin(safeUrl.hostname);
+  // parseSpeakSource already validated the host is exactly cdn.liketu.com, so fetch
+  // the validated URL as-is. Do NOT rebuild it from url.pathname against a base — a
+  // pathname like "//evil.com/x" makes `new URL(path, base)` adopt evil.com as the
+  // host. Fetching the original URL keeps the request on the validated host (the
+  // odd path is just a 404 on cdn.liketu.com).
+  const dispatcher = await resolveAndPin(url.hostname);
   try {
-    const res = await fetch(safeUrl, {
+    const res = await fetch(url, {
       redirect: "error", // a content-addressed CDN file should never redirect
       signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       ...({ dispatcher } as { dispatcher: Agent })
@@ -374,9 +377,19 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Fetch first (I/O, already size/timeout-capped). The concurrency cap guards
-    // only the CPU-bound ffmpeg step below, so slow downloads can't starve it.
-    const input = await fetchAudio(url);
+    // Bound downloads and transcodes on separate gates (see the constants above):
+    // the fetch is I/O (memory/connections), ffmpeg is CPU. Capping only one lets
+    // the other be exhausted, which is exactly what two earlier review rounds hit.
+    if (activeFetches >= MAX_CONCURRENT_FETCHES) {
+      return jsonError("BUSY", 503, { "Retry-After": "2" });
+    }
+    activeFetches += 1;
+    let input: Buffer;
+    try {
+      input = await fetchAudio(url);
+    } finally {
+      activeFetches -= 1;
+    }
     const ext = (url.pathname.match(ALLOWED_EXT)?.[0] ?? ".webm").toLowerCase();
 
     if (activeTranscodes >= MAX_CONCURRENT_TRANSCODES) {
@@ -392,11 +405,12 @@ export async function GET(request: NextRequest) {
 
     return buildAudioResponse(output, request.headers.get("range"));
   } catch (e) {
-    const err = e as CodedError;
-    const isTimeout =
-      err instanceof Error && (err.name === "TimeoutError" || err.name === "AbortError");
-    const code = isTimeout ? "FETCH_TIMEOUT" : (err?.code ?? "TRANSCODE_FAILED");
-    const status = isTimeout ? 504 : typeof err?.status === "number" ? err.status : 502;
+    // Only trust code/status from our own CodedError; a stray Node error (e.g. a
+    // filesystem errno from the temp-file dance) must not leak as the client code.
+    const coded = e instanceof CodedError ? e : null;
+    const isTimeout = e instanceof Error && (e.name === "TimeoutError" || e.name === "AbortError");
+    const code = isTimeout ? "FETCH_TIMEOUT" : (coded?.code ?? "TRANSCODE_FAILED");
+    const status = isTimeout ? 504 : (coded?.status ?? 502);
     return jsonError(code, status);
   }
 }
