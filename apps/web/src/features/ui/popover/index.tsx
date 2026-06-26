@@ -99,7 +99,11 @@ export function Popover(
       role="presentation"
       onClick={(e) => {
         e.stopPropagation();
-        typeof props.setShow === "function" || isSheet ? undefined : setShow(true);
+        // Uncontrolled popovers open on tap/click — including the mobile sheet
+        // path, so a tap reliably reopens the sheet after dismissal (touch
+        // browsers don't always re-fire mouseenter on an already-mounted
+        // trigger). Controlled popovers (setShow provided) are driven by the parent.
+        if (typeof props.setShow !== "function") setShow(true);
       }}
       onMouseEnter={() => props.behavior === "hover" && setShow(true)}
       onMouseLeave={() => props.behavior === "hover" && setShow(false)}

@@ -1,7 +1,7 @@
 import React from "react";
 import "@testing-library/jest-dom";
 import { describe, expect, it } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { Popover } from "@ui/popover";
 
 // Exercises the REAL Popover (floating-ui + portal + framer-motion), unlike
@@ -25,5 +25,23 @@ describe("Popover defaultShow (uncontrolled)", () => {
       </Popover>
     );
     expect(screen.queryByText("HIDDEN_CONTENT")).toBeNull();
+  });
+
+  it("opens an uncontrolled mobile-sheet popover on tap/click (so the sheet can be reopened after dismissal)", async () => {
+    const originalWidth = window.innerWidth;
+    // Narrow viewport => isSheet is true when useMobileSheet is set.
+    Object.defineProperty(window, "innerWidth", { value: 500, configurable: true });
+    try {
+      render(
+        <Popover behavior="hover" useMobileSheet={true} directContent={<span>label</span>}>
+          <div>SHEET_CONTENT</div>
+        </Popover>
+      );
+      expect(screen.queryByText("SHEET_CONTENT")).toBeNull();
+      fireEvent.click(screen.getByText("label"));
+      expect(await screen.findByText("SHEET_CONTENT")).toBeInTheDocument();
+    } finally {
+      Object.defineProperty(window, "innerWidth", { value: originalWidth, configurable: true });
+    }
   });
 });
