@@ -32,6 +32,11 @@ interface Props {
   stopPropagationForChild?: boolean;
   placement?: Placement;
   behavior?: "hover" | "click";
+  // Seed the initial open state for an UNCONTROLLED popover (no `setShow`). Lets
+  // a deferred-mount caller open the popover on the same interaction that
+  // mounts it, while leaving the popover's own hover/click handlers fully in
+  // control afterwards. Ignored when `show`/`setShow` are provided.
+  defaultShow?: boolean;
 }
 
 export function Popover(
@@ -46,7 +51,8 @@ export function Popover(
     "placement",
     "stopPropagationForChild",
     "behavior",
-    "directContent"
+    "directContent",
+    "defaultShow"
   ]);
 
   const { refs, floatingStyles } = useFloating({
@@ -58,7 +64,9 @@ export function Popover(
 
   useClickAway(refs.floating as any, () => props.behavior === "click" && show && setShow(false));
 
-  const [show, setShow] = useState((props as ShowProps).show ?? false);
+  const [show, setShow] = useState(
+    (props as ShowProps).show ?? (props as Props).defaultShow ?? false
+  );
 
   const isMounted = useMountedState();
   const windowSize = useWindowSize();
@@ -68,7 +76,11 @@ export function Popover(
     [props, windowSize.width]
   );
   useEffect(() => {
-    props.show !== show && setShow((props as ShowProps).show ?? false);
+    // Only sync from a CONTROLLED parent. For an uncontrolled popover
+    // (props.show === undefined) this effect must not run, otherwise it would
+    // reset a `defaultShow`-seeded open state back to false on mount.
+    if (props.show === undefined) return;
+    if (props.show !== show) setShow(props.show);
   }, [props.show]);
 
   useEffect(() => {
@@ -87,7 +99,11 @@ export function Popover(
       role="presentation"
       onClick={(e) => {
         e.stopPropagation();
-        typeof props.setShow === "function" || isSheet ? undefined : setShow(true);
+        // Uncontrolled popovers open on tap/click — including the mobile sheet
+        // path, so a tap reliably reopens the sheet after dismissal (touch
+        // browsers don't always re-fire mouseenter on an already-mounted
+        // trigger). Controlled popovers (setShow provided) are driven by the parent.
+        if (typeof props.setShow !== "function") setShow(true);
       }}
       onMouseEnter={() => props.behavior === "hover" && setShow(true)}
       onMouseLeave={() => props.behavior === "hover" && setShow(false)}
