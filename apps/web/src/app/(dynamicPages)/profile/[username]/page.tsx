@@ -1,6 +1,9 @@
 import { ProfileEntriesList, ProfileSearchContent } from "./_components";
 import { prefetchGetPostsFeedQuery } from "@/api/queries";
 import { prefetchQuery, getQueryClient, fetchInfiniteQuery } from "@/core/react-query";
+import { stripActiveVotesFromDehydratedState } from "@/core/react-query/strip-active-votes";
+import { cookies } from "next/headers";
+import { ACTIVE_USER_COOKIE_NAME } from "@/consts";
 import { getAccountFullQueryOptions, getSearchApiInfiniteQueryOptions } from "@ecency/sdk";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { notFound } from "next/navigation";
@@ -16,9 +19,11 @@ interface Props {
   searchParams: Promise<Record<string, string | undefined>>;
 }
 
-// ISR: profile metadata is stable. Live data (balances, votes) fetched client-side.
-// 5 min revalidation aligned with edge cache TTL.
-export const revalidate = 300;
+// Dynamic: reads the active_user cookie to strip active_votes from the SSR
+// payload for anonymous requests only. The middleware still applies the
+// `profile` tier Cache-Control (s-maxage=300, stale-while-revalidate=3600) by
+// pathname, so the anon variant stays edge-cached on the same refresh window as
+// the previous ISR revalidate.
 
 export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
   const { username } = await props.params;
@@ -29,6 +34,7 @@ export default async function Page({ params, searchParams }: Props) {
   const { username: usernameParam } = await params;
   const username = usernameParam.replace(/%40/g, "");
   const { query: searchParam } = await searchParams;
+  const loggedInUser = (await cookies()).get(ACTIVE_USER_COOKIE_NAME)?.value;
 
   const [account, searchPages, prefetchedFeed] = await Promise.all([
     prefetchQuery(getAccountFullQueryOptions(username)),
@@ -68,7 +74,7 @@ export default async function Page({ params, searchParams }: Props) {
   }
 
   return (
-    <HydrationBoundary state={dehydrate(getQueryClient())}>
+    <HydrationBoundary state={stripActiveVotesFromDehydratedState(dehydrate(getQueryClient()), loggedInUser)}>
       {searchData && searchData.length > 0 ? (
         <ProfileSearchContent items={searchData} />
       ) : (

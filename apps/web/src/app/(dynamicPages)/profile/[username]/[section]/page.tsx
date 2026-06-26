@@ -4,6 +4,9 @@ import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { notFound } from "next/navigation";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient, prefetchQuery, fetchInfiniteQuery } from "@/core/react-query";
+import { stripActiveVotesFromDehydratedState } from "@/core/react-query/strip-active-votes";
+import { cookies } from "next/headers";
+import { ACTIVE_USER_COOKIE_NAME } from "@/consts";
 import { getAccountFullQueryOptions, getSearchApiInfiniteQueryOptions } from "@ecency/sdk";
 import { Metadata, ResolvingMetadata } from "next";
 import { generateProfileMetadata } from "@/app/(dynamicPages)/profile/[username]/_helpers";
@@ -24,6 +27,7 @@ export async function generateMetadata(props: Props, parent: ResolvingMetadata):
 export default async function Page({ params, searchParams }: Props) {
   const { username: usernameParam, section } = await params;
   const { query: searchParam } = await searchParams;
+  const loggedInUser = (await cookies()).get(ACTIVE_USER_COOKIE_NAME)?.value;
 
   const username = usernameParam.replace(/%40/g, "");
   const [account, searchPages, prefetchedFeed] = await Promise.all([
@@ -65,7 +69,7 @@ export default async function Page({ params, searchParams }: Props) {
   }
 
   return (
-    <HydrationBoundary state={dehydrate(getQueryClient())}>
+    <HydrationBoundary state={stripActiveVotesFromDehydratedState(dehydrate(getQueryClient()), loggedInUser)}>
       {searchData && searchData.length > 0 ? (
         <ProfileSearchContent items={searchData} />
       ) : (
