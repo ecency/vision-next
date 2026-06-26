@@ -111,7 +111,7 @@ export const KeyInput = forwardRef<
           ? i18next.t("key-or-hot.invalid-key")
           : i18next.t("key-or-hot.key-error");
         error(errorMessage);
-        throw new Error("Invalid private key format");
+        return;
       }
 
       setSigningKey(key);
