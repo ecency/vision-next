@@ -118,8 +118,8 @@ export const DiscussionItem = memo(function DiscussionItem({
   const isOwnRoot = useMemo(() => activeUser?.username === root.author, [activeUser, root]);
   const isOwnReply = useMemo(() => activeUser?.username === entry.author, [activeUser, entry]);
   const isHidden = useMemo(
-    () => isHiddenPost(entry.net_rshares, entry.active_votes.length),
-    [entry.net_rshares, entry.active_votes.length]
+    () => isHiddenPost(entry.net_rshares, entry.stats?.total_votes ?? entry.active_votes?.length ?? 0),
+    [entry.net_rshares, entry.stats?.total_votes, entry.active_votes?.length]
   );
   const isMuted = useMemo(
     () => entry.stats?.gray === true && entry.net_rshares >= 0 && entry.author_reputation >= 0,

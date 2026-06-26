@@ -8,6 +8,7 @@ import { redirect } from "next/navigation";
 import { generateFeedMetadata } from "@/app/(dynamicPages)/feed/[...sections]/_helpers";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient, prefetchQuery } from "@/core/react-query";
+import { stripActiveVotesFromDehydratedState } from "@/core/react-query/strip-active-votes";
 import { getPromotedPostsQuery } from "@ecency/sdk";
 import { EcencyConfigManager } from "@/config";
 
@@ -40,7 +41,7 @@ export default async function FeedPage({ params, searchParams }: Props) {
   }
 
   return (
-    <HydrationBoundary state={dehydrate(getQueryClient())}>
+    <HydrationBoundary state={stripActiveVotesFromDehydratedState(dehydrate(getQueryClient()), loggedInUser)}>
       <FeedLayout tag={tag} filter={filter} observer={observer}>
         <FeedList filter={filter} tag={tag} observer={observer} />
       </FeedLayout>

@@ -40,8 +40,8 @@ export function EntryListItemMutedContent({ entry: entryProp, isThumbLcp }: Prop
   const isCrossPost = useMemo(() => !!entry.original_entry, [entry.original_entry]);
   const isModMuted = useMemo(() => entry.stats?.gray ?? false, [entry.stats?.gray]);
   const isHidden = useMemo(
-    () => isHiddenPost(entry.net_rshares, entry.active_votes?.length ?? 0),
-    [entry.net_rshares, entry.active_votes?.length]
+    () => isHiddenPost(entry.net_rshares, entry.stats?.total_votes ?? entry.active_votes?.length ?? 0),
+    [entry.net_rshares, entry.stats?.total_votes, entry.active_votes?.length]
   );
   const nsfw = useMemo(
     () =>

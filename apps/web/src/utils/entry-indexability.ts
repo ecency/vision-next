@@ -235,7 +235,8 @@ const passesWaveQualityGate = (entry: Entry): boolean => {
   const children = typeof entry.children === "number" ? entry.children : 0;
   if (children >= WAVE_MIN_CHILDREN) return true;
 
-  const voters = Array.isArray(entry.active_votes) ? entry.active_votes.length : 0;
+  const voters =
+    entry.stats?.total_votes ?? (Array.isArray(entry.active_votes) ? entry.active_votes.length : 0);
   return voters >= WAVE_MIN_VOTERS && effectivePayout(entry) >= WAVE_MIN_PAYOUT;
 };
 

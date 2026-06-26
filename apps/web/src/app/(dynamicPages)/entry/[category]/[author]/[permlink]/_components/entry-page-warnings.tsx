@@ -11,7 +11,10 @@ interface Props {
 
 export function EntryPageWarnings({ entry }: Props) {
   const isMuted = !!entry.stats?.gray && entry.net_rshares >= 0 && entry.author_reputation >= 0;
-  const isHidden = isHiddenPost(entry?.net_rshares, entry?.active_votes?.length ?? 0);
+  const isHidden = isHiddenPost(
+    entry?.net_rshares,
+    entry?.stats?.total_votes ?? entry?.active_votes?.length ?? 0
+  );
   const isLowReputation =
     !!entry.stats?.gray && entry.net_rshares >= 0 && entry.author_reputation < 0;
   // New low-reputation account publishing an outbound promo link (SEO/backlink-farm

@@ -100,8 +100,8 @@ export const WavesListItem = React.memo(function WavesListItem({
   );
 
   const isHidden = useMemo(
-    () => isHiddenPost(entry?.net_rshares, entry?.active_votes?.length ?? 0),
-    [entry?.net_rshares, entry?.active_votes?.length]
+    () => isHiddenPost(entry?.net_rshares, entry?.stats?.total_votes ?? entry?.active_votes?.length ?? 0),
+    [entry?.net_rshares, entry?.stats?.total_votes, entry?.active_votes?.length]
   );
 
   const isCommunityMuted = entry?.stats?.gray;
