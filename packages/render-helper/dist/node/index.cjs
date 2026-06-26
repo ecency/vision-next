@@ -43,6 +43,8 @@ var WHITE_LIST = [
   "ecency.com",
   "hive.blog",
   "peakd.com",
+  "snapie.io",
+  "hivesuite.app",
   "travelfeed.io",
   "dapplr.in",
   "leofinance.io",
@@ -867,7 +869,7 @@ var matchesHref = (href, value) => {
   return normalizeValue(value) === normalizedHref;
 };
 var normalizeDisplayText = (text2) => {
-  const beforeTrailingSlash = text2.trim().replace(/^https?:\/\/(www\.)?(ecency\.com|peakd\.com|hive\.blog)/i, "").replace(/^\/+/, "").split("?")[0].replace(/#@.*$/i, "");
+  const beforeTrailingSlash = text2.trim().replace(/^https?:\/\/(www\.)?(ecency\.com|peakd\.com|hive\.blog|leofinance\.io|inleo\.io|snapie\.io|hivesuite\.app)/i, "").replace(/^\/+/, "").split("?")[0].replace(/#@.*$/i, "");
   return trimTrailingSlash(beforeTrailingSlash).toLowerCase();
 };
 var getInlineMeta = (el, href, author, permlink, communityTag) => {

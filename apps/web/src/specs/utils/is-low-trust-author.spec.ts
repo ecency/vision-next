@@ -19,6 +19,12 @@ describe("hasExternalLink", () => {
     );
   });
 
+  it("ignores newer Hive frontend links (snapie.io, hivesuite.app)", () => {
+    expect(hasExternalLink("read https://snapie.io/@a/b and https://hivesuite.app/hive/@a/b")).toBe(
+      false
+    );
+  });
+
   it("ignores embedded images (extension and image hosts)", () => {
     expect(hasExternalLink("![pic](https://images.ecency.com/abc.jpg)")).toBe(false);
     expect(hasExternalLink("![pic](https://i.imgur.com/abc.png)")).toBe(false);

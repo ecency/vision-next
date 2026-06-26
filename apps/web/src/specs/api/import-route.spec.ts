@@ -143,6 +143,24 @@ describe("POST /api/import", () => {
     expect(data.source).toBe("hive");
   });
 
+  it.each([
+    "https://snapie.io/@testuser/test-post",
+    "https://snapie.io/hive/@testuser/test-post",
+    "https://hivesuite.app/@testuser/test-post"
+  ])("resolves %s as an on-chain Hive post", async (url) => {
+    vi.mocked(getPost).mockResolvedValue({
+      title: "Test Title",
+      body: "# Hello World",
+      json_metadata: { tags: ["test"], image: [] }
+    } as any);
+
+    const res = await POST(makeRequest({ url }));
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data.source).toBe("hive");
+    expect(getPost).toHaveBeenCalledWith("testuser", "test-post");
+  });
+
   it("returns external article data on success", async () => {
     const mockDoc = {
       querySelector: vi.fn().mockReturnValue(null),

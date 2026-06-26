@@ -23,7 +23,15 @@ const ECENCY_HOSTNAMES = new Set([
   "peakd.com",
   "www.peakd.com",
   "hive.blog",
-  "www.hive.blog"
+  "www.hive.blog",
+  "leofinance.io",
+  "www.leofinance.io",
+  "inleo.io",
+  "www.inleo.io",
+  "snapie.io",
+  "www.snapie.io",
+  "hivesuite.app",
+  "www.hivesuite.app"
 ]);
 
 function isAbsoluteHttpUrl(url: string) {
@@ -154,7 +162,7 @@ export function useMessageRendering({
   );
 
   const ECENCY_POST_LINK_REGEX = useMemo(
-    () => /https?:\/\/(?:www\.)?(?:ecency\.com|peakd\.com|hive\.blog)\/[^\s]*@(?:[a-zA-Z][a-zA-Z0-9.-]{1,15})\/[^\s)]+/gi,
+    () => /https?:\/\/(?:www\.)?(?:ecency\.com|peakd\.com|hive\.blog|leofinance\.io|inleo\.io|snapie\.io|hivesuite\.app)\/[^\s]*@(?:[a-zA-Z][a-zA-Z0-9.-]{1,15})\/[^\s)]+/gi,
     []
   );
 

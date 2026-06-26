@@ -32,6 +32,8 @@ const HIVE_FRONT_ENDS = [
   "ecency.com",
   "hive.blog",
   "peakd.com",
+  "snapie.io",
+  "hivesuite.app",
   "leofinance.io",
   "inleo.io"
 ];

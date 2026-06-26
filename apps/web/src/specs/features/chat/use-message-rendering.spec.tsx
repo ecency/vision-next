@@ -49,6 +49,25 @@ describe("useMessageRendering", () => {
     expect(screen.queryByTestId("chat-image")).toBeNull();
     expect(screen.queryByRole("img")).toBeNull();
   });
+
+  // Post links from recognized Hive frontends are enhanced into a rich preview
+  // rather than left as a bare link whose @author gets split into a mention.
+  // Inline code keeps the URL as a text node (linkify does not auto-link inside
+  // <code>), which is what exercises the enhancement path.
+  it.each([
+    "https://snapie.io/@alice/my-post",
+    "https://hivesuite.app/@alice/my-post",
+    "https://inleo.io/hive/@alice/my-post"
+  ])("enhances %s as a Hive post link in chat", (url) => {
+    const { result } = renderHook(() => useMessageRendering(hookProps));
+
+    render(<div>{result.current.renderMessageContent(`\`${url}\``)}</div>);
+
+    // getByText throws if the enhanced link isn't rendered as a single node
+    expect(screen.getByText(url)).toBeTruthy();
+    // recognized as one post link, not split into an @author mention
+    expect(screen.queryByText("@alice")).toBeNull();
+  });
 });
 
 describe("getSafeChatImageUrl", () => {

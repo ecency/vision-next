@@ -24,6 +24,8 @@ const INTERNAL_HOSTS = [
   "hive.io",
   "hiveblocks.com",
   "peakd.com",
+  "snapie.io",
+  "hivesuite.app",
   "leofinance.io",
   "inleo.io",
   "3speak.tv",

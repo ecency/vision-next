@@ -2,6 +2,8 @@ export const WHITE_LIST = [
   'ecency.com',
   'hive.blog',
   'peakd.com',
+  'snapie.io',
+  'hivesuite.app',
   'travelfeed.io',
   'dapplr.in',
   'leofinance.io',

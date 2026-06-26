@@ -70,7 +70,7 @@ const matchesHref = (href: string, value?: string | null): boolean => {
 
 /**
  * Normalizes display text for inline detection by:
- * - Stripping protocol and domain (ecency.com, peakd.com, hive.blog)
+ * - Stripping protocol and domain (ecency.com, peakd.com, hive.blog, leofinance.io, inleo.io, snapie.io, hivesuite.app)
  * - Removing leading/trailing slashes
  * - Removing query parameters
  * - Removing comment hashes (#@...)
@@ -79,7 +79,7 @@ const matchesHref = (href: string, value?: string | null): boolean => {
 const normalizeDisplayText = (text: string): string => {
   const beforeTrailingSlash = text
     .trim()
-    .replace(/^https?:\/\/(www\.)?(ecency\.com|peakd\.com|hive\.blog)/i, "")
+    .replace(/^https?:\/\/(www\.)?(ecency\.com|peakd\.com|hive\.blog|leofinance\.io|inleo\.io|snapie\.io|hivesuite\.app)/i, "")
     .replace(/^\/+/, "")
     .split("?")[0]
     .replace(/#@.*$/i, "");
