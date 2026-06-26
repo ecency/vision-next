@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "./_index.scss";
 import * as ss from "@/utils/session-storage";
 import { LoginRequired } from "@/features/shared";
@@ -133,26 +133,36 @@ export function EntryVoteBtn({ entry: originalEntry, isPostSlider, account }: Pr
       return null;
     }
   }, [activeUser, entry, isVoted, queryClient]);
-  const toggleDialog = useCallback(() => {
-    // Closing: just close.
-    if (dialog) {
-      setDialog(false);
+  const toggleDialog = useCallback(() => setDialog((d) => !d), []);
+
+  // Resolve the user's previous vote WHILE the slider is open rather than before
+  // opening it, so the open paints immediately instead of blocking on
+  // getPreviousVote()'s network fetch (the prior-vote lookup on an already-voted
+  // post with a cold session cache). That await used to gate the open and inflate
+  // INP on this interaction. The cleanup drops a stale resolution if the slider
+  // closes, or the entry/account changes (getPreviousVote identity changes),
+  // before the fetch returns — so a late result can never prefill another post's
+  // (or user's) vote weight.
+  useEffect(() => {
+    if (!dialog) {
       return;
     }
-
-    // Opening: open the slider immediately so the tap paints without waiting on
-    // getPreviousVote(), which can do a network fetch for the user's prior vote
-    // on an already-voted post (session-cache miss). Awaiting it here used to
-    // block the dialog open and inflate INP on that interaction. The dialog
-    // syncs to the resolved value reactively once it arrives (see the
-    // previousVotedValue effect in entry-vote-dialog).
-    setDialog(true);
+    let active = true;
     getPreviousVote()
-      .then((preVote) => setPreviousVotedValue(preVote ?? undefined))
+      .then((preVote) => {
+        if (active) {
+          setPreviousVotedValue(preVote ?? undefined);
+        }
+      })
       .catch((e) => {
         console.error("entry-vote-btn failed to load previous vote", e);
-        setPreviousVotedValue(undefined);
+        if (active) {
+          setPreviousVotedValue(undefined);
+        }
       });
+    return () => {
+      active = false;
+    };
   }, [dialog, getPreviousVote]);
 
   return (
