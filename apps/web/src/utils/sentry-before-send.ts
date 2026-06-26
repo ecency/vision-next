@@ -177,30 +177,33 @@ export function beforeSend(event: SentryErrorEvent): SentryErrorEvent | null {
     return event;
   }
 
-  // Firefox-specific iframe teardown error following a React hydration
-  // mismatch (#418) on profile pages. Symptom — when hydration fails,
-  // React tears down the tree and an iframe's contentWindow becomes null
-  // while some downstream code still tries to access .document on it.
-  // V8-based engines produce a different message for the same access
-  // (`Cannot read properties of null (reading 'document')`) so matching
-  // on the Firefox phrasing alone is engine-specific, but we *also*
-  // require browser=Firefox and a profile-page URL so unrelated iframe
-  // bugs in other surfaces aren't silently dropped. Sample 1% to keep
-  // trend visibility.
-  // TODO(hydration): investigate Firefox-only hydration drift on profile
-  // pages (`/@user/...`) — likely a locale/Date/Intl mismatch or a value
-  // that differs between SSR and the first client render.
-  // event.contexts is loosely typed by @sentry/types; coerce to string.
-  const browserName = String(event.contexts?.browser?.name ?? "");
-  const url = String(event.request?.url ?? "");
+  // Firefox iframe teardown that FOLLOWS a React #418 hydration mismatch — the
+  // iframe variant of the $RS self-heal handled just above. When hydration fails
+  // React tears the tree down; an iframe's contentWindow becomes null while some
+  // downstream code still reads .document off it. The user still gets a working
+  // page (React regenerated the subtree client-side), so this is self-healed
+  // noise, seen on ANY page that renders post content with embedded iframes
+  // (profile, feeds, hot/trending, etc.). Match on SpiderMonkey's engine-specific
+  // phrasing alone: V8 phrases the same null access as `Cannot read properties of
+  // null (reading 'document')` and Safari as `null is not an object (...)`, so the
+  // two-substring AND is already Firefox-only. We deliberately do NOT gate on
+  // browser=Firefox — event.contexts.browser is enriched server-side from the
+  // User-Agent, so it is absent in the client-side beforeSend and such a gate
+  // would never match (the prior version's gate made this branch a no-op).
+  // RECLASSIFY (not drop) to one fingerprinted warning, exactly like $RS: the
+  // per-page error spam collapses into a single low-severity issue while a genuine
+  // Firefox hydration regression still surfaces as a spike on this fingerprint.
+  // TODO(hydration): investigate Firefox-only hydration drift — likely a
+  // locale/Date/Intl mismatch or a value that differs between SSR and the first
+  // client render.
   if (
     message.includes("can't access property \"document\"") &&
-    message.includes("contentWindow is null") &&
-    /Firefox/i.test(browserName) &&
-    /\/@/.test(url) &&
-    Math.random() > 0.01
+    message.includes("contentWindow is null")
   ) {
-    return null;
+    event.level = "warning";
+    event.tags = { ...event.tags, hydration_autorecovered: "true" };
+    event.fingerprint = ["hydration-iframe-autorecovered"];
+    return event;
   }
 
   // Chrome botnet traffic - null/undefined document access from synthetic handler.
