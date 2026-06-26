@@ -76,7 +76,11 @@ export function Popover(
     [props, windowSize.width]
   );
   useEffect(() => {
-    props.show !== show && setShow((props as ShowProps).show ?? false);
+    // Only sync from a CONTROLLED parent. For an uncontrolled popover
+    // (props.show === undefined) this effect must not run, otherwise it would
+    // reset a `defaultShow`-seeded open state back to false on mount.
+    if (props.show === undefined) return;
+    if (props.show !== show) setShow(props.show);
   }, [props.show]);
 
   useEffect(() => {
