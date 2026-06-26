@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import type { DehydratedState } from "@tanstack/react-query";
-import { stripActiveVotesFromDehydratedState } from "@/core/react-query/strip-active-votes";
+import {
+  stripActiveVotesFromDehydratedState,
+  stripActiveVotesFromValue
+} from "@/core/react-query/strip-active-votes";
 
 function entry(overrides: Record<string, any> = {}) {
   return {
@@ -147,5 +150,36 @@ describe("stripActiveVotesFromDehydratedState", () => {
     const state = dehydrated({ foo: 1 });
     const out = stripActiveVotesFromDehydratedState(state);
     expect(out.queries[0]).toBe(state.queries[0]);
+  });
+});
+
+describe("stripActiveVotesFromValue (props channel, e.g. profile initialFeed)", () => {
+  it("strips an InfiniteData feed value for anonymous requests", () => {
+    const feed = {
+      pages: [[entry({ permlink: "p1" }), entry({ permlink: "p2" })]],
+      pageParams: [null]
+    };
+    const out = stripActiveVotesFromValue(feed, undefined) as any;
+    expect(out.pages[0][0].active_votes).toEqual([]);
+    expect(out.pages[0][1].active_votes).toEqual([]);
+    expect(out.pages[0][0].stats.total_votes).toBe(3);
+  });
+
+  it("strips a plain Entry[] (the profile entryList incl. pinned entry)", () => {
+    const list = [entry({ permlink: "pinned" }), entry({ permlink: "a" })];
+    const out = stripActiveVotesFromValue(list, undefined) as any[];
+    expect(out[0].active_votes).toEqual([]);
+    expect(out[1].active_votes).toEqual([]);
+  });
+
+  it("returns the value unchanged for a logged-in user", () => {
+    const feed = { pages: [[entry({ permlink: "p1" })]], pageParams: [null] };
+    const out = stripActiveVotesFromValue(feed, "alice");
+    expect(out).toBe(feed);
+    expect(out.pages[0][0].active_votes).toHaveLength(3);
+  });
+
+  it("passes through undefined (no feed prefetched)", () => {
+    expect(stripActiveVotesFromValue(undefined, undefined)).toBeUndefined();
   });
 });

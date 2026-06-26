@@ -78,7 +78,12 @@ export default async function Page({ params, searchParams }: Props) {
       {searchData && searchData.length > 0 ? (
         <ProfileSearchContent items={searchData} />
       ) : (
-        <ProfileEntriesList section="posts" account={account} initialFeed={initialFeed} />
+        <ProfileEntriesList
+          section="posts"
+          account={account}
+          initialFeed={initialFeed}
+          currentUser={loggedInUser}
+        />
       )}
     </HydrationBoundary>
   );
