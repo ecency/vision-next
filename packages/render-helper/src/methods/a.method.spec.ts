@@ -304,6 +304,79 @@ describe('a() method - Link Processing', () => {
         expect(el.getAttribute('href')).toBe('/@author/permlink')
       })
 
+      it('should transform snapie.io post links for web', () => {
+        const parent = doc.createElement('div')
+        const el = doc.createElement('a')
+        const href = 'https://snapie.io/hive/@author/permlink'
+        el.setAttribute('href', href)
+        el.textContent = href
+        parent.appendChild(el)
+
+        a(el, false)
+
+        expect(el.getAttribute('class')).toBe('markdown-post-link')
+        expect(el.getAttribute('href')).toBe('/@author/permlink')
+      })
+
+      it('should transform snapie.io post links without a category segment', () => {
+        const parent = doc.createElement('div')
+        const el = doc.createElement('a')
+        const href = 'https://snapie.io/@author/permlink'
+        el.setAttribute('href', href)
+        el.textContent = href
+        parent.appendChild(el)
+
+        a(el, false)
+
+        expect(el.getAttribute('class')).toBe('markdown-post-link')
+        expect(el.getAttribute('href')).toBe('/@author/permlink')
+      })
+
+      it('should transform hivesuite.app post links for web', () => {
+        const parent = doc.createElement('div')
+        const el = doc.createElement('a')
+        const href = 'https://hivesuite.app/hive/@author/permlink'
+        el.setAttribute('href', href)
+        el.textContent = href
+        parent.appendChild(el)
+
+        a(el, false)
+
+        expect(el.getAttribute('class')).toBe('markdown-post-link')
+        expect(el.getAttribute('href')).toBe('/@author/permlink')
+      })
+
+      it('should transform inleo.io post links for web', () => {
+        const parent = doc.createElement('div')
+        const el = doc.createElement('a')
+        const href = 'https://inleo.io/hive/@author/permlink'
+        el.setAttribute('href', href)
+        el.textContent = href
+        parent.appendChild(el)
+
+        a(el, false)
+
+        expect(el.getAttribute('class')).toBe('markdown-post-link')
+        expect(el.getAttribute('href')).toBe('/@author/permlink')
+      })
+
+      it('detects inline post links when display text is a bare frontend URL', () => {
+        // Display text omits the category segment (and differs from href), so
+        // inline detection relies on normalizeDisplayText stripping the domain.
+        const parent = doc.createElement('div')
+        const el = doc.createElement('a')
+        const href = 'https://inleo.io/hive/@author/permlink'
+        el.setAttribute('href', href)
+        el.textContent = 'https://inleo.io/@author/permlink'
+        parent.appendChild(el)
+
+        a(el, false)
+
+        expect(el.getAttribute('class')).toBe('markdown-post-link')
+        expect(el.getAttribute('href')).toBe('/@author/permlink')
+        expect(el.getAttribute('data-is-inline')).toBe('true')
+      })
+
       it('should set data attributes for app mode', () => {
         const parent = doc.createElement('div')
         const el = doc.createElement('a')

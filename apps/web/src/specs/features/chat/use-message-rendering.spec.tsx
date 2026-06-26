@@ -9,7 +9,9 @@ vi.mock("@/features/chat/components/chat-image", () => ({
 }));
 
 vi.mock("@/features/chat/components/mention-token", () => ({
-  MentionToken: ({ username }: { username: string }) => <span>@{username}</span>
+  MentionToken: ({ username }: { username: string }) => (
+    <span data-testid="mention-token">@{username}</span>
+  )
 }));
 
 vi.mock("@/features/post-renderer", async (importOriginal) => {
@@ -48,6 +50,49 @@ describe("useMessageRendering", () => {
 
     expect(screen.queryByTestId("chat-image")).toBeNull();
     expect(screen.queryByRole("img")).toBeNull();
+  });
+
+  // Post links from recognized Hive frontends are enhanced into a rich preview
+  // rather than left as a bare link whose @author gets split into a mention.
+  // Inline code keeps the URL as a text node (linkify does not auto-link inside
+  // <code>), which is what exercises the enhancement path.
+  it.each([
+    "https://snapie.io/@alice/my-post",
+    "https://hivesuite.app/@alice/my-post",
+    "https://inleo.io/hive/@alice/my-post"
+  ])("enhances %s as a Hive post link in chat", (url) => {
+    const { result } = renderHook(() => useMessageRendering(hookProps));
+
+    render(<div>{result.current.renderMessageContent(`\`${url}\``)}</div>);
+
+    // getByText throws if the enhanced link isn't rendered as a single node
+    expect(screen.getByText(url)).toBeTruthy();
+    // recognized as one post link, not split into an @author mention
+    expect(screen.queryByText("@alice")).toBeNull();
+  });
+
+  // A bare post URL gets auto-linked into an anchor; its @author must stay part
+  // of the link, not be peeled off into a clickable chat mention. Covers the
+  // existing frontends (peakd) as well as the newly added ones.
+  it.each([
+    "https://snapie.io/@alice/my-post",
+    "https://hivesuite.app/@alice/my-post",
+    "https://inleo.io/hive/@alice/my-post",
+    "https://peakd.com/@alice/my-post"
+  ])("does not split the @author of a bare %s link into a mention", (url) => {
+    const { result } = renderHook(() => useMessageRendering(hookProps));
+
+    render(<div>{result.current.renderMessageContent(`see ${url} here`)}</div>);
+
+    expect(screen.queryByTestId("mention-token")).toBeNull();
+  });
+
+  it("still renders a standalone @mention as a chat mention", () => {
+    const { result } = renderHook(() => useMessageRendering(hookProps));
+
+    render(<div>{result.current.renderMessageContent("hello @bob")}</div>);
+
+    expect(screen.getByTestId("mention-token")).toBeTruthy();
   });
 });
 

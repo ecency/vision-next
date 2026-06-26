@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.5.16
+
+### Patch Changes
+
+- Recognize snapie.io and hivesuite.app post links (#1021)
+
 ## 2.5.15
 
 ### Patch Changes
