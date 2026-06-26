@@ -133,3 +133,17 @@ export function stripActiveVotesFromDehydratedState(
     })
   };
 }
+
+/**
+ * Strip active_votes from a feed value passed DIRECTLY as a React prop (e.g. a
+ * profile page's `initialFeed` InfiniteData). Such props are serialized into the
+ * RSC component tree — a separate channel from the dehydrated React Query state —
+ * so stripActiveVotesFromDehydratedState alone does not cover them. Anonymous-only,
+ * same as the dehydrated-state strip.
+ */
+export function stripActiveVotesFromValue<T>(value: T, currentUser?: string): T {
+  if (currentUser) {
+    return value;
+  }
+  return stripQueryData(value) as T;
+}
