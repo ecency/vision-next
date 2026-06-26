@@ -26,11 +26,12 @@ function isStripableEntry(value: unknown): value is Entry {
     return false;
   }
   const entry = value as Entry;
-  return (
-    Array.isArray(entry.active_votes) &&
-    entry.active_votes.length > 0 &&
-    typeof entry.stats?.total_votes === "number"
-  );
+  // Strip only when a vote COUNT survives elsewhere, so consumers stay
+  // hydration-stable: posts carry it on stats.total_votes; search results carry
+  // it as a top-level total_votes.
+  const hasCount =
+    typeof entry.stats?.total_votes === "number" || typeof entry.total_votes === "number";
+  return Array.isArray(entry.active_votes) && entry.active_votes.length > 0 && hasCount;
 }
 
 function stripEntry<T>(value: T): T {

@@ -86,6 +86,24 @@ describe("stripActiveVotesFromDehydratedState", () => {
     expect(pages[0][0].stats.total_votes).toBe(3);
   });
 
+  it("strips a search result that carries a top-level total_votes instead of stats.total_votes", () => {
+    const searchResult = {
+      author: "alice",
+      permlink: "s",
+      total_votes: 42,
+      active_votes: [
+        { voter: "a", rshares: 1 },
+        { voter: "b", rshares: 2 }
+      ]
+    };
+    const out = stripActiveVotesFromDehydratedState(
+      dehydrated({ pages: [{ results: [searchResult] }], pageParams: [null] })
+    );
+    const r = (out.queries[0].state.data as any).pages[0].results[0];
+    expect(r.active_votes).toEqual([]);
+    expect(r.total_votes).toBe(42);
+  });
+
   it("strips entries inside an infinite search feed (pages of { results })", () => {
     const data = {
       pages: [{ results: [entry({ permlink: "s1" }), entry({ permlink: "s2" })], scroll_id: "x" }],
