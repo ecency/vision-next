@@ -273,3 +273,64 @@ describe("beforeSend — synthetic DOM Event capture is dropped", () => {
     expect(beforeSend(ev)).toBe(ev);
   });
 });
+
+describe("beforeSend — Firefox iframe contentWindow-null teardown is reclassified", () => {
+  // ECENCY-NEXT-1FGA: the iframe variant of the $RS #418 self-heal above. After a
+  // Firefox hydration mismatch an iframe's contentWindow is null while downstream
+  // code reads .document off it; React already regenerated the subtree, so it is
+  // self-healed noise — reclassified (NOT dropped) to one fingerprinted warning so
+  // a genuine hydration regression still spikes. Matched on SpiderMonkey's engine-
+  // specific phrasing (both substrings), NOT on browser=Firefox: contexts.browser
+  // is enriched server-side and is ABSENT in client-side beforeSend, so the
+  // fixtures here omit it on purpose — injecting it would mask a re-introduced
+  // dead browser gate (the bug this branch originally shipped with).
+  const FF_MSG = 'can\'t access property "document", a.contentWindow is null';
+
+  function makeClientEvent(value: string, url: string): Ev {
+    return {
+      exception: {
+        values: [{ type: "TypeError", value, stacktrace: { frames: [APP_FRAME] } }]
+      },
+      request: { url }
+    } as unknown as Ev;
+  }
+
+  it("reclassifies to a fingerprinted warning on a NON-profile page (broadened, e.g. /hot/1am)", () => {
+    const out = beforeSend(makeClientEvent(FF_MSG, "https://ecency.com/hot/1am"));
+    expect(out).not.toBeNull();
+    expect(out!.level).toBe("warning");
+    expect(out!.tags?.hydration_autorecovered).toBe("true");
+    expect(out!.fingerprint).toEqual(["hydration-iframe-autorecovered"]);
+  });
+
+  it("reclassifies with NO browser context present (the dead /Firefox/ gate is gone)", () => {
+    // Regression guard: client-side beforeSend never sees contexts.browser, so the
+    // match must not depend on it. Re-adding a browserName gate would fail this.
+    const out = beforeSend(makeClientEvent(FF_MSG, "https://ecency.com/@user/some-post"));
+    expect(out!.fingerprint).toEqual(["hydration-iframe-autorecovered"]);
+  });
+
+  it("does NOT touch the V8/Chrome phrasing of the same null-document access", () => {
+    // V8 says "Cannot read properties of null (reading 'document')" — different
+    // engine grammar, so the Firefox-phrasing match must leave it alone (and with
+    // no HTMLDocument.c frame the Chrome-botnet block below won't take it either).
+    const ev = makeClientEvent(
+      "Cannot read properties of null (reading 'document')",
+      "https://ecency.com/hot/1am"
+    );
+    expect(beforeSend(ev)).toBe(ev);
+    expect(ev.level).toBeUndefined();
+    expect(ev.fingerprint).toBeUndefined();
+  });
+
+  it("does NOT match when only one of the two required substrings is present", () => {
+    // Locks in the AND specificity: a Firefox null-access on a DIFFERENT property
+    // (no "contentWindow is null") stays a real error.
+    const ev = makeClientEvent(
+      'can\'t access property "document", foo is null',
+      "https://ecency.com/hot/1am"
+    );
+    expect(beforeSend(ev)).toBe(ev);
+    expect(ev.fingerprint).toBeUndefined();
+  });
+});
