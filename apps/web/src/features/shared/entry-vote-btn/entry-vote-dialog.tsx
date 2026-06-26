@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import * as ls from "@/utils/local-storage";
 import { Button } from "@ui/button";
 import i18next from "i18next";
@@ -81,6 +81,41 @@ export function EntryVoteDialog({
   const [wrongValueDown, setWrongValueDown] = useState(false);
   const [showRemove, setShowRemove] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
+
+  // The parent now opens this dialog immediately and resolves the user's
+  // previous vote in the background (so the open isn't blocked on a network
+  // fetch — an INP win), where it used to mount this dialog only after the value
+  // was already known. The slider is therefore interactive before the value
+  // arrives. When it arrives, apply it to the slider the same way the initial
+  // state above would have — but only the first time, and never once the user
+  // has actually started adjusting the slider, so a slow fetch can't reset a
+  // weight they already chose.
+  //
+  // `userTouchedRef` is flipped from real pointer/keyboard input on the slider
+  // (capture phase, below). InputVote calls setValue() programmatically on mount
+  // and on clamp, so a handler-based "touched" flag would false-trigger; DOM
+  // input events do not fire for those programmatic echoes.
+  const appliedPreviousRef = useRef(false);
+  const userTouchedRef = useRef(false);
+  const markTouched = useCallback(() => {
+    userTouchedRef.current = true;
+  }, []);
+  useEffect(() => {
+    if (appliedPreviousRef.current || !previousVotedValue) {
+      return;
+    }
+    appliedPreviousRef.current = true;
+    if (userTouchedRef.current) {
+      return;
+    }
+    if (upVoted) {
+      setUpSliderVal(previousVotedValue);
+      setInitialVoteValues((v) => ({ ...v, up: previousVotedValue }));
+    } else if (downVoted) {
+      setDownSliderVal(previousVotedValue);
+      setInitialVoteValues((v) => ({ ...v, down: previousVotedValue }));
+    }
+  }, [previousVotedValue, upVoted, downVoted]);
 
   const isPaidOut = entry.is_paidout;
 
@@ -201,7 +236,12 @@ export function EntryVoteDialog({
               <FormattedCurrency value={estimate(upSliderVal)} fixAt={3} />
             </div>
             <div className="space" />
-            <div className="slider slider-up">
+            <div
+              className="slider slider-up"
+              onMouseDownCapture={markTouched}
+              onTouchStartCapture={markTouched}
+              onKeyDownCapture={markTouched}
+            >
               <InputVote value={upSliderVal} setValue={(x) => upSliderChanged(x)} />
             </div>
             <div className="percentage" />
@@ -253,7 +293,12 @@ export function EntryVoteDialog({
             <div className="estimated">
               <FormattedCurrency value={estimate(downSliderVal)} fixAt={3} />
             </div>
-            <div className="slider slider-down">
+            <div
+              className="slider slider-down"
+              onMouseDownCapture={markTouched}
+              onTouchStartCapture={markTouched}
+              onKeyDownCapture={markTouched}
+            >
               <InputVote
                 mode="negative"
                 value={downSliderVal}

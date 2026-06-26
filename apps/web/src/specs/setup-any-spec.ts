@@ -121,6 +121,16 @@ vi.mock("@ecency/sdk", () => ({
     queryKey: ["posts", "deleted-entry", `@${author}/${permlink}`],
     queryFn: vi.fn()
   })),
+  getEntryActiveVotesQueryOptions: vi.fn((entry) => ({
+    queryKey: ["posts", "active-votes", entry?.author, entry?.permlink],
+    queryFn: vi.fn()
+  })),
+  getDynamicPropsQueryOptions: vi.fn(() => ({
+    queryKey: ["dynamic-props"],
+    queryFn: vi.fn()
+  })),
+  votingPower: vi.fn(() => 0),
+  votingValue: vi.fn(() => 0),
   useBookmarkAdd: vi.fn(),
   useBookmarkDelete: vi.fn(),
   useAccountRevokeKey: vi.fn(() => ({ mutateAsync: vi.fn() })),

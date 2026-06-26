@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "./_index.scss";
 import * as ss from "@/utils/session-storage";
 import { LoginRequired } from "@/features/shared";
@@ -133,20 +133,46 @@ export function EntryVoteBtn({ entry: originalEntry, isPostSlider, account }: Pr
       return null;
     }
   }, [activeUser, entry, isVoted, queryClient]);
-  const toggleDialog = useCallback(async () => {
-    //if dialog is closing do nothing and close
-    if (!dialog) {
-      try {
-        const preVote = await getPreviousVote();
-        setPreviousVotedValue(preVote);
-      } catch (e) {
-        console.error("entry-vote-btn failed to toggle dialog", e);
-        setPreviousVotedValue(undefined);
-      }
-    }
+  const toggleDialog = useCallback(() => setDialog((d) => !d), []);
 
-    setDialog(!dialog);
+  // Resolve the user's previous vote WHILE the slider is open rather than before
+  // opening it, so the open paints immediately instead of blocking on
+  // getPreviousVote()'s network fetch (the prior-vote lookup on an already-voted
+  // post with a cold session cache). That await used to gate the open and inflate
+  // INP on this interaction. The cleanup drops a stale resolution if the slider
+  // closes, or the entry/account changes (getPreviousVote identity changes),
+  // before the fetch returns — so a late result can never prefill another post's
+  // (or user's) vote weight.
+  useEffect(() => {
+    if (!dialog) {
+      return;
+    }
+    let active = true;
+    getPreviousVote()
+      .then((preVote) => {
+        if (active) {
+          setPreviousVotedValue(preVote ?? undefined);
+        }
+      })
+      .catch((e) => {
+        console.error("entry-vote-btn failed to load previous vote", e);
+        if (active) {
+          setPreviousVotedValue(undefined);
+        }
+      });
+    return () => {
+      active = false;
+    };
   }, [dialog, getPreviousVote]);
+
+  // Reset the cached previous vote when this button is reused for a different
+  // post or the active user changes. previousVotedValue is component state that
+  // persists across prop changes, and the dialog captures it at mount, so
+  // without this a reopened slider could seed from a prior entry's (or user's)
+  // vote weight before the new lookup resolves.
+  useEffect(() => {
+    setPreviousVotedValue(undefined);
+  }, [originalEntry.post_id, activeUser?.username]);
 
   return (
     <LoginRequired promptOnAnon>
