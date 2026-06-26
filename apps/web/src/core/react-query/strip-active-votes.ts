@@ -85,7 +85,27 @@ function stripQueryData(data: unknown): unknown {
     return stripEntryArray(data as unknown[]);
   }
   // Single entry (post / wave page)
-  return stripEntry(data);
+  const single = stripEntry(data);
+  if (single !== data) {
+    return single;
+  }
+  // Otherwise it may be a keyed map of entries (e.g. a raw bridge.get_discussion
+  // object: { "author/permlink": Entry, ... }). Strip any value that is itself a
+  // stripable entry and leave everything else untouched.
+  return stripKeyedEntries(data as Record<string, unknown>);
+}
+
+function stripKeyedEntries(obj: Record<string, unknown>): Record<string, unknown> {
+  let changed = false;
+  const next: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(obj)) {
+    const stripped = stripEntry(value);
+    if (stripped !== value) {
+      changed = true;
+    }
+    next[key] = stripped;
+  }
+  return changed ? next : obj;
 }
 
 export function stripActiveVotesFromDehydratedState(

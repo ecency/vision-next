@@ -125,8 +125,20 @@ describe("stripActiveVotesFromDehydratedState", () => {
     expect(arr[1].active_votes).toEqual([]);
   });
 
+  it("strips a keyed map of entries (raw bridge.get_discussion shape)", () => {
+    const data = {
+      "alice/p1": entry({ permlink: "p1" }),
+      "bob/p2": entry({ permlink: "p2" })
+    };
+    const out = stripActiveVotesFromDehydratedState(dehydrated(data));
+    const d = out.queries[0].state.data as any;
+    expect(d["alice/p1"].active_votes).toEqual([]);
+    expect(d["bob/p2"].active_votes).toEqual([]);
+    expect(d["alice/p1"].stats.total_votes).toBe(3);
+  });
+
   it("leaves non-entry query data untouched", () => {
-    const data = { foo: "bar", count: 5 };
+    const data = { foo: "bar", count: 5, nested: { a: 1 } };
     const out = stripActiveVotesFromDehydratedState(dehydrated(data));
     expect(out.queries[0].state.data).toBe(data);
   });
