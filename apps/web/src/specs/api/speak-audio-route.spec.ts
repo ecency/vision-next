@@ -54,12 +54,14 @@ describe("parseSpeakSource", () => {
     expect(reject("https://cdn.liketu.com:8080/x/clip.webm").code).toBe("HOST_NOT_ALLOWED");
   });
 
-  it("keeps the host locked to cdn.liketu.com even when the path mimics a host", () => {
-    // A pathname like //evil.com/x would hijack the authority if the request URL
-    // were rebuilt from path-against-a-base. The validated URL keeps cdn.liketu.com,
-    // so fetchAudio (which fetches this URL as-is) can never leave the host.
-    const url = parseSpeakSource("https://cdn.liketu.com//evil.com/clip.webm");
-    expect(url.hostname).toBe("cdn.liketu.com");
+  it("rejects a host-mimicking path (not under /liketu/, no override possible)", () => {
+    // pathname //evil.com/... is not a /liketu/ path so it's rejected; and even if
+    // it weren't, fetchAudio fetches the validated URL whose host stays cdn.liketu.com.
+    expect(reject("https://cdn.liketu.com//evil.com/clip.webm").code).toBe("UNSUPPORTED_PATH");
+  });
+
+  it("rejects an audio file outside the /liketu/ media root", () => {
+    expect(reject("https://cdn.liketu.com/other/clip.webm").code).toBe("UNSUPPORTED_PATH");
   });
 
   it("rejects an unsupported / missing extension", () => {

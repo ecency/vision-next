@@ -94,6 +94,13 @@ export function parseSpeakSource(src: unknown): URL {
     throw new CodedError("UNSUPPORTED_EXT", 400);
   }
 
+  // Constrain to Liketu's media path root. Even on the allowlisted host this keeps
+  // the endpoint from being used to fetch arbitrary CDN files, and it rejects a
+  // host-mimicking "//evil.com/..." pathname outright.
+  if (!url.pathname.startsWith("/liketu/")) {
+    throw new CodedError("UNSUPPORTED_PATH", 400);
+  }
+
   return url;
 }
 
