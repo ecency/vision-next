@@ -70,17 +70,18 @@ export function ProfileCard({ account }: Props) {
   );
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="rounded-xl w-full overflow-hidden relative p-4"
-    >
+    <div className="rounded-xl w-full overflow-hidden relative p-4">
+      {/* No opacity fade-in here: this card is above the fold, so a
+          framer-motion initial opacity:0 left the whole header (cover, avatar,
+          name) invisible in the SSR HTML until hydration, delaying LCP paint.
+          Render it visible from the server instead. */}
       <Image
           className="absolute top-0 left-0 w-full h-[96px] object-cover"
           src={imageSrc ?? (data?.profile?.cover_image ? `${defaults.imageServer}/u/${data.name}/cover` : "/assets/promote-wave-bg.jpg")}
           alt=""
           width={300}
           height={200}
+          priority
           onError={() => setImageSrc("/assets/promote-wave-bg.jpg")}
       />
 
@@ -227,6 +228,6 @@ export function ProfileCard({ account }: Props) {
       )}
 
       <FinalizeCommunityBanner username={account.name} />
-    </motion.div>
+    </div>
   );
 }
