@@ -104,4 +104,49 @@ describe("EntryVoteBtn — opening the slider is not blocked on the previous-vot
     fireEvent.click(screen.getByRole("button"));
     await waitFor(() => expect(screen.queryByTestId("vote-dialog")).not.toBeInTheDocument());
   });
+
+  it("does not seed a reused button's slider with the previous post's vote", async () => {
+    const entryA = mockEntry({
+      author: "bob",
+      permlink: "a",
+      post_id: 1,
+      active_votes: [{ voter: "alice", rshares: 100 }] as any
+    });
+    const entryB = mockEntry({
+      author: "carol",
+      permlink: "b",
+      post_id: 2,
+      active_votes: [{ voter: "alice", rshares: 50 }] as any
+    });
+
+    const queryClient = createTestQueryClient();
+    // First open (A) resolves to 75%; the second open (B) stays pending so that any
+    // leaked value would have to come from A's cached previousVotedValue, not B's fetch.
+    let calls = 0;
+    let resolveA: (v: any) => void = () => {};
+    vi.spyOn(queryClient, "fetchQuery").mockImplementation((() => {
+      calls += 1;
+      if (calls === 1) return new Promise((res) => (resolveA = res));
+      return new Promise(() => {});
+    }) as any);
+
+    const utils = renderWithQueryClient(<EntryVoteBtn entry={entryA} isPostSlider={true} />, {
+      queryClient
+    });
+
+    fireEvent.click(screen.getByRole("button"));
+    await screen.findByTestId("vote-dialog");
+    resolveA([{ voter: "alice", percent: 75, rshares: 100, time: "2024-01-01T00:00:00" }]);
+    await waitFor(() => expect(screen.getByTestId("vote-dialog")).toHaveTextContent("prev:75"));
+
+    // Close, then reuse the SAME button instance for a different post.
+    fireEvent.click(screen.getByRole("button"));
+    await waitFor(() => expect(screen.queryByTestId("vote-dialog")).not.toBeInTheDocument());
+    utils.rerender(<EntryVoteBtn entry={entryB} isPostSlider={true} />);
+
+    // Open B (its fetch is pending): the slider must not be seeded with A's 75%.
+    fireEvent.click(screen.getByRole("button"));
+    const dialogB = await screen.findByTestId("vote-dialog");
+    expect(dialogB).toHaveTextContent("prev:none");
+  });
 });

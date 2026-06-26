@@ -165,6 +165,15 @@ export function EntryVoteBtn({ entry: originalEntry, isPostSlider, account }: Pr
     };
   }, [dialog, getPreviousVote]);
 
+  // Reset the cached previous vote when this button is reused for a different
+  // post or the active user changes. previousVotedValue is component state that
+  // persists across prop changes, and the dialog captures it at mount, so
+  // without this a reopened slider could seed from a prior entry's (or user's)
+  // vote weight before the new lookup resolves.
+  useEffect(() => {
+    setPreviousVotedValue(undefined);
+  }, [originalEntry.post_id, activeUser?.username]);
+
   return (
     <LoginRequired promptOnAnon>
       <div ref={rootRef}>
