@@ -42,12 +42,14 @@ export function ManageKeyPasswordDialog({ show, setShow }: Props) {
   const { updateKeys } = useRevealedKeysStore();
 
   const handleSubmit = useCallback(async () => {
-    const { raw } = await keyInputRef.current!.handleSign();
+    const result = await keyInputRef.current!.handleSign();
 
-    if (!raw.length) {
-      error(i18next.t("manage-authorities.error-fields-required"));
+    // KeyInput already showed the relevant error toast for a missing/invalid key.
+    if (!result) {
       return;
     }
+
+    const { raw } = result;
 
     try {
       PublicKey.fromString(raw);
