@@ -66,7 +66,8 @@ export function EntryNotFoundFallback({ username, permlink }: Props) {
     enabled: (!!isOptimistic && !hasTransitioned) || isVerifying,
     refetchInterval: POLL_INTERVAL,
     refetchIntervalInBackground: false,
-    retry: false
+    retry: false,
+    throwOnError: false
   });
 
   // Handle real data arrival
