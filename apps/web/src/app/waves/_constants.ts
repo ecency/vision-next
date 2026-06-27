@@ -5,7 +5,6 @@ export type WavesFeedType = "for-you" | "following";
 export interface WavesFeedScrollState {
   scrollY: number;
   host?: string;
-  grid?: string;
   url?: string;
   timestamp?: number;
   feedType?: WavesFeedType;

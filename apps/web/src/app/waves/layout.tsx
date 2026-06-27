@@ -14,8 +14,6 @@ import {
 } from "@/app/waves/_components";
 import { useWindowSize } from "react-use";
 import { getTailwindBreakpoint } from "@/core/tailwind";
-import { clsx } from "clsx";
-import { useWavesGrid } from "@/app/waves/_hooks";
 import "./common.scss";
 import { WavesTagFilterProvider } from "@/app/waves/_context";
 import { usePathname } from "next/navigation";
@@ -25,8 +23,6 @@ interface Props {
 }
 
 export default function WavesLayout(props: PropsWithChildren<Props>) {
-  const [grid] = useWavesGrid();
-
   const pathname = usePathname();
   const { width } = useWindowSize();
 
@@ -82,21 +78,15 @@ export default function WavesLayout(props: PropsWithChildren<Props>) {
             )}
             <WavePromoteCard />
             <ClientOnly>
-              {grid === "masonry" ||
-                (width < getTailwindBreakpoint("xl") && (
-                  <>
-                    <WavesTrendingTagsCard />
-                    <WaveFollowsCard />
-                  </>
-                ))}
+              {width < getTailwindBreakpoint("xl") && (
+                <>
+                  <WavesTrendingTagsCard />
+                  <WaveFollowsCard />
+                </>
+              )}
             </ClientOnly>
           </div>
-          <div
-            className={clsx(
-              grid === "masonry" && "col-span-12 md:col-span-7 lg:col-span-8 xl:col-span-9",
-              grid === "feed" && "col-span-12 md:col-span-7 lg:col-span-8 xl:col-span-6"
-            )}
-          >
+          <div className="col-span-12 md:col-span-7 lg:col-span-8 xl:col-span-6">
             {props.children}
           </div>
           <div className="hidden xl:col-span-3 xl:flex flex-col gap-4 md:gap-6 xl:gap-8">

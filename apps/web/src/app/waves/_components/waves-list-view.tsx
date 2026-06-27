@@ -17,7 +17,6 @@ import {
   WavesFeedScrollState,
   WavesFeedType
 } from "@/app/waves/_constants";
-import { useWavesGrid } from "@/app/waves/_hooks";
 import { useWavesTagFilter } from "@/app/waves/_context";
 import { Button } from "@ui/button";
 import i18next from "i18next";
@@ -82,7 +81,6 @@ export function WavesListView({ feedType, username }: Props) {
     enabled: !tag
   });
   const dataFlow = useInfiniteDataFlow(data);
-  const [grid] = useWavesGrid();
   const queryClient = useQueryClient();
   // Reuse the query's own (normalized) key so the refresh-popup cache write
   // always targets exactly what useInfiniteQuery reads, with no drift.
@@ -133,11 +131,9 @@ export function WavesListView({ feedType, username }: Props) {
       const parsed = JSON.parse(storedValue) as WavesFeedScrollState;
       const currentUrl = `${window.location.pathname}${window.location.search}`;
       const feedMatches = !parsed.feedType || parsed.feedType === feedType;
-      const gridMatches = !parsed.grid || parsed.grid === grid;
       const urlMatches = !parsed.url || parsed.url === currentUrl;
 
       if (
-        gridMatches &&
         typeof parsed.scrollY === "number" &&
         urlMatches &&
         feedMatches
@@ -149,7 +145,7 @@ export function WavesListView({ feedType, username }: Props) {
     } finally {
       sessionStorage.removeItem(WAVES_FEED_SCROLL_STORAGE_KEY);
     }
-  }, [feedType, grid]);
+  }, [feedType]);
 
   useEffect(() => {
     if (pendingScroll === null) {
