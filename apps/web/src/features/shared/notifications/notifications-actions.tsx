@@ -123,21 +123,35 @@ export function NotificationsActions({ filter }: Props) {
     refetchData();
   };
 
+  // Disabled here means CSS `pointer-events: none`, which stops mouse clicks but
+  // not keyboard activation, so the handlers below also guard on these.
+  const markDisabled = markNotifications.isPending || unread === 0;
+  const refreshDisabled = isDataLoading || isUnreadLoading;
+
   return (
     <div className="list-actions">
       <Tooltip content={i18next.t("notifications.mark-all-read")}>
         <span
           className={classNameObject({
             "list-action": true,
-            disabled: markNotifications.isPending || unread === 0
+            disabled: markDisabled
           })}
           role="button"
-          tabIndex={0}
+          tabIndex={markDisabled ? -1 : 0}
+          aria-disabled={markDisabled}
           aria-label={i18next.t("notifications.mark-all-read")}
-          onClick={() => markAsRead()}
+          onClick={() => {
+            if (markDisabled) {
+              return;
+            }
+            markAsRead();
+          }}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
               e.preventDefault();
+              if (markDisabled) {
+                return;
+              }
               markAsRead();
             }
           }}
@@ -149,15 +163,24 @@ export function NotificationsActions({ filter }: Props) {
         <span
           className={classNameObject({
             "list-action": true,
-            disabled: isDataLoading || isUnreadLoading
+            disabled: refreshDisabled
           })}
           role="button"
-          tabIndex={0}
+          tabIndex={refreshDisabled ? -1 : 0}
+          aria-disabled={refreshDisabled}
           aria-label={i18next.t("notifications.refresh")}
-          onClick={() => refresh()}
+          onClick={() => {
+            if (refreshDisabled) {
+              return;
+            }
+            refresh();
+          }}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
               e.preventDefault();
+              if (refreshDisabled) {
+                return;
+              }
               refresh();
             }
           }}

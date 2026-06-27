@@ -210,6 +210,11 @@ const WaveFormComponent = ({
     return "";
   })();
 
+  // Collapse to the compact send icon only for the normal publish/reply action
+  // on mobile. Edit (save), over-limit (long post) and signed-out states keep
+  // their visible text, since a send icon would misrepresent those actions.
+  const useCompactSubmit = isMobile && !!activeUsername && !entry && !exceedsCharacterLimit;
+
   const handleEmojiPick = useCallback(
     (emoji: string) => {
       const input = textareaRef.current;
@@ -361,7 +366,7 @@ const WaveFormComponent = ({
             setShowVideoUpload(true);
           }}
           submit={
-            isMobile ? (
+            useCompactSubmit ? (
               <Button
                 onClick={handleSubmit}
                 disabled={submitDisabled}
