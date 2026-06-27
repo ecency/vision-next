@@ -3,8 +3,7 @@
 import { useEffect } from "react";
 import useLocalStorage from "react-use/lib/useLocalStorage";
 import { PREFIX } from "@/utils/local-storage";
-import { WavesCreateCard, WavesListView, WavesMasonryView } from "@/app/waves/_components";
-import { useWavesGrid } from "@/app/waves/_hooks";
+import { WavesCreateCard, WavesListView } from "@/app/waves/_components";
 import { Button } from "@ui/button";
 import i18next from "i18next";
 import { useWavesTagFilter } from "@/app/waves/_context";
@@ -14,7 +13,6 @@ import clsx from "clsx";
 import { WavesFeedType } from "@/app/waves/_constants";
 
 export function WavesPage() {
-  const [grid, setGrid] = useWavesGrid();
   const { selectedTag, setSelectedTag } = useWavesTagFilter();
   const { activeUser } = useActiveAccount();
   const toggleUiProp = useGlobalStore((state) => state.toggleUiProp);
@@ -23,27 +21,14 @@ export function WavesPage() {
     "for-you"
   );
   const feedType = storedFeedType ?? "for-you";
-  const isFollowing = feedType === "following";
 
   useEffect(() => {
-    if (feedType === "for-you" && selectedTag && grid !== "feed") {
-      setGrid("feed");
+    // Tags live on the For You feed; picking one while on Following moves the
+    // user to For You (where the tag actually applies) instead of dropping it.
+    if (feedType === "following" && selectedTag) {
+      setStoredFeedType("for-you");
     }
-  }, [feedType, grid, selectedTag, setGrid]);
-
-  useEffect(() => {
-    if (feedType === "following") {
-      if (grid !== "feed") {
-        setGrid("feed");
-      }
-
-      if (selectedTag) {
-        // Tags live on the For You feed; picking one while on Following moves the
-        // user to For You (where the tag actually applies) instead of dropping it.
-        setStoredFeedType("for-you");
-      }
-    }
-  }, [feedType, grid, selectedTag, setGrid, setStoredFeedType]);
+  }, [feedType, selectedTag, setStoredFeedType]);
 
   useEffect(() => {
     if (!activeUser && feedType === "following") {
@@ -127,12 +112,7 @@ export function WavesPage() {
           </Button>
         </div>
       )}
-      {grid === "feed" && (
-        <WavesListView feedType={feedType} username={activeUser?.username} />
-      )}
-      {grid === "masonry" && !selectedTag && !isFollowing && (
-        <WavesMasonryView username={activeUser?.username} />
-      )}
+      <WavesListView feedType={feedType} username={activeUser?.username} />
     </>
   );
 }

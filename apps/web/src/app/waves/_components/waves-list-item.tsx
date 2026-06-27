@@ -16,7 +16,7 @@ import { Modal, ModalHeader } from "@ui/modal";
 import i18next from "i18next";
 import { useInViewport } from "react-in-viewport";
 import { useCollectPageViewEvent } from "@/api/mutations";
-import { useMutedUsers, useWaveImageGrid, useWavesGrid } from "@/app/waves/_hooks";
+import { useMutedUsers, useWaveImageGrid } from "@/app/waves/_hooks";
 import { PostContentRenderer } from "@/features/shared";
 import { useQuery } from "@tanstack/react-query";
 import { getPromotedPostsQuery } from "@ecency/sdk";
@@ -54,8 +54,6 @@ export const WavesListItem = React.memo(function WavesListItem({
   feedType
 }: Props) {
   const { activeUser } = useActiveAccount();
-
-  const [grid] = useWavesGrid();
 
   const rootRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -148,7 +146,6 @@ export const WavesListItem = React.memo(function WavesListItem({
         if (typeof window !== "undefined") {
           const scrollState: WavesFeedScrollState = {
             scrollY: window.scrollY,
-            grid,
             host: currentHost,
             url: `${window.location.pathname}${window.location.search}`,
             timestamp: Date.now(),
@@ -165,7 +162,7 @@ export const WavesListItem = React.memo(function WavesListItem({
         router.push(wavePath);
       }
     },
-    [currentHost, feedType, grid, interactable, router, wavePath]
+    [currentHost, feedType, interactable, router, wavePath]
   );
 
   const hasTextSelection = useCallback(() => {
@@ -266,11 +263,8 @@ export const WavesListItem = React.memo(function WavesListItem({
       transition={{ delay: Math.min(i, 5) * 0.05 }}
       className={clsx(
         "waves-list-item bg-white dark:bg-dark-200 relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-dark-sky",
-        grid === "feed" &&
-          "border-b border-[--border-color] last:border-b-0",
-        grid === "masonry" && "rounded-2xl",
+        "border-b border-[--border-color] last:border-b-0",
         isMuted && "grayscale",
-        hasPromoted && grid === "masonry" && "border border-blue-dark-sky",
         interactable && "cursor-pointer"
       )}
       role={interactable ? "link" : undefined}
