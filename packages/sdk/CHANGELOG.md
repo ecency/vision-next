@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.26
+
+### Patch Changes
+
+- feat(waves): show tip count + already-tipped state in the waves feed (#1031)
+
 ## 2.3.25
 
 ### Patch Changes
