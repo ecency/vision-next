@@ -26,10 +26,14 @@ interface Props {
 }
 
 export interface KeyInputImperativeHandle {
+  // Resolves to `null` (not a throw) when the user-supplied key is missing or
+  // invalid: the relevant error toast is shown here, and callers should bail on
+  // a `null` result. This avoids unhandled promise rejections from imperative
+  // callers (e.g. async onClick handlers) and the Sentry noise they create.
   handleSign: (e?: MouseEvent) => Promise<{
     privateKey: PrivateKey;
     raw: string;
-  }>;
+  } | null>;
 }
 
 function capitalizeFirstLetter(str) {
@@ -61,7 +65,7 @@ export const KeyInput = forwardRef<
 
       if (!key) {
         error(i18next.t("validation.required"));
-        throw new Error("Cannot sign operation without a key");
+        return null;
       }
 
       let privateKey: PrivateKey;
@@ -111,7 +115,7 @@ export const KeyInput = forwardRef<
           ? i18next.t("key-or-hot.invalid-key")
           : i18next.t("key-or-hot.key-error");
         error(errorMessage);
-        throw new Error("Invalid private key format");
+        return null;
       }
 
       setSigningKey(key);

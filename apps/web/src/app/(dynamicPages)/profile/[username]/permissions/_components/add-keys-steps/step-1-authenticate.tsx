@@ -35,7 +35,16 @@ export function Step1Authenticate({ username, onNext }: Props) {
     setIsDetecting(true);
     try {
       // KeyInput already handles derivation and returns both derived key and raw credential
-      const { privateKey, raw: credential } = await keyInputRef.current!.handleSign();
+      const result = await keyInputRef.current!.handleSign();
+
+      // KeyInput already showed the key-specific error toast for a missing/invalid
+      // key. Bail without falling through to the generic catch below, which would
+      // otherwise surface a second (duplicate) authentication error toast.
+      if (!result) {
+        return;
+      }
+
+      const { privateKey, raw: credential } = result;
 
       // The privateKey is already the owner key (KeyInput derives it)
       const ownerKey = privateKey.toString();
