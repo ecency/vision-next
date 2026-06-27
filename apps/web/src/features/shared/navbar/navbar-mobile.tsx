@@ -9,10 +9,10 @@ import { NavbarNotificationsButton } from "@/features/shared/navbar/navbar-notif
 import { NavbarSide } from "@/features/shared/navbar/sidebar/navbar-side";
 import { useHideOnScroll } from "@/features/shared/navbar/use-hide-on-scroll";
 import { searchIconSvg } from "@ui/icons";
-import { closeSvg } from "@ui/svg";
+import { closeSvg, WavyDashIcon } from "@ui/svg";
 import { isInAppBrowser } from "@/utils";
 import { useMattermostUnread } from "@/features/chat/mattermost-api";
-import { UilBars, UilComment, UilHomeAlt, UilLock, UilPen, UilWater } from "@tooni/iconscout-unicons-react";
+import { UilBars, UilComment, UilHomeAlt, UilLock, UilPen } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
 import clsx from "clsx";
 import i18next from "i18next";
@@ -172,7 +172,7 @@ export function NavbarMobile({
         <Button
           href="/waves"
           appearance="gray-link"
-          icon={<UilWater width={20} height={20} />}
+          icon={<WavyDashIcon size={20} />}
           aria-label={i18next.t("navbar.waves")}
           aria-current={isActive("/waves") ? "page" : undefined}
           className={activeClass(isActive("/waves"))}

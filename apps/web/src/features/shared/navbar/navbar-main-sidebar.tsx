@@ -10,15 +10,14 @@ import {
   UilListUl,
   UilTag,
   UilUsersAlt,
-  UilUserSquare,
-  UilWater
+  UilUserSquare
 } from "@tooni/iconscout-unicons-react";
 import { NavbarSideMainMenuItem } from "./sidebar/navbar-side-main-menu-item";
 import pack from "../../../../package.json";
 import { NavbarSideThemeSwitcher } from "@/features/shared/navbar/sidebar";
 import { Button } from "@ui/button";
 import i18next from "i18next";
-import { closeSvg } from "@ui/svg";
+import { closeSvg, WavyDashIcon } from "@ui/svg";
 import { SwitchLang } from "@/features/shared";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
@@ -118,7 +117,7 @@ export function NavbarMainSidebar({ show, setShow, setStepOne }: Props) {
             label={i18next.t("navbar.waves")}
             to="/waves"
             onClick={() => setShow(false)}
-            icon={<UilWater size={16} />}
+            icon={<WavyDashIcon size={16} />}
           />
         </EcencyConfigManager.Conditional>
 
