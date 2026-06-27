@@ -10,6 +10,8 @@ import { ProfileLink, UserAvatar } from "@/features/shared";
 import { WaveFormControl } from "./wave-form-control";
 import i18next from "i18next";
 import { Button } from "@ui/button";
+import { sendSvg } from "@ui/svg";
+import { useIsMobile } from "@/features/ui/util/use-is-mobile";
 import { WaveFormToolbar } from "@/features/waves/components/wave-form/wave-form-toolbar";
 import { useWaveSubmit } from "@/features/waves";
 import axios from "axios";
@@ -39,6 +41,7 @@ const WaveFormComponent = ({
 }: Props) => {
   const { username: activeUsername, account, isLoading: isAccountLoading } = useActiveAccount();
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
+  const isMobile = useIsMobile();
 
   const rootRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -150,6 +153,62 @@ const WaveFormComponent = ({
     () => formInteractivityDisabled || !text || !threadHost || (isReply && exceedsCharacterLimit),
     [exceedsCharacterLimit, formInteractivityDisabled, isReply, text, threadHost]
   );
+
+  const handleSubmit = useCallback(() => {
+    if (submitDisabled) {
+      return;
+    }
+    submit({
+      text: text!!,
+      imageName: imageName!!,
+      image: image!!,
+      host: threadHost!!,
+      video: video!!,
+      videoThumbnail: videoThumbnail!!,
+      // Only attach meme data when the current image is still the meme.
+      decentMemes:
+        decentMemes && decentMemes.imageUrl === image && decentMemes.templateIds.length > 0
+          ? {
+              templateIds: decentMemes.templateIds,
+              beneficiaries: decentMemes.beneficiaries
+            }
+          : undefined
+    });
+  }, [
+    submitDisabled,
+    submit,
+    text,
+    imageName,
+    image,
+    threadHost,
+    video,
+    videoThumbnail,
+    decentMemes
+  ]);
+
+  // The action this button performs depends on auth/edit/length state. On mobile
+  // the button collapses to a send icon, so this string drives its accessible
+  // label/tooltip; on desktop it is the visible button text.
+  const submitLabel = (() => {
+    if (!activeUsername && !entry && !exceedsCharacterLimit) {
+      return i18next.t("decks.threads-form.login-and-publish");
+    }
+    if (activeUsername && !replySource && !entry && !exceedsCharacterLimit) {
+      return isPending
+        ? i18next.t("decks.threads-form.publishing")
+        : i18next.t("decks.threads-form.publish");
+    }
+    if (activeUsername && replySource && !entry && !exceedsCharacterLimit) {
+      return isPending ? i18next.t("waves.replying") : i18next.t("waves.reply");
+    }
+    if (exceedsCharacterLimit && !entry && !isReply) {
+      return i18next.t("decks.threads-form.create-regular-post");
+    }
+    if (entry) {
+      return i18next.t("decks.threads-form.save");
+    }
+    return "";
+  })();
 
   const handleEmojiPick = useCallback(
     (emoji: string) => {
@@ -302,55 +361,28 @@ const WaveFormComponent = ({
             setShowVideoUpload(true);
           }}
           submit={
-            <Button
-              onClick={() =>
-                !submitDisabled &&
-                submit({
-                  text: text!!,
-                  imageName: imageName!!,
-                  image: image!!,
-                  host: threadHost!!,
-                  video: video!!,
-                  videoThumbnail: videoThumbnail!!,
-                  // Only attach meme data when the current image is still the meme.
-                  decentMemes:
-                    decentMemes &&
-                    decentMemes.imageUrl === image &&
-                    decentMemes.templateIds.length > 0
-                      ? {
-                          templateIds: decentMemes.templateIds,
-                          beneficiaries: decentMemes.beneficiaries
-                        }
-                      : undefined
-                })
-              }
-              disabled={submitDisabled}
-              isLoading={isPending}
-              className="justify-self-end"
-              size="sm"
-            >
-              {!activeUsername &&
-                !entry &&
-                !exceedsCharacterLimit &&
-                i18next.t("decks.threads-form.login-and-publish")}
-              {activeUsername &&
-                !replySource &&
-                !entry &&
-                !exceedsCharacterLimit &&
-                (isPending
-                  ? i18next.t("decks.threads-form.publishing")
-                  : i18next.t("decks.threads-form.publish"))}
-              {activeUsername &&
-                replySource &&
-                !entry &&
-                !exceedsCharacterLimit &&
-                (isPending ? i18next.t("waves.replying") : i18next.t("waves.reply"))}
-              {exceedsCharacterLimit &&
-                !entry &&
-                !isReply &&
-                i18next.t("decks.threads-form.create-regular-post")}
-              {entry && i18next.t("decks.threads-form.save")}
-            </Button>
+            isMobile ? (
+              <Button
+                onClick={handleSubmit}
+                disabled={submitDisabled}
+                isLoading={isPending}
+                className="justify-self-end"
+                size="sm"
+                icon={sendSvg}
+                aria-label={submitLabel || i18next.t("decks.threads-form.publish")}
+                title={submitLabel || i18next.t("decks.threads-form.publish")}
+              />
+            ) : (
+              <Button
+                onClick={handleSubmit}
+                disabled={submitDisabled}
+                isLoading={isPending}
+                className="justify-self-end"
+                size="sm"
+              >
+                {submitLabel}
+              </Button>
+            )
           }
         />
         <VideoUpload

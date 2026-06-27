@@ -1,7 +1,6 @@
 import { useUpdateNotificationsSettings } from "@/api/mutations";
 import { useMarkNotificationsMutation, useSetLastReadMutation } from "@/api/sdk-mutations";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
-import { useIsMobile } from "@/features/ui/util/use-is-mobile";
 import { NotificationFilter, NotifyTypes } from "@/enums";
 import { FormControl, Tooltip } from "@/features/ui";
 import {
@@ -31,7 +30,6 @@ interface Props {
 
 export function NotificationsActions({ filter }: Props) {
   const { activeUser } = useActiveAccount();
-  const isMobile = useIsMobile();
 
   const [settings, { set: setSettingItem }] = useMap<Record<NotifyTypes, boolean>>({
     [NotifyTypes.COMMENT]: false,
@@ -127,52 +125,46 @@ export function NotificationsActions({ filter }: Props) {
 
   return (
     <div className="list-actions">
-      {!isMobile ? (
-        <>
-          <Tooltip content={i18next.t("notifications.mark-all-read")}>
-            <span
-              className={classNameObject({
-                "list-action": true,
-                disabled: markNotifications.isPending || unread === 0
-              })}
-              role="button"
-              tabIndex={0}
-              aria-label={i18next.t("notifications.mark-all-read")}
-              onClick={() => markAsRead()}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  markAsRead();
-                }
-              }}
-            >
-              {checkSvg}
-            </span>
-          </Tooltip>
-          <Tooltip content={i18next.t("notifications.refresh")}>
-            <span
-              className={classNameObject({
-                "list-action": true,
-                disabled: isDataLoading || isUnreadLoading
-              })}
-              role="button"
-              tabIndex={0}
-              aria-label={i18next.t("notifications.refresh")}
-              onClick={() => refresh()}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  refresh();
-                }
-              }}
-            >
-              {syncSvg}
-            </span>
-          </Tooltip>
-        </>
-      ) : (
-        <></>
-      )}
+      <Tooltip content={i18next.t("notifications.mark-all-read")}>
+        <span
+          className={classNameObject({
+            "list-action": true,
+            disabled: markNotifications.isPending || unread === 0
+          })}
+          role="button"
+          tabIndex={0}
+          aria-label={i18next.t("notifications.mark-all-read")}
+          onClick={() => markAsRead()}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              markAsRead();
+            }
+          }}
+        >
+          {checkSvg}
+        </span>
+      </Tooltip>
+      <Tooltip content={i18next.t("notifications.refresh")}>
+        <span
+          className={classNameObject({
+            "list-action": true,
+            disabled: isDataLoading || isUnreadLoading
+          })}
+          role="button"
+          tabIndex={0}
+          aria-label={i18next.t("notifications.refresh")}
+          onClick={() => refresh()}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              refresh();
+            }
+          }}
+        >
+          {syncSvg}
+        </span>
+      </Tooltip>
 
       <Dropdown>
         <DropdownToggle>
@@ -187,48 +179,6 @@ export function NotificationsActions({ filter }: Props) {
         </DropdownToggle>
         <DropdownMenu align="right">
           <DropdownItemHeader>{i18next.t(`notifications.settings`)}</DropdownItemHeader>
-          {isMobile && (
-            <DropdownItem
-              onClick={() => {
-                if (markNotifications.isPending || unread === 0) {
-                  return;
-                }
-                markAsRead();
-              }}
-            >
-              <Tooltip content={i18next.t("notifications.mark-all-read")}>
-                <span
-                  className={classNameObject({
-                    "list-action": true,
-                    disabled: markNotifications.isPending || unread === 0
-                  })}
-                >
-                  {checkSvg}
-                </span>
-              </Tooltip>
-            </DropdownItem>
-          )}
-          {isMobile && (
-            <DropdownItem
-              onClick={() => {
-                if (isDataLoading || isUnreadLoading) {
-                  return;
-                }
-                refresh();
-              }}
-            >
-              <Tooltip content={i18next.t("notifications.refresh")}>
-                <span
-                  className={classNameObject({
-                    "list-action": true,
-                    disabled: isDataLoading || isUnreadLoading
-                  })}
-                >
-                  {syncSvg}
-                </span>
-              </Tooltip>
-            </DropdownItem>
-          )}
           <DropdownItem>
             {getNotificationSettingsItem(i18next.t(`notifications.type-rvotes`), NotifyTypes.VOTE)}
           </DropdownItem>
