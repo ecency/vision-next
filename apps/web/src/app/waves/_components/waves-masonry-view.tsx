@@ -12,12 +12,20 @@ import { useWavesAutoRefresh } from "@/app/waves/_hooks";
 import { WavesRefreshPopup } from "@/app/waves/_components";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
-export function WavesMasonryView() {
+interface Props {
+  username?: string;
+}
+
+export function WavesMasonryView({ username }: Props) {
+  // The logged-in user is the observer: server-side mute filtering plus the
+  // tipped_by_viewer feed flag (only populated for observer feeds) — same as the
+  // list view.
+  const observer = username || undefined;
   const { data, fetchNextPage, isError, hasNextPage, refetch } = useInfiniteQuery(
-    getWavesFeedQueryOptions()
+    getWavesFeedQueryOptions({ observer })
   );
   const dataFlow = useInfiniteDataFlow(data);
-  const { newWaves, clear, now } = useWavesAutoRefresh(dataFlow[0]);
+  const { newWaves, clear, now } = useWavesAutoRefresh(dataFlow[0], observer);
 
   const [replyingEntry, setReplyingEntry] = useState<WaveEntry>();
 

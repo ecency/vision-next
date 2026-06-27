@@ -130,7 +130,9 @@ export function WavesPage() {
       {grid === "feed" && (
         <WavesListView feedType={feedType} username={activeUser?.username} />
       )}
-      {grid === "masonry" && !selectedTag && !isFollowing && <WavesMasonryView />}
+      {grid === "masonry" && !selectedTag && !isFollowing && (
+        <WavesMasonryView username={activeUser?.username} />
+      )}
     </>
   );
 }

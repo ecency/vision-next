@@ -551,6 +551,7 @@
     "title": "Tip",
     "tip": "Tip",
     "send-tip": "Send a tip",
+    "you-tipped": "You tipped this",
     "count": "{{count}} tip",
     "count_plural": "{{count}} tips"
   },

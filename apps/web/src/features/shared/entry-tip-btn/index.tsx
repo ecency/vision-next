@@ -42,6 +42,11 @@ interface Props {
   handleClickAway?: () => void;
   postTips?: PostTipsResponse;
   inlineTipButton?: boolean;
+  // Feed-provided fallbacks (waves feed) so a card can show the count and an
+  // already-tipped state without the per-item /post-tips fetch that detail pages
+  // make. When `postTips` (the full breakdown) is present it wins.
+  tipCount?: number;
+  tippedByViewer?: boolean;
 }
 
 export function EntryTipBtn({
@@ -50,7 +55,9 @@ export function EntryTipBtn({
   handleClickAway,
   account,
   postTips,
-  inlineTipButton
+  inlineTipButton,
+  tipCount: tipCountProp,
+  tippedByViewer
 }: Props) {
   const { activeUser } = useActiveAccount();
 
@@ -59,7 +66,11 @@ export function EntryTipBtn({
 
   const to = useMemo(() => entry.author, [entry]);
   const memo = useMemo(() => `Tip for @${entry.author}/${entry.permlink}`, [entry]);
-  const tipCount = postTips?.meta.count ?? 0;
+  // Only the detail-page caller passes the full `postTips` breakdown; the feed
+  // passes just a count. The popover (per-currency totals) is shown only when we
+  // have that breakdown — otherwise the button opens the tip dialog directly.
+  const hasBreakdown = !!postTips;
+  const tipCount = postTips?.meta.count ?? tipCountProp ?? 0;
   const tipTotals = Object.entries(postTips?.meta.totals ?? {});
   const tipCountLabel =
     tipCount === 1
@@ -92,7 +103,7 @@ export function EntryTipBtn({
       tabIndex={0}
       aria-label={i18next.t("entry-tip.title")}
       onClick={() => {
-        if (tipCount > 0) {
+        if (hasBreakdown && tipCount > 0) {
           setShowPopover((state) => !state);
         } else {
           openTransferDialog();
@@ -101,7 +112,7 @@ export function EntryTipBtn({
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          if (tipCount > 0) {
+          if (hasBreakdown && tipCount > 0) {
             setShowPopover((state) => !state);
           } else {
             openTransferDialog();
@@ -109,8 +120,8 @@ export function EntryTipBtn({
         }
       }}
     >
-      <Tooltip content={i18next.t("entry-tip.title")}>
-        <span className="inner-btn">
+      <Tooltip content={tippedByViewer ? i18next.t("entry-tip.you-tipped") : i18next.t("entry-tip.title")}>
+        <span className={`inner-btn${tippedByViewer ? " tipped" : ""}`}>
           {giftOutlineSvg}
           <span className="tip-count">{tipCount > 0 ? tipCount : ""}</span>
         </span>
@@ -123,7 +134,7 @@ export function EntryTipBtn({
       <LoginRequired promptOnAnon>
         {inlineTipButton ? (
           inlineTipBtn
-        ) : tipCount > 0 ? (
+        ) : hasBreakdown && tipCount > 0 ? (
           <Popover directContent={tipButton} behavior="click" show={showPopover} setShow={setShowPopover}>
             <PopoverContent>
               <div className="tip-popover">

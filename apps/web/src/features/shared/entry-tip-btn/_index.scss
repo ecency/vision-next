@@ -23,6 +23,19 @@
     .tip-count {
       padding-left: 6px;
     }
+
+    // The viewing user has already tipped this post (waves feed). Make the gift
+    // solid (full opacity) and the count bold so it reads as an active state at
+    // a glance, without needing to open the post.
+    &.tipped {
+      svg {
+        opacity: 1;
+      }
+
+      .tip-count {
+        font-weight: 700;
+      }
+    }
   }
 }
 

@@ -74,7 +74,12 @@ export function WaveActions({
                 {commentsSlot ?? entry?.children}
               </div>
             </Button>
-            <EntryTipBtn entry={entry!} postTips={postTips} />
+            <EntryTipBtn
+              entry={entry!}
+              postTips={postTips}
+              tipCount={entry?.tip_count}
+              tippedByViewer={entry?.tipped_by_viewer}
+            />
           </div>
           <div>
             <EntryMenu entry={entry!} />
