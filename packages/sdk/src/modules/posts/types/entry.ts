@@ -69,6 +69,12 @@ export interface Entry {
   // Post-level upvote count. The waves private-api feeds (esync) return this but
   // no active_votes, so it is the vote-count source for those feeds.
   net_votes?: number;
+  // Tip totals from the waves feed (esync), so a feed card can show a tip count
+  // and an already-tipped state without a per-item /post-tips call. `tip_count`
+  // is the number of tips the post received; `tipped_by_viewer` is true when the
+  // requesting `observer` has already tipped it (present only on observer feeds).
+  tip_count?: number;
+  tipped_by_viewer?: boolean;
   parent_author?: string;
   parent_permlink?: string;
   payout: number;

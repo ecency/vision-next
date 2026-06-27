@@ -3408,6 +3408,8 @@ interface Entry$1 {
     max_accepted_payout: string;
     net_rshares: number;
     net_votes?: number;
+    tip_count?: number;
+    tipped_by_viewer?: boolean;
     parent_author?: string;
     parent_permlink?: string;
     payout: number;
