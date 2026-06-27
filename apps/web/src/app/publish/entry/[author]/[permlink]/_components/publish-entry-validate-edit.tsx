@@ -22,16 +22,24 @@ export function PublishEntryValidateEdit({ onClose, onSuccess, entry }: Props) {
   const { mutateAsync: editPost, isPending: isEditPending } = usePostEdit(entry);
 
   const submit = useCallback(async () => {
-    await editPost({
-      title: title!,
-      description: metaDescription!,
-      selectedThumbnail: selectedThumbnail!,
-      body: content!,
-      tags: tags!
-    });
+    try {
+      await editPost({
+        title: title!,
+        description: metaDescription!,
+        selectedThumbnail: selectedThumbnail!,
+        body: content!,
+        tags: tags!
+      });
 
-    onSuccess("updated");
-  }, [metaDescription, onSuccess, selectedThumbnail, tags, title]);
+      onSuccess("updated");
+    } catch (e) {
+      // onError in usePostEdit already displays the error toast for mutation errors.
+      // Re-throw only if it's not a mutation error (i.e. came from onSuccess or elsewhere).
+      if (!(e instanceof Error)) {
+        throw e;
+      }
+    }
+  }, [content, editPost, metaDescription, onSuccess, selectedThumbnail, tags, title]);
 
   return (
     <motion.div
