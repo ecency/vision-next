@@ -12,6 +12,20 @@ interface Props {
   onReply: (item: ShortsFeedEntry) => void;
 }
 
+// The reel already plays the video, so the caption is just the human text:
+// drop markdown images, turn markdown links into their label, and strip bare
+// URLs (e.g. the play.3speak.tv embed link the body carries).
+function buildReelCaption(item: ShortsFeedEntry): string {
+  const raw = item.title?.trim() || item.body?.trim() || "";
+  return raw
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/https?:\/\/\S+/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 140);
+}
+
 /**
  * One full-height reel: the 3Speak video plays only while the item is the one in
  * view (mounting every iframe at once would autoplay/load dozens of videos), with
@@ -37,7 +51,7 @@ export function WavesReelItem({ item, onReply }: Props) {
     return () => observer.disconnect();
   }, []);
 
-  const caption = item.title?.trim() || item.body?.trim().slice(0, 140) || "";
+  const caption = buildReelCaption(item);
 
   return (
     <div
@@ -50,7 +64,7 @@ export function WavesReelItem({ item, onReply }: Props) {
         {active && video ? (
           <iframe
             title={`${item.author}/${item.permlink}`}
-            src={`https://play.3speak.tv/embed?v=${encodeURIComponent(video.author)}/${encodeURIComponent(video.permlink)}&autoplay=true`}
+            src={`https://play.3speak.tv/watch?v=${encodeURIComponent(video.author)}/${encodeURIComponent(video.permlink)}&mode=iframe&autoplay=true`}
             allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowFullScreen
             className="h-full w-full border-0"
