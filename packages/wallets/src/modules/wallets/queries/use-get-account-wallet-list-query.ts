@@ -46,7 +46,7 @@ export function getAccountWalletListQueryOptions(username: string, currency: str
       let account: FullAccount | undefined;
 
       try {
-        account = await queryClient.fetchQuery(accountQuery);
+        account = (await queryClient.fetchQuery(accountQuery)) ?? undefined;
       } catch {
         // Best effort; fall back to defaults if account metadata is not available.
       }

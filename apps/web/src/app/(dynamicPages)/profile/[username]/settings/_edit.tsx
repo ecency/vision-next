@@ -43,7 +43,7 @@ export function ProfileEdit() {
 
   const { data: profile } = useQuery({
     ...getAccountFullQueryOptions(activeUser?.username),
-    select: (data) => data.profile
+    select: (data) => data?.profile
   });
 
   const {

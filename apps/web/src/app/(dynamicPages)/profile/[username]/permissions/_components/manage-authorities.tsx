@@ -19,14 +19,17 @@ export function ManageAuthorities() {
 
   const { data: accountData } = useQuery({
     ...getAccountFullQueryOptions(activeUser?.username!),
-    select: (resp) => ({
-      postingsAuths: resp.posting.account_auths as [string, number][],
-      posting: resp.posting.key_auths[0],
-      owner: resp.owner.key_auths[0],
-      active: resp.active.key_auths[0],
-      weight: resp.active.weight_threshold,
-      memokey: resp.memo_key
-    })
+    select: (resp) =>
+      resp
+        ? {
+            postingsAuths: resp.posting.account_auths as [string, number][],
+            posting: resp.posting.key_auths[0],
+            owner: resp.owner.key_auths[0],
+            active: resp.active.key_auths[0],
+            weight: resp.active.weight_threshold,
+            memokey: resp.memo_key
+          }
+        : null
   });
 
   const [revokingAccount, setRevokingAccount] = useState("");

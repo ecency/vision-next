@@ -13,7 +13,10 @@ export async function detectHiveKeyDerivation(
   // ensure we actually have data
   const account = (await CONFIG.queryClient.fetchQuery(
       getAccountFullQueryOptions(uname)
-  )) as FullAccount;
+  )) as FullAccount | null;
+  if (!account) {
+    throw new Error("[SDK][Wallets] – no account found for key derivation");
+  }
 
   // pick the right authority based on `type`
   const auth = account[type];

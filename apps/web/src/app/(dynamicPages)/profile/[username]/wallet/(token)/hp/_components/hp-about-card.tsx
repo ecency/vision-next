@@ -25,7 +25,7 @@ export function HpAboutCard({ username }: Props) {
   const hivePerMVests = (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).hivePerMVests;
 
   const powerDownSchedule = useMemo(
-    () => getPowerDownSchedule(accountData, hivePerMVests),
+    () => getPowerDownSchedule(accountData ?? undefined, hivePerMVests),
     [accountData, hivePerMVests]
   );
   const nextWithdrawalText = useFormattedDate(

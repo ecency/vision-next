@@ -480,7 +480,7 @@ function getAccountWalletListQueryOptions(username, currency = "usd") {
       const accountQuery = sdk.getAccountFullQueryOptions(username);
       let account;
       try {
-        account = await queryClient.fetchQuery(accountQuery);
+        account = await queryClient.fetchQuery(accountQuery) ?? void 0;
       } catch {
       }
       const tokenVisibility = /* @__PURE__ */ new Map();
@@ -1033,6 +1033,9 @@ async function detectHiveKeyDerivation(username, seed, type = "active") {
   const account = await sdk.CONFIG.queryClient.fetchQuery(
     sdk.getAccountFullQueryOptions(uname)
   );
+  if (!account) {
+    throw new Error("[SDK][Wallets] \u2013 no account found for key derivation");
+  }
   const auth = account[type];
   let matchBip44 = false;
   try {
