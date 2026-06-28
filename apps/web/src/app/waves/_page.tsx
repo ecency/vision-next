@@ -18,10 +18,10 @@ import { useWavesCustomFeeds, normalizeWaveTag } from "@/app/waves/_hooks";
 import { WavesFeedType } from "@/app/waves/_constants";
 
 export function WavesPage() {
-  const { selectedTag, setSelectedTag } = useWavesTagFilter();
+  const { selectedTag, setSelectedTag, selectedSource, setSelectedSource } = useWavesTagFilter();
   const { activeUser } = useActiveAccount();
   const toggleUiProp = useGlobalStore((state) => state.toggleUiProp);
-  const { tags: customTags } = useWavesCustomFeeds();
+  const { tags: customTags, sources } = useWavesCustomFeeds();
   const [storedFeedType, setStoredFeedType] = useLocalStorage<WavesFeedType>(
     PREFIX + "_waves_feed_type",
     "for-you"
@@ -59,9 +59,16 @@ export function WavesPage() {
 
   // A custom feed tab is the For You feed scoped to a pinned tag (URL-synced via
   // the tag filter), so it reuses the existing feed query with no extra plumbing.
+  // Selecting a tag clears any active source (they're mutually exclusive views).
   const selectTag = (tag: string) => {
     setStoredFeedType("for-you");
     setSelectedTag(tag);
+  };
+
+  // A source tab scopes the feed to a single container host (URL ?source=).
+  const selectSource = (host: string) => {
+    setStoredFeedType("for-you");
+    setSelectedSource(host);
   };
 
   // The transient chip is only for an ad-hoc tag (tapped inside a wave); when the
@@ -73,11 +80,14 @@ export function WavesPage() {
       <WavesFeedTabs
         feedType={feedType}
         selectedTag={selectedTag}
+        selectedSource={selectedSource}
         customTags={customTags}
+        sources={sources}
         canUseFollowing={!!activeUser}
         onSelectForYou={selectForYou}
         onSelectFollowing={selectFollowing}
         onSelectTag={selectTag}
+        onSelectSource={selectSource}
         onAdd={() => setShowCustomFeeds(true)}
       />
       <WavesCreateCard />
@@ -96,6 +106,7 @@ export function WavesPage() {
         show={showCustomFeeds}
         onHide={() => setShowCustomFeeds(false)}
         onSelectTag={selectTag}
+        onSelectSource={selectSource}
       />
     </>
   );

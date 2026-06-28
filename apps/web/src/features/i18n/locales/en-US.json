@@ -3054,6 +3054,7 @@
     "tag-feed-indicator": "Surfing #{{tag}}",
     "tag-feed-clear": "Clear filter",
     "add-feed": "Add feed",
+    "sources": "Sources",
     "custom-feeds-title": "Custom feeds",
     "custom-feeds-subtitle": "Pin tags as feeds to see them as tabs here, saved on this device.",
     "add-tag-placeholder": "Add a tag",

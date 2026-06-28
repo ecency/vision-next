@@ -103,4 +103,37 @@ describe("useWavesCustomFeeds", () => {
     expect(result.current.tags).toHaveLength(maxTags);
     expect(result.current.tags).not.toContain("overflow");
   });
+
+  it("adds, dedupes and removes sources independently of tags", () => {
+    const { result } = renderHook(() => useWavesCustomFeeds());
+    expect(result.current.sources).toEqual([]);
+
+    let added: boolean | undefined;
+    act(() => {
+      added = result.current.addSource("peak.snaps");
+    });
+    expect(added).toBe(true);
+    expect(result.current.sources).toEqual(["peak.snaps"]);
+
+    // Duplicate is ignored and reported as not added.
+    act(() => {
+      added = result.current.addSource("peak.snaps");
+    });
+    expect(added).toBe(false);
+    expect(result.current.sources).toEqual(["peak.snaps"]);
+
+    act(() => {
+      result.current.addSource("leothreads");
+      result.current.addTag("photography");
+    });
+    expect(result.current.sources).toEqual(["peak.snaps", "leothreads"]);
+    expect(result.current.tags).toEqual(["photography"]);
+
+    act(() => {
+      result.current.removeSource("peak.snaps");
+    });
+    expect(result.current.sources).toEqual(["leothreads"]);
+    // Removing a source leaves tags untouched.
+    expect(result.current.tags).toEqual(["photography"]);
+  });
 });
