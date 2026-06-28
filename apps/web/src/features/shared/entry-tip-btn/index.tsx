@@ -71,11 +71,11 @@ export function EntryTipBtn({
   // have that breakdown — otherwise the button opens the tip dialog directly.
   const hasBreakdown = !!postTips;
   const tipCount = postTips?.meta.count ?? tipCountProp ?? 0;
-  // In the waves feed an explicit count is passed (including 0); show it always
-  // there so the tip count is visible like the adjacent vote/comment counts and
-  // the mobile app. Elsewhere (detail popover, or no feed count) only a positive
-  // count is shown.
-  const showTipNumber = tipCount > 0 || (!hasBreakdown && tipCountProp != null);
+  // Show the count when positive, or whenever the caller passes an explicit (feed)
+  // tipCount — including 0 — so the waves feed shows it like the adjacent
+  // vote/comment counts and the mobile app. Non-feed usages (post list, comments)
+  // pass no tipCount, so a 0 there stays hidden; detail pages pass postTips only.
+  const showTipNumber = tipCount > 0 || tipCountProp != null;
   const tipTotals = Object.entries(postTips?.meta.totals ?? {});
   const tipCountLabel =
     tipCount === 1
