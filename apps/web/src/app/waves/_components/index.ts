@@ -1,5 +1,7 @@
 export * from "./waves-list-view";
 export * from "./waves-list-item";
+export * from "./waves-feed-tabs";
+export * from "./waves-custom-feeds-dialog";
 export * from "./waves-create-card";
 export * from "./waves-navigation-layout";
 export * from "./wave-promote-card";
