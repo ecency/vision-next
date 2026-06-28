@@ -1,4 +1,5 @@
 export * from "./waves-list-view";
+export * from "./waves-reels-view";
 export * from "./waves-list-item";
 export * from "./waves-feed-tabs";
 export * from "./waves-custom-feeds-dialog";

@@ -7,7 +7,8 @@ import {
   WavesCreateCard,
   WavesCustomFeedsDialog,
   WavesFeedTabs,
-  WavesListView
+  WavesListView,
+  WavesReelsView
 } from "@/app/waves/_components";
 import { Button } from "@ui/button";
 import i18next from "i18next";
@@ -15,7 +16,7 @@ import { useWavesTagFilter } from "@/app/waves/_context";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
 import { useWavesCustomFeeds, normalizeWaveTag } from "@/app/waves/_hooks";
-import { WAVE_HOST_LABELS } from "@/features/waves/consts/host-labels";
+import { SHORTS_SOURCE, WAVE_HOST_LABELS } from "@/features/waves/consts/host-labels";
 import { WavesFeedType } from "@/app/waves/_constants";
 
 export function WavesPage() {
@@ -28,6 +29,9 @@ export function WavesPage() {
     "for-you"
   );
   const feedType = storedFeedType ?? "for-you";
+  // The Shorts source is a video-only reels feed, not a container filter: it
+  // routes to the dedicated shorts feed + a full-screen reels renderer.
+  const isShorts = selectedSource === SHORTS_SOURCE;
   const [showCustomFeeds, setShowCustomFeeds] = useState(false);
 
   useEffect(() => {
@@ -99,7 +103,7 @@ export function WavesPage() {
         onSelectSource={selectSource}
         onAdd={() => setShowCustomFeeds(true)}
       />
-      <WavesCreateCard />
+      {!isShorts && <WavesCreateCard />}
       {showTagChip && (
         <div className="rounded-2xl bg-white dark:bg-dark-200 p-4 mb-4 flex flex-wrap items-center gap-3 text-sm">
           <span className="font-semibold">
@@ -120,7 +124,11 @@ export function WavesPage() {
           </Button>
         </div>
       )}
-      <WavesListView feedType={feedType} username={activeUser?.username} />
+      {isShorts ? (
+        <WavesReelsView username={activeUser?.username} />
+      ) : (
+        <WavesListView feedType={feedType} username={activeUser?.username} />
+      )}
       <WavesCustomFeedsDialog
         show={showCustomFeeds}
         onHide={() => setShowCustomFeeds(false)}
