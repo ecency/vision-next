@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.28
+
+### Patch Changes
+
+- feat(waves): Shorts (reels) tab + SDK shorts feed query (#1039)
+
 ## 2.3.27
 
 ### Patch Changes
