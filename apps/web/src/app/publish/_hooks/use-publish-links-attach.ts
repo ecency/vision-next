@@ -79,8 +79,16 @@ export function usePublishLinksAttach(editor: Editor | null) {
           const qc = getQueryClient();
           let entryData = qc.getQueryData<Entry>(queryOptions.queryKey);
           if (!entryData) {
-            await qc.fetchQuery(queryOptions);
-            entryData = qc.getQueryData<Entry>(queryOptions.queryKey);
+            try {
+              await qc.fetchQuery(queryOptions);
+              entryData = qc.getQueryData<Entry>(queryOptions.queryKey);
+            } catch {
+              // The linked post could not be loaded (deleted, bad permlink, or
+              // an RPC node that throws "Post does not exist" instead of
+              // returning null). Skip this attachment instead of rejecting the
+              // whole sync, which would surface as an unhandled rejection.
+              return null;
+            }
           }
 
           return entryData ?? null;
@@ -110,12 +118,16 @@ export function usePublishLinksAttach(editor: Editor | null) {
       setPostLinks(nextLinks);
     };
 
-    editor.on("update", syncAttachedPosts);
-    void syncAttachedPosts();
+    const runSync = () => {
+      void syncAttachedPosts().catch(() => {});
+    };
+
+    editor.on("update", runSync);
+    runSync();
 
     return () => {
       destroyed = true;
-      editor.off("update", syncAttachedPosts);
+      editor.off("update", runSync);
     };
   }, [editor, setPostLinks]);
 }
