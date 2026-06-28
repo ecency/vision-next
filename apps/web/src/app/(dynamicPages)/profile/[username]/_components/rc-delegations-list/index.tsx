@@ -137,10 +137,11 @@ export const RcDelegationsList = ({
                                   setShowDelegationsList(false);
                                   setAmountFromList(list.delegated_rc);
                                   setToFromList(list.to);
+                                  // Always update so a delegatee whose lookup
+                                  // returns null clears any stale prior data
+                                  // (downstream falls back to an empty value).
                                   const data = await getToData(list.to);
-                                  if (data) {
-                                    setDelegateeData(data);
-                                  }
+                                  setDelegateeData(data);
                                 }}
                               >
                                 {i18next.t("rc-info.update")}

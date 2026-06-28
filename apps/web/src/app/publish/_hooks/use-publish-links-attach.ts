@@ -119,7 +119,12 @@ export function usePublishLinksAttach(editor: Editor | null) {
     };
 
     const runSync = () => {
-      void syncAttachedPosts().catch(() => {});
+      // Expected per-link lookup failures are handled inside syncAttachedPosts.
+      // Anything that still rejects here is unexpected: keep it non-throwing
+      // (so it never becomes an unhandled rejection) but log it for visibility.
+      void syncAttachedPosts().catch((err) => {
+        console.error("Failed to sync attached posts", err);
+      });
     };
 
     editor.on("update", runSync);

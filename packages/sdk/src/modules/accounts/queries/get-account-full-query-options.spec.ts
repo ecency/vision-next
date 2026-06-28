@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { QueryClient } from "@tanstack/react-query";
 import { getAccountFullQueryOptions } from "./get-account-full-query-options";
 
 const mockCallRPC = vi.hoisted(() => vi.fn());
@@ -13,8 +14,10 @@ vi.mock("@/modules/core/hive-tx", async (importOriginal) => {
   };
 });
 
-const runQueryFn = (options: ReturnType<typeof getAccountFullQueryOptions>) =>
-  (options.queryFn as any)({ signal: undefined, queryKey: options.queryKey, meta: undefined });
+// Drive the query through the public TanStack Query API. fetchQuery ignores
+// `enabled`, so it exercises the queryFn directly for every username value.
+const runQuery = (options: ReturnType<typeof getAccountFullQueryOptions>) =>
+  new QueryClient({ defaultOptions: { queries: { retry: false } } }).fetchQuery(options);
 
 describe("getAccountFullQueryOptions", () => {
   beforeEach(() => {
@@ -34,11 +37,16 @@ describe("getAccountFullQueryOptions", () => {
     it("resolves to null instead of throwing when the account does not exist", async () => {
       mockCallRPC.mockResolvedValue([]);
 
-      await expect(runQueryFn(getAccountFullQueryOptions("ghost"))).resolves.toBeNull();
+      await expect(runQuery(getAccountFullQueryOptions("ghost"))).resolves.toBeNull();
     });
 
-    it("resolves to null when the username is empty without hitting the network", async () => {
-      await expect(runQueryFn(getAccountFullQueryOptions(""))).resolves.toBeNull();
+    it("resolves to null for an empty username without hitting the network", async () => {
+      await expect(runQuery(getAccountFullQueryOptions(""))).resolves.toBeNull();
+      expect(mockCallRPC).not.toHaveBeenCalled();
+    });
+
+    it("resolves to null for an undefined username without hitting the network", async () => {
+      await expect(runQuery(getAccountFullQueryOptions(undefined))).resolves.toBeNull();
       expect(mockCallRPC).not.toHaveBeenCalled();
     });
   });
@@ -61,7 +69,7 @@ describe("getAccountFullQueryOptions", () => {
         return Promise.resolve({ follower_count: 1, following_count: 2 });
       });
 
-      const result = (await runQueryFn(getAccountFullQueryOptions("alice"))) as any;
+      const result = (await runQuery(getAccountFullQueryOptions("alice"))) as any;
 
       expect(result).not.toBeNull();
       expect(result.name).toBe("alice");
