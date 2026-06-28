@@ -123,11 +123,13 @@ describe("ServiceWorkerRecovery", () => {
     el.dispatchEvent(new Event("error"));
   }
 
+  const origin = window.location.origin;
+
   it("reloads when a /_next/static stylesheet 404s (silently unstyled, no JS error)", () => {
     render(<Recovery />);
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "https://ecency.com/_next/static/css/abc123.css";
+    link.href = `${origin}/_next/static/css/abc123.css`;
     dispatchResourceError(link);
     expect(reloadMock).toHaveBeenCalledTimes(1);
   });
@@ -135,20 +137,27 @@ describe("ServiceWorkerRecovery", () => {
   it("reloads when a /_next/static script 404s", () => {
     render(<Recovery />);
     const script = document.createElement("script");
-    script.src = "https://ecency.com/_next/static/chunks/102-deadbeef.js";
+    script.src = `${origin}/_next/static/chunks/102-deadbeef.js`;
     dispatchResourceError(script);
     expect(reloadMock).toHaveBeenCalledTimes(1);
   });
 
   it("ignores asset errors that are not build-versioned /_next/static", () => {
     render(<Recovery />);
+    // Same-origin asset outside /_next/static.
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "https://fonts.example.com/inter.css";
+    link.href = `${origin}/fonts/inter.css`;
     dispatchResourceError(link);
+    // Broken image.
     const img = document.createElement("img");
-    img.src = "https://images.ecency.com/u/foo/avatar.png";
+    img.src = `${origin}/u/foo/avatar.png`;
     dispatchResourceError(img);
+    // Foreign-origin URL that merely contains the /_next/static substring — not
+    // our build, must not burn the session's one reload.
+    const foreign = document.createElement("script");
+    foreign.src = "https://cdn.example.com/_next/static/widget.js";
+    dispatchResourceError(foreign);
     expect(reloadMock).not.toHaveBeenCalled();
   });
 

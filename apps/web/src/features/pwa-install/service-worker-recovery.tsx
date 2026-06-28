@@ -151,7 +151,17 @@ export function ServiceWorkerRecovery() {
           : target.tagName === "SCRIPT"
             ? (target as HTMLScriptElement).src
             : "";
-      if (url.includes("/_next/static/")) {
+      if (!url) {
+        return;
+      }
+      // Require a same-origin `/_next/static/` path: a foreign asset that merely
+      // contains that substring (e.g. a third-party CDN) is unrelated to our
+      // build and must not burn the session's one skew-recovery reload.
+      const assetUrl = new URL(url, window.location.href);
+      if (
+        assetUrl.origin === window.location.origin &&
+        assetUrl.pathname.startsWith("/_next/static/")
+      ) {
         reloadForSkew();
       }
     };

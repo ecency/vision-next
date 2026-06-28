@@ -52,6 +52,16 @@ const withPWA = require("next-pwa")({
       }
     },
     {
+      // Build-id heartbeat for deploy-skew recovery: must ALWAYS hit the network
+      // so a stale tab never compares a service-worker-cached old build id against
+      // itself (the request's `no-store` doesn't bypass the SW Cache API). Listed
+      // before the generic /api/* NetworkFirst rule below — Workbox uses the first
+      // matching route. Offline simply fails the fetch, which the heartbeat treats
+      // as "skip" rather than a stale match.
+      urlPattern: /^https:\/\/ecency\.com\/api\/version(?:\?.*)?$/i,
+      handler: 'NetworkOnly'
+    },
+    {
       // Cache API responses with network-first strategy
       urlPattern: /^https:\/\/ecency\.com\/api\/.*/i,
       handler: 'NetworkFirst',
