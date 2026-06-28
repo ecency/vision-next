@@ -156,6 +156,24 @@ export const QueryKeys = {
       params.limit ?? 0,
       [...(params.containers ?? [])].sort().join(",")
     ],
+    shortsFeed: (
+      params: {
+        containers?: string[];
+        tag?: string;
+        author?: string;
+        observer?: string;
+        limit?: number;
+      } = {}
+    ) => [
+      "posts",
+      "waves",
+      "shorts",
+      params.tag ?? "",
+      params.author ?? "",
+      params.observer ?? "",
+      params.limit ?? 0,
+      [...(params.containers ?? [])].sort().join(",")
+    ],
     wavesByHost: (host: string) =>
       ["posts", "waves", "by-host", host],
     wavesByTag: (host: string, tag: string) =>

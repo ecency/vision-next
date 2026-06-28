@@ -3054,6 +3054,7 @@
     "tag-feed-indicator": "Surfing #{{tag}}",
     "tag-feed-clear": "Clear filter",
     "source-feed-indicator": "Viewing {{source}}",
+    "shorts-empty": "No shorts yet.",
     "add-feed": "Add feed",
     "custom-feeds-title": "Custom feeds",
     "custom-feeds-subtitle": "Pin tags as feeds to see them as tabs here, saved on this device.",
