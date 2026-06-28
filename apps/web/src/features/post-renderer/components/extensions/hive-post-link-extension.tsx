@@ -109,9 +109,6 @@ export function HivePostLinkRenderer({ link }: { link: string }) {
             style={{ backgroundImage: `url(${data.image})` }}
           />
           <div className="er-post-link-link-text-content">
-            <div className="er-post-link-link-type">
-              Hive post
-            </div>
             <div className="er-post-link-link-title">
               {data.title}
             </div>

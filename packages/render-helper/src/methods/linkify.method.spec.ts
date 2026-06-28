@@ -60,7 +60,7 @@ describe('linkify() method - Content Linkification', () => {
       expect(result).toContain('class="er-author er-author-link"')
       expect(result).toContain('href="/@username"')
       expect(result).toContain('er-author-link-image')
-      expect(result).toContain('@username</span>')
+      expect(result).toContain('@username</a>')
     })
 
     it('should linkify user mentions after spaces', () => {
