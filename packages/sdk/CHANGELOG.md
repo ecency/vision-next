@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.27
+
+### Patch Changes
+
+- fix: prevent unhandled rejections from missing account and failed post-link lookups (#1038)
+
 ## 2.3.26
 
 ### Patch Changes

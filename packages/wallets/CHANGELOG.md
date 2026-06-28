@@ -1,5 +1,14 @@
 # @ecency/wallets
 
+## 5.0.26
+
+### Patch Changes
+
+- fix: prevent unhandled rejections from missing account and failed post-link lookups (#1038)
+
+- Updated dependencies []:
+  - @ecency/sdk@2.3.27
+
 ## 5.0.25
 
 ### Patch Changes
