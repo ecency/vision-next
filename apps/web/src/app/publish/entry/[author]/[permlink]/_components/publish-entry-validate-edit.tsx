@@ -30,15 +30,19 @@ export function PublishEntryValidateEdit({ onClose, onSuccess, entry }: Props) {
         body: content!,
         tags: tags!
       });
-
-      onSuccess("updated");
     } catch (e) {
-      // onError in usePostEdit already displays the error toast for mutation errors.
-      // Re-throw only if it's not a mutation error (i.e. came from onSuccess or elsewhere).
+      // usePostEdit.onError already displays the toast for mutation errors
+      // (e.g. empty body). Swallow that already-handled rejection; re-throw
+      // anything unexpected (non-Error) so it is not lost.
       if (!(e instanceof Error)) {
         throw e;
       }
+      return;
     }
+
+    // Runs only on a successful edit, outside the try so its own errors are
+    // not mistaken for an already-handled mutation error.
+    onSuccess("updated");
   }, [content, editPost, metaDescription, onSuccess, selectedThumbnail, tags, title]);
 
   return (
