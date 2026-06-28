@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import i18next from "i18next";
 import { ShortsFeedEntry } from "@ecency/sdk";
 import { EntryVoteBtn, EntryTipBtn, UserAvatar, ProfileLink } from "@/features/shared";
-import { Button } from "@ui/button";
 import { UilComment, UilPlay } from "@tooni/iconscout-unicons-react";
+import { ReelVideo } from "@/app/waves/_components/reel-video";
 
 interface Props {
   item: ShortsFeedEntry;
@@ -71,13 +71,7 @@ export function WavesReelItem({ item, onReply }: Props) {
           EntryVoteBtn in the rail below) isn't cut off by the reel bounds. */}
       <div className="absolute inset-0 flex items-center justify-center overflow-hidden rounded-2xl">
         {active && video ? (
-          <iframe
-            title={`${item.author}/${item.permlink}`}
-            src={`https://play.3speak.tv/watch?v=${encodeURIComponent(video.author)}/${encodeURIComponent(video.permlink)}&mode=iframe&autoplay=true`}
-            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen
-            className="h-full w-full border-0"
-          />
+          <ReelVideo video={video} caption={caption} />
         ) : (
           <button
             type="button"

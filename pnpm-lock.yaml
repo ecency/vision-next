@@ -443,6 +443,9 @@ importers:
       hivesigner:
         specifier: ^4.0.0
         version: 4.0.0
+      hls.js:
+        specifier: ^1.6.16
+        version: 1.6.16
       html-react-parser:
         specifier: ^5.0.7
         version: 5.2.6(@types/react@19.2.8)(react@19.2.3)
@@ -5892,6 +5895,9 @@ packages:
   hivesigner@4.0.0:
     resolution: {integrity: sha512-51++uSGQOoyYn3zBEQWsq+ZnKfs+p7XI5VEgIwqggBg7jy/sKqER4+SF7dQeAloFEWtrKD3jPBiEQ16ubdEpDw==}
     engines: {node: '>=18.0.0'}
+
+  hls.js@1.6.16:
+    resolution: {integrity: sha512-VSIRpLfRwlAAdGL4wiTucx2ScRipo0ed1FBatWkyt832jC4CReKstga6yIhYVwGu9LOBjuX9wzmRMeQdBJtzEA==}
 
   hoist-non-react-statics@3.3.2:
     resolution: {integrity: sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==}
@@ -13253,7 +13259,7 @@ snapshots:
       obug: 2.1.1
       std-env: 4.1.0
       tinyrainbow: 3.1.0
-      vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.18.8)(@vitest/coverage-v8@4.1.8)(@vitest/ui@4.1.8)(jsdom@26.1.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(vite@8.0.16(@types/node@22.18.8)(esbuild@0.27.7)(jiti@1.21.7)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.47.1)(tsx@4.21.0))
+      vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.18.8)(@vitest/coverage-v8@4.1.8)(@vitest/ui@4.1.8)(jsdom@26.1.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(vite@8.0.16(@types/node@22.18.8)(esbuild@0.25.12)(jiti@2.6.1)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.47.1)(tsx@4.21.0))
 
   '@vitest/expect@4.1.8':
     dependencies:
@@ -13323,7 +13329,7 @@ snapshots:
       sirv: 3.0.2
       tinyglobby: 0.2.17
       tinyrainbow: 3.1.0
-      vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.18.8)(@vitest/coverage-v8@4.1.8)(@vitest/ui@4.1.8)(jsdom@26.1.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(vite@8.0.16(@types/node@22.18.8)(esbuild@0.27.7)(jiti@1.21.7)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.47.1)(tsx@4.21.0))
+      vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.18.8)(@vitest/coverage-v8@4.1.8)(@vitest/ui@4.1.8)(jsdom@26.1.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(vite@8.0.16(@types/node@22.18.8)(esbuild@0.25.12)(jiti@2.6.1)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.47.1)(tsx@4.21.0))
 
   '@vitest/utils@4.1.8':
     dependencies:
@@ -15031,6 +15037,8 @@ snapshots:
   hivesigner@4.0.0:
     dependencies:
       hive-uri: 0.2.8
+
+  hls.js@1.6.16: {}
 
   hoist-non-react-statics@3.3.2:
     dependencies:
