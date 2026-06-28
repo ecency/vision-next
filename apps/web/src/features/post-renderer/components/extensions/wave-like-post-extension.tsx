@@ -11,8 +11,13 @@ import "./wave-like-post-extension.scss";
 import { EcencyRenderer } from "../ecency-renderer";
 import { Logo } from "../icons";
 import defaults from "@/defaults";
+import i18next from "i18next";
 
-export function WaveLikePostRenderer({ link }: { link: string }) {
+// Quoted waves embed inline only one level deep; a quote-of-a-quote renders as a
+// compact stub (avatar + link) instead of recursively rendering full bodies.
+const MAX_EMBED_DEPTH = 1;
+
+export function WaveLikePostRenderer({ link, depth = 1 }: { link: string; depth?: number }) {
   const [author, permlink] = useMemo(() => {
     try {
       const pathname = new URL(link, "https://ecency.com").pathname;
@@ -49,10 +54,12 @@ export function WaveLikePostRenderer({ link }: { link: string }) {
     }
   }, [link]);
 
+  const tooDeep = depth > MAX_EMBED_DEPTH;
   const { data: post } = useQuery({
     ...getPostQueryOptions(author ?? "", permlink ?? ""),
     queryKey: QueryKeys.posts.entry(makeEntryPath("", author ?? "", permlink ?? "")),
-    enabled: !!author && !!permlink,
+    // Skip the fetch entirely when we're only going to render the stub.
+    enabled: !!author && !!permlink && !tooDeep,
   });
 
   const host = useMemo(() => {
@@ -74,8 +81,34 @@ export function WaveLikePostRenderer({ link }: { link: string }) {
     return "";
   }, [post]);
 
-  // Return early if link parsing failed or post not loaded
-  if (!author || !permlink || !post) {
+  // Return early if link parsing failed
+  if (!author || !permlink) {
+    return <></>;
+  }
+
+  // Beyond the inline-embed depth: a compact stub (no fetch, no body) so a
+  // quote-of-a-quote doesn't recurse into deeply nested full cards.
+  if (tooDeep) {
+    return (
+      <a
+        href={`/waves/${author}/${permlink}`}
+        className="er-wave-renderer er-wave-renderer--stub"
+        aria-label={`Open wave by @${author}`}
+      >
+        <img
+          src={`${defaults.imageServer}/u/${author}/avatar/small`}
+          alt={author}
+          className="er-wave-renderer--author-avatar"
+        />
+        <span className="er-wave-renderer--stub-label">
+          @{author} · {i18next.t("waves.view-wave", { defaultValue: "View wave" })}
+        </span>
+      </a>
+    );
+  }
+
+  // Post not loaded yet
+  if (!post) {
     return <></>;
   }
 
@@ -113,7 +146,7 @@ export function WaveLikePostRenderer({ link }: { link: string }) {
         dangerouslySetInnerHTML={{ __html: Logo }}
       />
       <div className="er-wave-renderer--body">
-        <EcencyRenderer value={post.body} />
+        <EcencyRenderer value={post.body} embedDepth={depth} />
       </div>
     </article>
   );
@@ -121,8 +154,10 @@ export function WaveLikePostRenderer({ link }: { link: string }) {
 
 export function WaveLikePostExtension({
   containerRef,
+  embedDepth = 0,
 }: {
   containerRef: RefObject<HTMLElement | null>;
+  embedDepth?: number;
 }) {
   const rootsRef = useRef<ReturnType<typeof createRoot>[]>([]);
 
@@ -155,7 +190,10 @@ export function WaveLikePostExtension({
           rootsRef.current.push(root);
           root.render(
             <QueryClientProvider client={queryClient}>
-              <WaveLikePostRenderer link={element.getAttribute("href") ?? ""} />
+              <WaveLikePostRenderer
+                link={element.getAttribute("href") ?? ""}
+                depth={embedDepth + 1}
+              />
             </QueryClientProvider>
           );
 
@@ -172,7 +210,7 @@ export function WaveLikePostExtension({
       rootsRef.current.forEach(r => r.unmount());
       rootsRef.current = [];
     };
-  }, []);
+  }, [embedDepth]);
 
   return <></>;
 }

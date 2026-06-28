@@ -23,6 +23,12 @@ interface Props {
   TwitterComponent?: any;
   images?: string[];
   renderOptions?: RenderOptions;
+  /**
+   * Nesting depth of embedded wave quotes (0 = top level). Threaded to
+   * WaveLikePostExtension so quoted waves stop embedding past MAX_EMBED_DEPTH
+   * (showing a compact stub instead of recursively rendering).
+   */
+  embedDepth?: number;
 }
 
 export function EcencyRenderer({
@@ -33,6 +39,7 @@ export function EcencyRenderer({
   TwitterComponent = () => <div>No twitter component</div>,
   images,
   renderOptions,
+  embedDepth = 0,
   ...other
 }: HTMLProps<HTMLDivElement> & Props) {
   const ref = useRef<HTMLDivElement>(null);
@@ -85,7 +92,7 @@ export function EcencyRenderer({
               <ThreeSpeakVideoExtension containerRef={ref} images={images} />
             </>
           )}
-          <WaveLikePostExtension containerRef={ref} />
+          <WaveLikePostExtension containerRef={ref} embedDepth={embedDepth} />
           <TwitterExtension
             containerRef={ref}
             ComponentInstance={TwitterComponent}
