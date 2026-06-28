@@ -25,8 +25,13 @@ const WavesTagFilterContext = createContext<WavesTagFilterContextValue | undefin
 export function WavesTagFilterProvider({ children }: PropsWithChildren<{}>) {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const urlTag = searchParams?.get("tag") ?? null;
-  const urlSource = searchParams?.get("source") ?? null;
+  // Container hosts are lowercase; normalize a raw URL value (?source=Peak.Snaps)
+  // so it matches pinned tabs and the feed API exactly.
+  const urlSource = (searchParams?.get("source") ?? "").trim().toLowerCase() || null;
+  // tag and source are mutually exclusive views; the setters enforce that, but a
+  // crafted/legacy URL can carry both. Honor the same precedence as the feed
+  // query (source wins) on read so state never holds both at once.
+  const urlTag = urlSource ? null : (searchParams?.get("tag") ?? null);
   const [selectedTag, setSelectedTagState] = useState<string | null>(urlTag);
   const [selectedSource, setSelectedSourceState] = useState<string | null>(urlSource);
 
@@ -71,11 +76,12 @@ export function WavesTagFilterProvider({ children }: PropsWithChildren<{}>) {
 
   const setSelectedSource = useCallback(
     (source: string | null) => {
-      setSelectedSourceState(source);
+      const value = source ? source.trim().toLowerCase() || null : null;
+      setSelectedSourceState(value);
       setSelectedTagState(null);
       replaceParams((params) => {
-        if (source) {
-          params.set("source", source);
+        if (value) {
+          params.set("source", value);
         } else {
           params.delete("source");
         }
