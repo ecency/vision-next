@@ -118,8 +118,11 @@ export function WavesReelItem({ item, onReply }: Props) {
         {caption && <div className="mt-2 line-clamp-2 text-sm text-white/90">{caption}</div>}
       </div>
 
-      {/* Engagement rail (bottom-right) */}
-      <div className="absolute bottom-4 right-2 flex flex-col items-center gap-3 text-white">
+      {/* Engagement rail (bottom-right). The vote/tip controls use theme-colored
+          icons that vanish on bright video frames, so the rail sits on a shaded,
+          blurred pill and every icon/label gets a dark drop-shadow halo — keeping
+          all three controls legible over any frame, not just dark ones. */}
+      <div className="absolute bottom-4 right-2 flex flex-col items-center gap-3 rounded-full bg-black/30 px-1.5 py-3 text-white backdrop-blur-sm [&_span]:drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)] [&_svg]:drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)]">
         <EntryVoteBtn entry={item} isPostSlider={false} />
         <button
           type="button"
