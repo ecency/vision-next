@@ -71,6 +71,11 @@ export function EntryTipBtn({
   // have that breakdown — otherwise the button opens the tip dialog directly.
   const hasBreakdown = !!postTips;
   const tipCount = postTips?.meta.count ?? tipCountProp ?? 0;
+  // Show the count when positive, or whenever the caller passes an explicit (feed)
+  // tipCount — including 0 — so the waves feed shows it like the adjacent
+  // vote/comment counts and the mobile app. Non-feed usages (post list, comments)
+  // pass no tipCount, so a 0 there stays hidden; detail pages pass postTips only.
+  const showTipNumber = tipCount > 0 || tipCountProp != null;
   const tipTotals = Object.entries(postTips?.meta.totals ?? {});
   const tipCountLabel =
     tipCount === 1
@@ -120,10 +125,12 @@ export function EntryTipBtn({
         }
       }}
     >
-      <Tooltip content={tippedByViewer ? i18next.t("entry-tip.you-tipped") : i18next.t("entry-tip.title")}>
+      <Tooltip
+        content={tippedByViewer ? i18next.t("entry-tip.you-tipped") : i18next.t("entry-tip.title")}
+      >
         <span className={`inner-btn${tippedByViewer ? " tipped" : ""}`}>
           {giftOutlineSvg}
-          <span className="tip-count">{tipCount > 0 ? tipCount : ""}</span>
+          <span className="tip-count">{showTipNumber ? tipCount : ""}</span>
         </span>
       </Tooltip>
     </div>
@@ -135,20 +142,25 @@ export function EntryTipBtn({
         {inlineTipButton ? (
           inlineTipBtn
         ) : hasBreakdown && tipCount > 0 ? (
-          <Popover directContent={tipButton} behavior="click" show={showPopover} setShow={setShowPopover}>
+          <Popover
+            directContent={tipButton}
+            behavior="click"
+            show={showPopover}
+            setShow={setShowPopover}
+          >
             <PopoverContent>
               <div className="tip-popover">
                 <div className="tip-popover-title">
                   {i18next.t("entry-tip.title")}
-                  <span className="tip-popover-count">
-                    {tipCountLabel}
-                  </span>
+                  <span className="tip-popover-count">{tipCountLabel}</span>
                 </div>
                 <div className="tip-popover-grid">
                   {tipTotals.map(([currency, amount]) => (
                     <div className="tip-row" key={currency}>
                       <span className="tip-currency">{currency}</span>
-                      <span className="tip-amount">{formattedNumber(amount, { fractionDigits: 3 })}</span>
+                      <span className="tip-amount">
+                        {formattedNumber(amount, { fractionDigits: 3 })}
+                      </span>
                     </div>
                   ))}
                 </div>

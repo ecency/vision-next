@@ -61,12 +61,17 @@ describe("EntryTipBtn — feed-provided tip count + already-tipped state", () =>
     expect(container.querySelector(".inner-btn.tipped")).toBeTruthy();
   });
 
-  it("renders no count and no tipped state for zero tips", () => {
+  it("shows 0 in the feed (parity with vote/comment counts) when tipCount is 0", () => {
     const { container } = renderWithQueryClient(
       <EntryTipBtn entry={mockEntry as any} tipCount={0} />
     );
-    expect(container.querySelector(".tip-count")?.textContent).toBe("");
+    expect(container.querySelector(".tip-count")?.textContent).toBe("0");
     expect(container.querySelector(".inner-btn.tipped")).toBeFalsy();
+  });
+
+  it("renders no number outside the feed (no tipCount prop and no postTips)", () => {
+    const { container } = renderWithQueryClient(<EntryTipBtn entry={mockEntry as any} />);
+    expect(container.querySelector(".tip-count")?.textContent).toBe("");
   });
 
   it("prefers the full postTips breakdown count over the feed fallback", () => {
