@@ -13,17 +13,26 @@ interface Props {
 }
 
 // The reel already plays the video, so the caption is just the human text:
-// drop markdown images, turn markdown links into their label, and strip bare
-// URLs (e.g. the play.3speak.tv embed link the body carries).
-function buildReelCaption(item: ShortsFeedEntry): string {
-  const raw = item.title?.trim() || item.body?.trim() || "";
-  return raw
+// drop markdown images, the 3Speak "watch" footer link, other markdown links
+// (kept as their label), HTML tags (the composer appends videos as `text<br>url`)
+// and bare URLs (e.g. the play.3speak.tv embed link the body carries).
+function sanitizeCaptionText(value: string): string {
+  return value
     .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
+    .replace(/\[[^\]]*\]\((?:https?:\/\/)?(?:play\.)?3speak[^)]*\)/gi, " ")
     .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/<[^>]+>/g, " ")
     .replace(/https?:\/\/\S+/gi, " ")
+    .replace(/▶️?/g, " ")
     .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, 140);
+    .trim();
+}
+
+// Clean title and body independently so a title that's only a URL/markdown
+// (collapses to empty) falls back to the body text instead of a blank caption.
+function buildReelCaption(item: ShortsFeedEntry): string {
+  const caption = sanitizeCaptionText(item.title ?? "") || sanitizeCaptionText(item.body ?? "");
+  return caption.slice(0, 140);
 }
 
 /**
