@@ -1,5 +1,5 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
-import { render } from "@testing-library/react";
+import { render, waitFor } from "@testing-library/react";
 // ServiceWorkerRecovery is imported dynamically per-test (see beforeEach) to reset
 // its module-level reload guards; the pure helpers are imported statically.
 import {
@@ -108,7 +108,115 @@ describe("ServiceWorkerRecovery", () => {
   afterEach(() => {
     Object.defineProperty(window, "location", { configurable: true, value: realLocation });
     delete (navigator as unknown as { serviceWorker?: unknown }).serviceWorker;
+    document.head.querySelectorAll("[data-test-asset]").forEach((el) => el.remove());
+    document.body.querySelectorAll("[data-test-asset]").forEach((el) => el.remove());
     vi.restoreAllMocks();
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+  });
+
+  // Resource-load failures fire only in the capture phase and don't bubble; the
+  // window capture listener still receives them when the element is in the tree.
+  function dispatchResourceError(el: HTMLElement) {
+    el.dataset.testAsset = "1";
+    document.head.appendChild(el);
+    el.dispatchEvent(new Event("error"));
+  }
+
+  const origin = window.location.origin;
+
+  it("reloads when a /_next/static stylesheet 404s (silently unstyled, no JS error)", () => {
+    render(<Recovery />);
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = `${origin}/_next/static/css/abc123.css`;
+    dispatchResourceError(link);
+    expect(reloadMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("reloads when a /_next/static script 404s", () => {
+    render(<Recovery />);
+    const script = document.createElement("script");
+    script.src = `${origin}/_next/static/chunks/102-deadbeef.js`;
+    dispatchResourceError(script);
+    expect(reloadMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("ignores asset errors that are not build-versioned /_next/static", () => {
+    render(<Recovery />);
+    // Same-origin asset outside /_next/static.
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = `${origin}/fonts/inter.css`;
+    dispatchResourceError(link);
+    // Broken image.
+    const img = document.createElement("img");
+    img.src = `${origin}/u/foo/avatar.png`;
+    dispatchResourceError(img);
+    // Foreign-origin URL that merely contains the /_next/static substring — not
+    // our build, must not burn the session's one reload.
+    const foreign = document.createElement("script");
+    foreign.src = "https://cdn.example.com/_next/static/widget.js";
+    dispatchResourceError(foreign);
+    expect(reloadMock).not.toHaveBeenCalled();
+  });
+
+  describe("build-id heartbeat", () => {
+    function mockVersionFetch(buildId: string | null, ok = true) {
+      const fetchMock = vi.fn().mockResolvedValue({
+        ok,
+        json: async () => ({ buildId })
+      });
+      vi.stubGlobal("fetch", fetchMock);
+      return fetchMock;
+    }
+
+    it("reloads when the deployed build differs (stale tab refocus)", async () => {
+      vi.stubEnv("SENTRY_RELEASE", "ecency-next@oldsha");
+      const fetchMock = mockVersionFetch("ecency-next@newsha");
+      render(<Recovery />);
+
+      document.dispatchEvent(new Event("visibilitychange"));
+
+      await waitFor(() => expect(reloadMock).toHaveBeenCalledTimes(1));
+      expect(fetchMock).toHaveBeenCalledWith("/api/version", { cache: "no-store" });
+    });
+
+    it("does not reload when the build id matches", async () => {
+      vi.stubEnv("SENTRY_RELEASE", "ecency-next@samesha");
+      mockVersionFetch("ecency-next@samesha");
+      render(<Recovery />);
+
+      document.dispatchEvent(new Event("visibilitychange"));
+      await new Promise((r) => setTimeout(r, 0));
+
+      expect(reloadMock).not.toHaveBeenCalled();
+    });
+
+    it("is inert when SENTRY_RELEASE is unset (local dev) — no /api/version poll", async () => {
+      vi.stubEnv("SENTRY_RELEASE", undefined);
+      const fetchMock = mockVersionFetch("ecency-next@newsha");
+      render(<Recovery />);
+
+      document.dispatchEvent(new Event("visibilitychange"));
+      await new Promise((r) => setTimeout(r, 0));
+
+      expect(fetchMock).not.toHaveBeenCalled();
+      expect(reloadMock).not.toHaveBeenCalled();
+    });
+
+    it("throttles rapid refocus to a single poll", async () => {
+      vi.stubEnv("SENTRY_RELEASE", "ecency-next@samesha");
+      const fetchMock = mockVersionFetch("ecency-next@samesha");
+      render(<Recovery />);
+
+      document.dispatchEvent(new Event("visibilitychange"));
+      document.dispatchEvent(new Event("visibilitychange"));
+      document.dispatchEvent(new Event("visibilitychange"));
+      await new Promise((r) => setTimeout(r, 0));
+
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
   });
 
   it("reloads once on a chunk-load error, then not again in the same session", () => {
