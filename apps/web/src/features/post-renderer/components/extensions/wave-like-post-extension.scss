@@ -93,4 +93,23 @@
     position: relative;
     z-index: 1;
   }
+
+  // Compact one-line stub for quotes beyond the inline-embed depth.
+  &--stub {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+
+    .er-wave-renderer--author-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 14px;
+    }
+  }
+
+  &--stub-label {
+    font-size: 0.875rem;
+    color: #357ce6;
+  }
 }
