@@ -5,6 +5,7 @@ import clsx from "clsx";
 import i18next from "i18next";
 import { UilPlus } from "@tooni/iconscout-unicons-react";
 import { WavesFeedType } from "@/app/waves/_constants";
+import { normalizeWaveTag } from "@/app/waves/_hooks";
 
 interface Props {
   feedType: WavesFeedType;
@@ -79,7 +80,9 @@ export function WavesFeedTabs({
         </button>
 
         {customTags.map((tag) => {
-          const active = feedType === "for-you" && selectedTag === tag;
+          // selectedTag may arrive un-normalized from the URL (?tag=Sports);
+          // compare normalized so the matching pinned tab still shows active.
+          const active = feedType === "for-you" && normalizeWaveTag(selectedTag ?? "") === tag;
           return (
             <button
               key={tag}

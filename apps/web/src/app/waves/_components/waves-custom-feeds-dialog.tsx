@@ -25,7 +25,7 @@ interface Props {
  * trending tags. Persistence is browser-local via {@link useWavesCustomFeeds}.
  */
 export function WavesCustomFeedsDialog({ show, onHide, onSelectTag }: Props) {
-  const { tags, addTag, removeTag } = useWavesCustomFeeds();
+  const { tags, addTag, removeTag, isFull, maxTags } = useWavesCustomFeeds();
   const [input, setInput] = useState("");
 
   // Combined trending tags across all containers; only fetched while open.
@@ -44,15 +44,17 @@ export function WavesCustomFeedsDialog({ show, onHide, onSelectTag }: Props) {
   );
 
   const candidate = normalizeWaveTag(input);
-  const canAdd = !!candidate && !tags.includes(candidate);
+  const canAdd = !!candidate && !tags.includes(candidate) && !isFull;
 
   const submit = () => {
     if (!canAdd) {
       return;
     }
-    addTag(candidate);
-    onSelectTag?.(candidate);
-    setInput("");
+    // Only switch to / clear the input for an add that actually pinned the tag.
+    if (addTag(candidate)) {
+      onSelectTag?.(candidate);
+      setInput("");
+    }
   };
 
   return (
@@ -92,6 +94,12 @@ export function WavesCustomFeedsDialog({ show, onHide, onSelectTag }: Props) {
             </Button>
           </div>
 
+          {isFull && (
+            <div className="text-xs text-gray-500 dark:text-gray-400">
+              {i18next.t("waves.custom-feeds-max", { max: maxTags })}
+            </div>
+          )}
+
           {tags.length > 0 && (
             <div className="flex flex-col gap-2">
               <div className="text-xs font-semibold uppercase text-gray-500">
@@ -124,7 +132,12 @@ export function WavesCustomFeedsDialog({ show, onHide, onSelectTag }: Props) {
                   <button
                     key={tag}
                     type="button"
-                    onClick={() => addTag(tag)}
+                    onClick={() => {
+                      // Pin and switch to it, matching the typed-add path.
+                      if (addTag(tag)) {
+                        onSelectTag?.(tag);
+                      }
+                    }}
                     aria-label={`#${tag}`}
                     className="inline-flex items-center gap-1 rounded-full bg-gray-200 dark:bg-dark-300 text-sm px-3 py-1 hover:opacity-80 transition-opacity cursor-pointer"
                   >

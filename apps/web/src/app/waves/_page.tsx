@@ -14,7 +14,7 @@ import i18next from "i18next";
 import { useWavesTagFilter } from "@/app/waves/_context";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
-import { useWavesCustomFeeds } from "@/app/waves/_hooks";
+import { useWavesCustomFeeds, normalizeWaveTag } from "@/app/waves/_hooks";
 import { WavesFeedType } from "@/app/waves/_constants";
 
 export function WavesPage() {
@@ -66,7 +66,7 @@ export function WavesPage() {
 
   // The transient chip is only for an ad-hoc tag (tapped inside a wave); when the
   // active tag is already pinned, its own tab shows the active state instead.
-  const showTagChip = !!selectedTag && !customTags.includes(selectedTag);
+  const showTagChip = !!selectedTag && !customTags.includes(normalizeWaveTag(selectedTag));
 
   return (
     <>

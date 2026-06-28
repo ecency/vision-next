@@ -21,8 +21,25 @@ export function normalizeWaveTag(raw: string): string {
     .replace(/[^a-z0-9-]/g, "");
 }
 
+// Read the freshest persisted list at write time. localStorage is the source of
+// truth behind the storage hook, so reading it here (instead of this instance's
+// last-rendered snapshot) keeps concurrent add/remove from different hook
+// instances (page + dialog) from clobbering each other with a stale value.
+function readStoredTags(): string[] {
+  if (typeof window === "undefined") {
+    return [];
+  }
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
 /**
- * Persisted (browser-local) list of custom waves "feeds" — each is a tag the user
+ * Persisted (browser-local) list of custom waves "feeds": each is a tag the user
  * pinned as its own feed tab, mirroring the mobile waves custom tabs. Synced live
  * across hook instances (e.g. tab bar + picker) via the storage event bus.
  */
@@ -31,25 +48,31 @@ export function useWavesCustomFeeds() {
 
   const tags = useMemo(() => (Array.isArray(stored) ? stored : []), [stored]);
 
+  // Returns true only when the tag was actually pinned (not a dup / not over the
+  // cap), so callers can avoid selecting/clearing on a no-op add. The storage
+  // setter broadcasts the value verbatim, so pass a concrete array.
   const addTag = useCallback(
-    (raw: string) => {
+    (raw: string): boolean => {
       const tag = normalizeWaveTag(raw);
-      // The storage setter broadcasts the value verbatim, so pass a concrete
-      // array (not a functional updater) computed from the current snapshot.
-      if (!tag || tags.includes(tag)) {
-        return;
+      if (!tag) {
+        return false;
       }
-      setStored([...tags, tag].slice(0, MAX_TAGS));
+      const current = readStoredTags();
+      if (current.includes(tag) || current.length >= MAX_TAGS) {
+        return false;
+      }
+      setStored([...current, tag]);
+      return true;
     },
-    [tags, setStored]
+    [setStored]
   );
 
   const removeTag = useCallback(
     (tag: string) => {
-      setStored(tags.filter((t) => t !== tag));
+      setStored(readStoredTags().filter((t) => t !== tag));
     },
-    [tags, setStored]
+    [setStored]
   );
 
-  return { tags, addTag, removeTag };
+  return { tags, addTag, removeTag, isFull: tags.length >= MAX_TAGS, maxTags: MAX_TAGS };
 }
