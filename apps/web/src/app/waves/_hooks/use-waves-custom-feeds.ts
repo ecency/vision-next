@@ -4,7 +4,8 @@ import { useCallback, useMemo } from "react";
 import { useSynchronizedLocalStorage } from "@/utils/use-synchronized-local-storage";
 import { PREFIX } from "@/utils/local-storage";
 
-const STORAGE_KEY = PREFIX + "_waves_custom_tags";
+const TAGS_KEY = PREFIX + "_waves_custom_tags";
+const SOURCES_KEY = PREFIX + "_waves_custom_sources";
 // Keep the scrollable tab bar sane; mirrors a reasonable on-device cap.
 const MAX_TAGS = 20;
 
@@ -25,12 +26,12 @@ export function normalizeWaveTag(raw: string): string {
 // truth behind the storage hook, so reading it here (instead of this instance's
 // last-rendered snapshot) keeps concurrent add/remove from different hook
 // instances (page + dialog) from clobbering each other with a stale value.
-function readStoredTags(): string[] {
+function readStored(key: string): string[] {
   if (typeof window === "undefined") {
     return [];
   }
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw = window.localStorage.getItem(key);
     const parsed = raw ? JSON.parse(raw) : [];
     return Array.isArray(parsed) ? parsed : [];
   } catch {
@@ -39,14 +40,22 @@ function readStoredTags(): string[] {
 }
 
 /**
- * Persisted (browser-local) list of custom waves "feeds": each is a tag the user
- * pinned as its own feed tab, mirroring the mobile waves custom tabs. Synced live
- * across hook instances (e.g. tab bar + picker) via the storage event bus.
+ * Persisted (browser-local) custom waves "feeds", mirroring the mobile waves
+ * custom tabs. Two kinds:
+ *  - tags: a Hive tag pinned as its own feed tab.
+ *  - sources: a waves container host (e.g. peak.snaps, leothreads) pinned as a
+ *    feed tab so the user can follow one app/source on its own.
+ * Synced live across hook instances (tab bar + picker) via the storage event bus.
  */
 export function useWavesCustomFeeds() {
-  const [stored, setStored] = useSynchronizedLocalStorage<string[]>(STORAGE_KEY, []);
+  const [storedTags, setStoredTags] = useSynchronizedLocalStorage<string[]>(TAGS_KEY, []);
+  const [storedSources, setStoredSources] = useSynchronizedLocalStorage<string[]>(SOURCES_KEY, []);
 
-  const tags = useMemo(() => (Array.isArray(stored) ? stored : []), [stored]);
+  const tags = useMemo(() => (Array.isArray(storedTags) ? storedTags : []), [storedTags]);
+  const sources = useMemo(
+    () => (Array.isArray(storedSources) ? storedSources : []),
+    [storedSources]
+  );
 
   // Returns true only when the tag was actually pinned (not a dup / not over the
   // cap), so callers can avoid selecting/clearing on a no-op add. The storage
@@ -57,22 +66,54 @@ export function useWavesCustomFeeds() {
       if (!tag) {
         return false;
       }
-      const current = readStoredTags();
+      const current = readStored(TAGS_KEY);
       if (current.includes(tag) || current.length >= MAX_TAGS) {
         return false;
       }
-      setStored([...current, tag]);
+      setStoredTags([...current, tag]);
       return true;
     },
-    [setStored]
+    [setStoredTags]
   );
 
   const removeTag = useCallback(
     (tag: string) => {
-      setStored(readStoredTags().filter((t) => t !== tag));
+      setStoredTags(readStored(TAGS_KEY).filter((t) => t !== tag));
     },
-    [setStored]
+    [setStoredTags]
   );
 
-  return { tags, addTag, removeTag, isFull: tags.length >= MAX_TAGS, maxTags: MAX_TAGS };
+  const addSource = useCallback(
+    (host: string): boolean => {
+      const value = (host || "").trim().toLowerCase();
+      if (!value) {
+        return false;
+      }
+      const current = readStored(SOURCES_KEY);
+      if (current.includes(value)) {
+        return false;
+      }
+      setStoredSources([...current, value]);
+      return true;
+    },
+    [setStoredSources]
+  );
+
+  const removeSource = useCallback(
+    (host: string) => {
+      setStoredSources(readStored(SOURCES_KEY).filter((s) => s !== host));
+    },
+    [setStoredSources]
+  );
+
+  return {
+    tags,
+    sources,
+    addTag,
+    removeTag,
+    addSource,
+    removeSource,
+    isFull: tags.length >= MAX_TAGS,
+    maxTags: MAX_TAGS
+  };
 }

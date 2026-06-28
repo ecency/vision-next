@@ -28,14 +28,20 @@ interface Props {
 }
 
 export function WavesListView({ feedType, username }: Props) {
-  const { selectedTag } = useWavesTagFilter();
+  const { selectedTag, selectedSource } = useWavesTagFilter();
   const tag = feedType === "for-you" ? selectedTag : null;
-  // All three feeds are now one combined, cross-container, keyset-paginated
-  // endpoint; tag and following are just filters on the same stream.
+  // All feeds are one combined, cross-container, keyset-paginated endpoint;
+  // tag / following / source are just filters on the same stream. A source feed
+  // scopes to a single container host (e.g. peak.snaps); tag/following overlay
+  // the For You stream.
   // The logged-in user is the observer: server-side mute filtering keeps each
   // page full of waves they can see (client-side filtering would shrink pages).
   const observer = username || undefined;
   const queryOptions = useMemo(() => {
+    if (selectedSource) {
+      return getWavesFeedQueryOptions({ containers: [selectedSource], observer });
+    }
+
     if (tag) {
       return getWavesFeedQueryOptions({ tag, observer });
     }
@@ -45,7 +51,7 @@ export function WavesListView({ feedType, username }: Props) {
     }
 
     return getWavesFeedQueryOptions({ observer });
-  }, [feedType, tag, username, observer]);
+  }, [feedType, tag, selectedSource, username, observer]);
 
   // The Following feed needs a username; without one `following` drops and the
   // query would silently become the unfiltered combined feed, so gate it until
@@ -78,7 +84,7 @@ export function WavesListView({ feedType, username }: Props) {
   }, [error, feedType, isError, tag]);
   const { data: promoted } = useQuery({
     ...getPromotedPostsQuery<WaveEntry>("waves"),
-    enabled: !tag
+    enabled: !tag && !selectedSource
   });
   const dataFlow = useInfiniteDataFlow(data);
   const queryClient = useQueryClient();
@@ -86,7 +92,7 @@ export function WavesListView({ feedType, username }: Props) {
   // always targets exactly what useInfiniteQuery reads, with no drift.
   const wavesQueryKey = queryOptions.queryKey;
   const combinedDataFlow = useMemo(() => {
-    if (!promoted || tag) {
+    if (!promoted || tag || selectedSource) {
       return dataFlow;
     }
 
@@ -106,10 +112,10 @@ export function WavesListView({ feedType, username }: Props) {
         ],
         [] as WaveEntry[]
       );
-  }, [dataFlow, promoted, tag]);
+  }, [dataFlow, promoted, tag, selectedSource]);
 
   const [replyingEntry, setReplyingEntry] = useState<WaveEntry>();
-  const shouldAutoRefresh = feedType === "for-you" && !tag;
+  const shouldAutoRefresh = feedType === "for-you" && !tag && !selectedSource;
   const { newWaves, clear, now } = useWavesAutoRefresh(
     shouldAutoRefresh ? dataFlow[0] : undefined,
     observer
@@ -133,11 +139,7 @@ export function WavesListView({ feedType, username }: Props) {
       const feedMatches = !parsed.feedType || parsed.feedType === feedType;
       const urlMatches = !parsed.url || parsed.url === currentUrl;
 
-      if (
-        typeof parsed.scrollY === "number" &&
-        urlMatches &&
-        feedMatches
-      ) {
+      if (typeof parsed.scrollY === "number" && urlMatches && feedMatches) {
         setPendingScroll(parsed.scrollY);
       }
     } catch (e) {
@@ -212,37 +214,34 @@ export function WavesListView({ feedType, username }: Props) {
               return;
             }
 
-            queryClient.setQueryData<
-              InfiniteData<WaveEntry[], string | undefined>
-            >(wavesQueryKey, (prev) => {
-              if (!prev) {
+            queryClient.setQueryData<InfiniteData<WaveEntry[], string | undefined>>(
+              wavesQueryKey,
+              (prev) => {
+                if (!prev) {
+                  return {
+                    pages: [wavesToInsert],
+                    pageParams: [undefined]
+                  };
+                }
+
+                // A wave is uniquely identified by author + permlink (entry.id is
+                // not reliable across the feed sources).
+                const keyOf = (entry: WaveEntry) => `${entry.author}/${entry.permlink}`;
+                const existingKeys = new Set(prev.pages.flatMap((page) => page.map(keyOf)));
+                const deduped = wavesToInsert.filter((entry) => !existingKeys.has(keyOf(entry)));
+
+                if (deduped.length === 0) {
+                  return prev;
+                }
+
+                const [firstPage = [], ...restPages] = prev.pages;
+
                 return {
-                  pages: [wavesToInsert],
-                  pageParams: [undefined]
+                  ...prev,
+                  pages: [[...deduped, ...firstPage], ...restPages]
                 };
               }
-
-              // A wave is uniquely identified by author + permlink (entry.id is
-              // not reliable across the feed sources).
-              const keyOf = (entry: WaveEntry) => `${entry.author}/${entry.permlink}`;
-              const existingKeys = new Set(
-                prev.pages.flatMap((page) => page.map(keyOf))
-              );
-              const deduped = wavesToInsert.filter(
-                (entry) => !existingKeys.has(keyOf(entry))
-              );
-
-              if (deduped.length === 0) {
-                return prev;
-              }
-
-              const [firstPage = [], ...restPages] = prev.pages;
-
-              return {
-                ...prev,
-                pages: [[...deduped, ...firstPage], ...restPages]
-              };
-            });
+            );
 
             clear();
             window.scrollTo({ top: 0, behavior: "smooth" });

@@ -8,24 +8,31 @@ import { Modal, ModalBody, ModalHeader } from "@ui/modal";
 import { Button } from "@ui/button";
 import { UilMultiply, UilPlus } from "@tooni/iconscout-unicons-react";
 import { useWavesCustomFeeds, normalizeWaveTag } from "@/app/waves/_hooks";
+import { WAVE_HOST_LABELS } from "@/features/waves/consts/host-labels";
 
 const TRENDING_LIMIT = 24;
 const TRENDING_HOURS = 24;
+// Container hosts offered as one-tap "source" feeds (with friendly labels).
+const SOURCE_HOSTS = Object.keys(WAVE_HOST_LABELS);
 
 interface Props {
   show: boolean;
   onHide: () => void;
   // Switch to the tag's feed right after adding it from here.
   onSelectTag?: (tag: string) => void;
+  // Switch to the source's (container) feed right after adding it from here.
+  onSelectSource?: (host: string) => void;
 }
 
 /**
- * Add/manage custom waves feeds (pinned tags). Mirrors the mobile waves tag
- * picker: type a tag to add, see your pinned feeds (tap to remove), and pick from
- * trending tags. Persistence is browser-local via {@link useWavesCustomFeeds}.
+ * Add/manage custom waves feeds, organized into sections like the mobile picker:
+ * Sources (container apps to pin as feeds), a tag input, your pinned tag feeds
+ * (tap to remove), and trending tags. Persistence is browser-local via
+ * {@link useWavesCustomFeeds}.
  */
-export function WavesCustomFeedsDialog({ show, onHide, onSelectTag }: Props) {
-  const { tags, addTag, removeTag, isFull, maxTags } = useWavesCustomFeeds();
+export function WavesCustomFeedsDialog({ show, onHide, onSelectTag, onSelectSource }: Props) {
+  const { tags, sources, addTag, removeTag, addSource, removeSource, isFull, maxTags } =
+    useWavesCustomFeeds();
   const [input, setInput] = useState("");
 
   // Combined trending tags across all containers; only fetched while open.
@@ -68,6 +75,46 @@ export function WavesCustomFeedsDialog({ show, onHide, onSelectTag }: Props) {
               {i18next.t("waves.custom-feeds-subtitle")}
             </div>
           </div>
+
+          {SOURCE_HOSTS.length > 0 && (
+            <div className="flex flex-col gap-2">
+              <div className="text-xs font-semibold uppercase text-gray-500">
+                {i18next.t("waves.sources")}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {SOURCE_HOSTS.map((host) => {
+                  const pinned = sources.includes(host);
+                  return (
+                    <button
+                      key={host}
+                      type="button"
+                      aria-pressed={pinned}
+                      aria-label={WAVE_HOST_LABELS[host]}
+                      onClick={() => {
+                        if (pinned) {
+                          removeSource(host);
+                        } else if (addSource(host)) {
+                          onSelectSource?.(host);
+                        }
+                      }}
+                      className={
+                        pinned
+                          ? "inline-flex items-center gap-1 rounded-full bg-blue-dark-sky text-white text-sm px-3 py-1 hover:opacity-80 transition-opacity cursor-pointer"
+                          : "inline-flex items-center gap-1 rounded-full bg-gray-200 dark:bg-dark-300 text-sm px-3 py-1 hover:opacity-80 transition-opacity cursor-pointer"
+                      }
+                    >
+                      <span>{WAVE_HOST_LABELS[host]}</span>
+                      {pinned ? (
+                        <UilMultiply className="w-3.5 h-3.5" />
+                      ) : (
+                        <UilPlus className="w-3.5 h-3.5" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           <div className="flex items-center gap-2">
             <div className="flex items-center flex-1 rounded-full border border-[--border-color] px-3">
