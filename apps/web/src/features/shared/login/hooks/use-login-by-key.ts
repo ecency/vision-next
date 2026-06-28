@@ -64,7 +64,7 @@ export function useLoginByKey(
 
       if (!account) {
         try {
-          account = await queryClient.fetchQuery(getAccountFullQueryOptions(username));
+          account = (await queryClient.fetchQuery(getAccountFullQueryOptions(username))) ?? undefined;
         } catch (err) {
           const wrapped = new Error(i18next.t("login.error-user-fetch"));
           (wrapped as any).cause = err;

@@ -2874,7 +2874,7 @@ declare function getAccountFullQueryOptions(username: string | undefined): _tans
     follow_stats: AccountFollowStats | undefined;
     reputation: number;
     profile: AccountProfile;
-}, Error, {
+} | null, Error, {
     name: any;
     owner: any;
     active: any;
@@ -2915,7 +2915,7 @@ declare function getAccountFullQueryOptions(username: string | undefined): _tans
     follow_stats: AccountFollowStats | undefined;
     reputation: number;
     profile: AccountProfile;
-}, (string | undefined)[]>, "queryFn"> & {
+} | null, (string | undefined)[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<{
         name: any;
         owner: any;
@@ -2957,7 +2957,7 @@ declare function getAccountFullQueryOptions(username: string | undefined): _tans
         follow_stats: AccountFollowStats | undefined;
         reputation: number;
         profile: AccountProfile;
-    }, (string | undefined)[], never> | undefined;
+    } | null, (string | undefined)[], never> | undefined;
 } & {
     queryKey: (string | undefined)[] & {
         [dataTagSymbol]: {
@@ -3001,7 +3001,7 @@ declare function getAccountFullQueryOptions(username: string | undefined): _tans
             follow_stats: AccountFollowStats | undefined;
             reputation: number;
             profile: AccountProfile;
-        };
+        } | null;
         [dataTagErrorSymbol]: Error;
     };
 };

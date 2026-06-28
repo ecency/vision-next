@@ -32,7 +32,7 @@ export function WalletOperationPowerDown({ username, asset, onSubmit, showSubmit
   const hivePerMVests = (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).hivePerMVests;
 
   const powerDownSchedule = useMemo(
-    () => getPowerDownSchedule(account, hivePerMVests),
+    () => getPowerDownSchedule(account ?? undefined, hivePerMVests),
     [account, hivePerMVests]
   );
 

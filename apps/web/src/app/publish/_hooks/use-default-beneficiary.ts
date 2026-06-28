@@ -19,7 +19,7 @@ export function useDefaultBeneficiary() {
   const { data: beneficiary } = useQuery({
     ...getAccountFullQueryOptions(tags?.[0] ?? ""),
     enabled: isCommunity(tags?.[0]),
-    select: (data) => data.profile.beneficiary ?? undefined
+    select: (data) => data?.profile?.beneficiary ?? undefined
   });
 
   const beneficiaryWeight = useMemo(

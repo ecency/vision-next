@@ -30,14 +30,17 @@ export function ManageKeyPasswordDialog({ show, setShow }: Props) {
 
   const { data } = useQuery({
     ...getAccountFullQueryOptions(activeUser?.username ?? ""),
-    select: (resp) => ({
-      publicKeys: {
-        owner: resp.owner.key_auths[0],
-        active: resp.active.key_auths[0],
-        posting: resp.posting.key_auths[0],
-        memo: resp.memo_key
-      }
-    })
+    select: (resp) =>
+      resp
+        ? {
+            publicKeys: {
+              owner: resp.owner.key_auths[0],
+              active: resp.active.key_auths[0],
+              posting: resp.posting.key_auths[0],
+              memo: resp.memo_key
+            }
+          }
+        : null
   });
   const { updateKeys } = useRevealedKeysStore();
 

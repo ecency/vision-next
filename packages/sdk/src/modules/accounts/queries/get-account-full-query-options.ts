@@ -12,14 +12,18 @@ export function getAccountFullQueryOptions(username: string | undefined) {
     queryKey: QueryKeys.accounts.full(username),
     queryFn: async ({ signal }) => {
       if (!username) {
-        throw new Error("[SDK] Username is empty");
+        return null;
       }
 
       const response = (await callRPC("condenser_api.get_accounts", [[
         username,
       ]], undefined, undefined, signal)) as any[];
       if (!response[0]) {
-        throw new Error("[SDK] No account with given username");
+        // The account does not exist (e.g. not yet finalized on-chain during
+        // signup). Treat absence as a recoverable null instead of throwing, so
+        // consumers (useQuery hooks and fetchQuery callers) surface it as empty
+        // data rather than an unhandled rejection / error-boundary crash.
+        return null;
       }
 
       const profile = parseProfileMetadata(response[0].posting_json_metadata);

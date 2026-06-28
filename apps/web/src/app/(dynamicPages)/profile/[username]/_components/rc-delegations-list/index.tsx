@@ -138,7 +138,9 @@ export const RcDelegationsList = ({
                                   setAmountFromList(list.delegated_rc);
                                   setToFromList(list.to);
                                   const data = await getToData(list.to);
-                                  setDelegateeData(data);
+                                  if (data) {
+                                    setDelegateeData(data);
+                                  }
                                 }}
                               >
                                 {i18next.t("rc-info.update")}

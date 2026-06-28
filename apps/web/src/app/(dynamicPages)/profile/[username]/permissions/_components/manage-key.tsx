@@ -25,13 +25,15 @@ export function ManageKey({ keyName, onRevoke }: Props) {
     ...getAccountFullQueryOptions(activeUser?.username ?? ""),
     enabled: !!activeUser?.username,
     select: (resp) =>
-      ({
-        posting: resp.posting.key_auths,
-        owner: resp.owner.key_auths,
-        active: resp.active.key_auths,
-        weight: resp.active.weight_threshold,
-        memo: [[resp.memo_key, 1]]
-      }) as Keys
+      resp
+        ? (({
+            posting: resp.posting.key_auths,
+            owner: resp.owner.key_auths,
+            active: resp.active.key_auths,
+            weight: resp.active.weight_threshold,
+            memo: [[resp.memo_key, 1]]
+          }) as Keys)
+        : null
   });
   const keys = useRevealedKeysStore((state) => state[activeUser?.username ?? ""] ?? {});
   const getDerivation = useKeyDerivationStore((state) => state.getDerivation);
