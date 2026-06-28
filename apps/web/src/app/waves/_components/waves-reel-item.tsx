@@ -42,14 +42,15 @@ export function WavesReelItem({ item, onReply }: Props) {
   return (
     <div
       ref={ref}
-      className="relative h-full w-full shrink-0 snap-start overflow-hidden rounded-2xl bg-black"
+      className="relative h-full w-full shrink-0 snap-start rounded-2xl bg-black"
     >
-      {/* Video / poster */}
-      <div className="absolute inset-0 flex items-center justify-center">
+      {/* Video / poster — only this layer clips, so the vote slider (rendered by
+          EntryVoteBtn in the rail below) isn't cut off by the reel bounds. */}
+      <div className="absolute inset-0 flex items-center justify-center overflow-hidden rounded-2xl">
         {active && video ? (
           <iframe
             title={`${item.author}/${item.permlink}`}
-            src={`https://play.3speak.tv/embed?v=${video.author}/${video.permlink}&autoplay=true`}
+            src={`https://play.3speak.tv/embed?v=${encodeURIComponent(video.author)}/${encodeURIComponent(video.permlink)}&autoplay=true`}
             allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowFullScreen
             className="h-full w-full border-0"
