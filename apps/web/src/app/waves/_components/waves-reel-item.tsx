@@ -12,6 +12,29 @@ interface Props {
   onReply: (item: ShortsFeedEntry) => void;
 }
 
+// The reel already plays the video, so the caption is just the human text:
+// drop markdown images, the 3Speak "watch" footer link, other markdown links
+// (kept as their label), HTML tags (the composer appends videos as `text<br>url`)
+// and bare URLs (e.g. the play.3speak.tv embed link the body carries).
+function sanitizeCaptionText(value: string): string {
+  return value
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
+    .replace(/\[[^\]]*\]\((?:https?:\/\/)?(?:play\.)?3speak[^)]*\)/gi, " ")
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/https?:\/\/\S+/gi, " ")
+    .replace(/▶️?/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// Clean title and body independently so a title that's only a URL/markdown
+// (collapses to empty) falls back to the body text instead of a blank caption.
+function buildReelCaption(item: ShortsFeedEntry): string {
+  const caption = sanitizeCaptionText(item.title ?? "") || sanitizeCaptionText(item.body ?? "");
+  return caption.slice(0, 140);
+}
+
 /**
  * One full-height reel: the 3Speak video plays only while the item is the one in
  * view (mounting every iframe at once would autoplay/load dozens of videos), with
@@ -37,7 +60,7 @@ export function WavesReelItem({ item, onReply }: Props) {
     return () => observer.disconnect();
   }, []);
 
-  const caption = item.title?.trim() || item.body?.trim().slice(0, 140) || "";
+  const caption = buildReelCaption(item);
 
   return (
     <div
@@ -50,7 +73,7 @@ export function WavesReelItem({ item, onReply }: Props) {
         {active && video ? (
           <iframe
             title={`${item.author}/${item.permlink}`}
-            src={`https://play.3speak.tv/embed?v=${encodeURIComponent(video.author)}/${encodeURIComponent(video.permlink)}&autoplay=true`}
+            src={`https://play.3speak.tv/watch?v=${encodeURIComponent(video.author)}/${encodeURIComponent(video.permlink)}&mode=iframe&autoplay=true`}
             allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowFullScreen
             className="h-full w-full border-0"
