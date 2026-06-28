@@ -31,7 +31,7 @@ export function linkify(content: string, forApp: boolean, renderOptions?: Render
       if (userLower.indexOf('/') === -1 && isValidUsername(user)) {
         if (!forApp) {
           const avatarSrc = `${getProxyBase()}/u/${userLower}/avatar/small`
-          const html = `${preceedings}<a class="er-author er-author-link" href="/@${userLower}"><img class="er-author-link-image" src="${avatarSrc}" alt="${userLower}"/><span class="er-author-link-content"><span class="er-author-link-label">Hive account</span><span>@${userLower}</span></span></a>`
+          const html = `${preceedings}<a class="er-author er-author-link" href="/@${userLower}"><img class="er-author-link-image" src="${avatarSrc}" alt="${userLower}"/>@${userLower}</a>`
           const placeholder = `\u200C${authorPlaceholders.length}\u200C`
           authorPlaceholders.push({ placeholder, html })
           return placeholder

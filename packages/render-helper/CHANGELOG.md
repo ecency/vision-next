@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.5.17
+
+### Patch Changes
+
+- Remove Hive account and Hive post chip labels from rendered content (#1043)
+
 ## 2.5.16
 
 ### Patch Changes
