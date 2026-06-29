@@ -29,12 +29,22 @@
     cursor: pointer;
   }
 
-  &__count {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    font-size: 12px;
+  // Vote count (heart + number) via EntryVotes: stack icon over count, white,
+  // centered. The voted state keeps its own accent (more specific selector).
+  .entry-votes {
+    .inner-btn {
+      flex-direction: column;
+      gap: 2px;
+      color: #fff;
+    }
+    .heart-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+    .entry-votes__count {
+      color: #fff;
+      font-size: 12px;
+    }
   }
 
   // Upvote chevron: drop the circular themed button background, just a white
