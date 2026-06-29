@@ -3,9 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import i18next from "i18next";
 import { ShortsFeedEntry } from "@ecency/sdk";
-import { EntryVoteBtn, EntryVotes, EntryTipBtn, UserAvatar, ProfileLink } from "@/features/shared";
+import { EntryTipBtn, UserAvatar, ProfileLink } from "@/features/shared";
 import { UilComment, UilPlay } from "@tooni/iconscout-unicons-react";
 import { ReelVideo } from "@/app/waves/_components/reel-video";
+import { ReelVoteButton } from "@/app/waves/_components/reel-vote-button";
 import "./waves-reel-item.scss";
 
 interface Props {
@@ -117,12 +118,8 @@ export function WavesReelItem({ item, onReply }: Props) {
           the scoped .waves-reel-rail styles normalize them into uniform, white,
           centered icon-over-count cells that stay legible over any video frame. */}
       <div className="waves-reel-rail absolute bottom-4 right-2 flex flex-col items-center gap-4 rounded-full bg-black/30 px-2 py-3 backdrop-blur-sm">
-        {/* Upvote (action) + live like count (heart). EntryVotes reads the
-            cached entry, so the count updates immediately after voting. */}
-        <div className="waves-reel-rail__item">
-          <EntryVoteBtn entry={item} isPostSlider={false} />
-          <EntryVotes entry={item} />
-        </div>
+        {/* Like: heart taps to upvote (default weight), with a live count. */}
+        <ReelVoteButton entry={item} />
         {/* Comment */}
         <button
           type="button"
