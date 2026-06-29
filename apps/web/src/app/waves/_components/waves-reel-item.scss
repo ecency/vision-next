@@ -1,0 +1,87 @@
+// Engagement rail for a reel. Reuses the feed's vote/tip controls but those are
+// styled for a horizontal, theme-colored feed footer — here we normalize them
+// into a uniform vertical column of white, centered "icon over count" cells that
+// stay legible over any video frame.
+.waves-reel-rail {
+  color: #fff;
+
+  // Dark halo so white icons/labels read over bright frames.
+  svg,
+  span,
+  .entry-votes__count,
+  .tip-count {
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.7));
+  }
+
+  // Every control is a centered icon-over-count cell of the same width, so the
+  // chevron / heart / comment / gift line up on one vertical axis.
+  &__item {
+    width: 44px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    color: #fff;
+    font-size: 12px;
+    line-height: 1.1;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+  }
+
+  // Vote count (heart + number) via EntryVotes: stack icon over count, white,
+  // centered. The voted state keeps its own accent (more specific selector).
+  .entry-votes {
+    .inner-btn {
+      flex-direction: column;
+      gap: 2px;
+      color: #fff;
+    }
+    .heart-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+    .entry-votes__count {
+      color: #fff;
+      font-size: 12px;
+    }
+  }
+
+  // Upvote chevron: drop the circular themed button background, just a white
+  // arrow centered in the cell.
+  .entry-vote-btn {
+    .btn-vote {
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      padding: 0;
+      width: auto;
+      height: auto;
+      min-width: 0;
+    }
+    svg {
+      width: 26px;
+      height: 26px;
+      color: #fff;
+    }
+  }
+
+  // Tip: stack the gift over its count (instead of side-by-side) and force white.
+  .entry-tip-btn {
+    margin: 0;
+    .inner-btn {
+      flex-direction: column;
+      gap: 2px;
+      color: #fff !important;
+      svg {
+        height: 26px;
+        width: 26px;
+        opacity: 1;
+      }
+    }
+    .tip-count {
+      padding-left: 0;
+      font-size: 12px;
+    }
+  }
+}
