@@ -112,6 +112,8 @@
     "clear": "Clear",
     "play": "Play",
     "pause": "Pause",
+    "mute": "Mute",
+    "unmute": "Unmute",
     "start": "Start",
     "updated": "Updated"
   },
