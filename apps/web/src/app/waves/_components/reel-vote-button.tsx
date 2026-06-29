@@ -34,12 +34,14 @@ export function ReelVoteButton({ entry: initialEntry }: { entry: Entry }) {
     [activeUser, entry.active_votes]
   );
 
-  // Mirror the feed's EntryVotes count so the rail matches the rest of the app.
+  // Mirror the feed's EntryVotes count (incl. the top-level total_votes fallback)
+  // so the rail matches the rest of the app and never drops a real count.
   const count = useMemo(
     () =>
       entry.stats?.total_votes ||
       entry.active_votes?.length ||
       entry.net_votes ||
+      entry.total_votes ||
       0,
     [entry]
   );
@@ -57,7 +59,9 @@ export function ReelVoteButton({ entry: initialEntry }: { entry: Entry }) {
         // the SDK reconciles the authoritative payout afterwards).
         const percent = getVoteValue(
           "up",
-          `${activeUser.username}-${entry.post_id}`,
+          // Fall back to permlink if post_id is missing, so reels without a
+          // post_id don't all share one saved weight under `${user}-undefined`.
+          `${activeUser.username}-${entry.post_id ?? entry.permlink}`,
           getVoteValue("upPrevious", activeUser.username, 100, false),
           false
         );
@@ -69,7 +73,7 @@ export function ReelVoteButton({ entry: initialEntry }: { entry: Entry }) {
   };
 
   return (
-    <LoginRequired>
+    <LoginRequired promptOnAnon>
       <button
         type="button"
         onClick={onVote}
