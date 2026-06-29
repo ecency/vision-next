@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import i18next from "i18next";
 import { ShortVideo } from "@ecency/sdk";
-import { UilVolume, UilVolumeMute } from "@tooni/iconscout-unicons-react";
+import { UilVolume, UilVolumeOff } from "@tooni/iconscout-unicons-react";
 
 type Fit = "cover" | "contain";
 
@@ -179,7 +179,7 @@ export function ReelVideo({ video, caption }: Props) {
         }
         className="absolute right-2 top-2 rounded-full bg-black/40 p-2 text-white backdrop-blur-sm"
       >
-        {muted ? <UilVolumeMute className="h-5 w-5" /> : <UilVolume className="h-5 w-5" />}
+        {muted ? <UilVolumeOff className="h-5 w-5" /> : <UilVolume className="h-5 w-5" />}
       </button>
     </>
   );
