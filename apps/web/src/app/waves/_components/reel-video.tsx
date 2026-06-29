@@ -161,6 +161,10 @@ export function ReelVideo({ video, caption }: Props) {
         loop
         preload="metadata"
         onLoadedMetadata={onLoadedMetadata}
+        // Native-playback failures (Safari/iOS, or the non-hls.js src= path) only
+        // surface as a <video> error event — fall back to the iframe like the
+        // hls.js fatal-error path does.
+        onError={() => setFailed(true)}
         aria-label={caption}
         className="h-full w-full bg-black"
         style={{ objectFit: fit }}
