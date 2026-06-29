@@ -4,8 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import i18next from "i18next";
 import { ShortsFeedEntry } from "@ecency/sdk";
 import { EntryVoteBtn, EntryTipBtn, UserAvatar, ProfileLink } from "@/features/shared";
-import { UilComment, UilPlay } from "@tooni/iconscout-unicons-react";
+import { UilComment, UilHeart, UilPlay } from "@tooni/iconscout-unicons-react";
 import { ReelVideo } from "@/app/waves/_components/reel-video";
+import "./waves-reel-item.scss";
 
 interface Props {
   item: ShortsFeedEntry;
@@ -112,22 +113,30 @@ export function WavesReelItem({ item, onReply }: Props) {
         {caption && <div className="mt-2 line-clamp-2 text-sm text-white/90">{caption}</div>}
       </div>
 
-      {/* Engagement rail (bottom-right). The vote/tip controls use theme-colored
-          icons that vanish on bright video frames, so the rail sits on a shaded,
-          blurred pill and every icon/label gets a dark drop-shadow halo — keeping
-          all three controls legible over any frame, not just dark ones. */}
-      <div className="absolute bottom-4 right-2 flex flex-col items-center gap-3 rounded-full bg-black/30 px-1.5 py-3 text-white backdrop-blur-sm [&_span]:drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)] [&_svg]:drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)]">
-        <EntryVoteBtn entry={item} isPostSlider={false} />
+      {/* Engagement rail (bottom-right). Reuses the feed vote/tip controls but
+          the scoped .waves-reel-rail styles normalize them into uniform, white,
+          centered icon-over-count cells that stay legible over any video frame. */}
+      <div className="waves-reel-rail absolute bottom-4 right-2 flex flex-col items-center gap-4 rounded-full bg-black/30 px-2 py-3 backdrop-blur-sm">
+        {/* Upvote (action) + like count */}
+        <div className="waves-reel-rail__item">
+          <EntryVoteBtn entry={item} isPostSlider={false} />
+          <span className="waves-reel-rail__count">
+            <UilHeart className="h-5 w-5" />
+            {item.net_votes ?? 0}
+          </span>
+        </div>
+        {/* Comment */}
         <button
           type="button"
           onClick={() => onReply(item)}
-          className="flex flex-col items-center text-xs"
+          className="waves-reel-rail__item"
           aria-label={i18next.t("g.comment", { defaultValue: "Comment" })}
         >
           <UilComment className="h-6 w-6" />
           <span>{item.children ?? 0}</span>
         </button>
-        <EntryTipBtn entry={item} />
+        {/* Tip + tip count */}
+        <EntryTipBtn entry={item} tipCount={item.tip_count} tippedByViewer={item.tipped_by_viewer} />
       </div>
     </div>
   );
