@@ -134,7 +134,13 @@ export function WavesReelItem({ item, onReply }: Props) {
           <span>{item.children ?? 0}</span>
         </button>
         {/* Tip + tip count */}
-        <EntryTipBtn entry={item} tipCount={item.tip_count} tippedByViewer={item.tipped_by_viewer} />
+        <div className="waves-reel-rail__item">
+          <EntryTipBtn
+            entry={item}
+            tipCount={item.tip_count}
+            tippedByViewer={item.tipped_by_viewer}
+          />
+        </div>
       </div>
     </div>
   );
