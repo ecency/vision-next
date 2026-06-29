@@ -177,29 +177,33 @@ export function beforeSend(event: SentryErrorEvent): SentryErrorEvent | null {
     return event;
   }
 
-  // Firefox iframe teardown that FOLLOWS a React #418 hydration mismatch — the
-  // iframe variant of the $RS self-heal handled just above. When hydration fails
-  // React tears the tree down; an iframe's contentWindow becomes null while some
-  // downstream code still reads .document off it. The user still gets a working
-  // page (React regenerated the subtree client-side), so this is self-healed
-  // noise, seen on ANY page that renders post content with embedded iframes
-  // (profile, feeds, hot/trending, etc.). Match on SpiderMonkey's engine-specific
-  // phrasing alone: V8 phrases the same null access as `Cannot read properties of
-  // null (reading 'document')` and Safari as `null is not an object (...)`, so the
-  // two-substring AND is already Firefox-only. We deliberately do NOT gate on
-  // browser=Firefox — event.contexts.browser is enriched server-side from the
-  // User-Agent, so it is absent in the client-side beforeSend and such a gate
-  // would never match (the prior version's gate made this branch a no-op).
+  // iframe contentWindow teardown that FOLLOWS a React #418 hydration mismatch —
+  // the iframe variant of the $RS self-heal handled just above. When hydration
+  // fails React tears the tree down; an iframe's contentWindow becomes null while
+  // some downstream code still reads .document off it. The user still gets a
+  // working page (React regenerated the subtree client-side), so this is
+  // self-healed noise, seen on ANY page that renders post content with embedded
+  // iframes (profile, feeds, hot/trending, etc.).
+  // Each JS engine has its own phrasing for the same null-property access:
+  //   Firefox/SpiderMonkey: `can't access property "document", a.contentWindow is null`
+  //   Safari/WebKit:        `null is not an object (evaluating 'a.contentWindow.document')`
+  //                         (the variable is minified to a single letter)
+  // V8/Chrome says "Cannot read properties of null (reading 'document')" — that
+  // grammar is intentionally NOT matched here (handled by the Chrome-botnet block
+  // below and by the narrowed isMinifiedNull rule above).
+  // We deliberately do NOT gate on browser=Firefox/Safari — event.contexts.browser
+  // is enriched server-side from the User-Agent, so it is absent in the
+  // client-side beforeSend and such a gate would never match.
   // RECLASSIFY (not drop) to one fingerprinted warning, exactly like $RS: the
   // per-page error spam collapses into a single low-severity issue while a genuine
-  // Firefox hydration regression still surfaces as a spike on this fingerprint.
-  // TODO(hydration): investigate Firefox-only hydration drift — likely a
-  // locale/Date/Intl mismatch or a value that differs between SSR and the first
-  // client render.
-  if (
-    message.includes("can't access property \"document\"") &&
-    message.includes("contentWindow is null")
-  ) {
+  // hydration regression still surfaces as a spike on this fingerprint.
+  // TODO(hydration): investigate hydration drift — likely a locale/Date/Intl
+  // mismatch or a value that differs between SSR and the first client render.
+  const isIframeContentWindowNull =
+    (message.includes("can't access property \"document\"") &&
+      message.includes("contentWindow is null")) ||
+    /null is not an object \(evaluating '[a-z]\.contentWindow\.document'\)/.test(message);
+  if (isIframeContentWindowNull) {
     event.level = "warning";
     event.tags = { ...event.tags, hydration_autorecovered: "true" };
     event.fingerprint = ["hydration-iframe-autorecovered"];

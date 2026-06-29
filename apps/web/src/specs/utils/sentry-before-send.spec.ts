@@ -333,4 +333,30 @@ describe("beforeSend — Firefox iframe contentWindow-null teardown is reclassif
     expect(beforeSend(ev)).toBe(ev);
     expect(ev.fingerprint).toBeUndefined();
   });
+
+  it("reclassifies the Safari/WebKit phrasing (ECENCY-NEXT-1G9Z)", () => {
+    // Safari says: null is not an object (evaluating 'a.contentWindow.document')
+    // where the variable is minified to a single letter.
+    const out = beforeSend(
+      makeClientEvent(
+        "null is not an object (evaluating 'a.contentWindow.document')",
+        "https://ecency.com/@sochimasazzy/the-rich-kids-high-school-chapter-2-short-fiction-story"
+      )
+    );
+    expect(out).not.toBeNull();
+    expect(out!.level).toBe("warning");
+    expect(out!.tags?.hydration_autorecovered).toBe("true");
+    expect(out!.fingerprint).toEqual(["hydration-iframe-autorecovered"]);
+  });
+
+  it("does NOT match Safari phrasing for a DIFFERENT contentWindow property", () => {
+    // Guards the contentWindow.document-only intent: accessing a different property
+    // (e.g. contentWindow.location) on a null iframe must NOT be swept up.
+    const ev = makeClientEvent(
+      "null is not an object (evaluating 'a.contentWindow.location')",
+      "https://ecency.com/hot/1am"
+    );
+    expect(beforeSend(ev)).toBe(ev);
+    expect(ev.fingerprint).toBeUndefined();
+  });
 });
