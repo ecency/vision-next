@@ -1031,6 +1031,10 @@
   "similar-entries": {
     "title": "Read next"
   },
+  "related-posts": {
+    "more-from-author": "More from @{{username}}",
+    "more-in": "More in {{section}}"
+  },
   "comment": {
     "body-placeholder": "Write your reply here",
     "write": "Write",
