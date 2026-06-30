@@ -8,6 +8,7 @@ import { Account, Community, Entry, FullAccount } from "@/entities";
 import { makeEntryPath } from "@/utils";
 import { pinSvg, repeatSvg } from "@ui/svg";
 import {
+  EcencySourceBadge,
   EntryMenu,
   EntryPayout,
   EntryReblogBtn,
@@ -108,6 +109,10 @@ export function EntryListItemComponent({
           </TagLink>
           <span className="read-mark ml-2" />
           <TimeLabel created={entry.created} />
+          <EcencySourceBadge
+            app={entry.json_metadata?.app}
+            className="inline-block align-text-bottom ml-1.5"
+          />
 
           <EntryListItemPollIcon entry={entryProp} />
         </div>

@@ -3,7 +3,13 @@ import { catchPostImage, postBodySummary, setProxyBase } from "@ecency/render-he
 import "./_index.scss";
 import defaults from "@/defaults";
 import { SearchResult } from "@/entities";
-import { EntryLink, FormattedCurrency, ProfileLink, UserAvatar } from "@/features/shared";
+import {
+  EcencySourceBadge,
+  EntryLink,
+  FormattedCurrency,
+  ProfileLink,
+  UserAvatar
+} from "@/features/shared";
 import { TagLink } from "../tag";
 import { commentSvg, peopleSvg } from "@ui/svg";
 import { accountReputation, dateToFormatted, dateToRelative, transformMarkedContent } from "@/utils";
@@ -59,6 +65,7 @@ export function SearchListItem({ res }: Props) {
           <span className="date ml-2" title={dateFormatted}>
             {dateRelative}
           </span>
+          <EcencySourceBadge app={res.app} className="inline-block align-text-bottom ml-1.5" />
         </div>
       </div>
       <div className="item-body">

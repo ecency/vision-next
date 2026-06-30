@@ -5,6 +5,7 @@ import { commentSvg, voteSvg } from "../../icons";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { dateToRelative, transformMarkedContent, makeEntryPath } from "@/utils";
 import {
+  EcencySourceBadge,
   EntryLink,
   EntryMenu,
   EntryPayout,
@@ -228,6 +229,7 @@ export const SearchListItem = ({
                 <span className="deck-pinned">{pinSvg}</span>
               </Tooltip>
             )}
+            <EcencySourceBadge app={json_metadata?.app} className="mr-2" />
             <div className="date mb-3">
               <EntryLink target="_blank" entry={entry}>
                 <small>{`${dateToRelative(created)}`}</small>

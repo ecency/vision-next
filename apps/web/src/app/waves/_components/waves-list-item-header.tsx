@@ -1,4 +1,4 @@
-import { UserAvatar } from "@/features/shared";
+import { EcencySourceBadge, UserAvatar } from "@/features/shared";
 import Link from "next/link";
 import i18next from "i18next";
 import { Spinner } from "@ui/spinner";
@@ -10,8 +10,6 @@ import { UilArrowRight, UilMultiply } from "@tooni/iconscout-unicons-react";
 import { TimeLabel } from "@/features/shared";
 import clsx from "clsx";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
-import { appName } from "@/utils";
-import Image from "next/image";
 
 interface Props {
   entry: WaveEntry;
@@ -37,10 +35,6 @@ export function WavesListItemHeader({
   onClose
 }: Props) {
   const { activeUser } = useActiveAccount();
-
-  // Show a small Ecency logo when the wave was published from an Ecency client
-  // (web "ecency/x.y-vision" or "ecency-mobile"), mirroring the post "via" badge.
-  const isEcency = appName(entry.json_metadata?.app).toLowerCase().includes("ecency");
 
   return (
     <div
@@ -81,16 +75,7 @@ export function WavesListItemHeader({
       </div>
 
       <div className="flex items-center gap-2 shrink-0">
-        {isEcency && (
-          <Image
-            className="ecency-source-badge"
-            src="/assets/logo-circle.svg"
-            alt={i18next.t("waves.source-ecency")}
-            title={i18next.t("waves.source-ecency")}
-            width={16}
-            height={16}
-          />
-        )}
+        <EcencySourceBadge app={entry.json_metadata?.app} size={16} />
         {onClose ? (
           <Button
             noPadding={true}

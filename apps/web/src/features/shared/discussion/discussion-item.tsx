@@ -6,6 +6,7 @@ import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { Community, Entry } from "@/entities";
 import { SortOrder } from "@/enums";
 import {
+  EcencySourceBadge,
   EntryDeleteBtn,
   EntryPayout,
   EntryTipBtn,
@@ -290,6 +291,7 @@ export const DiscussionItem = memo(function DiscussionItem({
                   </span>
                 </StyledTooltip>
               )}
+              <EcencySourceBadge app={entry.json_metadata?.app} className="ml-3" />
             </div>
           </div>
 

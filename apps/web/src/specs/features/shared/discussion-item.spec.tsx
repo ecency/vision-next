@@ -49,6 +49,7 @@ vi.mock("@ecency/sdk", async () => ({
 vi.mock("@/features/shared", async () => {
   const Real = await import("react");
   return {
+    EcencySourceBadge: () => null,
     EntryDeleteBtn: ({ children }: any) => Real.createElement("span", null, children),
     EntryPayout: () => Real.createElement("span", { "data-testid": "entry-payout" }),
     EntryTipBtn: () => Real.createElement("span", { "data-testid": "entry-tip-btn" }),

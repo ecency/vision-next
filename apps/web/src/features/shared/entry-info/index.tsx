@@ -1,7 +1,14 @@
 import "./_index.scss";
 import { accountReputation, parseDate } from "@/utils";
 import { Entry } from "@/entities";
-import {BookmarkBtn, EntryMenu, ProfileLink, TimeLabel, UserAvatar} from "@/features/shared";
+import {
+  BookmarkBtn,
+  EcencySourceBadge,
+  EntryMenu,
+  ProfileLink,
+  TimeLabel,
+  UserAvatar
+} from "@/features/shared";
 import i18next from "i18next";
 import { TagLink } from "@/features/shared/tag";
 import { EcencyConfigManager } from "@/config";
@@ -44,6 +51,10 @@ export const EntryInfo = ({ entry }: Props) => {
               </div>
             </TagLink>
           </div>
+          <EcencySourceBadge
+            app={entry.json_metadata?.app}
+            className="inline-block align-text-bottom ml-1.5"
+          />
         </div>
       </div>
       <span className="flex-spacer" />
