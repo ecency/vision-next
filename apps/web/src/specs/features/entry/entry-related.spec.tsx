@@ -7,6 +7,7 @@ import {
 } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-related-source";
 import { EntryPageBreadcrumb } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-breadcrumb";
 import { EntryRelatedList } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-related-list";
+import { buildEntryBreadcrumbs } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-breadcrumbs";
 import { mockEntry } from "@/specs/test-utils";
 
 // Render next/link and next/image as plain DOM so we can assert on hrefs.
@@ -103,6 +104,44 @@ describe("isLinkableRelated", () => {
 
   it("rejects mod-muted (gray) posts", () => {
     expect(isLinkableRelated({ ...base, stats: { gray: true } as any })).toBe(false);
+  });
+});
+
+describe("buildEntryBreadcrumbs", () => {
+  const opts = { siteName: "Ecency", base: "https://ecency.com", entryUrl: "https://ecency.com/@alice/p" };
+
+  it("builds Home > #tag > title for a normal tag post", () => {
+    const crumbs = buildEntryBreadcrumbs(
+      { parent_author: undefined, category: "photography", community_title: undefined, title: "Pic", author: "alice", permlink: "p" },
+      opts
+    );
+    expect(crumbs.map((c) => c.name)).toEqual(["Ecency", "#photography", "Pic"]);
+    expect(crumbs[1].path).toBe("/trending/photography");
+  });
+
+  it("uses the community title as the section for a community post", () => {
+    const crumbs = buildEntryBreadcrumbs(
+      { parent_author: undefined, category: "hive-125125", community_title: "Ecency", title: "Pic", author: "alice", permlink: "p" },
+      opts
+    );
+    expect(crumbs.map((c) => c.name)).toEqual(["Ecency", "Ecency", "Pic"]);
+  });
+
+  it("omits the section crumb (no raw hive id) when a community post has no title", () => {
+    const crumbs = buildEntryBreadcrumbs(
+      { parent_author: undefined, category: "hive-125125", community_title: undefined, title: "Pic", author: "alice", permlink: "p" },
+      opts
+    );
+    expect(crumbs.map((c) => c.name)).toEqual(["Ecency", "Pic"]);
+    expect(crumbs.some((c) => c.name.includes("hive-"))).toBe(false);
+  });
+
+  it("returns no trail for a comment", () => {
+    const crumbs = buildEntryBreadcrumbs(
+      { parent_author: "bob", category: "photography", community_title: undefined, title: "re", author: "alice", permlink: "p" },
+      opts
+    );
+    expect(crumbs).toEqual([]);
   });
 });
 

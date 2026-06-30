@@ -30,6 +30,9 @@ export function SimilarEntryItem({ entry, i }: Props) {
             alt={entry.title}
             width={1000}
             height={1000}
+            // 1 col on mobile (100vw), 3 cols at >=sm (~33vw) — so the optimizer
+            // serves a card-sized rendition instead of a full-width one.
+            sizes="(max-width: 640px) 100vw, 33vw"
             className="object-cover w-full h-[8rem]"
           />
         )}
