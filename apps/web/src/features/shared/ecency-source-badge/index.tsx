@@ -22,7 +22,10 @@ interface Props {
  * Renders nothing for content from any other client.
  */
 export function EcencySourceBadge({ app, size = 14, className }: Props) {
-  const isEcency = appName(app).toLowerCase().includes("ecency");
+  // Every Ecency client identifier starts with "ecency" (ecency/x.y-vision,
+  // ecency-mobile, ecency.waves), so anchor the match to the start rather than a
+  // loose substring that would also catch lookalikes like "notecency/...".
+  const isEcency = appName(app).toLowerCase().startsWith("ecency");
 
   if (!isEcency) {
     return null;

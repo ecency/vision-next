@@ -40,6 +40,9 @@ export interface SearchItemProps {
   url: string;
   index: number;
   json_metadata: any;
+  // Search-API rows expose the client as a flat `app` string (json_metadata is
+  // optional there); full entries carry it under json_metadata.app instead.
+  app?: string;
   entry: any;
   onMounted: () => void;
   onEntryView: () => void;
@@ -51,6 +54,7 @@ export const SearchListItem = ({
   community,
   community_title,
   json_metadata,
+  app,
   created,
   index,
   url,
@@ -229,7 +233,7 @@ export const SearchListItem = ({
                 <span className="deck-pinned">{pinSvg}</span>
               </Tooltip>
             )}
-            <EcencySourceBadge app={json_metadata?.app} className="mr-2" />
+            <EcencySourceBadge app={json_metadata?.app ?? app} className="mr-2" />
             <div className="date mb-3">
               <EntryLink target="_blank" entry={entry}>
                 <small>{`${dateToRelative(created)}`}</small>

@@ -37,6 +37,11 @@ describe("EcencySourceBadge", () => {
     expect(container.querySelector(BADGE)).toBeNull();
   });
 
+  it("does not render for lookalike clients that merely contain 'ecency'", () => {
+    const { container } = render(<EcencySourceBadge app="notecency/1.0" />);
+    expect(container.querySelector(BADGE)).toBeNull();
+  });
+
   it("does not render when app metadata is missing", () => {
     const { container } = render(<EcencySourceBadge app={undefined} />);
     expect(container.querySelector(BADGE)).toBeNull();
