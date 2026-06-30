@@ -1,9 +1,8 @@
-import {ProfileLink, TimeLabel} from "@/features/shared";
+import { EcencySourceBadge, ProfileLink, TimeLabel } from "@/features/shared";
 import i18next from "i18next";
 import { Tsx } from "@/features/i18n/helper";
 import { Entry } from "@/entities";
 import { accountReputation, appName, parseDate } from "@/utils";
-import Image from "next/image";
 import React from "react";
 
 interface Props {
@@ -35,15 +34,10 @@ export function EntryFooterInfo({ entry }: Props) {
             <Tsx k="entry.via-app" args={{ app: appShort }}>
               <a href="/faq#source-label" />
             </Tsx>
-            {isEcency && (
-              <Image
-                className="ecency-source-badge inline-block align-text-bottom ml-1"
-                src="/assets/logo-circle.svg"
-                alt=""
-                width={14}
-                height={14}
-              />
-            )}
+            <EcencySourceBadge
+              app={entry.json_metadata?.app}
+              className="inline-block align-text-bottom ml-1"
+            />
           </div>
         </>
       )}

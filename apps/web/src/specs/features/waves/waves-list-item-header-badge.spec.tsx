@@ -12,10 +12,13 @@ vi.mock("@/utils", async () => ({
 }));
 
 // UserAvatar / TimeLabel come from the heavy @/features/shared barrel; stub the
-// two pieces this header uses so the render stays light and deterministic.
-vi.mock("@/features/shared", () => ({
+// two pieces this header uses so the render stays light and deterministic. The
+// Ecency badge is the real component (imported from its own light module) so
+// these assertions keep exercising the shared detection logic.
+vi.mock("@/features/shared", async () => ({
   UserAvatar: () => <div data-testid="avatar" />,
-  TimeLabel: () => <span data-testid="time" />
+  TimeLabel: () => <span data-testid="time" />,
+  ...(await vi.importActual("@/features/shared/ecency-source-badge"))
 }));
 
 import { WavesListItemHeader } from "@/app/waves/_components/waves-list-item-header";

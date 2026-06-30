@@ -62,6 +62,7 @@ vi.mock("@/features/shared", async () => {
   return {
     EntryLink,
     ProfileLink,
+    EcencySourceBadge: () => null,
     UserAvatar: ({ username }: any) =>
       Real.createElement("span", { "data-testid": "user-avatar" }, username),
     ProfilePopover: () => Real.createElement("span", { "data-testid": "profile-popover" }),

@@ -1,7 +1,7 @@
 import React from "react";
 import { ThreadItemEntry } from "../deck-threads-manager";
 import { Spinner } from "@ui/spinner";
-import { UserAvatar } from "@/features/shared";
+import { EcencySourceBadge, UserAvatar } from "@/features/shared";
 import Link from "next/link";
 import i18next from "i18next";
 import { dateToRelative, makeEntryPath } from "@/utils";
@@ -37,6 +37,8 @@ export const DeckThreadItemHeader = ({ entry, hasParent, pure, status }: Props) 
           #{entry.host}
         </Link>
       </div>
+
+      <EcencySourceBadge app={entry.json_metadata?.app} className="ml-1" />
 
       <div className="date">
         {status === "default" && (
