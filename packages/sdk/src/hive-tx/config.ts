@@ -107,21 +107,10 @@ export const config = {
  * bundle this mutates the one `config` instance `callRPC` reads; the
  * cross-bundle single-instance guarantee is a separate (build-level) concern.
  */
-export const setNodes = (nodes: string[]): void => {
-  const validNodes = [
-    ...new Set(
-      nodes
-        .map((n) => n.trim())
-        .filter((n) => n.length > 0 && /^https?:\/\/.+/.test(n))
-    )
-  ]
-  if (!validNodes.length) return
-  config.nodes = validNodes
-}
-
 /**
- * Trim, drop non-http(s), and de-dupe (order-preserving) a node list.
- * Shared by the REST-node setters below and `setNodes` shape.
+ * Trim, drop non-string / non-http(s), and de-dupe (order-preserving) a node
+ * list. Shared by `setNodes` and the REST-node setters below so all three
+ * normalize identically.
  */
 const sanitizeNodeList = (nodes: unknown): string[] =>
   Array.isArray(nodes)
@@ -134,6 +123,12 @@ const sanitizeNodeList = (nodes: unknown): string[] =>
         )
       ]
     : []
+
+export const setNodes = (nodes: string[]): void => {
+  const validNodes = sanitizeNodeList(nodes)
+  if (!validNodes.length) return
+  config.nodes = validNodes
+}
 
 /**
  * Validated setter for the REST-API node list — replaces `config.restNodes`.
