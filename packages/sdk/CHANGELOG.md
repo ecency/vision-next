@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.29
+
+### Patch Changes
+
+- feat(sdk): REST-node runtime config, escalating 429 backoff, and getAccountFull round-trip reduction (#1056)
+
 ## 2.3.28
 
 ### Patch Changes
