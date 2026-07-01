@@ -3,29 +3,26 @@ import { EntryListContent } from "@/features/shared";
 import { EntryArchivePager } from "@/features/shared/entry-archive-pager";
 import { ProfileEntriesLayout } from "@/app/(dynamicPages)/profile/[username]/_components/profile-entries-layout";
 import { stripActiveVotesFromValue } from "@/core/react-query/strip-active-votes";
-import { ARCHIVE_MAX_PAGE } from "@/app/(dynamicPages)/profile/[username]/_helpers/author-archive";
 
 interface Props {
   section: string;
   account: FullAccount;
   entries: Entry[];
-  page: number;
-  hasNext: boolean;
+  /** Cursor token ("author/permlink") for the next older page, or null. */
+  olderCursor: string | null;
   currentUser?: string;
 }
 
 /**
- * A numbered archive page for an author's section feed: a fully server-rendered
- * list (no infinite scroll) plus a crawlable prev/next pager. Used for
- * /@author/<section>/page/N so a crawler can walk the author's history beyond
- * the sitemap's recent window.
+ * A cursor archive page for an author's section feed: a fully server-rendered
+ * list (no infinite scroll) plus a crawlable "Older"/"Latest" pager, so a
+ * crawler can walk the author's history beyond the sitemap's recent window.
  */
 export function ProfileEntriesArchive({
   section,
   account,
   entries,
-  page,
-  hasNext,
+  olderCursor,
   currentUser
 }: Props) {
   const stripped = stripActiveVotesFromValue(entries, currentUser);
@@ -42,9 +39,8 @@ export function ProfileEntriesArchive({
       />
       <EntryArchivePager
         basePath={`/@${account.name}/${section}`}
-        page={page}
-        hasNext={hasNext}
-        maxPage={ARCHIVE_MAX_PAGE}
+        olderCursor={olderCursor}
+        showLatest={true}
       />
     </ProfileEntriesLayout>
   );

@@ -1,8 +1,9 @@
 import { ProfileEntriesList, ProfileSearchContent } from "../_components";
 import { ProfileEntriesArchive } from "@/app/(dynamicPages)/profile/[username]/_components/profile-entries-archive";
 import {
-  fetchAuthorArchivePage,
-  ARCHIVE_MAX_PAGE
+  fetchAuthorCursorPage,
+  archiveCursor,
+  cursorToken
 } from "@/app/(dynamicPages)/profile/[username]/_helpers/author-archive";
 import { prefetchGetPostsFeedQuery } from "@/api/queries";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
@@ -26,39 +27,36 @@ interface Props {
 
 export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
   const { username, section } = await props.params;
-  const { page } = await props.searchParams;
-  return generateProfileMetadata(username.replace(/%40/g, ""), section, Number(page) || 1);
+  const { query, before } = await props.searchParams;
+  const cursor = archiveCursor(section, { query, before });
+  return generateProfileMetadata(
+    username.replace(/%40/g, ""),
+    section,
+    cursor ? cursorToken(cursor) : undefined
+  );
 }
 
 export default async function Page({ params, searchParams }: Props) {
   const { username: usernameParam, section } = await params;
-  const { query: searchParam, page: pageParam } = await searchParams;
+  const { query: searchParam, before: beforeParam } = await searchParams;
   const loggedInUser = (await cookies()).get(ACTIVE_USER_COOKIE_NAME)?.value;
 
   const username = usernameParam.replace(/%40/g, "");
 
-  // Numbered archive page (/@author/<section>/page/N, rewritten to ?page=N).
-  // Only for content sections and only page 2+ (page 1 is the default view).
-  const pageNum = Number(pageParam);
-  const isArchive = !searchParam && Number.isInteger(pageNum) && pageNum >= 2;
-  if (isArchive) {
-    if (!["posts", "comments", "replies", "blog"].includes(section)) {
-      return notFound();
-    }
+  // Cursor archive page (/@author/<section>?before=<author>/<permlink>): O(1),
+  // one fetch of the 20 posts older than the cursor. Page 1 is the clean,
+  // query-less default view; archiveCursor() returns null there.
+  const cursor = archiveCursor(section, { query: searchParam, before: beforeParam });
+  if (cursor) {
     const basePath = `/@${username}/${section}`;
-    // Past the crawlable depth cap — send to the first page rather than 404.
-    if (pageNum > ARCHIVE_MAX_PAGE) {
-      return redirect(basePath);
-    }
     const [account, archive] = await Promise.all([
       prefetchQuery(getAccountFullQueryOptions(username)),
-      fetchAuthorArchivePage(username, section, pageNum)
+      fetchAuthorCursorPage(username, section, cursor)
     ]);
     if (!account) {
       return notFound();
     }
-    // Page beyond the author's content (incl. an exact-multiple-of-20 author
-    // whose page-1 "Older" link points here): redirect to page 1, never a 404.
+    // Stale/invalid cursor (nothing older than it): send to the clean first page.
     if (archive.entries.length === 0) {
       return redirect(basePath);
     }
@@ -70,8 +68,7 @@ export default async function Page({ params, searchParams }: Props) {
           section={section}
           account={account}
           entries={archive.entries}
-          page={pageNum}
-          hasNext={archive.hasNext}
+          olderCursor={archive.nextCursor ? cursorToken(archive.nextCursor) : null}
           currentUser={loggedInUser}
         />
       </HydrationBoundary>

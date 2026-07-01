@@ -9,13 +9,10 @@ import { ProfileEntriesLayout } from "@/app/(dynamicPages)/profile/[username]/_c
 import { ProfileEntriesInfiniteList } from "@/app/(dynamicPages)/profile/[username]/_components/profile-entries-infinite-list";
 import { EntryArchivePager } from "@/features/shared/entry-archive-pager";
 import {
-  ARCHIVE_PER_PAGE,
-  ARCHIVE_MAX_PAGE
+  ARCHIVE_PAGE_SIZE,
+  ARCHIVE_SECTIONS
 } from "@/app/(dynamicPages)/profile/[username]/_helpers/author-archive";
 import type { InfiniteData } from "@tanstack/react-query";
-
-// Content sections that expose a crawlable numbered archive.
-const ARCHIVE_SECTIONS = ["posts", "blog", "comments", "replies"];
 
 interface Props {
   section: string;
@@ -47,6 +44,8 @@ export async function ProfileEntriesList({ section, account, initialFeed, curren
       (item: Entry) => item.permlink !== account.profile?.pinned
     ) ?? [];
   const entryList = [...initialPageEntries];
+  // Cursor for the "Older" archive link = the last post of feed page 1.
+  const lastOfFirstPage = initialPageEntries[initialPageEntries.length - 1];
 
   if (pinnedEntry) {
     entryList.unshift(pinnedEntry);
@@ -81,16 +80,18 @@ export async function ProfileEntriesList({ section, account, initialFeed, curren
           initialPageEntriesCount={initialPageEntriesCount}
           initialDataLoaded={initialDataLoaded}
         />
-        {/* Crawlable entry into the numbered archive: infinite scroll is the JS
-            enhancement, this pager is the no-JS/crawler path to older posts. */}
-        {ARCHIVE_SECTIONS.includes(section) && initialPageEntriesCount >= ARCHIVE_PER_PAGE && (
-          <EntryArchivePager
-            basePath={`/@${account.name}/${section}`}
-            page={1}
-            hasNext={true}
-            maxPage={ARCHIVE_MAX_PAGE}
-          />
-        )}
+        {/* Crawlable entry into the cursor archive: infinite scroll is the JS
+            enhancement, this "Older" link is the no-JS/crawler path. The cursor
+            is the last post of page 1; shown only when page 1 was full. */}
+        {ARCHIVE_SECTIONS.includes(section) &&
+          initialPageEntriesCount >= ARCHIVE_PAGE_SIZE &&
+          lastOfFirstPage && (
+            <EntryArchivePager
+              basePath={`/@${account.name}/${section}`}
+              olderCursor={`${lastOfFirstPage.author}/${lastOfFirstPage.permlink}`}
+              showLatest={false}
+            />
+          )}
       </ProfileEntriesLayout>
     </>
   );

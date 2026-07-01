@@ -566,14 +566,6 @@ const config = {
         destination: "/profile/:author/wallet/:token"
       },
       {
-        // Numbered archive pages for author content sections:
-        // /@author/<section>/page/N -> /profile/@author/<section>?page=N.
-        // Author is a single segment (no slashes); placed before the generic
-        // section rewrite so the /page/N suffix is matched first.
-        source: "/:author(@[^/]+)/:section(posts|blog|comments|replies)/page/:page(\\d+)",
-        destination: "/profile/:author/:section?page=:page"
-      },
-      {
         source:
           "/:author(@.+)/:section(posts|blog|comments|replies|communities|trail|followers|following|wallet|settings|insights|referrals|permissions|rss|rss.xml)",
         destination: "/profile/:author/:section"

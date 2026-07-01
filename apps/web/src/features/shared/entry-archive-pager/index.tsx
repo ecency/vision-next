@@ -3,86 +3,77 @@ import { initI18next } from "@/features/i18n";
 import i18next from "i18next";
 
 interface Props {
-  /** Base archive URL without a trailing slash, e.g. "/@enjar/posts". */
+  /** Base archive URL without a query, e.g. "/@enjar/posts". */
   basePath: string;
-  /** Current page (1 = the default, unnumbered view). */
-  page: number;
-  /** Whether a further page exists. */
-  hasNext: boolean;
-  /** Crawlable depth cap. */
-  maxPage: number;
+  /** Cursor token ("author/permlink") for the next (older) page, or null. */
+  olderCursor: string | null;
+  /** Show a "back to latest" link (true on cursor pages, false on page 1). */
+  showLatest: boolean;
 }
 
 export interface PagerState {
-  showPrev: boolean;
-  showNext: boolean;
-  prevHref: string;
-  nextHref: string;
+  showLatest: boolean;
+  latestHref: string;
+  showOlder: boolean;
+  olderHref: string;
 }
 
 /**
- * Pure pager resolution (which links to show + their hrefs), so the routing
- * logic is unit-testable without rendering the async server component. Page 1 is
- * the base URL (no `/page/1`); page N>1 is `${base}/page/${n}`. Returns null when
- * there is neither a previous nor a next page.
+ * Pure pager resolution, so the routing logic is unit-testable without rendering
+ * the async server component. Page 1 is the clean base URL; older pages are
+ * `${base}?before=<cursor>`. Returns null when there's nothing to link.
  */
 export function resolvePager(
   basePath: string,
-  page: number,
-  hasNext: boolean,
-  maxPage: number
+  olderCursor: string | null,
+  showLatest: boolean
 ): PagerState | null {
-  const showPrev = page > 1;
-  const showNext = hasNext && page < maxPage;
-  if (!showPrev && !showNext) {
+  const showOlder = !!olderCursor;
+  if (!showLatest && !showOlder) {
     return null;
   }
-  const href = (n: number) => (n <= 1 ? basePath : `${basePath}/page/${n}`);
-  return { showPrev, showNext, prevHref: href(page - 1), nextHref: href(page + 1) };
+  return {
+    showLatest,
+    latestHref: basePath,
+    showOlder,
+    olderHref: olderCursor ? `${basePath}?before=${olderCursor}` : basePath
+  };
 }
 
 /**
- * Crawlable prev/next pager for numbered archive pages. Server-rendered `<a>`
- * links give crawlers a durable path through an author/community/tag's full
- * history (page 1 is the base URL, page N>1 is `${base}/page/${n}`). Also emits
- * `<link rel="prev|next">` (hoisted to <head>) for crawlers that still use them.
- * Renders nothing when there is neither a previous nor a next page.
+ * Crawlable cursor pager for archive pages. Server-rendered `<a>` links give
+ * crawlers a durable, O(1)-per-page path through an author/community/tag's full
+ * history (the "Older" link carries the next cursor). Section-agnostic copy.
  */
-export async function EntryArchivePager({ basePath, page, hasNext, maxPage }: Props) {
-  const state = resolvePager(basePath, page, hasNext, maxPage);
+export async function EntryArchivePager({ basePath, olderCursor, showLatest }: Props) {
+  const state = resolvePager(basePath, olderCursor, showLatest);
   if (!state) {
     return null;
   }
-  const { showPrev, showNext, prevHref, nextHref } = state;
 
   await initI18next();
   const linkClass =
     "text-sm px-3 py-1.5 rounded-lg border border-[--border-color] hover:bg-blue-dark-sky-040 dark:hover:bg-gray-900";
 
   return (
-    <>
-      {showPrev && <link rel="prev" href={prevHref} />}
-      {showNext && <link rel="next" href={nextHref} />}
-      <nav
-        aria-label={i18next.t("archive-pager.label")}
-        className="entry-archive-pager flex items-center justify-between gap-3 my-6"
-      >
-        {showPrev ? (
-          <Link href={prevHref} rel="prev" className={linkClass}>
-            {i18next.t("archive-pager.newer")}
-          </Link>
-        ) : (
-          <span />
-        )}
-        <span className="text-sm opacity-70">{i18next.t("archive-pager.page", { n: page })}</span>
-        {showNext ? (
-          <Link href={nextHref} rel="next" className={linkClass}>
-            {i18next.t("archive-pager.older")}
-          </Link>
-        ) : (
-          <span />
-        )}
-      </nav>
-    </>
+    <nav
+      aria-label={i18next.t("archive-pager.label")}
+      className="entry-archive-pager flex items-center justify-between gap-3 my-6"
+    >
+      {state.showLatest ? (
+        <Link href={state.latestHref} className={linkClass}>
+          {i18next.t("archive-pager.latest")}
+        </Link>
+      ) : (
+        <span />
+      )}
+      {state.showOlder ? (
+        <Link href={state.olderHref} rel="next" className={linkClass}>
+          {i18next.t("archive-pager.older")}
+        </Link>
+      ) : (
+        <span />
+      )}
+    </nav>
   );
 }

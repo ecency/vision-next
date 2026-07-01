@@ -1037,9 +1037,8 @@
   },
   "archive-pager": {
     "label": "Pagination",
-    "newer": "← Newer posts",
-    "older": "Older posts →",
-    "page": "Page {{n}}"
+    "latest": "← Latest",
+    "older": "Older →"
   },
   "comment": {
     "body-placeholder": "Write your reply here",

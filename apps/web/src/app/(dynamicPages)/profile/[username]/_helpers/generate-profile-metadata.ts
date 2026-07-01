@@ -10,7 +10,8 @@ const NOINDEX_REPUTATION_THRESHOLD = 40;
 export async function generateProfileMetadata(
   username: string,
   section = "posts",
-  page = 1
+  /** Cursor token ("author/permlink") when rendering an older archive page. */
+  cursor?: string
 ): Promise<Metadata> {
   const account = await prefetchQuery(getAccountFullQueryOptions(username));
   if (account) {
@@ -18,15 +19,15 @@ export async function generateProfileMetadata(
     const cleanUsername = username.replace("@", "");
     const metaTitle = `${account.profile?.name || account.name}'s ${
       section ? (section === "engine" ? "tokens" : `${section}`) : ""
-    } on decentralized web${page > 1 ? ` - page ${page}` : ""}`;
+    } on decentralized web${cursor ? " - older posts" : ""}`;
     const metaDescription = `${
       account.profile?.about
         ? `${account.profile?.about} ${section ? `${section}` : ""}`
         : `${account.profile?.name || account.name} ${section ? `${section}` : ""}`
     }`;
-    const isPaginated = page > 1;
+    const isPaginated = !!cursor;
     const baseUrl = `/@${cleanUsername}${section ? `/${section}` : ""}`;
-    const metaUrl = isPaginated ? `${baseUrl}/page/${page}` : baseUrl;
+    const metaUrl = isPaginated ? `${baseUrl}?before=${cursor}` : baseUrl;
     const metaImage = `${defaults.imageServer}/u/${cleanUsername}/avatar/medium`;
     const metaKeywords = [cleanUsername, `${cleanUsername}'s blog`];
     const rssSections = ["posts", "blog", ""];
