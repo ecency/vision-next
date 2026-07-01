@@ -252,6 +252,20 @@ describe("selectRelatedColumns", () => {
     expect(cols[0].items.map((i) => i.permlink)).toEqual(["1", "2", "3", "4"]);
   });
 
+  it("a dropped sparse column does not consume items a later column needs", () => {
+    const cols = selectRelatedColumns(
+      [
+        { title: "From @newbie", items: [item("newbie", "shared")] }, // 1 item → dropped
+        { title: "In Community", items: [item("newbie", "shared"), item("x", "1"), item("y", "2")] }
+      ],
+      opts
+    );
+    expect(cols.map((c) => c.title)).toEqual(["In Community"]);
+    // "shared" was tentatively picked by the dropped column but must remain
+    // available to the kept column.
+    expect(cols[0].items.map((i) => i.permlink)).toContain("shared");
+  });
+
   it("dedups a post across columns (earlier column wins)", () => {
     const cols = selectRelatedColumns(
       [

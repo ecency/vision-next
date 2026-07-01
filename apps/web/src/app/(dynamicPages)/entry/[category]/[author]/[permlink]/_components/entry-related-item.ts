@@ -11,9 +11,10 @@ export interface RelatedItem {
   created: string;
 }
 
-// Thumbnails render at ~46px; request 2x so they stay crisp on retina. The
-// proxy bakes the size into the URL, so this is the actual bytes served.
-const THUMB_PX = 120;
+// Thumbnails render at ~46px; request 2x (~92px) so they stay crisp on retina
+// without over-fetching. The proxy bakes the size into the URL, so this is the
+// actual bytes served.
+const THUMB_PX = 92;
 
 export function relatedItemFromEntry(e: Entry): RelatedItem {
   return {
@@ -75,18 +76,22 @@ export function selectRelatedColumns(
   const result: RelatedColumn[] = [];
   for (const src of sources) {
     const picked: RelatedItem[] = [];
+    const pickedKeys = new Set<string>();
     for (const it of src.items) {
       const key = `${it.author}/${it.permlink}`;
-      if (seen.has(key)) {
+      if (seen.has(key) || pickedKeys.has(key)) {
         continue;
       }
-      seen.add(key);
+      pickedKeys.add(key);
       picked.push(it);
       if (picked.length >= opts.perColumn) {
         break;
       }
     }
+    // Only reserve a column's items once we KEEP it — a dropped (sub-threshold)
+    // column must not consume items a later source could still use.
     if (picked.length >= opts.minColumn) {
+      pickedKeys.forEach((key) => seen.add(key));
       result.push({ title: src.title, items: picked });
     }
   }

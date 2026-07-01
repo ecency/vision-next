@@ -39,6 +39,10 @@ export async function EntryRelatedFooter({ entry }: Props) {
 
   const source = resolveRelatedSource(entry);
 
+  // i18n init is independent of the feeds — kick it off alongside them so its
+  // cost isn't tacked onto the critical path after the network round-trip.
+  const i18nReady = initI18next();
+
   const [similarRaw, authorRaw, communityRaw] = await Promise.all([
     fetchQuery(
       getSimilarEntriesQueryOptions({
@@ -60,7 +64,7 @@ export async function EntryRelatedFooter({ entry }: Props) {
   const authorPosts = (authorRaw as unknown as Entry[] | undefined) ?? [];
   const communityPosts = (communityRaw as unknown as Entry[] | undefined) ?? [];
 
-  await initI18next();
+  await i18nReady;
 
   // Ordered candidate sources (each pre-filtered). selectRelatedColumns dedups
   // across them, caps each at PER_COLUMN, and DROPS any column with < MIN_COLUMN
