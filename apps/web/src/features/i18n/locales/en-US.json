@@ -1032,8 +1032,8 @@
     "title": "Read next"
   },
   "related-posts": {
-    "more-from-author": "More from @{{username}}",
-    "more-in": "More in {{section}}"
+    "more-from-author": "From @{{username}}",
+    "more-in": "In {{section}}"
   },
   "comment": {
     "body-placeholder": "Write your reply here",

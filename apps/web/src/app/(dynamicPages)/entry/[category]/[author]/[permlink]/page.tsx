@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { prefetchQuery, getQueryClient } from "@/core/react-query";
-import { getAccountFullQueryOptions, getSimilarEntriesQueryOptions } from "@ecency/sdk";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
 import {
   buildPictureSources,
   buildSrcSet,
@@ -13,8 +13,7 @@ import { EntryPageContentClient } from "@/app/(dynamicPages)/entry/[category]/[a
 import { EntryPageContentSSR } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-ssr";
 import { EntryPageBreadcrumb } from "./_components/entry-page-breadcrumb";
 import { buildEntryBreadcrumbs } from "./_components/entry-breadcrumbs";
-import { EntryPageMoreFromAuthor } from "./_components/entry-page-more-from-author";
-import { EntryPageMoreInTag } from "./_components/entry-page-more-in-tag";
+import { EntryRelatedFooter } from "./_components/entry-related-footer";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata, ResolvingMetadata } from "next";
 import { notFound, redirect } from "next/navigation";
@@ -98,21 +97,8 @@ export default async function EntryPage({ params, searchParams }: Props) {
     );
   }
 
-  // Server-prefetch "Read next" so the strip is in the SSR HTML (discoverable
-  // by crawlers) and renders instantly after hydration. Top-level posts only —
-  // comments don't show the strip. Degrades gracefully: the prefetch is bounded
-  // by the SSR timeout, and the client refetches if it doesn't resolve in time.
-  if (!entry.parent_author) {
-    await prefetchQuery(
-      getSimilarEntriesQueryOptions({
-        author: entry.author,
-        permlink: entry.permlink,
-        title: entry.title,
-        body: entry.body,
-        json_metadata: { tags: entry.json_metadata?.tags }
-      })
-    );
-  }
+  // "Read next" and the other related columns are fetched + rendered server-side
+  // inside EntryRelatedFooter (Suspense-wrapped below), so no prefetch here.
 
   // Preload the post's primary image as the likely LCP element, matching the
   // exact rendition the in-body <picture>/<img> will request so the preload is
@@ -196,17 +182,14 @@ export default async function EntryPage({ params, searchParams }: Props) {
             {structuredData && <JsonLd data={structuredData} />}
             <EntryRenderBoundary>
               <EntryPageContentSSR entry={entry} isRawContent={isRawContent} />
-              {/* Durable, server-rendered internal links so crawlers can reach
-                  the author's other posts and the community/tag beyond the
-                  sitemap. Each renders nothing when there's too little to link.
-                  Wrapped in Suspense so their (bounded) feed fetches stream as a
-                  later chunk instead of gating the post body's flush / LCP — the
-                  <a href> links still ship in the same streamed HTML response. */}
+              {/* Compact 3-column related footer (Read next / From author / In
+                  community): durable server-rendered internal links so crawlers
+                  can reach related posts beyond the sitemap. Suspense-wrapped so
+                  its bounded feed fetches stream as a later chunk instead of
+                  gating the post body's flush / LCP; the anchors still ship in
+                  the same streamed HTML response. */}
               <Suspense fallback={null}>
-                <EntryPageMoreFromAuthor entry={entry} />
-              </Suspense>
-              <Suspense fallback={null}>
-                <EntryPageMoreInTag entry={entry} />
+                <EntryRelatedFooter entry={entry} />
               </Suspense>
               <EntryPageContentClient entry={entry} />
               <EntryPageDiscussionsWrapper entry={entry} category={category} />

@@ -6,7 +6,12 @@ import {
   isLinkableRelated
 } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-related-source";
 import { EntryPageBreadcrumb } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-breadcrumb";
-import { EntryRelatedList } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-related-list";
+import { EntryRelatedRow } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-related-row";
+import {
+  relatedItemFromEntry,
+  relatedItemFromSimilar,
+  selectRelatedColumns
+} from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-related-item";
 import { buildEntryBreadcrumbs } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-breadcrumbs";
 import { mockEntry } from "@/specs/test-utils";
 
@@ -172,23 +177,124 @@ describe("EntryPageBreadcrumb", () => {
   });
 });
 
-describe("EntryRelatedList", () => {
-  it("renders a heading and a canonical bare link per entry", () => {
-    const entries = [
-      mockEntry({ author: "alice", permlink: "post-1", category: "photography", title: "Post One" }),
-      mockEntry({ author: "bob", permlink: "post-2", category: "photography", title: "Post Two" })
-    ];
-    render(<EntryRelatedList title="More in #photography" entries={entries} />);
-
-    expect(screen.getByText("More in #photography")).not.toBeNull();
-    const links = screen.getAllByRole("link");
-    const hrefs = links.map((l) => l.getAttribute("href"));
-    expect(hrefs).toContain("/@alice/post-1");
-    expect(hrefs).toContain("/@bob/post-2");
+describe("related item adapters", () => {
+  it("relatedItemFromEntry maps the fields the row needs", () => {
+    const e = mockEntry({
+      author: "alice",
+      permlink: "p1",
+      category: "photography",
+      title: "Pic",
+      created: "2026-06-30T00:00:00"
+    });
+    expect(relatedItemFromEntry(e)).toMatchObject({
+      author: "alice",
+      permlink: "p1",
+      category: "photography",
+      title: "Pic",
+      created: "2026-06-30T00:00:00"
+    });
   });
 
-  it("renders nothing when there are no entries", () => {
-    const { container } = render(<EntryRelatedList title="More in #x" entries={[]} />);
-    expect(container.innerHTML).toBe("");
+  it("relatedItemFromSimilar maps a row and drops rows missing author/permlink", () => {
+    expect(
+      relatedItemFromSimilar({
+        author: "bob",
+        permlink: "p2",
+        title: "T",
+        category: "art",
+        created_at: "2026-06-01T00:00:00"
+      })
+    ).toMatchObject({ author: "bob", permlink: "p2", title: "T", category: "art", created: "2026-06-01T00:00:00" });
+    expect(relatedItemFromSimilar({ permlink: "p2" })).toBeNull();
+    expect(relatedItemFromSimilar({ author: "bob" })).toBeNull();
+  });
+});
+
+describe("selectRelatedColumns", () => {
+  const item = (author: string, permlink: string): any => ({
+    author,
+    permlink,
+    title: `${author}/${permlink}`,
+    category: "x",
+    created: "2026-06-30T00:00:00"
+  });
+  const opts = { perColumn: 4, minColumn: 2, excludeKey: "self/current" };
+
+  it("drops a sparse column (e.g. a brand-new author with <2 posts)", () => {
+    const cols = selectRelatedColumns(
+      [
+        { title: "Read next", items: [item("a", "1"), item("b", "2"), item("c", "3")] },
+        { title: "From @newbie", items: [item("newbie", "only-post")] }, // just 1
+        { title: "In Community", items: [item("d", "4"), item("e", "5")] }
+      ],
+      opts
+    );
+    expect(cols.map((c) => c.title)).toEqual(["Read next", "In Community"]); // author column dropped
+  });
+
+  it("caps each column at perColumn and excludes the current post", () => {
+    const cols = selectRelatedColumns(
+      [
+        {
+          title: "From @alice",
+          items: [
+            item("self", "current"), // excluded
+            item("alice", "1"),
+            item("alice", "2"),
+            item("alice", "3"),
+            item("alice", "4"),
+            item("alice", "5")
+          ]
+        }
+      ],
+      opts
+    );
+    expect(cols[0].items.map((i) => i.permlink)).toEqual(["1", "2", "3", "4"]);
+  });
+
+  it("a dropped sparse column does not consume items a later column needs", () => {
+    const cols = selectRelatedColumns(
+      [
+        { title: "From @newbie", items: [item("newbie", "shared")] }, // 1 item → dropped
+        { title: "In Community", items: [item("newbie", "shared"), item("x", "1"), item("y", "2")] }
+      ],
+      opts
+    );
+    expect(cols.map((c) => c.title)).toEqual(["In Community"]);
+    // "shared" was tentatively picked by the dropped column but must remain
+    // available to the kept column.
+    expect(cols[0].items.map((i) => i.permlink)).toContain("shared");
+  });
+
+  it("dedups a post across columns (earlier column wins)", () => {
+    const cols = selectRelatedColumns(
+      [
+        { title: "Read next", items: [item("alice", "shared"), item("x", "1")] },
+        // 3 items so it still clears minColumn after the shared one is deduped away.
+        { title: "From @alice", items: [item("alice", "shared"), item("alice", "9"), item("alice", "10")] }
+      ],
+      opts
+    );
+    expect(cols[0].items.map((i) => `${i.author}/${i.permlink}`)).toContain("alice/shared");
+    expect(cols[1].items.map((i) => `${i.author}/${i.permlink}`)).not.toContain("alice/shared");
+  });
+});
+
+describe("EntryRelatedRow", () => {
+  it("renders a canonical bare link with title + author", () => {
+    render(
+      <EntryRelatedRow
+        item={{
+          author: "alice",
+          permlink: "post-1",
+          category: "photography",
+          title: "Post One",
+          created: "2026-06-30T00:00:00"
+        }}
+      />
+    );
+    expect(screen.getByRole("link").getAttribute("href")).toBe("/@alice/post-1");
+    expect(screen.getByText("Post One")).not.toBeNull();
+    expect(screen.getByText(/alice/)).not.toBeNull();
   });
 });

@@ -135,7 +135,7 @@ describe("getSimilarEntriesQueryOptions", () => {
     expect(payload.body).toContain("Real prose about nature and hiking");
   });
 
-  it("excludes the source post and nsfw, dedupes by author, caps at 3", async () => {
+  it("excludes the source post and nsfw, dedupes by author, caps at 4", async () => {
     fetchMock.mockResolvedValueOnce({
       ok: true,
       json: async () =>
@@ -146,7 +146,8 @@ describe("getSimilarEntriesQueryOptions", () => {
           { author: "c", permlink: "p3", tags: [] }, // dup author → dropped
           { author: "d", permlink: "p4", tags: [] },
           { author: "e", permlink: "p5", tags: [] },
-          { author: "f", permlink: "p6", tags: [] }, // beyond cap of 3
+          { author: "f", permlink: "p6", tags: [] },
+          { author: "g", permlink: "p7", tags: [] }, // beyond cap of 4
         ]),
     });
 
@@ -155,7 +156,7 @@ describe("getSimilarEntriesQueryOptions", () => {
       signal: undefined,
     })) as SearchResponse["results"];
 
-    expect(result.map((r) => r.author)).toEqual(["c", "d", "e"]);
+    expect(result.map((r) => r.author)).toEqual(["c", "d", "e", "f"]);
   });
 
   it("handles a post with no tags or body", async () => {
