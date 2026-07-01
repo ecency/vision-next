@@ -6,7 +6,11 @@ import { getServerAppBase } from "@/utils/server-app-base";
 import { prefetchQuery } from "@/core/react-query";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 
-export async function generateCommunityMetadata(communityName: string, tag: string) {
+export async function generateCommunityMetadata(
+  communityName: string,
+  tag: string,
+  cursor?: string
+) {
   const [community, account, base] = await Promise.all([
     prefetchQuery(getCommunityCache(communityName)),
     prefetchQuery(getAccountFullQueryOptions(communityName)),
@@ -21,19 +25,21 @@ export async function generateCommunityMetadata(communityName: string, tag: stri
     const metaCanonical = `${base}/created/${community.name}`;
 
     const metaImage = `${defaults.imageServer}/u/${community.name}/avatar/medium`;
+    // Cursor archive page: keep out of the index, let crawlers follow the pager
+    // (noindex, follow), self-canonical to the ?before URL, no RSS.
+    const isPaginated = !!cursor;
     return {
-      title,
+      title: isPaginated ? `${title} - older` : title,
       description,
+      ...(isPaginated ? { robots: "noindex, follow" } : {}),
       alternates: {
-        canonical: metaCanonical,
-        types: {
-          "application/rss+xml": metaRss,
-        },
+        canonical: isPaginated ? `${base}/${tag}/${community.name}?before=${cursor}` : metaCanonical,
+        ...(isPaginated ? {} : { types: { "application/rss+xml": metaRss } }),
       },
       openGraph: {
         title,
         description,
-        url: `/${tag}/${community.name}`,
+        url: isPaginated ? `/${tag}/${community.name}?before=${cursor}` : `/${tag}/${community.name}`,
         images: [metaImage],
       },
       twitter: {
