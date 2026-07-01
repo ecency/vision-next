@@ -7,7 +7,6 @@ import { EntryFooterControls } from "./entry-footer-controls";
 import { EntryFooterInfo } from "./entry-footer-info";
 import { EntryPageIsCommentHeader } from "./entry-page-is-comment-header";
 import { EntryPageMainInfo } from "./entry-page-main-info";
-import { EntryPageSimilarEntries } from "./entry-page-similar-entries";
 import { EntryPageStaticBody } from "./entry-page-static-body";
 import { EntryPageWarnings } from "./entry-page-warnings";
 import { EntryTags } from "./entry-tags";
@@ -63,7 +62,6 @@ export function EntryPageContentSSR({ entry, isRawContent }: Props) {
         </div>
         <EntryFooterControls entry={entry} />
       </div>
-      <EntryPageSimilarEntries entry={entry} />
     </>
   );
 }

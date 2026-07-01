@@ -10,7 +10,7 @@ import { SearchResult } from "../types/search-response";
 const SIMILAR_ENTRIES_SINCE_MS = 182 * 24 * 60 * 60 * 1000;
 
 // How many results the suggestions strip renders at most.
-const SIMILAR_ENTRIES_TARGET = 3;
+const SIMILAR_ENTRIES_TARGET = 4;
 
 // more_like_this only extracts a handful of significant terms, so an excerpt is
 // enough signal and keeps the request payload small.
