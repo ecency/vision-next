@@ -74,19 +74,19 @@ describe("getAccountFullQueryOptions", () => {
     it("returns the parsed account when it exists", async () => {
       mockAccountAndProfile();
 
-      const result = (await runQuery(getAccountFullQueryOptions("alice"))) as any;
+      const result = await runQuery(getAccountFullQueryOptions("alice"));
 
       expect(result).not.toBeNull();
-      expect(result.name).toBe("alice");
+      expect(result?.name).toBe("alice");
     });
 
     it("derives reputation + follow_stats from bridge.get_profile and drops the reputation-api / get_follow_count round-trips", async () => {
       mockAccountAndProfile();
 
-      const result = (await runQuery(getAccountFullQueryOptions("alice"))) as any;
+      const result = await runQuery(getAccountFullQueryOptions("alice"));
 
-      expect(result.reputation).toBe(78.29);
-      expect(result.follow_stats).toEqual({
+      expect(result?.reputation).toBe(78.29);
+      expect(result?.follow_stats).toEqual({
         account: "alice",
         follower_count: 232,
         following_count: 27
@@ -117,11 +117,36 @@ describe("getAccountFullQueryOptions", () => {
         return Promise.reject(new Error("bridge down"));
       });
 
-      const result = (await runQuery(getAccountFullQueryOptions("alice"))) as any;
+      const result = await runQuery(getAccountFullQueryOptions("alice"));
 
-      expect(result.name).toBe("alice");
-      expect(result.reputation).toBe(0);
-      expect(result.follow_stats).toBeUndefined();
+      expect(result?.name).toBe("alice");
+      expect(result?.reputation).toBe(0);
+      expect(result?.follow_stats).toBeUndefined();
+    });
+
+    it("propagates a caller cancel (aborted signal) instead of masking it as a null profile", async () => {
+      mockCallRPC.mockImplementation((method: string) => {
+        if (method === "condenser_api.get_accounts") {
+          return Promise.resolve([
+            {
+              name: "alice",
+              owner: { key_auths: [] },
+              active: { key_auths: [] },
+              posting: { key_auths: [] },
+              memo_key: "STM-memo",
+              posting_json_metadata: ""
+            }
+          ]);
+        }
+        return Promise.reject(new Error("aborted")); // bridge.get_profile fails while cancelled
+      });
+
+      const controller = new AbortController();
+      controller.abort();
+      const options = getAccountFullQueryOptions("alice");
+      const queryFn = options.queryFn as (ctx: { signal: AbortSignal }) => Promise<unknown>;
+
+      await expect(queryFn({ signal: controller.signal })).rejects.toBeTruthy();
     });
   });
 });

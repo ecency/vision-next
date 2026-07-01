@@ -2857,127 +2857,167 @@ interface CreateAccountPayload {
 }
 declare function useCreateAccount(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, CreateAccountPayload, unknown>;
 
+declare function useSignOperationByKey(username: string | undefined): _tanstack_react_query.UseMutationResult<TransactionConfirmation, Error, {
+    operation: Operation;
+    keyOrSeed: string;
+}, unknown>;
+
+declare function useSignOperationByKeychain(username: string | undefined, auth?: AuthContext, keyType?: "owner" | "active" | "posting" | "memo"): _tanstack_react_query.UseMutationResult<unknown, Error, {
+    operation: Operation;
+}, unknown>;
+
+declare function useSignOperationByHivesigner(callbackUri?: string): _tanstack_react_query.UseMutationResult<string | void, Error, {
+    operation: Operation;
+}, unknown>;
+
+declare function getChainPropertiesQueryOptions(): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<any, Error, any, string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<any, string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: any;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
 declare function getAccountFullQueryOptions(username: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<{
-    name: any;
-    owner: any;
-    active: any;
-    posting: any;
-    memo_key: any;
-    post_count: any;
-    created: any;
-    posting_json_metadata: any;
-    last_vote_time: any;
-    last_post: any;
-    json_metadata: any;
-    reward_hive_balance: any;
-    reward_hbd_balance: any;
-    reward_vesting_hive: any;
-    reward_vesting_balance: any;
-    balance: any;
-    hbd_balance: any;
-    savings_balance: any;
-    savings_hbd_balance: any;
-    savings_hbd_last_interest_payment: any;
-    savings_hbd_seconds_last_update: any;
-    savings_hbd_seconds: any;
-    next_vesting_withdrawal: any;
-    pending_claimed_accounts: any;
-    vesting_shares: any;
-    delegated_vesting_shares: any;
-    received_vesting_shares: any;
-    vesting_withdraw_rate: any;
-    to_withdraw: any;
-    withdrawn: any;
-    witness_votes: any;
-    proxy: any;
-    recovery_account: any;
-    proxied_vsf_votes: any;
-    voting_manabar: any;
-    voting_power: any;
-    downvote_manabar: any;
+    name: string;
+    owner: Authority;
+    active: Authority;
+    posting: Authority;
+    memo_key: string;
+    post_count: number;
+    created: string;
+    posting_json_metadata: string;
+    last_vote_time: string;
+    last_post: string;
+    json_metadata: string;
+    reward_hive_balance: string;
+    reward_hbd_balance: string;
+    reward_vesting_hive: string;
+    reward_vesting_balance: string;
+    balance: string;
+    hbd_balance: string;
+    savings_balance: string;
+    savings_hbd_balance: string;
+    savings_hbd_last_interest_payment: string;
+    savings_hbd_seconds_last_update: string;
+    savings_hbd_seconds: string;
+    next_vesting_withdrawal: string;
+    pending_claimed_accounts: number;
+    vesting_shares: string;
+    delegated_vesting_shares: string;
+    received_vesting_shares: string;
+    vesting_withdraw_rate: string;
+    to_withdraw: string;
+    withdrawn: string;
+    witness_votes: string[];
+    proxy: string;
+    recovery_account: string;
+    proxied_vsf_votes: string[] | number[];
+    voting_manabar: {
+        current_mana: string | number;
+        last_update_time: number;
+    };
+    voting_power: number;
+    downvote_manabar: {
+        current_mana: string | number;
+        last_update_time: number;
+    };
     follow_stats: AccountFollowStats | undefined;
     reputation: number;
     profile: AccountProfile;
 } | null, Error, {
-    name: any;
-    owner: any;
-    active: any;
-    posting: any;
-    memo_key: any;
-    post_count: any;
-    created: any;
-    posting_json_metadata: any;
-    last_vote_time: any;
-    last_post: any;
-    json_metadata: any;
-    reward_hive_balance: any;
-    reward_hbd_balance: any;
-    reward_vesting_hive: any;
-    reward_vesting_balance: any;
-    balance: any;
-    hbd_balance: any;
-    savings_balance: any;
-    savings_hbd_balance: any;
-    savings_hbd_last_interest_payment: any;
-    savings_hbd_seconds_last_update: any;
-    savings_hbd_seconds: any;
-    next_vesting_withdrawal: any;
-    pending_claimed_accounts: any;
-    vesting_shares: any;
-    delegated_vesting_shares: any;
-    received_vesting_shares: any;
-    vesting_withdraw_rate: any;
-    to_withdraw: any;
-    withdrawn: any;
-    witness_votes: any;
-    proxy: any;
-    recovery_account: any;
-    proxied_vsf_votes: any;
-    voting_manabar: any;
-    voting_power: any;
-    downvote_manabar: any;
+    name: string;
+    owner: Authority;
+    active: Authority;
+    posting: Authority;
+    memo_key: string;
+    post_count: number;
+    created: string;
+    posting_json_metadata: string;
+    last_vote_time: string;
+    last_post: string;
+    json_metadata: string;
+    reward_hive_balance: string;
+    reward_hbd_balance: string;
+    reward_vesting_hive: string;
+    reward_vesting_balance: string;
+    balance: string;
+    hbd_balance: string;
+    savings_balance: string;
+    savings_hbd_balance: string;
+    savings_hbd_last_interest_payment: string;
+    savings_hbd_seconds_last_update: string;
+    savings_hbd_seconds: string;
+    next_vesting_withdrawal: string;
+    pending_claimed_accounts: number;
+    vesting_shares: string;
+    delegated_vesting_shares: string;
+    received_vesting_shares: string;
+    vesting_withdraw_rate: string;
+    to_withdraw: string;
+    withdrawn: string;
+    witness_votes: string[];
+    proxy: string;
+    recovery_account: string;
+    proxied_vsf_votes: string[] | number[];
+    voting_manabar: {
+        current_mana: string | number;
+        last_update_time: number;
+    };
+    voting_power: number;
+    downvote_manabar: {
+        current_mana: string | number;
+        last_update_time: number;
+    };
     follow_stats: AccountFollowStats | undefined;
     reputation: number;
     profile: AccountProfile;
 } | null, (string | undefined)[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<{
-        name: any;
-        owner: any;
-        active: any;
-        posting: any;
-        memo_key: any;
-        post_count: any;
-        created: any;
-        posting_json_metadata: any;
-        last_vote_time: any;
-        last_post: any;
-        json_metadata: any;
-        reward_hive_balance: any;
-        reward_hbd_balance: any;
-        reward_vesting_hive: any;
-        reward_vesting_balance: any;
-        balance: any;
-        hbd_balance: any;
-        savings_balance: any;
-        savings_hbd_balance: any;
-        savings_hbd_last_interest_payment: any;
-        savings_hbd_seconds_last_update: any;
-        savings_hbd_seconds: any;
-        next_vesting_withdrawal: any;
-        pending_claimed_accounts: any;
-        vesting_shares: any;
-        delegated_vesting_shares: any;
-        received_vesting_shares: any;
-        vesting_withdraw_rate: any;
-        to_withdraw: any;
-        withdrawn: any;
-        witness_votes: any;
-        proxy: any;
-        recovery_account: any;
-        proxied_vsf_votes: any;
-        voting_manabar: any;
-        voting_power: any;
-        downvote_manabar: any;
+        name: string;
+        owner: Authority;
+        active: Authority;
+        posting: Authority;
+        memo_key: string;
+        post_count: number;
+        created: string;
+        posting_json_metadata: string;
+        last_vote_time: string;
+        last_post: string;
+        json_metadata: string;
+        reward_hive_balance: string;
+        reward_hbd_balance: string;
+        reward_vesting_hive: string;
+        reward_vesting_balance: string;
+        balance: string;
+        hbd_balance: string;
+        savings_balance: string;
+        savings_hbd_balance: string;
+        savings_hbd_last_interest_payment: string;
+        savings_hbd_seconds_last_update: string;
+        savings_hbd_seconds: string;
+        next_vesting_withdrawal: string;
+        pending_claimed_accounts: number;
+        vesting_shares: string;
+        delegated_vesting_shares: string;
+        received_vesting_shares: string;
+        vesting_withdraw_rate: string;
+        to_withdraw: string;
+        withdrawn: string;
+        witness_votes: string[];
+        proxy: string;
+        recovery_account: string;
+        proxied_vsf_votes: string[] | number[];
+        voting_manabar: {
+            current_mana: string | number;
+            last_update_time: number;
+        };
+        voting_power: number;
+        downvote_manabar: {
+            current_mana: string | number;
+            last_update_time: number;
+        };
         follow_stats: AccountFollowStats | undefined;
         reputation: number;
         profile: AccountProfile;
@@ -2985,43 +3025,49 @@ declare function getAccountFullQueryOptions(username: string | undefined): _tans
 } & {
     queryKey: (string | undefined)[] & {
         [dataTagSymbol]: {
-            name: any;
-            owner: any;
-            active: any;
-            posting: any;
-            memo_key: any;
-            post_count: any;
-            created: any;
-            posting_json_metadata: any;
-            last_vote_time: any;
-            last_post: any;
-            json_metadata: any;
-            reward_hive_balance: any;
-            reward_hbd_balance: any;
-            reward_vesting_hive: any;
-            reward_vesting_balance: any;
-            balance: any;
-            hbd_balance: any;
-            savings_balance: any;
-            savings_hbd_balance: any;
-            savings_hbd_last_interest_payment: any;
-            savings_hbd_seconds_last_update: any;
-            savings_hbd_seconds: any;
-            next_vesting_withdrawal: any;
-            pending_claimed_accounts: any;
-            vesting_shares: any;
-            delegated_vesting_shares: any;
-            received_vesting_shares: any;
-            vesting_withdraw_rate: any;
-            to_withdraw: any;
-            withdrawn: any;
-            witness_votes: any;
-            proxy: any;
-            recovery_account: any;
-            proxied_vsf_votes: any;
-            voting_manabar: any;
-            voting_power: any;
-            downvote_manabar: any;
+            name: string;
+            owner: Authority;
+            active: Authority;
+            posting: Authority;
+            memo_key: string;
+            post_count: number;
+            created: string;
+            posting_json_metadata: string;
+            last_vote_time: string;
+            last_post: string;
+            json_metadata: string;
+            reward_hive_balance: string;
+            reward_hbd_balance: string;
+            reward_vesting_hive: string;
+            reward_vesting_balance: string;
+            balance: string;
+            hbd_balance: string;
+            savings_balance: string;
+            savings_hbd_balance: string;
+            savings_hbd_last_interest_payment: string;
+            savings_hbd_seconds_last_update: string;
+            savings_hbd_seconds: string;
+            next_vesting_withdrawal: string;
+            pending_claimed_accounts: number;
+            vesting_shares: string;
+            delegated_vesting_shares: string;
+            received_vesting_shares: string;
+            vesting_withdraw_rate: string;
+            to_withdraw: string;
+            withdrawn: string;
+            witness_votes: string[];
+            proxy: string;
+            recovery_account: string;
+            proxied_vsf_votes: string[] | number[];
+            voting_manabar: {
+                current_mana: string | number;
+                last_update_time: number;
+            };
+            voting_power: number;
+            downvote_manabar: {
+                current_mana: string | number;
+                last_update_time: number;
+            };
             follow_stats: AccountFollowStats | undefined;
             reputation: number;
             profile: AccountProfile;
@@ -3681,28 +3727,6 @@ declare function powerRechargeTime(power: number): number;
 declare function downVotingPower(account: FullAccount): number;
 declare function rcPower(account: RCAccount): number;
 declare function votingValue(account: FullAccount, dynamicProps: DynamicProps$1, votingPowerValue: number, weight?: number): number;
-
-declare function useSignOperationByKey(username: string | undefined): _tanstack_react_query.UseMutationResult<TransactionConfirmation, Error, {
-    operation: Operation;
-    keyOrSeed: string;
-}, unknown>;
-
-declare function useSignOperationByKeychain(username: string | undefined, auth?: AuthContext, keyType?: "owner" | "active" | "posting" | "memo"): _tanstack_react_query.UseMutationResult<unknown, Error, {
-    operation: Operation;
-}, unknown>;
-
-declare function useSignOperationByHivesigner(callbackUri?: string): _tanstack_react_query.UseMutationResult<string | void, Error, {
-    operation: Operation;
-}, unknown>;
-
-declare function getChainPropertiesQueryOptions(): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<any, Error, any, string[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<any, string[], never> | undefined;
-} & {
-    queryKey: string[] & {
-        [dataTagSymbol]: any;
-        [dataTagErrorSymbol]: Error;
-    };
-};
 
 declare function getTrendingTagsQueryOptions(limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<string[], Error, _tanstack_react_query.InfiniteData<string[], unknown>, string[], {
     afterTag: string;

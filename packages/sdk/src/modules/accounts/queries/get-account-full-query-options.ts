@@ -7,6 +7,17 @@ import { parseProfileMetadata } from "@/modules/accounts";
 import { queryOptions } from "@tanstack/react-query";
 import { callRPC } from "@/modules/core/hive-tx";
 
+/** The raw `condenser_api.get_accounts` row — every FullAccount field except the three
+ *  this query derives separately (follow_stats + reputation from bridge, profile parsed). */
+type RawAccount = Omit<FullAccount, "follow_stats" | "reputation" | "profile">;
+
+/** Minimal shape read from `bridge.get_profile` (hivemind social profile): it carries
+ *  both the reputation score and the follower/following counts. */
+interface BridgeProfile {
+  reputation?: number;
+  stats?: { followers?: number; following?: number };
+}
+
 export function getAccountFullQueryOptions(username: string | undefined) {
   return queryOptions({
     queryKey: QueryKeys.accounts.full(username),
@@ -22,12 +33,27 @@ export function getAccountFullQueryOptions(username: string | undefined) {
       // call: condenser_api.get_accounts no longer returns a usable reputation (it is 0
       // since the hardfork), and there is no reason to make two extra round-trips for
       // data one profile object already carries.
-      const [response, bridgeProfile] = (await Promise.all([
-        callRPC("condenser_api.get_accounts", [[username]], undefined, undefined, signal),
-        callRPC("bridge.get_profile", { account: username }, undefined, undefined, signal).catch(
-          (): any => null
-        )
-      ])) as [any[], any];
+      const [response, bridgeProfile] = await Promise.all([
+        callRPC<RawAccount[]>(
+          "condenser_api.get_accounts",
+          [[username]],
+          undefined,
+          undefined,
+          signal
+        ),
+        callRPC<BridgeProfile>(
+          "bridge.get_profile",
+          { account: username },
+          undefined,
+          undefined,
+          signal
+        ).catch((e): BridgeProfile | null => {
+          // A caller cancel (aborted signal) must propagate — only genuine RPC/transport
+          // failures degrade to reputation 0 / no follow_stats.
+          if (signal?.aborted) throw e;
+          return null;
+        })
+      ]);
       if (!response[0]) {
         // The account does not exist (e.g. not yet finalized on-chain during
         // signup). Treat absence as a recoverable null instead of throwing, so
