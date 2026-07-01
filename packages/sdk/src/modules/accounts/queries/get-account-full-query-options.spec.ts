@@ -22,7 +22,6 @@ const runQuery = (options: ReturnType<typeof getAccountFullQueryOptions>) =>
 describe("getAccountFullQueryOptions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockCallREST.mockResolvedValue(0);
   });
 
   it("generates the correct query key", () => {
@@ -52,7 +51,7 @@ describe("getAccountFullQueryOptions", () => {
   });
 
   describe("existing account", () => {
-    it("returns the parsed account when it exists", async () => {
+    const mockAccountAndProfile = () =>
       mockCallRPC.mockImplementation((method: string) => {
         if (method === "condenser_api.get_accounts") {
           return Promise.resolve([
@@ -66,13 +65,88 @@ describe("getAccountFullQueryOptions", () => {
             }
           ]);
         }
-        return Promise.resolve({ follower_count: 1, following_count: 2 });
+        if (method === "bridge.get_profile") {
+          return Promise.resolve({ reputation: 78.29, stats: { followers: 232, following: 27 } });
+        }
+        return Promise.resolve(null);
       });
 
-      const result = (await runQuery(getAccountFullQueryOptions("alice"))) as any;
+    it("returns the parsed account when it exists", async () => {
+      mockAccountAndProfile();
+
+      const result = await runQuery(getAccountFullQueryOptions("alice"));
 
       expect(result).not.toBeNull();
-      expect(result.name).toBe("alice");
+      expect(result?.name).toBe("alice");
+    });
+
+    it("derives reputation + follow_stats from bridge.get_profile and drops the reputation-api / get_follow_count round-trips", async () => {
+      mockAccountAndProfile();
+
+      const result = await runQuery(getAccountFullQueryOptions("alice"));
+
+      expect(result?.reputation).toBe(78.29);
+      expect(result?.follow_stats).toEqual({
+        account: "alice",
+        follower_count: 232,
+        following_count: 27
+      });
+      // The reputation-api REST call is gone entirely.
+      expect(mockCallREST).not.toHaveBeenCalled();
+      // Only get_accounts + bridge.get_profile are called — no separate get_follow_count.
+      const methods = mockCallRPC.mock.calls.map((c) => c[0]);
+      expect(methods).toContain("condenser_api.get_accounts");
+      expect(methods).toContain("bridge.get_profile");
+      expect(methods).not.toContain("condenser_api.get_follow_count");
+    });
+
+    it("degrades to reputation 0 / undefined follow_stats when bridge.get_profile fails", async () => {
+      mockCallRPC.mockImplementation((method: string) => {
+        if (method === "condenser_api.get_accounts") {
+          return Promise.resolve([
+            {
+              name: "alice",
+              owner: { key_auths: [] },
+              active: { key_auths: [] },
+              posting: { key_auths: [] },
+              memo_key: "STM-memo",
+              posting_json_metadata: ""
+            }
+          ]);
+        }
+        return Promise.reject(new Error("bridge down"));
+      });
+
+      const result = await runQuery(getAccountFullQueryOptions("alice"));
+
+      expect(result?.name).toBe("alice");
+      expect(result?.reputation).toBe(0);
+      expect(result?.follow_stats).toBeUndefined();
+    });
+
+    it("propagates a caller cancel (aborted signal) instead of masking it as a null profile", async () => {
+      mockCallRPC.mockImplementation((method: string) => {
+        if (method === "condenser_api.get_accounts") {
+          return Promise.resolve([
+            {
+              name: "alice",
+              owner: { key_auths: [] },
+              active: { key_auths: [] },
+              posting: { key_auths: [] },
+              memo_key: "STM-memo",
+              posting_json_metadata: ""
+            }
+          ]);
+        }
+        return Promise.reject(new Error("aborted")); // bridge.get_profile fails while cancelled
+      });
+
+      const controller = new AbortController();
+      controller.abort();
+      const options = getAccountFullQueryOptions("alice");
+      const queryFn = options.queryFn as (ctx: { signal: AbortSignal }) => Promise<unknown>;
+
+      await expect(queryFn({ signal: controller.signal })).rejects.toBeTruthy();
     });
   });
 });

@@ -65,12 +65,40 @@ export class RPCError extends Error {
  */
 class NodeError extends Error {
   node: string
+  /** Explicit server `Retry-After` in ms, or 0 when the 429 carried no usable header. */
   rateLimitMs: number
-  constructor(node: string, message: string, rateLimitMs = 0) {
+  /** True for an HTTP 429 regardless of whether a `Retry-After` header was present, so
+   *  a header-less rate limit is still cooled down (with escalating backoff) rather than
+   *  mis-recorded as a plain transport failure. */
+  isRateLimit: boolean
+  constructor(
+    node: string,
+    message: string,
+    opts: { rateLimitMs?: number; isRateLimit?: boolean } = {}
+  ) {
     super(message)
     this.node = node
-    this.rateLimitMs = rateLimitMs
+    this.rateLimitMs = opts.rateLimitMs ?? 0
+    this.isRateLimit = opts.isRateLimit ?? false
   }
+}
+
+/**
+ * Parse an HTTP `Retry-After` header to milliseconds. Supports both forms in the
+ * spec: `<delay-seconds>` (e.g. "120") and `<http-date>`. Returns 0 when the header
+ * is absent or unparseable (including a non-numeric junk value or a past date) so the
+ * caller falls back to escalating backoff instead of a NaN/negative cooldown.
+ */
+function parseRetryAfterMs(header: string | null): number {
+  if (!header) return 0
+  const secs = Number(header)
+  if (Number.isFinite(secs)) return secs > 0 ? secs * 1000 : 0
+  const dateMs = Date.parse(header)
+  if (Number.isFinite(dateMs)) {
+    const delta = dateMs - Date.now()
+    return delta > 0 ? delta : 0
+  }
+  return 0
 }
 
 /** Errors that indicate the request definitely never reached the server. */
@@ -151,6 +179,11 @@ interface NodeHealth {
   lastFailureTime: number
   /** Epoch ms after which the node is no longer rate-limited. */
   rateLimitedUntil: number
+  /** Count of consecutive 429s (no intervening success) with no usable Retry-After.
+   *  Drives escalating backoff; reset by a success or by RATE_LIMIT_STREAK_RESET_MS. */
+  rateLimitStreak: number
+  /** Epoch ms of the most recent 429. Used to expire the escalation streak. */
+  lastRateLimitAt: number
   /** Per-API failure counters. Some nodes disable specific API plugins; tracking
    * per-API lets us deprioritize a node only for the APIs that fail, not globally. */
   apiFailures: Map<string, { count: number; cooldownUntil: number; lastFailureTime: number }>
@@ -203,6 +236,17 @@ function apiOf(method: string): string {
   const dot = method.indexOf('.')
   return dot > 0 ? method.slice(0, dot) : method
 }
+
+// ── Rate-limit (429) backoff constants ───────────────────────────────────────
+/** Base cooldown applied to a 429 with no usable `Retry-After` header. Matches the
+ *  previous flat default so first-offence behaviour is unchanged. */
+const RATE_LIMIT_BASE_MS = 10_000
+/** Ceiling for the escalating header-less cooldown. Prevents a node from being
+ *  parked far longer than a real public node's throttle window. */
+const RATE_LIMIT_MAX_MS = 60_000
+/** No 429 from a node for this long ⇒ its escalation streak resets to 0, so an
+ *  occasional throttle hours apart doesn't compound into a long park. */
+const RATE_LIMIT_STREAK_RESET_MS = 120_000
 
 /** Per-API failure threshold before the node is deprioritized for that API only. */
 const MAX_API_FAILURES_BEFORE_COOLDOWN = 2
@@ -288,6 +332,8 @@ export class NodeHealthTracker {
         consecutiveFailures: 0,
         lastFailureTime: 0,
         rateLimitedUntil: 0,
+        rateLimitStreak: 0,
+        lastRateLimitAt: 0,
         apiFailures: new Map(),
         headBlock: 0,
         headBlockUpdatedAt: 0,
@@ -312,6 +358,14 @@ export class NodeHealthTracker {
   recordSuccess(node: string, api?: string, durationMs?: number): void {
     const h = this.getOrCreate(node)
     h.consecutiveFailures = 0
+    // A success means the node recovered — clear the escalation streak so the next
+    // throttle starts from the base cooldown. We deliberately do NOT clear an active
+    // rateLimitedUntil window here: under concurrency a success from a request that was
+    // already in flight can resolve *after* another request recorded a fresh 429
+    // Retry-After, and erasing the window would put a just-throttled node back into
+    // rotation early. The window expires on its own (short for header-less; the server's
+    // value for an explicit Retry-After).
+    h.rateLimitStreak = 0
     if (api) {
       // A successful API call clears that API's failure counter.
       h.apiFailures.delete(api)
@@ -382,11 +436,41 @@ export class NodeHealthTracker {
     }
   }
 
-  recordRateLimit(node: string, retryAfterMs = 10_000): void {
+  /**
+   * Cool down a rate-limited node. Honors an explicit server `Retry-After`
+   * (`retryAfterMs`) exactly — the server told us when to return. With no usable
+   * header, applies escalating backoff: BASE, 2×BASE, 4×BASE … capped at
+   * RATE_LIMIT_MAX_MS, indexed by the node's consecutive-429 streak (reset by a
+   * success or after RATE_LIMIT_STREAK_RESET_MS of quiet). This stops a throttled
+   * public node from being re-admitted every 10s and re-hammered under sustained
+   * load, which matters most when the fleet's own unlimited node is removed.
+   */
+  recordRateLimit(node: string, retryAfterMs?: number): void {
     const h = this.getOrCreate(node)
-    h.rateLimitedUntil = Date.now() + retryAfterMs
+    const now = Date.now()
+    // Expire a stale streak so an occasional throttle hours apart doesn't compound.
+    if (h.rateLimitStreak > 0 && now - h.lastRateLimitAt > RATE_LIMIT_STREAK_RESET_MS) {
+      h.rateLimitStreak = 0
+    }
+    const hasHeader = typeof retryAfterMs === 'number' && Number.isFinite(retryAfterMs) && retryAfterMs > 0
+    const cooldown = hasHeader
+      ? retryAfterMs!
+      : Math.min(RATE_LIMIT_BASE_MS * 2 ** h.rateLimitStreak, RATE_LIMIT_MAX_MS)
+    // Only a header-less 429 advances the escalation streak — an explicit Retry-After is
+    // honored exactly and must not compound the header-less backoff (else several
+    // Retry-After 429s would push a later header-less 429 straight to the 60s cap).
+    if (!hasHeader) h.rateLimitStreak++
+    h.lastRateLimitAt = now
+    // Explicit Retry-After is honored exactly (the server's current instruction). A
+    // header-less cooldown may only move the window FORWARD — it must never truncate a
+    // longer window already set, e.g. a node parked for an hour by an explicit
+    // Retry-After that is later retried as a last resort and returns a header-less 429
+    // must not have its 1h window cut down to the 10s base.
+    h.rateLimitedUntil = hasHeader
+      ? now + cooldown
+      : Math.max(h.rateLimitedUntil, now + cooldown)
     h.consecutiveFailures++
-    h.lastFailureTime = Date.now()
+    h.lastFailureTime = now
   }
 
   /** Record an observed head_block_number for this node. */
@@ -570,8 +654,9 @@ export const restHealthTracker = new NodeHealthTracker()
 /** Record a caught error on the health tracker (handles NodeError to avoid double-counting). */
 function recordError(tracker: NodeHealthTracker, node: string, e: any, api?: string): void {
   if (e instanceof NodeError) {
-    if (e.rateLimitMs > 0) {
-      tracker.recordRateLimit(node, e.rateLimitMs)
+    if (e.isRateLimit) {
+      // 0 → no usable Retry-After → let recordRateLimit apply escalating backoff.
+      tracker.recordRateLimit(node, e.rateLimitMs || undefined)
     } else {
       tracker.recordFailure(node, api)
     }
@@ -711,9 +796,10 @@ const jsonRPCCall = async (
     // Handle HTTP-level errors before parsing JSON.
     // Throw NodeError so callers can record health exactly once.
     if (res.status === 429) {
-      const retryAfter = res.headers.get('Retry-After')
-      const cooldownMs = retryAfter ? parseInt(retryAfter, 10) * 1000 : 10_000
-      throw new NodeError(url, `HTTP 429 Rate Limited`, cooldownMs)
+      throw new NodeError(url, `HTTP 429 Rate Limited`, {
+        rateLimitMs: parseRetryAfterMs(res.headers.get('Retry-After')),
+        isRateLimit: true
+      })
     }
     // Any other 5xx is a node-level failure. Common cases:
     //   502 Bad Gateway       — upstream HAF/jussi down
@@ -1065,9 +1151,11 @@ export async function callREST(
         throw new Error('HTTP 404 - Hint: can happen on wrong params')
       }
       if (response.status === 429) {
-        const retryAfter = response.headers.get('Retry-After')
-        const cooldownMs = retryAfter ? parseInt(retryAfter, 10) * 1000 : 10_000
-        restHealthTracker.recordRateLimit(node, cooldownMs)
+        // 0 (no usable Retry-After) → undefined → escalating backoff in recordRateLimit.
+        restHealthTracker.recordRateLimit(
+          node,
+          parseRetryAfterMs(response.headers.get('Retry-After')) || undefined
+        )
         alreadyRecorded = true
         throw new Error(`HTTP 429 Rate Limited by ${node}`)
       }

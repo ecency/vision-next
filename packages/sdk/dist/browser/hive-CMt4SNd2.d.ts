@@ -826,20 +826,27 @@ declare const config: {
      */
     retry: number;
 };
-/**
- * Validated setter for the Hive RPC node list — replaces `config.nodes`.
- * Trims, drops non-http(s) entries, and de-dupes (order-preserving). A no-op
- * if nothing valid remains, so a bad input can't empty the list.
- *
- * Lives here, in the React-free `hive-tx` core, on purpose: it must be
- * reachable from BOTH the full `@ecency/sdk` entry (via
- * `ConfigManager.setHiveNodes`, which delegates here) and the lean
- * `@ecency/sdk/hive` server/CLI entry — without dragging react-query or the
- * DMCA/ReDoS surface of `ConfigManager` into the lean entry. Within a single
- * bundle this mutates the one `config` instance `callRPC` reads; the
- * cross-bundle single-instance guarantee is a separate (build-level) concern.
- */
 declare const setNodes: (nodes: string[]) => void;
+/**
+ * Validated setter for the REST-API node list — replaces `config.restNodes`.
+ * Same shape/guarantees as `setNodes` (trim, drop non-http(s), de-dupe, no-op on
+ * empty). Exists because `restNodes` is otherwise baked into the SDK: an app that
+ * wants to add/remove a REST host (e.g. drop an own node it is decommissioning, or
+ * widen the public pool) previously had to fork + republish the SDK. With this, the
+ * REST pool is app-configurable at runtime exactly like the read pool. Lives in the
+ * React-free `hive-tx` core so both the full `@ecency/sdk` entry and the lean
+ * `@ecency/sdk/hive` entry can reach it.
+ */
+declare const setRestNodes: (nodes: string[]) => void;
+/**
+ * Merge validated per-API REST node overrides into `config.restNodesByApi`.
+ * For each entry: a non-empty, valid list pins that API to those hosts; an empty or
+ * all-invalid list REMOVES the pin so the API falls back to `restNodes`. Other APIs'
+ * existing pins (e.g. the built-in `hivesense`) are preserved. Lets an app pin the
+ * APIs it actually uses to known-capable hosts (so `callREST` never burns its small
+ * retry budget on a node that 404/503s the API) without an SDK republish.
+ */
+declare const setRestNodesByApi: (map: Partial<Record<APIMethods, string[]>>) => void;
 /**
  * Validated setter for the User-Agent sent on server-side (Node) requests.
  * Trims the input and ignores an empty value so a bad input can't blank out the
@@ -1013,4 +1020,4 @@ declare namespace utils {
   export { type utils_WitnessProps as WitnessProps, utils_buildWitnessSetProperties as buildWitnessSetProperties, utils_makeBitMaskFilter as makeBitMaskFilter, utils_operations as operations, utils_validateUsername as validateUsername };
 }
 
-export { Transaction as $, type AccountCreateOperation as A, type Beneficiary as B, type CallResponse as C, type DeclineVotingRightsOperation as D, type EscrowApproveOperation as E, type EscrowReleaseOperation as F, type EscrowTransferOperation as G, type Extension as H, type FeedPublishOperation as I, type LimitOrderCreate2Operation as J, type LimitOrderCreateOperation as K, type LimitOrderCancelOperation as L, Memo as M, type OperationBody as N, type Operation as O, type OperationName as P, type Price as Q, PrivateKey as R, PublicKey as S, type RecoverAccountOperation as T, type RecurrentTransferOperation as U, type RemoveProposalOperation as V, type RequestAccountRecoveryOperation as W, type ResetAccountOperation as X, type SetResetAccountOperation as Y, type SetWithdrawVestingRouteOperation as Z, Signature as _, type AccountCreateWithDelegationOperation as a, type TransactionStatus as a0, type TransactionType as a1, type TransferFromSavingsOperation as a2, type TransferOperation as a3, type TransferToSavingsOperation as a4, type TransferToVestingOperation as a5, type UpdateProposalOperation as a6, type UpdateProposalVotesOperation as a7, type VoteOperation as a8, type WithdrawVestingOperation as a9, type WitnessProps$1 as aa, type WitnessSetPropertiesOperation as ab, type WitnessSetPropertiesParams as ac, type WitnessUpdateOperation as ad, callREST as ae, callRPC as af, callRPCBroadcast as ag, callWithQuorum as ah, config as ai, operations as aj, setNodes as ak, setUserAgent as al, utils as am, type AccountUpdate2Operation as b, type AccountUpdateOperation as c, type AccountWitnessProxyOperation as d, type AccountWitnessVoteOperation as e, type AssetSymbol as f, type Authority as g, type BroadcastError as h, type BroadcastResult as i, type CancelTransferFromSavingsOperation as j, type ChainProperties as k, type ChangeRecoveryAccountOperation as l, type ClaimAccountOperation as m, type ClaimRewardBalanceOperation as n, type CollateralizedConvertOperation as o, type CommentOperation as p, type CommentOptionsOperation as q, type ConvertOperation as r, type CreateClaimedAccountOperation as s, type CreateProposalOperation as t, type CustomJsonOperation as u, type CustomOperation as v, type DelegateVestingSharesOperation as w, type DeleteCommentOperation as x, type DigestData as y, type EscrowDisputeOperation as z };
+export { Signature as $, type APIMethods as A, type Beneficiary as B, type CallResponse as C, type DeclineVotingRightsOperation as D, type EscrowApproveOperation as E, type EscrowDisputeOperation as F, type EscrowReleaseOperation as G, type EscrowTransferOperation as H, type Extension as I, type FeedPublishOperation as J, type LimitOrderCreate2Operation as K, type LimitOrderCancelOperation as L, type LimitOrderCreateOperation as M, Memo as N, type Operation as O, type OperationBody as P, type OperationName as Q, type Price as R, PrivateKey as S, PublicKey as T, type RecoverAccountOperation as U, type RecurrentTransferOperation as V, type RemoveProposalOperation as W, type RequestAccountRecoveryOperation as X, type ResetAccountOperation as Y, type SetResetAccountOperation as Z, type SetWithdrawVestingRouteOperation as _, type AccountCreateOperation as a, Transaction as a0, type TransactionStatus as a1, type TransactionType as a2, type TransferFromSavingsOperation as a3, type TransferOperation as a4, type TransferToSavingsOperation as a5, type TransferToVestingOperation as a6, type UpdateProposalOperation as a7, type UpdateProposalVotesOperation as a8, type VoteOperation as a9, type WithdrawVestingOperation as aa, type WitnessProps$1 as ab, type WitnessSetPropertiesOperation as ac, type WitnessSetPropertiesParams as ad, type WitnessUpdateOperation as ae, callREST as af, callRPC as ag, callRPCBroadcast as ah, callWithQuorum as ai, config as aj, operations as ak, setNodes as al, setRestNodes as am, setRestNodesByApi as an, setUserAgent as ao, utils as ap, type AccountCreateWithDelegationOperation as b, type AccountUpdate2Operation as c, type AccountUpdateOperation as d, type AccountWitnessProxyOperation as e, type AccountWitnessVoteOperation as f, type AssetSymbol as g, type Authority as h, type BroadcastError as i, type BroadcastResult as j, type CancelTransferFromSavingsOperation as k, type ChainProperties as l, type ChangeRecoveryAccountOperation as m, type ClaimAccountOperation as n, type ClaimRewardBalanceOperation as o, type CollateralizedConvertOperation as p, type CommentOperation as q, type CommentOptionsOperation as r, type ConvertOperation as s, type CreateClaimedAccountOperation as t, type CreateProposalOperation as u, type CustomJsonOperation as v, type CustomOperation as w, type DelegateVestingSharesOperation as x, type DeleteCommentOperation as y, type DigestData as z };

@@ -2,8 +2,11 @@ import { QueryClient } from "@tanstack/react-query";
 import {
   config as hiveTxConfig,
   setNodes as setHiveTxNodes,
+  setRestNodes as setHiveTxRestNodes,
+  setRestNodesByApi as setHiveTxRestNodesByApi,
   setUserAgent as setHiveTxUserAgent,
 } from "../../hive-tx";
+import type { APIMethods } from "../../hive-tx/api-types";
 
 // Safe environment variable access for browser builds
 // In browser builds, tsup will replace process.env.* with literal values at compile time
@@ -118,6 +121,29 @@ export namespace ConfigManager {
    */
   export function setHiveNodes(nodes: string[]) {
     setHiveTxNodes(nodes);
+  }
+
+  /**
+   * Set the REST-API node list, replacing the default `restNodes`. Lets an app
+   * add/remove REST hosts at runtime (e.g. drop an own node being decommissioned,
+   * or widen the public pool) without forking + republishing the SDK. Delegates to
+   * the unified hive-tx `setRestNodes` (validated, shared with `@ecency/sdk/hive`).
+   * @param nodes - Array of REST-capable node URLs (without a trailing slash)
+   */
+  export function setRestNodes(nodes: string[]) {
+    setHiveTxRestNodes(nodes);
+  }
+
+  /**
+   * Merge per-API REST node overrides. For each API a non-empty valid list pins it
+   * to those hosts (so `callREST` never wastes its retry budget on a node that
+   * 404/503s the API); an empty list removes the pin (falls back to `restNodes`).
+   * Other APIs' pins (e.g. the built-in `hivesense`) are preserved. Delegates to the
+   * unified hive-tx `setRestNodesByApi`.
+   * @param map - Partial map of REST API name → capable node URLs
+   */
+  export function setRestNodesByApi(map: Partial<Record<APIMethods, string[]>>) {
+    setHiveTxRestNodesByApi(map);
   }
 
   /**
