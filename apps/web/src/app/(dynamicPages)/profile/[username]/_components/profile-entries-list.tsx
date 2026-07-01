@@ -7,6 +7,11 @@ import { stripActiveVotesFromValue } from "@/core/react-query/strip-active-votes
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { ProfileEntriesLayout } from "@/app/(dynamicPages)/profile/[username]/_components/profile-entries-layout";
 import { ProfileEntriesInfiniteList } from "@/app/(dynamicPages)/profile/[username]/_components/profile-entries-infinite-list";
+import { EntryArchivePager } from "@/features/shared/entry-archive-pager";
+import {
+  ARCHIVE_PAGE_SIZE,
+  ARCHIVE_SECTIONS
+} from "@/app/(dynamicPages)/profile/[username]/_helpers/author-archive";
 import type { InfiniteData } from "@tanstack/react-query";
 
 interface Props {
@@ -34,11 +39,16 @@ export async function ProfileEntriesList({ section, account, initialFeed, curren
     (getPostsFeedQueryData(section, `@${account.name}`) as InfiniteData<Entry[], unknown> | undefined);
 
   const feedPages = prefetchedFeed?.pages ?? [];
-  const initialPageEntries =
-    (feedPages[0] as Entry[] | undefined)?.filter(
-      (item: Entry) => item.permlink !== account.profile?.pinned
-    ) ?? [];
+  // Raw first feed page (before pinned-filtering): its length + last item are the
+  // TRUE feed-page-1 boundary, so the "Older" archive link and cursor stay
+  // correct even when a pinned post occupies a slot (a full 20-post page whose
+  // pinned entry is filtered would otherwise drop to 19 and suppress the link).
+  const rawFirstPage = (feedPages[0] as Entry[] | undefined) ?? [];
+  const initialPageEntries = rawFirstPage.filter(
+    (item: Entry) => item.permlink !== account.profile?.pinned
+  );
   const entryList = [...initialPageEntries];
+  const lastOfFirstPage = rawFirstPage[rawFirstPage.length - 1];
 
   if (pinnedEntry) {
     entryList.unshift(pinnedEntry);
@@ -73,6 +83,18 @@ export async function ProfileEntriesList({ section, account, initialFeed, curren
           initialPageEntriesCount={initialPageEntriesCount}
           initialDataLoaded={initialDataLoaded}
         />
+        {/* Crawlable entry into the cursor archive: infinite scroll is the JS
+            enhancement, this "Older" link is the no-JS/crawler path. The cursor
+            is the last post of page 1; shown only when page 1 was full. */}
+        {ARCHIVE_SECTIONS.includes(section) &&
+          rawFirstPage.length >= ARCHIVE_PAGE_SIZE &&
+          lastOfFirstPage && (
+            <EntryArchivePager
+              basePath={`/@${account.name}/${section}`}
+              olderCursor={`${lastOfFirstPage.author}/${lastOfFirstPage.permlink}`}
+              showLatest={false}
+            />
+          )}
       </ProfileEntriesLayout>
     </>
   );

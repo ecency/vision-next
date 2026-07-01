@@ -1,7 +1,13 @@
 import { ProfileEntriesList, ProfileSearchContent } from "../_components";
+import { ProfileEntriesArchive } from "@/app/(dynamicPages)/profile/[username]/_components/profile-entries-archive";
+import {
+  fetchAuthorCursorPage,
+  archiveCursor,
+  cursorToken
+} from "@/app/(dynamicPages)/profile/[username]/_helpers/author-archive";
 import { prefetchGetPostsFeedQuery } from "@/api/queries";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient, prefetchQuery, fetchInfiniteQuery } from "@/core/react-query";
 import { stripActiveVotesFromDehydratedState } from "@/core/react-query/strip-active-votes";
@@ -21,15 +27,54 @@ interface Props {
 
 export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
   const { username, section } = await props.params;
-  return generateProfileMetadata(username.replace(/%40/g, ""), section);
+  const { query, before } = await props.searchParams;
+  const cursor = archiveCursor(section, { query, before });
+  return generateProfileMetadata(
+    username.replace(/%40/g, ""),
+    section,
+    cursor ? cursorToken(cursor) : undefined
+  );
 }
 
 export default async function Page({ params, searchParams }: Props) {
   const { username: usernameParam, section } = await params;
-  const { query: searchParam } = await searchParams;
+  const { query: searchParam, before: beforeParam } = await searchParams;
   const loggedInUser = (await cookies()).get(ACTIVE_USER_COOKIE_NAME)?.value;
 
   const username = usernameParam.replace(/%40/g, "");
+
+  // Cursor archive page (/@author/<section>?before=<author>/<permlink>): O(1),
+  // one fetch of the 20 posts older than the cursor. Page 1 is the clean,
+  // query-less default view; archiveCursor() returns null there.
+  const cursor = archiveCursor(section, { query: searchParam, before: beforeParam });
+  if (cursor) {
+    const basePath = `/@${username}/${section}`;
+    const [account, archive] = await Promise.all([
+      prefetchQuery(getAccountFullQueryOptions(username)),
+      fetchAuthorCursorPage(username, section, cursor)
+    ]);
+    if (!account) {
+      return notFound();
+    }
+    // Stale/invalid cursor (nothing older than it): send to the clean first page.
+    if (archive.entries.length === 0) {
+      return redirect(basePath);
+    }
+    return (
+      <HydrationBoundary
+        state={stripActiveVotesFromDehydratedState(dehydrate(getQueryClient()), loggedInUser)}
+      >
+        <ProfileEntriesArchive
+          section={section}
+          account={account}
+          entries={archive.entries}
+          olderCursor={archive.nextCursor ? cursorToken(archive.nextCursor) : null}
+          currentUser={loggedInUser}
+        />
+      </HydrationBoundary>
+    );
+  }
+
   const [account, searchPages, prefetchedFeed] = await Promise.all([
     prefetchQuery(getAccountFullQueryOptions(username)),
     searchParam
