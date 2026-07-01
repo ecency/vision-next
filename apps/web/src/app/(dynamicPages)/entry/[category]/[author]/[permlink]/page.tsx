@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { prefetchQuery, getQueryClient } from "@/core/react-query";
 import { getAccountFullQueryOptions, getSimilarEntriesQueryOptions } from "@ecency/sdk";
 import {
@@ -10,6 +11,10 @@ import {
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { EntryPageContentClient } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-client";
 import { EntryPageContentSSR } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-ssr";
+import { EntryPageBreadcrumb } from "./_components/entry-page-breadcrumb";
+import { buildEntryBreadcrumbs } from "./_components/entry-breadcrumbs";
+import { EntryPageMoreFromAuthor } from "./_components/entry-page-more-from-author";
+import { EntryPageMoreInTag } from "./_components/entry-page-more-in-tag";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata, ResolvingMetadata } from "next";
 import { notFound, redirect } from "next/navigation";
@@ -143,18 +148,19 @@ export default async function EntryPage({ params, searchParams }: Props) {
   // rather than the category-prefixed path, which only 307-redirects to it.
   const base = (await getServerAppBase()).replace(/\/+$/, "");
   const entryUrl = entryCanonical(entry, base) ?? `${base}/@${entry.author}/${entry.permlink}`;
+  // Breadcrumb trail shared by the visible <nav> and the BreadcrumbList JSON-LD
+  // so the two never drift (and never surface a raw hive-id section).
+  const breadcrumbs = buildEntryBreadcrumbs(entry, {
+    siteName: defaults.name,
+    base,
+    entryUrl
+  });
+
   const structuredData = entry.parent_author
     ? null
     : [
         buildArticleJsonLd({ entry, account, url: entryUrl, base }),
-        buildBreadcrumbJsonLd([
-          { name: defaults.name, url: base },
-          {
-            name: entry.community_title || `#${entry.category}`,
-            url: `${base}/trending/${entry.category}`
-          },
-          { name: entry.title, url: entryUrl }
-        ])
+        buildBreadcrumbJsonLd(breadcrumbs.map((c) => ({ name: c.name, url: c.url })))
       ];
 
   return (
@@ -186,9 +192,22 @@ export default async function EntryPage({ params, searchParams }: Props) {
         <div className="app-content entry-page bg-fixed bg-contain bg-gradient-to-tr from-blue-dark-sky/20 to-white dark:from-dark-default dark:to-black">
           <div className="the-entry">
             <EntryPageCrossPostHeader entry={entry} />
+            {breadcrumbs.length > 0 && <EntryPageBreadcrumb items={breadcrumbs} />}
             {structuredData && <JsonLd data={structuredData} />}
             <EntryRenderBoundary>
               <EntryPageContentSSR entry={entry} isRawContent={isRawContent} />
+              {/* Durable, server-rendered internal links so crawlers can reach
+                  the author's other posts and the community/tag beyond the
+                  sitemap. Each renders nothing when there's too little to link.
+                  Wrapped in Suspense so their (bounded) feed fetches stream as a
+                  later chunk instead of gating the post body's flush / LCP — the
+                  <a href> links still ship in the same streamed HTML response. */}
+              <Suspense fallback={null}>
+                <EntryPageMoreFromAuthor entry={entry} />
+              </Suspense>
+              <Suspense fallback={null}>
+                <EntryPageMoreInTag entry={entry} />
+              </Suspense>
               <EntryPageContentClient entry={entry} />
               <EntryPageDiscussionsWrapper entry={entry} category={category} />
             </EntryRenderBoundary>

@@ -1,30 +1,33 @@
 import Image from "next/image";
 import Link from "next/link";
 import { catchPostImage } from "@ecency/render-helper";
-import { TimeLabel } from "@/features/shared/time-label";
-import React, { useMemo } from "react";
-import { SearchResult } from "@/entities";
+import { Entry } from "@/entities";
+import { makeEntryPath } from "@/utils/make-path";
+import { dateToFullRelative } from "@/utils/parse-date";
+
 interface Props {
-  entry: SearchResult;
+  entry: Entry;
   i: number;
 }
 
-export function SimilarEntryItem({ entry, i }: Props) {
-  const postImage = useMemo(
-    () => catchPostImage(entry.img_url, 600, 500),
-    [entry.img_url]
-  );
+/**
+ * A single related-post card. Pure server component: the `<a href>` is always
+ * present in the initial SSR HTML (no `use client`, no query subscription), so
+ * it is a durable internal link crawlers can follow. Visually mirrors
+ * SimilarEntryItem but renders the timestamp as a static `<time>` (server-safe)
+ * instead of the client-only TimeLabel, and links via makeEntryPath so the href
+ * is the canonical bare /@author/permlink form (no redirect hop).
+ */
+export function EntryRelatedCard({ entry, i }: Props) {
+  const postImage = catchPostImage(entry, 600, 500);
 
   return (
-    <Link href={`/@${entry.author}/${entry.permlink}`} className="no-style">
-      {/* Entrance animation is CSS (see _index.scss), staggered per item via
-          animation-delay — keeps the card visible in the SSR HTML (and with JS
-          disabled) instead of framer-motion's serialized opacity:0. */}
+    <Link href={makeEntryPath(entry.category, entry.author, entry.permlink)} className="no-style">
       <div
         className="similar-entries-list-item bg-gray-100 hover:bg-blue-dark-sky-040 dark:bg-gray-900 rounded-2xl overflow-hidden transform transition-transform duration-200 hover:rotate-[1.5deg]"
         style={{ animationDelay: `${i * 0.2}s` }}
       >
-        {postImage && (
+        {postImage ? (
           <Image
             src={postImage}
             alt={entry.title}
@@ -35,8 +38,7 @@ export function SimilarEntryItem({ entry, i }: Props) {
             sizes="(max-width: 640px) 100vw, 33vw"
             className="object-cover w-full h-[8rem]"
           />
-        )}
-        {!postImage && (
+        ) : (
           <div className="w-full h-[8rem] flex items-center justify-center bg-gray-200 dark:bg-dark-default">
             <Image
               src="/assets/noimage.svg"
@@ -50,7 +52,9 @@ export function SimilarEntryItem({ entry, i }: Props) {
         <div className="truncate py-2 px-4">{entry.title}</div>
         <div className="item-footer py-2 px-4">
           <span className="item-footer-author">{entry.author}</span>
-          <TimeLabel created={entry.created_at} mode="fullRelative" className="item-footer-date" />
+          <time className="item-footer-date" dateTime={entry.created}>
+            {dateToFullRelative(entry.created)}
+          </time>
         </div>
       </div>
     </Link>
