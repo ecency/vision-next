@@ -2,7 +2,8 @@ import { describe, it, expect } from "vitest";
 import {
   parseArchiveCursor,
   cursorToken,
-  isArchivableTag
+  isArchivableTag,
+  isArchivableFilter
 } from "@/features/seo/ranked-archive";
 
 describe("parseArchiveCursor", () => {
@@ -20,6 +21,17 @@ describe("parseArchiveCursor", () => {
     expect(parseArchiveCursor("enjar")).toBeNull(); // no slash
     expect(parseArchiveCursor("/my-post")).toBeNull(); // empty author
     expect(parseArchiveCursor("enjar/")).toBeNull(); // empty permlink
+  });
+});
+
+describe("isArchivableFilter", () => {
+  it("allows only content sorts", () => {
+    expect(isArchivableFilter("created")).toBe(true);
+    expect(isArchivableFilter("trending")).toBe(true);
+    expect(isArchivableFilter("hot")).toBe(true);
+    expect(isArchivableFilter("payout")).toBe(false);
+    expect(isArchivableFilter("muted")).toBe(false);
+    expect(isArchivableFilter("promoted")).toBe(false);
   });
 });
 

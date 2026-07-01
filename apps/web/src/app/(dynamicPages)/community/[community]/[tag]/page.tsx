@@ -13,10 +13,10 @@ import { ProfileEntriesLayout } from "@/app/(dynamicPages)/profile/[username]/_c
 import { CommunityContentInfiniteList } from "../_components/community-content-infinite-list";
 import { Entry, SearchResponse } from "@/entities";
 import {
-  ARCHIVE_FILTERS,
   ARCHIVE_PAGE_SIZE,
   cursorToken,
   fetchRankedCursorPage,
+  isArchivableFilter,
   parseArchiveCursor
 } from "@/features/seo/ranked-archive";
 
@@ -30,7 +30,7 @@ interface Props {
 export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
   const { community, tag } = await props.params;
   const { before } = await props.searchParams;
-  const cursor = ARCHIVE_FILTERS.includes(tag) ? parseArchiveCursor(before) : null;
+  const cursor = isArchivableFilter(tag) ? parseArchiveCursor(before) : null;
   return generateCommunityMetadata(community, tag, cursor ? cursorToken(cursor) : undefined);
 }
 
@@ -44,7 +44,7 @@ export default async function CommunityPostsPage({ params, searchParams }: Props
   const { community, tag } = await params;
   const { before } = await searchParams;
   const basePath = `/${tag}/${community}`;
-  const cursor = ARCHIVE_FILTERS.includes(tag) ? parseArchiveCursor(before) : null;
+  const cursor = isArchivableFilter(tag) ? parseArchiveCursor(before) : null;
 
   // Cursor archive page: one O(1) fetch of the 20 posts older than the cursor,
   // fully server-rendered (no infinite scroll) with a crawlable pager.
@@ -93,7 +93,7 @@ export default async function CommunityPostsPage({ params, searchParams }: Props
   const firstPage = pageToEntries((data as InfiniteData<Page, unknown>).pages[0]);
   const lastOfFirst = firstPage[firstPage.length - 1];
   const olderCursor =
-    ARCHIVE_FILTERS.includes(tag) && firstPage.length >= ARCHIVE_PAGE_SIZE && lastOfFirst
+    isArchivableFilter(tag) && firstPage.length >= ARCHIVE_PAGE_SIZE && lastOfFirst
       ? `${lastOfFirst.author}/${lastOfFirst.permlink}`
       : null;
 
@@ -101,7 +101,7 @@ export default async function CommunityPostsPage({ params, searchParams }: Props
     <HydrationBoundary state={dehydrate(getQueryClient())}>
       {data.pages.length === 0 ? <LinearProgress /> : null}
 
-      {["hot", "created", "trending"].includes(tag) && data.pages.length > 0 && (
+      {isArchivableFilter(tag) && data.pages.length > 0 && (
         <div className="searchProfile">
           <CommunityContentSearch community={communityData} filter={tag} />
         </div>

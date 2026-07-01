@@ -55,7 +55,7 @@ export default async function FeedPage({ params, searchParams }: Props) {
   // Cursor archive page: one O(1) fetch of the 20 posts older than the cursor,
   // fully server-rendered (no infinite scroll) with a crawlable pager.
   if (cursor) {
-    const { entries, nextCursor } = await fetchRankedCursorPage(filter, tag, cursor);
+    const { entries, nextCursor } = await fetchRankedCursorPage(filter, tag, cursor, observer);
     if (entries.length === 0) {
       return redirect(basePath); // stale/invalid cursor -> clean first page
     }

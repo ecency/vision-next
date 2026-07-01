@@ -31,10 +31,15 @@ export function cursorToken(c: ArchiveCursor): string {
   return `${c.author}/${c.permlink}`;
 }
 
+/** Whether a feed/community sort has a crawlable archive. */
+export function isArchivableFilter(filter: string): boolean {
+  return ARCHIVE_FILTERS.includes(filter);
+}
+
 /** A tag page is archivable on content sorts, for a real topic tag only. */
 export function isArchivableTag(filter: string, tag: string): boolean {
   return (
-    ARCHIVE_FILTERS.includes(filter) &&
+    isArchivableFilter(filter) &&
     !!tag &&
     tag !== "my" &&
     !tag.startsWith("@") &&
@@ -45,15 +50,25 @@ export function isArchivableTag(filter: string, tag: string): boolean {
 /**
  * Fetch one ranked-feed archive page (the 20 posts older than `cursor`) for a
  * tag or a community id. O(1) — a single bridge.get_ranked_posts call.
+ * `observer` mirrors the default feed so a logged-in user's muted-user/content
+ * filtering applies to archive pages too.
  */
 export async function fetchRankedCursorPage(
   sort: string,
   tag: string,
-  cursor: ArchiveCursor
+  cursor: ArchiveCursor,
+  observer = ""
 ): Promise<{ entries: Entry[]; nextCursor: ArchiveCursor | null }> {
   const entries =
     ((await fetchQuery(
-      getPostsRankedQueryOptions(sort, cursor.author, cursor.permlink, ARCHIVE_PAGE_SIZE, tag)
+      getPostsRankedQueryOptions(
+        sort,
+        cursor.author,
+        cursor.permlink,
+        ARCHIVE_PAGE_SIZE,
+        tag,
+        observer
+      )
     )) as unknown as Entry[] | undefined) ?? [];
   const last = entries[entries.length - 1];
   const nextCursor =
