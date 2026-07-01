@@ -9,7 +9,8 @@ const NOINDEX_REPUTATION_THRESHOLD = 40;
 
 export async function generateProfileMetadata(
   username: string,
-  section = "posts"
+  section = "posts",
+  page = 1
 ): Promise<Metadata> {
   const account = await prefetchQuery(getAccountFullQueryOptions(username));
   if (account) {
@@ -17,13 +18,15 @@ export async function generateProfileMetadata(
     const cleanUsername = username.replace("@", "");
     const metaTitle = `${account.profile?.name || account.name}'s ${
       section ? (section === "engine" ? "tokens" : `${section}`) : ""
-    } on decentralized web`;
+    } on decentralized web${page > 1 ? ` - page ${page}` : ""}`;
     const metaDescription = `${
       account.profile?.about
         ? `${account.profile?.about} ${section ? `${section}` : ""}`
         : `${account.profile?.name || account.name} ${section ? `${section}` : ""}`
     }`;
-    const metaUrl = `/@${cleanUsername}${section ? `/${section}` : ""}`;
+    const isPaginated = page > 1;
+    const baseUrl = `/@${cleanUsername}${section ? `/${section}` : ""}`;
+    const metaUrl = isPaginated ? `${baseUrl}/page/${page}` : baseUrl;
     const metaImage = `${defaults.imageServer}/u/${cleanUsername}/avatar/medium`;
     const metaKeywords = [cleanUsername, `${cleanUsername}'s blog`];
     const rssSections = ["posts", "blog", ""];
@@ -31,7 +34,13 @@ export async function generateProfileMetadata(
     const reputationScore = accountReputation(account.reputation ?? 0);
     const postCount = account.post_count ?? 0;
     const applyNoIndex = reputationScore < NOINDEX_REPUTATION_THRESHOLD || postCount <= 3;
-    const robots = applyNoIndex ? "noindex, nofollow" : undefined;
+    // Paginated archive pages stay out of the index but must let crawlers walk
+    // the pager links (noindex, FOLLOW). Page 1 keeps the reputation-based rule.
+    const robots = isPaginated
+      ? "noindex, follow"
+      : applyNoIndex
+        ? "noindex, nofollow"
+        : undefined;
 
     return {
       title: metaTitle,
@@ -39,11 +48,12 @@ export async function generateProfileMetadata(
       robots,
       alternates: {
         canonical: `${base}${metaUrl}`,
-        ...(rssSections.includes(section) && {
-          types: {
-            "application/rss+xml": `${base}/@${cleanUsername}/rss`,
-          },
-        }),
+        ...(rssSections.includes(section) &&
+          !isPaginated && {
+            types: {
+              "application/rss+xml": `${base}/@${cleanUsername}/rss`,
+            },
+          }),
       },
       openGraph: {
         title: metaTitle,

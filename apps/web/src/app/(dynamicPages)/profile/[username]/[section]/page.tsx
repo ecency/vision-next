@@ -1,7 +1,12 @@
 import { ProfileEntriesList, ProfileSearchContent } from "../_components";
+import { ProfileEntriesArchive } from "@/app/(dynamicPages)/profile/[username]/_components/profile-entries-archive";
+import {
+  fetchAuthorArchivePage,
+  ARCHIVE_MAX_PAGE
+} from "@/app/(dynamicPages)/profile/[username]/_helpers/author-archive";
 import { prefetchGetPostsFeedQuery } from "@/api/queries";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient, prefetchQuery, fetchInfiniteQuery } from "@/core/react-query";
 import { stripActiveVotesFromDehydratedState } from "@/core/react-query/strip-active-votes";
@@ -21,15 +26,58 @@ interface Props {
 
 export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
   const { username, section } = await props.params;
-  return generateProfileMetadata(username.replace(/%40/g, ""), section);
+  const { page } = await props.searchParams;
+  return generateProfileMetadata(username.replace(/%40/g, ""), section, Number(page) || 1);
 }
 
 export default async function Page({ params, searchParams }: Props) {
   const { username: usernameParam, section } = await params;
-  const { query: searchParam } = await searchParams;
+  const { query: searchParam, page: pageParam } = await searchParams;
   const loggedInUser = (await cookies()).get(ACTIVE_USER_COOKIE_NAME)?.value;
 
   const username = usernameParam.replace(/%40/g, "");
+
+  // Numbered archive page (/@author/<section>/page/N, rewritten to ?page=N).
+  // Only for content sections and only page 2+ (page 1 is the default view).
+  const pageNum = Number(pageParam);
+  const isArchive = !searchParam && Number.isInteger(pageNum) && pageNum >= 2;
+  if (isArchive) {
+    if (!["posts", "comments", "replies", "blog"].includes(section)) {
+      return notFound();
+    }
+    const basePath = `/@${username}/${section}`;
+    // Past the crawlable depth cap — send to the first page rather than 404.
+    if (pageNum > ARCHIVE_MAX_PAGE) {
+      return redirect(basePath);
+    }
+    const [account, archive] = await Promise.all([
+      prefetchQuery(getAccountFullQueryOptions(username)),
+      fetchAuthorArchivePage(username, section, pageNum)
+    ]);
+    if (!account) {
+      return notFound();
+    }
+    // Page beyond the author's content (incl. an exact-multiple-of-20 author
+    // whose page-1 "Older" link points here): redirect to page 1, never a 404.
+    if (archive.entries.length === 0) {
+      return redirect(basePath);
+    }
+    return (
+      <HydrationBoundary
+        state={stripActiveVotesFromDehydratedState(dehydrate(getQueryClient()), loggedInUser)}
+      >
+        <ProfileEntriesArchive
+          section={section}
+          account={account}
+          entries={archive.entries}
+          page={pageNum}
+          hasNext={archive.hasNext}
+          currentUser={loggedInUser}
+        />
+      </HydrationBoundary>
+    );
+  }
+
   const [account, searchPages, prefetchedFeed] = await Promise.all([
     prefetchQuery(getAccountFullQueryOptions(username)),
     searchParam

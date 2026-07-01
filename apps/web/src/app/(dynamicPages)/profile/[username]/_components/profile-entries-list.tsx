@@ -7,7 +7,15 @@ import { stripActiveVotesFromValue } from "@/core/react-query/strip-active-votes
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { ProfileEntriesLayout } from "@/app/(dynamicPages)/profile/[username]/_components/profile-entries-layout";
 import { ProfileEntriesInfiniteList } from "@/app/(dynamicPages)/profile/[username]/_components/profile-entries-infinite-list";
+import { EntryArchivePager } from "@/features/shared/entry-archive-pager";
+import {
+  ARCHIVE_PER_PAGE,
+  ARCHIVE_MAX_PAGE
+} from "@/app/(dynamicPages)/profile/[username]/_helpers/author-archive";
 import type { InfiniteData } from "@tanstack/react-query";
+
+// Content sections that expose a crawlable numbered archive.
+const ARCHIVE_SECTIONS = ["posts", "blog", "comments", "replies"];
 
 interface Props {
   section: string;
@@ -73,6 +81,16 @@ export async function ProfileEntriesList({ section, account, initialFeed, curren
           initialPageEntriesCount={initialPageEntriesCount}
           initialDataLoaded={initialDataLoaded}
         />
+        {/* Crawlable entry into the numbered archive: infinite scroll is the JS
+            enhancement, this pager is the no-JS/crawler path to older posts. */}
+        {ARCHIVE_SECTIONS.includes(section) && initialPageEntriesCount >= ARCHIVE_PER_PAGE && (
+          <EntryArchivePager
+            basePath={`/@${account.name}/${section}`}
+            page={1}
+            hasNext={true}
+            maxPage={ARCHIVE_MAX_PAGE}
+          />
+        )}
       </ProfileEntriesLayout>
     </>
   );
