@@ -39,13 +39,16 @@ export async function ProfileEntriesList({ section, account, initialFeed, curren
     (getPostsFeedQueryData(section, `@${account.name}`) as InfiniteData<Entry[], unknown> | undefined);
 
   const feedPages = prefetchedFeed?.pages ?? [];
-  const initialPageEntries =
-    (feedPages[0] as Entry[] | undefined)?.filter(
-      (item: Entry) => item.permlink !== account.profile?.pinned
-    ) ?? [];
+  // Raw first feed page (before pinned-filtering): its length + last item are the
+  // TRUE feed-page-1 boundary, so the "Older" archive link and cursor stay
+  // correct even when a pinned post occupies a slot (a full 20-post page whose
+  // pinned entry is filtered would otherwise drop to 19 and suppress the link).
+  const rawFirstPage = (feedPages[0] as Entry[] | undefined) ?? [];
+  const initialPageEntries = rawFirstPage.filter(
+    (item: Entry) => item.permlink !== account.profile?.pinned
+  );
   const entryList = [...initialPageEntries];
-  // Cursor for the "Older" archive link = the last post of feed page 1.
-  const lastOfFirstPage = initialPageEntries[initialPageEntries.length - 1];
+  const lastOfFirstPage = rawFirstPage[rawFirstPage.length - 1];
 
   if (pinnedEntry) {
     entryList.unshift(pinnedEntry);
@@ -84,7 +87,7 @@ export async function ProfileEntriesList({ section, account, initialFeed, curren
             enhancement, this "Older" link is the no-JS/crawler path. The cursor
             is the last post of page 1; shown only when page 1 was full. */}
         {ARCHIVE_SECTIONS.includes(section) &&
-          initialPageEntriesCount >= ARCHIVE_PAGE_SIZE &&
+          rawFirstPage.length >= ARCHIVE_PAGE_SIZE &&
           lastOfFirstPage && (
             <EntryArchivePager
               basePath={`/@${account.name}/${section}`}
