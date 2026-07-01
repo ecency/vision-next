@@ -2,7 +2,7 @@ import { capitalize } from "@/utils";
 import i18next from "i18next";
 import { getServerAppBase } from "@/utils/server-app-base";
 
-export async function generateFeedMetadata(filter: string, tag: string) {
+export async function generateFeedMetadata(filter: string, tag: string, cursor?: string) {
   const fC = capitalize(filter);
   const base = await getServerAppBase();
   let title = i18next.t("entry-index.title", { f: fC });
@@ -25,17 +25,22 @@ export async function generateFeedMetadata(filter: string, tag: string) {
     rss = `${base}/${filter}/${tag}/rss.xml`;
   }
 
+  // Cursor archive page: keep it out of the index but let crawlers walk the
+  // pager chain (noindex, follow), self-canonical to the ?before URL, no RSS.
+  const isPaginated = !!cursor;
+
   return {
-    title,
+    title: isPaginated ? `${title} - older` : title,
     description,
+    ...(isPaginated ? { robots: "noindex, follow" } : {}),
     alternates: {
-      canonical,
-      ...(rss && { types: { "application/rss+xml": rss } }),
+      canonical: isPaginated ? `${canonical}?before=${cursor}` : canonical,
+      ...(rss && !isPaginated && { types: { "application/rss+xml": rss } }),
     },
     openGraph: {
       title,
       description,
-      url,
+      url: isPaginated ? `${url}?before=${cursor}` : url,
     },
     twitter: {
       card: "summary",
