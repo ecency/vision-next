@@ -519,6 +519,17 @@ const config = {
         source: "/:category((?!@)[^/]+)/:author(@[^/]+)/:permlink",
         destination: "/:author/:permlink",
         permanent: true
+      },
+      // SEO: a bare community URL (/hive-NNNNN) currently 404s — no route
+      // matches a bare hive-id at the root. Canonicalize it onto the working
+      // /created/:community form (mapped to the community feed by the rewrites
+      // below, and the same path makePath() emits), so the natural community
+      // URL resolves and any inbound links transfer their signal to it.
+      // Single-segment hive-id can only be a community, so this shadows nothing.
+      {
+        source: "/:community(hive-\\d{5,6})",
+        destination: "/created/:community",
+        permanent: true
       }
     ];
   },
