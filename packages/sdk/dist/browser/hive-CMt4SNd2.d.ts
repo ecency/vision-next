@@ -826,19 +826,6 @@ declare const config: {
      */
     retry: number;
 };
-/**
- * Validated setter for the Hive RPC node list — replaces `config.nodes`.
- * Trims, drops non-http(s) entries, and de-dupes (order-preserving). A no-op
- * if nothing valid remains, so a bad input can't empty the list.
- *
- * Lives here, in the React-free `hive-tx` core, on purpose: it must be
- * reachable from BOTH the full `@ecency/sdk` entry (via
- * `ConfigManager.setHiveNodes`, which delegates here) and the lean
- * `@ecency/sdk/hive` server/CLI entry — without dragging react-query or the
- * DMCA/ReDoS surface of `ConfigManager` into the lean entry. Within a single
- * bundle this mutates the one `config` instance `callRPC` reads; the
- * cross-bundle single-instance guarantee is a separate (build-level) concern.
- */
 declare const setNodes: (nodes: string[]) => void;
 /**
  * Validated setter for the REST-API node list — replaces `config.restNodes`.
