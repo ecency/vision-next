@@ -73,7 +73,7 @@ export function buildWebsiteJsonLd(base: string = defaults.base): JsonLdData {
       "@type": "SearchAction",
       target: {
         "@type": "EntryPoint",
-        urlTemplate: `${base}/search/?q={search_term_string}`
+        urlTemplate: `${base}/search?q={search_term_string}`
       },
       "query-input": "required name=search_term_string"
     }

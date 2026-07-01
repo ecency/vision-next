@@ -15,6 +15,13 @@ import { JsonLd, buildOrganizationJsonLd } from "@/features/structured-data";
 
 export const metadata: Metadata = {
   metadataBase: new URL(defaults.base),
+  // Consistent brand signal in every SERP <title>. Pages return a bare title
+  // (e.g. a post title) and get " | Ecency" appended; pages that already carry
+  // their own brand opt out with `title.absolute`.
+  title: {
+    template: `%s | ${defaults.name}`,
+    default: defaults.title
+  },
   applicationName: defaults.name,
   appleWebApp: {
     capable: true,

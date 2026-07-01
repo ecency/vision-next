@@ -44,6 +44,7 @@ export async function generateCommunityMetadata(
       },
       twitter: {
         card: "summary",
+        site: defaults.twitterHandle,
         title,
         description,
         images: [metaImage],

@@ -17,9 +17,13 @@ export async function generateProfileMetadata(
   if (account) {
     const base = await getServerAppBase();
     const cleanUsername = username.replace("@", "");
-    const metaTitle = `${account.profile?.name || account.name}'s ${
-      section ? (section === "engine" ? "tokens" : `${section}`) : ""
-    } on decentralized web${cursor ? " - older posts" : ""}`;
+    // Brand ("| Ecency") is appended by the root title.template; keep this bare.
+    const sectionLabel = section ? (section === "engine" ? "tokens" : section) : "";
+    const metaTitle = `${account.profile?.name || account.name}'s ${sectionLabel}${
+      cursor ? " - older posts" : ""
+    }`
+      .replace(/\s{2,}/g, " ")
+      .trim();
     const metaDescription = `${
       account.profile?.about
         ? `${account.profile?.about} ${section ? `${section}` : ""}`
@@ -65,6 +69,7 @@ export async function generateProfileMetadata(
       },
       twitter: {
         card: "summary",
+        site: defaults.twitterHandle,
         title: metaTitle,
         description: metaDescription,
         images: [metaImage],

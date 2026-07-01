@@ -9,7 +9,7 @@ export async function generateMetadata(
   const metadata = await PagesMetadataGenerator.getForPage("perks");
   return {
     ...metadata,
-    title: "Buy points with Hive | " + metadata.title
+    title: { absolute: "Buy points with Hive | " + metadata.title }
   };
 }
 

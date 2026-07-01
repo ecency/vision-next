@@ -9,7 +9,7 @@ export async function generateMetadata(
   const metadata = await PagesMetadataGenerator.getForPage("perks");
   return {
     ...metadata,
-    title: "AI Image Generator | " + metadata.title
+    title: { absolute: "AI Image Generator | " + metadata.title }
   };
 }
 
