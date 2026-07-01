@@ -452,7 +452,10 @@ export class NodeHealthTracker {
     const cooldown = hasHeader
       ? retryAfterMs!
       : Math.min(RATE_LIMIT_BASE_MS * 2 ** h.rateLimitStreak, RATE_LIMIT_MAX_MS)
-    h.rateLimitStreak++
+    // Only a header-less 429 advances the escalation streak — an explicit Retry-After is
+    // honored exactly and must not compound the header-less backoff (else several
+    // Retry-After 429s would push a later header-less 429 straight to the 60s cap).
+    if (!hasHeader) h.rateLimitStreak++
     h.lastRateLimitAt = now
     h.rateLimitedUntil = now + cooldown
     h.consecutiveFailures++

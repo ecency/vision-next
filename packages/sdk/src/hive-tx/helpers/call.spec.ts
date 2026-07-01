@@ -259,6 +259,19 @@ describe("NodeHealthTracker — 429 rate-limit backoff", () => {
     expect(t.isNodeHealthy("https://n.test")).toBe(true);
   });
 
+  it("does not let explicit-Retry-After 429s inflate the header-less escalation", () => {
+    vi.setSystemTime(0);
+    const t = new NodeHealthTracker();
+    // A 429 WITH Retry-After is honored exactly and must NOT advance the streak.
+    t.recordRateLimit("https://n.test", 5_000);
+    // So the next header-less 429 starts at base 10s, not the escalated 20s.
+    t.recordRateLimit("https://n.test"); // until 10_000 if base; until 20_000 if wrongly escalated
+    vi.setSystemTime(9_999);
+    expect(t.isNodeHealthy("https://n.test")).toBe(false);
+    vi.setSystemTime(10_001);
+    expect(t.isNodeHealthy("https://n.test")).toBe(true);
+  });
+
   it("expires the escalation streak after a long quiet gap", () => {
     vi.setSystemTime(0);
     const t = new NodeHealthTracker();
