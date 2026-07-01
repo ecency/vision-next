@@ -59,25 +59,31 @@ export default async function FeedPage({ params, searchParams }: Props) {
     if (entries.length === 0) {
       return redirect(basePath); // stale/invalid cursor -> clean first page
     }
+    // Static wrapper (NOT FeedLayout): an archive page must not run FeedLayout's
+    // live usePostsFeedQuery + 30s "new posts" polling, which would refetch the
+    // latest feed and prepend it onto this older-posts view. The route layout
+    // still provides the navbar/menu; we only need the list wrapper divs.
     return (
       <HydrationBoundary
         state={stripActiveVotesFromDehydratedState(dehydrate(getQueryClient()), loggedInUser)}
       >
-        <FeedLayout tag={tag} filter={filter} observer={observer}>
-          <EntryListContent
-            username=""
-            loading={false}
-            entries={stripActiveVotesFromValue(entries, loggedInUser)}
-            sectionParam={filter}
-            isPromoted={false}
-            showEmptyPlaceholder={false}
-          />
-          <EntryArchivePager
-            basePath={basePath}
-            olderCursor={nextCursor ? cursorToken(nextCursor) : null}
-            showLatest={true}
-          />
-        </FeedLayout>
+        <div className="entry-list">
+          <div className="entry-list-body">
+            <EntryListContent
+              username=""
+              loading={false}
+              entries={stripActiveVotesFromValue(entries, loggedInUser)}
+              sectionParam={filter}
+              isPromoted={false}
+              showEmptyPlaceholder={false}
+            />
+            <EntryArchivePager
+              basePath={basePath}
+              olderCursor={nextCursor ? cursorToken(nextCursor) : null}
+              showLatest={true}
+            />
+          </div>
+        </div>
       </HydrationBoundary>
     );
   }
