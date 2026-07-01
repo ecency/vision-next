@@ -457,7 +457,14 @@ export class NodeHealthTracker {
     // Retry-After 429s would push a later header-less 429 straight to the 60s cap).
     if (!hasHeader) h.rateLimitStreak++
     h.lastRateLimitAt = now
-    h.rateLimitedUntil = now + cooldown
+    // Explicit Retry-After is honored exactly (the server's current instruction). A
+    // header-less cooldown may only move the window FORWARD — it must never truncate a
+    // longer window already set, e.g. a node parked for an hour by an explicit
+    // Retry-After that is later retried as a last resort and returns a header-less 429
+    // must not have its 1h window cut down to the 10s base.
+    h.rateLimitedUntil = hasHeader
+      ? now + cooldown
+      : Math.max(h.rateLimitedUntil, now + cooldown)
     h.consecutiveFailures++
     h.lastFailureTime = now
   }

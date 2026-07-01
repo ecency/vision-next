@@ -272,6 +272,17 @@ describe("NodeHealthTracker — 429 rate-limit backoff", () => {
     expect(t.isNodeHealthy("https://n.test")).toBe(true);
   });
 
+  it("a header-less 429 never shortens a longer explicit Retry-After window already set", () => {
+    vi.setSystemTime(0);
+    const t = new NodeHealthTracker();
+    t.recordRateLimit("https://n.test", 3_600_000); // explicit 1h window
+    vi.setSystemTime(1_000);
+    // A last-resort retry gets a header-less 429 (base 10s). It must NOT truncate the 1h.
+    t.recordRateLimit("https://n.test");
+    vi.setSystemTime(60_000);
+    expect(t.isNodeHealthy("https://n.test")).toBe(false); // still parked by the 1h window
+  });
+
   it("expires the escalation streak after a long quiet gap", () => {
     vi.setSystemTime(0);
     const t = new NodeHealthTracker();
