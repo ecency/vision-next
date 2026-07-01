@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { callRPCBroadcast, callRPC, callREST, RPCError } from "./call";
+import { callRPCBroadcast, callRPC, callREST, RPCError, NodeHealthTracker } from "./call";
 import { config, setUserAgent } from "../config";
 
 const ORIGINAL_NODES = [...config.nodes];
@@ -193,5 +193,82 @@ describe("server-side User-Agent identity", () => {
     // Non-string input from plain-JS callers is ignored, not thrown on.
     setUserAgent(undefined as unknown as string);
     expect(config.userAgent).toBe("custom-ua/1.0");
+  });
+});
+
+describe("NodeHealthTracker — 429 rate-limit backoff", () => {
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => vi.useRealTimers());
+
+  it("honors an explicit Retry-After (ms) exactly", () => {
+    vi.setSystemTime(0);
+    const t = new NodeHealthTracker();
+    t.recordRateLimit("https://n.test", 5_000);
+    vi.setSystemTime(4_999);
+    expect(t.isNodeHealthy("https://n.test")).toBe(false);
+    vi.setSystemTime(5_001);
+    expect(t.isNodeHealthy("https://n.test")).toBe(true);
+  });
+
+  it("uses the base 10s cooldown for a first header-less 429", () => {
+    vi.setSystemTime(0);
+    const t = new NodeHealthTracker();
+    t.recordRateLimit("https://n.test");
+    vi.setSystemTime(9_999);
+    expect(t.isNodeHealthy("https://n.test")).toBe(false);
+    vi.setSystemTime(10_001);
+    expect(t.isNodeHealthy("https://n.test")).toBe(true);
+  });
+
+  it("escalates on consecutive header-less 429s so the cooldown outlasts the 30s failure gate", () => {
+    vi.setSystemTime(0);
+    const t = new NodeHealthTracker();
+    t.recordRateLimit("https://n.test"); // streak 0 → +10s
+    t.recordRateLimit("https://n.test"); // streak 1 → +20s
+    t.recordRateLimit("https://n.test"); // streak 2 → +40s (until 40_000)
+    // consecutiveFailures=3 → failure gate parks it only until 30_000; the escalated
+    // 40s rate-limit window must keep it parked past that.
+    vi.setSystemTime(30_001);
+    expect(t.isNodeHealthy("https://n.test")).toBe(false);
+    vi.setSystemTime(40_001);
+    expect(t.isNodeHealthy("https://n.test")).toBe(true);
+  });
+
+  it("caps the escalated cooldown at 60s (not unbounded doubling)", () => {
+    vi.setSystemTime(0);
+    const t = new NodeHealthTracker();
+    // streak 0..5 would be 10,20,40,80,160,320s; all capped at 60s.
+    for (let i = 0; i < 6; i++) t.recordRateLimit("https://n.test");
+    vi.setSystemTime(59_999);
+    expect(t.isNodeHealthy("https://n.test")).toBe(false);
+    vi.setSystemTime(60_001);
+    expect(t.isNodeHealthy("https://n.test")).toBe(true);
+  });
+
+  it("lifts the window and resets escalation on a successful call", () => {
+    vi.setSystemTime(0);
+    const t = new NodeHealthTracker();
+    t.recordRateLimit("https://n.test");
+    t.recordRateLimit("https://n.test"); // escalated, until 20_000
+    expect(t.isNodeHealthy("https://n.test")).toBe(false);
+    t.recordSuccess("https://n.test");
+    expect(t.isNodeHealthy("https://n.test")).toBe(true);
+    // Streak reset → the next header-less 429 is base 10s, not the escalated 40s.
+    t.recordRateLimit("https://n.test"); // until 10_000
+    vi.setSystemTime(10_001);
+    expect(t.isNodeHealthy("https://n.test")).toBe(true);
+  });
+
+  it("expires the escalation streak after a long quiet gap", () => {
+    vi.setSystemTime(0);
+    const t = new NodeHealthTracker();
+    // One 429 → streak 1 (a 2nd, prompt 429 would be escalated to 20s). Two total
+    // keeps consecutiveFailures at 2 so the separate 30s failure gate stays out of it.
+    t.recordRateLimit("https://n.test");
+    // No 429 for > RATE_LIMIT_STREAK_RESET_MS (120s) → the streak expires.
+    vi.setSystemTime(200_000);
+    t.recordRateLimit("https://n.test"); // streak expired → base 10s → until 210_000 (not 20s)
+    vi.setSystemTime(210_001);
+    expect(t.isNodeHealthy("https://n.test")).toBe(true);
   });
 });

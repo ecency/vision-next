@@ -1,7 +1,7 @@
 import * as _tanstack_react_query from '@tanstack/react-query';
 import { MutationKey, UseMutationOptions, QueryClient, QueryKey, InfiniteData, UseQueryOptions, UseInfiniteQueryOptions, useMutation } from '@tanstack/react-query';
-import { O as Operation, R as PrivateKey, i as BroadcastResult, g as Authority, S as PublicKey, P as OperationName, aj as operations } from './hive-fkgMnAQs.js';
-export { A as AccountCreateOperation, f as AssetSymbol, u as CustomJsonOperation, $ as HiveTxTransaction, M as Memo, N as OperationBody, _ as Signature, ae as callREST, af as callRPC, ag as callRPCBroadcast, ah as callWithQuorum, ai as hiveTxConfig, am as hiveTxUtils } from './hive-fkgMnAQs.js';
+import { O as Operation, S as PrivateKey, j as BroadcastResult, A as APIMethods, h as Authority, T as PublicKey, Q as OperationName, ak as operations } from './hive-BctX0oSN.js';
+export { a as AccountCreateOperation, g as AssetSymbol, v as CustomJsonOperation, a0 as HiveTxTransaction, N as Memo, P as OperationBody, $ as Signature, af as callREST, ag as callRPC, ah as callRPCBroadcast, ai as callWithQuorum, aj as hiveTxConfig, ap as hiveTxUtils } from './hive-BctX0oSN.js';
 
 interface AiGenerationPrice {
     aspect_ratio: string;
@@ -1015,6 +1015,23 @@ declare namespace ConfigManager {
      * @param nodes - Array of Hive RPC node URLs
      */
     function setHiveNodes(nodes: string[]): void;
+    /**
+     * Set the REST-API node list, replacing the default `restNodes`. Lets an app
+     * add/remove REST hosts at runtime (e.g. drop an own node being decommissioned,
+     * or widen the public pool) without forking + republishing the SDK. Delegates to
+     * the unified hive-tx `setRestNodes` (validated, shared with `@ecency/sdk/hive`).
+     * @param nodes - Array of REST-capable node URLs (without a trailing slash)
+     */
+    function setRestNodes(nodes: string[]): void;
+    /**
+     * Merge per-API REST node overrides. For each API a non-empty valid list pins it
+     * to those hosts (so `callREST` never wastes its retry budget on a node that
+     * 404/503s the API); an empty list removes the pin (falls back to `restNodes`).
+     * Other APIs' pins (e.g. the built-in `hivesense`) are preserved. Delegates to the
+     * unified hive-tx `setRestNodesByApi`.
+     * @param map - Partial map of REST API name → capable node URLs
+     */
+    function setRestNodesByApi(map: Partial<Record<APIMethods, string[]>>): void;
     /**
      * Set the User-Agent sent on server-side (Node) requests to Hive nodes.
      * Lets an app label its own SSR/server traffic (otherwise Node's fetch sends a
