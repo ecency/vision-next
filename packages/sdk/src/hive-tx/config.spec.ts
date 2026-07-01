@@ -56,6 +56,21 @@ describe("setRestNodes / setRestNodesByApi", () => {
     expect(config.restNodes).toEqual([...ORIGINAL_REST]);
   });
 
+  it("strips trailing slashes so callREST does not build host//path (404 on some nodes)", () => {
+    setRestNodes(["https://a.test/", "https://b.test//"]);
+    expect(config.restNodes).toEqual(["https://a.test", "https://b.test"]);
+  });
+
+  it("collapses trailing-slash and bare forms of the same host to one entry", () => {
+    setRestNodes(["https://a.test/", "https://a.test"]);
+    expect(config.restNodes).toEqual(["https://a.test"]);
+  });
+
+  it("normalizes trailing slashes in per-API pins too", () => {
+    setRestNodesByApi({ balance: ["https://api.hive.blog/"] });
+    expect(config.restNodesByApi.balance).toEqual(["https://api.hive.blog"]);
+  });
+
   it("pins an API to capable hosts while preserving other pins (e.g. hivesense)", () => {
     setRestNodesByApi({ balance: ["https://api.hive.blog", "https://api.hive.blog", "x"] });
     expect(config.restNodesByApi.balance).toEqual(["https://api.hive.blog"]);

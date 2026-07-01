@@ -118,7 +118,11 @@ const sanitizeNodeList = (nodes: unknown): string[] =>
         ...new Set(
           nodes
             .filter((n): n is string => typeof n === 'string')
-            .map((n) => n.trim())
+            // Trim, then strip trailing slashes so REST paths concatenate cleanly:
+            // `callREST` builds `node + '/status-api'`, and a `https://host/` node would
+            // otherwise yield `https://host//status-api`, which several HAF nodes 404.
+            // De-dupe AFTER normalizing so `host` and `host/` collapse to one entry.
+            .map((n) => n.trim().replace(/\/+$/, ''))
             .filter((n) => n.length > 0 && /^https?:\/\/.+/.test(n))
         )
       ]

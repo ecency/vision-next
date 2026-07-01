@@ -245,17 +245,20 @@ describe("NodeHealthTracker — 429 rate-limit backoff", () => {
     expect(t.isNodeHealthy("https://n.test")).toBe(true);
   });
 
-  it("lifts the window and resets escalation on a successful call", () => {
+  it("resets the escalation streak on success without erasing an active window", () => {
     vi.setSystemTime(0);
     const t = new NodeHealthTracker();
-    t.recordRateLimit("https://n.test");
-    t.recordRateLimit("https://n.test"); // escalated, until 20_000
-    expect(t.isNodeHealthy("https://n.test")).toBe(false);
+    t.recordRateLimit("https://n.test"); // streak 0 → +10s
+    t.recordRateLimit("https://n.test"); // streak 1 → +20s, until 20_000
+    // A success must NOT lift the active window — a concurrent success from an
+    // in-flight request could otherwise un-bench a just-throttled node. It stays parked.
     t.recordSuccess("https://n.test");
+    expect(t.isNodeHealthy("https://n.test")).toBe(false);
+    vi.setSystemTime(20_001); // window expires on its own
     expect(t.isNodeHealthy("https://n.test")).toBe(true);
-    // Streak reset → the next header-less 429 is base 10s, not the escalated 40s.
-    t.recordRateLimit("https://n.test"); // until 10_000
-    vi.setSystemTime(10_001);
+    // But the streak WAS reset, so the next header-less 429 starts at base 10s, not 40s.
+    t.recordRateLimit("https://n.test"); // at 20_001 → +10s → until 30_001
+    vi.setSystemTime(30_002);
     expect(t.isNodeHealthy("https://n.test")).toBe(true);
   });
 

@@ -358,10 +358,14 @@ export class NodeHealthTracker {
   recordSuccess(node: string, api?: string, durationMs?: number): void {
     const h = this.getOrCreate(node)
     h.consecutiveFailures = 0
-    // A success means the node recovered — lift any active rate-limit window and
-    // clear the escalation streak so the next throttle starts from the base cooldown.
+    // A success means the node recovered — clear the escalation streak so the next
+    // throttle starts from the base cooldown. We deliberately do NOT clear an active
+    // rateLimitedUntil window here: under concurrency a success from a request that was
+    // already in flight can resolve *after* another request recorded a fresh 429
+    // Retry-After, and erasing the window would put a just-throttled node back into
+    // rotation early. The window expires on its own (short for header-less; the server's
+    // value for an explicit Retry-After).
     h.rateLimitStreak = 0
-    h.rateLimitedUntil = 0
     if (api) {
       // A successful API call clears that API's failure counter.
       h.apiFailures.delete(api)
