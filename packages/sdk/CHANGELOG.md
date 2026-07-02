@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.30
+
+### Patch Changes
+
+- fix(sdk): keep every pinned entry in ranked community feeds (#1061)
+
 ## 2.3.29
 
 ### Patch Changes
