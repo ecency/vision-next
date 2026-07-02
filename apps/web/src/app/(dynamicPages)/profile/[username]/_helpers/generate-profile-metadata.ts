@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import i18next from "i18next";
 import defaults from "@/defaults";
 import { getServerAppBase } from "@/utils/server-app-base";
 import { prefetchQuery } from "@/core/react-query";
@@ -36,8 +37,12 @@ export async function generateProfileMetadata(
     const metaDescription = about
       ? truncate(`${displayName}'s ${sectionLabel}: ${about}`, 160)
       : contentSections.includes(section)
-        ? `Latest ${section} by ${displayName} (@${cleanUsername}) on Ecency.`
-        : `${displayName}'s ${sectionLabel} on Ecency (@${cleanUsername}).`;
+        ? i18next.t("profile.page-description", { s: section, n: displayName, u: cleanUsername })
+        : i18next.t("profile.page-description-generic", {
+            n: displayName,
+            s: sectionLabel,
+            u: cleanUsername
+          });
     const isPaginated = !!cursor;
     const baseUrl = `/@${cleanUsername}${section ? `/${section}` : ""}`;
     const metaUrl = isPaginated ? `${baseUrl}?before=${cursor}` : baseUrl;
