@@ -34,6 +34,10 @@ const BASIC_TOKENS: string[] = [
   EcencyWalletBasicTokens.HiveDollar,
 ];
 
+// Tokens whose support has been removed. Stale profile.tokens entries and
+// portfolio responses may still reference them, so they are always hidden.
+const REMOVED_TOKENS = new Set(["SPK", "LARYNX", "LP", "BROCA"]);
+
 export function getAccountWalletListQueryOptions(username: string, currency: string = "usd") {
   return queryOptions({
     queryKey: ["ecency-wallets", "list", username, currency],
@@ -73,6 +77,10 @@ export function getAccountWalletListQueryOptions(username: string, currency: str
         const normalized = symbol?.toUpperCase();
 
         if (!normalized) {
+          return false;
+        }
+
+        if (REMOVED_TOKENS.has(normalized)) {
           return false;
         }
 

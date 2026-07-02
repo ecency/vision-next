@@ -396,7 +396,7 @@ const config = {
                 "https://pl.ecency.com https://chat.ecency.com",
                 "https://o4507985141956608.ingest.de.sentry.io",
                 "https://api.coingecko.com https://api.giphy.com",
-                "https://studio.3speak.tv https://embed.3speak.tv https://3speak.tv https://poll.ecency.com https://spk.good-karma.xyz",
+                "https://studio.3speak.tv https://embed.3speak.tv https://3speak.tv https://poll.ecency.com",
                 "https://rpc.ankr.com https://bsc-dataseed.binance.org https://explorer.solana.com https://etherscan.io https://bscscan.com",
                 "wss://enotify.ecency.com",
                 // Feature dependencies surfaced by report-only monitoring:
@@ -498,7 +498,7 @@ const config = {
       },
       {
         source: "/:author(@[^/]+)/spk",
-        destination: "/:author/wallet/spk",
+        destination: "/:author/wallet",
         permanent: false
       },
       {

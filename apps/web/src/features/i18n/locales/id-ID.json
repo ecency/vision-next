@@ -1360,79 +1360,6 @@
     "converting-hive-amount": "Mengonversi ke HBD",
     "withdrawing-amount": "Menarik dari Tabungan",
     "reserved-amount": "Dicadangkan untuk pesanan terbuka di Pasar",
-    "spk": {
-      "claim": {
-        "title": "Claim",
-        "unclaimed-rewards": "Unclaimed rewards"
-      },
-      "delegate": {
-        "title": "Delegasikan",
-        "subtitle": "Delegasikan token",
-        "node-operator-placeholder": "Pilih operator node",
-        "delegated-larynx-power": {
-          "title": "LARYNX Power yang Didelegasikan"
-        }
-      },
-      "power-up": {
-        "title": "Power Up",
-        "subtitle": "Power up untuk mendapatkan imbalan pasif"
-      },
-      "power-down": {
-        "title": "Power Down",
-        "subtitle": "Power down untuk mendapatkan imbalan pasif",
-        "in-progress": "Power down dijadwalkan terjadi pada {{date}} ({{count}} angsuran tersisa)"
-      },
-      "lock": {
-        "title": "Kunci Likuiditas",
-        "subtitle": "Mengunci Larynx untuk imbalan likuiditas",
-        "button": "Kunci likuiditas"
-      },
-      "unlock": {
-        "title": "Buka Kunci Likuiditas",
-        "subtitle": "Buka kunci LARYNX ke bentuk likuid",
-        "button": "Buka kunci likuiditas"
-      },
-      "send": {
-        "balance": "Saldo",
-        "button": "Kirim",
-        "from": "Dari",
-        "to": "Ke",
-        "amount": "Jumlah",
-        "optional": "opsional",
-        "title": "Kirim SPK",
-        "memo": "Memo",
-        "next": "Berikutnya",
-        "subtitle": "Pindahkan dana ke dompet SPK lain",
-        "warning": "Mentransfer lebih dari saldo yang tersedia"
-      },
-      "token": "Token SPK",
-      "token-description": "Token tata kelola untuk jaringan SPK.",
-      "larynx-already-claimed": "Sudah diklaim.",
-      "larynx-token": "Token LARYNX",
-      "larynx-token-description": "Token penambangan untuk jaringan SPK.",
-      "larynx-power": "LARYNX Power",
-      "larynx-power-description": "Token yang di-power untuk menambang SPK",
-      "larynx-power-benefits": {
-        "title": "Manfaat LARYNX Power",
-        "1": "Mendapatkan token tata kelola SPK",
-        "2": "Penguncian Instan | Pembukaan Kunci 4 Minggu",
-        "3": "Delegasikan ke akun layanan node untuk membangun konsensus (DPoS)",
-        "4": "LARYNX POWER (LP) mendapatkan token SPK sebesar {{rate}}%",
-        "5": "LP yang Didelegasikan (DLP) mendapatkan token SPK untuk pendelegasi dan delegasi sebesar {{rate}}%"
-      },
-      "larynx-locked-benefits": {
-        "title": "Manfaat LARYNX Terkunci",
-        "1": "Konsensus Proof of Stake",
-        "2": "Jaminan untuk transaksi DEX",
-        "3": "Penguncian Instan | Pembukaan Kunci 4 Minggu",
-        "4": "Memerlukan node LARYNX yang beroperasi",
-        "5": "Mendapatkan 0,100%"
-      },
-      "account-value": "Estimasi Nilai Akun",
-      "account-value-description": "Perkiraan nilai Dolar AS untuk semua aset SPK di akun Anda",
-      "larynx-locked": "LARYNX Terkunci",
-      "larynx-locked-description": "Token terkunci menyediakan likuiditas ke jaringan, membantu menentukan konsensus, dan mendapatkan imbalan bagi pengelola node"
-    },
     "setup-external": {
       "login-required": "Diperlukan login untuk menyiapkan dompet eksternal",
       "import-login-required": "Diperlukan login untuk mengimpor dompet"
@@ -1605,10 +1532,6 @@
     "claim-title": "Klaim",
     "powerup-title": "Power Up",
     "powerdown-title": "Power Down",
-    "lock-title": "Kunci likuiditas",
-    "unlock-title": "Buka kunci likuiditas",
-    "lock-summary": "Penguncian selesai sebesar <span class=\"amount\">{{amount}}</span>",
-    "unlock-summary": "Pembukaan kunci selesai sebesar <span class=\"amount\">{{amount}}</span>",
     "success-title": "Sukses",
     "success-sub-title": "Transaksi selesai",
     "sign-title": "Tanda tangani transaksi",
@@ -1617,7 +1540,6 @@
     "swap-sub-title": "Tukar dana Anda dalam beberapa klik",
     "gift-title": "Hadiah",
     "gift-sub-title": "Berikan Points kepada pengguna tertentu",
-    "lock-sub-title": "Mengunci Larynx untuk imbalan likuiditas",
     "stake-title": "Stake",
     "stake-sub-title": "Stake token untuk mendapatkan imbalan pasif",
     "unstake-title": "Unstake",
@@ -3377,7 +3299,6 @@
       "promote": "Promosikan",
       "claim": "Klaim",
       "buy": "Beli",
-      "lock": "Kunci likuiditas",
       "stake": "Stake",
       "unstake": "Unstake",
       "undelegate": "Batalkan delegasi"

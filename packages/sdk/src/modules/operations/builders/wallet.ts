@@ -374,33 +374,6 @@ export function buildCollateralizedConvertOp(
 }
 
 /**
- * Builds a delegate RC operation (custom_json).
- * @param from - Account delegating RC
- * @param delegatees - Single delegatee or comma-separated list
- * @param maxRc - Maximum RC to delegate (in mana units)
- * @returns Custom JSON operation for RC delegation
- */
-/**
- * Builds a SPK Network custom_json operation.
- * @param from - Account performing the operation
- * @param id - SPK operation ID (e.g., "spkcc_spk_send", "spkcc_gov_up")
- * @param amount - Amount (multiplied by 1000 internally)
- * @returns Custom JSON operation
- */
-export function buildSpkCustomJsonOp(
-  from: string,
-  id: string,
-  amount: number
-): Operation {
-  return ["custom_json", {
-    id,
-    required_auths: [from],
-    required_posting_auths: [],
-    json: JSON.stringify({ amount: amount * 1000 }),
-  }];
-}
-
-/**
  * Builds a Hive Engine custom_json operation.
  * @param from - Account performing the operation
  * @param contractAction - Engine contract action (e.g., "transfer", "stake")
@@ -440,6 +413,13 @@ export function buildEngineClaimOp(
   }];
 }
 
+/**
+ * Builds a delegate RC operation (custom_json).
+ * @param from - Account delegating RC
+ * @param delegatees - Single delegatee or comma-separated list
+ * @param maxRc - Maximum RC to delegate (in mana units)
+ * @returns Custom JSON operation for RC delegation
+ */
 export function buildDelegateRcOp(
   from: string,
   delegatees: string,

@@ -1360,79 +1360,6 @@
     "converting-hive-amount": "Konwersja do HBD",
     "withdrawing-amount": "Wycofanie z oszczędności",
     "reserved-amount": "Zarezerwowane dla Otwartego Zamówienia w Rynku",
-    "spk": {
-      "claim": {
-        "title": "Claim",
-        "unclaimed-rewards": "Nieodebrane nagrody"
-      },
-      "delegate": {
-        "title": "Delegat",
-        "subtitle": "Tokeny delegata",
-        "node-operator-placeholder": "Wybierz operatora węzła",
-        "delegated-larynx-power": {
-          "title": "Delegowana moc LARYNX"
-        }
-      },
-      "power-up": {
-        "title": "Zasil",
-        "subtitle": "Zasilaj by zdobyć bierne nagrody"
-      },
-      "power-down": {
-        "title": "Wyłącz",
-        "subtitle": "Zastosuj, aby zdobywać bierne nagrody",
-        "in-progress": "Zaplanowano zmniejszenie mocy w {{date}} (pozostałe raty{{count}})"
-      },
-      "lock": {
-        "title": "Zablokuj płynność",
-        "subtitle": "Zablokowanie Larynx za nagrodę za płynność",
-        "button": "Zablokuj płynność"
-      },
-      "unlock": {
-        "title": "Odblokuj płynność",
-        "subtitle": "Odblokuj LARYNX do postaci płynnej",
-        "button": "Odblokuj płynność"
-      },
-      "send": {
-        "balance": "Saldo",
-        "button": "Wyślij",
-        "from": "Od",
-        "to": "Do",
-        "amount": "Kwota",
-        "optional": "fakultatywne",
-        "title": "Wyślij SPK",
-        "memo": "Notatka",
-        "next": "Następny",
-        "subtitle": "Przenieś środki do innego portfela SPK",
-        "warning": "Przenoszenie więcej niż dostępne saldo"
-      },
-      "token": "Token SPK",
-      "token-description": "Token zarządzania siecią SPK.",
-      "larynx-already-claimed": "Już zadeklarowany.",
-      "larynx-token": "Token LARYNX",
-      "larynx-token-description": "Token kopalni dla sieci SPK.",
-      "larynx-power": "Moc LARYNX",
-      "larynx-power-description": "Zasilane tokeny używane do wydobywania SPK",
-      "larynx-power-benefits": {
-        "title": "Korzyści mocy LARYNX",
-        "1": "Zarabia tokeny zarządzania SPK",
-        "2": "Blokada błyskawiczna | 4 tygodnie Odblokowania",
-        "3": "Deleguj do węzłowych kont serwisowych w celu osiągnięcia konsensusu (DPoS)",
-        "4": "LARYNX POWER (LP) zarabia tokeny SPK za {{rate}}%",
-        "5": "Delegowany LP (DLP) zarabia tokeny SPK zarówno dla delegatora, jak i delegata w {{rate}}%"
-      },
-      "larynx-locked-benefits": {
-        "title": "Korzyści LARYNX Zablokowane",
-        "1": "Dowód konsensusu Stake",
-        "2": "Zabezpieczenie transakcji DEX",
-        "3": "Blokada błyskawiczna | 4 tygodnie Odblokowania",
-        "4": "Wymaga operacyjnego węzła LARYNX",
-        "5": "Zyski 0,100%"
-      },
-      "account-value": "Szacowana wartość konta",
-      "account-value-description": "Przybliżona wartość dolara amerykańskiego dla wszystkich aktywów SPK na Twoim koncie",
-      "larynx-locked": "LARYNX zablokowany",
-      "larynx-locked-description": "Zablokowane tokeny zapewniają płynność sieci, pomagają w określaniu konsensusu i zarabiają nagrody dla runnerów węzłów"
-    },
     "setup-external": {
       "login-required": "Logowanie wymagane do konfiguracji zewnętrznych portfeli",
       "import-login-required": "Logowanie wymagane do zaimportowania portfela"
@@ -1605,10 +1532,6 @@
     "claim-title": "Odbierz",
     "powerup-title": "Zasil",
     "powerdown-title": "Wyłącz",
-    "lock-title": "Zablokuj płynność",
-    "unlock-title": "Odblokuj płynność",
-    "lock-summary": "Zablokowanie ukończone jako <span class=\"amount\">{{amount}}</span>",
-    "unlock-summary": "Odblokowanie zakończone jako <span class=\"amount\">{{amount}}</span>",
     "success-title": "Zakończono powodzeniem",
     "success-sub-title": "Transakcja zakończona",
     "sign-title": "Podpisz transakcję",
@@ -1617,7 +1540,6 @@
     "swap-sub-title": "Zamień swoje środki za pomocą kilku kliknięć",
     "gift-title": "Prezent",
     "gift-sub-title": "Podaruj Punkty konkretnemu użytkownikowi",
-    "lock-sub-title": "Zablokowanie Larynx za nagrodę za płynność",
     "stake-title": "Tycz",
     "stake-sub-title": "Token Tyczenia aby zdobyć pasywne nagrody",
     "unstake-title": "Bez stawki",
@@ -3377,7 +3299,6 @@
       "promote": "Promuj",
       "claim": "Odbierz",
       "buy": "Kup",
-      "lock": "Zablokuj płynność",
       "stake": "Tycz",
       "unstake": "Bez stawki",
       "undelegate": "Usuń delegat"

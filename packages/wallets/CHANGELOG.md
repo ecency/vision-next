@@ -1,5 +1,14 @@
 # @ecency/wallets
 
+## 5.0.30
+
+### Patch Changes
+
+- Remove SPK Network support (#1063)
+
+- Updated dependencies []:
+  - @ecency/sdk@2.3.31
+
 ## 5.0.29
 
 ### Patch Changes

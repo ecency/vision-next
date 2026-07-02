@@ -1360,79 +1360,6 @@
     "converting-hive-amount": "转换为 HBD",
     "withdrawing-amount": "从储蓄中取出",
     "reserved-amount": "保留为市场中的开放订单",
-    "spk": {
-      "claim": {
-        "title": "Claim",
-        "unclaimed-rewards": "未认领的奖励"
-      },
-      "delegate": {
-        "title": "代表",
-        "subtitle": "委派令牌",
-        "node-operator-placeholder": "选择节点运算符",
-        "delegated-larynx-power": {
-          "title": "授权的 LARYNX 功率"
-        }
-      },
-      "power-up": {
-        "title": "上电",
-        "subtitle": "充能赚取被动奖励"
-      },
-      "power-down": {
-        "title": "关机",
-        "subtitle": "下电来赚取被动奖励",
-        "in-progress": "已安排在 {{date}} 进行一次 Power Down（剩余 {{count}} 期）"
-      },
-      "lock": {
-        "title": "锁定流动资金",
-        "subtitle": "Larynx获得流动性奖励",
-        "button": "锁定流动资金"
-      },
-      "unlock": {
-        "title": "解锁流动资金",
-        "subtitle": "将LARYNX解锁为液体形式",
-        "button": "解锁流动性"
-      },
-      "send": {
-        "balance": "余额",
-        "button": "发送",
-        "from": "来自",
-        "to": "收件人",
-        "amount": "金额",
-        "optional": "可选的",
-        "title": "发送 SPK",
-        "memo": "备注",
-        "next": "下一个",
-        "subtitle": "移动资金到另一个 SPK 钱包",
-        "warning": "转账超过可用余额"
-      },
-      "token": "SPK 令牌",
-      "token-description": "SPK 网络的管理令牌。",
-      "larynx-already-claimed": "已认领。",
-      "larynx-token": "LARYNX 令牌",
-      "larynx-token-description": "SPK 网络的采矿令牌。",
-      "larynx-power": "LARYNX 功率",
-      "larynx-power-description": "用于开采SPK的动力令牌",
-      "larynx-power-benefits": {
-        "title": "LARYNX电源的福利",
-        "1": "获得SPK 管理令牌",
-        "2": "即时锁定 | 4 周解锁",
-        "3": "委派到节点服务帐户以建立协商一致意见(DPoS)",
-        "4": "LARYNX POWER (LP) 以 {{rate}}% 的比率赚取 SPK 代币",
-        "5": "委托的 LP (DLP) 以 {{rate}}% 的比率为委托人和受托人双方赚取 SPK 代币"
-      },
-      "larynx-locked-benefits": {
-        "title": "LARYNX已锁定的福利",
-        "1": "利益攸关者共识的证据",
-        "2": "DEX交易的担保",
-        "3": "即时锁定 | 4 周解锁",
-        "4": "需要运行 LARYNX 节点",
-        "5": "收入 0.100%"
-      },
-      "account-value": "估计账户价值",
-      "account-value-description": "您帐户中所有SPK资产的大约美元价值",
-      "larynx-locked": "LARYNX 锁定",
-      "larynx-locked-description": "锁定令牌为网络提供流动性，帮助确定共识，为节点运行者赚取奖励"
-    },
     "setup-external": {
       "login-required": "设置外部钱包需要登录",
       "import-login-required": "需要登录才能导入钱包"
@@ -1605,10 +1532,6 @@
     "claim-title": "领取",
     "powerup-title": "电源上移",
     "powerdown-title": "关机",
-    "lock-title": "锁定流动资金",
-    "unlock-title": "解锁流动性",
-    "lock-summary": "锁定已完成，金额为 <span class=\"amount\">{{amount}}</span>",
-    "unlock-summary": "解锁已完成，金额为 <span class=\"amount\">{{amount}}</span>",
     "success-title": "成功",
     "success-sub-title": "交易已完成",
     "sign-title": "签名交易",
@@ -1617,7 +1540,6 @@
     "swap-sub-title": "在几次点击中交换您的资金",
     "gift-title": "礼物",
     "gift-sub-title": "给特定用户赠送点数",
-    "lock-sub-title": "Larynx获得流动性奖励",
     "stake-title": "拉克",
     "stake-sub-title": "获取被动奖励",
     "unstake-title": "取消利害关系",
@@ -3377,7 +3299,6 @@
       "promote": "升级",
       "claim": "领取",
       "buy": "购买",
-      "lock": "锁定流动资金",
       "stake": "拉克",
       "unstake": "取消利害关系",
       "undelegate": "取消授权"

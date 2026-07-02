@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.31
+
+### Patch Changes
+
+- Remove SPK Network support (#1063)
+
 ## 2.3.30
 
 ### Patch Changes

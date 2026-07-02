@@ -167,7 +167,6 @@ The monorepo follows a **layered architecture** with clear separation of concern
 **Scope**:
 - ✅ Hive assets (HIVE, HBD, Hive Power) — queries and balance display
 - ✅ Hive Engine tokens — queries and balance display
-- ✅ SPK Network (SPK, LARYNX) — queries and balance display
 - ✅ Points system — queries
 - ✅ External blockchains (BTC, ETH, SOL, TON, TRON, APT, BNB)
 - ✅ Wallet balance/transaction queries
@@ -274,7 +273,6 @@ export function useVote(username: string, auth?: AuthContextV2) { ... }
 
 // In @ecency/wallets - Asset/wallet queries (no mutations)
 export function getHiveEngineTokensBalancesQueryOptions(username: string) { ... }
-export function getSpkWalletQueryOptions(username?: string) { ... }
 
 // In @ecency/web - SDK mutation wrappers (apps/web/src/api/sdk-mutations/)
 // Each wrapper adds the web broadcast adapter and active user context

@@ -4,7 +4,6 @@ export enum Symbol {
   HIVE = "HIVE",
   HBD = "HBD",
   VESTS = "VESTS",
-  SPK = "SPK",
 }
 
 export enum NaiMap {

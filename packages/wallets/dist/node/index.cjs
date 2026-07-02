@@ -447,7 +447,6 @@ function getAllTokensListQueryOptions(username) {
           "HBD" /* HiveDollar */
         ],
         external: Object.values(EcencyWalletCurrency),
-        spk: ["SPK", "LARYNX", "LP"],
         layer2: await getLayer2TokensMetadata(username)
       };
     }
@@ -470,6 +469,7 @@ var BASIC_TOKENS = [
   "HP" /* HivePower */,
   "HBD" /* HiveDollar */
 ];
+var REMOVED_TOKENS = /* @__PURE__ */ new Set(["SPK", "LARYNX", "LP", "BROCA"]);
 function getAccountWalletListQueryOptions(username, currency = "usd") {
   return reactQuery.queryOptions({
     queryKey: ["ecency-wallets", "list", username, currency],
@@ -498,6 +498,9 @@ function getAccountWalletListQueryOptions(username, currency = "usd") {
       const isTokenVisible = (symbol) => {
         const normalized = symbol?.toUpperCase();
         if (!normalized) {
+          return false;
+        }
+        if (REMOVED_TOKENS.has(normalized)) {
           return false;
         }
         if (BASIC_TOKENS.includes(normalized)) {
@@ -562,7 +565,6 @@ function getTokenOperationsQueryOptions(token, username, isForOwner = false, cur
             // Common operations
             "transfer": sdk.AssetOperation.Transfer,
             "ecency-point-transfer": sdk.AssetOperation.Transfer,
-            "spkcc-spk-send": sdk.AssetOperation.Transfer,
             // Savings operations
             "transfer-to-savings": sdk.AssetOperation.TransferToSavings,
             "transfer-savings": sdk.AssetOperation.TransferToSavings,
@@ -615,10 +617,7 @@ function getTokenOperationsQueryOptions(token, username, isForOwner = false, cur
             // Other
             "claim-interest": sdk.AssetOperation.ClaimInterest,
             "withdraw-routes": sdk.AssetOperation.WithdrawRoutes,
-            "withdrawroutes": sdk.AssetOperation.WithdrawRoutes,
-            "lock": sdk.AssetOperation.LockLiquidity,
-            "lock-liquidity": sdk.AssetOperation.LockLiquidity,
-            "lock-liq": sdk.AssetOperation.LockLiquidity
+            "withdrawroutes": sdk.AssetOperation.WithdrawRoutes
           };
           const mapped = aliasMap[canonical];
           if (mapped) return mapped;
@@ -1275,14 +1274,6 @@ Object.defineProperty(exports, "getHivePowerDelegatingsQueryOptions", {
   enumerable: true,
   get: function () { return sdk.getHivePowerDelegatingsQueryOptions; }
 });
-Object.defineProperty(exports, "getLarynxAssetGeneralInfoQueryOptions", {
-  enumerable: true,
-  get: function () { return sdk.getLarynxAssetGeneralInfoQueryOptions; }
-});
-Object.defineProperty(exports, "getLarynxPowerAssetGeneralInfoQueryOptions", {
-  enumerable: true,
-  get: function () { return sdk.getLarynxPowerAssetGeneralInfoQueryOptions; }
-});
 Object.defineProperty(exports, "getPointsAssetGeneralInfoQueryOptions", {
   enumerable: true,
   get: function () { return sdk.getPointsAssetGeneralInfoQueryOptions; }
@@ -1295,18 +1286,6 @@ Object.defineProperty(exports, "getPointsQueryOptions", {
   enumerable: true,
   get: function () { return sdk.getPointsQueryOptions; }
 });
-Object.defineProperty(exports, "getSpkAssetGeneralInfoQueryOptions", {
-  enumerable: true,
-  get: function () { return sdk.getSpkAssetGeneralInfoQueryOptions; }
-});
-Object.defineProperty(exports, "getSpkMarketsQueryOptions", {
-  enumerable: true,
-  get: function () { return sdk.getSpkMarketsQueryOptions; }
-});
-Object.defineProperty(exports, "getSpkWalletQueryOptions", {
-  enumerable: true,
-  get: function () { return sdk.getSpkWalletQueryOptions; }
-});
 Object.defineProperty(exports, "isEmptyDate", {
   enumerable: true,
   get: function () { return sdk.isEmptyDate; }
@@ -1318,10 +1297,6 @@ Object.defineProperty(exports, "parseAsset", {
 Object.defineProperty(exports, "resolveHiveOperationFilters", {
   enumerable: true,
   get: function () { return sdk.resolveHiveOperationFilters; }
-});
-Object.defineProperty(exports, "rewardSpk", {
-  enumerable: true,
-  get: function () { return sdk.rewardSpk; }
 });
 Object.defineProperty(exports, "useClaimPoints", {
   enumerable: true,

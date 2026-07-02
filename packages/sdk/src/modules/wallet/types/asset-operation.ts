@@ -19,9 +19,6 @@ export enum AssetOperation {
   Claim = "claim",
   Buy = "buy",
 
-  // SPK
-  LockLiquidity = "lock",
-
   // Layer 2
   Stake = "stake",
   Unstake = "unstake",

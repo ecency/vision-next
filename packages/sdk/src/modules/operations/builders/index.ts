@@ -41,7 +41,6 @@ export {
   buildConvertOp,
   buildCollateralizedConvertOp,
   buildDelegateRcOp,
-  buildSpkCustomJsonOp,
   buildEngineOp,
   buildEngineClaimOp,
 } from "./wallet";
