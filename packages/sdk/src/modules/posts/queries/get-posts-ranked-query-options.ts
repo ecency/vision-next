@@ -56,6 +56,15 @@ export function getPostsRankedInfiniteQueryOptions(
 
       const data = response as Entry[];
 
+      // Capture pinned entries BEFORE the in-place created-date sort: the
+      // bridge surfaces them at the head of the response in the community
+      // moderators' chosen order, which the sort would scatter by age.
+      // Keep EVERY pin — the previous post-sort find() kept a single pin and
+      // silently dropped the rest, so multi-pin communities never displayed
+      // their other pinned posts on any page. Pins only occur on the first
+      // page (cursor pages return none), so this is a no-op elsewhere.
+      const pinnedEntries = data.filter((s) => s.stats?.is_pinned);
+
       // Sort by created date unless it's "hot"
       const sorted =
         sort === "hot"
@@ -65,11 +74,9 @@ export function getPostsRankedInfiniteQueryOptions(
                 new Date(b.created).getTime() - new Date(a.created).getTime()
             );
 
-      // Handle pinned entries
-      const pinnedEntry = sorted.find((s) => s.stats?.is_pinned);
       const nonPinnedEntries = sorted.filter((s) => !s.stats?.is_pinned);
 
-      const combined = [pinnedEntry, ...nonPinnedEntries].filter((s) => !!s) as Entry[];
+      const combined = [...pinnedEntries, ...nonPinnedEntries];
       return filterDmcaEntry(combined);
     },
     enabled,

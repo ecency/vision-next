@@ -96,9 +96,10 @@ export default async function CommunityPostsPage({ params, searchParams }: Props
   // Crawlable "Older" entry into the cursor chain — `created` only (the SDK
   // re-sorts processed pages by date, so trending/hot cursors would not match
   // bridge rank order, and the created chain already reaches every post).
-  // allowPinShrink: the SDK's pinned-entry dedupe can shrink a full raw page.
+  // The SDK now keeps every pinned entry, so the processed page length equals
+  // the raw page length and the plain full-page gate is exact.
   const firstPage = pageToEntries((data as InfiniteData<Page, unknown>).pages[0]);
-  const olderCursor = tag === "created" ? olderCursorToken(firstPage, true) : null;
+  const olderCursor = tag === "created" ? olderCursorToken(firstPage) : null;
 
   // Desktop SERPs replace the URL-derived trail ("ecency.com > created >
   // hive-NNNNN") with this breadcrumb ("Home > Community Title"). Skipped when

@@ -36,27 +36,19 @@ export function isArchivableFilter(filter: string): boolean {
   return ARCHIVE_FILTERS.includes(filter);
 }
 
-// The SDK's ranked-feed select keeps ONE pinned entry and drops the rest, so a
-// community whose raw page was full can surface as 16-19 entries. Pin presence
-// alone does NOT imply fullness (a 5-post community with one pin also shows a
-// pin), so additionally require the page to be within plausible dedupe loss of
-// a full page. Communities pinning >5 posts fall back to no link (conservative).
+// HISTORICAL shrink allowance: the SDK's ranked-feed select used to keep one
+// pinned entry and drop the rest, so a full raw community page could surface
+// as 16-19 entries. The SDK now keeps every pin (processed length == raw
+// length), so callers use the exact full-page gate; `allowPinShrink` remains
+// only as a documented fallback should that select ever regress. Pin presence
+// alone never implies fullness (a 5-post community with one pin also shows a
+// pin), hence the bounded window.
 export const PIN_DEDUPE_ALLOWANCE = 4;
 
 /**
  * Cursor token for the page-1 "Older" archive link, or null when page 1 gives
  * no evidence that older content exists (emitting a link whose target
- * immediately redirects back would be a crawl trap). `allowPinShrink` is for
- * COMMUNITY feeds, where the SDK's pinned-entry dedupe shrinks a full raw page.
- *
- * Known residual with allowPinShrink: a community whose TOTAL post count is
- * 16-19 with a pinned post is indistinguishable from a pin-shrunk full page
- * (the processed page carries no raw count), so it emits one link whose target
- * redirects back. Accepted: the state is transient for active communities,
- * costs a crawler a single redirect hop, and the only exact signal would be an
- * extra raw fetch per render. Becomes exact once the SDK ranked-feed select
- * stops dropping all-but-one pinned entry (tracked follow-up) — processed
- * length then always equals raw length.
+ * immediately redirects back would be a crawl trap).
  *
  * Callers should only emit the link for the `created` sort: the SDK re-sorts
  * processed pages by created date, so a cursor taken from a processed
