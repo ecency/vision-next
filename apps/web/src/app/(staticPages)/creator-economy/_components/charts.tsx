@@ -78,9 +78,16 @@ export function ColumnChart({
                 const yTop = H - padBottom - h;
                 return (
                   <g key={s.name}>
-                    <path d={columnPath(x, yTop, barW, h)} fill={seriesColor(si)}>
-                      <title>{`${label}${series.length > 1 ? ` ${s.name}` : ""}: ${v.toLocaleString("en-US")}`}</title>
-                    </path>
+                    {/* aria-label instead of an svg <title> child: the page's real
+                        <title> streams late (async metadata, site-wide pattern), so
+                        naive first-title parsers would otherwise read a tooltip as
+                        the document title. Values stay visible via direct labels. */}
+                    <path
+                      d={columnPath(x, yTop, barW, h)}
+                      fill={seriesColor(si)}
+                      role="img"
+                      aria-label={`${label}${series.length > 1 ? ` ${s.name}` : ""}: ${v.toLocaleString("en-US")}`}
+                    />
                     {/* direct label on the cap; text token, not series color */}
                     <text
                       x={x + barW / 2}
@@ -143,9 +150,12 @@ export function HBarChart({
             >
               {item.label.length > 26 ? `${item.label.slice(0, 25)}…` : item.label}
             </text>
-            <path d={hbarPath(labelW, y, w, barH)} fill="var(--ce-s1)">
-              <title>{`${item.label}: ${item.value.toLocaleString("en-US")}`}</title>
-            </path>
+            <path
+              d={hbarPath(labelW, y, w, barH)}
+              fill="var(--ce-s1)"
+              role="img"
+              aria-label={`${item.label}: ${item.value.toLocaleString("en-US")}`}
+            />
             <text x={labelW + w + 8} y={y + barH - 3} fontSize={12} fill="var(--ce-text2)">
               {item.value.toLocaleString("en-US")}
             </text>
