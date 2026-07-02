@@ -3,8 +3,21 @@ import {
   parseArchiveCursor,
   cursorToken,
   isArchivableTag,
-  isArchivableFilter
+  isArchivableFilter,
+  olderCursorToken,
+  ARCHIVE_PAGE_SIZE,
+  PIN_DEDUPE_ALLOWANCE
 } from "@/features/seo/ranked-archive";
+
+const post = (i: number, pinned = false) =>
+  ({
+    author: `author${i}`,
+    permlink: `post-${i}`,
+    ...(pinned ? { stats: { is_pinned: true } } : {})
+  }) as any;
+
+const page = (n: number, pinnedCount = 0) =>
+  Array.from({ length: n }, (_, i) => post(i, i < pinnedCount));
 
 describe("parseArchiveCursor", () => {
   it("parses a valid author/permlink token", () => {
@@ -32,6 +45,41 @@ describe("isArchivableFilter", () => {
     expect(isArchivableFilter("payout")).toBe(false);
     expect(isArchivableFilter("muted")).toBe(false);
     expect(isArchivableFilter("promoted")).toBe(false);
+  });
+});
+
+describe("olderCursorToken", () => {
+  it("full page -> cursor of the last entry", () => {
+    expect(olderCursorToken(page(ARCHIVE_PAGE_SIZE))).toBe("author19/post-19");
+  });
+
+  it("short page -> null (no evidence older content exists)", () => {
+    expect(olderCursorToken(page(5))).toBeNull();
+    expect(olderCursorToken([])).toBeNull();
+    expect(olderCursorToken([null, undefined])).toBeNull();
+  });
+
+  // The SDK keeps one pinned entry and DROPS the rest, so a full raw community
+  // page can surface as 16-19 entries with a pin present.
+  it("pin-shrunk community page (17 entries, pin present) -> cursor", () => {
+    expect(olderCursorToken(page(17, 1), true)).toBe("author16/post-16");
+  });
+
+  it("small pinned community (5 posts, 1 pin) -> null — NOT a full-page signal", () => {
+    expect(olderCursorToken(page(5, 1), true)).toBeNull();
+  });
+
+  it("pin-shrink lower bound: exactly PAGE_SIZE - ALLOWANCE passes, one below fails", () => {
+    expect(olderCursorToken(page(ARCHIVE_PAGE_SIZE - PIN_DEDUPE_ALLOWANCE, 1), true)).not.toBeNull();
+    expect(olderCursorToken(page(ARCHIVE_PAGE_SIZE - PIN_DEDUPE_ALLOWANCE - 1, 1), true)).toBeNull();
+  });
+
+  it("short page with pin but allowPinShrink=false (tag feeds) -> null", () => {
+    expect(olderCursorToken(page(17, 1))).toBeNull();
+  });
+
+  it("17 entries without any pin -> null even with allowPinShrink", () => {
+    expect(olderCursorToken(page(17), true)).toBeNull();
   });
 });
 

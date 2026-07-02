@@ -62,6 +62,7 @@ describe("GET /api/oembed", () => {
     vi.mocked(buildEntryCardFields).mockReturnValue({
       title: "My Title",
       summary: "My summary",
+      cardSummary: "My summary",
       image: "https://img/cover.png",
       isComment: false
     });
@@ -96,6 +97,7 @@ describe("GET /api/oembed", () => {
     vi.mocked(buildEntryCardFields).mockReturnValue({
       title: "T",
       summary: "S",
+      cardSummary: "S",
       image: null,
       isComment: false
     });

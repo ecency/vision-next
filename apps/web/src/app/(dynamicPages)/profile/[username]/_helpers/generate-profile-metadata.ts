@@ -3,7 +3,7 @@ import defaults from "@/defaults";
 import { getServerAppBase } from "@/utils/server-app-base";
 import { prefetchQuery } from "@/core/react-query";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
-import { accountReputation } from "@/utils";
+import { accountReputation, truncate } from "@/utils";
 
 const NOINDEX_REPUTATION_THRESHOLD = 40;
 
@@ -24,11 +24,20 @@ export async function generateProfileMetadata(
     }`
       .replace(/\s{2,}/g, " ")
       .trim();
-    const metaDescription = `${
-      account.profile?.about
-        ? `${account.profile?.about} ${section ? `${section}` : ""}`
-        : `${account.profile?.name || account.name} ${section ? `${section}` : ""}`
-    }`;
+    // Bio-first: the user's own about text is the most distinctive snippet we
+    // have (feeds meta description + og/twitter cards verbatim); the section
+    // prefix keeps each section's description unique. Fallback is section-aware
+    // so wallet/followers/settings pages don't claim "posts". typeof guard:
+    // profile is untrusted on-chain JSON, about can be a non-string.
+    const displayName = account.profile?.name || account.name;
+    const rawAbout = account.profile?.about;
+    const about = typeof rawAbout === "string" ? rawAbout.replace(/\s+/g, " ").trim() : "";
+    const contentSections = ["posts", "blog", "comments", "replies"];
+    const metaDescription = about
+      ? truncate(`${displayName}'s ${sectionLabel}: ${about}`, 160)
+      : contentSections.includes(section)
+        ? `Latest ${section} by ${displayName} (@${cleanUsername}) on Ecency.`
+        : `${displayName}'s ${sectionLabel} on Ecency (@${cleanUsername}).`;
     const isPaginated = !!cursor;
     const baseUrl = `/@${cleanUsername}${section ? `/${section}` : ""}`;
     const metaUrl = isPaginated ? `${baseUrl}?before=${cursor}` : baseUrl;

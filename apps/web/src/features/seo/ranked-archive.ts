@@ -36,6 +36,41 @@ export function isArchivableFilter(filter: string): boolean {
   return ARCHIVE_FILTERS.includes(filter);
 }
 
+// The SDK's ranked-feed select keeps ONE pinned entry and drops the rest, so a
+// community whose raw page was full can surface as 16-19 entries. Pin presence
+// alone does NOT imply fullness (a 5-post community with one pin also shows a
+// pin), so additionally require the page to be within plausible dedupe loss of
+// a full page. Communities pinning >5 posts fall back to no link (conservative).
+export const PIN_DEDUPE_ALLOWANCE = 4;
+
+/**
+ * Cursor token for the page-1 "Older" archive link, or null when page 1 gives
+ * no evidence that older content exists (emitting a link whose target
+ * immediately redirects back would be a crawl trap). `allowPinShrink` is for
+ * COMMUNITY feeds, where the SDK's pinned-entry dedupe shrinks a full raw page.
+ *
+ * Callers should only emit the link for the `created` sort: the SDK re-sorts
+ * processed pages by created date, so a cursor taken from a processed
+ * trending/hot page would not match the bridge's rank order (overlapping
+ * chain), and the created chain already reaches every post.
+ */
+export function olderCursorToken(
+  entries: (Entry | null | undefined)[],
+  allowPinShrink = false
+): string | null {
+  const page = entries.filter((e): e is Entry => !!e);
+  const last = page[page.length - 1];
+  if (!last) return null;
+  const full = page.length >= ARCHIVE_PAGE_SIZE;
+  const pinShrunk =
+    allowPinShrink &&
+    page.length >= ARCHIVE_PAGE_SIZE - PIN_DEDUPE_ALLOWANCE &&
+    page.some((e) => e.stats?.is_pinned);
+  return full || pinShrunk
+    ? cursorToken({ author: last.author, permlink: last.permlink })
+    : null;
+}
+
 /** A tag page is archivable on content sorts, for a real topic tag only. */
 export function isArchivableTag(filter: string, tag: string): boolean {
   return (

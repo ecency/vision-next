@@ -50,7 +50,8 @@ export async function GET(request: Request): Promise<Response> {
     if (!loaded) return errorResponse(404);
 
     const base = await getServerAppBase();
-    const { title, summary, image } = buildEntryCardFields(loaded.entry);
+    // cardSummary: never empty (media-only posts get a descriptive fallback).
+    const { title, cardSummary, image } = buildEntryCardFields(loaded.entry);
 
     const payload: Record<string, unknown> = {
       version: "1.0",
@@ -63,7 +64,7 @@ export async function GET(request: Request): Promise<Response> {
       cache_age: 300,
       // Non-standard extension: standard consumers ignore unknown fields;
       // Ecency's own in-post link enhancer reads it for the card description.
-      description: summary
+      description: cardSummary
     };
 
     if (image) {

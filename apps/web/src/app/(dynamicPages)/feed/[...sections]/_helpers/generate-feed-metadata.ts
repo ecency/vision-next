@@ -20,7 +20,9 @@ export async function generateFeedMetadata(filter: string, tag: string, cursor?:
     });
   } else if (tag) {
     title = `latest #${tag} ${filter} topics`;
-    description = i18next.t("entry-index.description-tag", { f: fC, t: tag });
+    // "Created #tag posts..." reads oddly in a snippet; label that sort "Latest".
+    const fLabel = filter === "created" ? "Latest" : fC;
+    description = i18next.t("entry-index.description-tag", { f: fLabel, t: tag });
 
     url = `/${filter}/${tag}`;
     canonical = `${base}/${filter}/${tag}`;
