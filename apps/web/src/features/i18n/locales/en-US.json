@@ -1075,6 +1075,7 @@
   },
   "community": {
     "page-description": "{{f}} posts and discussions. Join the community on Ecency to read, share and earn rewards.",
+    "page-description-generic": "{{f}} community on Ecency. Join to read, share and earn rewards.",
     "subscribe": "Join",
     "subscribed": "Joined",
     "unsubscribe": "Leave",

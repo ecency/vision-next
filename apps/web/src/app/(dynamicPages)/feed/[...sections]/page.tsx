@@ -93,7 +93,10 @@ export default async function FeedPage({ params, searchParams }: Props) {
 
   // Default (page 1): prefetch for hydration; add a crawlable "Older" link into
   // the cursor chain when the first page is full (infinite scroll = JS path).
-  const feed = await prefetchGetPostsFeedQuery(filter, tag, 20, observer);
+  const [feed, appBase] = await Promise.all([
+    prefetchGetPostsFeedQuery(filter, tag, 20, observer),
+    getServerAppBase()
+  ]);
 
   // Only prefetch promoted posts if promotions feature is enabled
   if (EcencyConfigManager.CONFIG.visionFeatures.promotions.enabled) {
@@ -111,7 +114,7 @@ export default async function FeedPage({ params, searchParams }: Props) {
   // Tag hubs get a BreadcrumbList (desktop SERPs show it in place of the raw URL trail).
   let breadcrumbJsonLd = null;
   if (isTagHub) {
-    const base = (await getServerAppBase()).replace(/\/+$/, "");
+    const base = appBase.replace(/\/+$/, "");
     breadcrumbJsonLd = buildBreadcrumbJsonLd([
       { name: defaults.name, url: base },
       { name: `#${tag}`, url: `${base}${basePath}` }

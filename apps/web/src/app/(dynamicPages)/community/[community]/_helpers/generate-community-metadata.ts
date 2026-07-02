@@ -32,11 +32,13 @@ export async function generateCommunityMetadata(
     const rawAbout = community.about;
     const communityAbout =
       typeof rawAbout === "string" ? rawAbout.replace(/\s+/g, " ").trim() : "";
+    // Non-feed sections (subscribers/roles/activities) must not claim "posts
+    // and discussions" — they get the section-neutral fallback.
     const description = communityAbout
       ? truncate(communityAbout, 160)
-      : i18next.t("community.page-description", {
-          f: isFeedTag ? `${feedLabel} ${communityTitle}` : communityTitle
-        });
+      : isFeedTag
+        ? i18next.t("community.page-description", { f: `${feedLabel} ${communityTitle}` })
+        : i18next.t("community.page-description-generic", { f: communityTitle });
     const metaRss = `${base}/${tag}/${community.name}/rss.xml`;
     const metaCanonical = `${base}/created/${community.name}`;
 
