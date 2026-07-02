@@ -691,7 +691,9 @@ type APIMethods = 'balance' | 'hafah' | 'hafbe' | 'hivemind' | 'hivesense' | 're
  * @param method - The API method name (e.g., 'condenser_api.get_accounts')
  * @param params - Parameters for the API method as array or object
  * @param timeout - Request timeout in milliseconds (default: config.timeout)
- * @param retry - Maximum number of retry attempts (default: config.retry)
+ * @param retry - Maximum number of retry attempts (default: config.retry). The
+ *   wall-clock budget (`config.resilience.totalBudgetFactor` × timeout) may end
+ *   the failover walk before the retry count is exhausted.
  * @returns Promise resolving to the API response
  * @throws {RPCError} On blockchain-level errors (bad params, missing authority, etc.)
  * @throws {Error} If all retry attempts fail
@@ -731,7 +733,9 @@ declare const callRPCBroadcast: <T = any>(method: string, params?: any[] | objec
  * @param endpoint - The specific endpoint path within the API
  * @param params - Optional parameters for path and query string replacement
  * @param timeout - Request timeout in milliseconds (default: config.timeout)
- * @param retry - Number of retry attempts before throwing an error (default: config.retry)
+ * @param retry - Number of retry attempts before throwing an error (default:
+ *   config.retry). The wall-clock budget (`config.resilience.totalBudgetFactor`
+ *   × timeout) may end the failover walk before the retry count is exhausted.
  *
  * @returns Promise resolving to the API response data with proper typing
  * @throws Error if all retry attempts fail
@@ -825,7 +829,53 @@ declare const config: {
      * caller while the rest of the list is healthy.
      */
     retry: number;
+    /**
+     * Tail-latency resilience for READ calls. Motivation: on a shared public-node
+     * pool a node can slow down or throttle *mid-request*; a fixed `timeout` means
+     * the caller only notices after the full window, and under SSR concurrency
+     * those stalled renders pile up. Two mechanisms, both scoped to reads only
+     * (broadcasts never hedge and keep their fixed `broadcastTimeout`):
+     *
+     * - Adaptive per-attempt timeout (`adaptiveTimeout`, default ON): when a
+     *   node has a usable latency profile (EWMA), the per-attempt timeout becomes
+     *   `min(callerTimeout, max(floorMs, factor × EWMA))` — a node running far
+     *   above its own baseline is abandoned early and failover starts sooner.
+     *   Never *raises* the caller's timeout; unprofiled nodes keep it unchanged.
+     *
+     * - Hedged requests (`hedge`, default OFF — opt in via `setResilience`): if
+     *   the primary attempt is still pending after `max(hedgeDelayFloorMs,
+     *   hedgeDelayFactor × EWMA)`, a duplicate request is fired at the next
+     *   healthy untried node and the first success wins (the loser is aborted).
+     *   A token bucket (`hedgeBucketCapacity` burst, refilled by
+     *   `hedgeRefillPerSuccess` per un-hedged success) caps hedges to roughly
+     *   `hedgeRefillPerSuccess` of traffic, so only the slow tail hedges — and
+     *   under pool-wide slowness the bucket drains and hedging auto-disables
+     *   instead of amplifying load into public-node rate limits.
+     */
+    resilience: {
+        adaptiveTimeout: boolean;
+        adaptiveTimeoutFloorMs: number;
+        adaptiveTimeoutFactor: number;
+        hedge: boolean;
+        hedgeDelayFloorMs: number;
+        hedgeDelayFactor: number;
+        hedgeBucketCapacity: number;
+        hedgeRefillPerSuccess: number;
+        /**
+         * Wall-clock budget for one read call across ALL failover attempts, as a
+         * multiple of the per-attempt timeout: no NEW attempt starts past
+         * `totalBudgetFactor × timeout` (an in-flight attempt still finishes its
+         * own window). Bounds the pathological pool-wide-slowness walk — without
+         * it a read could hold its caller for (retry+1) × timeout ≈ 30s, which
+         * under SSR concurrency is a memory pile-up, the exact incident this
+         * feature exists for. Applies to reads only (callRPC / callREST);
+         * broadcasts keep their try-each-node-once semantics.
+         */
+        totalBudgetFactor: number;
+    };
 };
+/** Shape of the `config.resilience` bag (see its doc comment). */
+type ResilienceOptions = typeof config.resilience;
 declare const setNodes: (nodes: string[]) => void;
 /**
  * Validated setter for the REST-API node list — replaces `config.restNodes`.
@@ -855,6 +905,18 @@ declare const setRestNodesByApi: (map: Partial<Record<APIMethods, string[]>>) =>
  * `ConfigManager.setUserAgent`) and the lean `@ecency/sdk/hive` server/CLI entry.
  */
 declare const setUserAgent: (ua: string) => void;
+/**
+ * Validated partial setter for `config.resilience` (adaptive read timeouts +
+ * hedged requests — see the field's doc comment). Booleans must be booleans;
+ * numeric fields must be finite and positive, with the refill rate additionally
+ * capped at 1 so a typo can't turn the tail-hedge into a traffic doubler
+ * (refill ≤ 1 ⇒ hedges can never exceed un-hedged successes). Invalid values
+ * are ignored field-by-field, so one bad entry can't block the rest. Lives in
+ * the React-free `hive-tx` core (like the other setters) so both `@ecency/sdk`
+ * (via `ConfigManager.setResilience`) and the lean `@ecency/sdk/hive` entry
+ * can reach it.
+ */
+declare const setResilience: (opts: Partial<ResilienceOptions>) => void;
 
 type Memo = {
     /**
@@ -1020,4 +1082,4 @@ declare namespace utils {
   export { type utils_WitnessProps as WitnessProps, utils_buildWitnessSetProperties as buildWitnessSetProperties, utils_makeBitMaskFilter as makeBitMaskFilter, utils_operations as operations, utils_validateUsername as validateUsername };
 }
 
-export { Signature as $, type APIMethods as A, type Beneficiary as B, type CallResponse as C, type DeclineVotingRightsOperation as D, type EscrowApproveOperation as E, type EscrowDisputeOperation as F, type EscrowReleaseOperation as G, type EscrowTransferOperation as H, type Extension as I, type FeedPublishOperation as J, type LimitOrderCreate2Operation as K, type LimitOrderCancelOperation as L, type LimitOrderCreateOperation as M, Memo as N, type Operation as O, type OperationBody as P, type OperationName as Q, type Price as R, PrivateKey as S, PublicKey as T, type RecoverAccountOperation as U, type RecurrentTransferOperation as V, type RemoveProposalOperation as W, type RequestAccountRecoveryOperation as X, type ResetAccountOperation as Y, type SetResetAccountOperation as Z, type SetWithdrawVestingRouteOperation as _, type AccountCreateOperation as a, Transaction as a0, type TransactionStatus as a1, type TransactionType as a2, type TransferFromSavingsOperation as a3, type TransferOperation as a4, type TransferToSavingsOperation as a5, type TransferToVestingOperation as a6, type UpdateProposalOperation as a7, type UpdateProposalVotesOperation as a8, type VoteOperation as a9, type WithdrawVestingOperation as aa, type WitnessProps$1 as ab, type WitnessSetPropertiesOperation as ac, type WitnessSetPropertiesParams as ad, type WitnessUpdateOperation as ae, callREST as af, callRPC as ag, callRPCBroadcast as ah, callWithQuorum as ai, config as aj, operations as ak, setNodes as al, setRestNodes as am, setRestNodesByApi as an, setUserAgent as ao, utils as ap, type AccountCreateWithDelegationOperation as b, type AccountUpdate2Operation as c, type AccountUpdateOperation as d, type AccountWitnessProxyOperation as e, type AccountWitnessVoteOperation as f, type AssetSymbol as g, type Authority as h, type BroadcastError as i, type BroadcastResult as j, type CancelTransferFromSavingsOperation as k, type ChainProperties as l, type ChangeRecoveryAccountOperation as m, type ClaimAccountOperation as n, type ClaimRewardBalanceOperation as o, type CollateralizedConvertOperation as p, type CommentOperation as q, type CommentOptionsOperation as r, type ConvertOperation as s, type CreateClaimedAccountOperation as t, type CreateProposalOperation as u, type CustomJsonOperation as v, type CustomOperation as w, type DelegateVestingSharesOperation as x, type DeleteCommentOperation as y, type DigestData as z };
+export { type SetWithdrawVestingRouteOperation as $, type APIMethods as A, type Beneficiary as B, type CallResponse as C, type DeclineVotingRightsOperation as D, type EscrowApproveOperation as E, type EscrowDisputeOperation as F, type EscrowReleaseOperation as G, type EscrowTransferOperation as H, type Extension as I, type FeedPublishOperation as J, type LimitOrderCreate2Operation as K, type LimitOrderCancelOperation as L, type LimitOrderCreateOperation as M, Memo as N, type Operation as O, type OperationBody as P, type OperationName as Q, type Price as R, PrivateKey as S, PublicKey as T, type RecoverAccountOperation as U, type RecurrentTransferOperation as V, type RemoveProposalOperation as W, type RequestAccountRecoveryOperation as X, type ResetAccountOperation as Y, type ResilienceOptions as Z, type SetResetAccountOperation as _, type AccountCreateOperation as a, Signature as a0, Transaction as a1, type TransactionStatus as a2, type TransactionType as a3, type TransferFromSavingsOperation as a4, type TransferOperation as a5, type TransferToSavingsOperation as a6, type TransferToVestingOperation as a7, type UpdateProposalOperation as a8, type UpdateProposalVotesOperation as a9, type VoteOperation as aa, type WithdrawVestingOperation as ab, type WitnessProps$1 as ac, type WitnessSetPropertiesOperation as ad, type WitnessSetPropertiesParams as ae, type WitnessUpdateOperation as af, callREST as ag, callRPC as ah, callRPCBroadcast as ai, callWithQuorum as aj, config as ak, operations as al, setNodes as am, setResilience as an, setRestNodes as ao, setRestNodesByApi as ap, setUserAgent as aq, utils as ar, type AccountCreateWithDelegationOperation as b, type AccountUpdate2Operation as c, type AccountUpdateOperation as d, type AccountWitnessProxyOperation as e, type AccountWitnessVoteOperation as f, type AssetSymbol as g, type Authority as h, type BroadcastError as i, type BroadcastResult as j, type CancelTransferFromSavingsOperation as k, type ChainProperties as l, type ChangeRecoveryAccountOperation as m, type ClaimAccountOperation as n, type ClaimRewardBalanceOperation as o, type CollateralizedConvertOperation as p, type CommentOperation as q, type CommentOptionsOperation as r, type ConvertOperation as s, type CreateClaimedAccountOperation as t, type CreateProposalOperation as u, type CustomJsonOperation as v, type CustomOperation as w, type DelegateVestingSharesOperation as x, type DeleteCommentOperation as y, type DigestData as z };

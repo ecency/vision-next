@@ -38,6 +38,20 @@ ConfigManager.setHiveNodes(publicNodes);
 // default. No effect in the browser (User-Agent is a forbidden header there).
 if (isServer) {
   ConfigManager.setUserAgent("ecency-web-ssr (+https://ecency.com)");
+
+  // Opt into hedged reads — SERVER ONLY, deliberately. When a public node
+  // stalls mid-request, a duplicate races the next healthy node after a short
+  // data-driven delay and the first success wins; the SDK's token bucket keeps
+  // hedges to the slow tail (~10% max) and pool-wide slowness drains the
+  // bucket (auto-disable). That per-process safety property only holds where
+  // processes are few (3 SSR replicas ⇒ worst transient burst ≈ 30 requests).
+  // In browsers it would be N-thousand uncoordinated buckets, all bursting at
+  // the same next-ranked public node during a fleet-wide slowdown — exactly
+  // the amplification the bucket exists to prevent. Browsers keep adaptive
+  // per-attempt timeouts (SDK default, subtractive-only) and normal failover.
+  // This bounds SSR render time when a node slows or throttles under a spike,
+  // instead of stalled renders piling up into heap exhaustion.
+  ConfigManager.setResilience({ hedge: true });
 }
 
 // Initialize DMCA filtering immediately at module load time

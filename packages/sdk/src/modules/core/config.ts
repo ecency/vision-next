@@ -5,6 +5,8 @@ import {
   setRestNodes as setHiveTxRestNodes,
   setRestNodesByApi as setHiveTxRestNodesByApi,
   setUserAgent as setHiveTxUserAgent,
+  setResilience as setHiveTxResilience,
+  type ResilienceOptions,
 } from "../../hive-tx";
 import type { APIMethods } from "../../hive-tx/api-types";
 
@@ -154,6 +156,19 @@ export namespace ConfigManager {
    */
   export function setUserAgent(userAgent: string) {
     setHiveTxUserAgent(userAgent);
+  }
+
+  /**
+   * Tune read-call tail-latency resilience: adaptive per-attempt timeouts
+   * (default on) and hedged requests (default OFF — a duplicate request races
+   * the next healthy node when the primary stalls, bounded by a token bucket so
+   * only the slow tail hedges and pool-wide slowness self-disables it). Partial:
+   * only the fields provided are changed; invalid values are ignored
+   * field-by-field. Delegates to the unified hive-tx `setResilience`.
+   * @param opts - e.g. `{ hedge: true }` to opt into hedged reads
+   */
+  export function setResilience(opts: Partial<ResilienceOptions>) {
+    setHiveTxResilience(opts);
   }
 
   /**

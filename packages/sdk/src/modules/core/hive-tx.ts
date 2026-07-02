@@ -36,6 +36,9 @@ export type {
   BroadcastResult,
   AccountCreateOperation,
   CustomJsonOperation,
+  // Referenced in ConfigManager.setResilience's public signature — must be
+  // nameable from the main entry, not only from @ecency/sdk/hive.
+  ResilienceOptions,
 } from "../../hive-tx";
 
 // ── Compat types (matching dhive shapes used throughout the codebase) ──────

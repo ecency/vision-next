@@ -207,6 +207,17 @@ interface NodeHealth {
   /** Epoch ms of the most recent exploratory promotion. Single-flight guard so a
    *  burst of concurrent orderings doesn't all re-probe the same stale node. */
   lastProbeAt: number
+
+  /**
+   * Per-API latency profiles (same EWMA/warmup/expiry rules as the global one).
+   * The global EWMA mixes cheap calls (get_accounts ~300ms) with heavy ones
+   * (get_account_history, bridge.get_discussion — legitimately seconds), so it
+   * ranks nodes fine but is the WRONG baseline for per-attempt deadlines: a
+   * profile dominated by cheap calls would abort every legitimately-heavy call.
+   * Adaptive timeouts and hedge delays therefore key on (node, api); ranking
+   * keeps using the global profile. Bounded: #nodes × #api prefixes in use.
+   */
+  apiLatency: Map<string, { ewmaMs: number; sampleCount: number; updatedAt: number }>
 }
 
 /**
@@ -348,7 +359,8 @@ export class NodeHealthTracker {
         // "now" preserves configured order during warmup; a genuinely slow preferred
         // node is still demoted by its EWMA score (not by epoch-zero exploration),
         // and idle nodes are still re-probed once LATENCY_REPROBE_MS has truly elapsed.
-        lastProbeAt: Date.now()
+        lastProbeAt: Date.now(),
+        apiLatency: new Map()
       }
       this.health.set(node, h)
     }
@@ -371,7 +383,7 @@ export class NodeHealthTracker {
       h.apiFailures.delete(api)
     }
     if (typeof durationMs === 'number' && Number.isFinite(durationMs) && durationMs >= 0) {
-      this.recordLatency(h, durationMs)
+      this.recordLatency(h, durationMs, api)
     }
   }
 
@@ -383,13 +395,63 @@ export class NodeHealthTracker {
    * when the call was genuinely slow (≥ LATENCY_SLOW_FAILURE_MS) — an instant
    * connection failure (a *down* node) must NOT look "slow".
    */
-  recordSlowFailure(node: string, durationMs: number): void {
+  recordSlowFailure(node: string, durationMs: number, api?: string): void {
     if (!Number.isFinite(durationMs) || durationMs < LATENCY_SLOW_FAILURE_MS) return
-    this.recordLatency(this.getOrCreate(node), durationMs)
+    this.recordLatency(this.getOrCreate(node), durationMs, api)
   }
 
-  /** Fold a latency sample into the node's EWMA (warmup + usability bookkeeping). */
-  private recordLatency(h: NodeHealth, durationMs: number): void {
+  /**
+   * Usable latency profile (EWMA ms), or `undefined` while unproven or stale.
+   * With an `api`, returns that (node, api) profile ONLY — deliberately no
+   * fallback to the mixed global profile, because the global average of cheap
+   * calls is the wrong deadline baseline for a heavy API (that fallback is
+   * exactly the "2s window starves get_account_history" failure mode). Without
+   * an `api`, returns the global ranking profile. Both follow the same
+   * "profiled and fresh" gate as the ranker.
+   * @internal
+   */
+  getUsableLatencyMs(node: string, api?: string): number | undefined {
+    const h = this.health.get(node)
+    if (!h) return undefined
+    const now = Date.now()
+    if (api !== undefined) {
+      const p = h.apiLatency.get(api)
+      return p &&
+        p.sampleCount >= LATENCY_MIN_SAMPLES &&
+        now - p.updatedAt <= LATENCY_MAX_AGE_MS
+        ? p.ewmaMs
+        : undefined
+    }
+    return this.isLatencyUsable(h, now) ? h.ewmaLatencyMs : undefined
+  }
+
+  /**
+   * Censored latency sample for a request that was ABORTED because a hedge
+   * completed first while it was still in flight. The elapsed-at-abort is a
+   * *lower bound* on the true latency, so folding it in can only move the
+   * node's EWMA toward the truth, never below it — which is what lets repeated
+   * hedge-wins reorder the pool. Deliberately does NOT touch the failure
+   * counters or rate-limit state: the node returned no error, it was merely
+   * slow, and treating cancellation as failure would flap `isNodeHealthy`.
+   * Callers must NOT record this for a primary that already settled on its own
+   * (its outcome was recorded normally; a second sample would be fabricated).
+   * Bypasses the `recordSlowFailure` 2s floor (a hedge can win well below it).
+   * By construction the elapsed is ≥ the hedge delay, so only a degenerate
+   * near-zero epsilon needs rejecting — anything under one LAN round trip is
+   * noise, not a latency measurement.
+   * @internal
+   */
+  recordCensoredLatency(node: string, elapsedMs: number, api?: string): void {
+    if (!Number.isFinite(elapsedMs) || elapsedMs < 50) return
+    this.recordLatency(this.getOrCreate(node), elapsedMs, api)
+  }
+
+  /**
+   * Fold a latency sample into the node's global EWMA (warmup + usability
+   * bookkeeping) and, when the API is known, into that (node, api) profile —
+   * the global one ranks nodes, the per-API one calibrates deadlines.
+   */
+  private recordLatency(h: NodeHealth, durationMs: number, api?: string): void {
     const now = Date.now()
     // A profile older than the usable window starts fresh, so an idled process
     // re-learns from scratch rather than ranking on hour-old data.
@@ -403,6 +465,17 @@ export class NodeHealthTracker {
         : LATENCY_EWMA_ALPHA * durationMs + (1 - LATENCY_EWMA_ALPHA) * h.ewmaLatencyMs
     h.latencySampleCount++
     h.latencyUpdatedAt = now
+
+    if (api !== undefined) {
+      const p = h.apiLatency.get(api)
+      if (!p || now - p.updatedAt > LATENCY_MAX_AGE_MS) {
+        h.apiLatency.set(api, { ewmaMs: durationMs, sampleCount: 1, updatedAt: now })
+      } else {
+        p.ewmaMs = LATENCY_EWMA_ALPHA * durationMs + (1 - LATENCY_EWMA_ALPHA) * p.ewmaMs
+        p.sampleCount++
+        p.updatedAt = now
+      }
+    }
   }
 
   recordFailure(node: string, api?: string): void {
@@ -643,11 +716,101 @@ export class NodeHealthTracker {
   }
 }
 
-const rpcHealthTracker = new NodeHealthTracker()
-// Exported for the co-located spec only (asserting the call sites' effect on health).
-// Not re-exported by hive-tx/index.ts, so it is NOT part of the package's public API.
+// Exported for the co-located specs only (asserting the call sites' effect on
+// health). Not re-exported by hive-tx/index.ts, so NOT part of the public API.
+// @internal
+export const rpcHealthTracker = new NodeHealthTracker()
 // @internal
 export const restHealthTracker = new NodeHealthTracker()
+
+// ── Hedged-request budget ────────────────────────────────────────────────────
+
+/**
+ * Token bucket bounding hedged (duplicated) read requests to a fraction of
+ * overall traffic. A hedge spends 1 token; every un-hedged success refills
+ * `config.resilience.hedgeRefillPerSuccess` (default 0.1 ⇒ steady-state hedge
+ * rate ≤ ~9% of successful traffic, with bursts up to `hedgeBucketCapacity`).
+ * The self-limiting property this buys: under pool-wide slowness nearly every
+ * request wants to hedge while successes (the refills) stagnate, so the bucket
+ * drains and hedging auto-disables instead of doubling load into public-node
+ * rate limits — the standard hedged-request guard (cf. gRPC's hedging throttle;
+ * Dean & Barroso, "The Tail at Scale"). One instance per process shared across
+ * concurrent calls; plain synchronous mutation is race-free on the JS event
+ * loop. Reads config live so runtime tuning via `setResilience` applies.
+ * @internal Exported for testing only.
+ */
+export class HedgeBudget {
+  private tokens = config.resilience.hedgeBucketCapacity
+
+  trySpend(): boolean {
+    this.clamp()
+    // Epsilon guards fractional-refill float accumulation (10 × 0.1 < 1 in FP64).
+    if (this.tokens >= 1 - 1e-9) {
+      this.tokens -= 1
+      return true
+    }
+    return false
+  }
+
+  refill(): void {
+    this.clamp()
+    this.tokens = Math.min(
+      config.resilience.hedgeBucketCapacity,
+      this.tokens + config.resilience.hedgeRefillPerSuccess
+    )
+  }
+
+  /** Capacity may be lowered at runtime; never let stored tokens exceed it. */
+  private clamp(): void {
+    if (this.tokens > config.resilience.hedgeBucketCapacity) {
+      this.tokens = config.resilience.hedgeBucketCapacity
+    }
+  }
+
+  /** @internal test hook */
+  get available(): number {
+    return this.tokens
+  }
+
+  /** @internal test hook */
+  reset(tokens = config.resilience.hedgeBucketCapacity): void {
+    this.tokens = tokens
+  }
+}
+
+// @internal — exported for the co-located spec only, like the trackers above.
+export const rpcHedgeBudget = new HedgeBudget()
+
+/**
+ * Per-attempt timeout for a read call. A node profiled for THIS api is given
+ * `factor × per-API EWMA` — floored (≥2s) so a moderate spike on a fast call
+ * is not cut off, and capped at the caller's ceiling so this can only ever
+ * *shorten* the wait. The effect: a node running far above its own baseline
+ * for this kind of call is abandoned early and failover starts in seconds
+ * instead of the full fixed window.
+ *
+ * Two deliberate exclusions:
+ * - `explicit` callers (who passed a timeout argument) keep exactly what they
+ *   asked for — the documented meaning of the parameter is preserved, and a
+ *   consumer who knows their call is heavy is never second-guessed.
+ * - The profile is per (node, api) with NO fallback to the node's mixed global
+ *   EWMA: an average dominated by cheap `get_accounts` calls must not set the
+ *   deadline for a heavy `get_account_history`. An unprofiled (node, api)
+ *   pair keeps the caller's timeout unchanged (cold start == old behavior).
+ */
+function adaptiveAttemptTimeout(
+  tracker: NodeHealthTracker,
+  node: string,
+  api: string,
+  callerTimeout: number,
+  explicit: boolean
+): number {
+  const r = config.resilience
+  if (!r.adaptiveTimeout || explicit) return callerTimeout
+  const ewma = tracker.getUsableLatencyMs(node, api)
+  if (ewma === undefined) return callerTimeout
+  return Math.min(callerTimeout, Math.max(r.adaptiveTimeoutFloorMs, r.adaptiveTimeoutFactor * ewma))
+}
 
 // ── Internal helpers ────────────────────────────────────────────────────────
 
@@ -859,6 +1022,210 @@ function jitterDelay(): Promise<void> {
   return sleep(50 + Math.random() * 50)
 }
 
+// ── Hedged read attempt ─────────────────────────────────────────────────────
+
+/**
+ * One hedged READ attempt: start the primary node, and if it is still pending
+ * after `max(hedgeDelayFloorMs, hedgeDelayFactor × primary EWMA)`, race a
+ * duplicate against the next healthy untried node. First success wins and the
+ * loser is aborted. Resolution rules (mirroring the sequential path exactly):
+ *
+ * - External abort (caller cancelled): reject immediately, record nothing.
+ * - Authoritative RPCError (non-node-level blockchain rejection) from either
+ *   leg: an answer, not a fault — abort the other leg, reject immediately.
+ * - Failover-class failure: record health for that leg (recordError +
+ *   recordSlowFailure — identical to the sequential catch); if the other leg
+ *   is still running, keep waiting on it; when both have failed, reject with
+ *   the last error so the outer loop continues its normal failover.
+ * - Primary fails BEFORE the hedge fires: reject immediately (plain failover —
+ *   hedging only ever races slowness, never a node that failed fast).
+ *
+ * Health/budget bookkeeping on a win: winner records a normal success sample;
+ * if the hedge won, the primary gets a censored latency sample (elapsed at
+ * abort — a lower bound on its true latency) so repeated hedge-wins reorder
+ * the pool; if the primary won without the hedge ever firing, the budget
+ * refills. An aborted hedge leg records nothing (it was never given a fair
+ * run). Broadcasts NEVER go through this path (double-broadcast risk) — it is
+ * wired into `callRPC` only.
+ */
+function hedgedRpcAttempt<T>(opts: {
+  method: string
+  params: any[] | object
+  api: string
+  primary: string
+  /**
+   * Pre-selected healthy untried peers (up to a few, in rank order). The
+   * actual hedge target is drawn uniformly at random at FIRE time: with many
+   * concurrent callers behind one origin IP, always duplicating to the single
+   * next-ranked node would concentrate the whole hedge stream on it and could
+   * trip its per-IP rate limit — spreading over the top candidates keeps the
+   * same budget bound without a single-target hotspot. Marked tried only if
+   * the hedge actually fires.
+   */
+  hedgePool: string[]
+  callerTimeout: number
+  /** Caller passed an explicit timeout — adaptive shortening is disabled. */
+  explicitTimeout: boolean
+  /** The call's wall-clock deadline: a hedge must not START past it (it would
+   *  be a brand-new request the outer loop itself would refuse to start). */
+  deadlineAt: number
+  externalSignal?: AbortSignal
+  /** Lets the outer loop add the hedge node to its tried-set at fire time. */
+  onHedgeFired: (node: string) => void
+}): Promise<T> {
+  const {
+    method,
+    params,
+    api,
+    primary,
+    hedgePool,
+    callerTimeout,
+    explicitTimeout,
+    deadlineAt,
+    externalSignal,
+    onHedgeFired
+  } = opts
+  return new Promise<T>((resolve, reject) => {
+    let done = false
+    let pendingLegs = 0
+    let hedgeFired = false
+    /** The primary settled on its own (success OR failure). A censored latency
+     *  sample is only valid for a primary that was still in flight when the
+     *  hedge won — recording one after the primary already failed would
+     *  fabricate a second sample for a request whose outcome was recorded. */
+    let primarySettled = false
+    let lastError: any
+    let hedgeTimer: ReturnType<typeof setTimeout> | undefined
+    let primaryStart = 0
+    const controllers: AbortController[] = []
+
+    /** Settle exactly once: clear the timer, abort every other in-flight leg
+     *  (their rejections land behind the `done` guard and are dropped). */
+    const finish = (settle: () => void) => {
+      if (done) return
+      done = true
+      if (hedgeTimer !== undefined) {
+        clearTimeout(hedgeTimer)
+        hedgeTimer = undefined
+      }
+      for (const c of controllers) {
+        if (!c.signal.aborted) c.abort()
+      }
+      settle()
+    }
+
+    const startLeg = (node: string, isHedge: boolean) => {
+      pendingLegs++
+      const controller = new AbortController()
+      controllers.push(controller)
+      // Merge our cancellation handle with the caller's signal; jsonRPCCall
+      // merges the result with its own per-attempt timeout signal.
+      const merged = mergeSignals(controller.signal, externalSignal)
+      const legTimeout = adaptiveAttemptTimeout(
+        rpcHealthTracker,
+        node,
+        api,
+        callerTimeout,
+        explicitTimeout
+      )
+      const start = Date.now()
+      if (!isHedge) primaryStart = start
+      jsonRPCCall(node, method, params, legTimeout, false, merged.signal)
+        .then((res) => {
+          merged.cleanup()
+          pendingLegs--
+          if (!isHedge) primarySettled = true
+          if (done) return
+          rpcHealthTracker.recordSuccess(node, api, Date.now() - start)
+          tryRecordHeadBlock(rpcHealthTracker, node, method, res)
+          if (isHedge) {
+            if (!primarySettled) {
+              // Primary lost the race while still in flight: censored sample
+              // (lower bound of its true latency) so the ranker learns without
+              // marking it as failed. A primary that already failed was fully
+              // recorded by its own catch — nothing more to record.
+              rpcHealthTracker.recordCensoredLatency(primary, Date.now() - primaryStart, api)
+            }
+          } else if (!hedgeFired) {
+            rpcHedgeBudget.refill()
+          }
+          finish(() => resolve(res as T))
+        })
+        .catch((e) => {
+          merged.cleanup()
+          pendingLegs--
+          if (!isHedge) primarySettled = true
+          if (done) return // aborted loser (or late settle) — already resolved
+          if (externalSignal?.aborted) {
+            // Caller cancelled — bail without recording (mirrors sequential path).
+            finish(() => reject(e))
+            return
+          }
+          if (e instanceof RPCError && !isNodeLevelRPCError(e.code, e.message)) {
+            // Authoritative rejection: an answer, not a node fault.
+            finish(() => reject(e))
+            return
+          }
+          // Failover-class failure — record exactly as the sequential catch does.
+          recordError(rpcHealthTracker, node, e, api)
+          rpcHealthTracker.recordSlowFailure(node, Date.now() - start, api)
+          lastError = e
+          if (!isHedge && !hedgeFired) {
+            // Primary failed fast, before the hedge delay: plain failover.
+            finish(() => reject(e))
+            return
+          }
+          if (pendingLegs === 0) {
+            finish(() => reject(lastError))
+          }
+          // else: the other leg is still in flight and may still win.
+        })
+    }
+
+    startLeg(primary, false)
+
+    // Delay from the primary's per-API profile (the eligibility gate ensured it
+    // is usable); a raced expiry just means the floor applies. The delay is
+    // then clamped BELOW the primary's own attempt window: for a heavy API
+    // (EWMA > window/hedgeDelayFactor) the un-clamped delay would land past
+    // the primary's timeout-abort — which clears this timer — so hedging would
+    // silently never fire for exactly the heavy tail it exists to protect.
+    // Firing at ~80% of the window keeps the duplicate meaningful (it starts
+    // while the primary is still allowed to win) for every profile shape.
+    const ewma = rpcHealthTracker.getUsableLatencyMs(primary, api) ?? 0
+    const primaryWindow = adaptiveAttemptTimeout(
+      rpcHealthTracker,
+      primary,
+      api,
+      callerTimeout,
+      explicitTimeout
+    )
+    const delay = Math.min(
+      Math.max(config.resilience.hedgeDelayFloorMs, config.resilience.hedgeDelayFactor * ewma),
+      0.8 * primaryWindow
+    )
+    hedgeTimer = setTimeout(() => {
+      hedgeTimer = undefined
+      if (done || externalSignal?.aborted) return
+      // Never START a duplicate past the call's wall-clock deadline — it would
+      // extend the hold and spend a token on work the outer loop would refuse.
+      if (Date.now() >= deadlineAt) return
+      // Candidates were selected before the delay elapsed — re-check health at
+      // fire time (one may have been rate-limited meanwhile) BEFORE spending a
+      // token, so a stale pool costs nothing. Random draw spreads concurrent
+      // callers' duplicates across the top candidates (see hedgePool doc).
+      const live = hedgePool.filter((n) => rpcHealthTracker.isNodeHealthy(n, api))
+      if (live.length === 0) return
+      const target = live[Math.floor(Math.random() * live.length)]
+      // Budget check at fire time, not arm time: only actual duplicates spend.
+      if (!rpcHedgeBudget.trySpend()) return
+      hedgeFired = true
+      onHedgeFired(target)
+      startLeg(target, true)
+    }, delay)
+  })
+}
+
 // ── Public API: callRPC ─────────────────────────────────────────────────────
 
 /**
@@ -874,7 +1241,9 @@ function jitterDelay(): Promise<void> {
  * @param method - The API method name (e.g., 'condenser_api.get_accounts')
  * @param params - Parameters for the API method as array or object
  * @param timeout - Request timeout in milliseconds (default: config.timeout)
- * @param retry - Maximum number of retry attempts (default: config.retry)
+ * @param retry - Maximum number of retry attempts (default: config.retry). The
+ *   wall-clock budget (`config.resilience.totalBudgetFactor` × timeout) may end
+ *   the failover walk before the retry count is exhausted.
  * @returns Promise resolving to the API response
  * @throws {RPCError} On blockchain-level errors (bad params, missing authority, etc.)
  * @throws {Error} If all retry attempts fail
@@ -893,7 +1262,7 @@ function jitterDelay(): Promise<void> {
 export const callRPC = async <T = any>(
   method: string,
   params: any[] | object = [],
-  timeout = config.timeout,
+  timeout?: number,
   retry = config.retry,
   signal?: AbortSignal
 ): Promise<T> => {
@@ -903,13 +1272,32 @@ export const callRPC = async <T = any>(
   if (config.nodes.length === 0) {
     throw new Error('config.nodes is empty')
   }
+  // An explicit timeout argument is authoritative: adaptive shortening only
+  // applies to callers who left the window to the SDK (timeout === undefined),
+  // so `callRPC(m, p, 10_000)` still means "give each attempt 10s" exactly.
+  const explicitTimeout = timeout !== undefined
+  const ceiling = timeout ?? config.timeout
   const api = apiOf(method)
+  // Wall-clock budget across ALL failover attempts. Without it the worst case
+  // is (retry+1) × timeout ≈ 30s — exactly the render pile-up this feature
+  // exists to prevent — whenever the WHOLE pool is slow (adaptive timeouts
+  // rise with the EWMAs and hedging self-throttles, both by design). The
+  // deadline is checked before each new attempt AND before a hedge fires; an
+  // in-flight attempt still finishes its own window, so the true ceiling is
+  // deadline + one attempt window (up to ~2× the window if a hedge fired just
+  // before the deadline and the attempt then waits out the hedge leg too).
+  // Note this budget also bounds callers who passed an explicit `retry`: the
+  // wall clock, not the attempt count, is the stronger promise here.
+  const deadline = Date.now() + config.resilience.totalBudgetFactor * ceiling
   // Track nodes tried in the current round. When all nodes have been tried,
   // clear the set to allow a second round (wrap-around) using the retry budget.
   const triedInRound = new Set<string>()
   let lastError: any
 
   for (let attempt = 0; attempt <= retry; attempt++) {
+    if (attempt > 0 && Date.now() >= deadline) {
+      break
+    }
     // Re-evaluate node order each attempt so health changes are respected.
     // Pass api so nodes with an API-specific cooldown are deprioritized.
     const orderedNodes = rpcHealthTracker.getOrderedNodes(config.nodes, api)
@@ -920,10 +1308,64 @@ export const callRPC = async <T = any>(
       node = orderedNodes[0]
     }
     triedInRound.add(node)
+
+    // Hedge eligibility for THIS attempt: opted in, the primary has a usable
+    // per-API latency profile (so the hedge delay is grounded in data — cold
+    // starts stay sequential), and healthy untried peers exist to duplicate to.
+    let hedgePool: string[] = []
+    if (
+      config.resilience.hedge &&
+      rpcHealthTracker.getUsableLatencyMs(node, api) !== undefined
+    ) {
+      hedgePool = orderedNodes
+        .filter((n) => !triedInRound.has(n) && rpcHealthTracker.isNodeHealthy(n, api))
+        .slice(0, 3)
+    }
+
+    if (hedgePool.length > 0) {
+      try {
+        // All health/budget recording happens inside the hedged attempt —
+        // the catch below must NOT record again (unlike the sequential path).
+        return await hedgedRpcAttempt<T>({
+          method,
+          params,
+          api,
+          primary: node,
+          hedgePool,
+          callerTimeout: ceiling,
+          explicitTimeout,
+          deadlineAt: deadline,
+          externalSignal: signal,
+          onHedgeFired: (n) => triedInRound.add(n)
+        })
+      } catch (e: any) {
+        if (e instanceof RPCError && !isNodeLevelRPCError(e.code, e.message)) {
+          throw e
+        }
+        if (signal?.aborted) {
+          throw e
+        }
+        lastError = e
+        if (attempt < retry) {
+          await jitterDelay()
+        }
+        continue
+      }
+    }
+
     const callStart = Date.now()
     try {
-      const res = await jsonRPCCall(node, method, params, timeout, false, signal)
+      const res = await jsonRPCCall(
+        node,
+        method,
+        params,
+        adaptiveAttemptTimeout(rpcHealthTracker, node, api, ceiling, explicitTimeout),
+        false,
+        signal
+      )
       rpcHealthTracker.recordSuccess(node, api, Date.now() - callStart)
+      // An un-hedged success is what earns hedge budget back (see HedgeBudget).
+      rpcHedgeBudget.refill()
       tryRecordHeadBlock(rpcHealthTracker, node, method, res)
       return res as T
     } catch (e: any) {
@@ -946,7 +1388,7 @@ export const callRPC = async <T = any>(
       // a node that 200s-but-too-slow or aborts at the timeout is demoted by the
       // ranker, not only by the (transient) failure gate. Measured elapsed, never a
       // constant; recordSlowFailure ignores instant (down-node) failures.
-      rpcHealthTracker.recordSlowFailure(node, Date.now() - callStart)
+      rpcHealthTracker.recordSlowFailure(node, Date.now() - callStart, api)
       lastError = e
 
       // Add jitter before trying next node
@@ -1057,7 +1499,9 @@ const apiMethods: Record<APIMethods, string> = {
  * @param endpoint - The specific endpoint path within the API
  * @param params - Optional parameters for path and query string replacement
  * @param timeout - Request timeout in milliseconds (default: config.timeout)
- * @param retry - Number of retry attempts before throwing an error (default: config.retry)
+ * @param retry - Number of retry attempts before throwing an error (default:
+ *   config.retry). The wall-clock budget (`config.resilience.totalBudgetFactor`
+ *   × timeout) may end the failover walk before the retry count is exhausted.
  *
  * @returns Promise resolving to the API response data with proper typing
  * @throws Error if all retry attempts fail
@@ -1077,7 +1521,7 @@ export async function callREST(
   api: APIMethods,
   endpoint: string,
   params?: Record<string, any>,
-  timeout = config.timeout,
+  timeout?: number,
   retry = config.retry,
   signal?: AbortSignal
 ): Promise<any> {
@@ -1087,6 +1531,12 @@ export async function callREST(
   if (config.restNodes.length === 0) {
     throw new Error('config.restNodes is empty')
   }
+  // Same contract as callRPC: an explicit timeout argument is authoritative
+  // (no adaptive shortening), and a wall-clock deadline bounds the total
+  // failover walk when the whole pool is slow.
+  const explicitTimeout = timeout !== undefined
+  const ceiling = timeout ?? config.timeout
+  const deadline = Date.now() + config.resilience.totalBudgetFactor * ceiling
   // Per-API node override: an API served by only a subset of nodes (e.g.
   // hivesense) uses its own capable-host list so the small retry budget and
   // cold starts aren't wasted on nodes that 404/503 it. Any API without an
@@ -1101,6 +1551,9 @@ export async function callREST(
   let alreadyRecorded = false
 
   for (let attempt = 0; attempt <= retry; attempt++) {
+    if (attempt > 0 && Date.now() >= deadline) {
+      break
+    }
     // Re-evaluate node order each attempt so health changes are respected.
     // Pass api so per-API cooldowns are respected.
     const orderedNodes = restHealthTracker.getOrderedNodes(apiNodes, api)
@@ -1138,7 +1591,11 @@ export async function callREST(
       throw new Error('Aborted')
     }
     alreadyRecorded = false
-    const { signal: tSignal, cleanup: cleanupTimeout } = createTimeoutSignal(timeout)
+    // Adaptive per-attempt timeout (see adaptiveAttemptTimeout): a profiled
+    // REST node is abandoned at factor×EWMA instead of the full fixed window.
+    const { signal: tSignal, cleanup: cleanupTimeout } = createTimeoutSignal(
+      adaptiveAttemptTimeout(restHealthTracker, node, api, ceiling, explicitTimeout)
+    )
     const { signal: restSignal, cleanup: cleanupMerge } = mergeSignals(tSignal, signal)
     const restCleanup = () => { cleanupTimeout(); cleanupMerge() }
     const restCallStart = Date.now()
@@ -1191,7 +1648,7 @@ export async function callREST(
       // latency signal too, so it is demoted by the ranker, not only the failure gate.
       // Measured elapsed; recordSlowFailure floors at LATENCY_SLOW_FAILURE_MS so a fast
       // 404/429 or instant down-node failure is NOT mis-read as "slow".
-      restHealthTracker.recordSlowFailure(node, Date.now() - restCallStart)
+      restHealthTracker.recordSlowFailure(node, Date.now() - restCallStart, api)
       lastError = e
 
       if (attempt < retry) {

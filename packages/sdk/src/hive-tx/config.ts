@@ -90,8 +90,56 @@ export const config = {
    * single sick node (or two) can't surface as an unhandled error to the
    * caller while the rest of the list is healthy.
    */
-  retry: 5
+  retry: 5,
+
+  /**
+   * Tail-latency resilience for READ calls. Motivation: on a shared public-node
+   * pool a node can slow down or throttle *mid-request*; a fixed `timeout` means
+   * the caller only notices after the full window, and under SSR concurrency
+   * those stalled renders pile up. Two mechanisms, both scoped to reads only
+   * (broadcasts never hedge and keep their fixed `broadcastTimeout`):
+   *
+   * - Adaptive per-attempt timeout (`adaptiveTimeout`, default ON): when a
+   *   node has a usable latency profile (EWMA), the per-attempt timeout becomes
+   *   `min(callerTimeout, max(floorMs, factor × EWMA))` — a node running far
+   *   above its own baseline is abandoned early and failover starts sooner.
+   *   Never *raises* the caller's timeout; unprofiled nodes keep it unchanged.
+   *
+   * - Hedged requests (`hedge`, default OFF — opt in via `setResilience`): if
+   *   the primary attempt is still pending after `max(hedgeDelayFloorMs,
+   *   hedgeDelayFactor × EWMA)`, a duplicate request is fired at the next
+   *   healthy untried node and the first success wins (the loser is aborted).
+   *   A token bucket (`hedgeBucketCapacity` burst, refilled by
+   *   `hedgeRefillPerSuccess` per un-hedged success) caps hedges to roughly
+   *   `hedgeRefillPerSuccess` of traffic, so only the slow tail hedges — and
+   *   under pool-wide slowness the bucket drains and hedging auto-disables
+   *   instead of amplifying load into public-node rate limits.
+   */
+  resilience: {
+    adaptiveTimeout: true,
+    adaptiveTimeoutFloorMs: 2_000,
+    adaptiveTimeoutFactor: 4,
+    hedge: false,
+    hedgeDelayFloorMs: 750,
+    hedgeDelayFactor: 2,
+    hedgeBucketCapacity: 10,
+    hedgeRefillPerSuccess: 0.1,
+    /**
+     * Wall-clock budget for one read call across ALL failover attempts, as a
+     * multiple of the per-attempt timeout: no NEW attempt starts past
+     * `totalBudgetFactor × timeout` (an in-flight attempt still finishes its
+     * own window). Bounds the pathological pool-wide-slowness walk — without
+     * it a read could hold its caller for (retry+1) × timeout ≈ 30s, which
+     * under SSR concurrency is a memory pile-up, the exact incident this
+     * feature exists for. Applies to reads only (callRPC / callREST);
+     * broadcasts keep their try-each-node-once semantics.
+     */
+    totalBudgetFactor: 2
+  }
 }
+
+/** Shape of the `config.resilience` bag (see its doc comment). */
+export type ResilienceOptions = typeof config.resilience
 
 /**
  * Validated setter for the Hive RPC node list — replaces `config.nodes`.
@@ -191,4 +239,47 @@ export const setUserAgent = (ua: string): void => {
   // vector for any caller that builds the UA from untrusted input.
   if (!value || /[\u0000-\u001f\u007f]/.test(value)) return
   config.userAgent = value
+}
+
+/**
+ * Validated partial setter for `config.resilience` (adaptive read timeouts +
+ * hedged requests — see the field's doc comment). Booleans must be booleans;
+ * numeric fields must be finite and positive, with the refill rate additionally
+ * capped at 1 so a typo can't turn the tail-hedge into a traffic doubler
+ * (refill ≤ 1 ⇒ hedges can never exceed un-hedged successes). Invalid values
+ * are ignored field-by-field, so one bad entry can't block the rest. Lives in
+ * the React-free `hive-tx` core (like the other setters) so both `@ecency/sdk`
+ * (via `ConfigManager.setResilience`) and the lean `@ecency/sdk/hive` entry
+ * can reach it.
+ */
+export const setResilience = (opts: Partial<ResilienceOptions>): void => {
+  if (!opts || typeof opts !== 'object') return
+  const r = config.resilience
+  const bool = (v: unknown): v is boolean => typeof v === 'boolean'
+  const pos = (v: unknown): v is number =>
+    typeof v === 'number' && Number.isFinite(v) && v > 0
+  if (bool(opts.adaptiveTimeout)) r.adaptiveTimeout = opts.adaptiveTimeout
+  // Floor must stay ≥ the tracker's slow-failure recording floor (2s): the
+  // safety argument for adaptive timeouts is that an abort at the window IS
+  // recorded as a slow sample, growing the EWMA so the window self-corrects
+  // upward. A floor below 2s would abort without recording — the window could
+  // never converge and a too-tight profile would starve that call forever.
+  if (pos(opts.adaptiveTimeoutFloorMs)) {
+    r.adaptiveTimeoutFloorMs = Math.max(opts.adaptiveTimeoutFloorMs, 2_000)
+  }
+  if (pos(opts.adaptiveTimeoutFactor)) r.adaptiveTimeoutFactor = opts.adaptiveTimeoutFactor
+  if (bool(opts.hedge)) r.hedge = opts.hedge
+  if (pos(opts.hedgeDelayFloorMs)) r.hedgeDelayFloorMs = opts.hedgeDelayFloorMs
+  if (pos(opts.hedgeDelayFactor)) r.hedgeDelayFactor = opts.hedgeDelayFactor
+  if (pos(opts.hedgeBucketCapacity)) r.hedgeBucketCapacity = opts.hedgeBucketCapacity
+  // Refill must stay ≤ 1: at 1 token per success the hedge rate could reach
+  // 100% of traffic, defeating the "tail only" contract. Cap rather than reject
+  // so a caller asking for "more hedging" gets the safe maximum.
+  if (pos(opts.hedgeRefillPerSuccess)) {
+    r.hedgeRefillPerSuccess = Math.min(opts.hedgeRefillPerSuccess, 1)
+  }
+  // Below 1 the budget could not even cover the configured per-attempt window.
+  if (pos(opts.totalBudgetFactor)) {
+    r.totalBudgetFactor = Math.max(opts.totalBudgetFactor, 1)
+  }
 }
