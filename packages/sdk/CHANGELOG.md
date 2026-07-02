@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.32
+
+### Patch Changes
+
+- fix(sdk): drop hapi from restNodes default (+ techcoderx; add syncad) (#1064)
+
 ## 2.3.31
 
 ### Patch Changes
