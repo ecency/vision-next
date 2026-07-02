@@ -1,5 +1,5 @@
 import { ConfigManager, getPortfolioQueryOptions, getQueryClient, getAccountFullQueryOptions, AssetOperation, useAccountUpdate, PrivateKey, CONFIG, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMetadataQueryOptions } from '@ecency/sdk';
-export { AssetOperation, HIVE_ACCOUNT_OPERATION_GROUPS, HIVE_OPERATION_LIST, HIVE_OPERATION_NAME_BY_ID, HIVE_OPERATION_ORDERS, HiveEngineToken, NaiMap, PointTransactionType, Symbol, formattedNumber, getAccountWalletAssetInfoQueryOptions, getAllHiveEngineTokensQueryOptions, getHbdAssetGeneralInfoQueryOptions, getHbdAssetTransactionsQueryOptions, getHiveAssetGeneralInfoQueryOptions, getHiveAssetMetricQueryOptions, getHiveAssetTransactionsQueryOptions, getHiveAssetWithdrawalRoutesQueryOptions, getHiveEngineBalancesWithUsdQueryOptions, getHiveEngineTokenGeneralInfoQueryOptions, getHiveEngineTokenTransactionsQueryOptions, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMarketQueryOptions, getHiveEngineTokensMetadataQueryOptions, getHiveEngineTokensMetricsQueryOptions, getHiveEngineUnclaimedRewardsQueryOptions, getHivePowerAssetGeneralInfoQueryOptions, getHivePowerAssetTransactionsQueryOptions, getHivePowerDelegatesInfiniteQueryOptions, getHivePowerDelegatingsQueryOptions, getLarynxAssetGeneralInfoQueryOptions, getLarynxPowerAssetGeneralInfoQueryOptions, getPointsAssetGeneralInfoQueryOptions, getPointsAssetTransactionsQueryOptions, getPointsQueryOptions, getSpkAssetGeneralInfoQueryOptions, getSpkMarketsQueryOptions, getSpkWalletQueryOptions, isEmptyDate, parseAsset, resolveHiveOperationFilters, rewardSpk, useClaimPoints, useWalletOperation, vestsToHp } from '@ecency/sdk';
+export { AssetOperation, HIVE_ACCOUNT_OPERATION_GROUPS, HIVE_OPERATION_LIST, HIVE_OPERATION_NAME_BY_ID, HIVE_OPERATION_ORDERS, HiveEngineToken, NaiMap, PointTransactionType, Symbol, formattedNumber, getAccountWalletAssetInfoQueryOptions, getAllHiveEngineTokensQueryOptions, getHbdAssetGeneralInfoQueryOptions, getHbdAssetTransactionsQueryOptions, getHiveAssetGeneralInfoQueryOptions, getHiveAssetMetricQueryOptions, getHiveAssetTransactionsQueryOptions, getHiveAssetWithdrawalRoutesQueryOptions, getHiveEngineBalancesWithUsdQueryOptions, getHiveEngineTokenGeneralInfoQueryOptions, getHiveEngineTokenTransactionsQueryOptions, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMarketQueryOptions, getHiveEngineTokensMetadataQueryOptions, getHiveEngineTokensMetricsQueryOptions, getHiveEngineUnclaimedRewardsQueryOptions, getHivePowerAssetGeneralInfoQueryOptions, getHivePowerAssetTransactionsQueryOptions, getHivePowerDelegatesInfiniteQueryOptions, getHivePowerDelegatingsQueryOptions, getPointsAssetGeneralInfoQueryOptions, getPointsAssetTransactionsQueryOptions, getPointsQueryOptions, isEmptyDate, parseAsset, resolveHiveOperationFilters, useClaimPoints, useWalletOperation, vestsToHp } from '@ecency/sdk';
 import { useMutation, useQuery, queryOptions, useQueryClient } from '@tanstack/react-query';
 import * as R from 'remeda';
 import { LRUCache } from 'lru-cache';
@@ -426,7 +426,6 @@ function getAllTokensListQueryOptions(username) {
           "HBD" /* HiveDollar */
         ],
         external: Object.values(EcencyWalletCurrency),
-        spk: ["SPK", "LARYNX", "LP"],
         layer2: await getLayer2TokensMetadata(username)
       };
     }
@@ -449,6 +448,7 @@ var BASIC_TOKENS = [
   "HP" /* HivePower */,
   "HBD" /* HiveDollar */
 ];
+var REMOVED_TOKENS = /* @__PURE__ */ new Set(["SPK", "LARYNX", "LP", "BROCA"]);
 function getAccountWalletListQueryOptions(username, currency = "usd") {
   return queryOptions({
     queryKey: ["ecency-wallets", "list", username, currency],
@@ -477,6 +477,9 @@ function getAccountWalletListQueryOptions(username, currency = "usd") {
       const isTokenVisible = (symbol) => {
         const normalized = symbol?.toUpperCase();
         if (!normalized) {
+          return false;
+        }
+        if (REMOVED_TOKENS.has(normalized)) {
           return false;
         }
         if (BASIC_TOKENS.includes(normalized)) {
@@ -541,7 +544,6 @@ function getTokenOperationsQueryOptions(token, username, isForOwner = false, cur
             // Common operations
             "transfer": AssetOperation.Transfer,
             "ecency-point-transfer": AssetOperation.Transfer,
-            "spkcc-spk-send": AssetOperation.Transfer,
             // Savings operations
             "transfer-to-savings": AssetOperation.TransferToSavings,
             "transfer-savings": AssetOperation.TransferToSavings,
@@ -594,10 +596,7 @@ function getTokenOperationsQueryOptions(token, username, isForOwner = false, cur
             // Other
             "claim-interest": AssetOperation.ClaimInterest,
             "withdraw-routes": AssetOperation.WithdrawRoutes,
-            "withdrawroutes": AssetOperation.WithdrawRoutes,
-            "lock": AssetOperation.LockLiquidity,
-            "lock-liquidity": AssetOperation.LockLiquidity,
-            "lock-liq": AssetOperation.LockLiquidity
+            "withdrawroutes": AssetOperation.WithdrawRoutes
           };
           const mapped = aliasMap[canonical];
           if (mapped) return mapped;

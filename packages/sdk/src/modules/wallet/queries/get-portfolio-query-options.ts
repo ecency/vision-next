@@ -1,7 +1,7 @@
 import { ConfigManager } from "@/modules/core";
 import { queryOptions } from "@tanstack/react-query";
 
-type PortfolioLayer = "points" | "hive" | "chain" | "spk" | "engine";
+type PortfolioLayer = "points" | "hive" | "chain" | "engine";
 
 interface TokenAction {
   id: string;
@@ -212,7 +212,9 @@ export function getPortfolioQueryOptions(
       const payload = (await response.json()) as unknown;
       const tokens = extractTokens(payload)
         .map((item) => parseToken(item))
-        .filter((item): item is PortfolioWalletItem => Boolean(item));
+        .filter((item): item is PortfolioWalletItem => Boolean(item))
+        // Backend may still emit removed SPK-layer items; drop them defensively
+        .filter((item) => (item.layer as string) !== "spk");
 
       if (!tokens.length) {
         throw new Error(

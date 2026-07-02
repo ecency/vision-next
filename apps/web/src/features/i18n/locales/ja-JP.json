@@ -1360,79 +1360,6 @@
     "converting-hive-amount": "HBDに変換中",
     "withdrawing-amount": "貯蓄からの引き出し",
     "reserved-amount": "市場でのオープン注文の予約",
-    "spk": {
-      "claim": {
-        "title": "Claim",
-        "unclaimed-rewards": "未請求の報酬"
-      },
-      "delegate": {
-        "title": "委任",
-        "subtitle": "トークンを委任する",
-        "node-operator-placeholder": "ノード演算子を選択",
-        "delegated-larynx-power": {
-          "title": "LARYNX委任パワー"
-        }
-      },
-      "power-up": {
-        "title": "パワーアップ",
-        "subtitle": "パワーアップして受動報酬を獲得"
-      },
-      "power-down": {
-        "title": "パワーダウン",
-        "subtitle": "パワーダウンすると受動報酬が手に入ります。",
-        "in-progress": "パワーダウンは {{date}} (残り{{count}} 分) に予定されています"
-      },
-      "lock": {
-        "title": "流動性をロック",
-        "subtitle": "流動性報酬のためのLarynxのロック",
-        "button": "流動性をロック"
-      },
-      "unlock": {
-        "title": "流動性を解放",
-        "subtitle": "LARYNXを液体フォームに解放",
-        "button": "流動性を解放"
-      },
-      "send": {
-        "balance": "残高",
-        "button": "送信",
-        "from": "差出人:",
-        "to": "終了日",
-        "amount": "金額",
-        "optional": "省略可能",
-        "title": "SPKを送信",
-        "memo": "メモ",
-        "next": "次へ",
-        "subtitle": "別の SPK ウォレットに資金を移動する",
-        "warning": "利用可能な残高以上を転送中"
-      },
-      "token": "SPKトークン",
-      "token-description": "SPKネットワークのガバナンストークン。",
-      "larynx-already-claimed": "既に要求されています。",
-      "larynx-token": "LARYNXトークン",
-      "larynx-token-description": "SPKネットワークのマイニングトークン",
-      "larynx-power": "LARYNXパワー",
-      "larynx-power-description": "SPKを採掘するために使用される動力付きトークン",
-      "larynx-power-benefits": {
-        "title": "LARYNXパワーの利点",
-        "1": "SPKガバナンストークンを獲得",
-        "2": "インスタントロック| 4週間のロック解除",
-        "3": "コンセンサスを構築するためのノード サービス アカウントに委任する (DPoS)",
-        "4": "LARYNX POWER(LP)は {{rate}}%でSPKトークンを獲得",
-        "5": "代理LP(DLP)は代表者と代表者の両方に対してSPKトークンを獲得し、 {{rate}}%に委任する"
-      },
-      "larynx-locked-benefits": {
-        "title": "LARYNXロックの利点",
-        "1": "ステークコンセンサスの証拠",
-        "2": "DEXトランザクションの担保者",
-        "3": "インスタントロック| 4週間のロック解除",
-        "4": "作動中のLARYNXノードが必要です",
-        "5": "獲得値 0.100%"
-      },
-      "account-value": "推定された口座価値",
-      "account-value-description": "アカウント内のすべての SPK 資産のおおよその米ドル価値",
-      "larynx-locked": "LARYNXがロックされました",
-      "larynx-locked-description": "ロックされたトークンはネットワークに流動性を提供し、コンセンサスを決定するのに役立ち、ノードランナーの報酬を獲得します"
-    },
     "setup-external": {
       "login-required": "外部ウォレットをセットアップするにはログインが必要です",
       "import-login-required": "ウォレットをインポートするにはログインが必要です"
@@ -1605,10 +1532,6 @@
     "claim-title": "受け取る",
     "powerup-title": "パワーアップ",
     "powerdown-title": "パワーダウン",
-    "lock-title": "流動性をロック",
-    "unlock-title": "流動性を解放",
-    "lock-summary": "<span class=\"amount\">{{amount}}</span> としてロックが完了しました",
-    "unlock-summary": "解除が <span class=\"amount\">{{amount}}</span> として完了しました",
     "success-title": "成功",
     "success-sub-title": "取引が完了しました",
     "sign-title": "取引に署名する",
@@ -1617,7 +1540,6 @@
     "swap-sub-title": "数回のクリックで資金を入れ替え",
     "gift-title": "ギフト",
     "gift-sub-title": "特定のユーザーにポイントを贈りましょう",
-    "lock-sub-title": "流動性報酬のためのLarynxのロック",
     "stake-title": "ステーク（ステーク）",
     "stake-sub-title": "ステークトークンで受動的な報酬を獲得する",
     "unstake-title": "ステーク解除",
@@ -3377,7 +3299,6 @@
       "promote": "プロモート",
       "claim": "受け取る",
       "buy": "購入",
-      "lock": "流動性をロック",
       "stake": "ステーク（ステーク）",
       "unstake": "ステーク解除",
       "undelegate": "委任解除"

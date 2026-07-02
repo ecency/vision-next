@@ -59,7 +59,6 @@ export const StakeWidgetHeaderOptions = ({
 
       <FormControl
         type="select"
-        placeholder={i18next.t("wallet.spk.delegate.node-operator-placeholder")}
         className="text-xs"
         value={fractionValue}
         onChange={(event: ChangeEvent<any>) => {

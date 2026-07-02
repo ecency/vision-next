@@ -1360,79 +1360,6 @@
     "converting-hive-amount": "Convirtiendo a HBD",
     "withdrawing-amount": "Retiro de ahorros",
     "reserved-amount": "Reservado para Orden Abierta en Mercado",
-    "spk": {
-      "claim": {
-        "title": "Reclamar",
-        "unclaimed-rewards": "Recompensas no reclamadas"
-      },
-      "delegate": {
-        "title": "Delegar",
-        "subtitle": "Tokens deselegados",
-        "node-operator-placeholder": "Seleccione un operador de nodo",
-        "delegated-larynx-power": {
-          "title": "Poder LARYNX Delegado"
-        }
-      },
-      "power-up": {
-        "title": "Power up (Encender)",
-        "subtitle": "Pon Tokens en estaca para ganar recompensas pasivas"
-      },
-      "power-down": {
-        "title": "Power Down (Apagar)",
-        "subtitle": "Apaga para ganar recompensas pasivas",
-        "in-progress": "Está programado que suceda un apagado en {{date}} ({{count}} cuotas restantes)"
-      },
-      "lock": {
-        "title": "Bloquear liquidez",
-        "subtitle": "Bloquear Larynx por recompensa de liquidez",
-        "button": "Bloquear liquidez"
-      },
-      "unlock": {
-        "title": "Desbloquear liquidez",
-        "subtitle": "Desbloquear LARYNX a forma líquida",
-        "button": "Desbloquear liquidez"
-      },
-      "send": {
-        "balance": "Balance",
-        "button": "Enviar",
-        "from": "Desde",
-        "to": "A",
-        "amount": "Cantidad",
-        "optional": "opcional",
-        "title": "Enviar SPK",
-        "memo": "Memo",
-        "next": "Siguiente",
-        "subtitle": "Mover fondos a otra cartera SPK",
-        "warning": "Transfiriendo más que el saldo disponible"
-      },
-      "token": "Token SPK",
-      "token-description": "El token de gobernanza para la red SPK.",
-      "larynx-already-claimed": "Ya reclamado.",
-      "larynx-token": "Token LARYNX",
-      "larynx-token-description": "El token de minería de la red SPK.",
-      "larynx-power": "Poder LARYNX",
-      "larynx-power-description": "Tokens en Poder usados para extraer SPK",
-      "larynx-power-benefits": {
-        "title": "Beneficios de LARYNX Power",
-        "1": "Gana tokens de gobernanza SPK",
-        "2": "Bloqueo instantáneo | Desbloqueo de 4 semanas",
-        "3": "Delegar a cuentas de nodo de servicio para crear consenso (DPoS)",
-        "4": "POWER LARYNX (LP) gana tokens SPK al {{rate}}%",
-        "5": "El LP Delegado (DLP) gana las fichas SPK tanto para el delegador como para el delegado en {{rate}}%"
-      },
-      "larynx-locked-benefits": {
-        "title": "Beneficios de LARYNX bloqueado",
-        "1": "Prueba del Consenso de Estaca",
-        "2": "Collateral para transacciones DEX",
-        "3": "Bloqueo instantáneo | Desbloqueo de 4 semanas",
-        "4": "Requiere un nodo LARYNX operativo",
-        "5": "Gana 0.100%"
-      },
-      "account-value": "Valor estimado de la cuenta",
-      "account-value-description": "El valor aproximado del dólar estadounidense para todos los activos de SPK en su cuenta",
-      "larynx-locked": "LARYNX bloqueado",
-      "larynx-locked-description": "Las fichas bloqueadas proporcionan liquidez a la red, ayudan a determinar el consenso y obtienen recompensas para los corredores de nodos"
-    },
     "setup-external": {
       "login-required": "Inicio de sesión necesario para configurar carteras externas",
       "import-login-required": "Inicio de sesión necesario para importar cartera"
@@ -1605,10 +1532,6 @@
     "claim-title": "Reclamar",
     "powerup-title": "Power up",
     "powerdown-title": "Power Down (Apagar)",
-    "lock-title": "Bloquear liquidez",
-    "unlock-title": "Desbloquear liquidez",
-    "lock-summary": "Bloqueo completado de <span class=\"amount\">{{amount}}</span>",
-    "unlock-summary": "Desbloqueo completado de <span class=\"amount\">{{amount}}</span>",
     "success-title": "Completado",
     "success-sub-title": "Transacción completada",
     "sign-title": "Firmar transacción",
@@ -1617,7 +1540,6 @@
     "swap-sub-title": "Cambia tus fondos en pocos clics",
     "gift-title": "Regalo",
     "gift-sub-title": "Regalar los puntos a un usuario específico",
-    "lock-sub-title": "Bloquear Larynx por recompensa de liquidez",
     "stake-title": "Estaca",
     "stake-sub-title": "Pon Tokens en estaca para ganar recompensas pasivas",
     "unstake-title": "Retirar de Estaca",
@@ -3377,7 +3299,6 @@
       "promote": "Promover",
       "claim": "Reclamar",
       "buy": "Comprar",
-      "lock": "Bloquear liquidez",
       "stake": "Estaca",
       "unstake": "Retirar de Estaca",
       "undelegate": "Retirar delegación"

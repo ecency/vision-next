@@ -1360,79 +1360,6 @@
     "converting-hive-amount": "Convertendo para HBD",
     "withdrawing-amount": "Sacando da Poupança",
     "reserved-amount": "Reservado em ordem aberta no Câmbio",
-    "spk": {
-      "claim": {
-        "title": "Reivindicar",
-        "unclaimed-rewards": "Recompensas não reivindicadas"
-      },
-      "delegate": {
-        "title": "Delegar",
-        "subtitle": "Delegar tokens",
-        "node-operator-placeholder": "Selecionar um operador do nó",
-        "delegated-larynx-power": {
-          "title": "Poder LARYNX delegado"
-        }
-      },
-      "power-up": {
-        "title": "Aumentar Poder",
-        "subtitle": "Aumente o poder para obter rendimentos"
-      },
-      "power-down": {
-        "title": "Diminuir poder",
-        "subtitle": "Power down para ganhar mais passivamente",
-        "in-progress": "Uma baixa no poder está programada para {{date}} ({{count}} parcelas restantes)"
-      },
-      "lock": {
-        "title": "Bloquear Liquidez",
-        "subtitle": "Bloqueando Larynx pela recompensa de liquidez",
-        "button": "Bloquear liquidez"
-      },
-      "unlock": {
-        "title": "Desbloquear Liquidez",
-        "subtitle": "Desbloqueie LARYNX para obter liquidez",
-        "button": "Desbloquear liquidez"
-      },
-      "send": {
-        "balance": "Saldo",
-        "button": "Enviar",
-        "from": "De",
-        "to": "Para",
-        "amount": "Quantia",
-        "optional": "opcional",
-        "title": "Enviar SPK",
-        "memo": "Memorando",
-        "next": "Seguinte",
-        "subtitle": "Mover fundos para outra carteira SPK",
-        "warning": "Transferindo quantia maior do que o saldo disponível"
-      },
-      "token": "Token SPK",
-      "token-description": "Token de governança para a rede SPK.",
-      "larynx-already-claimed": "Já reivindicado.",
-      "larynx-token": "Token LARYNX",
-      "larynx-token-description": "O token de mineração para a rede SPK.",
-      "larynx-power": "Poder LARYNX",
-      "larynx-power-description": "Tokens fornecidos usados para minerar SPK",
-      "larynx-power-benefits": {
-        "title": "Benefícios do Poder LARYNX",
-        "1": "Rende tokens de governança SPK",
-        "2": "Bloqueio Instantâneo | Desbloqueio em 4 Semanas",
-        "3": "Delegue a contas de serviço de nó para construir consenso (DPoS)",
-        "4": "POWER LARYNX (LP) ganha tokens SPK em {{rate}}%",
-        "5": "LP delegado (DLP) ganha tokens SPK para quem delega, e também para quem recebe a delegação, em {{rate}}%"
-      },
-      "larynx-locked-benefits": {
-        "title": "Benefícios do LARYNX Bloqueados",
-        "1": "Prova de Consenso de Participação",
-        "2": "Colateral para transações na DEX",
-        "3": "Bloqueio Instantâneo | Desbloqueio em 4 Semanas",
-        "4": "Requer um nó LARYNX operacional",
-        "5": "Ganha 0,100%"
-      },
-      "account-value": "Valor de Conta Aproximado",
-      "account-value-description": "O valor aproximado em dólares de todos os ativos SPK na sua conta",
-      "larynx-locked": "LARYNX Guardado",
-      "larynx-locked-description": "Tokens bloqueados fornecem liquidez à rede, ajudam na determinação do consenso e recebem recompensas para rodar servidores de nó"
-    },
     "setup-external": {
       "login-required": "Login necessário para configurar carteiras externas",
       "import-login-required": "Login necessário para importar a carteira"
@@ -1605,10 +1532,6 @@
     "claim-title": "Reivindicar",
     "powerup-title": "Aumentar Poder",
     "powerdown-title": "Diminuir poder",
-    "lock-title": "Bloquear liquidez",
-    "unlock-title": "Desbloquear liquidez",
-    "lock-summary": "Bloqueio concluído como <span class=\"amount\">{{amount}}</span>",
-    "unlock-summary": "Desbloqueio concluído como <span class=\"amount\">{{amount}}</span>",
     "success-title": "Sucesso",
     "success-sub-title": "Transação completa",
     "sign-title": "Assinar a transação",
@@ -1617,7 +1540,6 @@
     "swap-sub-title": "Troque seus fundos em poucos cliques",
     "gift-title": "Presente",
     "gift-sub-title": "Presentear os pontos para o usuário específico",
-    "lock-sub-title": "Trancando Larynx pela recompensa de liquidez",
     "stake-title": "Implantar",
     "stake-sub-title": "Implantar token para ganhar recompensas passivas",
     "unstake-title": "Desinteressar",
@@ -3377,7 +3299,6 @@
       "promote": "Promover",
       "claim": "Reclamar",
       "buy": "Comprar",
-      "lock": "Bloquear liquidez",
       "stake": "Implantar",
       "unstake": "Desinteressar",
       "undelegate": "Desdelegar"

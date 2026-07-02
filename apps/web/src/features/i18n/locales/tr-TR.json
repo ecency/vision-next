@@ -1360,79 +1360,6 @@
     "converting-hive-amount": "HBD'ye dönüştürülüyor",
     "withdrawing-amount": "Tasarruflardan çekiliyor",
     "reserved-amount": "Piyasadaki Açık emir için ayrıldı",
-    "spk": {
-      "claim": {
-        "title": "Claim",
-        "unclaimed-rewards": "Unclaimed rewards"
-      },
-      "delegate": {
-        "title": "Yetkilendir",
-        "subtitle": "Token yetkilendir",
-        "node-operator-placeholder": "Bir düğüm operatörü seçin",
-        "delegated-larynx-power": {
-          "title": "Yetkilendirilmiş LARYNX Power"
-        }
-      },
-      "power-up": {
-        "title": "Power Up",
-        "subtitle": "Pasif ödüller kazanmak için Power Up yapın"
-      },
-      "power-down": {
-        "title": "Power Down",
-        "subtitle": "Pasif ödüller kazanmak için Power Down yapın",
-        "in-progress": "{{date}} içinde bir Power Down planlandı ({{count}} taksit kaldı)"
-      },
-      "lock": {
-        "title": "Likiditeyi Kilitle",
-        "subtitle": "Likidite ödülü için Larynx kilitleniyor",
-        "button": "Likiditeyi kilitle"
-      },
-      "unlock": {
-        "title": "Likiditeyi Aç",
-        "subtitle": "LARYNX'i likit forma çevir",
-        "button": "Likiditeyi aç"
-      },
-      "send": {
-        "balance": "Bakiye",
-        "button": "Gönder",
-        "from": "Gönderen",
-        "to": "Alıcı",
-        "amount": "Miktar",
-        "optional": "isteğe bağlı",
-        "title": "SPK Gönder",
-        "memo": "Not",
-        "next": "İleri",
-        "subtitle": "Fonları başka bir SPK cüzdanına taşıyın",
-        "warning": "Kullanılabilir bakiyeden fazlası transfer ediliyor"
-      },
-      "token": "SPK Token",
-      "token-description": "SPK ağı için yönetişim tokenı.",
-      "larynx-already-claimed": "Zaten talep edildi.",
-      "larynx-token": "LARYNX Token",
-      "larynx-token-description": "SPK ağı için madencilik tokenı.",
-      "larynx-power": "LARYNX Power",
-      "larynx-power-description": "SPK madenciliği için kullanılan güçlendirilmiş tokenlar",
-      "larynx-power-benefits": {
-        "title": "LARYNX Power'ın avantajları",
-        "1": "SPK yönetişim tokenları kazandırır",
-        "2": "Anında Kilit | 4 Haftada Açılır",
-        "3": "Konsensüs oluşturmak için düğüm hizmet hesaplarına yetkilendirin (DPoS)",
-        "4": "LARYNX POWER (LP) %{{rate}} oranında SPK tokenı kazandırır",
-        "5": "Yetkilendirilmiş LP (DLP), hem yetki veren hem de yetki alan için %{{rate}} oranında SPK tokenı kazandırır"
-      },
-      "larynx-locked-benefits": {
-        "title": "LARYNX Locked'ın avantajları",
-        "1": "Proof of Stake Konsensüsü",
-        "2": "DEX işlemleri için teminat",
-        "3": "Anında Kilit | 4 Haftada Açılır",
-        "4": "Çalışan bir LARYNX düğümü gerektirir",
-        "5": "%0,100 kazandırır"
-      },
-      "account-value": "Tahmini Hesap Değeri",
-      "account-value-description": "Hesabınızdaki tüm SPK varlıklarının yaklaşık ABD Doları değeri",
-      "larynx-locked": "LARYNX Kilitli",
-      "larynx-locked-description": "Kilitli tokenlar ağa likidite sağlar, konsensüs belirlemeye yardımcı olur ve düğüm işletenler için ödül kazandırır"
-    },
     "setup-external": {
       "login-required": "Harici cüzdanları kurmak için giriş yapmanız gerekir",
       "import-login-required": "Cüzdanı içe aktarmak için giriş yapmanız gerekir"
@@ -1605,10 +1532,6 @@
     "claim-title": "Talep et",
     "powerup-title": "Power Up",
     "powerdown-title": "Power Down",
-    "lock-title": "Likiditeyi kilitle",
-    "unlock-title": "Likiditeyi aç",
-    "lock-summary": "Kilitleme <span class=\"amount\">{{amount}}</span> olarak tamamlandı",
-    "unlock-summary": "Kilit açma <span class=\"amount\">{{amount}}</span> olarak tamamlandı",
     "success-title": "Başarılı",
     "success-sub-title": "İşlem tamamlandı",
     "sign-title": "İşlemi imzala",
@@ -1617,7 +1540,6 @@
     "swap-sub-title": "Fonlarınızı birkaç tıklamayla takas edin",
     "gift-title": "Hediye",
     "gift-sub-title": "Points'i belirli bir kullanıcıya hediye et",
-    "lock-sub-title": "Likidite ödülü için Larynx kilitleniyor",
     "stake-title": "Stake et",
     "stake-sub-title": "Pasif ödüller kazanmak için token stake edin",
     "unstake-title": "Stake'i çöz",
@@ -3377,7 +3299,6 @@
       "promote": "Öne çıkar",
       "claim": "Talep et",
       "buy": "Satın al",
-      "lock": "Likiditeyi kilitle",
       "stake": "Stake et",
       "unstake": "Stake'i çöz",
       "undelegate": "Delegasyonu kaldır"

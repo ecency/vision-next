@@ -303,15 +303,6 @@ export function ProfileWalletTokenPicker() {
     return sortTokensWithSelection(filteredTokens, (token) => token);
   }, [allTokens?.basic, normalizedQuery, sortTokensWithSelection]);
 
-  const filteredSpkTokens = useMemo(() => {
-    const tokens = allTokens?.spk ?? [];
-    const filteredTokens = !normalizedQuery
-      ? tokens
-      : tokens.filter((token) => token.toLowerCase().includes(normalizedQuery));
-
-    return sortTokensWithSelection(filteredTokens, (token) => token);
-  }, [allTokens?.spk, normalizedQuery, sortTokensWithSelection]);
-
   const filteredLayer2Tokens = useMemo(() => {
     const tokens = allTokens?.layer2 ?? [];
     const filteredTokens = !normalizedQuery
@@ -402,17 +393,6 @@ export function ProfileWalletTokenPicker() {
           ...(chainToken.meta ?? {}),
           show: Boolean(chainToken.symbol && nextListSet.has(chainToken.symbol))
         })),
-        ...R.pipe(
-          allTokens?.spk ?? [],
-          R.filter((currency): currency is string =>
-            Boolean(currency && nextListSet.has(currency))
-          ),
-          R.map((currency) => ({
-            currency,
-            type: "SPK",
-            show: true,
-          }))
-        ),
         ...R.pipe(
           allTokens?.layer2 ?? [],
           R.filter((token): token is { symbol: string } =>
@@ -525,25 +505,6 @@ export function ProfileWalletTokenPicker() {
             </>
           )}
 
-          {filteredSpkTokens.length > 0 && (
-            <>
-              <div className="text-sm opacity-50 mt-4 mb-2">SPK</div>
-              <List>
-                {filteredSpkTokens.map((token) => (
-                  <ListItem className="!flex items-center gap-2" key={token}>
-                    <FormControl
-                      type="checkbox"
-                      checked={selectedTokens.has(token)}
-                      onChange={() => toggleSelection(token)}
-                    />
-                    <div>{getTokenLogo(token)}</div>
-                    {token}
-                  </ListItem>
-                ))}
-              </List>
-            </>
-          )}
-
           {filteredLayer2Tokens.length > 0 && (
             <>
               <div className="text-sm opacity-50 mt-4 mb-2">Hive engine</div>
@@ -584,8 +545,7 @@ export function ProfileWalletTokenPicker() {
           )}
           {filteredBasicTokens.length === 0 &&
             externalTokens.length === 0 &&
-            filteredLayer2Tokens.length === 0 &&
-            filteredSpkTokens.length === 0 && (
+            filteredLayer2Tokens.length === 0 && (
               <div className="flex flex-col gap-2 items-center justify-center p-4 text-sm opacity-50">
                 <UilTimesCircle className="w-8 h-8" />
                 <span>No tokens found</span>

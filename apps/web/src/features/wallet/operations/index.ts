@@ -6,5 +6,3 @@ export * from "./wallet-operations-error";
 export * from "./wallet-operation-power-down";
 export * from "./wallet-operation-withdraw-routes";
 export * from "./wallet-operation-withdraw-routes-form";
-export * from "./wallet-operation-lock";
-export * from "./wallet-operations-lp-delegate";

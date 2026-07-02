@@ -8,10 +8,8 @@ import { Button, Modal, ModalHeader } from "../ui";
 import { DropdownContext } from "../ui/dropdown/dropdown-context";
 import {
   WalletOperationError,
-  WalletOperationLock,
   WalletOperationPowerDown,
   WalletOperationSign,
-  WalletOperationsLpDelegate,
   WalletOperationsTransfer,
   WalletOperationSuccess,
   WalletOperationWithdrawRoutes,
@@ -144,7 +142,7 @@ export function WalletOperationsDialog({
           AssetOperation.ClaimInterest,
           AssetOperation.Convert,
         ].includes(operation) ||
-          (AssetOperation.Delegate === operation && asset !== "LP")) && (
+          AssetOperation.Delegate === operation) && (
           <WalletOperationsTransfer
             to={to}
             data={data}
@@ -166,29 +164,6 @@ export function WalletOperationsDialog({
           />
         )}
         {[AssetOperation.Swap].includes(operation) && <MarketSwapForm />}
-        {[AssetOperation.Delegate].includes(operation) && asset === "LP" && (
-          <WalletOperationsLpDelegate
-            data={data}
-            asset={asset}
-            username={activeUser?.username ?? ""}
-            showSubmit={step === "form"}
-            onSubmit={(d) => {
-              setData(d);
-              setStep("sign");
-            }}
-          />
-        )}
-        {[AssetOperation.LockLiquidity].includes(operation) && (
-          <WalletOperationLock
-            asset={asset}
-            username={activeUser?.username ?? ""}
-            showSubmit={step === "form"}
-            onSubmit={() => {
-              setData({ from: activeUser?.username });
-              setStep("sign");
-            }}
-          />
-        )}
         {[AssetOperation.PowerDown].includes(operation) && (
           <WalletOperationPowerDown
             asset={asset}

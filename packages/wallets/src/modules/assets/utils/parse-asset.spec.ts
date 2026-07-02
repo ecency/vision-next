@@ -127,7 +127,6 @@ describe('Symbol enum', () => {
     expect(Symbol.HIVE).toBe('HIVE')
     expect(Symbol.HBD).toBe('HBD')
     expect(Symbol.VESTS).toBe('VESTS')
-    expect(Symbol.SPK).toBe('SPK')
   })
 })
 

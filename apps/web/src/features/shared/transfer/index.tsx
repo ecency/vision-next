@@ -29,7 +29,7 @@ export type TransferMode =
   | "stake"
   | "unstake"
   | "claim-interest";
-export type TransferAsset = "HIVE" | "HBD" | "HP" | "POINT" | "SPK" | "LARYNX" | string;
+export type TransferAsset = "HIVE" | "HBD" | "HP" | "POINT" | string;
 
 interface Props {
   mode: TransferMode;

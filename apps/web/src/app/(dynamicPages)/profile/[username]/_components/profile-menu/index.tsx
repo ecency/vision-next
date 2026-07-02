@@ -55,7 +55,7 @@ export function ProfileMenu({ username }: Props) {
     ),
     {
       label: i18next.t(`profile.section-wallet`),
-      selected: ["wallet", "points", "engine", "spk"].includes(section),
+      selected: ["wallet", "points", "engine"].includes(section),
       href: `/@${username}/wallet`,
       id: "wallet"
     },

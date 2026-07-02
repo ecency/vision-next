@@ -16,7 +16,6 @@ import {
   buildConvertOp,
   buildClaimInterestOps,
   buildPointTransferOp,
-  buildSpkCustomJsonOp,
   buildEngineOp,
   buildEngineClaimOp,
 } from "@/modules/operations/builders";
@@ -94,46 +93,6 @@ function buildHiveOperations(
         return [buildPointTransferOp(from, to, amount, memo)];
       }
       break;
-
-    case "SPK":
-      if (operation === AssetOperation.Transfer) {
-        const numAmount = typeof amount === "number" ? amount : parseFloat(amount) * 1000;
-        return [["custom_json", {
-          id: "spkcc_spk_send",
-          required_auths: [from],
-          required_posting_auths: [],
-          json: JSON.stringify({ to, amount: numAmount, ...(typeof memo === "string" && memo ? { memo } : {}) }),
-        }]];
-      }
-      break;
-
-    case "LARYNX":
-      switch (operation) {
-        case AssetOperation.Transfer: {
-          const numAmount = typeof amount === "number" ? amount : parseFloat(amount) * 1000;
-          return [["custom_json", {
-            id: "spkcc_send",
-            required_auths: [from],
-            required_posting_auths: [],
-            json: JSON.stringify({ to, amount: numAmount, ...(typeof memo === "string" && memo ? { memo } : {}) }),
-          }]];
-        }
-        case AssetOperation.LockLiquidity: {
-          const parsedAmount = typeof payload.amount === "string"
-            ? parseFloat(payload.amount)
-            : Number(payload.amount ?? 0);
-          const id = payload.mode === "lock" ? "spkcc_gov_up" : "spkcc_gov_down";
-          return [buildSpkCustomJsonOp(from, id, parsedAmount)];
-        }
-        case AssetOperation.PowerUp: {
-          const parsedAmount = typeof payload.amount === "string"
-            ? parseFloat(payload.amount)
-            : Number(payload.amount ?? 0);
-          const id = `spkcc_power_${payload.mode ?? "up"}`;
-          return [buildSpkCustomJsonOp(from, id, parsedAmount)];
-        }
-      }
-      break;
   }
 
   return null;
@@ -183,11 +142,11 @@ function getWalletOperationAuthority(operation: AssetOperation): AuthorityLevel 
 /**
  * Meta-mutation hook that dispatches wallet operations based on asset and operation type.
  *
- * Supports HIVE, HBD, HP, POINTS, SPK, LARYNX, and Hive Engine tokens.
+ * Supports HIVE, HBD, HP, POINTS, and Hive Engine tokens.
  * Uses `useBroadcastMutation` for unified auth handling via `AuthContextV2`.
  *
  * @param username - The Hive account performing the operation
- * @param asset - The asset symbol (e.g., "HIVE", "HBD", "HP", "POINTS", "SPK", "LARYNX", or engine token)
+ * @param asset - The asset symbol (e.g., "HIVE", "HBD", "HP", "POINTS", or engine token)
  * @param operation - The operation type from AssetOperation enum
  * @param auth - Auth context for broadcasting
  */
@@ -207,7 +166,7 @@ export function useWalletOperation(
     ["ecency-wallets", asset, operation],
     username,
     (payload) => {
-      // Try native Hive + SPK + LARYNX + POINTS operations
+      // Try native Hive + POINTS operations
       const hiveOps = buildHiveOperations(asset, operation, payload);
       if (hiveOps) return hiveOps;
 
@@ -227,10 +186,6 @@ export function useWalletOperation(
 
       if (asset === "HIVE") {
         keysToInvalidate.push(["ecency-wallets", "asset-info", username, "HP"]);
-      }
-      if (asset === "LARYNX" && operation === AssetOperation.PowerUp) {
-        keysToInvalidate.push(["ecency-wallets", "asset-info", username, "LP"]);
-        keysToInvalidate.push(["ecency-wallets", "asset-info", username, "LARYNX"]);
       }
 
       // Invalidate portfolio (prefix-matches all currency/filter variants)

@@ -42,7 +42,6 @@ export function ProfileWalletTokensList() {
     const supportedTokens = new Set<string>([
       ...(availableTokens.basic ?? []),
       ...(availableTokens.external ?? []),
-      ...(availableTokens.spk ?? []),
       ...(availableTokens.layer2 ?? []).map((token) => token.symbol),
     ]);
 

@@ -1360,79 +1360,6 @@
     "converting-hive-amount": "Konvertieren zu HBD",
     "withdrawing-amount": "Auszahlung von Ersparnissen",
     "reserved-amount": "Reserviert für Offene Bestellung im Markt",
-    "spk": {
-      "claim": {
-        "title": "Beanspruchen",
-        "unclaimed-rewards": "Nicht beanspruchte Belohnungen"
-      },
-      "delegate": {
-        "title": "Delegieren",
-        "subtitle": "Token delegieren",
-        "node-operator-placeholder": "Wähle einen Nodebetreiber aus",
-        "delegated-larynx-power": {
-          "title": "Delegierte LARYNX Power"
-        }
-      },
-      "power-up": {
-        "title": "Power Up",
-        "subtitle": "Power up, um passive Belohnungen zu verdienen"
-      },
-      "power-down": {
-        "title": "Power Down",
-        "subtitle": "Power down, um passive Belohnungen zu verdienen",
-        "in-progress": "Eine Power-Down ist für den {{date}} geplant ({{count}} Raten verbleiben)"
-      },
-      "lock": {
-        "title": "Liquidität sperren",
-        "subtitle": "Larynx für Liquiditätsbelohnung sperren",
-        "button": "Liquidität sperren"
-      },
-      "unlock": {
-        "title": "Liquidität freischalten",
-        "subtitle": "LARYNX zu liquiden Token freischalten",
-        "button": "Liquidität freischalten"
-      },
-      "send": {
-        "balance": "Kontostand",
-        "button": "Senden",
-        "from": "Von",
-        "to": "Empfänger",
-        "amount": "Betrag",
-        "optional": "Optional",
-        "title": "SPK senden",
-        "memo": "Memo",
-        "next": "Weiter",
-        "subtitle": "Verschiebe Guthaben in eine andere SPK-Wallet",
-        "warning": "Übertragung von mehr als dem verfügbaren Guthaben"
-      },
-      "token": "SPK-Token",
-      "token-description": "Der Governance-Token für das SPK-Netzwerk.",
-      "larynx-already-claimed": "Belohnung bereits abgeholt.",
-      "larynx-token": "LARYNX Token",
-      "larynx-token-description": "Der Mining-Token für das SPK-Netzwerk.",
-      "larynx-power": "LARYNX Power",
-      "larynx-power-description": "Power Token, die zur Erzeugung von SPK verwendet werden",
-      "larynx-power-benefits": {
-        "title": "Vorteile von LARYNX Power",
-        "1": "Verdiene SPK Governance-Token",
-        "2": "Sofortige Sperre | 4 Wochen entsperren",
-        "3": "Delegieren Sie Dienstkonten für Knotenpunkte zum Aufbau eines Konsenses (DPoS)",
-        "4": "LARYNX POWER (LP) verdient SPK-Token unter {{rate}}%",
-        "5": "Delegierte LP (DLP) erhält SPK-Marken für Delegierte und Delegierte bei {{rate}}%"
-      },
-      "larynx-locked-benefits": {
-        "title": "Vorteile von LARYNX gesperrt",
-        "1": "Beweis des Einvernehmens",
-        "2": "Collateral für DEX-Transaktionen",
-        "3": "Sofortige Sperre | 4 Wochen entsperren",
-        "4": "Benötigt einen operativen LARYNX-Knoten",
-        "5": "Verdient 0,100 %"
-      },
-      "account-value": "Geschätzter Kontowert",
-      "account-value-description": "Der ungefähre US-Dollar-Wert für alle SPK-Assets in Ihrem Konto",
-      "larynx-locked": "LARYNX gesperrt",
-      "larynx-locked-description": "Gesperrte Tokens sorgen für Liquidität im Netzwerk, helfen bei der Konsensfindung und verdienen Belohnungen für Knotenläufer"
-    },
     "setup-external": {
       "login-required": "Anmeldung erforderlich, um externe Brieftaschen einzurichten",
       "import-login-required": "Anmeldung erforderlich, um Wallet zu importieren"
@@ -1605,10 +1532,6 @@
     "claim-title": "Beanspruchen",
     "powerup-title": "Power Up",
     "powerdown-title": "Power Down",
-    "lock-title": "Liquidität sperren",
-    "unlock-title": "Liquidität freischalten",
-    "lock-summary": "Sperre abgeschlossen als <span class=\"amount\">{{amount}}</span>",
-    "unlock-summary": "Entsperren abgeschlossen als <span class=\"amount\">{{amount}}</span>",
     "success-title": "Perfekt!",
     "success-sub-title": "Transaktion abgeschlossen",
     "sign-title": "Transaktion signieren",
@@ -1617,7 +1540,6 @@
     "swap-sub-title": "Guthaben mit wenigen Klicks tauschen",
     "gift-title": "Geschenk",
     "gift-sub-title": "Punkte an einen bestimmten Benutzer verschenken",
-    "lock-sub-title": "Larynx für Liquiditätsbelohnung sperren",
     "stake-title": "Absteckung",
     "stake-sub-title": "Token abstecken, um passive Belohnungen zu erhalten",
     "unstake-title": "Entsetzen",
@@ -3377,7 +3299,6 @@
       "promote": "Befördere",
       "claim": "Einfordern",
       "buy": "Kaufen",
-      "lock": "Liquidität sperren",
       "stake": "Absteckung",
       "unstake": "Entsetzen",
       "undelegate": "Entfernen"

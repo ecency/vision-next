@@ -1349,16 +1349,16 @@
     "image-server-nocdn": "Ecency images (No CDN)"
   },
   "settings": {
-  "dm-privacy": {
-    "title": "Chat Privacy",
-    "who-can-message": "Who can send you direct messages?",
-    "description": "Control who can send you direct messages to prevent spam and phishing attempts.",
-    "allow-all": "Everyone",
-    "followers-only": "Only people I follow",
-    "no-one": "No one (disable DMs)"
-  },
-  "dm-privacy-updated": "DM privacy settings updated successfully",
-  "dm-privacy-failed": "Failed to update DM privacy settings"
+    "dm-privacy": {
+      "title": "Chat Privacy",
+      "who-can-message": "Who can send you direct messages?",
+      "description": "Control who can send you direct messages to prevent spam and phishing attempts.",
+      "allow-all": "Everyone",
+      "followers-only": "Only people I follow",
+      "no-one": "No one (disable DMs)"
+    },
+    "dm-privacy-updated": "DM privacy settings updated successfully",
+    "dm-privacy-failed": "Failed to update DM privacy settings"
   },
   "wallet": {
     "unclaimed-rewards": "Earnings to collect",
@@ -1410,79 +1410,6 @@
     "converting-hive-amount": "Converting to HBD",
     "withdrawing-amount": "Withdrawing from Savings",
     "reserved-amount": "Reserved for Open order in Market",
-    "spk": {
-      "claim": {
-        "title": "Collect",
-        "unclaimed-rewards": "Earnings to collect"
-      },
-      "delegate": {
-        "title": "Delegate",
-        "subtitle": "Delegate tokens",
-        "node-operator-placeholder": "Select a node operator",
-        "delegated-larynx-power": {
-          "title": "Delegated LARYNX Power"
-        }
-      },
-      "power-up": {
-        "title": "Power up",
-        "subtitle": "Power up to earn passive rewards"
-      },
-      "power-down": {
-        "title": "Power down",
-        "subtitle": "Power down to earn passive rewards",
-        "in-progress": "A power down is scheduled to happen in {{date}} ({{count}} installments remaining)"
-      },
-      "lock": {
-        "title": "Lock Liquidity",
-        "subtitle": "Locking Larynx for liquidity reward",
-        "button": "Lock liquidity"
-      },
-      "unlock": {
-        "title": "Unlock Liquidity",
-        "subtitle": "Unlock LARYNX to liquid form",
-        "button": "Unlock liquidity"
-      },
-      "send": {
-        "balance": "Balance",
-        "button": "Send",
-        "from": "From",
-        "to": "To",
-        "amount": "Amount",
-        "optional": "optional",
-        "title": "Send SPK",
-        "memo": "Memo",
-        "next": "Next",
-        "subtitle": "Move funds to another SPK wallet",
-        "warning": "Transferring more than available balance"
-      },
-      "token": "SPK Token",
-      "token-description": "The governance token for the SPK network.",
-      "larynx-already-claimed": "Already claimed.",
-      "larynx-token": "LARYNX Token",
-      "larynx-token-description": "The mining token for the SPK network.",
-      "larynx-power": "LARYNX Power",
-      "larynx-power-description": "Powered tokens used to mine SPK",
-      "larynx-power-benefits": {
-        "title": "Benefits of LARYNX Power",
-        "1": "Earns SPK governance tokens",
-        "2": "Instant Lock | 4 Week Unlock",
-        "3": "Delegate to node service accounts to build consensus (DPoS)",
-        "4": "LARYNX POWER (LP) earns SPK tokens at {{rate}}%",
-        "5": "Delegated LP (DLP) earns SPK tokens for both delegator and delegate at {{rate}}%"
-      },
-      "larynx-locked-benefits": {
-        "title": "Benefits of LARYNX Locked",
-        "1": "Proof of Stake Consensus",
-        "2": "Collateral for DEX transactions",
-        "3": "Instant Lock | 4 Week Unlock",
-        "4": "Requires an operating LARYNX node",
-        "5": "Earns 0.100%"
-      },
-      "account-value": "Estimated Account Value",
-      "account-value-description": "The approximate US Dollar value for all SPK assets in your account",
-      "larynx-locked": "LARYNX Locked",
-      "larynx-locked-description": "Locked tokens provide liquidity to the network, aid in determining consensus, and earn rewards for node runners"
-    },
     "setup-external": {
       "login-required": "Login required to setup external wallets",
       "import-login-required": "Login required to import wallet"
@@ -1655,10 +1582,6 @@
     "claim-title": "Claim",
     "powerup-title": "Power Up",
     "powerdown-title": "Power down",
-    "lock-title": "Lock liquidity",
-    "unlock-title": "Unlock liquidity",
-    "lock-summary": "Locking completed as <span class=\"amount\">{{amount}}</span>",
-    "unlock-summary": "Unlocking completed as <span class=\"amount\">{{amount}}</span>",
     "success-title": "Success",
     "success-sub-title": "Transaction completed",
     "sign-title": "Sign transaction",
@@ -1667,7 +1590,6 @@
     "swap-sub-title": "Swap your funds in few clicks",
     "gift-title": "Gift",
     "gift-sub-title": "Gift the Points to specific user",
-    "lock-sub-title": "Locking Larynx for liquidity reward",
     "stake-title": "Stake",
     "stake-sub-title": "Stake token to earn passive rewards",
     "unstake-title": "Unstake",
@@ -2352,11 +2274,11 @@
     "channel-muted": "Muted",
     "mute-channel": "Mute channel",
     "unmute-channel": "Unmute channel",
-  "leave-channel": "Leave channel",
-  "leave-conversation": "Leave conversation",
-  "dm-warning-title": "New conversation - Stay safe",
-  "dm-warning-body": "Be cautious with messages from unknown users. Do not click on suspicious links or share sensitive information like passwords or private keys. Verify the sender's identity before taking any action.",
-  "dm-warning-settings": "You can update your DM privacy in Settings.",
+    "leave-channel": "Leave channel",
+    "leave-conversation": "Leave conversation",
+    "dm-warning-title": "New conversation - Stay safe",
+    "dm-warning-body": "Be cautious with messages from unknown users. Do not click on suspicious links or share sensitive information like passwords or private keys. Verify the sender's identity before taking any action.",
+    "dm-warning-settings": "You can update your DM privacy in Settings.",
     "no-channels": "No channels assigned yet.",
     "no-channels-search": "No channels match your search.",
     "joinable-channels": "Joinable channels",
@@ -2940,12 +2862,24 @@
       "streak-at-risk": "Check in today to keep your streak alive!",
       "available": "Available now",
       "max-rewards": "max rewards today",
-      "checkin": { "title": "Check in" },
-      "post": { "title": "Publish a post" },
-      "comment": { "title": "Leave comments" },
-      "vote": { "title": "Curate posts" },
-      "reblog": { "title": "Reblog a post" },
-      "spin": { "title": "Daily spin" }
+      "checkin": {
+        "title": "Check in"
+      },
+      "post": {
+        "title": "Publish a post"
+      },
+      "comment": {
+        "title": "Leave comments"
+      },
+      "vote": {
+        "title": "Curate posts"
+      },
+      "reblog": {
+        "title": "Reblog a post"
+      },
+      "spin": {
+        "title": "Daily spin"
+      }
     }
   },
   "boost-plus": {
@@ -3491,7 +3425,6 @@
       "promote": "Promote",
       "claim": "Claim",
       "buy": "Buy",
-      "lock": "Lock liquidity",
       "stake": "Stake",
       "unstake": "Unstake",
       "undelegate": "Undelegate"

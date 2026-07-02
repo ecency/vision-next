@@ -161,7 +161,6 @@ vi.mock("@ecency/wallets", () => ({
   validateWif: vi.fn(),
   EXTERNAL_BLOCKCHAINS: [],
   useGetHiveEngineTokensBalances: vi.fn(),
-  useGetSpkWallet: vi.fn(),
   EcencyWalletCurrency: {
     BTC: "BTC",
     ETH: "ETH",

@@ -7,9 +7,6 @@ import { getHbdAssetGeneralInfoQueryOptions } from "./get-hbd-asset-general-info
 import { getHivePowerAssetGeneralInfoQueryOptions } from "./get-hive-power-asset-general-info-query-options";
 import { getHiveEngineTokensBalancesQueryOptions } from "@/modules/hive-engine/queries";
 import { getHiveEngineTokenGeneralInfoQueryOptions } from "@/modules/hive-engine/queries";
-import { getSpkAssetGeneralInfoQueryOptions } from "@/modules/spk/queries";
-import { getLarynxAssetGeneralInfoQueryOptions } from "@/modules/spk/queries";
-import { getLarynxPowerAssetGeneralInfoQueryOptions } from "@/modules/spk/queries";
 import { getPointsAssetGeneralInfoQueryOptions } from "@/modules/points/queries";
 import {
   getPortfolioQueryOptions,
@@ -141,12 +138,6 @@ export function getAccountWalletAssetInfoQueryOptions(
         assetInfo = await fetchQuery(getHivePowerAssetGeneralInfoQueryOptions(username));
       } else if (asset === "HBD") {
         assetInfo = await fetchQuery(getHbdAssetGeneralInfoQueryOptions(username));
-      } else if (asset === "SPK") {
-        assetInfo = await fetchQuery(getSpkAssetGeneralInfoQueryOptions(username));
-      } else if (asset === "LARYNX") {
-        assetInfo = await fetchQuery(getLarynxAssetGeneralInfoQueryOptions(username));
-      } else if (asset === "LP") {
-        assetInfo = await fetchQuery(getLarynxPowerAssetGeneralInfoQueryOptions(username));
       } else if (asset === "POINTS") {
         assetInfo = await fetchQuery(getPointsAssetGeneralInfoQueryOptions(username));
       } else {

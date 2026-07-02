@@ -32,7 +32,6 @@ export const profileWalletOperationIcons: Partial<Record<AssetOperation, ReactNo
   [AssetOperation.Promote]: <UilChartBar />,
   [AssetOperation.Claim]: <UilPlus />,
   [AssetOperation.Buy]: <UilBoltAlt />,
-  [AssetOperation.LockLiquidity]: <UilLock />,
   [AssetOperation.Stake]: <UilLock />,
   [AssetOperation.Unstake]: <UilUnlock />,
   [AssetOperation.ClaimInterest]: <UilMoneybag />,

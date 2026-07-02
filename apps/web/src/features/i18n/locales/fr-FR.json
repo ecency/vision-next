@@ -1360,79 +1360,6 @@
     "converting-hive-amount": "Conversion en HBD",
     "withdrawing-amount": "Retirer de l'épargne",
     "reserved-amount": "Réservé pour un ordre ouvert sur le Marché",
-    "spk": {
-      "claim": {
-        "title": "Claim",
-        "unclaimed-rewards": "Récompenses non réclamées"
-      },
-      "delegate": {
-        "title": "Déléguer",
-        "subtitle": "Déléguer des jetons",
-        "node-operator-placeholder": "Sélectionnez un opérateur de noeud",
-        "delegated-larynx-power": {
-          "title": "Puissance LARYNX déléguée"
-        }
-      },
-      "power-up": {
-        "title": "Allumer",
-        "subtitle": "Augmentez votre puissance pour gagner des récompenses passives"
-      },
-      "power-down": {
-        "title": "Éteindre",
-        "subtitle": "Diminuez pour gagner des récompenses passives",
-        "in-progress": "Un power down est prévu dans {{date}} ({{count}} versements restants)"
-      },
-      "lock": {
-        "title": "Verrouiller la liquidité",
-        "subtitle": "Verrouiller Larynx pour obtenir une récompense de liquidité",
-        "button": "Verrouiller la liquidité"
-      },
-      "unlock": {
-        "title": "Débloquer la liquidité",
-        "subtitle": "Débloquez LARYNX en forme liquide",
-        "button": "Débloquer la liquidité"
-      },
-      "send": {
-        "balance": "Solde",
-        "button": "Envoyer",
-        "from": "A partir de",
-        "to": "À",
-        "amount": "Montant",
-        "optional": "optionnel",
-        "title": "Envoyer le SPK",
-        "memo": "Mémo",
-        "next": "Suivant",
-        "subtitle": "Déplacer des fonds vers un autre portefeuille SPK",
-        "warning": "Transfert plus que le solde disponible"
-      },
-      "token": "Jeton SPK",
-      "token-description": "Le jeton de gouvernance du réseau SPK.",
-      "larynx-already-claimed": "Déjà réclamé.",
-      "larynx-token": "Jeton LARYNX",
-      "larynx-token-description": "Le jeton de minage pour le réseau SPK.",
-      "larynx-power": "Puissance LARYNX",
-      "larynx-power-description": "Jetons alimentés utilisés pour extraire du SPK",
-      "larynx-power-benefits": {
-        "title": "Avantages de la puissance LARYNX",
-        "1": "Gagne des jetons de gouvernance SPK",
-        "2": "Verrouillage instantané | 4 semaines de déverrouillage",
-        "3": "Déléguer aux comptes de service de nœuds pour construire un consensus (DPoS)",
-        "4": "LARYNX POWER (LP) gagne des jetons SPK à {{rate}}%",
-        "5": "Le LP délégué (DLP) gagne des jetons SPK pour le délégant et le délégué à {{rate}}%"
-      },
-      "larynx-locked-benefits": {
-        "title": "Avantages de LARYNX verrouillés",
-        "1": "Preuve de consensus sur la prise",
-        "2": "Collatéral pour les transactions DEX",
-        "3": "Verrouillage instantané | 4 semaines de déverrouillage",
-        "4": "Nécessite un noeud LARYNX opérationnel",
-        "5": "Gagne 0,100%"
-      },
-      "account-value": "Valeur estimée du compte client",
-      "account-value-description": "La valeur approximative du dollar US pour tous les actifs SPK de votre compte",
-      "larynx-locked": "LARYNX Verrouillé",
-      "larynx-locked-description": "Les jetons verrouillés fournissent des liquidités au réseau, aident à déterminer le consensus, et gagnent des récompenses pour les coureurs de nœuds"
-    },
     "setup-external": {
       "login-required": "Connexion requise pour configurer des portefeuilles externes",
       "import-login-required": "Connexion requise pour importer le portefeuille"
@@ -1605,10 +1532,6 @@
     "claim-title": "Réclamer",
     "powerup-title": "Power Up",
     "powerdown-title": "Éteindre",
-    "lock-title": "Verrouiller la liquidité",
-    "unlock-title": "Déverrouiller la liquidité",
-    "lock-summary": "Verrouillage effectué en <span class=\"amount\">{{amount}}</span>",
-    "unlock-summary": "Déverrouillage effectué en <span class=\"amount\">{{amount}}</span>",
     "success-title": "Succés",
     "success-sub-title": "Transaction terminée",
     "sign-title": "Signer la transaction",
@@ -1617,7 +1540,6 @@
     "swap-sub-title": "Échanger vos fonds en quelques clics",
     "gift-title": "Cadeau",
     "gift-sub-title": "Offrez les points à un utilisateur spécifique",
-    "lock-sub-title": "Verrouiller Larynx pour obtenir une récompense de liquidité",
     "stake-title": "Staker",
     "stake-sub-title": "Jeton de prise pour gagner des récompenses passives",
     "unstake-title": "Retirer",
@@ -3377,7 +3299,6 @@
       "promote": "Promouvoir",
       "claim": "Réclamer",
       "buy": "Acheter",
-      "lock": "Verrouiller la liquidité",
       "stake": "Staker",
       "unstake": "Retirer",
       "undelegate": "Ne plus déléguer"

@@ -18,13 +18,12 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getCurrencyTokenRate } from "@ecency/sdk";
 import {
   formattedNumber,
-  getSplEstimatedBalance,
   HiveWallet,
   parseAsset,
   vestsToHp
 } from "@/utils";
 import { getHiveEngineMetrics } from "@ecency/sdk";
-import { getHiveEngineTokensBalancesQueryOptions, getSpkWalletQueryOptions } from "@ecency/sdk";
+import { getHiveEngineTokensBalancesQueryOptions } from "@ecency/sdk";
 import i18next from "i18next";
 import { FormattedCurrency } from "@/features/shared";
 import useMount from "react-use/lib/useMount";
@@ -35,8 +34,8 @@ interface Props {
   draggable?: DraggableProvidedDragHandleProps | null;
 }
 
-export type Tab = "ecency" | "hive" | "engine" | "spk";
-const TABS: Tab[] = ["ecency", "hive", "engine", "spk"];
+export type Tab = "ecency" | "hive" | "engine";
+const TABS: Tab[] = ["ecency", "hive", "engine"];
 
 interface CardProps {
   title: string;
@@ -88,14 +87,6 @@ export const DeckWalletBalanceColumn = ({
   // Hive engine wallet
   const [engineEstimatedValue, setEngineEstimatedValue] = useState("0");
   const [engineLoading, setEngineLoading] = useState(false);
-
-  // SPK wallet
-  const [spk, setSpk] = useState("0");
-  const [larynx, setLarynx] = useState("0");
-  const [larynxPower, setLarynxPower] = useState("0");
-  const [larynxLocked, setLarynxLocked] = useState("0");
-  const [larynxEstimatedValue, setLarynxEstimatedValue] = useState(0);
-  const [spkLoading, setSpkLoading] = useState(false);
 
   useMount(() => {
     fetchAccount();
@@ -202,22 +193,6 @@ export const DeckWalletBalanceColumn = ({
     }
   }, [dynamicProps, queryClient, username]);
 
-  const fetchSpk = useCallback(async () => {
-    setSpkLoading(true);
-
-    try {
-      const response = await queryClient.fetchQuery(getSpkWalletQueryOptions(username));
-      setSpk(formattedNumber(response.spk / 1000, { suffix: "SPK" }));
-      setLarynx(formattedNumber(response.balance / 1000, { suffix: "LARYNX" }));
-      setLarynxPower(formattedNumber(response.poweredUp / 1000, { suffix: "LARYNX" }));
-      setLarynxLocked(formattedNumber(response.gov / 1000, { suffix: "LARYNX" }));
-      setLarynxEstimatedValue(+(await getSplEstimatedBalance(response)));
-    } catch (e) {
-    } finally {
-      setSpkLoading(false);
-    }
-  }, [queryClient, username]);
-
   const fetch = useCallback(() => {
     if (tab === "ecency") {
       fetchEcencyPoints();
@@ -229,11 +204,7 @@ export const DeckWalletBalanceColumn = ({
     if (tab === "engine") {
       fetchEngine();
     }
-
-    if (tab === "spk") {
-      fetchSpk();
-    }
-  }, [fetchEngine, fetchHive, fetchSpk, tab]);
+  }, [fetchEngine, fetchHive, tab]);
 
   useEffect(() => {
     fetch();
@@ -337,40 +308,6 @@ export const DeckWalletBalanceColumn = ({
                 description={i18next.t("wallet-engine-estimated.description")}
                 value={engineEstimatedValue}
                 isLoading={engineLoading}
-              />
-            </>
-          )}
-          {tab === "spk" && (
-            <>
-              <Card
-                title={i18next.t("wallet.spk.token")}
-                description={i18next.t("wallet.spk.token-description")}
-                value={spk}
-                isLoading={spkLoading}
-              />
-              <Card
-                title={i18next.t("wallet.spk.larynx-token")}
-                description={i18next.t("wallet.spk.larynx-token-description")}
-                value={larynx}
-                isLoading={spkLoading}
-              />
-              <Card
-                title={i18next.t("wallet.spk.larynx-power")}
-                description={i18next.t("wallet.spk.larynx-power-description")}
-                value={larynxPower}
-                isLoading={spkLoading}
-              />
-              <Card
-                title={i18next.t("wallet.spk.larynx-locked")}
-                description={i18next.t("wallet.spk.larynx-locked-description")}
-                value={larynxLocked}
-                isLoading={spkLoading}
-              />
-              <Card
-                title={i18next.t("wallet.spk.account-value")}
-                description={i18next.t("wallet.spk.account-value-description")}
-                value={<FormattedCurrency value={larynxEstimatedValue} fixAt={3} />}
-                isLoading={spkLoading}
               />
             </>
           )}

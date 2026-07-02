@@ -18,7 +18,7 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
 import { withFeatureFlag } from "@/core/react-query";
 import { getDynamicPropsQueryOptions, getPointsQueryOptions } from "@ecency/sdk";
-import { getSpkWalletQueryOptions, getHiveEngineBalancesWithUsdQueryOptions, getAllHiveEngineTokensQueryOptions } from "@ecency/sdk";
+import { getHiveEngineBalancesWithUsdQueryOptions, getAllHiveEngineTokensQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { TransferFormText } from "@/features/shared/transfer/transfer-form-text";
 import { TransferAssetSwitch } from "@/features/shared/transfer/transfer-assets-switch";
@@ -64,7 +64,6 @@ export function TransferStep1({ titleLngKey }: Props) {
     )
   );
   const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
-  const { data: spkWallet } = useQuery(getSpkWalletQueryOptions(activeUser?.username));
   const { data: allTokens } = useQuery(getAllHiveEngineTokensQueryOptions());
   const { data: engineBalances } = useQuery(
     getHiveEngineBalancesWithUsdQueryOptions(activeUser?.username ?? "", dynamicProps, allTokens)
@@ -100,22 +99,6 @@ export function TransferStep1({ titleLngKey }: Props) {
     [engineBalances]
   );
 
-  const spkAssets = useMemo(() => {
-    const assets: TransferAsset[] = [];
-    if (parseFloat(spkWallet?.tokenBalance ?? "0") > 0) {
-      assets.push("SPK");
-    }
-    if (parseFloat(spkWallet?.larynxTokenBalance ?? "0") > 0) {
-      assets.push("LARYNX");
-    }
-    return assets;
-  }, [spkWallet?.larynxTokenBalance, spkWallet?.tokenBalance]);
-
-  const orderedSpkAssets = useMemo(
-    () => ["SPK", "LARYNX"].filter((asset) => spkAssets.includes(asset as TransferAsset)),
-    [spkAssets]
-  );
-
   const showTo = useMemo(
     () => ["transfer", "transfer-saving", "withdraw-saving", "power-up", "delegate"].includes(mode),
     [mode]
@@ -140,7 +123,6 @@ export function TransferStep1({ titleLngKey }: Props) {
         assets = [
           ...(EcencyConfigManager.CONFIG.visionFeatures.points.enabled ? ["POINT"] : []),
           ...baseAssets,
-          ...orderedSpkAssets,
           ...sortedEngineAssets
         ];
         break;
@@ -165,7 +147,7 @@ export function TransferStep1({ titleLngKey }: Props) {
     }
 
     return Array.from(new Set(assets));
-  }, [mode, orderedSpkAssets, sortedEngineAssets]);
+  }, [mode, sortedEngineAssets]);
   const showMemo = useMemo(
     () => ["transfer", "transfer-saving", "withdraw-saving"].includes(mode),
     [mode]
@@ -177,12 +159,6 @@ export function TransferStep1({ titleLngKey }: Props) {
     }
     if (asset === "POINT") {
       return parseAsset(activeUserPoints?.points ?? "0.0").amount;
-    }
-    if (asset === "SPK") {
-      return parseFloat(spkWallet?.tokenBalance ?? "0");
-    }
-    if (asset === "LARYNX") {
-      return parseFloat(spkWallet?.larynxTokenBalance ?? "0");
     }
     const engineToken = engineBalances?.find((t) => t.symbol === asset);
     if (engineToken) {
@@ -215,8 +191,6 @@ export function TransferStep1({ titleLngKey }: Props) {
     engineBalances,
     hiveAccount,
     mode,
-    spkWallet?.larynxTokenBalance,
-    spkWallet?.tokenBalance,
     w
   ]);
 
