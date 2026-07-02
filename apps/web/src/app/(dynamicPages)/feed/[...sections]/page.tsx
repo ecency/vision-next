@@ -17,13 +17,16 @@ import { EcencyConfigManager } from "@/config";
 import { EntryListContent } from "@/features/shared/entry-list-content";
 import { EntryArchivePager } from "@/features/shared/entry-archive-pager";
 import {
-  ARCHIVE_PAGE_SIZE,
   cursorToken,
   fetchRankedCursorPage,
   isArchivableTag,
+  olderCursorToken,
   parseArchiveCursor
 } from "@/features/seo/ranked-archive";
 import { Entry } from "@/entities";
+import { JsonLd, buildBreadcrumbJsonLd } from "@/features/structured-data";
+import { getServerAppBase } from "@/utils/server-app-base";
+import defaults from "@/defaults";
 
 interface Props {
   params: Promise<{ sections: string[] }>;
@@ -90,7 +93,10 @@ export default async function FeedPage({ params, searchParams }: Props) {
 
   // Default (page 1): prefetch for hydration; add a crawlable "Older" link into
   // the cursor chain when the first page is full (infinite scroll = JS path).
-  const feed = await prefetchGetPostsFeedQuery(filter, tag, 20, observer);
+  const [feed, appBase] = await Promise.all([
+    prefetchGetPostsFeedQuery(filter, tag, 20, observer),
+    getServerAppBase()
+  ]);
 
   // Only prefetch promoted posts if promotions feature is enabled
   if (EcencyConfigManager.CONFIG.visionFeatures.promotions.enabled) {
@@ -98,16 +104,28 @@ export default async function FeedPage({ params, searchParams }: Props) {
   }
 
   const firstPage = ((feed?.pages?.[0] as Entry[] | undefined) ?? []).filter(Boolean);
-  const lastOfFirst = firstPage[firstPage.length - 1];
-  const olderCursor =
-    isArchivableTag(filter, tag) && firstPage.length >= ARCHIVE_PAGE_SIZE && lastOfFirst
-      ? `${lastOfFirst.author}/${lastOfFirst.permlink}`
-      : null;
+  const isTagHub = isArchivableTag(filter, tag);
+  // "Older" chain entry for `created` tag hubs only — see olderCursorToken (the
+  // SDK re-sorts pages by date, so trending/hot cursors would overlap; the
+  // created chain already reaches every post). No pin-shrink here: tag feeds
+  // have no pin-at-top semantics, so a short page means the tag really ended.
+  const olderCursor = isTagHub && filter === "created" ? olderCursorToken(firstPage) : null;
+
+  // Tag hubs get a BreadcrumbList (desktop SERPs show it in place of the raw URL trail).
+  let breadcrumbJsonLd = null;
+  if (isTagHub) {
+    const base = appBase.replace(/\/+$/, "");
+    breadcrumbJsonLd = buildBreadcrumbJsonLd([
+      { name: defaults.name, url: base },
+      { name: `#${tag}`, url: `${base}${basePath}` }
+    ]);
+  }
 
   return (
     <HydrationBoundary
       state={stripActiveVotesFromDehydratedState(dehydrate(getQueryClient()), loggedInUser)}
     >
+      {breadcrumbJsonLd && <JsonLd data={breadcrumbJsonLd} />}
       <FeedLayout tag={tag} filter={filter} observer={observer}>
         <FeedList filter={filter} tag={tag} observer={observer} />
         {olderCursor && (

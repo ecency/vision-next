@@ -28,11 +28,13 @@ function entry(overrides: Record<string, unknown> = {}) {
 describe("buildEntryCardFields", () => {
   it("matches the inline title/summary/image rules for a post (parity lock)", () => {
     const e = entry({ json_metadata: { image: ["https://example.com/cover.png"] } });
+    const expectedSummary =
+      (e.json_metadata as any).description || truncate(postBodySummary(e.body, 210), 160);
     expect(buildEntryCardFields(e as any)).toEqual({
       isComment: false,
       title: truncate(e.title, 67),
-      summary:
-        (e.json_metadata as any).description || truncate(postBodySummary(e.body, 210), 160),
+      summary: expectedSummary,
+      cardSummary: expectedSummary, // non-empty summary => identical
       image: catchPostImage(e as any, 1200, 630, "match")
     });
   });
@@ -54,5 +56,38 @@ describe("buildEntryCardFields", () => {
     expect(buildEntryCardFields(e as any).image).toBe(
       catchPostImage(e as any, 1200, 630, "match")
     );
+  });
+
+  // Media-only posts summarize to "": `summary` (the SERP meta description)
+  // stays EMPTY so Google auto-snippets from page content, while `cardSummary`
+  // (og/twitter/oEmbed, which have no auto-snippet) gets a descriptive fallback.
+  it("keeps summary empty but fills cardSummary for an image-only post body", () => {
+    const e = entry({
+      body: "![shot](https://example.com/a.jpg)",
+      community_title: "Photography Lovers",
+      json_metadata: { tags: ["photo", "art", "hive", "extra"] }
+    });
+    expect(postBodySummary(e.body as string, 210)).toBe(""); // premise: media-only => empty
+    const fields = buildEntryCardFields(e as any);
+    expect(fields.summary).toBe("");
+    expect(fields.cardSummary).toBe(
+      "A post by @alice in Photography Lovers on Ecency. Tags: photo, art, hive"
+    );
+  });
+
+  it("card fallback works without community/tags and guards non-array tags", () => {
+    const e = entry({ body: "![x](https://example.com/a.jpg)", json_metadata: { tags: "photo" } });
+    expect(buildEntryCardFields(e as any).cardSummary).toBe("A post by @alice on Ecency");
+  });
+
+  it("uses the reply card fallback for a media-only comment", () => {
+    const e = entry({ parent_author: "bob", body: "![x](https://example.com/a.jpg)" });
+    expect(buildEntryCardFields(e as any).cardSummary).toBe("A reply by @alice on Ecency");
+  });
+
+  it("ignores a non-string json_metadata.description (untrusted on-chain data)", () => {
+    const e = entry({ json_metadata: { description: { evil: true } } });
+    const fields = buildEntryCardFields(e as any);
+    expect(fields.summary).toBe(truncate(postBodySummary(e.body, 210), 160));
   });
 });

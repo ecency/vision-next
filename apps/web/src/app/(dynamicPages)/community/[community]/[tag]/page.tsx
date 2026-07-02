@@ -13,12 +13,15 @@ import { ProfileEntriesLayout } from "@/app/(dynamicPages)/profile/[username]/_c
 import { CommunityContentInfiniteList } from "../_components/community-content-infinite-list";
 import { Entry, SearchResponse } from "@/entities";
 import {
-  ARCHIVE_PAGE_SIZE,
   cursorToken,
   fetchRankedCursorPage,
   isArchivableFilter,
+  olderCursorToken,
   parseArchiveCursor
 } from "@/features/seo/ranked-archive";
+import { JsonLd, buildBreadcrumbJsonLd } from "@/features/structured-data";
+import { getServerAppBase } from "@/utils/server-app-base";
+import defaults from "@/defaults";
 
 type Page = Entry[] | SearchResponse;
 
@@ -77,9 +80,10 @@ export default async function CommunityPostsPage({ params, searchParams }: Props
     );
   }
 
-  const [communityData, data] = await Promise.all([
+  const [communityData, data, base] = await Promise.all([
     prefetchQuery(getCommunityCache(community)),
-    prefetchGetPostsFeedQuery(tag, community)
+    prefetchGetPostsFeedQuery(tag, community),
+    getServerAppBase()
   ]);
 
   if (!communityData) return notFound();
@@ -89,16 +93,29 @@ export default async function CommunityPostsPage({ params, searchParams }: Props
   }
 
   const flatEntries = data.pages.flatMap(pageToEntries);
-  // Crawlable "Older" entry into the cursor chain when page 1 is full.
+  // Crawlable "Older" entry into the cursor chain — `created` only (the SDK
+  // re-sorts processed pages by date, so trending/hot cursors would not match
+  // bridge rank order, and the created chain already reaches every post).
+  // allowPinShrink: the SDK's pinned-entry dedupe can shrink a full raw page.
   const firstPage = pageToEntries((data as InfiniteData<Page, unknown>).pages[0]);
-  const lastOfFirst = firstPage[firstPage.length - 1];
-  const olderCursor =
-    isArchivableFilter(tag) && firstPage.length >= ARCHIVE_PAGE_SIZE && lastOfFirst
-      ? `${lastOfFirst.author}/${lastOfFirst.permlink}`
-      : null;
+  const olderCursor = tag === "created" ? olderCursorToken(firstPage, true) : null;
+
+  // Desktop SERPs replace the URL-derived trail ("ecency.com > created >
+  // hive-NNNNN") with this breadcrumb ("Home > Community Title"). Skipped when
+  // the community has no human title — a trail must never surface the raw
+  // hive-NNNNN machine id (same policy as buildEntryBreadcrumbs).
+  const cleanBase = base.replace(/\/+$/, "");
+  const communityTitle = communityData.title?.trim();
+  const breadcrumbJsonLd = communityTitle
+    ? buildBreadcrumbJsonLd([
+        { name: defaults.name, url: cleanBase },
+        { name: communityTitle, url: `${cleanBase}/created/${community}` }
+      ])
+    : null;
 
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>
+      {breadcrumbJsonLd && <JsonLd data={breadcrumbJsonLd} />}
       {data.pages.length === 0 ? <LinearProgress /> : null}
 
       {isArchivableFilter(tag) && data.pages.length > 0 && (

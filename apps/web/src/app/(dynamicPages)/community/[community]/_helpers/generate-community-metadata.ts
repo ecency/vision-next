@@ -1,6 +1,6 @@
 import { getCommunityCache } from "@/core/caches";
 import i18next from "i18next";
-import { capitalize } from "@/utils";
+import { capitalize, truncate } from "@/utils";
 import defaults from "@/defaults";
 import { getServerAppBase } from "@/utils/server-app-base";
 import { prefetchQuery } from "@/core/react-query";
@@ -17,10 +17,28 @@ export async function generateCommunityMetadata(
     getServerAppBase()
   ]);
   if (community && account) {
-    const title = `${community.title.trim()} community ${tag} list`;
-    const description = i18next.t("community.page-description", {
-      f: `${capitalize(tag)} ${community.title.trim()}`
-    });
+    // This helper also serves non-feed sections (subscribers/activities/roles),
+    // where a "posts" suffix would be wrong — keep the old generic "list" there.
+    const communityTitle = community.title.trim();
+    const isFeedTag = ["created", "trending", "hot"].includes(tag);
+    const feedLabel = tag === "created" ? "Latest" : capitalize(tag);
+    // Bare titles; the root title.template appends "| Ecency".
+    const title = isFeedTag
+      ? `${communityTitle} community${tag === "created" ? "" : ` ${tag}`} posts`
+      : `${communityTitle} community ${tag} list`;
+    // The community's own about text is the most distinctive snippet we have
+    // (about only: `description` is free-form markdown — rules/links — that
+    // would leak raw syntax into a truncated meta description).
+    const rawAbout = community.about;
+    const communityAbout =
+      typeof rawAbout === "string" ? rawAbout.replace(/\s+/g, " ").trim() : "";
+    // Non-feed sections (subscribers/roles/activities) must not claim "posts
+    // and discussions" — they get the section-neutral fallback.
+    const description = communityAbout
+      ? truncate(communityAbout, 160)
+      : isFeedTag
+        ? i18next.t("community.page-description", { f: `${feedLabel} ${communityTitle}` })
+        : i18next.t("community.page-description-generic", { f: communityTitle });
     const metaRss = `${base}/${tag}/${community.name}/rss.xml`;
     const metaCanonical = `${base}/created/${community.name}`;
 

@@ -54,7 +54,7 @@ export async function generateEntryMetadata(
 
     // Shared with the oEmbed provider so the meta-tag card and the oEmbed
     // card can never drift (title/summary/image rules live in one place).
-    const { title, summary, image, isComment } = buildEntryCardFields(entry as Entry);
+    const { title, summary, cardSummary, image, isComment } = buildEntryCardFields(entry as Entry);
 
     // Bare /@author/permlink form for this exact page.
     const fullUrl = `${base}/@${entry.author}/${entry.permlink}`;
@@ -102,7 +102,9 @@ export async function generateEntryMetadata(
       robots,
       openGraph: {
         title,
-        description: summary,
+        // Cards use cardSummary (never empty); the SERP meta description above
+        // stays the bare summary so media-only posts keep Google's auto-snippet.
+        description: cardSummary,
         url: ogUrl,
         // Add alt only. catchPostImage uses aspect-fit (mode=match), so the
         // proxied asset is rarely exactly 1200x630 (and GIF covers may be served
@@ -120,7 +122,7 @@ export async function generateEntryMetadata(
         // per segment, so without this the root layout's twitter:site is dropped.
         site: defaults.twitterHandle,
         title,
-        description: summary,
+        description: cardSummary,
         images: image ? [{ url: image, alt: title }] : [],
       },
       other: {
