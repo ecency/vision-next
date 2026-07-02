@@ -109,15 +109,22 @@ describe("lazy-sentry facade", () => {
     expect(captured).not.toContain(errors[149]);
   });
 
-  it("caps early unhandled rejections with the same limit", async () => {
+  it("caps early unhandled rejections with the same limit, keeping the FIRST (drop-newest)", async () => {
     const { configureLazySentry } = await import("@/core/sentry/lazy-sentry");
     configureLazySentry({ dsn: "x" } as never);
-    for (let i = 0; i < 150; i++) {
+    const reasons = Array.from({ length: 150 }, (_, i) => new Error(`r${i}`));
+    for (const reason of reasons) {
       const evt = new Event("unhandledrejection");
-      (evt as unknown as { reason: unknown }).reason = new Error(`r${i}`);
+      (evt as unknown as { reason: unknown }).reason = reason;
       window.dispatchEvent(evt);
     }
-    await vi.waitFor(() => expect(sdk.init).toHaveBeenCalled());
     await vi.waitFor(() => expect(sdk.captureException).toHaveBeenCalledTimes(100));
+    // The rejection handler has its own guard: pin drop-newest here too, so
+    // flipping just this path to drop-oldest can't pass on the count alone.
+    const captured = sdk.captureException.mock.calls.map((c) => c[0]);
+    expect(captured[0]).toBe(reasons[0]);
+    expect(captured).toContain(reasons[99]);
+    expect(captured).not.toContain(reasons[100]);
+    expect(captured).not.toContain(reasons[149]);
   });
 });
