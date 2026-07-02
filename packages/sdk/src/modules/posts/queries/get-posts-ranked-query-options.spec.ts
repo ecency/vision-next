@@ -93,6 +93,30 @@ describe('getPostsRankedInfiniteQueryOptions', () => {
     expect(result[2].permlink).toBe('oldest')
   })
 
+  it('keeps EVERY pinned entry, in bridge (head-of-response) order', async () => {
+    // Bridge shape for a multi-pin community created feed: pins at the head in
+    // the moderators' chosen order (NOT date order), then non-pins created desc.
+    // Regression: a post-sort find() used to keep one pin and drop the rest.
+    const mockEntries = [
+      { author: 'mod', permlink: 'pin-a', created: '2025-03-01T00:00:00', stats: { is_pinned: true } },
+      { author: 'mod', permlink: 'pin-b', created: '2025-06-01T00:00:00', stats: { is_pinned: true } },
+      { author: 'mod', permlink: 'pin-c', created: '2024-12-01T00:00:00', stats: { is_pinned: true } },
+      { author: 'x', permlink: 'newest', created: '2026-01-03T00:00:00', stats: null },
+      { author: 'y', permlink: 'oldest', created: '2026-01-01T00:00:00', stats: null }
+    ]
+    mockCallRPC.mockResolvedValue(mockEntries)
+
+    const options = getPostsRankedInfiniteQueryOptions('created', 'hive-125125')
+    const result = await (options.queryFn as any)(makeInfiniteContext(options, { hasNextPage: true }))
+
+    expect(result).toHaveLength(5) // nothing dropped
+    // All pins first, preserving the bridge's pin order (not re-sorted by date)
+    expect(result.slice(0, 3).map((e: any) => e.permlink)).toEqual(['pin-a', 'pin-b', 'pin-c'])
+    // Non-pins follow, created desc
+    expect(result[3].permlink).toBe('newest')
+    expect(result[4].permlink).toBe('oldest')
+  })
+
   it('should not re-sort when sort is "hot"', async () => {
     const mockEntries = [
       { author: 'a', permlink: 'p1', created: '2026-01-01T00:00:00', stats: null },
