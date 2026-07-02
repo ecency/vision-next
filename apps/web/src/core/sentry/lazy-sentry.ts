@@ -26,14 +26,43 @@ let options: Options | null = null;
 
 // Method calls made before the SDK is initialized, replayed on init.
 const queued: { method: string; args: unknown[] }[] = [];
-// Raw errors/rejections captured by the early listeners before init.
-const earlyErrors: unknown[] = [];
+// Raw errors/rejections captured by the early listeners before init. For
+// `error` events the ErrorEvent's source location is kept alongside the error
+// and attached as `extra` on replay: a script that fails to PARSE (truncated
+// download, an old engine hitting modern syntax, an HTML error page served for
+// a JS URL) throws its SyntaxError at compile time, so it has NO stack — after
+// replay the Sentry event is frame-less and the ErrorEvent metadata is the only
+// attribution that exists (ECENCY-NEXT-13K2 grouped these unattributably
+// because this handler used to discard it).
+interface EarlyCapture {
+  error: unknown;
+  // Absent for rejections — PromiseRejectionEvent carries no source location.
+  extra?: Record<string, unknown>;
+}
+const earlyErrors: EarlyCapture[] = [];
 
 const earlyErrorHandler = (e: ErrorEvent) => {
-  earlyErrors.push(e.error);
+  // Same growth cap as `queued`: init may be pending for a while and an error
+  // loop must not grow the buffer without bound (new entries dropped — the
+  // FIRST errors on a page are the ones that explain it).
+  if (earlyErrors.length >= MAX_QUEUE) return;
+  earlyErrors.push({
+    error: e.error,
+    extra: {
+      earlySource: e.filename || "<unknown>",
+      earlyPosition: `${e.lineno}:${e.colno}`,
+      // NOTE: this metadata only ships when e.error is a real value. A
+      // cross-origin script without CORS gives error=null + "Script error." —
+      // the replay then captures null and beforeSend's empty-capture rule
+      // drops the whole event (matching Sentry's own inbound filter for the
+      // post-init twin), extras included.
+      earlyMessage: e.message
+    }
+  });
 };
 const earlyRejectionHandler = (e: PromiseRejectionEvent) => {
-  earlyErrors.push(e.reason);
+  if (earlyErrors.length >= MAX_QUEUE) return;
+  earlyErrors.push({ error: e.reason });
 };
 
 function removeEarlyListeners() {
@@ -61,8 +90,10 @@ function loadSentry(): Promise<SentryModule | null> {
 let initPromise: Promise<void> | null = null;
 let initFailures = 0;
 const MAX_INIT_FAILURES = 3;
-// Hard cap on the pre-init buffer so a persistently-failing load can never grow
-// it without bound (drops the oldest entries first).
+// Hard cap on the pre-init buffers so a persistently-failing load can never
+// grow them without bound. `queued` drops the OLDEST entries (a later capture
+// is as good as an earlier one for buffered method calls); `earlyErrors` drops
+// the NEWEST (the first errors on a page are the ones that explain it).
 const MAX_QUEUE = 100;
 
 // Reset the load/init state so a later call can retry (CDN blip, chunk fetch
@@ -116,10 +147,15 @@ function ensureInit(): Promise<void> {
           /* ignore replay errors */
         }
       }
-      // Replay raw early errors.
-      for (const err of earlyErrors.splice(0)) {
+      // Replay raw early errors, with the captured ErrorEvent source metadata
+      // where present (see EarlyCapture).
+      for (const c of earlyErrors.splice(0)) {
         try {
-          m.captureException(err);
+          if (c.extra) {
+            m.captureException(c.error, { extra: c.extra });
+          } else {
+            m.captureException(c.error);
+          }
         } catch {
           /* ignore */
         }

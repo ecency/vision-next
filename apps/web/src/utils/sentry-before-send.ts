@@ -227,7 +227,58 @@ export function beforeSend(event: SentryErrorEvent): SentryErrorEvent | null {
     return null;
   }
 
-  // Network issues corrupting JS chunk downloads
+  // ECENCY-NEXT-13K2 / ECENCY-NEXT-1GFP: a script that failed to PARSE. Engines
+  // throw these SyntaxErrors at COMPILE time, so there is no JS stack. They
+  // reach Sentry through exactly two shapes, matched by the frame gate below:
+  //   - pre-init: the lazy-sentry early-error replay captures the raw error —
+  //     ZERO frames (and mechanism/handled that look like an app capture);
+  //   - post-init: GlobalHandlers' onerror sees the stackless error and
+  //     synthesizes a single placeholder frame from the ErrorEvent — function
+  //     "?" with the failing script URL as filename — so exactly ONE
+  //     anonymous frame.
+  // Two real causes, both environmental, neither an app bug:
+  //   - a truncated/corrupted script download (V8 "Unexpected end of input",
+  //     SpiderMonkey "missing ; after for-loop condition" / "unterminated
+  //     string literal");
+  //   - an old engine hitting syntax it predates in a chunk it downloaded fine
+  //     (WebKit "Unexpected private name #R. Cannot parse class method with
+  //     private name.", "Unexpected token '.'" for optional chaining).
+  // An app-thrown SyntaxError always carries a real stack (JSON.parse & friends
+  // are RUNTIME throws), and every engine's JSON grammar names JSON (V8 "is not
+  // valid JSON" / "Unexpected end of JSON input", SpiderMonkey "JSON.parse: …",
+  // WebKit "JSON Parse error: …") — so the frame gate + parse grammar + non-JSON
+  // cannot swallow a real res.json()/JSON.parse failure, including the
+  // frame-less rejection res.json() produces.
+  // RECLASSIFY (not drop) to one fingerprinted warning like the skew/hydration
+  // rules above: truncation volume is network weather, but a SPIKE on this
+  // fingerprint after a build-tooling change would mean we shipped syntax our
+  // browserslist targets cannot parse — worth keeping visible. This rule sits
+  // BEFORE the chunk-corruption drop below on purpose: the drop rule would
+  // silently eat the post-init single-frame shape for the commonest grammars
+  // and blind that spike. Replayed early captures additionally carry the
+  // failing script URL in extra.earlySource (lazy-sentry.ts) for attribution.
+  const isScriptParseGrammar =
+    /Unexpected (?:end of (?:input|script)|token|identifier|string|number|keyword|private name)|Invalid or unexpected token|Cannot parse|missing .+ (?:after|before)|expected expression|unterminated (?:string|regexp)/i.test(
+      message
+    );
+  const hasNoRealFrames =
+    frames.length === 0 || (frames.length === 1 && frames[0].function === "?");
+  if (
+    exceptionType === "SyntaxError" &&
+    hasNoRealFrames &&
+    isScriptParseGrammar &&
+    !/JSON/i.test(message)
+  ) {
+    event.level = "warning";
+    event.tags = { ...event.tags, script_parse_failure: "true" };
+    event.fingerprint = ["script-parse-failure"];
+    return event;
+  }
+
+  // Network issues corrupting JS chunk downloads. After the reclassify rule
+  // above this only sees events with at least one REAL frame (or a synthetic
+  // frame under a non-parse grammar) — kept as a drop for the legacy shapes
+  // that still reach it.
   if (
     /^SyntaxError/.test(exceptionType) &&
     /Unexpected (end of input|token)/.test(message) &&

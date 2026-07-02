@@ -47,4 +47,77 @@ describe("lazy-sentry facade", () => {
     sentry.captureException(err);
     await vi.waitFor(() => expect(sdk.captureException).toHaveBeenCalledWith(err));
   });
+
+  it("replays early window errors WITH the ErrorEvent's source metadata", async () => {
+    // A script parse failure (truncated chunk, old engine vs modern syntax)
+    // throws a STACKLESS SyntaxError; the ErrorEvent's filename/position is the
+    // only attribution, so the replay must carry it as `extra`
+    // (ECENCY-NEXT-13K2 was unattributable because it was discarded).
+    const { configureLazySentry } = await import("@/core/sentry/lazy-sentry");
+    configureLazySentry({ dsn: "x" } as never);
+    // The early listener attaches synchronously in configure; the SDK import
+    // resolves on a later microtask, so this event lands in the pre-init buffer.
+    const parseError = new SyntaxError("Unexpected end of input");
+    window.dispatchEvent(
+      new ErrorEvent("error", {
+        error: parseError,
+        filename: "https://example.com/_next/static/chunks/1234-abcdef.js",
+        lineno: 1,
+        colno: 98765,
+        message: "Uncaught SyntaxError: Unexpected end of input"
+      })
+    );
+    await vi.waitFor(() =>
+      expect(sdk.captureException).toHaveBeenCalledWith(parseError, {
+        extra: {
+          earlySource: "https://example.com/_next/static/chunks/1234-abcdef.js",
+          earlyPosition: "1:98765",
+          earlyMessage: "Uncaught SyntaxError: Unexpected end of input"
+        }
+      })
+    );
+  });
+
+  it("replays early unhandled rejections WITHOUT source metadata (none exists)", async () => {
+    const { configureLazySentry } = await import("@/core/sentry/lazy-sentry");
+    configureLazySentry({ dsn: "x" } as never);
+    // jsdom has no PromiseRejectionEvent constructor; the handler only reads
+    // `.reason`, so a plain event carrying it exercises the same path.
+    const reason = new Error("early rejection");
+    const evt = new Event("unhandledrejection");
+    (evt as unknown as { reason: unknown }).reason = reason;
+    window.dispatchEvent(evt);
+    // Exactly one argument — no fabricated extra for rejections.
+    await vi.waitFor(() => expect(sdk.captureException).toHaveBeenCalledWith(reason));
+  });
+
+  it("caps the early-error buffer, keeping the FIRST errors (drop-newest)", async () => {
+    const { configureLazySentry } = await import("@/core/sentry/lazy-sentry");
+    configureLazySentry({ dsn: "x" } as never);
+    const errors = Array.from({ length: 150 }, (_, i) => new Error(`e${i}`));
+    for (const error of errors) {
+      window.dispatchEvent(new ErrorEvent("error", { error, filename: "f.js" }));
+    }
+    await vi.waitFor(() => expect(sdk.captureException).toHaveBeenCalledTimes(100));
+    // Drop-NEWEST policy: the first errors on a page are the ones that explain
+    // it, so e0..e99 must be replayed and e100+ discarded (a drop-oldest
+    // regression would pass a size-only assertion).
+    const captured = sdk.captureException.mock.calls.map((c) => c[0]);
+    expect(captured[0]).toBe(errors[0]);
+    expect(captured).toContain(errors[99]);
+    expect(captured).not.toContain(errors[100]);
+    expect(captured).not.toContain(errors[149]);
+  });
+
+  it("caps early unhandled rejections with the same limit", async () => {
+    const { configureLazySentry } = await import("@/core/sentry/lazy-sentry");
+    configureLazySentry({ dsn: "x" } as never);
+    for (let i = 0; i < 150; i++) {
+      const evt = new Event("unhandledrejection");
+      (evt as unknown as { reason: unknown }).reason = new Error(`r${i}`);
+      window.dispatchEvent(evt);
+    }
+    await vi.waitFor(() => expect(sdk.init).toHaveBeenCalled());
+    await vi.waitFor(() => expect(sdk.captureException).toHaveBeenCalledTimes(100));
+  });
 });
