@@ -1,5 +1,7 @@
 # Ecency render helper
 
+Built and maintained by [Ecency](https://ecency.com), an open-source social platform on the Hive blockchain.
+
 ## Project Overview
 
 `@ecency/render-helper` is a TypeScript library for rendering and sanitizing markdown+HTML content for the Ecency social platform (built on Hive blockchain). It provides security-focused content rendering with XSS protection, image proxification, and embedded media filtering.

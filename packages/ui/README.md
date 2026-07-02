@@ -2,6 +2,8 @@
 
 Shared UI components for Ecency applications. These components are designed to work with both the main Ecency web application and the self-hosted blog application.
 
+Built and maintained by [Ecency](https://ecency.com), an open-source social platform on the Hive blockchain.
+
 ## Installation
 
 ```bash

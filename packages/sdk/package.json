@@ -8,7 +8,7 @@
     "url": "https://github.com/ecency/vision-next.git",
     "directory": "packages/sdk"
   },
-  "homepage": "https://github.com/ecency/vision-next/tree/develop/packages/sdk",
+  "homepage": "https://ecency.com",
   "bugs": {
     "url": "https://github.com/ecency/vision-next/issues"
   },
