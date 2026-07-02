@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Navbar } from "@/features/shared/navbar";
 import { ScrollToTop } from "@/features/shared/scroll-to-top";
 import { Theme } from "@/features/shared/theme";
@@ -152,13 +153,22 @@ export default async function CreatorEconomyPage() {
                   .sort((a, b) => b.authors - a.authors)
                   .map((c) => (
                     <tr key={c.id} className="border-b border-[--border-color]">
-                      <td className="py-2 pr-3">{c.title}</td>
+                      <td className="py-2 pr-3">
+                        <Link href={`/created/${c.id}`} className="text-blue-dark-sky hover:underline">
+                          {c.title}
+                        </Link>
+                      </td>
                       <td className="py-2 pr-3 text-right">{formatFull(c.authors)}</td>
                       <td className="py-2 text-right">{formatFull(c.posts)}</td>
                     </tr>
                   ))}
               </tbody>
             </table>
+            <p className="text-sm mt-3">
+              <Link href="/communities" className="text-blue-dark-sky hover:underline">
+                {t("explore-communities")}
+              </Link>
+            </p>
           </section>
 
           <section className="mt-10">
@@ -194,6 +204,13 @@ export default async function CreatorEconomyPage() {
                 </tr>
               </tbody>
             </table>
+            <p className="mt-4 text-sm">
+              {t("cta-lead")}{" "}
+              <Link href="/signup" className="text-blue-dark-sky hover:underline font-medium">
+                {t("cta-join")}
+              </Link>
+              .
+            </p>
           </section>
 
           {/* Full-precision table: the accessible/table view for every chart above */}

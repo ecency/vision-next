@@ -228,6 +228,9 @@ export async function LandingPage() {
               <Link href="/communities" className="opacity-70 hover:opacity-100">
                 {t("landing-page.communities")}
               </Link>
+              <Link href="/creator-economy" className="opacity-70 hover:opacity-100">
+                {t("landing-page.creator-economy")}
+              </Link>
               <Link href="/faq" className="opacity-70 hover:opacity-100">
                 {t("landing-page.help")}
               </Link>
