@@ -1,7 +1,7 @@
 import * as _tanstack_react_query from '@tanstack/react-query';
 import { UseMutationOptions } from '@tanstack/react-query';
 import { AuthContext, HiveEngineTokenMetadataResponse, AssetOperation } from '@ecency/sdk';
-export { Asset, AssetOperation, AuthorReward, CancelTransferFromSavings, ClaimRewardBalance, CollateralizedConvert, CommentBenefactor, CommentPayoutUpdate, CommentReward, CurationReward, DelegateVestingShares, DelegatedVestingShare, EffectiveCommentVote, FillCollateralizedConvertRequest, FillConvertRequest, FillOrder, FillRecurrentTransfers, FillVestingWithdraw, GeneralAssetInfo, GeneralAssetTransaction, HIVE_ACCOUNT_OPERATION_GROUPS, HIVE_OPERATION_LIST, HIVE_OPERATION_NAME_BY_ID, HIVE_OPERATION_ORDERS, HiveBasedAssetSignType, HiveEngineMarketResponse, HiveEngineMetric, HiveEngineOpenOrder, HiveEngineOrderBookEntry, HiveEngineToken, HiveEngineTokenBalance, HiveEngineTokenInfo, HiveEngineTokenMetadataResponse, HiveEngineTokenStatus, HiveEngineTransaction, HiveMarketMetric, HiveOperationFilter, HiveOperationFilterKey, HiveOperationFilterValue, HiveOperationGroup, HiveOperationName, HiveTransaction, WithdrawRoute as HiveWithdrawRoute, Interest, LimitOrderCancel, LimitOrderCreate, NaiMap, PointTransaction, PointTransactionType, Points, PointsResponse, ProducerReward, ProposalPay, ReceivedVestingShare, RecurrentTransfers, ReturnVestingDelegation, SetWithdrawRoute, SpkApiWallet, SpkMarkets, Symbol, Token, TokenMetadata, Transfer, TransferToSavings, TransferToVesting, TransformedSpkMarkets, UpdateProposalVotes, VoteProxy, WalletOperationPayload, WithdrawVesting, formattedNumber, getAccountWalletAssetInfoQueryOptions, getAllHiveEngineTokensQueryOptions, getHbdAssetGeneralInfoQueryOptions, getHbdAssetTransactionsQueryOptions, getHiveAssetGeneralInfoQueryOptions, getHiveAssetMetricQueryOptions, getHiveAssetTransactionsQueryOptions, getHiveAssetWithdrawalRoutesQueryOptions, getHiveEngineBalancesWithUsdQueryOptions, getHiveEngineTokenGeneralInfoQueryOptions, getHiveEngineTokenTransactionsQueryOptions, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMarketQueryOptions, getHiveEngineTokensMetadataQueryOptions, getHiveEngineTokensMetricsQueryOptions, getHiveEngineUnclaimedRewardsQueryOptions, getHivePowerAssetGeneralInfoQueryOptions, getHivePowerAssetTransactionsQueryOptions, getHivePowerDelegatesInfiniteQueryOptions, getHivePowerDelegatingsQueryOptions, getLarynxAssetGeneralInfoQueryOptions, getLarynxPowerAssetGeneralInfoQueryOptions, getPointsAssetGeneralInfoQueryOptions, getPointsAssetTransactionsQueryOptions, getPointsQueryOptions, getSpkAssetGeneralInfoQueryOptions, getSpkMarketsQueryOptions, getSpkWalletQueryOptions, isEmptyDate, parseAsset, resolveHiveOperationFilters, rewardSpk, useClaimPoints, useWalletOperation, vestsToHp } from '@ecency/sdk';
+export { Asset, AssetOperation, AuthorReward, CancelTransferFromSavings, ClaimRewardBalance, CollateralizedConvert, CommentBenefactor, CommentPayoutUpdate, CommentReward, CurationReward, DelegateVestingShares, DelegatedVestingShare, EffectiveCommentVote, FillCollateralizedConvertRequest, FillConvertRequest, FillOrder, FillRecurrentTransfers, FillVestingWithdraw, GeneralAssetInfo, GeneralAssetTransaction, HIVE_ACCOUNT_OPERATION_GROUPS, HIVE_OPERATION_LIST, HIVE_OPERATION_NAME_BY_ID, HIVE_OPERATION_ORDERS, HiveBasedAssetSignType, HiveEngineMarketResponse, HiveEngineMetric, HiveEngineOpenOrder, HiveEngineOrderBookEntry, HiveEngineToken, HiveEngineTokenBalance, HiveEngineTokenInfo, HiveEngineTokenMetadataResponse, HiveEngineTokenStatus, HiveEngineTransaction, HiveMarketMetric, HiveOperationFilter, HiveOperationFilterKey, HiveOperationFilterValue, HiveOperationGroup, HiveOperationName, HiveTransaction, WithdrawRoute as HiveWithdrawRoute, Interest, LimitOrderCancel, LimitOrderCreate, NaiMap, PointTransaction, PointTransactionType, Points, PointsResponse, ProducerReward, ProposalPay, ReceivedVestingShare, RecurrentTransfers, ReturnVestingDelegation, SetWithdrawRoute, Symbol, Token, TokenMetadata, Transfer, TransferToSavings, TransferToVesting, UpdateProposalVotes, VoteProxy, WalletOperationPayload, WithdrawVesting, formattedNumber, getAccountWalletAssetInfoQueryOptions, getAllHiveEngineTokensQueryOptions, getHbdAssetGeneralInfoQueryOptions, getHbdAssetTransactionsQueryOptions, getHiveAssetGeneralInfoQueryOptions, getHiveAssetMetricQueryOptions, getHiveAssetTransactionsQueryOptions, getHiveAssetWithdrawalRoutesQueryOptions, getHiveEngineBalancesWithUsdQueryOptions, getHiveEngineTokenGeneralInfoQueryOptions, getHiveEngineTokenTransactionsQueryOptions, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMarketQueryOptions, getHiveEngineTokensMetadataQueryOptions, getHiveEngineTokensMetricsQueryOptions, getHiveEngineUnclaimedRewardsQueryOptions, getHivePowerAssetGeneralInfoQueryOptions, getHivePowerAssetTransactionsQueryOptions, getHivePowerDelegatesInfiniteQueryOptions, getHivePowerDelegatingsQueryOptions, getPointsAssetGeneralInfoQueryOptions, getPointsAssetTransactionsQueryOptions, getPointsQueryOptions, isEmptyDate, parseAsset, resolveHiveOperationFilters, useClaimPoints, useWalletOperation, vestsToHp } from '@ecency/sdk';
 
 declare enum EcencyWalletCurrency {
     BTC = "BTC",
@@ -141,18 +141,15 @@ declare function getTokenPriceQueryOptions(currency?: string): _tanstack_react_q
 declare function getAllTokensListQueryOptions(username?: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<{
     basic: EcencyWalletBasicTokens[];
     external: EcencyWalletCurrency[];
-    spk: string[];
     layer2: HiveEngineTokenMetadataResponse[];
 }, Error, {
     basic: EcencyWalletBasicTokens[];
     external: EcencyWalletCurrency[];
-    spk: string[];
     layer2: HiveEngineTokenMetadataResponse[];
 }, (string | null)[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<{
         basic: EcencyWalletBasicTokens[];
         external: EcencyWalletCurrency[];
-        spk: string[];
         layer2: HiveEngineTokenMetadataResponse[];
     }, (string | null)[], never> | undefined;
 } & {
@@ -160,7 +157,6 @@ declare function getAllTokensListQueryOptions(username?: string): _tanstack_reac
         [dataTagSymbol]: {
             basic: EcencyWalletBasicTokens[];
             external: EcencyWalletCurrency[];
-            spk: string[];
             layer2: HiveEngineTokenMetadataResponse[];
         };
         [dataTagErrorSymbol]: Error;
