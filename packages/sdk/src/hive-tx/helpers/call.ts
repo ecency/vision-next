@@ -209,13 +209,17 @@ interface NodeHealth {
   lastProbeAt: number
 
   /**
-   * Per-API latency profiles (same EWMA/warmup/expiry rules as the global one).
+   * Per-profile-key latency (same EWMA/warmup/expiry rules as the global one).
    * The global EWMA mixes cheap calls (get_accounts ~300ms) with heavy ones
    * (get_account_history, bridge.get_discussion — legitimately seconds), so it
    * ranks nodes fine but is the WRONG baseline for per-attempt deadlines: a
    * profile dominated by cheap calls would abort every legitimately-heavy call.
-   * Adaptive timeouts and hedge delays therefore key on (node, api); ranking
-   * keeps using the global profile. Bounded: #nodes × #api prefixes in use.
+   * Deadlines/hedge delays therefore key on the FULL method for RPC
+   * ("condenser_api.get_account_history") and api+endpoint template for REST —
+   * an API prefix alone still mixes cheap and heavy methods. Ranking keeps the
+   * global profile. Bounded: #nodes × #distinct methods called (code-defined,
+   * not user input); fully cleared whenever the node's global profile expires
+   * (the global clock advances on every sample, so global-stale ⇒ all stale).
    */
   apiLatency: Map<string, { ewmaMs: number; sampleCount: number; updatedAt: number }>
 }
@@ -367,7 +371,7 @@ export class NodeHealthTracker {
     return h
   }
 
-  recordSuccess(node: string, api?: string, durationMs?: number): void {
+  recordSuccess(node: string, api?: string, durationMs?: number, profileKey?: string): void {
     const h = this.getOrCreate(node)
     h.consecutiveFailures = 0
     // A success means the node recovered — clear the escalation streak so the next
@@ -383,7 +387,10 @@ export class NodeHealthTracker {
       h.apiFailures.delete(api)
     }
     if (typeof durationMs === 'number' && Number.isFinite(durationMs) && durationMs >= 0) {
-      this.recordLatency(h, durationMs, api)
+      // Latency profiles use the finest key available (full method / endpoint
+      // template); the API prefix is only a fallback so bare callers still
+      // profile SOMETHING. Failure state above stays per-API on purpose.
+      this.recordLatency(h, durationMs, profileKey ?? api)
     }
   }
 
@@ -395,27 +402,28 @@ export class NodeHealthTracker {
    * when the call was genuinely slow (≥ LATENCY_SLOW_FAILURE_MS) — an instant
    * connection failure (a *down* node) must NOT look "slow".
    */
-  recordSlowFailure(node: string, durationMs: number, api?: string): void {
+  recordSlowFailure(node: string, durationMs: number, profileKey?: string): void {
     if (!Number.isFinite(durationMs) || durationMs < LATENCY_SLOW_FAILURE_MS) return
-    this.recordLatency(this.getOrCreate(node), durationMs, api)
+    this.recordLatency(this.getOrCreate(node), durationMs, profileKey)
   }
 
   /**
    * Usable latency profile (EWMA ms), or `undefined` while unproven or stale.
-   * With an `api`, returns that (node, api) profile ONLY — deliberately no
-   * fallback to the mixed global profile, because the global average of cheap
-   * calls is the wrong deadline baseline for a heavy API (that fallback is
-   * exactly the "2s window starves get_account_history" failure mode). Without
-   * an `api`, returns the global ranking profile. Both follow the same
-   * "profiled and fresh" gate as the ranker.
+   * With a `profileKey` (full RPC method / REST api+endpoint template),
+   * returns that (node, key) profile ONLY — deliberately no fallback to the
+   * mixed global profile, because an average dominated by cheap calls is the
+   * wrong deadline baseline for a heavy method (that fallback is exactly the
+   * "2s window starves get_account_history" failure mode). Without a key,
+   * returns the global ranking profile. Both follow the same "profiled and
+   * fresh" gate as the ranker.
    * @internal
    */
-  getUsableLatencyMs(node: string, api?: string): number | undefined {
+  getUsableLatencyMs(node: string, profileKey?: string): number | undefined {
     const h = this.health.get(node)
     if (!h) return undefined
     const now = Date.now()
-    if (api !== undefined) {
-      const p = h.apiLatency.get(api)
+    if (profileKey !== undefined) {
+      const p = h.apiLatency.get(profileKey)
       return p &&
         p.sampleCount >= LATENCY_MIN_SAMPLES &&
         now - p.updatedAt <= LATENCY_MAX_AGE_MS
@@ -441,23 +449,27 @@ export class NodeHealthTracker {
    * noise, not a latency measurement.
    * @internal
    */
-  recordCensoredLatency(node: string, elapsedMs: number, api?: string): void {
+  recordCensoredLatency(node: string, elapsedMs: number, profileKey?: string): void {
     if (!Number.isFinite(elapsedMs) || elapsedMs < 50) return
-    this.recordLatency(this.getOrCreate(node), elapsedMs, api)
+    this.recordLatency(this.getOrCreate(node), elapsedMs, profileKey)
   }
 
   /**
    * Fold a latency sample into the node's global EWMA (warmup + usability
-   * bookkeeping) and, when the API is known, into that (node, api) profile —
-   * the global one ranks nodes, the per-API one calibrates deadlines.
+   * bookkeeping) and, when a profile key is given, into that (node, key)
+   * profile — the global one ranks nodes, the keyed one calibrates deadlines.
    */
-  private recordLatency(h: NodeHealth, durationMs: number, api?: string): void {
+  private recordLatency(h: NodeHealth, durationMs: number, profileKey?: string): void {
     const now = Date.now()
     // A profile older than the usable window starts fresh, so an idled process
-    // re-learns from scratch rather than ranking on hour-old data.
+    // re-learns from scratch rather than ranking on hour-old data. Every keyed
+    // profile shares this clock (each sample updates both), so global-stale
+    // implies every keyed profile is stale too — clear the map rather than
+    // leave never-again-read tombstone entries for the life of the process.
     if (h.latencyUpdatedAt > 0 && now - h.latencyUpdatedAt > LATENCY_MAX_AGE_MS) {
       h.ewmaLatencyMs = undefined
       h.latencySampleCount = 0
+      h.apiLatency.clear()
     }
     h.ewmaLatencyMs =
       h.ewmaLatencyMs === undefined
@@ -466,10 +478,10 @@ export class NodeHealthTracker {
     h.latencySampleCount++
     h.latencyUpdatedAt = now
 
-    if (api !== undefined) {
-      const p = h.apiLatency.get(api)
+    if (profileKey !== undefined) {
+      const p = h.apiLatency.get(profileKey)
       if (!p || now - p.updatedAt > LATENCY_MAX_AGE_MS) {
-        h.apiLatency.set(api, { ewmaMs: durationMs, sampleCount: 1, updatedAt: now })
+        h.apiLatency.set(profileKey, { ewmaMs: durationMs, sampleCount: 1, updatedAt: now })
       } else {
         p.ewmaMs = LATENCY_EWMA_ALPHA * durationMs + (1 - LATENCY_EWMA_ALPHA) * p.ewmaMs
         p.sampleCount++
@@ -782,32 +794,34 @@ export class HedgeBudget {
 export const rpcHedgeBudget = new HedgeBudget()
 
 /**
- * Per-attempt timeout for a read call. A node profiled for THIS api is given
- * `factor × per-API EWMA` — floored (≥2s) so a moderate spike on a fast call
- * is not cut off, and capped at the caller's ceiling so this can only ever
- * *shorten* the wait. The effect: a node running far above its own baseline
- * for this kind of call is abandoned early and failover starts in seconds
- * instead of the full fixed window.
+ * Per-attempt timeout for a read call. A node profiled for THIS profile key
+ * (full RPC method / REST api+endpoint template) is given `factor × EWMA` —
+ * floored (≥2s) so a moderate spike on a fast call is not cut off, and capped
+ * at the caller's ceiling so this can only ever *shorten* the wait. The
+ * effect: a node running far above its own baseline for this exact kind of
+ * call is abandoned early and failover starts in seconds instead of the full
+ * fixed window.
  *
  * Two deliberate exclusions:
  * - `explicit` callers (who passed a timeout argument) keep exactly what they
  *   asked for — the documented meaning of the parameter is preserved, and a
  *   consumer who knows their call is heavy is never second-guessed.
- * - The profile is per (node, api) with NO fallback to the node's mixed global
- *   EWMA: an average dominated by cheap `get_accounts` calls must not set the
- *   deadline for a heavy `get_account_history`. An unprofiled (node, api)
+ * - The profile is per (node, full method) with NO fallback to the node's
+ *   mixed global EWMA or even the API-prefix average: a baseline dominated by
+ *   cheap `condenser_api.get_accounts` calls must not set the deadline for a
+ *   heavy `condenser_api.get_account_history`. An unprofiled (node, method)
  *   pair keeps the caller's timeout unchanged (cold start == old behavior).
  */
 function adaptiveAttemptTimeout(
   tracker: NodeHealthTracker,
   node: string,
-  api: string,
+  profileKey: string,
   callerTimeout: number,
   explicit: boolean
 ): number {
   const r = config.resilience
   if (!r.adaptiveTimeout || explicit) return callerTimeout
-  const ewma = tracker.getUsableLatencyMs(node, api)
+  const ewma = tracker.getUsableLatencyMs(node, profileKey)
   if (ewma === undefined) return callerTimeout
   return Math.min(callerTimeout, Math.max(r.adaptiveTimeoutFloorMs, r.adaptiveTimeoutFactor * ewma))
 }
@@ -1124,7 +1138,7 @@ function hedgedRpcAttempt<T>(opts: {
       const legTimeout = adaptiveAttemptTimeout(
         rpcHealthTracker,
         node,
-        api,
+        method,
         callerTimeout,
         explicitTimeout
       )
@@ -1136,7 +1150,7 @@ function hedgedRpcAttempt<T>(opts: {
           pendingLegs--
           if (!isHedge) primarySettled = true
           if (done) return
-          rpcHealthTracker.recordSuccess(node, api, Date.now() - start)
+          rpcHealthTracker.recordSuccess(node, api, Date.now() - start, method)
           tryRecordHeadBlock(rpcHealthTracker, node, method, res)
           if (isHedge) {
             if (!primarySettled) {
@@ -1144,7 +1158,7 @@ function hedgedRpcAttempt<T>(opts: {
               // (lower bound of its true latency) so the ranker learns without
               // marking it as failed. A primary that already failed was fully
               // recorded by its own catch — nothing more to record.
-              rpcHealthTracker.recordCensoredLatency(primary, Date.now() - primaryStart, api)
+              rpcHealthTracker.recordCensoredLatency(primary, Date.now() - primaryStart, method)
             }
           } else if (!hedgeFired) {
             rpcHedgeBudget.refill()
@@ -1168,7 +1182,7 @@ function hedgedRpcAttempt<T>(opts: {
           }
           // Failover-class failure — record exactly as the sequential catch does.
           recordError(rpcHealthTracker, node, e, api)
-          rpcHealthTracker.recordSlowFailure(node, Date.now() - start, api)
+          rpcHealthTracker.recordSlowFailure(node, Date.now() - start, method)
           lastError = e
           if (!isHedge && !hedgeFired) {
             // Primary failed fast, before the hedge delay: plain failover.
@@ -1184,19 +1198,19 @@ function hedgedRpcAttempt<T>(opts: {
 
     startLeg(primary, false)
 
-    // Delay from the primary's per-API profile (the eligibility gate ensured it
-    // is usable); a raced expiry just means the floor applies. The delay is
+    // Delay from the primary's per-method profile (the eligibility gate
+    // ensured it is usable); a raced expiry just means the floor applies. It is
     // then clamped BELOW the primary's own attempt window: for a heavy API
     // (EWMA > window/hedgeDelayFactor) the un-clamped delay would land past
     // the primary's timeout-abort — which clears this timer — so hedging would
     // silently never fire for exactly the heavy tail it exists to protect.
     // Firing at ~80% of the window keeps the duplicate meaningful (it starts
     // while the primary is still allowed to win) for every profile shape.
-    const ewma = rpcHealthTracker.getUsableLatencyMs(primary, api) ?? 0
+    const ewma = rpcHealthTracker.getUsableLatencyMs(primary, method) ?? 0
     const primaryWindow = adaptiveAttemptTimeout(
       rpcHealthTracker,
       primary,
-      api,
+      method,
       callerTimeout,
       explicitTimeout
     )
@@ -1310,12 +1324,12 @@ export const callRPC = async <T = any>(
     triedInRound.add(node)
 
     // Hedge eligibility for THIS attempt: opted in, the primary has a usable
-    // per-API latency profile (so the hedge delay is grounded in data — cold
-    // starts stay sequential), and healthy untried peers exist to duplicate to.
+    // latency profile for this exact method (so the hedge delay is grounded in
+    // data — cold starts stay sequential), and healthy untried peers exist.
     let hedgePool: string[] = []
     if (
       config.resilience.hedge &&
-      rpcHealthTracker.getUsableLatencyMs(node, api) !== undefined
+      rpcHealthTracker.getUsableLatencyMs(node, method) !== undefined
     ) {
       hedgePool = orderedNodes
         .filter((n) => !triedInRound.has(n) && rpcHealthTracker.isNodeHealthy(n, api))
@@ -1359,11 +1373,11 @@ export const callRPC = async <T = any>(
         node,
         method,
         params,
-        adaptiveAttemptTimeout(rpcHealthTracker, node, api, ceiling, explicitTimeout),
+        adaptiveAttemptTimeout(rpcHealthTracker, node, method, ceiling, explicitTimeout),
         false,
         signal
       )
-      rpcHealthTracker.recordSuccess(node, api, Date.now() - callStart)
+      rpcHealthTracker.recordSuccess(node, api, Date.now() - callStart, method)
       // An un-hedged success is what earns hedge budget back (see HedgeBudget).
       rpcHedgeBudget.refill()
       tryRecordHeadBlock(rpcHealthTracker, node, method, res)
@@ -1388,7 +1402,7 @@ export const callRPC = async <T = any>(
       // a node that 200s-but-too-slow or aborts at the timeout is demoted by the
       // ranker, not only by the (transient) failure gate. Measured elapsed, never a
       // constant; recordSlowFailure ignores instant (down-node) failures.
-      rpcHealthTracker.recordSlowFailure(node, Date.now() - callStart, api)
+      rpcHealthTracker.recordSlowFailure(node, Date.now() - callStart, method)
       lastError = e
 
       // Add jitter before trying next node
@@ -1537,6 +1551,10 @@ export async function callREST(
   const explicitTimeout = timeout !== undefined
   const ceiling = timeout ?? config.timeout
   const deadline = Date.now() + config.resilience.totalBudgetFactor * ceiling
+  // Latency-profile key: api + endpoint TEMPLATE (pre-substitution, so the
+  // cardinality is code-defined) — a cheap endpoint's baseline must not set
+  // the deadline for a heavy one within the same REST api.
+  const restProfileKey = `${api}:${endpoint}`
   // Per-API node override: an API served by only a subset of nodes (e.g.
   // hivesense) uses its own capable-host list so the small retry budget and
   // cold starts aren't wasted on nodes that 404/503 it. Any API without an
@@ -1594,7 +1612,7 @@ export async function callREST(
     // Adaptive per-attempt timeout (see adaptiveAttemptTimeout): a profiled
     // REST node is abandoned at factor×EWMA instead of the full fixed window.
     const { signal: tSignal, cleanup: cleanupTimeout } = createTimeoutSignal(
-      adaptiveAttemptTimeout(restHealthTracker, node, api, ceiling, explicitTimeout)
+      adaptiveAttemptTimeout(restHealthTracker, node, restProfileKey, ceiling, explicitTimeout)
     )
     const { signal: restSignal, cleanup: cleanupMerge } = mergeSignals(tSignal, signal)
     const restCleanup = () => { cleanupTimeout(); cleanupMerge() }
@@ -1626,7 +1644,7 @@ export async function callREST(
         alreadyRecorded = true
         throw new Error(`HTTP ${response.status} from ${node}`)
       }
-      restHealthTracker.recordSuccess(node, api, Date.now() - restCallStart)
+      restHealthTracker.recordSuccess(node, api, Date.now() - restCallStart, restProfileKey)
       return response.json() as any
     } catch (e: any) {
       // 404 is not a node issue, don't failover
@@ -1648,7 +1666,7 @@ export async function callREST(
       // latency signal too, so it is demoted by the ranker, not only the failure gate.
       // Measured elapsed; recordSlowFailure floors at LATENCY_SLOW_FAILURE_MS so a fast
       // 404/429 or instant down-node failure is NOT mis-read as "slow".
-      restHealthTracker.recordSlowFailure(node, Date.now() - restCallStart, api)
+      restHealthTracker.recordSlowFailure(node, Date.now() - restCallStart, restProfileKey)
       lastError = e
 
       if (attempt < retry) {

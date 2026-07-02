@@ -166,6 +166,9 @@ async function seedPrimaryProfile(nodes: string[]) {
     await callRPC(METHOD, [["ecency"]]);
   }
   expect(seeded.hostsInOrder().every((h) => h === nodes[0])).toBe(true);
+  // The per-method profile must be usable or every hedge test silently
+  // degrades to sequential behaviour (vacuous-test guard).
+  expect(rpcHealthTracker.getUsableLatencyMs(nodes[0], METHOD)).toBeDefined();
   seeded.spy.mockRestore();
 }
 
@@ -258,7 +261,7 @@ describe("adaptive per-attempt timeout", () => {
     config.restNodes = nodes;
     Object.assign(config.resilience, { adaptiveTimeoutFloorMs: 120, adaptiveTimeoutFactor: 2, hedge: false });
     // Seed the REST tracker's (node, api) profile directly.
-    for (let i = 0; i < 3; i++) restHealthTracker.recordSuccess(nodes[0], "status", 5);
+    for (let i = 0; i < 3; i++) restHealthTracker.recordSuccess(nodes[0], "status", 5, "status:/status");
 
     routeFetch({ [nodes[0]]: { kind: "hang" }, [nodes[1]]: { kind: "ok", result: { fine: true } } });
     const t0 = Date.now();
@@ -329,8 +332,8 @@ describe("hedged reads", () => {
     // it at 0.8 × 400 = 320ms instead. The peer is profiled slower (5s) so the
     // heavy node still ranks first (an unproven peer would outrank a 3s EWMA
     // via the neutral prior and steal the primary slot).
-    for (let i = 0; i < 3; i++) rpcHealthTracker.recordSuccess(nodes[0], "condenser_api", 3_000);
-    for (let i = 0; i < 3; i++) rpcHealthTracker.recordSuccess(nodes[1], "condenser_api", 5_000);
+    for (let i = 0; i < 3; i++) rpcHealthTracker.recordSuccess(nodes[0], "condenser_api", 3_000, METHOD);
+    for (let i = 0; i < 3; i++) rpcHealthTracker.recordSuccess(nodes[1], "condenser_api", 5_000, METHOD);
 
     const f = routeFetch({ [nodes[0]]: { kind: "hang" }, [nodes[1]]: { kind: "ok", result: "heavy-hedged" } });
     const res = await callRPC<string>(METHOD, [["ecency"]]);
@@ -566,20 +569,23 @@ describe("NodeHealthTracker resilience hooks", () => {
     expect(t.getUsableLatencyMs(node)).toBe(before);
   });
 
-  it("keeps per-API profiles separate — a cheap API never calibrates a heavy one", () => {
+  it("keeps per-method profiles separate — a cheap method never calibrates a heavy one", () => {
     const t = new NodeHealthTracker();
     const node = "https://unit-api.test";
-    for (let i = 0; i < 3; i++) t.recordSuccess(node, "condenser_api", 100);
+    const cheap = "condenser_api.get_accounts";
+    const heavy = "condenser_api.get_account_history";
+    for (let i = 0; i < 3; i++) t.recordSuccess(node, "condenser_api", 100, cheap);
     // Global (ranking) profile is usable...
     expect(t.getUsableLatencyMs(node)).toBeCloseTo(100, 0);
-    // ...and so is the profiled API...
-    expect(t.getUsableLatencyMs(node, "condenser_api")).toBeCloseTo(100, 0);
-    // ...but a DIFFERENT api has no profile — no fallback to the global mix.
-    expect(t.getUsableLatencyMs(node, "bridge")).toBeUndefined();
-    // Heavy API builds its own baseline.
-    for (let i = 0; i < 3; i++) t.recordSuccess(node, "bridge", 3_000);
-    expect(t.getUsableLatencyMs(node, "bridge")).toBeCloseTo(3_000, 0);
-    expect(t.getUsableLatencyMs(node, "condenser_api")).toBeCloseTo(100, 0);
+    // ...and so is the profiled method...
+    expect(t.getUsableLatencyMs(node, cheap)).toBeCloseTo(100, 0);
+    // ...but a DIFFERENT method — even in the SAME api — has no profile:
+    // no fallback to the global mix or the prefix average.
+    expect(t.getUsableLatencyMs(node, heavy)).toBeUndefined();
+    // The heavy method builds its own baseline.
+    for (let i = 0; i < 3; i++) t.recordSuccess(node, "condenser_api", 3_000, heavy);
+    expect(t.getUsableLatencyMs(node, heavy)).toBeCloseTo(3_000, 0);
+    expect(t.getUsableLatencyMs(node, cheap)).toBeCloseTo(100, 0);
   });
 });
 
