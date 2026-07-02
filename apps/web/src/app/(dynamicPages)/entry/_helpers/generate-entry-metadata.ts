@@ -104,9 +104,10 @@ export async function generateEntryMetadata(
         title,
         description: summary,
         url: ogUrl,
-        // catchPostImage renders a 1200x630 asset; declaring the dimensions +
-        // alt lets social platforms render the card without a fetch round-trip.
-        images: image ? [{ url: image, width: 1200, height: 630, alt: title }] : [],
+        // Add alt only. catchPostImage uses aspect-fit (mode=match), so the
+        // proxied asset is rarely exactly 1200x630 (and GIF covers may be served
+        // at origin size) - declaring fixed dimensions would misreport them.
+        images: image ? [{ url: image, alt: title }] : [],
         type: "article",
         publishedTime: createdAt.toISOString(),
         modifiedTime: updatedAt.toISOString(),

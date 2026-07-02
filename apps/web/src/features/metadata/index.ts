@@ -75,8 +75,10 @@ export namespace PagesMetadataGenerator {
   }
 
   function buildForMobile(): Metadata {
+    // Title already carries the brand ("Ecency Mobile"); opt out of the root
+    // title.template so it does not render "Ecency Mobile | Ecency".
     return {
-      title: i18next.t("static.mobile.page-title")
+      title: { absolute: i18next.t("static.mobile.page-title") }
     };
   }
 
