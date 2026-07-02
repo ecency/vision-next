@@ -78,9 +78,12 @@ export function ColumnChart({
                 const yTop = H - padBottom - h;
                 return (
                   <g key={s.name}>
-                    <path d={columnPath(x, yTop, barW, h)} fill={seriesColor(si)}>
-                      <title>{`${label}${series.length > 1 ? ` ${s.name}` : ""}: ${v.toLocaleString("en-US")}`}</title>
-                    </path>
+                    {/* Bare mark: no svg <title> (naive first-title parsers would
+                        read a tooltip as the document title, which streams late)
+                        and no per-mark aria (the outer svg role="img" is atomic,
+                        so children are pruned from the a11y tree). Values live in
+                        the visible cap labels and the table views. */}
+                    <path d={columnPath(x, yTop, barW, h)} fill={seriesColor(si)} aria-hidden="true" />
                     {/* direct label on the cap; text token, not series color */}
                     <text
                       x={x + barW / 2}
@@ -143,9 +146,7 @@ export function HBarChart({
             >
               {item.label.length > 26 ? `${item.label.slice(0, 25)}…` : item.label}
             </text>
-            <path d={hbarPath(labelW, y, w, barH)} fill="var(--ce-s1)">
-              <title>{`${item.label}: ${item.value.toLocaleString("en-US")}`}</title>
-            </path>
+            <path d={hbarPath(labelW, y, w, barH)} fill="var(--ce-s1)" aria-hidden="true" />
             <text x={labelW + w + 8} y={y + barH - 3} fontSize={12} fill="var(--ce-text2)">
               {item.value.toLocaleString("en-US")}
             </text>
