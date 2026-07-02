@@ -10,6 +10,7 @@ import { getContentQueryOptions, getProfilesQueryOptions } from "@ecency/sdk";
 import { prefetchQuery } from "@/core/react-query";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { getServerAppBase } from "@/utils/server-app-base";
+import defaults from "@/defaults.json";
 
 export async function generateEntryMetadata(
   username: string,
@@ -103,7 +104,10 @@ export async function generateEntryMetadata(
         title,
         description: summary,
         url: ogUrl,
-        images: image ? [image] : [],
+        // Add alt only. catchPostImage uses aspect-fit (mode=match), so the
+        // proxied asset is rarely exactly 1200x630 (and GIF covers may be served
+        // at origin size) - declaring fixed dimensions would misreport them.
+        images: image ? [{ url: image, alt: title }] : [],
         type: "article",
         publishedTime: createdAt.toISOString(),
         modifiedTime: updatedAt.toISOString(),
@@ -112,9 +116,12 @@ export async function generateEntryMetadata(
       },
       twitter: {
         card: "summary_large_image",
+        // Re-declare site: Next replaces (not merges) the layout's twitter object
+        // per segment, so without this the root layout's twitter:site is dropped.
+        site: defaults.twitterHandle,
         title,
         description: summary,
-        images: image ? [image] : [],
+        images: image ? [{ url: image, alt: title }] : [],
       },
       other: {
         "article:author": authorUrl,

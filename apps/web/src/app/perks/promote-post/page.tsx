@@ -9,7 +9,7 @@ export async function generateMetadata(
   const metadata = await PagesMetadataGenerator.getForPage("perks");
   return {
     ...metadata,
-    title: "Promote | " + metadata.title
+    title: { absolute: "Promote | " + metadata.title }
   };
 }
 

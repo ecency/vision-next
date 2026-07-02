@@ -1,6 +1,7 @@
 import { capitalize } from "@/utils";
 import i18next from "i18next";
 import { getServerAppBase } from "@/utils/server-app-base";
+import defaults from "@/defaults.json";
 
 export async function generateFeedMetadata(filter: string, tag: string, cursor?: string) {
   const fC = capitalize(filter);
@@ -12,12 +13,13 @@ export async function generateFeedMetadata(filter: string, tag: string, cursor?:
   let rss = "";
 
   if (tag?.startsWith("%40")) {
-    title = `${tag.replace(/%40/g, "@")} ${filter} on decentralized web – Ecency`;
+    // Brand ("| Ecency") is appended by the root title.template; keep bare.
+    title = `${tag.replace(/%40/g, "@")} ${filter}`;
     description = i18next.t("entry-index.description-user-feed", {
       u: tag.replace(/%40/g, "@"),
     });
   } else if (tag) {
-    title = `latest #${tag} ${filter} topics on internet`;
+    title = `latest #${tag} ${filter} topics`;
     description = i18next.t("entry-index.description-tag", { f: fC, t: tag });
 
     url = `/${filter}/${tag}`;
@@ -44,6 +46,7 @@ export async function generateFeedMetadata(filter: string, tag: string, cursor?:
     },
     twitter: {
       card: "summary",
+      site: defaults.twitterHandle,
       title,
       description,
     },

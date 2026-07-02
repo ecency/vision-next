@@ -16,7 +16,7 @@ interface Props {
 }
 
 export const metadata: Metadata = {
-  title: "Waves | Ecency",
+  title: { absolute: "Waves | Ecency" },
   description: "Micro-blogging in decentralized system of Web 3.0"
 };
 

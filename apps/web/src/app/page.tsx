@@ -27,7 +27,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const base = APP_BASE;
 
   return {
-    title: defaults.title,
+    title: { absolute: defaults.title },
     description: defaults.description,
     openGraph: {
       title: defaults.title,

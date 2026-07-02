@@ -8,7 +8,7 @@ import { ScrollToTop } from "@/features/shared/scroll-to-top";
 import { RouteErrorBoundary } from "@/features/issue-reporter/route-error-boundary";
 
 export const metadata: Metadata = {
-  title: "Waves | Ecency",
+  title: { absolute: "Waves | Ecency" },
   description: "Micro-blogging in decentralized system of Web 3.0"
 };
 
