@@ -93,6 +93,34 @@ export function buildBreadcrumbJsonLd(items: { name: string; url: string }[]): J
   };
 }
 
+/**
+ * Dataset node for data-report pages (e.g. the creator-economy report).
+ * CC BY 4.0 license invites citation with attribution.
+ */
+export function buildDatasetJsonLd({
+  name,
+  description,
+  url,
+  temporalCoverage
+}: {
+  name: string;
+  description: string;
+  url: string;
+  temporalCoverage: string; // ISO interval, e.g. "2025-07-01/2026-06-30"
+}): JsonLdData {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Dataset",
+    name,
+    description,
+    url,
+    temporalCoverage,
+    creator: { "@id": ORG_ID },
+    license: "https://creativecommons.org/licenses/by/4.0/",
+    isAccessibleForFree: true
+  };
+}
+
 export function buildArticleJsonLd({
   entry,
   account,
