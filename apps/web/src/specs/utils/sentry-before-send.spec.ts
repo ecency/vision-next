@@ -274,6 +274,147 @@ describe("beforeSend — synthetic DOM Event capture is dropped", () => {
   });
 });
 
+describe("beforeSend — frame-less script-parse SyntaxError is reclassified", () => {
+  // ECENCY-NEXT-13K2 / ECENCY-NEXT-1GFP: engines throw parse-time SyntaxErrors
+  // while COMPILING a script, so there is no JS stack — the event arrives with
+  // zero frames and the frame-gated chunk rule can't take it. Environmental
+  // (truncated download, or an old engine hitting syntax it predates), so it is
+  // reclassified (NOT dropped) to one fingerprinted warning: a spike would mean
+  // we shipped syntax our browserslist targets can't parse.
+  const parseEvent = (msg: string) => makeEvent(msg, [], { type: "SyntaxError" });
+
+  it("reclassifies the V8 truncation grammar (Unexpected end of input)", () => {
+    const out = beforeSend(parseEvent("Unexpected end of input"));
+    expect(out).not.toBeNull();
+    expect(out!.level).toBe("warning");
+    expect(out!.tags?.script_parse_failure).toBe("true");
+    expect(out!.fingerprint).toEqual(["script-parse-failure"]);
+  });
+
+  it("reclassifies the SpiderMonkey truncation grammar (missing ; after for-loop condition)", () => {
+    const out = beforeSend(parseEvent("missing ; after for-loop condition"));
+    expect(out!.level).toBe("warning");
+    expect(out!.fingerprint).toEqual(["script-parse-failure"]);
+  });
+
+  it("reclassifies the WebKit private-name grammar (old engine, modern syntax)", () => {
+    const out = beforeSend(
+      parseEvent("Unexpected private name #R. Cannot parse class method with private name.")
+    );
+    expect(out!.fingerprint).toEqual(["script-parse-failure"]);
+  });
+
+  it("reclassifies the WebKit method-parameter grammar", () => {
+    const out = beforeSend(
+      parseEvent("Unexpected token '='. Expected an opening '(' before a method's parameter list.")
+    );
+    expect(out!.fingerprint).toEqual(["script-parse-failure"]);
+  });
+
+  it("reclassifies optional chaining on a pre-chaining engine (Unexpected token '.')", () => {
+    const out = beforeSend(parseEvent("Unexpected token '.'"));
+    expect(out!.fingerprint).toEqual(["script-parse-failure"]);
+  });
+
+  it("does NOT touch a frame-less V8 JSON.parse failure ('is not valid JSON')", () => {
+    // res.json() on an HTML error page — a REAL signal about an API response,
+    // and V8 creates it with no JS frames on the stack. Must stay an error.
+    const ev = parseEvent("Unexpected token '<', \"<html>…\" is not valid JSON");
+    expect(beforeSend(ev)).toBe(ev);
+    expect(ev.level).toBeUndefined();
+    expect(ev.fingerprint).toBeUndefined();
+  });
+
+  it("does NOT touch the older V8 JSON grammar (Unexpected end of JSON input)", () => {
+    const ev = parseEvent("Unexpected end of JSON input");
+    expect(beforeSend(ev)).toBe(ev);
+    expect(ev.level).toBeUndefined();
+    expect(ev.fingerprint).toBeUndefined();
+  });
+
+  it("does NOT touch the SpiderMonkey JSON.parse grammar", () => {
+    // beforeSend mutates in place and returns the SAME reference, so toBe alone
+    // is vacuous — the level/fingerprint assertions are what pin "untouched".
+    const ev = parseEvent("JSON.parse: unexpected end of data at line 1 column 1 of the JSON data");
+    expect(beforeSend(ev)).toBe(ev);
+    expect(ev.level).toBeUndefined();
+    expect(ev.fingerprint).toBeUndefined();
+  });
+
+  it("does NOT touch a SyntaxError WITH frames (runtime throw from app code)", () => {
+    // A constructed/thrown SyntaxError always has a stack; only compile-time
+    // parse failures are frame-less. Non-chunk filename so the frame-gated
+    // chunk rule doesn't take it either.
+    const ev = makeEvent("Unexpected token ')'", [{ filename: "app:///src/utils/template.ts" }], {
+      type: "SyntaxError"
+    });
+    expect(beforeSend(ev)).toBe(ev);
+    expect(ev.fingerprint).toBeUndefined();
+  });
+
+  it("does NOT touch a frame-less SyntaxError with a NON-parse grammar", () => {
+    // e.g. an invalid-selector DOMException surfaced with name SyntaxError —
+    // not a script-parse failure, so it must stay a real error.
+    const ev = parseEvent("'##bad' is not a valid selector");
+    expect(beforeSend(ev)).toBe(ev);
+    expect(ev.fingerprint).toBeUndefined();
+  });
+
+  it("does NOT touch a frame-less parse grammar under a different exception type", () => {
+    const ev = makeEvent("Unexpected end of input", [], { type: "TypeError" });
+    expect(beforeSend(ev)).toBe(ev);
+    expect(ev.level).toBeUndefined();
+    expect(ev.fingerprint).toBeUndefined();
+  });
+
+  // POST-init the same parse failures arrive through GlobalHandlers' onerror,
+  // which synthesizes exactly one placeholder frame — function "?" with the
+  // failing script URL — for a stackless error. The rule must take that shape
+  // too, and must take it BEFORE the chunk-corruption drop rule (which would
+  // otherwise silently eat the commonest grammars and blind the fingerprint).
+  const SYNTHETIC_ONERROR_FRAME = {
+    filename: "app:///_next/static/chunks/5678-fedcba.js",
+    function: "?"
+  };
+
+  it("reclassifies the post-init single-synthetic-frame shape (WebKit private name)", () => {
+    const out = beforeSend(
+      makeEvent(
+        "Unexpected private name #R. Cannot parse class method with private name.",
+        [SYNTHETIC_ONERROR_FRAME],
+        { type: "SyntaxError" }
+      )
+    );
+    expect(out).not.toBeNull();
+    expect(out!.level).toBe("warning");
+    expect(out!.fingerprint).toEqual(["script-parse-failure"]);
+  });
+
+  it("reclassifies (not drops) the post-init truncation shape despite the chunk frame", () => {
+    // Ordering guard: with one synthetic chunks/ frame and an "Unexpected end
+    // of input" message, the chunk-corruption rule would DROP this — the
+    // reclassify rule must win so the fingerprint keeps its volume visible.
+    const out = beforeSend(
+      makeEvent("Unexpected end of input", [SYNTHETIC_ONERROR_FRAME], { type: "SyntaxError" })
+    );
+    expect(out).not.toBeNull();
+    expect(out!.level).toBe("warning");
+    expect(out!.fingerprint).toEqual(["script-parse-failure"]);
+  });
+
+  it("does NOT take a single REAL frame (named function) — parse errors never have one", () => {
+    // A single NAMED frame means a runtime throw, not a compile failure. Non-
+    // chunk filename so the chunk-drop rule doesn't take it either; it must
+    // pass through untouched.
+    const ev = makeEvent("Unexpected token ')'", [
+      { filename: "app:///src/utils/template.ts", function: "renderTemplate" }
+    ], { type: "SyntaxError" });
+    expect(beforeSend(ev)).toBe(ev);
+    expect(ev.level).toBeUndefined();
+    expect(ev.fingerprint).toBeUndefined();
+  });
+});
+
 describe("beforeSend — Firefox iframe contentWindow-null teardown is reclassified", () => {
   // ECENCY-NEXT-1FGA: the iframe variant of the $RS #418 self-heal above. After a
   // Firefox hydration mismatch an iframe's contentWindow is null while downstream
