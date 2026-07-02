@@ -1360,79 +1360,6 @@
     "converting-hive-amount": "Konvertovanje u HBD",
     "withdrawing-amount": "Podizanje iz štednje",
     "reserved-amount": "Rezervisano za otvoreni nalog na tržištu",
-    "spk": {
-      "claim": {
-        "title": "Claim",
-        "unclaimed-rewards": "Unclaimed rewards"
-      },
-      "delegate": {
-        "title": "Delegiraj",
-        "subtitle": "Delegiraj tokene",
-        "node-operator-placeholder": "Izaberi operatera čvora",
-        "delegated-larynx-power": {
-          "title": "Delegirana LARYNX Power"
-        }
-      },
-      "power-up": {
-        "title": "Power Up",
-        "subtitle": "Power Up za zaradu pasivnih nagrada"
-      },
-      "power-down": {
-        "title": "Power Down",
-        "subtitle": "Power Down za zaradu pasivnih nagrada",
-        "in-progress": "Power Down je zakazan za {{date}} (preostalo {{count}} rata)"
-      },
-      "lock": {
-        "title": "Zaključaj likvidnost",
-        "subtitle": "Zaključavanje Larynx-a za nagradu za likvidnost",
-        "button": "Zaključaj likvidnost"
-      },
-      "unlock": {
-        "title": "Otključaj likvidnost",
-        "subtitle": "Otključaj LARYNX u likvidni oblik",
-        "button": "Otključaj likvidnost"
-      },
-      "send": {
-        "balance": "Stanje",
-        "button": "Pošalji",
-        "from": "Od",
-        "to": "Za",
-        "amount": "Iznos",
-        "optional": "opciono",
-        "title": "Pošalji SPK",
-        "memo": "Napomena",
-        "next": "Dalje",
-        "subtitle": "Prebaci sredstva u drugi SPK novčanik",
-        "warning": "Prenos iznosa većeg od raspoloživog stanja"
-      },
-      "token": "SPK Token",
-      "token-description": "Token za upravljanje SPK mrežom.",
-      "larynx-already-claimed": "Već preuzeto.",
-      "larynx-token": "LARYNX Token",
-      "larynx-token-description": "Token za rudarenje na SPK mreži.",
-      "larynx-power": "LARYNX Power",
-      "larynx-power-description": "Pojačani tokeni koji se koriste za rudarenje SPK",
-      "larynx-power-benefits": {
-        "title": "Prednosti LARYNX Power",
-        "1": "Zarađuje SPK tokene za upravljanje",
-        "2": "Trenutno zaključavanje | Otključavanje za 4 nedelje",
-        "3": "Delegiraj nalozima servisnih čvorova radi izgradnje konsenzusa (DPoS)",
-        "4": "LARYNX POWER (LP) zarađuje SPK tokene po stopi od {{rate}}%",
-        "5": "Delegirani LP (DLP) zarađuje SPK tokene i za delegatora i za delegata po stopi od {{rate}}%"
-      },
-      "larynx-locked-benefits": {
-        "title": "Prednosti zaključanog LARYNX",
-        "1": "Konsenzus po principu udela (Proof of Stake)",
-        "2": "Kolateral za DEX transakcije",
-        "3": "Trenutno zaključavanje | Otključavanje za 4 nedelje",
-        "4": "Zahteva aktivan LARYNX čvor",
-        "5": "Zarađuje 0,100%"
-      },
-      "account-value": "Procenjena vrednost naloga",
-      "account-value-description": "Približna vrednost svih SPK sredstava na vašem nalogu u američkim dolarima",
-      "larynx-locked": "Zaključani LARYNX",
-      "larynx-locked-description": "Zaključani tokeni obezbeđuju likvidnost mreži, pomažu u određivanju konsenzusa i donose nagrade onima koji vode čvorove"
-    },
     "setup-external": {
       "login-required": "Potrebna je prijava za podešavanje eksternih novčanika",
       "import-login-required": "Potrebna je prijava za uvoz novčanika"
@@ -1605,10 +1532,6 @@
     "claim-title": "Preuzmi",
     "powerup-title": "Power Up",
     "powerdown-title": "Power Down",
-    "lock-title": "Zaključaj likvidnost",
-    "unlock-title": "Otključaj likvidnost",
-    "lock-summary": "Zaključavanje završeno kao <span class=\"amount\">{{amount}}</span>",
-    "unlock-summary": "Otključavanje završeno kao <span class=\"amount\">{{amount}}</span>",
     "success-title": "Uspeh",
     "success-sub-title": "Transakcija završena",
     "sign-title": "Potpiši transakciju",
@@ -1617,7 +1540,6 @@
     "swap-sub-title": "Zameni svoja sredstva u nekoliko klikova",
     "gift-title": "Poklon",
     "gift-sub-title": "Pokloni Points određenom korisniku",
-    "lock-sub-title": "Zaključavanje Larynx-a za nagradu za likvidnost",
     "stake-title": "Ulozi",
     "stake-sub-title": "Ulozi token za zaradu pasivnih nagrada",
     "unstake-title": "Povuci ulog",
@@ -3377,7 +3299,6 @@
       "promote": "Promoviši",
       "claim": "Preuzmi",
       "buy": "Kupi",
-      "lock": "Zaključaj likvidnost",
       "stake": "Ulog",
       "unstake": "Povuci ulog",
       "undelegate": "Poništi delegaciju"

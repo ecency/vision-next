@@ -1360,79 +1360,6 @@
     "converting-hive-amount": "Converteren naar HBD",
     "withdrawing-amount": "Opnemen van spaargeld",
     "reserved-amount": "Gereserveerd voor Open order in de markt",
-    "spk": {
-      "claim": {
-        "title": "Opeisen",
-        "unclaimed-rewards": "Niet opgeëiste beloningen"
-      },
-      "delegate": {
-        "title": "Toewijzen",
-        "subtitle": "Tokens toewijzen",
-        "node-operator-placeholder": "Selecteer netwerk beheerder",
-        "delegated-larynx-power": {
-          "title": "Toegewezene LARYNX Power"
-        }
-      },
-      "power-up": {
-        "title": "Power Up",
-        "subtitle": "Tegoeden vastzetten voor passieve beloning"
-      },
-      "power-down": {
-        "title": "Vastegezete tegoeden loskoppelen",
-        "subtitle": "Power down om passieve beloningen te verdienen",
-        "in-progress": "Er is een power down gepland in {{date}} ( resterende{{count}} termijnen)"
-      },
-      "lock": {
-        "title": "Liquidity vergrendelen",
-        "subtitle": "Vergrendelen van Larynx voor liquiditeitsbeloning",
-        "button": "Vergrendel liquiditeit"
-      },
-      "unlock": {
-        "title": "Ontgrendel Liquidity",
-        "subtitle": "Ontgrendel LARYNX voor vloeibare vorm",
-        "button": "Ontgrendel liquiditeit"
-      },
-      "send": {
-        "balance": "Saldo",
-        "button": "Verzenden",
-        "from": "van",
-        "to": "tot",
-        "amount": "Hoeveelheid",
-        "optional": "optioneel",
-        "title": "Stuur SPK",
-        "memo": "Notitie",
-        "next": "Volgende",
-        "subtitle": "Verplaats fondsen naar een andere SPK portemonnee",
-        "warning": "Meer dan beschikbaar saldo overbrengen"
-      },
-      "token": "SPK Token",
-      "token-description": "De governance token voor het SPK netwerk.",
-      "larynx-already-claimed": "Al geclaimd.",
-      "larynx-token": "LARYNX Token",
-      "larynx-token-description": "De miningstoken voor het SPK-netwerk.",
-      "larynx-power": "LARYNX Kracht",
-      "larynx-power-description": "Powered tokens gebruikt om SPK te delven",
-      "larynx-power-benefits": {
-        "title": "Voordelen van LARYNX Power",
-        "1": "Verdien SPK governance-tokens",
-        "2": "Onmiddellijke Vergrendeling, 4 Week Ontgrendelen",
-        "3": "Overdragen naar node service accounts om consensus (DPoS) te bouwen",
-        "4": "LARYNX POWER (LP) verdient SPK-tokens met {{rate}}%",
-        "5": "Gedelegeerde LP (DLP) verdient SPK tokens voor zowel delegator als gedelegeerde bij {{rate}}%"
-      },
-      "larynx-locked-benefits": {
-        "title": "Voordelen van LARYNX vergrendeld",
-        "1": "Bewijs Uitzet Consensus",
-        "2": "Collateral voor DEX transacties",
-        "3": "Onmiddellijke Vergrendeling, 4 Week Ontgrendelen",
-        "4": "Vereist een operating LARYNX knooppunt",
-        "5": "Verdien 0,100%"
-      },
-      "account-value": "Geschatte klantwaarde",
-      "account-value-description": "De geschatte Amerikaanse Dollar waarde voor alle SPK activa op uw account",
-      "larynx-locked": "LARYNX vergrendeld",
-      "larynx-locked-description": "Vergrendelde tokens bieden liquiditeit aan het netwerk, hulp bij het bepalen van consensus, en verdienen beloningen voor node runners"
-    },
     "setup-external": {
       "login-required": "Inloggen vereist om externe portemonnees in te stellen",
       "import-login-required": "Inloggen vereist om portemonnee te importeren"
@@ -1605,10 +1532,6 @@
     "claim-title": "Claimen",
     "powerup-title": "Power Up",
     "powerdown-title": "Power Down",
-    "lock-title": "Vergrendel liquiditeit",
-    "unlock-title": "Ontgrendel liquiditeit",
-    "lock-summary": "Vergrendeling voltooid als <span class=\"amount\">{{amount}}</span>",
-    "unlock-summary": "Ontgrendelen voltooid als <span class=\"amount\">{{amount}}</span>",
     "success-title": "Succes",
     "success-sub-title": "Transactie voltooid",
     "sign-title": "Onderteken transactie",
@@ -1617,7 +1540,6 @@
     "swap-sub-title": "Wissel je geld in enkele klikken",
     "gift-title": "Geschenk",
     "gift-sub-title": "Geef de punten aan een specifieke gebruiker",
-    "lock-sub-title": "Vergrendelen van Larynx voor liquiditeitsbeloning",
     "stake-title": "Uitzetten",
     "stake-sub-title": "Stake token om passieve beloningen te verdienen",
     "unstake-title": "Onbelangrijk",
@@ -3377,7 +3299,6 @@
       "promote": "Promoveren",
       "claim": "Claimen",
       "buy": "Kopen",
-      "lock": "Vergrendel liquiditeit",
       "stake": "Uitzetten",
       "unstake": "Onbelangrijk",
       "undelegate": "Ontdelegeren"

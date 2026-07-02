@@ -1360,79 +1360,6 @@
     "converting-hive-amount": "Конвертиране в HBD",
     "withdrawing-amount": "Теглене от спестявания",
     "reserved-amount": "Запазено за отворена поръчка на пазара",
-    "spk": {
-      "claim": {
-        "title": "Claim",
-        "unclaimed-rewards": "Unclaimed rewards"
-      },
-      "delegate": {
-        "title": "Делегирай",
-        "subtitle": "Делегирай токени",
-        "node-operator-placeholder": "Изберете оператор на възел",
-        "delegated-larynx-power": {
-          "title": "Делегирана LARYNX Power"
-        }
-      },
-      "power-up": {
-        "title": "Power Up",
-        "subtitle": "Power Up, за да печелите пасивни награди"
-      },
-      "power-down": {
-        "title": "Power Down",
-        "subtitle": "Power Down, за да печелите пасивни награди",
-        "in-progress": "Планиран е Power Down на {{date}} (остават {{count}} вноски)"
-      },
-      "lock": {
-        "title": "Заключи ликвидност",
-        "subtitle": "Заключване на Larynx за награда за ликвидност",
-        "button": "Заключи ликвидност"
-      },
-      "unlock": {
-        "title": "Отключи ликвидност",
-        "subtitle": "Отключи LARYNX до ликвидна форма",
-        "button": "Отключи ликвидност"
-      },
-      "send": {
-        "balance": "Баланс",
-        "button": "Изпрати",
-        "from": "От",
-        "to": "До",
-        "amount": "Сума",
-        "optional": "по избор",
-        "title": "Изпрати SPK",
-        "memo": "Бележка",
-        "next": "Напред",
-        "subtitle": "Прехвърли средства към друг SPK портфейл",
-        "warning": "Прехвърляне на повече от наличния баланс"
-      },
-      "token": "SPK токен",
-      "token-description": "Управленският токен за SPK мрежата.",
-      "larynx-already-claimed": "Вече заявено.",
-      "larynx-token": "LARYNX токен",
-      "larynx-token-description": "Майнинг токенът за SPK мрежата.",
-      "larynx-power": "LARYNX Power",
-      "larynx-power-description": "Захранени токени, използвани за майнинг на SPK",
-      "larynx-power-benefits": {
-        "title": "Предимства на LARYNX Power",
-        "1": "Печели SPK управленски токени",
-        "2": "Незабавно заключване | 4 седмици отключване",
-        "3": "Делегирай към сервизни профили на възли за изграждане на консенсус (DPoS)",
-        "4": "LARYNX POWER (LP) печели SPK токени при {{rate}}%",
-        "5": "Делегираната LP (DLP) печели SPK токени както за делегиращия, така и за делегата при {{rate}}%"
-      },
-      "larynx-locked-benefits": {
-        "title": "Предимства на LARYNX Locked",
-        "1": "Консенсус чрез Proof of Stake",
-        "2": "Обезпечение за DEX транзакции",
-        "3": "Незабавно заключване | 4 седмици отключване",
-        "4": "Изисква работещ LARYNX възел",
-        "5": "Печели 0.100%"
-      },
-      "account-value": "Прогнозна стойност на профила",
-      "account-value-description": "Приблизителната стойност в щатски долари на всички SPK активи във вашия профил",
-      "larynx-locked": "LARYNX заключени",
-      "larynx-locked-description": "Заключените токени осигуряват ликвидност на мрежата, помагат за определяне на консенсуса и носят награди за операторите на възли"
-    },
     "setup-external": {
       "login-required": "Необходимо е влизане за настройка на външни портфейли",
       "import-login-required": "Необходимо е влизане за импортиране на портфейл"
@@ -1605,10 +1532,6 @@
     "claim-title": "Получаване",
     "powerup-title": "Power Up",
     "powerdown-title": "Power Down",
-    "lock-title": "Заключване на ликвидност",
-    "unlock-title": "Отключване на ликвидност",
-    "lock-summary": "Заключването е завършено като <span class=\"amount\">{{amount}}</span>",
-    "unlock-summary": "Отключването е завършено като <span class=\"amount\">{{amount}}</span>",
     "success-title": "Успех",
     "success-sub-title": "Транзакцията е завършена",
     "sign-title": "Подписване на транзакция",
@@ -1617,7 +1540,6 @@
     "swap-sub-title": "Разменете средствата си с няколко клика",
     "gift-title": "Подарък",
     "gift-sub-title": "Подарете Points на конкретен потребител",
-    "lock-sub-title": "Заключване на Larynx за награда за ликвидност",
     "stake-title": "Стейк",
     "stake-sub-title": "Стейкнете токени, за да печелите пасивни награди",
     "unstake-title": "Анстейк",
@@ -3377,7 +3299,6 @@
       "promote": "Промотиране",
       "claim": "Заявяване",
       "buy": "Купуване",
-      "lock": "Заключване на ликвидност",
       "stake": "Стейкване",
       "unstake": "Анстейкване",
       "undelegate": "Отмяна на делегиране"

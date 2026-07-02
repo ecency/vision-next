@@ -1360,79 +1360,6 @@
     "converting-hive-amount": "กำลังแปลงเป็น HBD",
     "withdrawing-amount": "กำลังถอนจากเงินออม",
     "reserved-amount": "สำรองไว้สำหรับคำสั่งซื้อที่เปิดอยู่ในตลาด",
-    "spk": {
-      "claim": {
-        "title": "Claim",
-        "unclaimed-rewards": "Unclaimed rewards"
-      },
-      "delegate": {
-        "title": "มอบหมาย",
-        "subtitle": "มอบหมายโทเคน",
-        "node-operator-placeholder": "เลือกผู้ดำเนินการโหนด",
-        "delegated-larynx-power": {
-          "title": "LARYNX Power ที่มอบหมาย"
-        }
-      },
-      "power-up": {
-        "title": "Power Up",
-        "subtitle": "Power Up เพื่อรับรางวัลแบบพาสซีฟ"
-      },
-      "power-down": {
-        "title": "Power Down",
-        "subtitle": "Power Down เพื่อรับรางวัลแบบพาสซีฟ",
-        "in-progress": "มีการกำหนด Power Down ในอีก {{date}} (เหลืออีก {{count}} งวด)"
-      },
-      "lock": {
-        "title": "ล็อกสภาพคล่อง",
-        "subtitle": "ล็อก Larynx เพื่อรับรางวัลสภาพคล่อง",
-        "button": "ล็อกสภาพคล่อง"
-      },
-      "unlock": {
-        "title": "ปลดล็อกสภาพคล่อง",
-        "subtitle": "ปลดล็อก LARYNX ให้เป็นรูปแบบที่มีสภาพคล่อง",
-        "button": "ปลดล็อกสภาพคล่อง"
-      },
-      "send": {
-        "balance": "ยอดคงเหลือ",
-        "button": "ส่ง",
-        "from": "จาก",
-        "to": "ถึง",
-        "amount": "จำนวน",
-        "optional": "ไม่บังคับ",
-        "title": "ส่ง SPK",
-        "memo": "บันทึกข้อความ",
-        "next": "ถัดไป",
-        "subtitle": "ย้ายเงินไปยังกระเป๋า SPK อื่น",
-        "warning": "กำลังโอนเกินยอดคงเหลือที่มี"
-      },
-      "token": "SPK Token",
-      "token-description": "โทเคนสำหรับการกำกับดูแลของเครือข่าย SPK",
-      "larynx-already-claimed": "รับไปแล้ว",
-      "larynx-token": "LARYNX Token",
-      "larynx-token-description": "โทเคนสำหรับการขุดของเครือข่าย SPK",
-      "larynx-power": "LARYNX Power",
-      "larynx-power-description": "โทเคนที่ Power Up แล้วใช้สำหรับขุด SPK",
-      "larynx-power-benefits": {
-        "title": "ประโยชน์ของ LARYNX Power",
-        "1": "รับโทเคนการกำกับดูแล SPK",
-        "2": "ล็อกทันที | ปลดล็อก 4 สัปดาห์",
-        "3": "มอบหมายให้บัญชีบริการโหนดเพื่อสร้างฉันทามติ (DPoS)",
-        "4": "LARYNX POWER (LP) ได้รับโทเคน SPK ที่อัตรา {{rate}}%",
-        "5": "Delegated LP (DLP) ได้รับโทเคน SPK ทั้งสำหรับผู้มอบหมายและผู้รับมอบหมายที่อัตรา {{rate}}%"
-      },
-      "larynx-locked-benefits": {
-        "title": "ประโยชน์ของ LARYNX Locked",
-        "1": "ฉันทามติแบบ Proof of Stake",
-        "2": "หลักประกันสำหรับธุรกรรม DEX",
-        "3": "ล็อกทันที | ปลดล็อก 4 สัปดาห์",
-        "4": "ต้องมีโหนด LARYNX ที่กำลังทำงานอยู่",
-        "5": "ได้รับ 0.100%"
-      },
-      "account-value": "มูลค่าบัญชีโดยประมาณ",
-      "account-value-description": "มูลค่าโดยประมาณเป็นดอลลาร์สหรัฐสำหรับสินทรัพย์ SPK ทั้งหมดในบัญชีของคุณ",
-      "larynx-locked": "LARYNX Locked",
-      "larynx-locked-description": "โทเคนที่ล็อกไว้ช่วยให้สภาพคล่องแก่เครือข่าย ช่วยในการกำหนดฉันทามติ และได้รับรางวัลสำหรับผู้ดำเนินการโหนด"
-    },
     "setup-external": {
       "login-required": "ต้องเข้าสู่ระบบเพื่อตั้งค่ากระเป๋าเงินภายนอก",
       "import-login-required": "ต้องเข้าสู่ระบบเพื่อนำเข้ากระเป๋าเงิน"
@@ -1605,10 +1532,6 @@
     "claim-title": "เคลม",
     "powerup-title": "Power Up",
     "powerdown-title": "Power Down",
-    "lock-title": "ล็อกสภาพคล่อง",
-    "unlock-title": "ปลดล็อกสภาพคล่อง",
-    "lock-summary": "การล็อกเสร็จสมบูรณ์เป็น <span class=\"amount\">{{amount}}</span>",
-    "unlock-summary": "การปลดล็อกเสร็จสมบูรณ์เป็น <span class=\"amount\">{{amount}}</span>",
     "success-title": "สำเร็จ",
     "success-sub-title": "ธุรกรรมเสร็จสมบูรณ์",
     "sign-title": "เซ็นธุรกรรม",
@@ -1617,7 +1540,6 @@
     "swap-sub-title": "สลับเงินของคุณได้ในไม่กี่คลิก",
     "gift-title": "มอบของขวัญ",
     "gift-sub-title": "มอบ Points ให้แก่ผู้ใช้ที่ระบุ",
-    "lock-sub-title": "ล็อก Larynx เพื่อรับรางวัลสภาพคล่อง",
     "stake-title": "สเตก",
     "stake-sub-title": "Stake โทเคนเพื่อรับรางวัลแบบ passive",
     "unstake-title": "ยกเลิกสเตก",
@@ -3377,7 +3299,6 @@
       "promote": "โปรโมต",
       "claim": "เคลม",
       "buy": "ซื้อ",
-      "lock": "ล็อกสภาพคล่อง",
       "stake": "สเตก",
       "unstake": "ยกเลิกสเตก",
       "undelegate": "ยกเลิกการมอบหมาย"

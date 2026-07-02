@@ -1360,79 +1360,6 @@
     "converting-hive-amount": "HBDga konvertatsiya qilish",
     "withdrawing-amount": "J'amg'armadan yechib olish",
     "reserved-amount": "Bozorda ochiq buyurtma uchun ajratilgan",
-    "spk": {
-      "claim": {
-        "title": "Olish",
-        "unclaimed-rewards": "Olinmagan mukofotlar"
-      },
-      "delegate": {
-        "title": "Delegatsiyalash",
-        "subtitle": "Tokenlashni delegatsiyalash",
-        "node-operator-placeholder": "Tugun operatorini tanlang",
-        "delegated-larynx-power": {
-          "title": "Delegasiyalangan LARYNX Kuch"
-        }
-      },
-      "power-up": {
-        "title": "Kuchni oshirish",
-        "subtitle": "Passiv daromad uchun kuchni oshirish"
-      },
-      "power-down": {
-        "title": "Kuchni pasaytirish",
-        "subtitle": "Passiv daromad uchun kuchni pasaytirish",
-        "in-progress": "Kuchni pasaytirish {{date}} ({{count}} ta toʻlov qoldi.) rejalashtirilgan"
-      },
-      "lock": {
-        "title": "Likvidlikni blokirovka qilish",
-        "subtitle": "Likvidlik mukofoti uchun Larynxni qulflash",
-        "button": "Likvidlikni bloklash"
-      },
-      "unlock": {
-        "title": "Likvidlikni ochish",
-        "subtitle": "LARYNXni blokdan chiqarish",
-        "button": "Likvidlikni ochish"
-      },
-      "send": {
-        "balance": "Balans",
-        "button": "Jo'natish",
-        "from": "Dan",
-        "to": "Ga",
-        "amount": "Miqdor",
-        "optional": "ixtiyoriy",
-        "title": "SPKni jo'natish",
-        "memo": "Eslatma",
-        "next": "Keyingi",
-        "subtitle": "Pul mablag'larini boshqa SPK hamyoniga o'tkazing",
-        "warning": "Mavjud balansdan ko'proq pul o'tkazilmoqda"
-      },
-      "token": "SPK token",
-      "token-description": "SPK tarmog'i uchun boshqaruv tokeni.",
-      "larynx-already-claimed": "Allaqachon olingan.",
-      "larynx-token": "LARYNX Token",
-      "larynx-token-description": "SPK tarmog'i uchun mayning tokeni.",
-      "larynx-power": "LARYNX Kuch",
-      "larynx-power-description": "Kuchaytirilgan tokenlar SPKni mayning qilishda ishlatiladi",
-      "larynx-power-benefits": {
-        "title": "LARYNX kuchning foydalari",
-        "1": "SPK boshqaruv tokenlarini oladi",
-        "2": "Tezkor blokirovka | 4 hafta qulfni ochish",
-        "3": "Konsensus (DPoS) yaratish uchun xizmat hisoblarini node servisga delegatsiyalash",
-        "4": "LARYNX POWER (LP) {{rate}}% dan SPK tokenlarini oladi",
-        "5": "Delegatsiya qilingan LP (DLP) vakil va delegat uchun {{rate}}% dan SPK tokenlarini oladi"
-      },
-      "larynx-locked-benefits": {
-        "title": "LARYNX Locked-ning afzalliklari",
-        "1": "Ulushni isbotlash konsensusi",
-        "2": "DEX operatsiyalari uchun garov",
-        "3": "Tezkor blokirovka | 4 hafta qulfni ochish",
-        "4": "Ishlaydigan LARYNX nodi talab qiladi",
-        "5": "0,100% daromad oladi"
-      },
-      "account-value": "Akkauntning taxminiy qiymati",
-      "account-value-description": "Hisobingizdagi barcha SPK aktivlari uchun taxminiy AQSh dollari qiymati",
-      "larynx-locked": "LARYNX qulflangan",
-      "larynx-locked-description": "Qulflangan tokenlar tarmoqdagi likvidlikni ta'minlaydi, konsensusni aniqlashga yordam beradi va nodlarni boshqaradiganlarni mukofotlaydi"
-    },
     "setup-external": {
       "login-required": "Tashqi hamyonlarni sozlash uchun tizimga kirish kerak",
       "import-login-required": "Hamyonni import qilish uchun tizimga kirish kerak"
@@ -1605,10 +1532,6 @@
     "claim-title": "Olish",
     "powerup-title": "Kuchni oshirish",
     "powerdown-title": "Kuchni pasaytirish",
-    "lock-title": "Likvidlikni bloklash",
-    "unlock-title": "Likvidlikni ochish",
-    "lock-summary": "Bloklash <span class=\"amount\">{{amount}}</span> sifatida yakunlandi",
-    "unlock-summary": "Qulfni ochish <span class=\"amount\">{{amount}}</span sifatida yakunlandi",
     "success-title": "Muvaffaqiyatli",
     "success-sub-title": "Tranzaksiya bajarildi",
     "sign-title": "Tranzaksiyani imzolash",
@@ -1617,7 +1540,6 @@
     "swap-sub-title": "Mablag'laringizni bir necha bosishda almashtiring",
     "gift-title": "Sovg'a",
     "gift-sub-title": "Points ni muayyan foydalanuvchiga sovg'a qiling",
-    "lock-sub-title": "Likvidlik mukofoti uchun Larynx ni bloklash",
     "stake-title": "Stake qilish",
     "stake-sub-title": "Passiv mukofotlar ishlash uchun tokenni stake qiling",
     "unstake-title": "Unstake qilish",
@@ -3377,7 +3299,6 @@
       "promote": "Reklama qilish",
       "claim": "Olish",
       "buy": "Sotib olish",
-      "lock": "Likvidlikni qulflash",
       "stake": "Stake qilish",
       "unstake": "Stake'dan chiqarish",
       "undelegate": "Delegatsiyani bekor qilish"
