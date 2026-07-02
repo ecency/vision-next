@@ -40,7 +40,6 @@ export const CONFIG = {
   queryClient: new QueryClient(),
   pollsApiHost: "https://poll.ecency.com",
   plausibleHost: "https://pl.ecency.com",
-  spkNode: "https://spk.good-karma.xyz",
   // DMCA filtering - can be configured by the app
   dmcaAccounts: [] as string[],
   dmcaTags: [] as string[],
