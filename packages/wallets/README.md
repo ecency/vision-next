@@ -2,6 +2,8 @@
 
 Utilities for managing Hive blockchain wallets and external cryptocurrency wallets within the Ecency ecosystem.
 
+Built and maintained by [Ecency](https://ecency.com), an open-source social platform on the Hive blockchain.
+
 ## Features
 
 - Create wallets from BIP39 seed phrases

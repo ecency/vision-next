@@ -2,6 +2,8 @@
 
 Full-featured Hive blockchain SDK with built-in transaction signing, RPC failover, and first-class React Query support.
 
+Built and maintained by [Ecency](https://ecency.com), an open-source social platform on the Hive blockchain.
+
 ## What's Inside
 
 - **Built-in transaction engine** — create, sign, and broadcast Hive transactions with ECDSA secp256k1 cryptography, memo encryption, and full serialization for all 50 operation types (built on an improved version of [hive-tx](https://github.com/mahdiyari/hive-tx) by Mahdi Yari)
