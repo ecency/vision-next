@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.33
+
+### Patch Changes
+
+- feat(sdk): adaptive read timeouts + budgeted hedged reads for tail latency (#1069)
+
 ## 2.3.32
 
 ### Patch Changes
