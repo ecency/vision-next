@@ -57,7 +57,6 @@ export function getTokenOperationsQueryOptions(
               // Common operations
               "transfer": AssetOperation.Transfer,
               "ecency-point-transfer": AssetOperation.Transfer,
-              "spkcc-spk-send": AssetOperation.Transfer,
 
               // Savings operations
               "transfer-to-savings": AssetOperation.TransferToSavings,
@@ -118,9 +117,6 @@ export function getTokenOperationsQueryOptions(
               "claim-interest": AssetOperation.ClaimInterest,
               "withdraw-routes": AssetOperation.WithdrawRoutes,
               "withdrawroutes": AssetOperation.WithdrawRoutes,
-              "lock": AssetOperation.LockLiquidity,
-              "lock-liquidity": AssetOperation.LockLiquidity,
-              "lock-liq": AssetOperation.LockLiquidity,
             };
 
             // Check alias map first (primary method)
