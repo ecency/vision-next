@@ -23,10 +23,9 @@ export const config = {
    * Note: Without the trailing /
    */
   restNodes: [
-    'https://hapi.ecency.com',
     'https://api.hive.blog',
     'https://rpc.mahdiyari.info',
-    'https://techcoderx.com',
+    'https://api.syncad.com',
     'https://hiveapi.actifit.io',
     'https://api.c0ff33a.uk'
   ],
