@@ -35,6 +35,13 @@ export namespace PagesMetadataGenerator {
     };
   }
 
+  function buildForCreatorEconomy(): Metadata {
+    return {
+      title: i18next.t("creator-economy.page-title"),
+      description: i18next.t("creator-economy.page-description")
+    };
+  }
+
   function buildForDecks(): Metadata {
     return {
       title: i18next.t("decks.title")
@@ -135,6 +142,7 @@ export namespace PagesMetadataGenerator {
     if (name === "communities") return buildForCommunities();
     if (name === "community-create") return buildForCommunityCreate();
     if (name === "contributors") return buildForContributors();
+    if (name === "creator-economy") return buildForCreatorEconomy();
     if (name === "decks") return buildForDecks();
     if (name === "discover") return buildForDiscover();
     if (name === "publish") return buildForPublish();

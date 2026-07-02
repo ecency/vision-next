@@ -346,6 +346,7 @@ export async function POST(req: Request): Promise<Response> {
     "perks",
     "mobile",
     "contributors",
+    "creator-economy",
     "whitepaper",
     "privacy-policy",
     "terms-of-service",
