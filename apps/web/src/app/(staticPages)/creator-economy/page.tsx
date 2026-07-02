@@ -136,6 +136,27 @@ export default async function CreatorEconomyPage() {
             items={communities.map((c) => ({ label: c.title, value: c.authors }))}
             ariaLabel={t("communities-title", { q: latest.display })}
           />
+          {/* Table view for the chart (accessibility relief), full top-12 list */}
+          <table className="w-full text-sm mt-4">
+            <thead>
+              <tr className="text-left border-b border-[--border-color] text-gray-500">
+                <th className="py-2 pr-3">{t("th-community")}</th>
+                <th className="py-2 pr-3 text-right">{t("th-authors-count")}</th>
+                <th className="py-2 text-right">{t("th-posts-count")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[...latest.topCommunities]
+                .sort((a, b) => b.authors - a.authors)
+                .map((c) => (
+                  <tr key={c.id} className="border-b border-[--border-color]">
+                    <td className="py-2 pr-3">{c.title}</td>
+                    <td className="py-2 pr-3 text-right">{formatFull(c.authors)}</td>
+                    <td className="py-2 text-right">{formatFull(c.posts)}</td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
         </section>
 
         <section className="mt-10">

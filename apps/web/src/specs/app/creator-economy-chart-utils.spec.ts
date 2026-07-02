@@ -17,6 +17,11 @@ describe("formatCompact", () => {
     expect(formatCompact(999)).toBe("999");
     expect(formatCompact(98_966)).toBe("99K");
   });
+
+  it("rounds the 999.5K boundary into the M branch (never '1000K')", () => {
+    expect(formatCompact(999_600)).toBe("1M");
+    expect(formatCompact(999_499)).toBe("999K");
+  });
 });
 
 describe("formatFull", () => {

@@ -6,7 +6,8 @@
 /** Compact human number for direct labels: 1_709_252 -> "1.71M", 5_144 -> "5.1K". */
 export function formatCompact(n: number): string {
   const abs = Math.abs(n);
-  if (abs >= 1_000_000) return `${trimZeros((n / 1_000_000).toFixed(2))}M`;
+  // 999_500+ would otherwise round to "1000K" in the K branch.
+  if (abs >= 999_500) return `${trimZeros((n / 1_000_000).toFixed(2))}M`;
   if (abs >= 10_000) return `${trimZeros((n / 1_000).toFixed(0))}K`;
   if (abs >= 1_000) return `${trimZeros((n / 1_000).toFixed(1))}K`;
   return `${n}`;

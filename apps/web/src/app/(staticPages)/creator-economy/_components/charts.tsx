@@ -9,7 +9,10 @@ import { columnPath, formatCompact, hbarPath, scaleMax } from "./chart-utils";
  * page ships full tables as the accessible view.
  */
 
+// Two validated series slots; charts on this page use at most two series.
+// Extra series (should never happen) reuse slot 1 rather than render unfilled.
 const SERIES_VARS = ["var(--ce-s1)", "var(--ce-s2)"] as const;
+const seriesColor = (i: number) => SERIES_VARS[i] ?? SERIES_VARS[0];
 
 interface ColumnSeries {
   name: string;
@@ -47,7 +50,7 @@ export function ColumnChart({
             <span key={s.name} className="flex items-center gap-1.5">
               <span
                 className="inline-block w-2 h-2 rounded-full"
-                style={{ background: SERIES_VARS[si] }}
+                style={{ background: seriesColor(si) }}
               />
               {s.name}
             </span>
@@ -75,7 +78,7 @@ export function ColumnChart({
                 const yTop = H - padBottom - h;
                 return (
                   <g key={s.name}>
-                    <path d={columnPath(x, yTop, barW, h)} fill={SERIES_VARS[si]}>
+                    <path d={columnPath(x, yTop, barW, h)} fill={seriesColor(si)}>
                       <title>{`${label}${series.length > 1 ? ` ${s.name}` : ""}: ${v.toLocaleString("en-US")}`}</title>
                     </path>
                     {/* direct label on the cap; text token, not series color */}

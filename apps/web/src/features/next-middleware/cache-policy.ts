@@ -108,6 +108,7 @@ const STATIC_PAGES = new Set([
   "/about",
   "/child-safety",
   "/contributors",
+  "/creator-economy",
   "/privacy-policy",
   "/terms-of-service",
   "/whitepaper",
