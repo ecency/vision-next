@@ -25,7 +25,6 @@ export * from "./capitalize";
 export * from "./input-util";
 export * from "./use-stopwatch";
 export * from "./is-mobile";
-export * from "./spk-estimated-balance";
 export * from "./use-nav";
 export * from "./b64";
 export * from "./currency-symbol";

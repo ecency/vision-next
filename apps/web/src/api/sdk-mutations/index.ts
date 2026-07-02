@@ -40,13 +40,9 @@ export { useTransferToVestingMutation } from "./use-transfer-to-vesting-mutation
 export { useWithdrawVestingMutation } from "./use-withdraw-vesting-mutation";
 export { useConvertMutation } from "./use-convert-mutation";
 export { useClaimInterestMutation } from "./use-claim-interest-mutation";
-export { useTransferSpkMutation } from "./use-transfer-spk-mutation";
-export { useTransferLarynxMutation } from "./use-transfer-larynx-mutation";
 export { useTransferEngineTokenMutation } from "./use-transfer-engine-token-mutation";
 export { useMarkNotificationsMutation } from "./use-mark-notifications-mutation";
 export { useClaimRewardsMutation } from "./use-claim-rewards-mutation";
-export { useLockLarynxMutation } from "./use-lock-larynx-mutation";
-export { usePowerLarynxMutation } from "./use-power-larynx-mutation";
 export { useDelegateEngineTokenMutation } from "./use-delegate-engine-token-mutation";
 export { useUndelegateEngineTokenMutation } from "./use-undelegate-engine-token-mutation";
 export { useStakeEngineTokenMutation } from "./use-stake-engine-token-mutation";

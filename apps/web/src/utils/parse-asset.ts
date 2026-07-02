@@ -3,8 +3,7 @@ import type { SMTAsset } from "@ecency/sdk";
 export enum Symbol {
   HIVE = "HIVE",
   HBD = "HBD",
-  VESTS = "VESTS",
-  SPK = "SPK"
+  VESTS = "VESTS"
 }
 
 export enum NaiMap {

@@ -5,7 +5,7 @@
       "suggestions": ["find-friends", "accounts-included-leaderboard"]
     },
     {
-      "path": "/@.+/(blog|posts|wallet|points|engine|permissions|spk)",
+      "path": "/@.+/(blog|posts|wallet|points|engine|permissions)",
       "suggestions": [
         "what-are-hd",
         "what-delegated-hp",

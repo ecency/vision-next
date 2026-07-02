@@ -20,8 +20,6 @@ import {
   useConvertMutation,
   useClaimInterestMutation,
   useDelegateVestingSharesMutation,
-  useTransferSpkMutation,
-  useTransferLarynxMutation,
   useTransferEngineTokenMutation,
 } from "@/api/sdk-mutations";
 
@@ -66,8 +64,6 @@ export function useSignTransfer(mode: TransferMode, asset: TransferAsset) {
   const convert = useConvertMutation();
   const claimInterest = useClaimInterestMutation();
   const delegate = useDelegateVestingSharesMutation();
-  const transferSpk = useTransferSpkMutation();
-  const transferLarynx = useTransferLarynxMutation();
   const transferEngine = useTransferEngineTokenMutation();
 
   const isPending =
@@ -80,8 +76,6 @@ export function useSignTransfer(mode: TransferMode, asset: TransferAsset) {
     convert.isPending ||
     claimInterest.isPending ||
     delegate.isPending ||
-    transferSpk.isPending ||
-    transferLarynx.isPending ||
     transferEngine.isPending;
 
   return {
@@ -89,17 +83,15 @@ export function useSignTransfer(mode: TransferMode, asset: TransferAsset) {
     mutateAsync: async ({ to, amount, memo, asset: overrideAsset }: SignTransferPayload) => {
       const effectiveAsset = overrideAsset ?? asset;
 
-      // Only encrypt for flows that actually carry a memo on-chain. SPK/LARYNX
-      // transfers and convert/power-up/power-down/delegate don't, so skip the
+      // Only encrypt for flows that actually carry a memo on-chain.
+      // Convert/power-up/power-down/delegate don't, so skip the
       // (interactive) encryption step there — otherwise users would be
       // prompted for a memo key for nothing.
       const memoSupported =
         mode === "transfer-saving" ||
         mode === "withdraw-saving" ||
         mode === "claim-interest" ||
-        (mode === "transfer" &&
-          effectiveAsset !== "SPK" &&
-          effectiveAsset !== "LARYNX");
+        mode === "transfer";
 
       let processedMemo = memo;
       if (memoSupported && memo.startsWith("#") && to && activeUser) {
@@ -119,10 +111,6 @@ export function useSignTransfer(mode: TransferMode, asset: TransferAsset) {
         case "transfer":
           if (effectiveAsset === "POINT") {
             await transferPoint.mutateAsync({ to, amount: fullAmount, memo: processedMemo });
-          } else if (effectiveAsset === "SPK") {
-            await transferSpk.mutateAsync({ to, amount: parseFloat(amount) * 1000 });
-          } else if (effectiveAsset === "LARYNX") {
-            await transferLarynx.mutateAsync({ to, amount: parseFloat(amount) * 1000 });
           } else if (effectiveAsset !== "HIVE" && effectiveAsset !== "HBD") {
             // Hive Engine token
             await transferEngine.mutateAsync({ to, quantity: amount, symbol: effectiveAsset, memo: processedMemo });
