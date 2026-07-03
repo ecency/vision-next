@@ -44,6 +44,12 @@ export default async function CreatorEconomyPage() {
   const labels = quarters.map((q) => q.display);
   const hiveSide = (q: (typeof quarters)[number]) => q.rewards.hive + q.rewards.hp;
   const communities = [...latest.topCommunities].sort((a, b) => b.authors - a.authors).slice(0, 8);
+  // Chart only the quarters that HAVE curation data (coverage is a contiguous
+  // suffix): a zero-height bar would read as "curators earned nothing" while
+  // the table correctly says n/a for the same quarter.
+  const curationTrend = quarters.flatMap((q) =>
+    q.curation ? [{ label: q.display, hp: q.curation.hp }] : []
+  );
 
   const jsonLd = [
     buildDatasetJsonLd({
@@ -230,9 +236,9 @@ export default async function CreatorEconomyPage() {
                 />
               </div>
               <ColumnChart
-                labels={labels}
+                labels={curationTrend.map((c) => c.label)}
                 series={[
-                  { name: t("tile-curation-hp"), values: quarters.map((q) => q.curation?.hp ?? 0) }
+                  { name: t("tile-curation-hp"), values: curationTrend.map((c) => c.hp) }
                 ]}
                 ariaLabel={t("chart-curation")}
               />
