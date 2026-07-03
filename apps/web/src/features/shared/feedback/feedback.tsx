@@ -4,7 +4,7 @@ import { FeedbackMessage } from "./feedback-message";
 import { FeedbackObject } from "./feedback-events";
 import { useMountTransition } from "@/core/hooks";
 import clsx from "clsx";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useMount, useSet, useUnmount } from "react-use";
 import "./_index.scss";
 
@@ -21,11 +21,18 @@ interface FeedbackItemProps {
 function FeedbackItem({ feedback, live, onClose, onExited }: FeedbackItemProps) {
   const { mounted, open } = useMountTransition(live, 150);
 
+  // Read onExited through a ref so the effect fires exactly once per
+  // mounted→false transition — the parent recreates the lambda every render,
+  // and a toast arriving during another's exit window would otherwise re-run
+  // the effect and double-remove from the store.
+  const onExitedRef = useRef(onExited);
+  onExitedRef.current = onExited;
+
   useEffect(() => {
     if (!mounted) {
-      onExited();
+      onExitedRef.current();
     }
-  }, [mounted, onExited]);
+  }, [mounted]);
 
   if (!mounted) {
     return null;

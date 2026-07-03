@@ -242,7 +242,9 @@ export function WavesListView({ feedType, username }: Props) {
               wavesQueryKey,
               (prev) => {
                 if (!prev) {
-                  insertedKeys.push(...wavesToInsert.map(keyOf));
+                  // Empty cache (evicted while the page was open): this seeds
+                  // the whole visible feed, which is an initial render — no
+                  // entrance animation for any of it.
                   return {
                     pages: [wavesToInsert],
                     pageParams: [undefined]
