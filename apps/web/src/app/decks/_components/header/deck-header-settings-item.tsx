@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button } from "@ui/button";
 import { Accordion, AccordionCollapse, AccordionToggle } from "@ui/accordion";
-import { chevronDownSvgForSlider, chevronUpSvgForSlider } from "@ui/svg";
+import { chevronDownSvgForSlider } from "@ui/svg";
 
 interface Props {
   title: string;
@@ -27,7 +27,8 @@ export const DeckHeaderSettingsItem = ({ title, children, hasBorderBottom, class
         appearance="link"
         className="justify-between w-full toggle"
         onClick={() => setExpanded(!expanded)}
-        icon={expanded ? chevronUpSvgForSlider : chevronDownSvgForSlider}
+        icon={chevronDownSvgForSlider}
+        iconClassName="transition-transform duration-200 [[data-open=true]_&]:rotate-180"
       >
         {title}
       </AccordionToggle>

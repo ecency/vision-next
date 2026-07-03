@@ -48,6 +48,9 @@ export function EntryVoteBtn({ entry: originalEntry, isPostSlider, account }: Pr
   const [dialog, setDialog] = useState(false);
   const [tipDialog, setTipDialog] = useState(false);
   const [previousVotedValue, setPreviousVotedValue] = useState<number>();
+  // Transient success cue: set only after a vote broadcast succeeds and cleared
+  // on animationend, so the pulse never fires for already-voted posts on load.
+  const [voteDone, setVoteDone] = useState(false);
 
   const { mutateAsync: voteInAPI, isPending: isVotingLoading } = useEntryVote(entry);
 
@@ -90,6 +93,7 @@ export function EntryVoteBtn({ entry: originalEntry, isPostSlider, account }: Pr
         // Close only on success — on failure keep the slider open so the user
         // can adjust and retry in place (matches the pre-existing behavior).
         setDialog(false);
+        setVoteDone(true);
       } catch (e) {
         // The broadcast was rejected (commonly the account is out of Resource
         // Credits, or an identical/duplicate vote). Surface the friendly,
@@ -217,13 +221,14 @@ export function EntryVoteBtn({ entry: originalEntry, isPostSlider, account }: Pr
                         ? "secondary-btn-done"
                         : "primary-btn"
                     : ""
-                }`}
+                } ${voteDone ? "animate-success-pulse" : ""}`}
+                onAnimationEnd={() => setVoteDone(false)}
               >
                 {chevronUpSvgForVote}
               </span>
               {dialog && entry && activeUser && (
                 <div
-                  className="tooltiptext animate-scale-in origin-top"
+                  className="tooltiptext animate-scale-in origin-top-left"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <EntryVoteDialog

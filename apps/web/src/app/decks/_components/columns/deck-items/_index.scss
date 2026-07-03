@@ -266,23 +266,10 @@
         .title {
           @include font-size(1.125rem);
 
-          @keyframes thread-post-item-skeleton-loader {
-            0% {
-              background-color: rgba($primary, 0.15);
-            }
-
-            50% {
-              background-color: rgba($primary, 0.2);
-            }
-
-            100% {
-              background-color: rgba($primary, 0.15);
-            }
-          }
-
           &.loading {
             height: 27px;
-            animation: thread-post-item-skeleton-loader 1s infinite;
+            // shimmer mixin comes from the imported waves thread-render styles
+            @include thread-render-skeleton;
           }
         }
 
@@ -293,7 +280,7 @@
 
           &.loading {
             height: 2rem;
-            animation: thread-post-item-skeleton-loader 1s infinite;
+            @include thread-render-skeleton;
           }
         }
       }

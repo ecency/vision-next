@@ -119,6 +119,66 @@
   }
 }
 
+/* ── Micro-interaction keyframes (animation-polish) ───────────────────────
+   Success/feedback cues fired by transient classes or key-remounts after a
+   user action — never on initial render. Transform/opacity only. */
+
+@keyframes anim-success-pulse {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.35);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes anim-rotate-once {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes anim-bell-ring {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  20% {
+    transform: rotate(12deg);
+  }
+  40% {
+    transform: rotate(-10deg);
+  }
+  60% {
+    transform: rotate(6deg);
+  }
+  80% {
+    transform: rotate(-4deg);
+  }
+}
+
+@keyframes anim-tick {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Skeleton shimmer: a directional highlight sweep — reads as "actively
+   loading" (vs a blinking pulse) and only animates transform. */
+@keyframes anim-shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
 /* Standalone copy of the spin keyframes: arbitrary animate-[spin_...] values
    (points-spin wheels) don't make Tailwind emit its theme keyframes, so they
    must not depend on some other file happening to use animate-spin. */

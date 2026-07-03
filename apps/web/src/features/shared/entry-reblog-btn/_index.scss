@@ -47,6 +47,14 @@
     }
   }
 
+  // Success cue after a confirmed reblog broadcast: transient class set by the
+  // component (never present on initial render), removed on animationend.
+  &.reblog-done {
+    svg {
+      animation: anim-rotate-once 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+  }
+
   &.in-progress {
     .inner-btn {
       animation: anim-fadein-out 5s infinite;

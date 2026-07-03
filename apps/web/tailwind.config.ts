@@ -12,6 +12,10 @@ const config: Config = {
     animation: {
       none: "none",
       "fade-in-up": "anim-fade-in-up 0.2s cubic-bezier(0.16, 1, 0.3, 1) both",
+      "success-pulse": "anim-success-pulse 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+      "rotate-once": "anim-rotate-once 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
+      "bell-ring": "anim-bell-ring 0.6s ease-out",
+      tick: "anim-tick 0.15s ease-out both",
       "scale-in": "anim-scale-in 0.12s cubic-bezier(0.16, 1, 0.3, 1) both",
       "pop-in": "anim-pop-in 0.15s cubic-bezier(0.16, 1, 0.3, 1) both",
       spin: "spin 1s linear infinite",

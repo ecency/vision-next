@@ -12,6 +12,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getNotificationsUnreadCountQueryOptions } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks";
 import { getAccessToken } from "@/utils";
+import { AnimationEvent, useEffect, useRef, useState } from "react";
 
 export function NavbarNotificationsButton({ onClick }: { onClick?: () => void }) {
   const { activeUser } = useActiveAccount();
@@ -25,6 +26,22 @@ export function NavbarNotificationsButton({ onClick }: { onClick?: () => void })
     )
   );
 
+  const [ringing, setRinging] = useState(false);
+  // Ref guard: remembers the first unread count seen after mount so the bell
+  // only rings when the count INCREASES while the page is open, never on load.
+  const prevUnreadRef = useRef<number | undefined>(undefined);
+
+  useEffect(() => {
+    if (typeof unread !== "number") {
+      return;
+    }
+    const prev = prevUnreadRef.current;
+    prevUnreadRef.current = unread;
+    if (prev !== undefined && unread > prev) {
+      setRinging(true);
+    }
+  }, [unread]);
+
   return (
     <EcencyConfigManager.Conditional
       condition={({ visionFeatures }) => visionFeatures.notifications.enabled}
@@ -32,12 +49,21 @@ export function NavbarNotificationsButton({ onClick }: { onClick?: () => void })
       <Tooltip content={i18next.t("user-nav.notifications")}>
         <div className="notifications">
           {unread > 0 && (
-            <span className="notifications-badge notranslate">
+            // key remount re-pops the badge on every count change; playing on the
+            // initial mount is intentional here (tiny client-only badge, approved
+            // exception to the no-initial-animation rule)
+            <span key={unread} className="notifications-badge notranslate animate-pop-in">
               {unread.toString().length < 3 ? unread : "..."}
             </span>
           )}
           <Button
             icon={globalNotifications ? bellSvg : bellOffSvg}
+            iconClassName={ringing ? "animate-bell-ring" : undefined}
+            onAnimationEnd={(e: AnimationEvent) => {
+              if (e.animationName === "anim-bell-ring") {
+                setRinging(false);
+              }
+            }}
             appearance="gray-link"
             aria-label={
               unread > 0

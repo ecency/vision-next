@@ -1,7 +1,7 @@
 import React, { JSX } from "react";
 import { Button } from "@ui/button";
 import { Accordion, AccordionCollapse, AccordionToggle } from "@ui/accordion";
-import { chevronDownSvgForSlider, chevronUpSvgForSlider } from "@ui/svg";
+import { chevronDownSvgForSlider } from "@ui/svg";
 
 interface Props {
   title?: string | JSX.Element;
@@ -49,7 +49,8 @@ export const MarketAdvancedModeWidgetHeader = ({
               eventKey="0"
               noPadding={true}
               onClick={() => setExpandedHeader(!expandedHeader)}
-              icon={expandedHeader ? chevronUpSvgForSlider : chevronDownSvgForSlider}
+              icon={chevronDownSvgForSlider}
+              iconClassName="transition-transform duration-200 [[data-open=true]_&]:rotate-180"
             />
           ) : (
             <></>

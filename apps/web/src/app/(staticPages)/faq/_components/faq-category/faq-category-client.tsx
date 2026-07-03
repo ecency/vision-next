@@ -5,7 +5,7 @@ import { Accordion, AccordionCollapse, AccordionToggle } from "@ui/accordion";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
 import { Button } from "@ui/button";
-import { chevronDownSvgForSlider, chevronUpSvgForSlider } from "@ui/svg";
+import { chevronDownSvgForSlider } from "@ui/svg";
 
 interface Props {
   categoryTitle: string;
@@ -47,7 +47,8 @@ export function FaqCategoryClient({ contentList, categoryTitle }: Props) {
                   onClick={() => {
                     setExpanded?.(!expanded);
                   }}
-                  icon={expanded ? chevronUpSvgForSlider : chevronDownSvgForSlider}
+                  icon={chevronDownSvgForSlider}
+                  iconClassName="transition-transform duration-200 [[data-open=true]_&]:rotate-180"
                 />
               </Tooltip>
             </div>
