@@ -53,7 +53,11 @@ export function ModalSidebar({
             item) registers with the exiting presence but never completes,
             leaving the sidebar stuck on screen until a reload. Nulling the
             presence context for children keeps them out of that bookkeeping;
-            the sliding container above still participates and animates out. */}
+            the sliding container above still participates and animates out.
+            Still required on framer-motion 12.x: upstream 12.41.0 fixed only
+            children UNMOUNTING mid-exit (motiondivision/motion#3243), not
+            children MOUNTING into an exiting subtree — verified against
+            12.42.2, which still wedges without this isolation. */}
         <PresenceContext.Provider value={null}>{children}</PresenceContext.Provider>
       </motion.div>
     </Modal>
