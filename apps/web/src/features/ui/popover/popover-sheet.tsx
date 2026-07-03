@@ -9,11 +9,13 @@ interface Props {
 }
 
 export function PopoverSheet({ show, setShow, children }: PropsWithChildren<Props>) {
-  useLockBodyScroll(show);
-
   // Bottom sheet keeps a real exit slide: mounted holds it in the DOM for the
   // 250ms close transition, open drives the overlay fade + sheet position.
   const { mounted, open } = useMountTransition(show, 250);
+
+  // Keyed on mounted (not show) so the page can't scroll under the sheet
+  // while it is still sliding out.
+  useLockBodyScroll(mounted);
 
   return mounted ? (
     <>

@@ -84,9 +84,12 @@ export function ProfileCard({ account }: Props) {
           onError={() => setImageSrc("/assets/promote-wave-bg.jpg")}
       />
 
+      {/* Overlaid on the cover (like ProfileInfo) — the relationship loads
+          async, so an in-flow badge would shift the whole card down when it
+          appears. */}
       {!isMyProfile && relationshipBetweenAccounts?.follows && (
-        <div className="animate-pop-in">
-          <Badge className="relative z-10">{i18next.t("profile.follows-you")}</Badge>
+        <div className="absolute z-10 left-4 top-4 animate-pop-in">
+          <Badge>{i18next.t("profile.follows-you")}</Badge>
         </div>
       )}
       <div className="absolute z-10 right-4 top-4">
