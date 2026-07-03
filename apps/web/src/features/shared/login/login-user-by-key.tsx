@@ -5,7 +5,6 @@ import {
   UilFileUpload,
   UilTrash
 } from "@tooni/iconscout-unicons-react";
-import { motion } from "framer-motion";
 import i18next from "i18next";
 import Link from "next/link";
 import { ChangeEvent, useMemo, useRef, useState } from "react";
@@ -76,7 +75,7 @@ export function LoginUserByKey({ username }: Props) {
   }
 
   return (
-    <motion.div className="w-full" initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }}>
+    <div className="w-full animate-fade-in-up">
       {option === "key" && (
         <>
           <FormControl
@@ -169,6 +168,6 @@ export function LoginUserByKey({ username }: Props) {
           {i18next.t("g.login")}
         </Button>
       </div>
-    </motion.div>
+    </div>
   );
 }

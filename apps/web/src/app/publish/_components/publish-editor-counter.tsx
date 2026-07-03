@@ -1,6 +1,5 @@
 import { wordCounter } from "@/app/submit/_components";
 import clsx from "clsx";
-import { useMotionValue, useSpring } from "framer-motion";
 import i18next from "i18next";
 import { useEffect, useMemo, useRef } from "react";
 import { usePublishState } from "../_hooks";
@@ -9,35 +8,43 @@ export function PublishEditorCounter() {
   const { content, poll } = usePublishState();
 
   const ref = useRef<HTMLDivElement>(null);
+  const displayedRef = useRef(0);
 
   const words = useMemo(() => wordCounter(content ?? ""), [content]);
 
-  const motionValue = useMotionValue(0);
-  const springValue = useSpring(motionValue, {
-    damping: 100,
-    stiffness: 100
-  });
-
   useEffect(() => {
-    motionValue.set(words.words);
-  }, [motionValue, words]);
+    const setLabel = (value: number) => {
+      displayedRef.current = value;
+      if (ref.current) {
+        ref.current.textContent = i18next.t("word-count.label", {
+          n:
+            typeof Intl !== "undefined" && typeof Intl.NumberFormat === "function"
+              ? Intl.NumberFormat(i18next.language || undefined).format(value)
+              : value.toString()
+        });
+      }
+    };
 
-  useEffect(
-    () =>
-      springValue.on("change", (latest) => {
-        if (ref.current) {
-          ref.current.textContent = i18next.t("word-count.label", {
-            n:
-              typeof Intl !== "undefined" && typeof Intl.NumberFormat === "function"
-                ? Intl.NumberFormat(i18next.language || undefined).format(
-                    +latest.toFixed(0)
-                  )
-                : (+latest.toFixed(0)).toString()
-          });
-        }
-      }),
-    [springValue]
-  );
+    const from = displayedRef.current;
+    const to = words.words;
+    if (from === to) {
+      setLabel(to);
+      return;
+    }
+
+    const duration = 400;
+    const start = performance.now();
+    let frame = requestAnimationFrame(function tick(now: number) {
+      const progress = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setLabel(Math.round(from + (to - from) * eased));
+      if (progress < 1) {
+        frame = requestAnimationFrame(tick);
+      }
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [words]);
 
   return (
     <div

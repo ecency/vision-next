@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { Popover } from "@ui/popover";
 
-// Exercises the REAL Popover (floating-ui + portal + framer-motion), unlike
+// Exercises the REAL Popover (floating-ui + portal + CSS animations), unlike
 // popover-confirm.spec which mocks it.
 describe("Popover defaultShow (uncontrolled)", () => {
   it("stays open after mount when defaultShow is set — the props.show sync effect must NOT reset an uncontrolled popover to closed", async () => {

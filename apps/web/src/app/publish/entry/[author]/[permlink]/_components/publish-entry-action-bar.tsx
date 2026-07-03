@@ -20,7 +20,6 @@ import {
 import { makeEntryPath, useSynchronizedLocalStorage } from "@/utils";
 import { PREFIX } from "@/utils/local-storage";
 import { UilDocumentInfo, UilEllipsisV, UilQuestionCircle } from "@tooni/iconscout-unicons-react";
-import { motion } from "framer-motion";
 import i18next from "i18next";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -51,13 +50,7 @@ export function PublishEntryActionBar({ onEdit, entry }: Props) {
       : "#";
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -32 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -32 }}
-      transition={{ delay: 0.4 }}
-      className="container relative z-[11] justify-between gap-4 px-2 md:px-4 flex items-center max-w-[1024px] py-4 mx-auto publish-action-bar"
-    >
+    <div className="container relative z-[11] justify-between gap-4 px-2 md:px-4 flex items-center max-w-[1024px] py-4 mx-auto publish-action-bar">
       {entryHref !== "#" ? (
         <Link target="_blank" href={entryHref}>
           <Button size="sm" noPadding={true} appearance="link">
@@ -98,6 +91,6 @@ export function PublishEntryActionBar({ onEdit, entry }: Props) {
       </div>
 
       <PublishMetaInfoDialog show={showMetaInfo} setShow={setShowMetaInfo} />
-    </motion.div>
+    </div>
   );
 }

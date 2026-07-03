@@ -3,7 +3,6 @@ import { Button, FormControl, InputGroup } from "@/features/ui";
 import { Spinner } from "@/features/ui/spinner";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { UilEnter } from "@tooni/iconscout-unicons-react";
-import { AnimatePresence, motion } from "framer-motion";
 import i18next from "i18next";
 import { Controller, useForm } from "react-hook-form";
 import { useEffect, useMemo, useState } from "react";
@@ -70,12 +69,7 @@ export function WalletOperationCardUsernameForm({ onUsernameSubmit }: Props) {
   };
 
   return (
-    <motion.form
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="px-4"
-      onSubmit={submit}
-    >
+    <form className="px-4" onSubmit={submit}>
       <div className="relative">
         <InputGroup append={<Button type="submit" appearance="gray-link" icon={<UilEnter />} aria-label={i18next.t("g.confirm", { defaultValue: "Confirm" })} />}>
           <Controller
@@ -104,69 +98,48 @@ export function WalletOperationCardUsernameForm({ onUsernameSubmit }: Props) {
           />
         </InputGroup>
 
-        <AnimatePresence>
-          {showSuggestions && (
-            <motion.div
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              className="absolute left-0 right-0 z-20 mt-1 max-h-60 overflow-y-auto rounded-md border border-[--border-color] bg-white text-sm shadow-lg dark:bg-gray-900"
-            >
-              {isFetching ? (
-                <div className="flex items-center gap-2 px-3 py-2 text-gray-500 dark:text-gray-300">
-                  <Spinner className="h-4 w-4" />
-                  {i18next.t("g.loading")}
-                </div>
-              ) : suggestions.length === 0 ? (
-                <div className="px-3 py-2 text-gray-500 dark:text-gray-300">
-                  {i18next.t("g.no-matches")}
-                </div>
-              ) : (
-                <ul className="py-1">
-                  {suggestions.map((name) => (
-                    <li
-                      key={name}
-                      className="flex cursor-pointer items-center gap-2 px-3 py-1.5 text-black hover:bg-gray-100 dark:text-white dark:hover:bg-gray-800"
-                      onMouseDown={(event) => {
-                        event.preventDefault();
-                        handleSuggestionSelect(name);
-                      }}
-                    >
-                      <UserAvatar size="small" username={name} />
-                      <span>@{name}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {showSuggestions && (
+          <div className="animate-scale-in origin-top absolute left-0 right-0 z-20 mt-1 max-h-60 overflow-y-auto rounded-md border border-[--border-color] bg-white text-sm shadow-lg dark:bg-gray-900">
+            {isFetching ? (
+              <div className="flex items-center gap-2 px-3 py-2 text-gray-500 dark:text-gray-300">
+                <Spinner className="h-4 w-4" />
+                {i18next.t("g.loading")}
+              </div>
+            ) : suggestions.length === 0 ? (
+              <div className="px-3 py-2 text-gray-500 dark:text-gray-300">
+                {i18next.t("g.no-matches")}
+              </div>
+            ) : (
+              <ul className="py-1">
+                {suggestions.map((name) => (
+                  <li
+                    key={name}
+                    className="flex cursor-pointer items-center gap-2 px-3 py-1.5 text-black hover:bg-gray-100 dark:text-white dark:hover:bg-gray-800"
+                    onMouseDown={(event) => {
+                      event.preventDefault();
+                      handleSuggestionSelect(name);
+                    }}
+                  >
+                    <UserAvatar size="small" username={name} />
+                    <span>@{name}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
       </div>
 
-      <AnimatePresence>
-        {error && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            key={error}
-            className="text-red text-xs px-3 pt-0.5"
-          >
-            {error}
-          </motion.div>
-        )}
-        {badActorWarning && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            key="bad-actor-warning"
-            className="text-warning-default text-xs px-3 pt-0.5"
-          >
-            {badActorWarning}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.form>
+      {error && (
+        <div key={error} className="animate-fade-in-up text-red text-xs px-3 pt-0.5">
+          {error}
+        </div>
+      )}
+      {badActorWarning && (
+        <div className="animate-fade-in-up text-warning-default text-xs px-3 pt-0.5">
+          {badActorWarning}
+        </div>
+      )}
+    </form>
   );
 }

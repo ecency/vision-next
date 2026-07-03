@@ -6,7 +6,6 @@ import { useEntryDetector } from "@/app/submit/_hooks";
 import { Entry } from "@/entities";
 import { postBodySummary } from "@ecency/render-helper";
 import { SUBMIT_DESCRIPTION_MAX_LENGTH } from "@/app/submit/_consts";
-import { AnimatePresence } from "framer-motion";
 import i18next from "i18next";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -80,25 +79,23 @@ export default function Publish() {
 
   return (
     <>
-      <AnimatePresence>
-        {step === "edit" && (
-          <>
-            <PublishModeHeader label={i18next.t("publish.edit-mode")} />
-            <PublishEntryActionBar entry={entry} onEdit={() => setStep("validation")} />
-            <PublishEditor editor={editor} allowToUploadVideo={false} />
-          </>
-        )}
-        {step === "validation" && (
-          <PublishEntryValidateEdit
-            entry={entry}
-            onClose={() => setStep("edit")}
-            onSuccess={(step) => setStep(step)}
-          />
-        )}
-        {step === "no-post" && <PublishEntryNoPost />}
-        {step === "loading" && <PublishEntryLoadingPost />}
-        {step === "updated" && <PublishEntrySuccessState entry={entry} />}
-      </AnimatePresence>
+      {step === "edit" && (
+        <>
+          <PublishModeHeader label={i18next.t("publish.edit-mode")} />
+          <PublishEntryActionBar entry={entry} onEdit={() => setStep("validation")} />
+          <PublishEditor editor={editor} allowToUploadVideo={false} />
+        </>
+      )}
+      {step === "validation" && (
+        <PublishEntryValidateEdit
+          entry={entry}
+          onClose={() => setStep("edit")}
+          onSuccess={(step) => setStep(step)}
+        />
+      )}
+      {step === "no-post" && <PublishEntryNoPost />}
+      {step === "loading" && <PublishEntryLoadingPost />}
+      {step === "updated" && <PublishEntrySuccessState entry={entry} />}
       <PublishEditorHtmlWarning show={showHtmlWarning} setShow={setShowHtmlWarning} />
     </>
   );

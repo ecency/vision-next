@@ -22,7 +22,6 @@ import {
   UilLanguage,
   UilTwitter
 } from "@tooni/iconscout-unicons-react";
-import { motion } from "framer-motion";
 import i18next from "i18next";
 import Link from "next/link";
 import { createPortal } from "react-dom";
@@ -247,11 +246,7 @@ export const SelectionPopover = ({ children, postUrl }: any) => {
         createPortal(
           selectedText ? (
             <div ref={refs.setFloating} style={floatingStyles}>
-              <motion.div
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="p-2 flex border border-[--border-color] rounded-xl gap-3 bg-white items-center"
-              >
+              <div className="animate-fade-in-up p-2 flex border border-[--border-color] rounded-xl gap-3 bg-white items-center">
                 <Button
                   noPadding={true}
                   icon={<UilClipboardAlt />}
@@ -301,7 +296,7 @@ export const SelectionPopover = ({ children, postUrl }: any) => {
                     }}
                   />
                 )}
-              </motion.div>
+              </div>
             </div>
           ) : (
             <></>

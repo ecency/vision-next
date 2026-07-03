@@ -6,7 +6,6 @@ import { Alert, Button, FormControl } from "@/features/ui";
 import { formatError } from "@/api/format-error";
 import { handleAndReportError, error as feedbackError } from "@/features/shared";
 import { UilMultiply } from "@tooni/iconscout-unicons-react";
-import { motion } from "framer-motion";
 import i18next from "i18next";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMount } from "react-use";
@@ -136,12 +135,7 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
   }, [content]);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      className="publish-page max-w-[1024px] mx-auto pb-20 sm:pb-0"
-    >
+    <div className="animate-fade-in-up publish-page max-w-[1024px] mx-auto pb-20 sm:pb-0">
       <div className="col-span-2 justify-end flex p-4">
         <Button
           appearance="gray"
@@ -228,6 +222,6 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
       </div>
 
       <PublishScheduleDialog show={showSchedule} setShow={setShowSchedule} />
-    </motion.div>
+    </div>
   );
 }

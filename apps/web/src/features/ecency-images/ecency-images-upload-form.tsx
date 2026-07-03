@@ -1,6 +1,5 @@
 import { UilFileDownload, UilFileUpload } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
-import { motion } from "framer-motion";
 import i18next from "i18next";
 import { useCallback, useRef, useState } from "react";
 
@@ -56,11 +55,7 @@ export function EcencyImagesUploadForm({ onFilesPick }: Props) {
   );
 
   return (
-    <motion.div
-      initial={{ opacity: 0, position: "absolute" }}
-      animate={{ opacity: 1, position: "static" }}
-      exit={{ opacity: 0, position: "absolute" }}
-    >
+    <div className="animate-fade-in-up">
       <input
         accept="image/jpg, image/jpeg, image/webp, image/png, image/svg+xml, .svg, image/gif, image/heic, image/heif"
         type="file"
@@ -101,6 +96,6 @@ export function EcencyImagesUploadForm({ onFilesPick }: Props) {
           <div className="text-sm opacity-75">{i18next.t("ecency-images.dropzone-hint")}</div>
         )}
       </div>
-    </motion.div>
+    </div>
   );
 }

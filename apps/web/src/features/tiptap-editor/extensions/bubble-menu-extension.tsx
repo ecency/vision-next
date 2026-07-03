@@ -12,7 +12,6 @@ import {
   UilPen,
   UilTextStrikeThrough
 } from "@tooni/iconscout-unicons-react";
-import { AnimatePresence, motion } from "framer-motion";
 import i18next from "i18next";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -208,12 +207,12 @@ export function BubbleMenu({ editor }: Props) {
   return (
     portalContainer &&
     createPortal(
-      <AnimatePresence>
+      <>
         {show && (
-          <motion.div
+          <div
             ref={refs.setFloating}
             className="z-[1070] absolute"
-            style={{ ...floatingStyles, visibility: show ? "visible" : "hidden" }}
+            style={floatingStyles}
             onBlurCapture={(event) => {
               // Dismiss when keyboard focus (Tab/Shift+Tab) leaves the bubble.
               // A null relatedTarget is skipped on purpose: switching modes
@@ -232,12 +231,7 @@ export function BubbleMenu({ editor }: Props) {
             }}
           >
             {!mode && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-white border border-[--border-color] max-w-[320px] text-blue-dark-sky px-1 rounded-lg text-xs font-semibold flex items-center"
-              >
+              <div className="animate-scale-in origin-bottom bg-white border border-[--border-color] max-w-[320px] text-blue-dark-sky px-1 rounded-lg text-xs font-semibold flex items-center">
                 <StyledTooltip content={i18next.t("publish.action-bar.bold")}>
                   <Button
                     appearance={editor?.isActive("bold") ? "link" : "gray-link"}
@@ -289,15 +283,10 @@ export function BubbleMenu({ editor }: Props) {
                     aria-pressed={editor?.isActive("link")}
                   />
                 </StyledTooltip>
-              </motion.div>
+              </div>
             )}
             {mode === "link-actions" && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-white border border-[--border-color] max-w-[360px] text-blue-dark-sky p-1 rounded-lg text-xs font-semibold flex items-center"
-              >
+              <div className="animate-scale-in origin-bottom bg-white border border-[--border-color] max-w-[360px] text-blue-dark-sky p-1 rounded-lg text-xs font-semibold flex items-center">
                 <button
                   type="button"
                   onClick={openLinkInNewTab}
@@ -334,15 +323,10 @@ export function BubbleMenu({ editor }: Props) {
                     aria-label={i18next.t("publish.action-bar.remove-link")}
                   />
                 </StyledTooltip>
-              </motion.div>
+              </div>
             )}
             {mode === "link-edit" && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-white border border-[--border-color] max-w-[320px] text-blue-dark-sky p-1.5 rounded-lg text-xs font-semibold flex items-center"
-              >
+              <div className="animate-scale-in origin-bottom bg-white border border-[--border-color] max-w-[320px] text-blue-dark-sky p-1.5 rounded-lg text-xs font-semibold flex items-center">
                 <PublishEditorToolbarLinkForm
                   key={linkHref ?? "new"}
                   initialValue={linkHref}
@@ -351,11 +335,11 @@ export function BubbleMenu({ editor }: Props) {
                   onDelete={removeLink}
                   onCancel={cancelLinkEdit}
                 />
-              </motion.div>
+              </div>
             )}
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>,
+      </>,
       portalContainer
     )
   );

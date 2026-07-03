@@ -1,6 +1,5 @@
 import { BubbleMenu } from "@/features/tiptap-editor";
 import { Editor, EditorContent } from "@tiptap/react";
-import { motion } from "framer-motion";
 import i18next from "i18next";
 import TextareaAutosize from "react-textarea-autosize";
 import { SUBMIT_TITLE_MAX_LENGTH } from "@/app/submit/_consts";
@@ -18,12 +17,7 @@ export function PublishEditor({ editor, allowToUploadVideo = true }: Props) {
   const { title, setTitle } = usePublishState();
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="publish-page max-w-[1024px] rounded-2xl bg-white container mx-auto px-2"
-    >
+    <div className="publish-page max-w-[1024px] rounded-2xl bg-white container mx-auto px-2">
       <TextareaAutosize
         className="text-xl w-full px-4 py-4 pb-3 bg-transparent outline-none font-serif resize-none"
         placeholder={i18next.t("publish.title-placeholder")}
@@ -48,6 +42,6 @@ export function PublishEditor({ editor, allowToUploadVideo = true }: Props) {
 
       <PublishEditorCounter />
       <PublishEditorPollEditor />
-    </motion.div>
+    </div>
   );
 }

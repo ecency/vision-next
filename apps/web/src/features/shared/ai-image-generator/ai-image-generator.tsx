@@ -14,7 +14,6 @@ import {
 } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
-import { motion } from "framer-motion";
 import i18next from "i18next";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -163,11 +162,7 @@ export function AiImageGenerator({ onInsert, showInsertAction = true, suggestedP
   // Result view
   if (generatedUrl) {
     return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="flex flex-col gap-4"
-      >
+      <div className="animate-fade-in-up flex flex-col gap-4">
         <div className="font-semibold">{i18next.t("ai-image-generator.result-title")}</div>
         <div className="border border-[--border-color] rounded-xl overflow-hidden">
           <Image
@@ -192,7 +187,7 @@ export function AiImageGenerator({ onInsert, showInsertAction = true, suggestedP
             {i18next.t("ai-image-generator.generate-again")}
           </Button>
         </div>
-      </motion.div>
+      </div>
     );
   }
 
@@ -252,13 +247,11 @@ export function AiImageGenerator({ onInsert, showInsertAction = true, suggestedP
         ) : (
           <div className="flex flex-wrap gap-2">
             {prices?.map((price, i) => (
-              <motion.div
+              <div
                 key={price.aspect_ratio}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.03 }}
+                style={{ animationDelay: `${Math.min(i, 5) * 50}ms` }}
                 className={clsx(
-                  "border px-3 py-2 rounded-lg cursor-pointer text-sm font-medium",
+                  "animate-fade-in-up border px-3 py-2 rounded-lg cursor-pointer text-sm font-medium",
                   selectedRatio === price.aspect_ratio
                     ? "border-blue-dark-sky bg-blue-dark-sky/10 text-blue-dark-sky"
                     : "border-[--border-color] hover:bg-gray-100 dark:hover:bg-gray-800"
@@ -266,7 +259,7 @@ export function AiImageGenerator({ onInsert, showInsertAction = true, suggestedP
                 onClick={() => setSelectedRatio(price.aspect_ratio)}
               >
                 {ASPECT_RATIO_LABELS[price.aspect_ratio] ?? price.aspect_ratio}
-              </motion.div>
+              </div>
             ))}
           </div>
         )}
@@ -279,13 +272,11 @@ export function AiImageGenerator({ onInsert, showInsertAction = true, suggestedP
           </label>
           <div className="flex flex-wrap gap-2">
             {powerTiers.map((tier, i) => (
-              <motion.div
+              <div
                 key={tier.power}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.03 }}
+                style={{ animationDelay: `${Math.min(i, 5) * 50}ms` }}
                 className={clsx(
-                  "border px-3 py-2 rounded-lg cursor-pointer text-sm font-medium",
+                  "animate-fade-in-up border px-3 py-2 rounded-lg cursor-pointer text-sm font-medium",
                   selectedPower?.power === tier.power
                     ? "border-blue-dark-sky bg-blue-dark-sky/10 text-blue-dark-sky"
                     : "border-[--border-color] hover:bg-gray-100 dark:hover:bg-gray-800"
@@ -293,7 +284,7 @@ export function AiImageGenerator({ onInsert, showInsertAction = true, suggestedP
                 onClick={() => setSelectedPower(tier)}
               >
                 {POWER_LABELS[tier.power] ?? `${tier.power}x`}
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>

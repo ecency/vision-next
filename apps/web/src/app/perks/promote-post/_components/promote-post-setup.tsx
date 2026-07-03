@@ -7,7 +7,6 @@ import { EntryListItem, SuggestionList } from "@/features/shared";
 import { Button, FormControl } from "@/features/ui";
 import { UilTrashAlt } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
-import { AnimatePresence, motion } from "framer-motion";
 import i18next from "i18next";
 import { useMemo, useState } from "react";
 import { useDebounce } from "react-use";
@@ -77,34 +76,24 @@ export function PromotePostSetup({ onSuccess, isPending }: Props) {
             />
           </SuggestionList>
           {!path && <div className="py-2 text-sm opacity-50">{i18next.t("perks.no-post")}</div>}
-          <AnimatePresence>
-            {entry && (
-              <motion.div
-                initial={{ opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 24 }}
-                className="border border-[--border-color] rounded-xl px-4 mt-2 relative"
-              >
-                <Button
-                  appearance="gray"
-                  size="xs"
-                  icon={<UilTrashAlt />}
-                  className="absolute z-10 top-2 right-2"
-                  onClick={() => setPath("")}
-                  aria-label={i18next.t("g.clear", { defaultValue: "Clear" })}
-                />
-                <EntryListItem entry={entry} order={0} />
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {entry && (
+            <div className="animate-fade-in-up border border-[--border-color] rounded-xl px-4 mt-2 relative">
+              <Button
+                appearance="gray"
+                size="xs"
+                icon={<UilTrashAlt />}
+                className="absolute z-10 top-2 right-2"
+                onClick={() => setPath("")}
+                aria-label={i18next.t("g.clear", { defaultValue: "Clear" })}
+              />
+              <EntryListItem entry={entry} order={0} />
+            </div>
+          )}
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4">
           {prices?.map(({ duration, price }, i) => (
-            <motion.div
+            <div
               key={i}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
               className={clsx(
                 "bg-gray-100 dark:bg-gray-900 border p-2 md:p-4 rounded-xl cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-800",
                 duration === selectedDuration ? "border-blue-dark-sky" : "border-[--border-color]"
@@ -115,7 +104,7 @@ export function PromotePostSetup({ onSuccess, isPending }: Props) {
                 {duration} {duration === 1 ? i18next.t("g.day") : i18next.t("g.days")}
               </div>
               <div className="text-blue-dark-sky text-lg font-semibold">{price} POINTS</div>
-            </motion.div>
+            </div>
           ))}
         </div>
         <div>

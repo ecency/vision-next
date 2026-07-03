@@ -26,7 +26,6 @@ import {
   UilTransaction,
   UilWallet
 } from "@tooni/iconscout-unicons-react";
-import { AnimatePresence, motion } from "framer-motion";
 import i18next from "i18next";
 import Image from "next/image";
 import { getAccessToken, getSdkAuthContext } from "@/utils";
@@ -302,11 +301,7 @@ function SetupExternalMetamaskInner({ username, onBack }: Props & { username: st
   return (
     <div className="w-full col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 lg:gap-10 xl:gap-12 items-start">
       <Stepper steps={isMetaMaskUser ? METAMASK_STEPS_SHORT : METAMASK_STEPS} currentStep={step} />
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="col-span-2 bg-white dark:bg-dark-200 rounded-2xl p-6 flex flex-col items-start justify-between"
-      >
+      <div className="animate-fade-in-up col-span-2 bg-white dark:bg-dark-200 rounded-2xl p-6 flex flex-col items-start justify-between">
         <Button
           size="sm"
           appearance="gray-link"
@@ -398,45 +393,33 @@ function SetupExternalMetamaskInner({ username, onBack }: Props & { username: st
           </div>
         )}
 
-        <AnimatePresence>
-          {step === "linking" && (
-            <motion.div
-              initial={{ opacity: 0, y: -16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -16 }}
-              className="w-full flex items-center flex-col justify-center min-h-[400px]"
-            >
-              <UilSpinner className="animate-spin duration-500 opacity-50 w-16 h-16" />
-              <div className="text-xl text-center font-semibold mt-4">
-                {i18next.t("profile-wallet.external-wallets-signup.linking")}
-              </div>
-              <div className="opacity-50 text-center mt-2">
-                {i18next.t("profile-wallet.external-wallets-signup.linking-hint")}
-              </div>
-            </motion.div>
-          )}
+        {step === "linking" && (
+          <div className="animate-fade-in-up w-full flex items-center flex-col justify-center min-h-[400px]">
+            <UilSpinner className="animate-spin duration-500 opacity-50 w-16 h-16" />
+            <div className="text-xl text-center font-semibold mt-4">
+              {i18next.t("profile-wallet.external-wallets-signup.linking")}
+            </div>
+            <div className="opacity-50 text-center mt-2">
+              {i18next.t("profile-wallet.external-wallets-signup.linking-hint")}
+            </div>
+          </div>
+        )}
 
-          {step === "success" && (
-            <motion.div
-              initial={{ opacity: 0, y: -16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -16 }}
-              className="w-full flex items-center flex-col justify-center min-h-[400px]"
-            >
-              <UilCheckCircle className="text-green w-16 h-16" />
-              <div className="text-xl text-center font-semibold mt-4">
-                {i18next.t("profile-wallet.external-wallets-signup.linking-success")}
-              </div>
-              <div className="opacity-50 text-center mt-2 mb-4">
-                {i18next.t("profile-wallet.external-wallets-signup.linking-success-hint")}
-              </div>
-              <Button href="/wallet" icon={<UilArrowUpRight />} size="lg">
-                {i18next.t("user-nav.wallet")}
-              </Button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
+        {step === "success" && (
+          <div className="animate-fade-in-up w-full flex items-center flex-col justify-center min-h-[400px]">
+            <UilCheckCircle className="text-green w-16 h-16" />
+            <div className="text-xl text-center font-semibold mt-4">
+              {i18next.t("profile-wallet.external-wallets-signup.linking-success")}
+            </div>
+            <div className="opacity-50 text-center mt-2 mb-4">
+              {i18next.t("profile-wallet.external-wallets-signup.linking-success-hint")}
+            </div>
+            <Button href="/wallet" icon={<UilArrowUpRight />} size="lg">
+              {i18next.t("user-nav.wallet")}
+            </Button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -207,7 +207,6 @@ const config = {
       "remeda",
       "@floating-ui/react-dom",
       "@react-spring/web",
-      "framer-motion",
       "@sentry/nextjs",
       "@sentry/browser",
       // NOTE: do not add @ecency/sdk / @ecency/wallets here. optimizePackageImports

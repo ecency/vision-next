@@ -10,7 +10,6 @@ import {
   UilMapPinAlt,
 } from '@tooni/iconscout-unicons-react';
 import clsx from 'clsx';
-import { motion } from 'framer-motion';
 import { useMemo } from 'react';
 import { formatDate, InstanceConfigManager } from '@/core';
 import { UserAvatar } from '@/features/shared/user-avatar';
@@ -20,7 +19,7 @@ interface Props {
   index?: number;
 }
 
-export function BlogPostItem({ entry, index = 0 }: Props) {
+export function BlogPostItem({ entry }: Props) {
   const listType = InstanceConfigManager.getConfigValue(
     ({ configuration }) => configuration.instanceConfiguration.layout.listType,
   );
@@ -192,16 +191,7 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
   );
 
   return (
-    <motion.article
-      className={clsx('py-6 sm:py-8 border-b border-theme')}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{
-        duration: 0.4,
-        delay: index * 0.1,
-        ease: [0.25, 0.1, 0.25, 1],
-      }}
-    >
+    <article className={clsx('py-6 sm:py-8 border-b border-theme')}>
       {listType === 'list' && imageUrl ? (
         <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
           <div className="flex-1">{contentSection}</div>
@@ -221,6 +211,6 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
       ) : (
         contentSection
       )}
-    </motion.article>
+    </article>
   );
 }

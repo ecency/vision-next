@@ -13,7 +13,6 @@ import { getEntryActiveVotesQueryOptions } from "@ecency/sdk";
 import { prepareVotes } from "@/features/shared/entry-vote-btn/utils";
 import { classNameObject } from "@ui/util";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
-import { AnimatePresence, motion } from "framer-motion";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { error } from "@/features/shared/feedback";
@@ -222,41 +221,26 @@ export function EntryVoteBtn({ entry: originalEntry, isPostSlider, account }: Pr
               >
                 {chevronUpSvgForVote}
               </span>
-              <AnimatePresence>
-                {dialog && entry && activeUser && (
-                  <motion.div
-                    key="vote-dialog"
-                    initial={{
-                      opacity: 0,
-                      scale: 0.95
-                    }}
-                    animate={{
-                      opacity: 1,
-                      scale: 1
-                    }}
-                    exit={{
-                      opacity: 0,
-                      scale: 0.95
-                    }}
-                    className="tooltiptext"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <EntryVoteDialog
-                      account={account}
-                      isPostSlider={isPostSlider}
-                      upVoted={isVoted.upVoted}
-                      downVoted={isVoted.downVoted}
-                      previousVotedValue={previousVotedValue}
-                      entry={entry}
-                      setTipDialogMounted={(d) => setTipDialog(d)}
-                      onClick={vote}
-                      handleClickAway={() => setDialog(false)}
-                      isVoted={isVoted}
-                      isVotingLoading={isVotingLoading}
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              {dialog && entry && activeUser && (
+                <div
+                  className="tooltiptext animate-scale-in origin-top"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <EntryVoteDialog
+                    account={account}
+                    isPostSlider={isPostSlider}
+                    upVoted={isVoted.upVoted}
+                    downVoted={isVoted.downVoted}
+                    previousVotedValue={previousVotedValue}
+                    entry={entry}
+                    setTipDialogMounted={(d) => setTipDialog(d)}
+                    onClick={vote}
+                    handleClickAway={() => setDialog(false)}
+                    isVoted={isVoted}
+                    isVotingLoading={isVotingLoading}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>

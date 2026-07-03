@@ -29,7 +29,7 @@ vi.mock("@ecency/sdk", async () => {
 });
 
 // The card is stubbed deliberately: this is a render-GATE unit test, so the
-// child's own rendering (framer-motion / next-image / EntryLink routing) is
+// child's own rendering (CSS entrance / next-image / EntryLink routing) is
 // out of scope and covered elsewhere. The stub emits the permlink as plain
 // text so assertions stay on user-visible output, not test-ids.
 vi.mock(

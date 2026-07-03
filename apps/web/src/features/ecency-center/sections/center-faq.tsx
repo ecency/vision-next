@@ -7,7 +7,6 @@ import data from "@/features/ecency-center/data/path.json";
 import useMount from "react-use/lib/useMount";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { motion } from "framer-motion";
 
 export function CenterFaq() {
   const pathname = usePathname();
@@ -70,10 +69,9 @@ export function CenterFaq() {
           ""
         )}
         {datatoShow.map((x, i) => (
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
+          <div
+            className="animate-fade-in-up"
+            style={{ animationDelay: `${Math.min(i, 5) * 50}ms` }}
             key={x}
           >
             <Link
@@ -84,7 +82,7 @@ export function CenterFaq() {
               <div className="faq-image">{articleSvg}</div>
               {i18next.t(`static.faq.${x}-header`)}
             </Link>
-          </motion.div>
+          </div>
         ))}
       </div>
     </div>

@@ -25,13 +25,6 @@ vi.mock("@ecency/sdk", async () => {
   };
 });
 
-vi.mock("framer-motion", () => ({
-  motion: {
-    div: ({ children, ...props }: any) => <div {...props}>{children}</div>
-  },
-  AnimatePresence: ({ children }: any) => children
-}));
-
 const mockItem = {
   _id: "fav-1",
   account: "testauthor",

@@ -8,369 +8,146 @@ import {
   UilTextStrikeThrough
 } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
-import { AnimatePresence, motion, useAnimate } from "framer-motion";
-import { useCallback, useEffect } from "react";
 
 interface Props {
   step: string;
 }
 
+const TOOLBAR_ICONS = [UilBold, UilItalic, UilTextStrikeThrough, UilArrow];
+
+// Fake page "typing" bars: width + extra classes per bar
+const CONTENT_BARS = [
+  { width: "80%", className: "min-h-[24px]" },
+  { width: "100%", className: "min-h-[16px]" },
+  { width: "40%", className: "min-h-[16px]" },
+  { width: "100%", className: "h-32 my-2" },
+  { width: "100%", className: "min-h-[16px]" },
+  { width: "100%", className: "min-h-[16px]" },
+  { width: "20%", className: "min-h-[16px]" }
+];
+
 export function OnboardingFrame({ step }: Props) {
-  const [scope, animate] = useAnimate();
-
-  const handleAnimation = useCallback(
-    async (cancelled: () => boolean) => {
-      const safeAnimate = async (
-        ...args: Parameters<typeof animate>
-      ): Promise<void> => {
-        if (cancelled() || !scope.current) return;
-        await animate(...args);
-      };
-
-      switch (step) {
-        case "single-view":
-          await safeAnimate("#onboarding-frame-page", {
-            opacity: 1,
-            scale: 1,
-            width: 300,
-            height: 300
-          });
-          await safeAnimate("#onboarding-frame-action-bar", {
-            opacity: 1,
-            width: 300
-          });
-          await safeAnimate("#onboarding-frame-toolbar", {
-            y: 0,
-            height: 32
-          });
-          await safeAnimate("#onboarding-frame-community-picker", {
-            opacity: 1,
-            height: 16
-          });
-          await safeAnimate("#onboarding-frame-publish", {
-            opacity: 1,
-            height: 16
-          });
-          await safeAnimate("#onboarding-frame-settings", {
-            opacity: 1,
-            height: 16,
-            width: 16
-          });
-          break;
-        case "toolbar":
-          await safeAnimate("#onboarding-frame-page", {
-            width: "100%",
-            opacity: 1,
-            scale: 1,
-            height: 100
-          });
-          await safeAnimate("#onboarding-frame-action-bar", {
-            opacity: 1,
-            width: "100%"
-          });
-          await safeAnimate("#onboarding-frame-toolbar", {
-            y: 0,
-            height: 64
-          });
-          break;
-        case "settings":
-          await safeAnimate("#onboarding-frame-toolbar", {
-            opacity: 1,
-            height: 32
-          });
-          await safeAnimate("#onboarding-frame-publish", {
-            opacity: 1,
-            height: 32,
-            width: 100
-          });
-          await safeAnimate("#onboarding-frame-settings", {
-            opacity: 1,
-            width: 32,
-            height: 32
-          });
-          break;
-        case "posting":
-          await safeAnimate("#onboarding-frame-page", {
-            scale: 1,
-            width: 300,
-            height: 300,
-            opacity: 0.5
-          });
-          await safeAnimate("#onboarding-frame-action-bar", {
-            opacity: 0.5,
-            width: 300
-          });
-          await safeAnimate("#onboarding-frame-toolbar", {
-            y: 0,
-            height: 32
-          });
-          await safeAnimate("#onboarding-frame-community-picker", {
-            opacity: 1,
-            height: 16
-          });
-          await safeAnimate("#onboarding-frame-publish", {
-            opacity: 1,
-            height: 16
-          });
-          await safeAnimate("#onboarding-frame-settings", {
-            opacity: 1,
-            height: 16,
-            width: 16
-          });
-
-          await safeAnimate("#onboarding-frame-posting", {
-            opacity: 1,
-            scale: 1
-          });
-          break;
-        default:
-          break;
-      }
-    },
-    [animate, step]
-  );
-
-  useEffect(() => {
-    let cancelled = false;
-    handleAnimation(() => cancelled);
-    return () => {
-      cancelled = true;
-    };
-  }, [handleAnimation]);
+  const isWide = step === "toolbar" || step === "settings";
+  const isPosting = step === "posting" || step === "finish";
+  const isSettings = step === "settings";
 
   return (
-    <div className="relative" ref={scope}>
-      <div id="onboarding-frame-action-bar" className="flex mx-auto justify-between items-end pb-3">
-        <motion.div
+    // Re-keying by step remounts the frame so each step gets a fresh, fast
+    // CSS entrance instead of the old scripted animation sequence.
+    <div key={step} className="relative animate-fade-in-up">
+      <div
+        id="onboarding-frame-action-bar"
+        className="flex mx-auto justify-between items-end pb-3"
+        style={{ width: isWide ? "100%" : 300, opacity: isPosting ? 0.5 : 1 }}
+      >
+        <div
           id="onboarding-frame-community-picker"
-          initial={{
-            opacity: 0,
-            height: 0
-          }}
-          className="bg-gray-200 w-[72px] dark:bg-dark-default rounded-xl"
+          className="bg-gray-200 w-[72px] h-4 dark:bg-dark-default rounded-xl"
         />
         <div className="flex gap-2">
-          <motion.div
+          <div
             id="onboarding-frame-publish"
-            initial={{
-              opacity: 0,
-              height: 0
-            }}
             className="bg-green w-[48px] rounded-xl text-white text-sm flex items-center justify-center"
+            style={isSettings ? { width: 100, height: 32 } : { height: 16 }}
           >
-            {step === "settings" && "Publish"}
-          </motion.div>
-          <motion.div
+            {isSettings && "Publish"}
+          </div>
+          <div
             id="onboarding-frame-settings"
-            initial={{
-              opacity: 0,
-              height: 0
-            }}
             className="bg-gray-200 dark:bg-dark-default rounded-xl flex items-center justify-center"
+            style={isSettings ? { width: 32, height: 32 } : { width: 16, height: 16 }}
           >
-            {step === "settings" && <UilEllipsisV className="w-4 h-4" />}
-          </motion.div>
+            {isSettings && <UilEllipsisV className="w-4 h-4" />}
+          </div>
         </div>
       </div>
-      <motion.div
+      <div
         id="onboarding-frame-page"
-        initial={{
-          opacity: 0,
-          scale: 0.9
-        }}
         className={clsx(
           "bg-gray-200 mx-auto dark:bg-dark-default overflow-hidden",
-          step === "toolbar" || step === "settings" ? "rounded-t-xl" : "rounded-xl"
+          isWide ? "rounded-t-xl" : "rounded-xl"
         )}
+        style={{
+          width: isWide ? "100%" : 300,
+          height: isWide ? 100 : 300,
+          opacity: isPosting ? 0.5 : 1
+        }}
       >
-        <motion.div
+        <div
           id="onboarding-frame-toolbar"
-          initial={{
-            y: -32
-          }}
           className="bg-gray-300 dark:bg-gray-700 flex items-center gap-4 px-4"
+          style={{ height: step === "toolbar" ? 64 : 32 }}
         >
-          <AnimatePresence>
-            {step === "toolbar" && (
-              <>
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.5 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{
-                    delay: 0.3
-                  }}
-                >
-                  <UilBold />
-                </motion.div>
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.5 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{
-                    delay: 0.6
-                  }}
-                >
-                  <UilItalic />
-                </motion.div>
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.5 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{
-                    delay: 0.9
-                  }}
-                >
-                  <UilTextStrikeThrough />
-                </motion.div>
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.5 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{
-                    delay: 1.2
-                  }}
-                >
-                  <UilArrow />
-                </motion.div>
-              </>
-            )}
-          </AnimatePresence>
-        </motion.div>
-        <motion.div className="p-4 flex flex-col justify-start gap-2">
-          <motion.div
-            initial={{
-              width: 0
-            }}
-            animate={{ width: "80%" }}
-            transition={{ delay: 0.6 }}
-            className="bg-white min-h-[24px] rounded-lg"
-          />
-          <motion.div
-            initial={{
-              width: 0
-            }}
-            animate={{ width: "100%" }}
-            transition={{ delay: 0.9 }}
-            className="bg-white min-h-[16px] rounded-lg"
-          />
-          <motion.div
-            initial={{
-              width: 0
-            }}
-            animate={{ width: "40%" }}
-            transition={{ delay: 1.2 }}
-            className="bg-white min-h-[16px] rounded-lg"
-          />
-          <motion.div
-            initial={{
-              height: 0
-            }}
-            animate={{ height: 128 }}
-            transition={{ delay: 1.5 }}
-            className="bg-white my-2 w-full rounded-lg"
-          />
-          <motion.div
-            initial={{
-              width: 0
-            }}
-            animate={{ width: "100%" }}
-            transition={{ delay: 1.8 }}
-            className="bg-white min-h-[16px] rounded-lg"
-          />
-          <motion.div
-            initial={{
-              width: 0
-            }}
-            animate={{ width: "100%" }}
-            transition={{ delay: 2.1 }}
-            className="bg-white min-h-[16px] rounded-lg"
-          />
-          <motion.div
-            initial={{
-              width: 0
-            }}
-            animate={{ width: "20%" }}
-            transition={{ delay: 2.4 }}
-            className="bg-white min-h-[16px] rounded-lg"
-          />
-        </motion.div>
-      </motion.div>
+          {step === "toolbar" &&
+            TOOLBAR_ICONS.map((Icon, i) => (
+              <div
+                key={i}
+                className="animate-pop-in"
+                style={{ animationDelay: `${Math.min(i, 5) * 50}ms` }}
+              >
+                <Icon />
+              </div>
+            ))}
+        </div>
+        <div className="p-4 flex flex-col justify-start gap-2">
+          {CONTENT_BARS.map(({ width, className }, i) => (
+            <div
+              key={i}
+              className={clsx("bg-white rounded-lg animate-fade-in-up", className)}
+              style={{ width, animationDelay: `${Math.min(i, 5) * 50}ms` }}
+            />
+          ))}
+        </div>
+      </div>
 
       <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center">
-        <motion.div
-          id="onboarding-frame-posting"
-          initial={{ opacity: 0, scale: 0.5 }}
-          className={clsx(
-            "min-w-full min-h-[200px] bg-gray-200 dark:bg-dark-default rounded-xl gap-4 p-4",
-            step === "posting" && "grid grid-cols-2",
-            step === "finish" && "flex flex-col items-center justify-center"
-          )}
-        >
-          {step === "finish" && (
-            <motion.div initial={{ opacity: 0, scale: 0.75 }} animate={{ opacity: 1, scale: 1 }}>
-              <UilCheckCircle className="text-green w-16 h-16" />
-            </motion.div>
-          )}
-          {step === "posting" && (
-            <div className="flex flex-col gap-2">
-              <motion.div
-                initial={{
-                  height: 0
-                }}
-                animate={{ height: 100 }}
-                transition={{ delay: 0.3 }}
-                className="bg-white w-full rounded-lg flex items-center justify-center"
-              >
-                {step === "posting" && <UilImage className="text-blue-dark-sky" />}
-              </motion.div>
-              <motion.div
-                initial={{
-                  width: 0,
-                  height: 16
-                }}
-                animate={{ width: "100%" }}
-                transition={{ delay: 0.6 }}
-                className="bg-white rounded-lg"
-              />
-              <motion.div
-                initial={{
-                  width: 0,
-                  height: 24
-                }}
-                animate={{ width: "100%" }}
-                transition={{ delay: 0.9 }}
-                className="bg-white rounded-lg"
-              />
-            </div>
-          )}
-          {step === "posting" && (
-            <div className="flex flex-col gap-2">
-              <motion.div
-                initial={{
-                  width: 0
-                }}
-                animate={{ width: "100%" }}
-                transition={{ delay: 0.6 }}
-                className="bg-white min-h-[16px] rounded-lg"
-              />
-              <motion.div
-                initial={{
-                  width: 0,
-                  height: 24
-                }}
-                animate={{ width: "100%" }}
-                transition={{ delay: 0.9 }}
-                className="bg-white rounded-lg"
-              />
-              <motion.div
-                initial={{
-                  width: 0,
-                  height: 16
-                }}
-                animate={{ width: 48 }}
-                transition={{ delay: 1.2 }}
-                className="bg-green rounded-lg"
-              />
-            </div>
-          )}
-        </motion.div>
+        {isPosting && (
+          <div
+            id="onboarding-frame-posting"
+            className={clsx(
+              "min-w-full min-h-[200px] bg-gray-200 dark:bg-dark-default rounded-xl gap-4 p-4 animate-scale-in",
+              step === "posting" && "grid grid-cols-2",
+              step === "finish" && "flex flex-col items-center justify-center"
+            )}
+          >
+            {step === "finish" && (
+              <div className="animate-pop-in">
+                <UilCheckCircle className="text-green w-16 h-16" />
+              </div>
+            )}
+            {step === "posting" && (
+              <div className="flex flex-col gap-2">
+                <div className="bg-white w-full h-[100px] rounded-lg flex items-center justify-center animate-fade-in-up">
+                  <UilImage className="text-blue-dark-sky" />
+                </div>
+                <div
+                  className="bg-white w-full h-4 rounded-lg animate-fade-in-up"
+                  style={{ animationDelay: "50ms" }}
+                />
+                <div
+                  className="bg-white w-full h-6 rounded-lg animate-fade-in-up"
+                  style={{ animationDelay: "100ms" }}
+                />
+              </div>
+            )}
+            {step === "posting" && (
+              <div className="flex flex-col gap-2">
+                <div
+                  className="bg-white w-full min-h-[16px] rounded-lg animate-fade-in-up"
+                  style={{ animationDelay: "50ms" }}
+                />
+                <div
+                  className="bg-white w-full h-6 rounded-lg animate-fade-in-up"
+                  style={{ animationDelay: "100ms" }}
+                />
+                <div
+                  className="bg-green w-12 h-4 rounded-lg animate-fade-in-up"
+                  style={{ animationDelay: "150ms" }}
+                />
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

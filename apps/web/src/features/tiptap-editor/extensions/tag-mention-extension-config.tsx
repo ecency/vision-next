@@ -6,7 +6,6 @@ import { PluginKey } from "@tiptap/pm/state";
 import { ReactRenderer } from "@tiptap/react";
 import { SuggestionProps } from "@tiptap/suggestion";
 import clsx from "clsx";
-import { AnimatePresence, motion } from "framer-motion";
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 
 export const TAG_MENTION_PURE_REGEX = /#\w+/gi;
@@ -61,30 +60,21 @@ const MentionList = forwardRef<{ onKeyDown: (e: any) => void }, SuggestionProps<
     }));
 
     return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="overflow-hidden flex flex-col items-start border border-[--border-color] rounded-xl bg-white text-sm"
-      >
-        <AnimatePresence>
-          {items.map((item, index) => (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95, position: "absolute" }}
-              className={clsx(
-                "border-b last:border-0 w-full border[--border-color] flex items-center p-2 gap-2 cursor-pointer hover:bg-gray-100 dark:hover-gray-800",
-                index === selectedIndex ? "bg-blue-powder dark:bg-dark-default" : ""
-              )}
-              key={item}
-              onClick={() => selectItem(index)}
-            >
-              #{item}
-            </motion.div>
-          ))}
-          {items.length == 0 && <div className="p-2 opacity-50">No result</div>}
-        </AnimatePresence>
-      </motion.div>
+      <div className="animate-scale-in origin-top overflow-hidden flex flex-col items-start border border-[--border-color] rounded-xl bg-white text-sm">
+        {items.map((item, index) => (
+          <div
+            className={clsx(
+              "border-b last:border-0 w-full border[--border-color] flex items-center p-2 gap-2 cursor-pointer hover:bg-gray-100 dark:hover-gray-800",
+              index === selectedIndex ? "bg-blue-powder dark:bg-dark-default" : ""
+            )}
+            key={item}
+            onClick={() => selectItem(index)}
+          >
+            #{item}
+          </div>
+        ))}
+        {items.length == 0 && <div className="p-2 opacity-50">No result</div>}
+      </div>
     );
   }
 );

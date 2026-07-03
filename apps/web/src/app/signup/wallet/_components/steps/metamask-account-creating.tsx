@@ -14,7 +14,6 @@ import {
   getHivePublicKeys
 } from "@ecency/wallets";
 import { UilCheckCircle, UilSpinner } from "@tooni/iconscout-unicons-react";
-import { AnimatePresence, motion } from "framer-motion";
 import i18next from "i18next";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -146,92 +145,66 @@ export function MetamaskAccountCreating({ username, verifiedWallet }: Props) {
   return (
     <div className="flex flex-col gap-4 w-full">
       <div className="max-w-[440px] w-full my-4 md:my-8 xl:my-12 mx-auto flex flex-col gap-4">
-        <AnimatePresence mode="wait">
-          {status !== "success" && status !== "logging-in" && status !== "error" && (
-            <motion.div
-              key="loading"
-              initial={{ opacity: 0, y: -16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -16 }}
-              className="flex items-center flex-col"
-            >
-              <UilSpinner className="animate-spin duration-500 opacity-50 w-16 h-16" />
-              <div className="text-xl font-semibold mt-4">
-                {statusMessages[status]}
-              </div>
-            </motion.div>
-          )}
+        {status !== "success" && status !== "logging-in" && status !== "error" && (
+          <div key={status} className="flex items-center flex-col animate-fade-in-up">
+            <UilSpinner className="animate-spin duration-500 opacity-50 w-16 h-16" />
+            <div className="text-xl font-semibold mt-4">
+              {statusMessages[status]}
+            </div>
+          </div>
+        )}
 
-          {status === "success" && (
-            <motion.div
-              key="success"
-              initial={{ opacity: 0, y: -16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -16 }}
-              className="flex items-center flex-col"
+        {status === "success" && (
+          <div key="success" className="flex items-center flex-col animate-fade-in-up">
+            <UilCheckCircle className="w-16 h-16 text-green" />
+            <div className="text-xl text-center font-semibold my-4">
+              {statusMessages.success}
+            </div>
+            <p className="text-sm opacity-60 text-center mb-4">
+              {i18next.t("signup-wallets.metamask.success-hint")}
+            </p>
+            <Button
+              size="lg"
+              onClick={async () => {
+                setStatus("logging-in");
+                try {
+                  await loginByMetaMask();
+                } catch {
+                  setStatus("success");
+                }
+              }}
             >
-              <UilCheckCircle className="w-16 h-16 text-green" />
-              <div className="text-xl text-center font-semibold my-4">
-                {statusMessages.success}
-              </div>
-              <p className="text-sm opacity-60 text-center mb-4">
-                {i18next.t("signup-wallets.metamask.success-hint")}
-              </p>
-              <Button
-                size="lg"
-                onClick={async () => {
-                  setStatus("logging-in");
-                  try {
-                    await loginByMetaMask();
-                  } catch {
-                    setStatus("success");
-                  }
-                }}
-              >
-                {i18next.t("signup-wallets.metamask.login-with-metamask")}
-              </Button>
-            </motion.div>
-          )}
+              {i18next.t("signup-wallets.metamask.login-with-metamask")}
+            </Button>
+          </div>
+        )}
 
-          {status === "logging-in" && (
-            <motion.div
-              key="logging-in"
-              initial={{ opacity: 0, y: -16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -16 }}
-              className="flex items-center flex-col"
-            >
-              <UilSpinner className="animate-spin duration-500 opacity-50 w-16 h-16" />
-              <div className="text-xl font-semibold mt-4">
-                {i18next.t("signup-wallets.metamask.logging-in")}
-              </div>
-            </motion.div>
-          )}
+        {status === "logging-in" && (
+          <div key="logging-in" className="flex items-center flex-col animate-fade-in-up">
+            <UilSpinner className="animate-spin duration-500 opacity-50 w-16 h-16" />
+            <div className="text-xl font-semibold mt-4">
+              {i18next.t("signup-wallets.metamask.logging-in")}
+            </div>
+          </div>
+        )}
 
-          {status === "error" && (
-            <motion.div
-              key="error"
-              initial={{ opacity: 0, y: -16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -16 }}
-              className="flex items-center flex-col"
+        {status === "error" && (
+          <div key="error" className="flex items-center flex-col animate-fade-in-up">
+            <div className="text-xl text-center font-semibold my-4 text-red">
+              {statusMessages.error}
+            </div>
+            <Button
+              size="lg"
+              onClick={() => {
+                hasInitiatedRef.current = false;
+                setStatus("installing-snap");
+                setRetryCount((c) => c + 1);
+              }}
             >
-              <div className="text-xl text-center font-semibold my-4 text-red">
-                {statusMessages.error}
-              </div>
-              <Button
-                size="lg"
-                onClick={() => {
-                  hasInitiatedRef.current = false;
-                  setStatus("installing-snap");
-                  setRetryCount((c) => c + 1);
-                }}
-              >
-                {i18next.t("g.try-again")}
-              </Button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              {i18next.t("g.try-again")}
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

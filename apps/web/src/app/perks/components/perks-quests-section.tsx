@@ -19,7 +19,6 @@ import {
   UilSpin
 } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
-import { motion } from "framer-motion";
 import i18next from "i18next";
 import { ReactNode, useMemo, useState } from "react";
 import { PerksQuestItem } from "./perks-quest-item";
@@ -74,11 +73,7 @@ export function PerksQuestsSection() {
     document.getElementById("perks-spin")?.scrollIntoView({ behavior: "smooth", block: "center" });
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -12 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-white dark:bg-gray-900 border rounded-xl overflow-hidden"
-    >
+    <div className="bg-white dark:bg-gray-900 border rounded-xl overflow-hidden">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 pb-0">
         <div>
           <div className="text-lg font-bold">{i18next.t("perks.quests.title")}</div>
@@ -126,14 +121,13 @@ export function PerksQuestsSection() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4">
-        {entries.map((e, i) => {
+        {entries.map((e) => {
           if (e.id === "spin") {
             const hasData = typeof spin?.remaining === "number" || !!spin?.wait_secs;
             const available = typeof spin?.remaining === "number" && spin.remaining > 0;
             return (
               <PerksQuestItem
                 key={`${tier}-spin`}
-                index={i}
                 icon={ICONS[e.icon]}
                 title={i18next.t("perks.quests.spin.title")}
                 progress={available || !hasData ? 0 : 1}
@@ -150,7 +144,6 @@ export function PerksQuestsSection() {
           return (
             <PerksQuestItem
               key={`${tier}-${e.id}`}
-              index={i}
               icon={ICONS[e.icon]}
               title={i18next.t(`perks.quests.${e.i18nKey}.title`)}
               progress={progress}
@@ -161,6 +154,6 @@ export function PerksQuestsSection() {
           );
         })}
       </div>
-    </motion.div>
+    </div>
   );
 }

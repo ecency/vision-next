@@ -4,19 +4,6 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { Modal } from "@ui/modal";
 
-// Mock framer-motion to avoid animation issues in tests
-vi.mock("framer-motion", () => ({
-  motion: {
-    div: ({ children, onClick, className, ...props }: any) => (
-      // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
-      <div onClick={onClick} className={className} {...props}>
-        {children}
-      </div>
-    )
-  },
-  AnimatePresence: ({ children }: any) => <>{children}</>
-}));
-
 describe("Modal", () => {
   let portalRoot: HTMLElement;
 

@@ -7,7 +7,6 @@ import { WavesListItemHeader } from "@/app/waves/_components/waves-list-item-hea
 import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { WaveActions, WaveForm } from "@/features/waves";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
-import { motion } from "framer-motion";
 import "./waves-list-item.scss";
 import { usePathname, useRouter } from "next/navigation";
 import { classNameObject } from "@ui/util";
@@ -45,7 +44,6 @@ interface Props {
 
 export const WavesListItem = React.memo(function WavesListItem({
   item,
-  i,
   commentSlot,
   onExpandReplies,
   interactable = true,
@@ -256,15 +254,12 @@ export const WavesListItem = React.memo(function WavesListItem({
   );
 
   return (
-    <motion.div
+    <div
       ref={rootRef}
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: isMuted ? 0.5 : 1, scale: 1 }}
-      transition={{ delay: Math.min(i, 5) * 0.05 }}
       className={clsx(
         "waves-list-item bg-white dark:bg-dark-200 relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-dark-sky",
         "border-b border-[--border-color] last:border-b-0",
-        isMuted && "grayscale",
+        isMuted && "grayscale opacity-50",
         interactable && "cursor-pointer"
       )}
       role={interactable ? "link" : undefined}
@@ -324,6 +319,6 @@ export const WavesListItem = React.memo(function WavesListItem({
           </Modal>
         </>
       )}
-    </motion.div>
+    </div>
   );
 });

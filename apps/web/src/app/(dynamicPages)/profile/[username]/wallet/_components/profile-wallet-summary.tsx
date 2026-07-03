@@ -7,7 +7,6 @@ import {
   getAccountWalletListQueryOptions
 } from "@ecency/wallets";
 import { useQueries, useQuery } from "@tanstack/react-query";
-import { motion } from "framer-motion";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import i18next from "i18next";
@@ -159,26 +158,19 @@ export function ProfileWalletSummary() {
                     </div>
                   }
                 >
-                  <motion.div
+                  <div
                     className={clsx(
                       "p-2",
                       TOKEN_COLORS_MAP[asset] ?? "bg-gradient-to-r from-[#fcc920] to-[#fcc920]/60"
                     )}
-                    initial={{ opacity: 0, width: "0%" }}
-                    animate={{ opacity: 1, width: "100%" }}
                   />
                 </StyledTooltip>
               ))}
           </div>
           <div className="flex flex-wrap gap-2">
             {assetsParts.length > 1 &&
-              assetsParts.map(({ asset, usdValue }, i) => (
-                <motion.div
-                  className="flex items-center gap-1 text-xs"
-                  initial={{ opacity: 0, y: -4 }}
-                  animate={{ opacity: 1, y: 0, transition: { delay: i * 0.1 } }}
-                  key={asset}
-                >
+              assetsParts.map(({ asset, usdValue }) => (
+                <div className="flex items-center gap-1 text-xs" key={asset}>
                   <div
                     className={clsx(
                       "w-3 h-3 rounded-full",
@@ -192,7 +184,7 @@ export function ProfileWalletSummary() {
                     </>
                   )}
                   <span>{asset}</span>
-                </motion.div>
+                </div>
               ))}
           </div>
           <ProfileWalletTokensList />

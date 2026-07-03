@@ -1,6 +1,5 @@
 import { GeneralAssetTransaction, PointTransactionType } from "@ecency/sdk";
 import { format } from "date-fns";
-import { motion } from "framer-motion";
 import { TRANSACTIONS_ICONS, TRANSACTIONS_LABELS } from "../_consts";
 import { ProfileWalletTokenHistoryCard } from "./profile-wallet-token-history-card";
 import { ReactNode } from "react";
@@ -77,7 +76,7 @@ export function ProfileWalletTokenHistory({ data, action }: Props) {
           );
 
         return (
-          <motion.div
+          <div
             className="flex flex-col gap-4 px-4 py-3 border-b border-[--border-color] last:border-0 md:flex-row md:items-start md:justify-between md:py-4"
             key={id ?? created.getTime()}
           >
@@ -100,7 +99,7 @@ export function ProfileWalletTokenHistory({ data, action }: Props) {
                 </div>
               ))}
             </div>
-          </motion.div>
+          </div>
         );
       })}
     </ProfileWalletTokenHistoryCard>

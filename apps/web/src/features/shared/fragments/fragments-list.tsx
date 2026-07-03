@@ -5,7 +5,6 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { UilMinusCircle } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
 import { FormControl } from "@ui/input";
-import { AnimatePresence } from "framer-motion";
 import i18next from "i18next";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FragmentsListItem } from "./fragments-list-item";
@@ -87,17 +86,15 @@ export function Fragments({ onPick, onAdd, onEdit }: Props) {
       )}
 
       <div className="flex flex-col gap-3 my-4">
-        <AnimatePresence>
-          {items?.map((item, index) => (
-            <FragmentsListItem
-              item={item}
-              index={index}
-              onPick={() => onPick?.(item.body)}
-              onEdit={() => onEdit(item)}
-              key={item.id}
-            />
-          ))}
-        </AnimatePresence>
+        {items?.map((item, index) => (
+          <FragmentsListItem
+            item={item}
+            index={index}
+            onPick={() => onPick?.(item.body)}
+            onEdit={() => onEdit(item)}
+            key={item.id}
+          />
+        ))}
         {hasNextPage && (
           <div className="flex justify-center my-4">
             <Button

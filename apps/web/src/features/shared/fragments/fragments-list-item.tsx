@@ -4,7 +4,6 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { Button } from "@/features/ui";
 import { Fragment, useRemoveFragment } from "@ecency/sdk";
 import { UilEditAlt, UilTrash } from "@tooni/iconscout-unicons-react";
-import { motion } from "framer-motion";
 import { getAccessToken } from "@/utils";
 
 interface Props {
@@ -28,11 +27,9 @@ export function FragmentsListItem({ item, onPick, onEdit, index }: Props) {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      className="flex flex-col border dark:border-dark-400 rounded-xl overflow-hidden cursor-pointer hover:opacity-75"
+    <div
+      className="animate-fade-in-up flex flex-col border dark:border-dark-400 rounded-xl overflow-hidden cursor-pointer hover:opacity-75"
+      style={{ animationDelay: `${Math.min(index, 5) * 50}ms` }}
       key={item.id}
       onClick={() => onPick?.()}
     >
@@ -67,6 +64,6 @@ export function FragmentsListItem({ item, onPick, onEdit, index }: Props) {
         className="text-gray-steel dark:text-white-075 px-3 py-2"
         dangerouslySetInnerHTML={{ __html: (item.body?.slice(0, 200) ?? "").replace(/</g, "&lt;") }}
       ></div>
-    </motion.div>
+    </div>
   );
 }

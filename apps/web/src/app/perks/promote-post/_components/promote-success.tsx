@@ -1,6 +1,5 @@
 import { Button } from "@/features/ui";
 import { UilCheckCircle } from "@tooni/iconscout-unicons-react";
-import { motion } from "framer-motion";
 import i18next from "i18next";
 import Link from "next/link";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
@@ -9,11 +8,7 @@ export function PromoteSuccess() {
   const { activeUser } = useActiveAccount();
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-    >
+    <div className="animate-fade-in-up">
       <div className="px-2 py-4 sm:px-4 md:p-6 lg:p-12 flex flex-col gap-4 md:gap-8 lg:gap-12 xl:gap-16 items-center">
         <div className="flex flex-col items-center justify-center gap-2">
           <UilCheckCircle className="text-green w-12 h-12" />
@@ -34,6 +29,6 @@ export function PromoteSuccess() {
           </Link>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

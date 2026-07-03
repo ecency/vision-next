@@ -28,7 +28,7 @@
       cursor: pointer;
 
       // CSS entrance, staggered via an inline animation-delay per item. Replaces
-      // the framer-motion `initial={{ opacity: 0 }}`, which serialized opacity:0
+      // the old JS-driven `initial={{ opacity: 0 }}` entrance, which serialized opacity:0
       // into the SSR HTML — leaving the strip invisible until hydration and for
       // no-JS clients. `backwards` holds the start frame through the delay; the
       // resting state is visible, so the server HTML carries no inline opacity:0.

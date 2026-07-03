@@ -74,9 +74,9 @@ vi.mock("@/api/mutations", () => ({
 }));
 
 // `PopoverConfirm` (from the @/features/ui barrel) wraps the trigger in a
-// floating-ui + framer-motion popover whose AnimatePresence exit races jsdom
-// cleanup. We're testing EntryReblogBtn's wiring, not the popover internals, so
-// replace it with a deterministic stand-in that preserves its real contract:
+// floating-ui positioned popover. We're testing EntryReblogBtn's wiring, not
+// the popover internals, so replace it with a deterministic stand-in that
+// preserves its real contract:
 // render the trigger child and an OK button that invokes `onConfirm`. The
 // captured props let us assert the component supplies the correct confirm
 // title / ok text / variant for the (un)reblog states.

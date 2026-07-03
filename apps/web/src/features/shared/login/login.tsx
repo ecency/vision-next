@@ -16,7 +16,6 @@ import { ExtensionInstallList, useShowExtensionInstall } from "../extension-inst
 import { ExtensionChooser } from "../extension-chooser";
 import { error } from "../feedback";
 import { decideExtensionLoginAction } from "./extension-login-action";
-import { motion } from "framer-motion";
 import { TabItem } from "@/features/ui";
 import clsx from "clsx";
 import { shouldUseKeychainMobile } from "@/utils/client";
@@ -200,11 +199,7 @@ export default function Login() {
         {step === "key" && <LoginUserByKey username={username} />}
 
         {step === "start" && (
-          <motion.div
-            className="grid grid-cols-2 gap-4 w-full"
-            initial={{ opacity: 0, y: -16 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
+          <div className="grid grid-cols-2 gap-4 w-full animate-fade-in-up">
             <Button
               disabled={!username}
               full={true}
@@ -294,7 +289,7 @@ export default function Login() {
                 {i18next.t("key-or-hot.sign-with-metamask", { defaultValue: "Sign with MetaMask" })}
               </Button>
             )}
-          </motion.div>
+          </div>
         )}
       </div>
 

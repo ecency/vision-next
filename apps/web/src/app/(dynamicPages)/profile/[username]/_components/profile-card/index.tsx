@@ -23,7 +23,6 @@ import {
   UilLocationPoint,
   UilRss
 } from "@tooni/iconscout-unicons-react";
-import { AnimatePresence, motion } from "framer-motion";
 import i18next from "i18next";
 import Image from "next/image";
 import Link from "next/link";
@@ -72,7 +71,7 @@ export function ProfileCard({ account }: Props) {
   return (
     <div className="rounded-xl w-full overflow-hidden relative p-4">
       {/* No opacity fade-in here: this card is above the fold, so a
-          framer-motion initial opacity:0 left the whole header (cover, avatar,
+          JS-driven initial opacity:0 left the whole header (cover, avatar,
           name) invisible in the SSR HTML until hydration, delaying LCP paint.
           Render it visible from the server instead. */}
       <Image
@@ -85,21 +84,14 @@ export function ProfileCard({ account }: Props) {
           onError={() => setImageSrc("/assets/promote-wave-bg.jpg")}
       />
 
-      <AnimatePresence>
-        {!isMyProfile && relationshipBetweenAccounts?.follows && (
-          <motion.div
-            key="follows-badge"
-            initial={{ opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-          >
-            <Badge className="relative z-10">{i18next.t("profile.follows-you")}</Badge>
-          </motion.div>
-        )}
-        <div key="profile-info" className="absolute z-10 right-4 top-4">
-          <ProfileInfo account={account} />
+      {!isMyProfile && relationshipBetweenAccounts?.follows && (
+        <div className="animate-pop-in">
+          <Badge className="relative z-10">{i18next.t("profile.follows-you")}</Badge>
         </div>
-      </AnimatePresence>
+      )}
+      <div className="absolute z-10 right-4 top-4">
+        <ProfileInfo account={account} />
+      </div>
 
       <div className="relative flex flex-col mt-10 gap-2">
         <UserAvatar username={account?.name ?? ""} size="large" />
@@ -112,16 +104,7 @@ export function ProfileCard({ account }: Props) {
             @{account.name}
             <Badge className="!px-1 !py-0">{accountReputation(data?.reputation ?? 0)}</Badge>
           </span>
-          {data?.profile.about && (
-            <motion.div
-              initial={{ height: 20 }}
-              animate={{ height: "auto" }}
-              transition={{ delay: 0.1 }}
-              className="text-sm overflow-hidden"
-            >
-              {data?.profile.about}
-            </motion.div>
-          )}
+          {data?.profile.about && <div className="text-sm">{data?.profile.about}</div>}
         </div>
 
         <div className="grid grid-cols-2 pb-4">

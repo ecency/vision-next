@@ -17,7 +17,6 @@ import { parseAsset } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { getAccountFullQueryOptions, getProposalsQueryOptions, getUserProposalVotesQueryOptions } from "@ecency/sdk";
 import { Proposal } from "@/entities";
-import { AnimatePresence, motion } from "framer-motion";
 import { useInViewport } from "react-in-viewport";
 import { useDebounce } from "react-use";
 import { useSearchParams } from "next/navigation";
@@ -229,23 +228,14 @@ export function ProposalsPage() {
         {showProposalsList && isLoading && <LinearProgress />}
         {showProposalsList && (sliced?.length ?? 0) > 0 && (
           <div className="proposal-list">
-            <AnimatePresence>
-              {sliced?.map((p, i) => (
-                <motion.div
-                  key={p.id}
-                  initial={{ opacity: 0, y: 48 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 48 }}
-                  transition={{ delay: i * 0.2 }}
-                >
-                  <ProposalListItem
-                    proposal={p}
-                    thresholdProposalId={thresholdProposalId}
-                    votedByViewer={userVotedProposalIds.has(p.proposal_id)}
-                  />
-                </motion.div>
-              ))}
-            </AnimatePresence>
+            {sliced?.map((p) => (
+              <ProposalListItem
+                key={p.id}
+                proposal={p}
+                thresholdProposalId={thresholdProposalId}
+                votedByViewer={userVotedProposalIds.has(p.proposal_id)}
+              />
+            ))}
 
             <div ref={infiniteLoadingAnchorRef} />
           </div>
