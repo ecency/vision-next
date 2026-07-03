@@ -1,12 +1,14 @@
 import React from "react";
-import { columnPath, formatCompact, hbarPath, scaleMax } from "./chart-utils";
+import { columnPath, formatCompact, formatFull, hbarPath, scaleMax } from "./chart-utils";
 
 /**
  * Server-rendered SVG charts (zero client JS). Colors come from CSS custom
  * properties defined on .ce-viz (light + .dark overrides in the page), so the
  * marks respond to the site theme without hydration. Text wears text tokens,
- * never the series color; every mark carries a native <title> tooltip and the
- * page ships full tables as the accessible view.
+ * never the series color. No svg <title> tooltips anywhere (the document
+ * title streams late, so first-title parsers would read a tooltip as the page
+ * title); values live in direct labels, CSS hover readouts and the page's
+ * full tables, which are the accessible view.
  */
 
 // Two validated series slots; charts on this page use at most two series.
@@ -23,12 +25,15 @@ export function ColumnChart({
   labels,
   series,
   ariaLabel,
-  valueFormatter = formatCompact
+  valueFormatter = formatCompact,
+  readoutFormatter
 }: {
   labels: string[];
   series: ColumnSeries[]; // 1-2 series (grouped)
   ariaLabel: string;
   valueFormatter?: (n: number) => string;
+  /** unused here: columns carry direct cap labels; kept for Trend prop parity */
+  readoutFormatter?: (n: number) => string;
 }) {
   const W = 560;
   const H = 230;
@@ -129,17 +134,25 @@ export function ColumnChart({
  * Mark specs: 2px round-join line, >=8px end dot with a 2px surface ring,
  * ~10% area wash for a single series. Labels are selective (first / peak /
  * last values; year ticks on the x-axis) - the table views carry every value.
+ *
+ * Hover: pure-CSS per-point bands (see .ce-hband/.ce-hlbl in the page's style
+ * block) reveal a hairline, point dots and a fixed readout with the exact
+ * values. No client JS, and no svg <title> tooltips - a streamed-late document
+ * <title> means naive parsers would read a tooltip as the page title.
  */
 export function LineChart({
   labels,
   series,
   ariaLabel,
-  valueFormatter = formatCompact
+  valueFormatter = formatCompact,
+  readoutFormatter = formatFull
 }: {
   labels: string[]; // one per point, e.g. "Q2 2020"
   series: ColumnSeries[]; // 1-2 series
   ariaLabel: string;
   valueFormatter?: (n: number) => string;
+  /** hover readout shows EXACT values; sparse on-chart labels stay compact */
+  readoutFormatter?: (n: number) => string;
 }) {
   const W = 560;
   const H = 230;
@@ -252,6 +265,57 @@ export function LineChart({
             </g>
           );
         })}
+        {/* hover layer: one hit band per point; CSS reveals the readout */}
+        <g aria-hidden="true">
+          {labels.map((label, i) => {
+            const left = i === 0 ? 0 : (px(i - 1) + px(i)) / 2;
+            const right = i === n - 1 ? W : (px(i) + px(i + 1)) / 2;
+            return (
+              <g key={`h-${i}`} className="ce-hband">
+                <rect x={left} y={0} width={right - left} height={H} fill="transparent" />
+                <g className="ce-hlbl">
+                  <line
+                    x1={px(i)}
+                    y1={padTop}
+                    x2={px(i)}
+                    y2={H - padBottom}
+                    stroke="var(--ce-text2)"
+                    strokeWidth={1}
+                    opacity={0.4}
+                  />
+                  {series.map((s, si) => (
+                    <circle
+                      key={s.name}
+                      cx={px(i)}
+                      cy={py(s.values[i] ?? 0)}
+                      r={4}
+                      fill={seriesColor(si)}
+                      stroke="var(--ce-surface)"
+                      strokeWidth={2}
+                    />
+                  ))}
+                  <text
+                    x={padX}
+                    y={20}
+                    textAnchor="start"
+                    fontSize={11}
+                    fill="var(--ce-text2)"
+                    stroke="var(--ce-surface)"
+                    strokeWidth={3}
+                    paintOrder="stroke"
+                  >
+                    {label}
+                    {series.map((s) =>
+                      series.length > 1
+                        ? ` · ${s.name} ${readoutFormatter(s.values[i] ?? 0)}`
+                        : ` · ${readoutFormatter(s.values[i] ?? 0)}`
+                    )}
+                  </text>
+                </g>
+              </g>
+            );
+          })}
+        </g>
       </svg>
     </div>
   );
