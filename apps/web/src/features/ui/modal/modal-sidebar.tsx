@@ -1,7 +1,7 @@
 import { classNameObject } from "@ui/util";
 import { PropsWithChildren } from "react";
 import { Modal } from "@/features/ui";
-import { motion } from "framer-motion";
+import { motion, PresenceContext } from "framer-motion";
 
 interface Props {
   show: boolean;
@@ -47,7 +47,14 @@ export function ModalSidebar({
           [className ?? ""]: !!className
         })}
       >
-        {children}
+        {/* AnimatePresence only removes the exiting sidebar once every motion
+            component registered under it reports exit-complete. Live content
+            (e.g. a notification arriving mid-close mounts a new animated list
+            item) registers with the exiting presence but never completes,
+            leaving the sidebar stuck on screen until a reload. Nulling the
+            presence context for children keeps them out of that bookkeeping;
+            the sliding container above still participates and animates out. */}
+        <PresenceContext.Provider value={null}>{children}</PresenceContext.Provider>
       </motion.div>
     </Modal>
   );

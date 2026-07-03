@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.34
+
+### Patch Changes
+
+- fix: integer adaptive timeout delay (sdk) + stuck notifications sidebar (ui) (#1070)
+
 ## 2.3.33
 
 ### Patch Changes

@@ -192,6 +192,24 @@ describe("adaptive per-attempt timeout", () => {
     expect(f.hostsInOrder()[1]).toBe(nodes[1]);
   });
 
+  it("feeds AbortSignal.timeout an integer when factor×EWMA is fractional (Node rejects floats)", async () => {
+    const nodes = freshNodes(1);
+    config.nodes = nodes;
+    Object.assign(config.resilience, { adaptiveTimeoutFloorMs: 50, adaptiveTimeoutFactor: 1, hedge: false });
+    // Production EWMAs are virtually always fractional (alpha-blend of samples);
+    // seed one directly so the adaptive window is a non-integer above the floor.
+    for (let i = 0; i < 3; i++) {
+      rpcHealthTracker.recordSuccess(nodes[0], "condenser_api", 660.59, METHOD);
+    }
+    const ewma = rpcHealthTracker.getUsableLatencyMs(nodes[0], METHOD);
+    expect(ewma).toBeDefined();
+    expect(Number.isInteger(ewma)).toBe(false); // vacuous-test guard
+
+    routeFetch({ [nodes[0]]: { kind: "ok", result: 42 } });
+    // Node's AbortSignal.timeout throws ERR_OUT_OF_RANGE for non-integer delays.
+    await expect(callRPC<number>(METHOD, [["ecency"]])).resolves.toEqual(42);
+  });
+
   it("treats an explicit caller timeout as authoritative (no adaptive shortening)", async () => {
     const nodes = freshNodes(2);
     config.nodes = nodes;

@@ -823,7 +823,11 @@ function adaptiveAttemptTimeout(
   if (!r.adaptiveTimeout || explicit) return callerTimeout
   const ewma = tracker.getUsableLatencyMs(node, profileKey)
   if (ewma === undefined) return callerTimeout
-  return Math.min(callerTimeout, Math.max(r.adaptiveTimeoutFloorMs, r.adaptiveTimeoutFactor * ewma))
+  // EWMAs are fractional, but the result feeds AbortSignal.timeout(), which
+  // Node rejects with ERR_OUT_OF_RANGE for non-integer delays (browsers coerce).
+  return Math.ceil(
+    Math.min(callerTimeout, Math.max(r.adaptiveTimeoutFloorMs, r.adaptiveTimeoutFactor * ewma))
+  )
 }
 
 // ── Internal helpers ────────────────────────────────────────────────────────
@@ -887,6 +891,9 @@ function createTimeoutReason(): Error {
  *  Returns { signal, cleanup } — caller must invoke cleanup() on success
  *  to clear the dangling timer. */
 function createTimeoutSignal(ms: number): { signal: AbortSignal; cleanup: () => void } {
+  // Node's AbortSignal.timeout throws ERR_OUT_OF_RANGE on fractional delays
+  // (browsers coerce them), so guard every caller here.
+  ms = Math.ceil(ms)
   if (typeof AbortSignal.timeout === 'function') {
     return { signal: AbortSignal.timeout(ms), cleanup: () => {} }
   }
