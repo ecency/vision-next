@@ -116,6 +116,7 @@ export default async function CreatorEconomyPage() {
               series={[{ name: "USD", values: quarters.map((q) => q.rewards.usd ?? 0) }]}
               ariaLabel={t("chart-usd")}
               valueFormatter={(n) => `$${formatCompact(n)}`}
+              readoutFormatter={(n) => `$${formatFull(n)}`}
             />
           </section>
 

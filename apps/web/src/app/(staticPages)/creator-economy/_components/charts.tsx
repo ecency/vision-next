@@ -1,5 +1,5 @@
 import React from "react";
-import { columnPath, formatCompact, hbarPath, scaleMax } from "./chart-utils";
+import { columnPath, formatCompact, formatFull, hbarPath, scaleMax } from "./chart-utils";
 
 /**
  * Server-rendered SVG charts (zero client JS). Colors come from CSS custom
@@ -23,12 +23,15 @@ export function ColumnChart({
   labels,
   series,
   ariaLabel,
-  valueFormatter = formatCompact
+  valueFormatter = formatCompact,
+  readoutFormatter
 }: {
   labels: string[];
   series: ColumnSeries[]; // 1-2 series (grouped)
   ariaLabel: string;
   valueFormatter?: (n: number) => string;
+  /** unused here: columns carry direct cap labels; kept for Trend prop parity */
+  readoutFormatter?: (n: number) => string;
 }) {
   const W = 560;
   const H = 230;
@@ -139,12 +142,15 @@ export function LineChart({
   labels,
   series,
   ariaLabel,
-  valueFormatter = formatCompact
+  valueFormatter = formatCompact,
+  readoutFormatter = formatFull
 }: {
   labels: string[]; // one per point, e.g. "Q2 2020"
   series: ColumnSeries[]; // 1-2 series
   ariaLabel: string;
   valueFormatter?: (n: number) => string;
+  /** hover readout shows EXACT values; sparse on-chart labels stay compact */
+  readoutFormatter?: (n: number) => string;
 }) {
   const W = 560;
   const H = 230;
@@ -280,18 +286,27 @@ export function LineChart({
                       key={s.name}
                       cx={px(i)}
                       cy={py(s.values[i] ?? 0)}
-                      r={3.5}
+                      r={4}
                       fill={seriesColor(si)}
                       stroke="var(--ce-surface)"
                       strokeWidth={2}
                     />
                   ))}
-                  <text x={padX} y={14} textAnchor="start" fontSize={11} fill="var(--ce-text2)">
+                  <text
+                    x={padX}
+                    y={20}
+                    textAnchor="start"
+                    fontSize={11}
+                    fill="var(--ce-text2)"
+                    stroke="var(--ce-surface)"
+                    strokeWidth={3}
+                    paintOrder="stroke"
+                  >
                     {label}
                     {series.map((s) =>
                       series.length > 1
-                        ? ` · ${s.name} ${valueFormatter(s.values[i] ?? 0)}`
-                        : ` · ${valueFormatter(s.values[i] ?? 0)}`
+                        ? ` · ${s.name} ${readoutFormatter(s.values[i] ?? 0)}`
+                        : ` · ${readoutFormatter(s.values[i] ?? 0)}`
                     )}
                   </text>
                 </g>
