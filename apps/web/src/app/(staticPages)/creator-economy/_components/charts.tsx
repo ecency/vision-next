@@ -189,7 +189,7 @@ export function LineChart({
             key={tick.i}
             x={px(tick.i)}
             y={H - padBottom + 18}
-            textAnchor="middle"
+            textAnchor={tick.i === 0 ? "start" : "middle"}
             fontSize={11}
             fill="var(--ce-text2)"
           >
@@ -199,12 +199,18 @@ export function LineChart({
         {series.map((s, si) => {
           const pts = s.values.map((v, i) => `${px(i).toFixed(1)},${py(v).toFixed(1)}`);
           const peakIdx = s.values.indexOf(Math.max(...s.values));
-          const lastIdx = s.values.length - 1;
-          // Selective labels: peak + last (first too when it isn't the peak);
-          // skip when they collide with a stronger label.
-          const labelIdxs = Array.from(new Set([peakIdx, lastIdx, 0])).filter(
-            (i) => i === peakIdx || i === lastIdx || Math.abs(i - peakIdx) > 2
-          );
+          // labels and every series' values must be the same length; bound by
+          // both so a mismatched caller cannot place marks off-axis
+          const lastIdx = Math.min(s.values.length, n) - 1;
+          // Selective labels by priority (last > peak > first), dropping any
+          // candidate within the collision window of an already-kept label.
+          const labelIdxs = [lastIdx, peakIdx, 0]
+            .reduce<number[]>((kept, i) => {
+              if (i < 0 || kept.includes(i)) return kept;
+              if (kept.some((j) => Math.abs(i - j) <= 2)) return kept;
+              return [...kept, i];
+            }, [])
+            .sort((a, b) => a - b);
           return (
             <g key={s.name} aria-hidden="true">
               {series.length === 1 && (
