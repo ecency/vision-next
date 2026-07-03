@@ -129,6 +129,11 @@ export function ColumnChart({
  * Mark specs: 2px round-join line, >=8px end dot with a 2px surface ring,
  * ~10% area wash for a single series. Labels are selective (first / peak /
  * last values; year ticks on the x-axis) - the table views carry every value.
+ *
+ * Hover: pure-CSS per-point bands (see .ce-hband/.ce-hlbl in the page's style
+ * block) reveal a hairline, point dots and a fixed readout with the exact
+ * values. No client JS, and no svg <title> tooltips - a streamed-late document
+ * <title> means naive parsers would read a tooltip as the page title.
  */
 export function LineChart({
   labels,
@@ -252,6 +257,48 @@ export function LineChart({
             </g>
           );
         })}
+        {/* hover layer: one hit band per point; CSS reveals the readout */}
+        <g aria-hidden="true">
+          {labels.map((label, i) => {
+            const left = i === 0 ? 0 : (px(i - 1) + px(i)) / 2;
+            const right = i === n - 1 ? W : (px(i) + px(i + 1)) / 2;
+            return (
+              <g key={`h-${i}`} className="ce-hband">
+                <rect x={left} y={0} width={right - left} height={H} fill="transparent" />
+                <g className="ce-hlbl">
+                  <line
+                    x1={px(i)}
+                    y1={padTop}
+                    x2={px(i)}
+                    y2={H - padBottom}
+                    stroke="var(--ce-text2)"
+                    strokeWidth={1}
+                    opacity={0.4}
+                  />
+                  {series.map((s, si) => (
+                    <circle
+                      key={s.name}
+                      cx={px(i)}
+                      cy={py(s.values[i] ?? 0)}
+                      r={3.5}
+                      fill={seriesColor(si)}
+                      stroke="var(--ce-surface)"
+                      strokeWidth={2}
+                    />
+                  ))}
+                  <text x={padX} y={14} textAnchor="start" fontSize={11} fill="var(--ce-text2)">
+                    {label}
+                    {series.map((s) =>
+                      series.length > 1
+                        ? ` · ${s.name} ${valueFormatter(s.values[i] ?? 0)}`
+                        : ` · ${valueFormatter(s.values[i] ?? 0)}`
+                    )}
+                  </text>
+                </g>
+              </g>
+            );
+          })}
+        </g>
       </svg>
     </div>
   );

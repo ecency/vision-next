@@ -31,6 +31,8 @@ export async function generateMetadata(
 const VIZ_VARS = `
 .ce-viz{--ce-s1:#357ce6;--ce-s2:#1baf7a;--ce-grid:#e5e7eb;--ce-text2:#6b7280;--ce-surface:#ffffff}
 .dark .ce-viz{--ce-s1:#3987e5;--ce-s2:#199e70;--ce-grid:#2f2f2f;--ce-text2:#9ca3af;--ce-surface:#131111}
+.ce-viz .ce-hlbl{opacity:0;pointer-events:none;transition:opacity .1s}
+.ce-viz .ce-hband:hover .ce-hlbl{opacity:1}
 `;
 
 export default async function CreatorEconomyPage() {
