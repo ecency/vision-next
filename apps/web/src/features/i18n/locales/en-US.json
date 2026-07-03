@@ -2678,6 +2678,13 @@
     "explore-communities": "Explore all communities",
     "cta-lead": "Want to be part of it?",
     "cta-join": "Join Ecency and start earning for what you share",
+    "curation-title": "Curators earn too",
+    "curation-note": "On Hive, readers share in rewards: voting on a post pays the voter a curation reward. More people earn from curating than from writing.",
+    "tile-curators": "Curators paid",
+    "tile-curation-hp": "HP to curators",
+    "chart-curation": "Hive Power paid to curators per quarter",
+    "th-curators": "Curators",
+    "th-curation-hp": "Curation HP",
     "distribution-title": "What does a creator earn? ({{q}})",
     "distribution-note": "Hive Power received per earning author this quarter. Like every creator platform, earnings are top-heavy: the median author earns a little, the top percent earns meaningfully.",
     "dist-median": "Median",
@@ -2701,7 +2708,8 @@
     "methodology-2": "When HIVE's price is low, the network suspends HBD printing and pays the liquid half of rewards in HIVE instead. That is why recent quarters show liquid HIVE and little or no HBD.",
     "methodology-3": "Post and comment counts exclude edits; posts are top-level publications only.",
     "methodology-4": "USD estimates use quarter-average market prices and are approximate. Rewards denominated in VESTS before 2026 are converted with the current chain ratio, a small approximation.",
-    "methodology-5": "Data is licensed CC BY 4.0: reuse it freely with attribution to Ecency."
+    "methodology-5": "Curation figures track curation_reward operations paid to voters, indexed from the chain the same way as author rewards. They are reported separately and never mixed into the author-reward totals.",
+    "methodology-6": "Data is licensed CC BY 4.0: reuse it freely with attribution to Ecency."
   },
   "contributors": {
     "title": "Contributors",

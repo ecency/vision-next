@@ -101,6 +101,11 @@
           "authors": 474
         }
       ],
+      "curation": {
+        "events": 15547296,
+        "curators": 13677,
+        "hp": 2868834
+      },
       "hiveUsd": 0.3461
     },
     {
@@ -204,6 +209,11 @@
           "authors": 423
         }
       ],
+      "curation": {
+        "events": 15193425,
+        "curators": 13313,
+        "hp": 3073894
+      },
       "hiveUsd": 0.2365
     },
     {
@@ -307,6 +317,11 @@
           "authors": 451
         }
       ],
+      "curation": {
+        "events": 15049017,
+        "curators": 13280,
+        "hp": 3167419
+      },
       "hiveUsd": 0.2139
     },
     {
@@ -410,6 +425,11 @@
           "authors": 315
         }
       ],
+      "curation": {
+        "events": 13701625,
+        "curators": 12851,
+        "hp": 3309981
+      },
       "hiveUsd": 0.1217
     },
     {
@@ -513,6 +533,11 @@
           "authors": 248
         }
       ],
+      "curation": {
+        "events": 11048844,
+        "curators": 11791,
+        "hp": 2878884
+      },
       "hiveUsd": 0.0779
     },
     {
@@ -616,6 +641,11 @@
           "authors": 186
         }
       ],
+      "curation": {
+        "events": 9127720,
+        "curators": 11362,
+        "hp": 2801871
+      },
       "hiveUsd": 0.0579
     }
   ],

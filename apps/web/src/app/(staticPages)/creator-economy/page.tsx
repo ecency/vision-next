@@ -213,6 +213,32 @@ export default async function CreatorEconomyPage() {
             </p>
           </section>
 
+          {latest.curation && (
+            <section className="mt-10">
+              <h2 className="text-xl font-semibold mb-1">{t("curation-title")}</h2>
+              <p className="text-sm text-gray-500 mb-3">{t("curation-note")}</p>
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <StatTile
+                  label={t("tile-curators")}
+                  value={formatFull(latest.curation.curators)}
+                  delta={deltaPct(latest.curation.curators, prev?.curation?.curators)}
+                />
+                <StatTile
+                  label={t("tile-curation-hp")}
+                  value={`${formatCompact(latest.curation.hp)} HP`}
+                  delta={deltaPct(latest.curation.hp, prev?.curation?.hp)}
+                />
+              </div>
+              <ColumnChart
+                labels={labels}
+                series={[
+                  { name: t("tile-curation-hp"), values: quarters.map((q) => q.curation?.hp ?? 0) }
+                ]}
+                ariaLabel={t("chart-curation")}
+              />
+            </section>
+          )}
+
           {/* Full-precision table: the accessible/table view for every chart above */}
           <section className="mt-10 overflow-x-auto">
             <h2 className="text-xl font-semibold mb-3">{t("quarters-title")}</h2>
@@ -226,7 +252,9 @@ export default async function CreatorEconomyPage() {
                   <th className="py-2 pr-3 text-right">{t("th-hp")}</th>
                   <th className="py-2 pr-3 text-right">{t("th-usd")}</th>
                   <th className="py-2 pr-3 text-right">{t("th-posts")}</th>
-                  <th className="py-2 text-right">{t("th-comments")}</th>
+                  <th className="py-2 pr-3 text-right">{t("th-comments")}</th>
+                  <th className="py-2 pr-3 text-right">{t("th-curators")}</th>
+                  <th className="py-2 text-right">{t("th-curation-hp")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -241,7 +269,13 @@ export default async function CreatorEconomyPage() {
                       {q.rewards.usd ? `$${formatFull(q.rewards.usd)}` : "n/a"}
                     </td>
                     <td className="py-2 pr-3 text-right">{formatFull(q.content.posts)}</td>
-                    <td className="py-2 text-right">{formatFull(q.content.comments)}</td>
+                    <td className="py-2 pr-3 text-right">{formatFull(q.content.comments)}</td>
+                    <td className="py-2 pr-3 text-right">
+                      {q.curation ? formatFull(q.curation.curators) : "n/a"}
+                    </td>
+                    <td className="py-2 text-right">
+                      {q.curation ? formatFull(q.curation.hp) : "n/a"}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -256,6 +290,7 @@ export default async function CreatorEconomyPage() {
               <li>{t("methodology-3")}</li>
               <li>{t("methodology-4")}</li>
               <li>{t("methodology-5")}</li>
+              <li>{t("methodology-6")}</li>
             </ul>
           </section>
         </div>
