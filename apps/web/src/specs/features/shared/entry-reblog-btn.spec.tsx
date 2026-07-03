@@ -1,8 +1,9 @@
 import React from "react";
-import { fireEvent, screen, within } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  createTestQueryClient,
   mockEntry,
   renderWithQueryClient,
   setupModalContainers,
@@ -98,6 +99,15 @@ vi.mock("@/features/ui", () => ({
 }));
 
 import { EntryReblogBtn } from "@/features/shared/entry-reblog-btn";
+
+// jsdom has no AnimationEvent, and testing-library's plain-Event fallback drops
+// `animationName` from the init dict — build the event by hand so the
+// name-gated onAnimationEnd handler can actually match.
+function fireAnimationEnd(el: Element, animationName: string) {
+  const ev = new Event("animationend", { bubbles: true });
+  Object.assign(ev, { animationName });
+  fireEvent(el, ev);
+}
 
 function asLoggedIn(username = "alice") {
   mockUseActiveAccount.mockReturnValue({
@@ -246,5 +256,71 @@ describe("EntryReblogBtn", () => {
 
     expect(reblogMutate).toHaveBeenCalledTimes(1);
     expect(reblogMutate).toHaveBeenCalledWith({ isDelete: true });
+  });
+
+  it("spins the icon once after a successful fresh reblog and clears on animationend", async () => {
+    asLoggedIn("alice");
+    const entry = mockEntry({ author: "bob", permlink: "post" } as Partial<Entry>);
+    const { container } = renderWithQueryClient(<EntryReblogBtn entry={entry} />);
+
+    const wrapper = container.querySelector(".entry-reblog-btn") as HTMLElement;
+    // Transient class: never present on initial render.
+    expect(wrapper).not.toHaveClass("reblog-done");
+
+    fireEvent.click(screen.getByTestId("confirm-ok"));
+    await waitFor(() => expect(wrapper).toHaveClass("reblog-done"));
+
+    // The count tick's animationend bubbles to the wrapper too — it must not
+    // cut the spin short.
+    fireAnimationEnd(wrapper, "anim-tick");
+    expect(wrapper).toHaveClass("reblog-done");
+
+    fireAnimationEnd(wrapper, "anim-rotate-once");
+    expect(wrapper).not.toHaveClass("reblog-done");
+  });
+
+  it("does not spin when removing a reblog", async () => {
+    asLoggedIn("alice");
+    reblogsFixture = [{ author: "bob", permlink: "post" }];
+    const entry = mockEntry({ author: "bob", permlink: "post" } as Partial<Entry>);
+    const { container } = renderWithQueryClient(<EntryReblogBtn entry={entry} />);
+
+    fireEvent.click(screen.getByTestId("confirm-ok"));
+    await waitFor(() => expect(reblogMutate).toHaveBeenCalledWith({ isDelete: true }));
+    // Flush the mutation's resolution before asserting no cue was set.
+    await act(async () => {});
+
+    expect(container.querySelector(".entry-reblog-btn")).not.toHaveClass("reblog-done");
+  });
+
+  it("ticks the reblog count only when it changes after mount, never on first paint", async () => {
+    asLoggedIn("alice");
+    const entry = mockEntry({ author: "bob", permlink: "post", reblogs: 7 } as Partial<Entry>);
+    const queryClient = createTestQueryClient();
+    const { container } = renderWithQueryClient(<EntryReblogBtn entry={entry} />, { queryClient });
+
+    // First paint: number visible, no tick.
+    expect(within(container).getByText("7")).not.toHaveClass("animate-tick");
+
+    // The count changes in the entry cache (e.g. optimistic bump after reblog).
+    act(() => {
+      queryClient.setQueryData(["entry", "bob", "post"], { ...entry, reblogs: 8 });
+    });
+
+    await waitFor(() => expect(within(container).getByText("8")).toHaveClass("animate-tick"));
+  });
+
+  it("does not tick when the button instance is reused for a different post", () => {
+    asLoggedIn("alice");
+    const entryA = mockEntry({ author: "bob", permlink: "post-a", reblogs: 7 } as Partial<Entry>);
+    const entryB = mockEntry({ author: "carol", permlink: "post-b", reblogs: 3 } as Partial<Entry>);
+    const { container, rerender } = renderWithQueryClient(<EntryReblogBtn entry={entryA} />);
+
+    expect(within(container).getByText("7")).not.toHaveClass("animate-tick");
+
+    // Reuse: the first-seen ref guard resets per entry, so the new post's
+    // count renders without a tick.
+    rerender(<EntryReblogBtn entry={entryB} />);
+    expect(within(container).getByText("3")).not.toHaveClass("animate-tick");
   });
 });

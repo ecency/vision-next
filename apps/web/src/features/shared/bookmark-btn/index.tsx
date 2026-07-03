@@ -13,7 +13,7 @@ import { NotificationBadgeIcon } from "../notification-badge-icon";
 import { Button } from "@ui/button";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import "./_index.scss";
 import { error, success } from "../feedback";
 import { getAccessToken } from "@/utils";
@@ -44,22 +44,35 @@ export function BookmarkBtn({ entry }: Props) {
     return bookmark?._id;
   }, [bookmarks, entry.author, entry.permlink]);
 
+  // Transient success cue: set only in the mutation success callbacks and
+  // cleared on animationend, so the pulse never fires on initial render.
+  const [bookmarkDone, setBookmarkDone] = useState(false);
+
   const { mutateAsync: addBookmark, isPending: isAdding } = useBookmarkAdd(
     username,
     accessToken,
-    () => success(i18next.t("bookmark-btn.added")),
+    () => {
+      success(i18next.t("bookmark-btn.added"));
+      setBookmarkDone(true);
+    },
     () => error(i18next.t("g.server-error"))
   );
   const { mutateAsync: deleteBookmark, isPending: isDeleting } = useBookmarkDelete(
     username,
     accessToken,
-    () => success(i18next.t("bookmark-btn.deleted")),
+    () => {
+      success(i18next.t("bookmark-btn.deleted"));
+      setBookmarkDone(true);
+    },
     () => error(i18next.t("g.server-error"))
   );
 
   const bookmarkIcon = (
     <NotificationBadgeIcon>
-      <UilBookmark />
+      <UilBookmark
+        className={bookmarkDone ? "animate-success-pulse" : undefined}
+        onAnimationEnd={() => setBookmarkDone(false)}
+      />
     </NotificationBadgeIcon>
   );
 

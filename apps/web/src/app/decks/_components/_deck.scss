@@ -349,7 +349,8 @@
       }
 
       > * {
-        animation: skeleton-loader 1s infinite;
+        position: relative;
+        overflow: hidden;
 
         @include themify(day) {
           @apply bg-gray-200;
@@ -357,6 +358,21 @@
 
         @include themify(night) {
           @apply bg-dark-200;
+        }
+
+        &::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+          transform: translateX(-100%);
+          animation: anim-shimmer 1.4s ease-in-out infinite;
+        }
+
+        @include themify(night) {
+          &::after {
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+          }
         }
       }
 
@@ -405,21 +421,6 @@
       }
     }
 
-    @include themify(day) {
-      @keyframes skeleton-loader {
-        0% {
-          background-color: $pagination-border-color;
-        }
-
-        50% {
-          background-color: $pagination-hover-bg;
-        }
-
-        100% {
-          background-color: $pagination-border-color;
-        }
-      }
-    }
   }
 
   .transaction-list-item {

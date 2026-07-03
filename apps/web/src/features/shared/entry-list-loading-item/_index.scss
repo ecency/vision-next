@@ -2,7 +2,6 @@
 
 .entry-list-loading-item {
   @include clearfix();
-  animation: anim-fadein-out 2s infinite;
 
   margin-top: 20px;
   padding: 0 0 16px 6px;
@@ -26,6 +25,8 @@
   .item-body .item-summary *,
   .item-body .item-controls * {
     border-radius: 10px;
+    position: relative;
+    overflow: hidden;
 
     @include themify(day) {
       @apply bg-light-light-405;
@@ -33,6 +34,21 @@
 
     @include themify(night) {
       @apply bg-dark-default;
+    }
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+      transform: translateX(-100%);
+      animation: anim-shimmer 1.4s ease-in-out infinite;
+    }
+
+    @include themify(night) {
+      &::after {
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+      }
     }
   }
 

@@ -1,10 +1,5 @@
 import React, { JSX, useState } from "react";
-import {
-  chevronDownSvgForSlider,
-  chevronUpSvgForSlider,
-  deleteForeverSvg,
-  dragSvg
-} from "@/assets/img/svg";
+import { chevronDownSvgForSlider, deleteForeverSvg, dragSvg } from "@/assets/img/svg";
 import { DeckHeaderSettings } from "./deck-header-settings";
 import { DeckHeaderReloading } from "./deck-header-reloading";
 import { DraggableProvidedDragHandleProps } from "@hello-pangea/dnd";
@@ -77,11 +72,11 @@ export const DeckHeader = (props: Props | WithIntervalProps | WithDeletionProps 
               eventKey="0"
               noPadding={true}
               className="accordion-toggle"
-              iconClassName="justify-end"
+              iconClassName="justify-end transition-transform duration-200 [[data-open=true]_&]:rotate-180"
               onClick={() => {
                 setExpanded(!expanded);
               }}
-              icon={expanded ? chevronUpSvgForSlider : chevronDownSvgForSlider}
+              icon={chevronDownSvgForSlider}
             />
           </Tooltip>
         </div>

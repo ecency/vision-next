@@ -1,5 +1,27 @@
 @import "src/styles/vars_mixins";
 
+// static placeholder background + directional shimmer sweep (anim-shimmer keyframe is global)
+@mixin thread-render-skeleton {
+  position: relative;
+  overflow: hidden;
+  background-color: rgba($primary, 0.15);
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+    transform: translateX(-100%);
+    animation: anim-shimmer 1.4s ease-in-out infinite;
+  }
+
+  @include themify(night) {
+    &::after {
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+    }
+  }
+}
+
 .thread-render,
 .waves-list-item {
   display: grid;
@@ -200,23 +222,9 @@
     .title {
       @include font-size(1.125rem);
 
-      @keyframes thread-post-item-skeleton-loader {
-        0% {
-          background-color: rgba($primary, 0.15);
-        }
-
-        50% {
-          background-color: rgba($primary, 0.2);
-        }
-
-        100% {
-          background-color: rgba($primary, 0.15);
-        }
-      }
-
       &.loading {
         height: 27px;
-        animation: thread-post-item-skeleton-loader 1s infinite;
+        @include thread-render-skeleton;
       }
     }
 
@@ -227,7 +235,7 @@
 
       &.loading {
         height: 2rem;
-        animation: thread-post-item-skeleton-loader 1s infinite;
+        @include thread-render-skeleton;
       }
     }
   }

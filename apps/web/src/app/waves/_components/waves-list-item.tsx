@@ -40,6 +40,9 @@ interface Props {
   now?: number;
   currentHost?: string;
   feedType?: WavesFeedType;
+  className?: string;
+  style?: React.CSSProperties;
+  onAnimationEnd?: React.AnimationEventHandler<HTMLDivElement>;
 }
 
 export const WavesListItem = React.memo(function WavesListItem({
@@ -49,7 +52,10 @@ export const WavesListItem = React.memo(function WavesListItem({
   interactable = true,
   now,
   currentHost,
-  feedType
+  feedType,
+  className,
+  style,
+  onAnimationEnd
 }: Props) {
   const { activeUser } = useActiveAccount();
 
@@ -260,13 +266,16 @@ export const WavesListItem = React.memo(function WavesListItem({
         "waves-list-item bg-white dark:bg-dark-200 relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-dark-sky",
         "border-b border-[--border-color] last:border-b-0",
         isMuted && "grayscale opacity-50",
-        interactable && "cursor-pointer"
+        interactable && "cursor-pointer",
+        className
       )}
+      style={style}
       role={interactable ? "link" : undefined}
       tabIndex={interactable ? 0 : -1}
       onClick={onClick}
       onAuxClick={onAuxClick}
       onKeyDown={onKeyDown}
+      onAnimationEnd={onAnimationEnd}
     >
       {hasPromoted && (
         <div className="text-xs font-semibold uppercase rounded-br-lg px-1 rounded-tl-lg bg-blue-dark-sky text-white absolute top-[-1px] left-[-1px]">

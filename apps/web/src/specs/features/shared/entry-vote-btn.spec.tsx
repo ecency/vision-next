@@ -45,10 +45,20 @@ vi.mock("@/features/shared/entry-vote-btn/utils", () => ({
 // The slider dialog is loaded via next/dynamic and pulls in SDK vote-value queries we
 // don't exercise here. Replace it with a marker that records the previousVotedValue prop
 // it receives, so we can assert (a) it mounts and (b) the resolved value reaches it.
+// The extra button forwards to the dialog's onClick (the vote handler) so tests can
+// drive a successful vote broadcast.
 vi.mock("@/features/shared/entry-vote-btn/entry-vote-dialog", () => ({
-  EntryVoteDialog: ({ previousVotedValue }: { previousVotedValue: number | undefined }) => (
+  EntryVoteDialog: ({
+    previousVotedValue,
+    onClick
+  }: {
+    previousVotedValue: number | undefined;
+    onClick: (percent: number, estimated: number) => void;
+  }) => (
     <div data-testid="vote-dialog">
       prev:{previousVotedValue === undefined ? "none" : previousVotedValue}
+      {/* span, not <button>: pre-existing tests query the single role=button control */}
+      <span data-testid="vote-now" onClick={() => onClick(100, 0.5)} />
     </div>
   )
 }));
@@ -148,5 +158,53 @@ describe("EntryVoteBtn — opening the slider is not blocked on the previous-vot
     fireEvent.click(screen.getByRole("button"));
     const dialogB = await screen.findByTestId("vote-dialog");
     expect(dialogB).toHaveTextContent("prev:none");
+  });
+});
+
+describe("EntryVoteBtn — success pulse (transient class, never on load)", () => {
+  beforeEach(() => {
+    window.sessionStorage.clear();
+  });
+  afterEach(() => vi.clearAllMocks());
+
+  it("does not pulse the chevron for an already-voted post on initial render", () => {
+    const entry = mockEntry({
+      author: "bob",
+      permlink: "voted-post",
+      post_id: 1001,
+      active_votes: [{ voter: "alice", rshares: 100 }] as any
+    });
+    const { container } = renderWithQueryClient(<EntryVoteBtn entry={entry} isPostSlider={true} />);
+
+    expect(container.querySelector(".btn-inner")).not.toHaveClass("animate-success-pulse");
+  });
+
+  it("pulses the chevron after a successful vote broadcast and clears on animationend", async () => {
+    const entry = mockEntry({ author: "bob", permlink: "c-post", post_id: 1002, active_votes: [] });
+    const { container } = renderWithQueryClient(<EntryVoteBtn entry={entry} isPostSlider={true} />);
+
+    fireEvent.click(screen.getByRole("button"));
+    fireEvent.click(await screen.findByTestId("vote-now"));
+
+    const chevron = container.querySelector(".btn-inner") as HTMLElement;
+    await waitFor(() => expect(chevron).toHaveClass("animate-success-pulse"));
+    // A successful vote also closes the slider (pre-existing behavior).
+    expect(screen.queryByTestId("vote-dialog")).not.toBeInTheDocument();
+
+    // Transient class is removed once the pulse finishes.
+    fireEvent.animationEnd(chevron);
+    expect(chevron).not.toHaveClass("animate-success-pulse");
+  });
+
+  it("grows the slider popover from the chevron (top-left origin)", async () => {
+    const entry = mockEntry({ author: "bob", permlink: "d-post", post_id: 1003, active_votes: [] });
+    const { container } = renderWithQueryClient(<EntryVoteBtn entry={entry} isPostSlider={true} />);
+
+    fireEvent.click(screen.getByRole("button"));
+    await screen.findByTestId("vote-dialog");
+
+    const popover = container.querySelector(".tooltiptext") as HTMLElement;
+    expect(popover).toHaveClass("animate-scale-in");
+    expect(popover).toHaveClass("origin-top-left");
   });
 });

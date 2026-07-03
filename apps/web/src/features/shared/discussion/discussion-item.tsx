@@ -395,30 +395,37 @@ export const DiscussionItem = memo(function DiscussionItem({
         </div>
       </div>
 
+      {/* reply/edit start false and only flip on user action, so the entrance
+          animation never fires on initial render. The wrapper also masks the
+          dynamic-import seam while the lazy composer chunk loads. */}
       {reply && (
-        <Comment
-          entry={entry}
-          submitText={i18next.t("g.reply")}
-          cancellable
-          onSubmit={submitReply}
-          onCancel={toggleReply}
-          inProgress={isCreateLoading || isUpdateReplyLoading}
-          autoFocus
-          initialText={failedReplyText}
-        />
+        <div className="animate-fade-in-up">
+          <Comment
+            entry={entry}
+            submitText={i18next.t("g.reply")}
+            cancellable
+            onSubmit={submitReply}
+            onCancel={toggleReply}
+            inProgress={isCreateLoading || isUpdateReplyLoading}
+            autoFocus
+            initialText={failedReplyText}
+          />
+        </div>
       )}
 
       {edit && (
-        <Comment
-          entry={entry}
-          isEdit
-          submitText={i18next.t("g.update")}
-          cancellable
-          onSubmit={_updateReply}
-          onCancel={toggleEdit}
-          inProgress={isCreateLoading || isUpdateReplyLoading}
-          autoFocus
-        />
+        <div className="animate-fade-in-up">
+          <Comment
+            entry={entry}
+            isEdit
+            submitText={i18next.t("g.update")}
+            cancellable
+            onSubmit={_updateReply}
+            onCancel={toggleEdit}
+            inProgress={isCreateLoading || isUpdateReplyLoading}
+            autoFocus
+          />
+        </div>
       )}
 
       {showSubList && (

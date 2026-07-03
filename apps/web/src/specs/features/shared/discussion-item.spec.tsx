@@ -1,7 +1,7 @@
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { Entry } from "@/entities";
 import { mockEntry } from "@/specs/test-utils";
@@ -14,6 +14,15 @@ vi.mock("@/utils", async () => ({
   ...(await vi.importActual<typeof import("@/utils")>("@/utils")),
   random: vi.fn(),
   getAccessToken: vi.fn(() => "mock-token")
+}));
+
+// The Reply toggle only renders for a logged-in user; keep the active user
+// switchable per test (default: logged out, matching the global mock).
+const activeUserRef = vi.hoisted(() => ({ current: null as string | null }));
+vi.mock("@/core/hooks/use-active-account", () => ({
+  useActiveAccount: () => ({
+    activeUser: activeUserRef.current ? { username: activeUserRef.current } : null
+  })
 }));
 
 // The reply / edit / pin mutations broadcast to the chain — stub them so the
@@ -96,6 +105,10 @@ function renderItem(entry: Entry, root: Entry) {
 }
 
 describe("DiscussionItem", () => {
+  afterEach(() => {
+    activeUserRef.current = null;
+  });
+
   const root = mockEntry({ author: "bob", permlink: "the-post", category: "hive-101" });
   const comment = mockEntry({
     author: "alice",
@@ -133,5 +146,22 @@ describe("DiscussionItem", () => {
     );
 
     expect(screen.queryByTestId("entry-tip-btn")).not.toBeInTheDocument();
+  });
+
+  it("animates the reply composer entrance only after clicking Reply, never on initial render", () => {
+    activeUserRef.current = "demo";
+    const { container } = renderItem(comment, root);
+
+    // Nothing animates on mount — the composer (and its entrance wrapper)
+    // doesn't exist until the user acts.
+    expect(container.querySelector(".animate-fade-in-up")).toBeNull();
+
+    fireEvent.click(screen.getByText("g.reply"));
+
+    expect(container.querySelector(".animate-fade-in-up")).not.toBeNull();
+
+    // Toggling the composer closed removes the wrapper again.
+    fireEvent.click(screen.getByText("g.reply"));
+    expect(container.querySelector(".animate-fade-in-up")).toBeNull();
   });
 });

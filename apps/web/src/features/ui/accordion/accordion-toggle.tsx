@@ -17,6 +17,9 @@ export function AccordionToggle(props: Props) {
     props.as ?? "div",
     {
       ...nativeProps,
+      // Additive: expose the open state so consumers can style chevrons/carets
+      // (e.g. [[data-open=true]_&]:rotate-180) without new API surface
+      "data-open": show[props.eventKey] ?? false,
       onClick: () =>
         setShow({
           ...show,

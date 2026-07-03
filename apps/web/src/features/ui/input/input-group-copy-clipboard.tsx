@@ -29,7 +29,7 @@ export function InputGroupCopyClipboard(props: Props & HTMLAttributes<HTMLElemen
         copied ? (
           <Button
             appearance="gray-link"
-            icon={<UilCheck className="w-4 h-4 text-green" />}
+            icon={<UilCheck className="w-4 h-4 text-green animate-pop-in" />}
             aria-label={i18next.t("g.copied", { defaultValue: "Copied" })}
           />
         ) : (

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ReactNode, useMemo, useState } from "react";
+import React, { ReactNode, useMemo, useRef, useState } from "react";
 import "./_index.scss";
 import { Entry } from "@/entities";
 import { Tooltip } from "@ui/tooltip";
@@ -71,6 +71,16 @@ export function EntryVotes({ entry: initialEntry, icon, hideCount = false }: Pro
 
   const countClassName = `entry-votes__count${hideCount ? " entry-votes__count--hidden" : ""}`;
 
+  // Ref guard for the count tick: remember the first-seen count (per entry, so
+  // a list-recycled instance never ticks when handed a different post) and
+  // animate only when the number changes after mount — never on first paint.
+  const entryKey = `${entry?.author}/${entry?.permlink}`;
+  const firstSeenVotes = useRef({ entryKey, count: totalVotes });
+  if (firstSeenVotes.current.entryKey !== entryKey) {
+    firstSeenVotes.current = { entryKey, count: totalVotes };
+  }
+  const countChanged = totalVotes !== firstSeenVotes.current.count;
+
   const child = (
     <>
       <div
@@ -80,7 +90,11 @@ export function EntryVotes({ entry: initialEntry, icon, hideCount = false }: Pro
       >
         {icon ?? heartSvg}
       </div>
-      <span className={countClassName} aria-hidden={hideCount}>
+      <span
+        key={totalVotes}
+        className={`${countClassName}${countChanged ? " animate-tick" : ""}`}
+        aria-hidden={hideCount}
+      >
         {totalVotes}
       </span>
     </>

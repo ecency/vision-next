@@ -4,7 +4,7 @@ import { getWavesFeedQueryOptions } from "@ecency/sdk";
 import { WavesListItem } from "@/app/waves/_components/waves-list-item";
 import { DetectBottom } from "@/features/shared";
 import { WavesListLoader } from "@/app/waves/_components/waves-list-loader";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useInfiniteDataFlow } from "@/utils";
 import { useWavesAutoRefresh } from "@/app/waves/_hooks";
 import { WavesRefreshPopup } from "@/app/waves/_components";
@@ -115,6 +115,23 @@ export function WavesListView({ feedType, username }: Props) {
   }, [dataFlow, promoted, tag, selectedSource]);
 
   const [replyingEntry, setReplyingEntry] = useState<WaveEntry>();
+  // Keys of waves prepended via the refresh popup AFTER the initial render —
+  // only these get the entrance animation. The initial feed (and older pages
+  // appended by infinite scroll) must stay instant, so we scope the guard to
+  // the popup-insert path instead of keying off "not seen on first render".
+  const [freshKeys, setFreshKeys] = useState<Set<string>>(() => new Set());
+  const clearFreshKey = useCallback((key: string) => {
+    // Drop the key once its entrance finishes so a key-stable remount (e.g.
+    // toggling a tag filter) doesn't replay the animation.
+    setFreshKeys((prev) => {
+      if (!prev.has(key)) {
+        return prev;
+      }
+      const next = new Set(prev);
+      next.delete(key);
+      return next;
+    });
+  }, []);
   const shouldAutoRefresh = feedType === "for-you" && !tag && !selectedSource;
   const { newWaves, clear, now } = useWavesAutoRefresh(
     shouldAutoRefresh ? dataFlow[0] : undefined,
@@ -214,25 +231,32 @@ export function WavesListView({ feedType, username }: Props) {
               return;
             }
 
+            // A wave is uniquely identified by author + permlink (entry.id is
+            // not reliable across the feed sources).
+            const keyOf = (entry: WaveEntry) => `${entry.author}/${entry.permlink}`;
+            // Collected inside the cache updater so only genuinely-new (deduped)
+            // waves get the entrance animation.
+            const insertedKeys: string[] = [];
+
             queryClient.setQueryData<InfiniteData<WaveEntry[], string | undefined>>(
               wavesQueryKey,
               (prev) => {
                 if (!prev) {
+                  insertedKeys.push(...wavesToInsert.map(keyOf));
                   return {
                     pages: [wavesToInsert],
                     pageParams: [undefined]
                   };
                 }
 
-                // A wave is uniquely identified by author + permlink (entry.id is
-                // not reliable across the feed sources).
-                const keyOf = (entry: WaveEntry) => `${entry.author}/${entry.permlink}`;
                 const existingKeys = new Set(prev.pages.flatMap((page) => page.map(keyOf)));
                 const deduped = wavesToInsert.filter((entry) => !existingKeys.has(keyOf(entry)));
 
                 if (deduped.length === 0) {
                   return prev;
                 }
+
+                insertedKeys.push(...deduped.map(keyOf));
 
                 const [firstPage = [], ...restPages] = prev.pages;
 
@@ -243,22 +267,46 @@ export function WavesListView({ feedType, username }: Props) {
               }
             );
 
+            if (insertedKeys.length > 0) {
+              setFreshKeys((prev) => {
+                const next = new Set(prev);
+                insertedKeys.forEach((key) => next.add(key));
+                return next;
+              });
+            }
+
             clear();
             window.scrollTo({ top: 0, behavior: "smooth" });
             void refetch();
           }}
         />
       )}
-      {combinedDataFlow.map((item, i) => (
-        <WavesListItem
-          key={`${item.author}/${item.permlink}`}
-          i={i}
-          item={item}
-          onExpandReplies={() => setReplyingEntry(item)}
-          now={now}
-          feedType={feedType}
-        />
-      ))}
+      {combinedDataFlow.map((item, i) => {
+        const itemKey = `${item.author}/${item.permlink}`;
+        const isFresh = freshKeys.has(itemKey);
+        return (
+          <WavesListItem
+            key={itemKey}
+            i={i}
+            item={item}
+            onExpandReplies={() => setReplyingEntry(item)}
+            now={now}
+            feedType={feedType}
+            className={isFresh ? "animate-fade-in-up" : undefined}
+            style={isFresh ? { animationDelay: `${Math.min(i, 4) * 50}ms` } : undefined}
+            onAnimationEnd={
+              isFresh
+                ? (e) => {
+                    // Child animations bubble; only the item's own entrance counts.
+                    if (e.target === e.currentTarget) {
+                      clearFreshKey(itemKey);
+                    }
+                  }
+                : undefined
+            }
+          />
+        );
+      })}
 
       <WavesListLoader data={dataFlow} failed={isError} isEndReached={!hasNextPage} />
       {shouldShowDetectBottom && <DetectBottom onBottom={() => fetchNextPage()} />}

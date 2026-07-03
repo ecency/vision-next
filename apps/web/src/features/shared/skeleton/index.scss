@@ -1,7 +1,8 @@
 @import "src/styles/vars_mixins";
 
 .skeleton {
-  animation: anim-fadein-out 2s infinite;
+  position: relative;
+  overflow: hidden;
   border-radius: 0.25rem;
 
   @include themify(night) {
@@ -10,5 +11,20 @@
 
   @include themify(day) {
     @apply bg-light-light-405;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+    transform: translateX(-100%);
+    animation: anim-shimmer 1.4s ease-in-out infinite;
+  }
+
+  @include themify(night) {
+    &::after {
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+    }
   }
 }

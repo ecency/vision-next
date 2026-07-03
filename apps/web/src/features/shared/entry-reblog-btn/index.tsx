@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import "./_index.scss";
 import { Entry } from "@/entities";
 import { PopoverConfirm } from "@/features/ui";
@@ -32,6 +32,21 @@ export function EntryReblogBtn({ entry }: Props) {
         [activeUser, data, reblogs]
     );
 
+    // Transient success cue: set only after a reblog broadcast succeeds and
+    // cleared on animationend, so the spin never fires on initial render.
+    const [reblogDone, setReblogDone] = useState(false);
+
+    const reblogsCount = data?.reblogs && data.reblogs > 0 ? data.reblogs : 0;
+    // Ref guard for the count tick: remember the first-seen count (per entry,
+    // since a button instance can be reused for another post) and only animate
+    // when the displayed number changes after mount — never on first paint.
+    const entryKey = `${entry.author}/${entry.permlink}`;
+    const firstSeenCount = useRef({ entryKey, count: reblogsCount });
+    if (firstSeenCount.current.entryKey !== entryKey) {
+        firstSeenCount.current = { entryKey, count: reblogsCount };
+    }
+    const countChanged = reblogsCount !== firstSeenCount.current.count;
+
     const reblogLabel = reblogged
         ? i18next.t("entry-reblog.delete-reblog")
         : i18next.t("entry-reblog.reblog");
@@ -40,7 +55,12 @@ export function EntryReblogBtn({ entry }: Props) {
         <div
             className={`entry-reblog-btn ${reblogged ? "reblogged" : ""} ${
                 isPending ? "in-progress" : ""
-            }`}
+            } ${reblogDone ? "reblog-done" : ""}`}
+            onAnimationEnd={(e) => {
+                // The count tick's animationend bubbles here too — clearing on it
+                // would cut the icon spin short, so match the spin by name.
+                if (e.animationName === "anim-rotate-once") setReblogDone(false);
+            }}
             role="button"
             tabIndex={0}
             aria-label={reblogLabel}
@@ -65,7 +85,10 @@ export function EntryReblogBtn({ entry }: Props) {
             <Tooltip content={reblogLabel}>
                 <a className="inner-btn" aria-hidden={true}>
                     {repeatSvg}
-                    <span>{data?.reblogs && data.reblogs > 0 ? data.reblogs : ""}</span>
+                    {/* key-remount so the tick replays on every count change */}
+                    <span key={reblogsCount} className={countChanged ? "animate-tick" : undefined}>
+                        {reblogsCount > 0 ? reblogsCount : ""}
+                    </span>
                 </a>
             </Tooltip>
         </div>
@@ -77,7 +100,13 @@ export function EntryReblogBtn({ entry }: Props) {
 
     return (
     <PopoverConfirm
-        onConfirm={() => reblog({ isDelete: !!reblogged })}
+        onConfirm={() => {
+            const isDelete = !!reblogged;
+            return reblog({ isDelete }).then(() => {
+                // Celebratory spin only for a fresh reblog, not for removing one.
+                if (!isDelete) setReblogDone(true);
+            });
+        }}
         okVariant={reblogged ? "danger" : "primary"}
         titleText={
             reblogged

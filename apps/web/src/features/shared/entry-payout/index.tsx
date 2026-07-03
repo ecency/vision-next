@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import "./_index.scss";
 import { Popover, PopoverContent } from "@ui/popover";
 import { EntryPayoutDetail } from "@/features/shared/entry-payout/entry-payout-detail";
@@ -59,6 +59,21 @@ export const EntryPayout = ({ entry: initialEntry }: Props) => {
     shownPayout = entry.payout;
   }
 
+  // Ref guard for the payout tick: remember the first-seen value (per entry,
+  // so list-recycled instances never tick for a different post) and animate
+  // only when the payout changes after mount — never on first paint.
+  const payoutKey = `${entry.author}/${entry.permlink}`;
+  const firstSeenPayout = useRef({ payoutKey, value: shownPayout });
+  if (firstSeenPayout.current.payoutKey !== payoutKey) {
+    firstSeenPayout.current = { payoutKey, value: shownPayout };
+  }
+  const payoutChanged = shownPayout !== firstSeenPayout.current.value;
+  const payoutFigure = (
+    <span key={shownPayout} className={payoutChanged ? "inline-block animate-tick" : undefined}>
+      <FormattedCurrency value={shownPayout ?? 0} fixAt={3} />
+    </span>
+  );
+
   return !isSearchResult ? (
     <div className="noselection">
       <Popover
@@ -73,7 +88,7 @@ export const EntryPayout = ({ entry: initialEntry }: Props) => {
               "payout-limit-hit": payoutLimitHit
             })}
           >
-            <FormattedCurrency value={shownPayout ?? 0} fixAt={3} />
+            {payoutFigure}
           </div>
         }
         behavior="hover"
@@ -93,7 +108,7 @@ export const EntryPayout = ({ entry: initialEntry }: Props) => {
         "payout-limit-hit": payoutLimitHit
       })}
     >
-      <FormattedCurrency value={shownPayout ?? 0} fixAt={3} />
+      {payoutFigure}
     </div>
   );
 };
