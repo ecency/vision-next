@@ -33,7 +33,8 @@ describe("LineChart", () => {
     const band = container.querySelectorAll(".ce-hband")[2];
     expect(band.textContent).toContain("Posts");
     expect(band.textContent).toContain("Comments");
-    expect(band.textContent).toContain("3K");
+    // readouts are full-precision by design (review: compact defeated the purpose)
+    expect(band.textContent).toContain("3,000");
   });
 
   it("never emits svg title elements (document-title streaming hazard)", () => {
