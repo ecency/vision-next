@@ -5,8 +5,10 @@ import { columnPath, formatCompact, formatFull, hbarPath, scaleMax } from "./cha
  * Server-rendered SVG charts (zero client JS). Colors come from CSS custom
  * properties defined on .ce-viz (light + .dark overrides in the page), so the
  * marks respond to the site theme without hydration. Text wears text tokens,
- * never the series color; every mark carries a native <title> tooltip and the
- * page ships full tables as the accessible view.
+ * never the series color. No svg <title> tooltips anywhere (the document
+ * title streams late, so first-title parsers would read a tooltip as the page
+ * title); values live in direct labels, CSS hover readouts and the page's
+ * full tables, which are the accessible view.
  */
 
 // Two validated series slots; charts on this page use at most two series.
