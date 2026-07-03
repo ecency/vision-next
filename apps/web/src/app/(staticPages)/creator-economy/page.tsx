@@ -9,7 +9,7 @@ import { JsonLd, buildBreadcrumbJsonLd, buildDatasetJsonLd } from "@/features/st
 import { getServerAppBase } from "@/utils/server-app-base";
 import defaults from "@/defaults.json";
 import quartersData from "./_data/quarters.json";
-import { ColumnChart, HBarChart, StatTile } from "./_components/charts";
+import { ColumnChart, HBarChart, LineChart, StatTile } from "./_components/charts";
 import { deltaPct, formatCompact, formatFull } from "./_components/chart-utils";
 
 export const revalidate = 86400; // data changes quarterly; rebuild daily is plenty
@@ -29,8 +29,8 @@ export async function generateMetadata(
 // (light #fff-ish, dark #131111): series pass lightness/chroma/CVD checks;
 // the aqua contrast WARN on light is relieved by direct labels + full tables.
 const VIZ_VARS = `
-.ce-viz{--ce-s1:#357ce6;--ce-s2:#1baf7a;--ce-grid:#e5e7eb;--ce-text2:#6b7280}
-.dark .ce-viz{--ce-s1:#3987e5;--ce-s2:#199e70;--ce-grid:#2f2f2f;--ce-text2:#9ca3af}
+.ce-viz{--ce-s1:#357ce6;--ce-s2:#1baf7a;--ce-grid:#e5e7eb;--ce-text2:#6b7280;--ce-surface:#ffffff}
+.dark .ce-viz{--ce-s1:#3987e5;--ce-s2:#199e70;--ce-grid:#2f2f2f;--ce-text2:#9ca3af;--ce-surface:#131111}
 `;
 
 export default async function CreatorEconomyPage() {
@@ -50,6 +50,8 @@ export default async function CreatorEconomyPage() {
   const curationTrend = quarters.flatMap((q) =>
     q.curation ? [{ label: q.display, hp: q.curation.hp }] : []
   );
+  // Columns stop working past ~12 groups; dense series render as trend lines.
+  const Trend = quarters.length > 12 ? LineChart : ColumnChart;
 
   const jsonLd = [
     buildDatasetJsonLd({
@@ -107,7 +109,7 @@ export default async function CreatorEconomyPage() {
 
           <section className="mt-10">
             <h2 className="text-xl font-semibold mb-3">{t("chart-usd")}</h2>
-            <ColumnChart
+            <Trend
               labels={labels}
               series={[{ name: "USD", values: quarters.map((q) => q.rewards.usd ?? 0) }]}
               ariaLabel={t("chart-usd")}
@@ -117,7 +119,7 @@ export default async function CreatorEconomyPage() {
 
           <section className="mt-10">
             <h2 className="text-xl font-semibold mb-3">{t("chart-authors")}</h2>
-            <ColumnChart
+            <Trend
               labels={labels}
               series={[{ name: t("tile-authors"), values: quarters.map((q) => q.rewards.authors) }]}
               ariaLabel={t("chart-authors")}
@@ -126,7 +128,7 @@ export default async function CreatorEconomyPage() {
 
           <section className="mt-10">
             <h2 className="text-xl font-semibold mb-3">{t("chart-content")}</h2>
-            <ColumnChart
+            <Trend
               labels={labels}
               series={[
                 { name: t("series-posts"), values: quarters.map((q) => q.content.posts) },
@@ -235,7 +237,7 @@ export default async function CreatorEconomyPage() {
                   delta={deltaPct(latest.curation.hp, prev?.curation?.hp)}
                 />
               </div>
-              <ColumnChart
+              <Trend
                 labels={curationTrend.map((c) => c.label)}
                 series={[
                   { name: t("tile-curation-hp"), values: curationTrend.map((c) => c.hp) }

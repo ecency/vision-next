@@ -2707,7 +2707,7 @@
     "methodology-1": "Rewards are author_reward operations recorded on the Hive blockchain, indexed by Ecency's own pipeline (30M+ operations since 2018). Figures are HIVE, HBD and Hive Power actually credited to authors, net of beneficiary redirects and excluding curation (voter) rewards.",
     "methodology-2": "When HIVE's price is low, the network suspends HBD printing and pays the liquid half of rewards in HIVE instead. That is why recent quarters show liquid HIVE and little or no HBD.",
     "methodology-3": "Post and comment counts exclude edits; posts are top-level publications only.",
-    "methodology-4": "USD estimates use quarter-average market prices and are approximate. Rewards denominated in VESTS before 2026 are converted with the current chain ratio, a small approximation.",
+    "methodology-4": "USD estimates use quarter-average market prices and are approximate. Rewards denominated in VESTS before 2026 are converted with each quarter's historical chain ratio, sampled from conversion operations recorded on-chain during that quarter.",
     "methodology-5": "Curation figures track curation_reward operations paid to voters, indexed from the chain the same way as author rewards. They are reported separately and never mixed into the author-reward totals.",
     "methodology-6": "Data is licensed CC BY 4.0: reuse it freely with attribution to Ecency."
   },
