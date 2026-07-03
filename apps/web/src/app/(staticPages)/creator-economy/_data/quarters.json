@@ -1,6 +1,2058 @@
 {
   "quarters": [
     {
+      "label": "q2-2020",
+      "display": "Q2 2020",
+      "window": {
+        "start": "2020-04-01",
+        "end": "2020-07-01"
+      },
+      "rewards": {
+        "hbd": 277257,
+        "hive": 261170,
+        "hp": 1286698,
+        "usd": 730008,
+        "events": 373527,
+        "authors": 12615
+      },
+      "perAuthorHp": {
+        "median": 7.993,
+        "p90": 269.374,
+        "p99": 1401.723,
+        "max": 10523.625
+      },
+      "content": {
+        "posts": 375989,
+        "postingAuthors": 15765,
+        "comments": 1051139,
+        "commentingAuthors": 11766
+      },
+      "topCommunities": [
+        {
+          "id": "hive-148441",
+          "title": "GEMS",
+          "posts": 38921,
+          "authors": 3244
+        },
+        {
+          "id": "hive-174578",
+          "title": "OCD",
+          "posts": 16552,
+          "authors": 2169
+        },
+        {
+          "id": "hive-196037",
+          "title": "DTube",
+          "posts": 23714,
+          "authors": 1009
+        },
+        {
+          "id": "hive-193552",
+          "title": "Actifit",
+          "posts": 25275,
+          "authors": 964
+        },
+        {
+          "id": "hive-181335",
+          "title": "Threespeak",
+          "posts": 4126,
+          "authors": 689
+        },
+        {
+          "id": "hive-100421",
+          "title": "Threespeak - OLD",
+          "posts": 3967,
+          "authors": 659
+        },
+        {
+          "id": "hive-140217",
+          "title": "Hive Gaming",
+          "posts": 6224,
+          "authors": 604
+        },
+        {
+          "id": "hive-167922",
+          "title": "LeoFinance",
+          "posts": 5202,
+          "authors": 563
+        },
+        {
+          "id": "hive-125125",
+          "title": "Ecency",
+          "posts": 1233,
+          "authors": 525
+        },
+        {
+          "id": "hive-152232",
+          "title": "Faces of Hive",
+          "posts": 1411,
+          "authors": 492
+        },
+        {
+          "id": "hive-156509",
+          "title": "OnChainArt",
+          "posts": 2575,
+          "authors": 451
+        },
+        {
+          "id": "hive-119845",
+          "title": "Photography",
+          "posts": 1735,
+          "authors": 427
+        }
+      ],
+      "curation": {
+        "events": 12673002,
+        "curators": 15695,
+        "hp": 2447244
+      },
+      "hiveUsd": 0.2925
+    },
+    {
+      "label": "q3-2020",
+      "display": "Q3 2020",
+      "window": {
+        "start": "2020-07-01",
+        "end": "2020-10-01"
+      },
+      "rewards": {
+        "hbd": 250737,
+        "hive": 0,
+        "hp": 1294843,
+        "usd": 527834,
+        "events": 364232,
+        "authors": 11731
+      },
+      "perAuthorHp": {
+        "median": 9.298,
+        "p90": 301.66,
+        "p99": 1419.393,
+        "max": 10510.986
+      },
+      "content": {
+        "posts": 330918,
+        "postingAuthors": 13786,
+        "comments": 1117311,
+        "commentingAuthors": 10966
+      },
+      "topCommunities": [
+        {
+          "id": "hive-148441",
+          "title": "GEMS",
+          "posts": 35373,
+          "authors": 3120
+        },
+        {
+          "id": "hive-174578",
+          "title": "OCD",
+          "posts": 13805,
+          "authors": 1759
+        },
+        {
+          "id": "hive-193552",
+          "title": "Actifit",
+          "posts": 22450,
+          "authors": 869
+        },
+        {
+          "id": "hive-167922",
+          "title": "LeoFinance",
+          "posts": 9061,
+          "authors": 802
+        },
+        {
+          "id": "hive-140217",
+          "title": "Hive Gaming",
+          "posts": 7231,
+          "authors": 787
+        },
+        {
+          "id": "hive-156509",
+          "title": "OnChainArt",
+          "posts": 4693,
+          "authors": 771
+        },
+        {
+          "id": "hive-181335",
+          "title": "Threespeak",
+          "posts": 4856,
+          "authors": 743
+        },
+        {
+          "id": "hive-196037",
+          "title": "DTube",
+          "posts": 11134,
+          "authors": 675
+        },
+        {
+          "id": "hive-114105",
+          "title": "The LIFESTYLE LOUNGE",
+          "posts": 3885,
+          "authors": 673
+        },
+        {
+          "id": "hive-174301",
+          "title": "Sketchbook",
+          "posts": 4251,
+          "authors": 661
+        },
+        {
+          "id": "hive-194913",
+          "title": "Photography Lovers",
+          "posts": 2598,
+          "authors": 557
+        },
+        {
+          "id": "hive-133872",
+          "title": "Cervantes",
+          "posts": 3332,
+          "authors": 533
+        }
+      ],
+      "curation": {
+        "events": 14157010,
+        "curators": 14636,
+        "hp": 2408550
+      },
+      "hiveUsd": 0.214
+    },
+    {
+      "label": "q4-2020",
+      "display": "Q4 2020",
+      "window": {
+        "start": "2020-10-01",
+        "end": "2021-01-01"
+      },
+      "rewards": {
+        "hbd": 156483,
+        "hive": 0,
+        "hp": 1342073,
+        "usd": 330953,
+        "events": 270470,
+        "authors": 9161
+      },
+      "perAuthorHp": {
+        "median": 14.462,
+        "p90": 407.862,
+        "p99": 1832.255,
+        "max": 13180.639
+      },
+      "content": {
+        "posts": 267065,
+        "postingAuthors": 10932,
+        "comments": 907920,
+        "commentingAuthors": 8711
+      },
+      "topCommunities": [
+        {
+          "id": "hive-148441",
+          "title": "GEMS",
+          "posts": 21228,
+          "authors": 1861
+        },
+        {
+          "id": "hive-167922",
+          "title": "LeoFinance",
+          "posts": 16737,
+          "authors": 1363
+        },
+        {
+          "id": "hive-174578",
+          "title": "OCD",
+          "posts": 2883,
+          "authors": 719
+        },
+        {
+          "id": "hive-193552",
+          "title": "Actifit",
+          "posts": 18211,
+          "authors": 640
+        },
+        {
+          "id": "hive-194913",
+          "title": "Photography Lovers",
+          "posts": 3368,
+          "authors": 637
+        },
+        {
+          "id": "hive-196037",
+          "title": "DTube",
+          "posts": 12151,
+          "authors": 565
+        },
+        {
+          "id": "hive-114105",
+          "title": "The LIFESTYLE LOUNGE",
+          "posts": 3865,
+          "authors": 550
+        },
+        {
+          "id": "hive-140217",
+          "title": "Hive Gaming",
+          "posts": 5020,
+          "authors": 544
+        },
+        {
+          "id": "hive-181335",
+          "title": "Threespeak",
+          "posts": 4442,
+          "authors": 543
+        },
+        {
+          "id": "hive-193084",
+          "title": "DBuzz",
+          "posts": 8495,
+          "authors": 529
+        },
+        {
+          "id": "hive-156509",
+          "title": "OnChainArt",
+          "posts": 3267,
+          "authors": 512
+        },
+        {
+          "id": "hive-120586",
+          "title": "Foodies Bee Hive",
+          "posts": 3130,
+          "authors": 482
+        }
+      ],
+      "curation": {
+        "events": 13094427,
+        "curators": 13919,
+        "hp": 2504806
+      },
+      "hiveUsd": 0.13
+    },
+    {
+      "label": "q1-2021",
+      "display": "Q1 2021",
+      "window": {
+        "start": "2021-01-01",
+        "end": "2021-04-01"
+      },
+      "rewards": {
+        "hbd": 288906,
+        "hive": 0,
+        "hp": 1300949,
+        "usd": 640942,
+        "events": 323317,
+        "authors": 10573
+      },
+      "perAuthorHp": {
+        "median": 10.052,
+        "p90": 339.203,
+        "p99": 1522.492,
+        "max": 13179.773
+      },
+      "content": {
+        "posts": 304049,
+        "postingAuthors": 14005,
+        "comments": 1145022,
+        "commentingAuthors": 11147
+      },
+      "topCommunities": [
+        {
+          "id": "hive-167922",
+          "title": "LeoFinance",
+          "posts": 23830,
+          "authors": 2185
+        },
+        {
+          "id": "hive-148441",
+          "title": "GEMS",
+          "posts": 21100,
+          "authors": 2031
+        },
+        {
+          "id": "hive-194913",
+          "title": "Photography Lovers",
+          "posts": 4925,
+          "authors": 1016
+        },
+        {
+          "id": "hive-193084",
+          "title": "DBuzz",
+          "posts": 19595,
+          "authors": 990
+        },
+        {
+          "id": "hive-174578",
+          "title": "OCD",
+          "posts": 3436,
+          "authors": 839
+        },
+        {
+          "id": "hive-120586",
+          "title": "Foodies Bee Hive",
+          "posts": 4732,
+          "authors": 827
+        },
+        {
+          "id": "hive-193552",
+          "title": "Actifit",
+          "posts": 19114,
+          "authors": 728
+        },
+        {
+          "id": "hive-140217",
+          "title": "Hive Gaming",
+          "posts": 4851,
+          "authors": 640
+        },
+        {
+          "id": "hive-181335",
+          "title": "Threespeak",
+          "posts": 3361,
+          "authors": 561
+        },
+        {
+          "id": "hive-196037",
+          "title": "DTube",
+          "posts": 7779,
+          "authors": 555
+        },
+        {
+          "id": "hive-156509",
+          "title": "OnChainArt",
+          "posts": 2455,
+          "authors": 490
+        },
+        {
+          "id": "hive-196708",
+          "title": "Hive Pets",
+          "posts": 1631,
+          "authors": 490
+        }
+      ],
+      "curation": {
+        "events": 13583757,
+        "curators": 14485,
+        "hp": 2428765
+      },
+      "hiveUsd": 0.2706
+    },
+    {
+      "label": "q2-2021",
+      "display": "Q2 2021",
+      "window": {
+        "start": "2021-04-01",
+        "end": "2021-07-01"
+      },
+      "rewards": {
+        "hbd": 527408,
+        "hive": 0,
+        "hp": 1156573,
+        "usd": 1089040,
+        "events": 430204,
+        "authors": 14578
+      },
+      "perAuthorHp": {
+        "median": 8.151,
+        "p90": 215.253,
+        "p99": 1013.888,
+        "max": 11473.815
+      },
+      "content": {
+        "posts": 363609,
+        "postingAuthors": 17449,
+        "comments": 1389262,
+        "commentingAuthors": 13905
+      },
+      "topCommunities": [
+        {
+          "id": "hive-148441",
+          "title": "GEMS",
+          "posts": 28322,
+          "authors": 3579
+        },
+        {
+          "id": "hive-167922",
+          "title": "LeoFinance",
+          "posts": 20356,
+          "authors": 2010
+        },
+        {
+          "id": "hive-174578",
+          "title": "OCD",
+          "posts": 5059,
+          "authors": 1659
+        },
+        {
+          "id": "hive-120586",
+          "title": "Foodies Bee Hive",
+          "posts": 8368,
+          "authors": 1625
+        },
+        {
+          "id": "hive-194913",
+          "title": "Photography Lovers",
+          "posts": 6330,
+          "authors": 1441
+        },
+        {
+          "id": "hive-193084",
+          "title": "DBuzz",
+          "posts": 21741,
+          "authors": 1357
+        },
+        {
+          "id": "hive-196708",
+          "title": "Hive Pets",
+          "posts": 2599,
+          "authors": 1019
+        },
+        {
+          "id": "hive-193552",
+          "title": "Actifit",
+          "posts": 21924,
+          "authors": 865
+        },
+        {
+          "id": "hive-120078",
+          "title": "Natural Medicine",
+          "posts": 2949,
+          "authors": 814
+        },
+        {
+          "id": "hive-140217",
+          "title": "Hive Gaming",
+          "posts": 5272,
+          "authors": 778
+        },
+        {
+          "id": "hive-150329",
+          "title": "Proof of Brain",
+          "posts": 7312,
+          "authors": 771
+        },
+        {
+          "id": "hive-127788",
+          "title": "WE ARE MOVING",
+          "posts": 2731,
+          "authors": 767
+        }
+      ],
+      "curation": {
+        "events": 14502975,
+        "curators": 15823,
+        "hp": 2380894
+      },
+      "hiveUsd": 0.4856
+    },
+    {
+      "label": "q3-2021",
+      "display": "Q3 2021",
+      "window": {
+        "start": "2021-07-01",
+        "end": "2021-10-01"
+      },
+      "rewards": {
+        "hbd": 460446,
+        "hive": 51584,
+        "hp": 1104240,
+        "usd": 1039167,
+        "events": 453497,
+        "authors": 15224
+      },
+      "perAuthorHp": {
+        "median": 6.343,
+        "p90": 189.296,
+        "p99": 968.18,
+        "max": 11382.963
+      },
+      "content": {
+        "posts": 354751,
+        "postingAuthors": 18249,
+        "comments": 1519628,
+        "commentingAuthors": 15262
+      },
+      "topCommunities": [
+        {
+          "id": "hive-148441",
+          "title": "GEMS",
+          "posts": 21744,
+          "authors": 2830
+        },
+        {
+          "id": "hive-13323",
+          "title": "Splinterlands",
+          "posts": 8916,
+          "authors": 1615
+        },
+        {
+          "id": "hive-167922",
+          "title": "LeoFinance",
+          "posts": 16510,
+          "authors": 1615
+        },
+        {
+          "id": "hive-194913",
+          "title": "Photography Lovers",
+          "posts": 7083,
+          "authors": 1438
+        },
+        {
+          "id": "hive-120586",
+          "title": "Foodies Bee Hive",
+          "posts": 8198,
+          "authors": 1425
+        },
+        {
+          "id": "hive-174578",
+          "title": "OCD",
+          "posts": 5387,
+          "authors": 1423
+        },
+        {
+          "id": "hive-193084",
+          "title": "DBuzz",
+          "posts": 22707,
+          "authors": 1050
+        },
+        {
+          "id": "hive-150329",
+          "title": "Proof of Brain",
+          "posts": 10917,
+          "authors": 969
+        },
+        {
+          "id": "hive-193552",
+          "title": "Actifit",
+          "posts": 21224,
+          "authors": 823
+        },
+        {
+          "id": "hive-163772",
+          "title": "Worldmappin",
+          "posts": 3034,
+          "authors": 757
+        },
+        {
+          "id": "hive-181335",
+          "title": "Threespeak",
+          "posts": 4535,
+          "authors": 742
+        },
+        {
+          "id": "hive-140217",
+          "title": "Hive Gaming",
+          "posts": 4842,
+          "authors": 737
+        }
+      ],
+      "curation": {
+        "events": 14880112,
+        "curators": 15949,
+        "hp": 2546285
+      },
+      "hiveUsd": 0.5007
+    },
+    {
+      "label": "q4-2021",
+      "display": "Q4 2021",
+      "window": {
+        "start": "2021-10-01",
+        "end": "2022-01-01"
+      },
+      "rewards": {
+        "hbd": 1043686,
+        "hive": 13802,
+        "hp": 991215,
+        "usd": 2279656,
+        "events": 572513,
+        "authors": 19288
+      },
+      "perAuthorHp": {
+        "median": 3.005,
+        "p90": 127.349,
+        "p99": 763.573,
+        "max": 8116.767
+      },
+      "content": {
+        "posts": 406670,
+        "postingAuthors": 21618,
+        "comments": 1713943,
+        "commentingAuthors": 18555
+      },
+      "topCommunities": [
+        {
+          "id": "hive-148441",
+          "title": "GEMS",
+          "posts": 18715,
+          "authors": 2809
+        },
+        {
+          "id": "hive-167922",
+          "title": "LeoFinance",
+          "posts": 18986,
+          "authors": 2097
+        },
+        {
+          "id": "hive-174578",
+          "title": "OCD",
+          "posts": 5464,
+          "authors": 1903
+        },
+        {
+          "id": "hive-13323",
+          "title": "Splinterlands",
+          "posts": 11785,
+          "authors": 1867
+        },
+        {
+          "id": "hive-120586",
+          "title": "Foodies Bee Hive",
+          "posts": 10658,
+          "authors": 1778
+        },
+        {
+          "id": "hive-194913",
+          "title": "Photography Lovers",
+          "posts": 7955,
+          "authors": 1737
+        },
+        {
+          "id": "hive-193084",
+          "title": "DBuzz",
+          "posts": 21010,
+          "authors": 1237
+        },
+        {
+          "id": "hive-181335",
+          "title": "Threespeak",
+          "posts": 5209,
+          "authors": 1126
+        },
+        {
+          "id": "hive-163772",
+          "title": "Worldmappin",
+          "posts": 3805,
+          "authors": 1037
+        },
+        {
+          "id": "hive-150329",
+          "title": "Proof of Brain",
+          "posts": 8441,
+          "authors": 1022
+        },
+        {
+          "id": "hive-193552",
+          "title": "Actifit",
+          "posts": 23140,
+          "authors": 899
+        },
+        {
+          "id": "hive-140217",
+          "title": "Hive Gaming",
+          "posts": 5314,
+          "authors": 809
+        }
+      ],
+      "curation": {
+        "events": 16086129,
+        "curators": 17112,
+        "hp": 2373117
+      },
+      "hiveUsd": 1.2298
+    },
+    {
+      "label": "q1-2022",
+      "display": "Q1 2022",
+      "window": {
+        "start": "2022-01-01",
+        "end": "2022-04-01"
+      },
+      "rewards": {
+        "hbd": 899699,
+        "hive": 0,
+        "hp": 945872,
+        "usd": 1902985,
+        "events": 589165,
+        "authors": 19083
+      },
+      "perAuthorHp": {
+        "median": 3.771,
+        "p90": 127.185,
+        "p99": 722.617,
+        "max": 4240.132
+      },
+      "content": {
+        "posts": 404080,
+        "postingAuthors": 21815,
+        "comments": 2126499,
+        "commentingAuthors": 18824
+      },
+      "topCommunities": [
+        {
+          "id": "hive-148441",
+          "title": "GEMS",
+          "posts": 13964,
+          "authors": 2567
+        },
+        {
+          "id": "hive-167922",
+          "title": "LeoFinance",
+          "posts": 19479,
+          "authors": 2064
+        },
+        {
+          "id": "hive-120586",
+          "title": "Foodies Bee Hive",
+          "posts": 11738,
+          "authors": 1885
+        },
+        {
+          "id": "hive-174578",
+          "title": "OCD",
+          "posts": 4505,
+          "authors": 1793
+        },
+        {
+          "id": "hive-194913",
+          "title": "Photography Lovers",
+          "posts": 6780,
+          "authors": 1652
+        },
+        {
+          "id": "hive-181335",
+          "title": "Threespeak",
+          "posts": 5557,
+          "authors": 1652
+        },
+        {
+          "id": "hive-13323",
+          "title": "Splinterlands",
+          "posts": 11984,
+          "authors": 1562
+        },
+        {
+          "id": "hive-163772",
+          "title": "Worldmappin",
+          "posts": 4062,
+          "authors": 1143
+        },
+        {
+          "id": "hive-193084",
+          "title": "DBuzz",
+          "posts": 14096,
+          "authors": 950
+        },
+        {
+          "id": "hive-110011",
+          "title": "Aliento",
+          "posts": 2489,
+          "authors": 917
+        },
+        {
+          "id": "hive-140217",
+          "title": "Hive Gaming",
+          "posts": 5583,
+          "authors": 903
+        },
+        {
+          "id": "hive-193552",
+          "title": "Actifit",
+          "posts": 24065,
+          "authors": 898
+        }
+      ],
+      "curation": {
+        "events": 15056335,
+        "curators": 17981,
+        "hp": 2312631
+      },
+      "hiveUsd": 1.0607
+    },
+    {
+      "label": "q2-2022",
+      "display": "Q2 2022",
+      "window": {
+        "start": "2022-04-01",
+        "end": "2022-07-01"
+      },
+      "rewards": {
+        "hbd": 576449,
+        "hive": 0,
+        "hp": 969283,
+        "usd": 1217048,
+        "events": 494172,
+        "authors": 15712
+      },
+      "perAuthorHp": {
+        "median": 5.586,
+        "p90": 164.997,
+        "p99": 831.264,
+        "max": 3276.814
+      },
+      "content": {
+        "posts": 350053,
+        "postingAuthors": 18696,
+        "comments": 2038597,
+        "commentingAuthors": 15993
+      },
+      "topCommunities": [
+        {
+          "id": "hive-167922",
+          "title": "LeoFinance",
+          "posts": 19985,
+          "authors": 1840
+        },
+        {
+          "id": "hive-148441",
+          "title": "GEMS",
+          "posts": 9970,
+          "authors": 1766
+        },
+        {
+          "id": "hive-181335",
+          "title": "Threespeak",
+          "posts": 4216,
+          "authors": 1631
+        },
+        {
+          "id": "hive-120586",
+          "title": "Foodies Bee Hive",
+          "posts": 9381,
+          "authors": 1424
+        },
+        {
+          "id": "hive-194913",
+          "title": "Photography Lovers",
+          "posts": 6984,
+          "authors": 1397
+        },
+        {
+          "id": "hive-174578",
+          "title": "OCD",
+          "posts": 3519,
+          "authors": 1382
+        },
+        {
+          "id": "hive-13323",
+          "title": "Splinterlands",
+          "posts": 8631,
+          "authors": 1116
+        },
+        {
+          "id": "hive-193552",
+          "title": "Actifit",
+          "posts": 26327,
+          "authors": 1078
+        },
+        {
+          "id": "hive-163772",
+          "title": "Worldmappin",
+          "posts": 3122,
+          "authors": 877
+        },
+        {
+          "id": "hive-193084",
+          "title": "DBuzz",
+          "posts": 11014,
+          "authors": 819
+        },
+        {
+          "id": "hive-147010",
+          "title": "Liketu",
+          "posts": 6278,
+          "authors": 800
+        },
+        {
+          "id": "hive-161155",
+          "title": "Freewriters",
+          "posts": 4831,
+          "authors": 651
+        }
+      ],
+      "curation": {
+        "events": 14726218,
+        "curators": 17274,
+        "hp": 2424979
+      },
+      "hiveUsd": 0.6609
+    },
+    {
+      "label": "q3-2022",
+      "display": "Q3 2022",
+      "window": {
+        "start": "2022-07-01",
+        "end": "2022-10-01"
+      },
+      "rewards": {
+        "hbd": 451305,
+        "hive": 0,
+        "hp": 946559,
+        "usd": 953076,
+        "events": 475543,
+        "authors": 13999
+      },
+      "perAuthorHp": {
+        "median": 6.54,
+        "p90": 189.626,
+        "p99": 819.59,
+        "max": 4243.86
+      },
+      "content": {
+        "posts": 356049,
+        "postingAuthors": 16219,
+        "comments": 2126411,
+        "commentingAuthors": 13950
+      },
+      "topCommunities": [
+        {
+          "id": "hive-167922",
+          "title": "LeoFinance",
+          "posts": 23526,
+          "authors": 1664
+        },
+        {
+          "id": "hive-148441",
+          "title": "GEMS",
+          "posts": 8532,
+          "authors": 1407
+        },
+        {
+          "id": "hive-194913",
+          "title": "Photography Lovers",
+          "posts": 6847,
+          "authors": 1296
+        },
+        {
+          "id": "hive-174578",
+          "title": "OCD",
+          "posts": 2592,
+          "authors": 1290
+        },
+        {
+          "id": "hive-120586",
+          "title": "Foodies Bee Hive",
+          "posts": 7279,
+          "authors": 1107
+        },
+        {
+          "id": "hive-147010",
+          "title": "Liketu",
+          "posts": 6653,
+          "authors": 1040
+        },
+        {
+          "id": "hive-193552",
+          "title": "Actifit",
+          "posts": 25558,
+          "authors": 852
+        },
+        {
+          "id": "hive-13323",
+          "title": "Splinterlands",
+          "posts": 7930,
+          "authors": 849
+        },
+        {
+          "id": "hive-163772",
+          "title": "Worldmappin",
+          "posts": 3155,
+          "authors": 797
+        },
+        {
+          "id": "hive-193084",
+          "title": "DBuzz",
+          "posts": 9686,
+          "authors": 750
+        },
+        {
+          "id": "hive-181335",
+          "title": "Threespeak",
+          "posts": 2785,
+          "authors": 707
+        },
+        {
+          "id": "hive-168869",
+          "title": "Weekend Experiences",
+          "posts": 2119,
+          "authors": 635
+        }
+      ],
+      "curation": {
+        "events": 15396856,
+        "curators": 17370,
+        "hp": 2534335
+      },
+      "hiveUsd": 0.5301
+    },
+    {
+      "label": "q4-2022",
+      "display": "Q4 2022",
+      "window": {
+        "start": "2022-10-01",
+        "end": "2023-01-01"
+      },
+      "rewards": {
+        "hbd": 337290,
+        "hive": 0,
+        "hp": 964550,
+        "usd": 719348,
+        "events": 437702,
+        "authors": 12684
+      },
+      "perAuthorHp": {
+        "median": 7.923,
+        "p90": 212.664,
+        "p99": 918.136,
+        "max": 6791.322
+      },
+      "content": {
+        "posts": 288978,
+        "postingAuthors": 14123,
+        "comments": 1989359,
+        "commentingAuthors": 12750
+      },
+      "topCommunities": [
+        {
+          "id": "hive-167922",
+          "title": "LeoFinance",
+          "posts": 18420,
+          "authors": 1568
+        },
+        {
+          "id": "hive-194913",
+          "title": "Photography Lovers",
+          "posts": 5474,
+          "authors": 1125
+        },
+        {
+          "id": "hive-147010",
+          "title": "Liketu",
+          "posts": 7500,
+          "authors": 1085
+        },
+        {
+          "id": "hive-120586",
+          "title": "Foodies Bee Hive",
+          "posts": 2773,
+          "authors": 800
+        },
+        {
+          "id": "hive-193552",
+          "title": "Actifit",
+          "posts": 22086,
+          "authors": 756
+        },
+        {
+          "id": "hive-148441",
+          "title": "GEMS",
+          "posts": 3545,
+          "authors": 738
+        },
+        {
+          "id": "hive-174578",
+          "title": "OCD",
+          "posts": 1175,
+          "authors": 733
+        },
+        {
+          "id": "hive-13323",
+          "title": "Splinterlands",
+          "posts": 7772,
+          "authors": 718
+        },
+        {
+          "id": "hive-163772",
+          "title": "Worldmappin",
+          "posts": 2446,
+          "authors": 669
+        },
+        {
+          "id": "hive-181335",
+          "title": "Threespeak",
+          "posts": 1807,
+          "authors": 631
+        },
+        {
+          "id": "hive-193084",
+          "title": "DBuzz",
+          "posts": 8016,
+          "authors": 585
+        },
+        {
+          "id": "hive-161155",
+          "title": "Freewriters",
+          "posts": 3970,
+          "authors": 571
+        }
+      ],
+      "curation": {
+        "events": 15515076,
+        "curators": 16746,
+        "hp": 2614880
+      },
+      "hiveUsd": 0.3961
+    },
+    {
+      "label": "q1-2023",
+      "display": "Q1 2023",
+      "window": {
+        "start": "2023-01-01",
+        "end": "2023-04-01"
+      },
+      "rewards": {
+        "hbd": 329303,
+        "hive": 0,
+        "hp": 969521,
+        "usd": 713621,
+        "events": 444715,
+        "authors": 12566
+      },
+      "perAuthorHp": {
+        "median": 6.95,
+        "p90": 215.121,
+        "p99": 957.556,
+        "max": 11806.817
+      },
+      "content": {
+        "posts": 284123,
+        "postingAuthors": 14302,
+        "comments": 2167515,
+        "commentingAuthors": 13130
+      },
+      "topCommunities": [
+        {
+          "id": "hive-167922",
+          "title": "LeoFinance",
+          "posts": 18852,
+          "authors": 1882
+        },
+        {
+          "id": "hive-147010",
+          "title": "Liketu",
+          "posts": 8471,
+          "authors": 1191
+        },
+        {
+          "id": "hive-194913",
+          "title": "Photography Lovers",
+          "posts": 5215,
+          "authors": 1078
+        },
+        {
+          "id": "hive-163772",
+          "title": "Worldmappin",
+          "posts": 2757,
+          "authors": 805
+        },
+        {
+          "id": "hive-148441",
+          "title": "GEMS",
+          "posts": 3388,
+          "authors": 789
+        },
+        {
+          "id": "hive-120586",
+          "title": "Foodies Bee Hive",
+          "posts": 3139,
+          "authors": 770
+        },
+        {
+          "id": "hive-193084",
+          "title": "DBuzz",
+          "posts": 9584,
+          "authors": 747
+        },
+        {
+          "id": "hive-174578",
+          "title": "OCD",
+          "posts": 966,
+          "authors": 698
+        },
+        {
+          "id": "hive-193552",
+          "title": "Actifit",
+          "posts": 20442,
+          "authors": 694
+        },
+        {
+          "id": "hive-13323",
+          "title": "Splinterlands",
+          "posts": 7757,
+          "authors": 670
+        },
+        {
+          "id": "hive-124452",
+          "title": "Ladies of Hive",
+          "posts": 1985,
+          "authors": 669
+        },
+        {
+          "id": "hive-181335",
+          "title": "Threespeak",
+          "posts": 2078,
+          "authors": 660
+        }
+      ],
+      "curation": {
+        "events": 16021691,
+        "curators": 16441,
+        "hp": 2628852
+      },
+      "hiveUsd": 0.3964
+    },
+    {
+      "label": "q2-2023",
+      "display": "Q2 2023",
+      "window": {
+        "start": "2023-04-01",
+        "end": "2023-07-01"
+      },
+      "rewards": {
+        "hbd": 312665,
+        "hive": 0,
+        "hp": 952277,
+        "usd": 665864,
+        "events": 454405,
+        "authors": 11663
+      },
+      "perAuthorHp": {
+        "median": 6.957,
+        "p90": 231.855,
+        "p99": 1009.407,
+        "max": 5913.794
+      },
+      "content": {
+        "posts": 275131,
+        "postingAuthors": 13008,
+        "comments": 2356126,
+        "commentingAuthors": 11521
+      },
+      "topCommunities": [
+        {
+          "id": "hive-167922",
+          "title": "LeoFinance",
+          "posts": 16578,
+          "authors": 1639
+        },
+        {
+          "id": "hive-147010",
+          "title": "Liketu",
+          "posts": 8092,
+          "authors": 1239
+        },
+        {
+          "id": "hive-194913",
+          "title": "Photography Lovers",
+          "posts": 4944,
+          "authors": 946
+        },
+        {
+          "id": "hive-193084",
+          "title": "DBuzz",
+          "posts": 10800,
+          "authors": 861
+        },
+        {
+          "id": "hive-163772",
+          "title": "Worldmappin",
+          "posts": 2898,
+          "authors": 770
+        },
+        {
+          "id": "hive-120586",
+          "title": "Foodies Bee Hive",
+          "posts": 2341,
+          "authors": 682
+        },
+        {
+          "id": "hive-193552",
+          "title": "Actifit",
+          "posts": 20378,
+          "authors": 654
+        },
+        {
+          "id": "hive-148441",
+          "title": "GEMS",
+          "posts": 2990,
+          "authors": 643
+        },
+        {
+          "id": "hive-181335",
+          "title": "Threespeak",
+          "posts": 2279,
+          "authors": 608
+        },
+        {
+          "id": "hive-168869",
+          "title": "Weekend Experiences",
+          "posts": 2052,
+          "authors": 606
+        },
+        {
+          "id": "hive-161155",
+          "title": "Freewriters",
+          "posts": 5835,
+          "authors": 580
+        },
+        {
+          "id": "hive-13323",
+          "title": "Splinterlands",
+          "posts": 7382,
+          "authors": 560
+        }
+      ],
+      "curation": {
+        "events": 15984190,
+        "curators": 15253,
+        "hp": 2653459
+      },
+      "hiveUsd": 0.3709
+    },
+    {
+      "label": "q3-2023",
+      "display": "Q3 2023",
+      "window": {
+        "start": "2023-07-01",
+        "end": "2023-10-01"
+      },
+      "rewards": {
+        "hbd": 282686,
+        "hive": 0,
+        "hp": 997361,
+        "usd": 601543,
+        "events": 433051,
+        "authors": 11410
+      },
+      "perAuthorHp": {
+        "median": 7.63,
+        "p90": 251.464,
+        "p99": 1084.22,
+        "max": 4083.346
+      },
+      "content": {
+        "posts": 266543,
+        "postingAuthors": 13113,
+        "comments": 2289942,
+        "commentingAuthors": 11459
+      },
+      "topCommunities": [
+        {
+          "id": "hive-147010",
+          "title": "Liketu",
+          "posts": 9749,
+          "authors": 1923
+        },
+        {
+          "id": "hive-167922",
+          "title": "LeoFinance",
+          "posts": 14988,
+          "authors": 1604
+        },
+        {
+          "id": "hive-193084",
+          "title": "DBuzz",
+          "posts": 11688,
+          "authors": 1097
+        },
+        {
+          "id": "hive-194913",
+          "title": "Photography Lovers",
+          "posts": 4966,
+          "authors": 906
+        },
+        {
+          "id": "hive-163772",
+          "title": "Worldmappin",
+          "posts": 3318,
+          "authors": 802
+        },
+        {
+          "id": "hive-193552",
+          "title": "Actifit",
+          "posts": 19250,
+          "authors": 638
+        },
+        {
+          "id": "hive-168869",
+          "title": "Weekend Experiences",
+          "posts": 1909,
+          "authors": 629
+        },
+        {
+          "id": "hive-120586",
+          "title": "Foodies Bee Hive",
+          "posts": 2040,
+          "authors": 615
+        },
+        {
+          "id": "hive-181335",
+          "title": "Threespeak",
+          "posts": 2314,
+          "authors": 598
+        },
+        {
+          "id": "hive-108045",
+          "title": "Family & Friends",
+          "posts": 1528,
+          "authors": 570
+        },
+        {
+          "id": "hive-148441",
+          "title": "GEMS",
+          "posts": 2331,
+          "authors": 519
+        },
+        {
+          "id": "hive-161155",
+          "title": "Freewriters",
+          "posts": 6711,
+          "authors": 511
+        }
+      ],
+      "curation": {
+        "events": 16386793,
+        "curators": 14654,
+        "hp": 2774285
+      },
+      "hiveUsd": 0.3197
+    },
+    {
+      "label": "q4-2023",
+      "display": "Q4 2023",
+      "window": {
+        "start": "2023-10-01",
+        "end": "2024-01-01"
+      },
+      "rewards": {
+        "hbd": 295756,
+        "hive": 0,
+        "hp": 979525,
+        "usd": 634084,
+        "events": 441885,
+        "authors": 11238
+      },
+      "perAuthorHp": {
+        "median": 7.516,
+        "p90": 242.048,
+        "p99": 1084.518,
+        "max": 4412.649
+      },
+      "content": {
+        "posts": 252179,
+        "postingAuthors": 11989,
+        "comments": 2147528,
+        "commentingAuthors": 11071
+      },
+      "topCommunities": [
+        {
+          "id": "hive-167922",
+          "title": "LeoFinance",
+          "posts": 17920,
+          "authors": 1828
+        },
+        {
+          "id": "hive-147010",
+          "title": "Liketu",
+          "posts": 7579,
+          "authors": 1290
+        },
+        {
+          "id": "hive-193084",
+          "title": "DBuzz",
+          "posts": 12940,
+          "authors": 971
+        },
+        {
+          "id": "hive-194913",
+          "title": "Photography Lovers",
+          "posts": 4876,
+          "authors": 781
+        },
+        {
+          "id": "hive-163772",
+          "title": "Worldmappin",
+          "posts": 3082,
+          "authors": 715
+        },
+        {
+          "id": "hive-193552",
+          "title": "Actifit",
+          "posts": 18387,
+          "authors": 644
+        },
+        {
+          "id": "hive-108045",
+          "title": "Family & Friends",
+          "posts": 1634,
+          "authors": 570
+        },
+        {
+          "id": "hive-120586",
+          "title": "Foodies Bee Hive",
+          "posts": 1836,
+          "authors": 569
+        },
+        {
+          "id": "hive-168869",
+          "title": "Weekend Experiences",
+          "posts": 1649,
+          "authors": 560
+        },
+        {
+          "id": "hive-13323",
+          "title": "Splinterlands",
+          "posts": 6794,
+          "authors": 506
+        },
+        {
+          "id": "hive-187189",
+          "title": "Lifestyle",
+          "posts": 1740,
+          "authors": 492
+        },
+        {
+          "id": "hive-161155",
+          "title": "Freewriters",
+          "posts": 5886,
+          "authors": 475
+        }
+      ],
+      "curation": {
+        "events": 16166901,
+        "curators": 14612,
+        "hp": 2773543
+      },
+      "hiveUsd": 0.3454
+    },
+    {
+      "label": "q1-2024",
+      "display": "Q1 2024",
+      "window": {
+        "start": "2024-01-01",
+        "end": "2024-04-01"
+      },
+      "rewards": {
+        "hbd": 298079,
+        "hive": 0,
+        "hp": 957354,
+        "usd": 640524,
+        "events": 429409,
+        "authors": 11495
+      },
+      "perAuthorHp": {
+        "median": 7.001,
+        "p90": 235.005,
+        "p99": 1011.128,
+        "max": 4491.998
+      },
+      "content": {
+        "posts": 253059,
+        "postingAuthors": 12948,
+        "comments": 2003561,
+        "commentingAuthors": 11288
+      },
+      "topCommunities": [
+        {
+          "id": "hive-167922",
+          "title": "LeoFinance",
+          "posts": 15205,
+          "authors": 1832
+        },
+        {
+          "id": "hive-147010",
+          "title": "Liketu",
+          "posts": 8858,
+          "authors": 1304
+        },
+        {
+          "id": "hive-193084",
+          "title": "DBuzz",
+          "posts": 15396,
+          "authors": 1183
+        },
+        {
+          "id": "hive-194913",
+          "title": "Photography Lovers",
+          "posts": 4751,
+          "authors": 858
+        },
+        {
+          "id": "hive-163772",
+          "title": "Worldmappin",
+          "posts": 3055,
+          "authors": 792
+        },
+        {
+          "id": "hive-193552",
+          "title": "Actifit",
+          "posts": 19846,
+          "authors": 782
+        },
+        {
+          "id": "hive-181335",
+          "title": "Threespeak",
+          "posts": 2428,
+          "authors": 684
+        },
+        {
+          "id": "hive-108045",
+          "title": "Family & Friends",
+          "posts": 1778,
+          "authors": 655
+        },
+        {
+          "id": "hive-120586",
+          "title": "Foodies Bee Hive",
+          "posts": 1985,
+          "authors": 615
+        },
+        {
+          "id": "hive-187189",
+          "title": "Lifestyle",
+          "posts": 2001,
+          "authors": 535
+        },
+        {
+          "id": "hive-168869",
+          "title": "Weekend Experiences",
+          "posts": 1531,
+          "authors": 533
+        },
+        {
+          "id": "hive-131131",
+          "title": "Holozing Community",
+          "posts": 3104,
+          "authors": 518
+        }
+      ],
+      "curation": {
+        "events": 15615753,
+        "curators": 14713,
+        "hp": 2730994
+      },
+      "hiveUsd": 0.3577
+    },
+    {
+      "label": "q2-2024",
+      "display": "Q2 2024",
+      "window": {
+        "start": "2024-04-01",
+        "end": "2024-07-01"
+      },
+      "rewards": {
+        "hbd": 267789,
+        "hive": 0,
+        "hp": 971489,
+        "usd": 566813,
+        "events": 382306,
+        "authors": 11038
+      },
+      "perAuthorHp": {
+        "median": 8.257,
+        "p90": 244.75,
+        "p99": 1057.173,
+        "max": 4968.674
+      },
+      "content": {
+        "posts": 233326,
+        "postingAuthors": 12987,
+        "comments": 2143256,
+        "commentingAuthors": 10508
+      },
+      "topCommunities": [
+        {
+          "id": "hive-167922",
+          "title": "LeoFinance",
+          "posts": 11186,
+          "authors": 1454
+        },
+        {
+          "id": "hive-193084",
+          "title": "DBuzz",
+          "posts": 10793,
+          "authors": 973
+        },
+        {
+          "id": "hive-147010",
+          "title": "Liketu",
+          "posts": 6739,
+          "authors": 956
+        },
+        {
+          "id": "hive-194913",
+          "title": "Photography Lovers",
+          "posts": 4398,
+          "authors": 849
+        },
+        {
+          "id": "hive-140169",
+          "title": "Vibes",
+          "posts": 2547,
+          "authors": 778
+        },
+        {
+          "id": "hive-193552",
+          "title": "Actifit",
+          "posts": 19911,
+          "authors": 711
+        },
+        {
+          "id": "hive-163772",
+          "title": "Worldmappin",
+          "posts": 2604,
+          "authors": 664
+        },
+        {
+          "id": "hive-108045",
+          "title": "Family & Friends",
+          "posts": 1745,
+          "authors": 645
+        },
+        {
+          "id": "hive-181335",
+          "title": "Threespeak",
+          "posts": 2035,
+          "authors": 604
+        },
+        {
+          "id": "hive-120586",
+          "title": "Foodies Bee Hive",
+          "posts": 1583,
+          "authors": 538
+        },
+        {
+          "id": "hive-187189",
+          "title": "Lifestyle",
+          "posts": 2071,
+          "authors": 528
+        },
+        {
+          "id": "hive-168869",
+          "title": "Weekend Experiences",
+          "posts": 1457,
+          "authors": 478
+        }
+      ],
+      "curation": {
+        "events": 15304194,
+        "curators": 14372,
+        "hp": 2750642
+      },
+      "hiveUsd": 0.3078
+    },
+    {
+      "label": "q3-2024",
+      "display": "Q3 2024",
+      "window": {
+        "start": "2024-07-01",
+        "end": "2024-10-01"
+      },
+      "rewards": {
+        "hbd": 189766,
+        "hive": 0,
+        "hp": 1124958,
+        "usd": 408682,
+        "events": 323686,
+        "authors": 9571
+      },
+      "perAuthorHp": {
+        "median": 10.911,
+        "p90": 327.404,
+        "p99": 1375.505,
+        "max": 6284.261
+      },
+      "content": {
+        "posts": 218552,
+        "postingAuthors": 11498,
+        "comments": 2232440,
+        "commentingAuthors": 9535
+      },
+      "topCommunities": [
+        {
+          "id": "hive-167922",
+          "title": "LeoFinance",
+          "posts": 13914,
+          "authors": 1557
+        },
+        {
+          "id": "hive-147010",
+          "title": "Liketu",
+          "posts": 5314,
+          "authors": 739
+        },
+        {
+          "id": "hive-193084",
+          "title": "DBuzz",
+          "posts": 8527,
+          "authors": 697
+        },
+        {
+          "id": "hive-194913",
+          "title": "Photography Lovers",
+          "posts": 3345,
+          "authors": 658
+        },
+        {
+          "id": "hive-193552",
+          "title": "Actifit",
+          "posts": 18351,
+          "authors": 629
+        },
+        {
+          "id": "hive-163772",
+          "title": "Worldmappin",
+          "posts": 2509,
+          "authors": 600
+        },
+        {
+          "id": "hive-187189",
+          "title": "Lifestyle",
+          "posts": 2431,
+          "authors": 508
+        },
+        {
+          "id": "hive-140169",
+          "title": "Vibes",
+          "posts": 1525,
+          "authors": 496
+        },
+        {
+          "id": "hive-108045",
+          "title": "Family & Friends",
+          "posts": 1263,
+          "authors": 428
+        },
+        {
+          "id": "hive-161155",
+          "title": "Freewriters",
+          "posts": 4302,
+          "authors": 384
+        },
+        {
+          "id": "hive-181335",
+          "title": "Threespeak",
+          "posts": 1600,
+          "authors": 381
+        },
+        {
+          "id": "hive-120586",
+          "title": "Foodies Bee Hive",
+          "posts": 1185,
+          "authors": 377
+        }
+      ],
+      "curation": {
+        "events": 15542196,
+        "curators": 13984,
+        "hp": 3147585
+      },
+      "hiveUsd": 0.1946
+    },
+    {
+      "label": "q4-2024",
+      "display": "Q4 2024",
+      "window": {
+        "start": "2024-10-01",
+        "end": "2025-01-01"
+      },
+      "rewards": {
+        "hbd": 229233,
+        "hive": 0,
+        "hp": 1098649,
+        "usd": 504884,
+        "events": 351775,
+        "authors": 9786
+      },
+      "perAuthorHp": {
+        "median": 8.055,
+        "p90": 308.806,
+        "p99": 1385.249,
+        "max": 6316.727
+      },
+      "content": {
+        "posts": 214770,
+        "postingAuthors": 15555,
+        "comments": 1793163,
+        "commentingAuthors": 12350
+      },
+      "topCommunities": [
+        {
+          "id": "hive-167922",
+          "title": "LeoFinance",
+          "posts": 11231,
+          "authors": 2246
+        },
+        {
+          "id": "hive-193552",
+          "title": "Actifit",
+          "posts": 17702,
+          "authors": 1143
+        },
+        {
+          "id": "hive-148441",
+          "title": "GEMS",
+          "posts": 2784,
+          "authors": 1057
+        },
+        {
+          "id": "hive-193084",
+          "title": "DBuzz",
+          "posts": 7060,
+          "authors": 807
+        },
+        {
+          "id": "hive-194913",
+          "title": "Photography Lovers",
+          "posts": 3532,
+          "authors": 740
+        },
+        {
+          "id": "hive-147010",
+          "title": "Liketu",
+          "posts": 5080,
+          "authors": 710
+        },
+        {
+          "id": "hive-163772",
+          "title": "Worldmappin",
+          "posts": 3034,
+          "authors": 677
+        },
+        {
+          "id": "hive-120586",
+          "title": "Foodies Bee Hive",
+          "posts": 1411,
+          "authors": 582
+        },
+        {
+          "id": "hive-187189",
+          "title": "Lifestyle",
+          "posts": 3291,
+          "authors": 576
+        },
+        {
+          "id": "hive-108045",
+          "title": "Family & Friends",
+          "posts": 1440,
+          "authors": 442
+        },
+        {
+          "id": "hive-140217",
+          "title": "Hive Gaming",
+          "posts": 2344,
+          "authors": 423
+        },
+        {
+          "id": "hive-140169",
+          "title": "Vibes",
+          "posts": 1216,
+          "authors": 403
+        }
+      ],
+      "curation": {
+        "events": 15635422,
+        "curators": 13614,
+        "hp": 3082533
+      },
+      "hiveUsd": 0.2509
+    },
+    {
       "label": "q1-2025",
       "display": "Q1 2025",
       "window": {
@@ -10,16 +2062,16 @@
       "rewards": {
         "hbd": 297751,
         "hive": 0,
-        "hp": 1021828,
-        "usd": 651405,
+        "hp": 981502,
+        "usd": 637449,
         "events": 399035,
         "authors": 11650
       },
       "perAuthorHp": {
-        "median": 5.986,
-        "p90": 242.435,
-        "p99": 1098.244,
-        "max": 5951.762
+        "median": 5.75,
+        "p90": 232.867,
+        "p99": 1054.902,
+        "max": 5716.877
       },
       "content": {
         "posts": 239012,
@@ -102,9 +2154,9 @@
         }
       ],
       "curation": {
-        "events": 15547296,
+        "events": 15547540,
         "curators": 13677,
-        "hp": 2868834
+        "hp": 2755537
       },
       "hiveUsd": 0.3461
     },
@@ -118,16 +2170,16 @@
       "rewards": {
         "hbd": 212620,
         "hive": 0,
-        "hp": 1076082,
-        "usd": 467113,
+        "hp": 1041183,
+        "usd": 458443,
         "events": 345030,
         "authors": 10478
       },
       "perAuthorHp": {
-        "median": 9.641,
-        "p90": 275.344,
-        "p99": 1330.851,
-        "max": 6755.165
+        "median": 9.329,
+        "p90": 266.414,
+        "p99": 1287.689,
+        "max": 6536.082
       },
       "content": {
         "posts": 218090,
@@ -212,9 +2264,9 @@
       "curation": {
         "events": 15193425,
         "curators": 13313,
-        "hp": 3073894
+        "hp": 2974101
       },
-      "hiveUsd": 0.2365
+      "hiveUsd": 0.2361
     },
     {
       "label": "q3-2025",
@@ -226,16 +2278,16 @@
       "rewards": {
         "hbd": 196589,
         "hive": 0,
-        "hp": 1095400,
-        "usd": 430895,
+        "hp": 1067103,
+        "usd": 425162,
         "events": 347571,
         "authors": 9774
       },
       "perAuthorHp": {
-        "median": 11.459,
-        "p90": 300.381,
-        "p99": 1374.043,
-        "max": 13016.641
+        "median": 11.163,
+        "p90": 292.622,
+        "p99": 1338.549,
+        "max": 12680.39
       },
       "content": {
         "posts": 210406,
@@ -320,9 +2372,9 @@
       "curation": {
         "events": 15049017,
         "curators": 13280,
-        "hp": 3167419
+        "hp": 3085432
       },
-      "hiveUsd": 0.2139
+      "hiveUsd": 0.2142
     },
     {
       "label": "q4-2025",
@@ -334,16 +2386,16 @@
       "rewards": {
         "hbd": 116555,
         "hive": 0,
-        "hp": 1154248,
-        "usd": 254078,
+        "hp": 1134301,
+        "usd": 251651,
         "events": 250019,
         "authors": 7867
       },
       "perAuthorHp": {
-        "median": 14.15,
-        "p90": 385.314,
-        "p99": 1733.162,
-        "max": 23156.423
+        "median": 13.905,
+        "p90": 378.655,
+        "p99": 1703.211,
+        "max": 22756.245
       },
       "content": {
         "posts": 178536,
@@ -428,7 +2480,7 @@
       "curation": {
         "events": 13701625,
         "curators": 12851,
-        "hp": 3309981
+        "hp": 3252606
       },
       "hiveUsd": 0.1217
     },
@@ -442,16 +2494,16 @@
       "rewards": {
         "hbd": 28015,
         "hive": 511278,
-        "hp": 952196,
-        "usd": 140748,
+        "hp": 950470,
+        "usd": 140614,
         "events": 191257,
         "authors": 5853
       },
       "perAuthorHp": {
-        "median": 18.338,
-        "p90": 431.153,
-        "p99": 1986.692,
-        "max": 26609.6
+        "median": 18.328,
+        "p90": 430.403,
+        "p99": 1982.572,
+        "max": 26578.34
       },
       "content": {
         "posts": 137054,
@@ -536,7 +2588,7 @@
       "curation": {
         "events": 11048844,
         "curators": 11791,
-        "hp": 2878884
+        "hp": 2866440
       },
       "hiveUsd": 0.0779
     },
