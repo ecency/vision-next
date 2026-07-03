@@ -14,7 +14,6 @@ import { Button } from "@/features/ui";
 import { UilArrowRight } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
 import { useMemo, useState } from "react";
-import { motion } from "framer-motion";
 
 export default function WalletSetupExternalPage() {
   const [step, setStep] = useState<"intro" | "metamask" | "import">("intro");
@@ -57,11 +56,9 @@ export default function WalletSetupExternalPage() {
       <div className="container mx-auto px-2 pt-[63px] md:pt-[69px] min-h-[100vh] pb-24 md:pb-16">
         <SetupExternalHeader />
         <div className="grid grid-cols-2 gap-4">
-          {options.map(({ title, description, buttonText, onClick }, i) => (
+          {options.map(({ title, description, buttonText, onClick }) => (
             <LoginRequired key={title}>
-              <motion.div
-                initial={{ opacity: 0, y: -16 }}
-                animate={{ opacity: 1, y: 0, transition: { delay: i * 0.1 } }}
+              <div
                 className="bg-white rounded-2xl p-6 flex flex-col justify-between gap-4 cursor-pointer border border-transparent hover:border-blue-dark-sky"
                 onClick={onClick}
               >
@@ -71,7 +68,7 @@ export default function WalletSetupExternalPage() {
                 <Button size="lg" icon={<UilArrowRight />}>
                   {buttonText}
                 </Button>
-              </motion.div>
+              </div>
             </LoginRequired>
           ))}
           {step === "metamask" && <SetupExternalMetamask onBack={() => setStep("intro")} />}

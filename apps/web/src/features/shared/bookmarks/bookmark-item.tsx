@@ -1,5 +1,4 @@
 import { EcencyEntriesCacheManagement } from "@/core/caches";
-import { motion } from "framer-motion";
 import { EntryListItem } from "../entry-list-item";
 import { useQuery } from "@tanstack/react-query";
 
@@ -18,14 +17,11 @@ export function BookmarkItem({ author, permlink, i }: Props) {
     return <></>;
   }
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -16 }}
-      transition={{ duration: 0.2, delay: 0.1 * i }}
-      className="border border-[--border-color] rounded-lg px-4 bg-white"
+    <div
+      style={{ animationDelay: `${Math.min(i, 5) * 50}ms` }}
+      className="animate-fade-in-up border border-[--border-color] rounded-lg px-4 bg-white"
     >
       <EntryListItem entry={entry} order={0} />
-    </motion.div>
+    </div>
   );
 }

@@ -9,7 +9,6 @@ import Text from "@tiptap/extension-text";
 import { EditorContent, Node, NodeViewProps, NodeViewWrapper, useEditor } from "@tiptap/react";
 import { UilSpinner, UilTrash } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
-import { motion } from "framer-motion";
 import Image from "next/image";
 import { useEffect } from "react";
 const processedBlobUrls = new Set<string>();
@@ -94,10 +93,8 @@ export function PublishEditorImageViewer({
       <Popover
         className="inline-flex"
         directContent={
-          <motion.div
-            className="inline-flex flex-col items-center"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
+          <div
+            className={clsx("inline-flex flex-col items-center", isBlob && "animate-fade-in-up")}
           >
             <div
               className={clsx(
@@ -117,7 +114,7 @@ export function PublishEditorImageViewer({
             <div className="flex items-center justify-center text-sm font-sans text-center leading-relaxed py-4">
               <EditorContent editor={captionEditor} className="cursor-text" />
             </div>
-          </motion.div>
+          </div>
         }
         behavior="hover"
       >

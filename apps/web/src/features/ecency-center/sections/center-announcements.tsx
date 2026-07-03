@@ -1,7 +1,6 @@
 import React from "react";
 import { getAnnouncementsQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
-import { motion } from "framer-motion";
 import Link from "next/link";
 import { Button } from "@/features/ui";
 
@@ -11,11 +10,9 @@ export function CenterAnnouncements() {
   return (
     <div className="flex flex-col gap-4 p-4 max-h-[50dvh] overflow-y-auto">
       {allAnnouncements?.map((x, i) => (
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: i * 0.1 }}
-          className="bg-gray-100 dark:bg-gray-900 rounded-2xl p-4"
+        <div
+          className="animate-fade-in-up bg-gray-100 dark:bg-gray-900 rounded-2xl p-4"
+          style={{ animationDelay: `${Math.min(i, 5) * 50}ms` }}
           key={i}
         >
           <div className="flex flex-col gap-3 justify-center">
@@ -27,7 +24,7 @@ export function CenterAnnouncements() {
               </Link>
             </div>
           </div>
-        </motion.div>
+        </div>
       ))}
     </div>
   );

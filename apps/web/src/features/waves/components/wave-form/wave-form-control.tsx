@@ -6,7 +6,6 @@ import Image from "next/image";
 import { Badge } from "@ui/badge";
 import { Button } from "@ui/button";
 import { UilMultiply } from "@tooni/iconscout-unicons-react";
-import { AnimatePresence, motion } from "framer-motion";
 import { clsx } from "clsx";
 
 interface Props {
@@ -70,65 +69,51 @@ export const WaveFormControl = ({
           </div>
         )}
       </div>
-      <AnimatePresence>
-        {selectedImage && (
-          <motion.div
-            key="image"
-            initial={{ opacity: 0, scale: 0.875, height: 0 }}
-            animate={{ opacity: 1, scale: 1, height: "auto" }}
-            exit={{ opacity: 0, scale: 0.875, height: 0 }}
-            className="max-w-[320px] rounded-2xl relative overflow-hidden border border-[--border-color] mb-3"
-          >
-            <Badge className="absolute top-4 left-4 text-xs uppercase">image</Badge>
-            <Image width={1000} height={1000} src={selectedImage} alt="" />
+      {selectedImage && (
+        <div
+          key="image"
+          className="animate-fade-in-up max-w-[320px] rounded-2xl relative overflow-hidden border border-[--border-color] mb-3"
+        >
+          <Badge className="absolute top-4 left-4 text-xs uppercase">image</Badge>
+          <Image width={1000} height={1000} src={selectedImage} alt="" />
+          <Button
+            appearance="danger"
+            size="sm"
+            icon={<UilMultiply />}
+            className="absolute top-4 right-4"
+            onClick={() => clearSelectedImage()}
+            aria-label={i18next.t("g.clear", { defaultValue: "Clear" })}
+          />
+        </div>
+      )}
+      {video && (
+        <div
+          key="video"
+          className="animate-fade-in-up max-w-[320px] rounded-2xl relative overflow-hidden border border-[--border-color] mb-3 flex items-center justify-center bg-gray-100 dark:bg-dark-default p-4"
+        >
+          <Badge className="absolute top-4 left-4 text-xs uppercase">
+            {i18next.t("video-upload.short-badge")}
+          </Badge>
+          <div className="text-center text-sm text-gray-600 dark:text-gray-400 py-4">
+            {i18next.t("video-upload.video-attached")}
+          </div>
+          {clearVideo && (
             <Button
               appearance="danger"
               size="sm"
               icon={<UilMultiply />}
               className="absolute top-4 right-4"
-              onClick={() => clearSelectedImage()}
-              aria-label={i18next.t("g.clear", { defaultValue: "Clear" })}
+              onClick={clearVideo}
+              aria-label={i18next.t("g.clear")}
             />
-          </motion.div>
-        )}
-        {video && (
-          <motion.div
-            key="video"
-            initial={{ opacity: 0, scale: 0.875, height: 0 }}
-            animate={{ opacity: 1, scale: 1, height: "auto" }}
-            exit={{ opacity: 0, scale: 0.875, height: 0 }}
-            className="max-w-[320px] rounded-2xl relative overflow-hidden border border-[--border-color] mb-3 flex items-center justify-center bg-gray-100 dark:bg-dark-default p-4"
-          >
-            <Badge className="absolute top-4 left-4 text-xs uppercase">
-              {i18next.t("video-upload.short-badge")}
-            </Badge>
-            <div className="text-center text-sm text-gray-600 dark:text-gray-400 py-4">
-              {i18next.t("video-upload.video-attached")}
-            </div>
-            {clearVideo && (
-              <Button
-                appearance="danger"
-                size="sm"
-                icon={<UilMultiply />}
-                className="absolute top-4 right-4"
-                onClick={clearVideo}
-                aria-label={i18next.t("g.clear")}
-              />
-            )}
-          </motion.div>
-        )}
-        {activePoll && (
-          <motion.div
-            key="poll"
-            initial={{ opacity: 0, scale: 0.875, height: 0 }}
-            animate={{ opacity: 1, scale: 1, height: "auto" }}
-            exit={{ opacity: 0, scale: 0.875, height: 0 }}
-            className="max-w-[320px]"
-          >
-            <PollWidget compact={true} poll={activePoll} isReadOnly={true} />
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </div>
+      )}
+      {activePoll && (
+        <div key="poll" className="animate-fade-in-up max-w-[320px]">
+          <PollWidget compact={true} poll={activePoll} isReadOnly={true} />
+        </div>
+      )}
     </div>
   );
 };

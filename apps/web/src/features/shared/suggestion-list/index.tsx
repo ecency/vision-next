@@ -9,7 +9,6 @@ import { useRouter } from "next/navigation";
 import useMount from "react-use/lib/useMount";
 import { usePrevious } from "react-use";
 import useUnmount from "react-use/lib/useUnmount";
-import { AnimatePresence, motion } from "framer-motion";
 import { UilArrowUpRight } from "@tooni/iconscout-unicons-react";
 
 interface Props {
@@ -170,23 +169,9 @@ export function SuggestionList({
     >
       {children}
       <div ref={clickAwayRef}>
-        <AnimatePresence>
+        <>
           {showList && modeItems && modeItems.length > 0 && (
-            <motion.div
-              initial={{
-                opacity: 0,
-                scaleY: 0.85
-              }}
-              animate={{
-                opacity: 1,
-                scaleY: 1
-              }}
-              exit={{
-                opacity: 0,
-                scaleY: 0.85
-              }}
-              className="absolute border border-[--border-color] left-0 top-[calc(100%+0.5rem)] w-full z-[100] rounded-2xl overflow-hidden min-w-[200px] bg-white mb-4 origin-top"
-            >
+            <div className="absolute border border-[--border-color] left-0 top-[calc(100%+0.5rem)] w-full z-[100] rounded-2xl overflow-hidden min-w-[200px] bg-white mb-4 origin-top animate-scale-in">
               {modeItems.map(
                 (modeItem, modeKey) =>
                   modeItem.items.length > 0 && (
@@ -227,23 +212,11 @@ export function SuggestionList({
                   </a>
                 </div>
               </div>
-            </motion.div>
+            </div>
           )}
           {showList && !modeItems && items?.length > 0 && (
-            <motion.div
-              initial={{
-                opacity: 0,
-                scaleY: 0.85
-              }}
-              animate={{
-                opacity: 1,
-                scaleY: 1
-              }}
-              exit={{
-                opacity: 0,
-                scaleY: 0.85
-              }}
-              className="modal-suggestion-list rounded-3xl absolute origin-top"
+            <div
+              className="modal-suggestion-list rounded-3xl absolute origin-top animate-scale-in"
               style={listStyle}
             >
               {header && (
@@ -267,9 +240,9 @@ export function SuggestionList({
                   </a>
                 ))}
               </div>
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
+        </>
       </div>
     </div>
   );

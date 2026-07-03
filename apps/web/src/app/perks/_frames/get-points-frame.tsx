@@ -11,7 +11,6 @@ import {
   repeatSvg
 } from "@/features/ui/svg";
 import { UilPlus } from "@tooni/iconscout-unicons-react";
-import { motion, useMotionValue, useSpring } from "framer-motion";
 import Image from "next/image";
 import { useEffect, useRef } from "react";
 import defaults from "@/defaults";
@@ -19,33 +18,27 @@ import defaults from "@/defaults";
 export function GetPointsFrame() {
   const ref = useRef<HTMLDivElement>(null);
 
-  const motionValue = useMotionValue(0);
-  const springValue = useSpring(motionValue, {
-    damping: 50,
-    stiffness: 50
-  });
-
   useEffect(() => {
-    motionValue.set(3000);
-  }, [motionValue]);
-
-  useEffect(
-    () =>
-      springValue.on("change", (latest) => {
-        if (ref.current) {
-          ref.current.textContent = "+" + latest.toFixed(0);
-        }
-      }),
-    [springValue]
-  );
+    const el = ref.current;
+    if (!el) {
+      return;
+    }
+    const target = 3000;
+    const duration = 400;
+    const start = performance.now();
+    let frame = requestAnimationFrame(function tick(now) {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      el.textContent = "+" + Math.round(target * eased);
+      if (t < 1) {
+        frame = requestAnimationFrame(tick);
+      }
+    });
+    return () => cancelAnimationFrame(frame);
+  }, []);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 128 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.3, bounce: 0 }}
-      className="w-[80%] h-[80%] bg-white mx-auto rounded-t-[4rem] border-t-2 border-x-2 border-[#606060]"
-    >
+    <div className="w-[80%] h-[80%] bg-white mx-auto rounded-t-[4rem] border-t-2 border-x-2 border-[#606060]">
       <div className="w-full h-full rounded-t-[calc(4rem-2px)] border-t-[6px] border-x-[6px] border-[#000000]">
         <div className="flex items-center gap-2 px-2 pb-2 mt-[3rem] border-b border-[--border-color]">
           <div className="flex gap-1 flex-col top-3.5 left-0">
@@ -127,6 +120,6 @@ export function GetPointsFrame() {
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

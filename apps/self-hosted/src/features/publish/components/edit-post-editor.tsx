@@ -7,7 +7,6 @@ import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
 import TextAlign from "@tiptap/extension-text-align";
-import { motion } from "framer-motion";
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { UilArrowLeft } from "@tooni/iconscout-unicons-react";
@@ -117,12 +116,7 @@ export function EditPostEditor({
           <UilArrowLeft />
           {t("back_to_blog")}
         </Link>
-        <motion.div
-          initial={{ opacity: 0, y: -32 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="px-2 md:px-4 py-4 flex justify-end"
-        >
+        <div className="px-2 md:px-4 py-4 flex justify-end">
           <div className="flex flex-col items-end gap-2">
             {error && (
               <div className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-4 py-2 rounded">
@@ -149,15 +143,10 @@ export function EditPostEditor({
               )}
             </button>
           </div>
-        </motion.div>
+        </div>
       </div>
       <div className="max-w-[1024px] w-full mx-auto px-2 md:px-4 py-4">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="max-w-[1024px] rounded-2xl bg-white dark:bg-gray-800 container mx-auto px-2 py-4"
-        >
+        <div className="max-w-[1024px] rounded-2xl bg-white dark:bg-gray-800 container mx-auto px-2 py-4">
           <input
             type="text"
             className="text-3xl w-full px-3 py-4 pb-3 bg-transparent outline-none font-serif text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
@@ -180,7 +169,7 @@ export function EditPostEditor({
             editor={editor}
             className="markdown-body px-3 py-4 md:py-6 xl:py-8 min-h-[400px] focus:outline-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:focus:outline-none"
           />
-        </motion.div>
+        </div>
       </div>
     </>
   );

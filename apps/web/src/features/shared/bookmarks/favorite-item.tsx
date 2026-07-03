@@ -3,7 +3,6 @@ import { Button } from "@ui/button";
 import { UilTrash } from "@tooni/iconscout-unicons-react";
 import React, { useCallback, useMemo } from "react";
 import { Favorite } from "@/entities";
-import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { getAccountFullQueryOptions, useAccountFavoriteDelete } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
@@ -43,12 +42,7 @@ export function FavoriteItem({ item, onHide, i }: Props) {
   );
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -16 }}
-      transition={{ duration: 0.2, delay: 0.1 * i }}
-    >
+    <div className="animate-fade-in-up" style={{ animationDelay: `${Math.min(i, 5) * 50}ms` }}>
       <ProfileLink key={item._id} username={item.account} afterClick={onHide}>
         <div className="bg-white rounded-lg border border-[--border-color] p-2 md:p-4 flex items-center justify-between gap-2 md:gap-4">
           <div className="flex items-center gap-2">
@@ -72,6 +66,6 @@ export function FavoriteItem({ item, onHide, i }: Props) {
           />
         </div>
       </ProfileLink>
-    </motion.div>
+    </div>
   );
 }

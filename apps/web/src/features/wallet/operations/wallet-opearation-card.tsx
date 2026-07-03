@@ -3,7 +3,6 @@ import { Button } from "@/features/ui";
 import { getAccountWalletAssetInfoQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { UilEditAlt } from "@tooni/iconscout-unicons-react";
-import { motion } from "framer-motion";
 import i18next from "i18next";
 import { WalletOperationCardUsernameForm } from "./wallet-operation-card-username-form";
 import { WalletOperationCardWrapper } from "./wallet-operation-card-wrapper";
@@ -30,11 +29,7 @@ export function WalletOperationCard({
   const { data } = useQuery(getAccountWalletAssetInfoQueryOptions(username, asset));
 
   const userContent = username ? (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="flex justify-between items-center px-4 h-[44px]"
-    >
+    <div className="animate-fade-in-up flex justify-between items-center px-4 h-[44px]">
       <div className="flex items-center gap-2">
         <UserAvatar username={username} size="medium" />
         <div className="text-black dark:text-white py-2">@{username}</div>
@@ -48,7 +43,7 @@ export function WalletOperationCard({
           aria-label={i18next.t("g.edit", { defaultValue: "Edit" })}
         />
       )}
-    </motion.div>
+    </div>
   ) : null;
 
   const formContent = !username ? (

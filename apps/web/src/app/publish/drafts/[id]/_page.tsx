@@ -11,7 +11,6 @@ import {
 } from "@/app/publish/_components";
 import { usePublishEditor, usePublishState, useAutoSavePublishDraft } from "@/app/publish/_hooks";
 import { useApiDraftDetector } from "@/app/submit/_hooks";
-import { AnimatePresence } from "framer-motion";
 import i18next from "i18next";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -72,36 +71,34 @@ export default function PublishPage() {
   return (
     <>
       <PublishMultiTabWarning isActiveTab={isActiveTab} />
-      <AnimatePresence>
-        {step === "edit" && (
-          <>
-            <PublishModeHeader label={i18next.t("publish.draft-mode")} lastSaved={lastSaved} />
-            <PublishActionBar
-              onPublish={() => setStep("validation")}
-              onBackToClassic={() => router.push(`/draft/${params?.id}`)}
-              draftId={draftId}
-            />
-            <PublishEditor editor={editor} />
-          </>
-        )}
-        {step === "validation" && (
-          <PublishValidatePost
-            onClose={() => setStep("edit")}
-            onSuccess={(step, entryInfo) => {
-              setPublishedEntry(entryInfo);
-              setStep(step);
-            }}
+      {step === "edit" && (
+        <>
+          <PublishModeHeader label={i18next.t("publish.draft-mode")} lastSaved={lastSaved} />
+          <PublishActionBar
+            onPublish={() => setStep("validation")}
+            onBackToClassic={() => router.push(`/draft/${params?.id}`)}
+            draftId={draftId}
           />
-        )}
-        {["scheduled", "published"].includes(step) && (
-          <PublishSuccessState
-            step={step as "published" | "scheduled"}
-            setEditStep={() => setStep("edit")}
-            entryInfo={publishedEntry}
-          />
-        )}
-        {step === "no-draft" && <PublishDraftsNoDraft />}
-      </AnimatePresence>
+          <PublishEditor editor={editor} />
+        </>
+      )}
+      {step === "validation" && (
+        <PublishValidatePost
+          onClose={() => setStep("edit")}
+          onSuccess={(step, entryInfo) => {
+            setPublishedEntry(entryInfo);
+            setStep(step);
+          }}
+        />
+      )}
+      {["scheduled", "published"].includes(step) && (
+        <PublishSuccessState
+          step={step as "published" | "scheduled"}
+          setEditStep={() => setStep("edit")}
+          entryInfo={publishedEntry}
+        />
+      )}
+      {step === "no-draft" && <PublishDraftsNoDraft />}
       <PublishEditorHtmlWarning show={showHtmlWarning} setShow={setShowHtmlWarning} />
     </>
   );

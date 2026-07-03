@@ -62,3 +62,92 @@
     transform: scale(1) rotateZ(360deg);
   }
 }
+
+/* ── CSS animation system ──────────────────────────────────────────────────
+   Entrances are keyframe animations (play automatically on mount); exits are
+   transitions driven by useMountTransition's `open` flag. Only transform and
+   opacity are animated — both run on the compositor, so they stay smooth on
+   low-end devices and never block the main thread. */
+
+@keyframes anim-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes anim-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes anim-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Gentle idle float for decorative particles (e.g. points-spin seeds). */
+@keyframes anim-drift {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(3px, -3px);
+  }
+  50% {
+    transform: translate(-3px, 2px);
+  }
+  75% {
+    transform: translate(2px, 3px);
+  }
+}
+
+/* Standalone copy of the spin keyframes: arbitrary animate-[spin_...] values
+   (points-spin wheels) don't make Tailwind emit its theme keyframes, so they
+   must not depend on some other file happening to use animate-spin. */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Users who ask the OS for less motion get (near-)instant state changes.
+   0.01ms rather than 0 so *end events still fire for code awaiting them. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  /* Indeterminate progress indicators convey state, not decoration — a frozen
+     spinner looks stuck, so keep them moving. */
+  .animate-spin {
+    animation-duration: 1s !important;
+    animation-iteration-count: infinite !important;
+  }
+  .animate-pulse {
+    animation-duration: 2s !important;
+    animation-iteration-count: infinite !important;
+  }
+}

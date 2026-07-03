@@ -6,11 +6,10 @@ import { useCallback, useMemo } from "react";
 import { useMount, useSet, useUnmount } from "react-use";
 import "./_index.scss";
 
-// Feedback is mounted on every route. It used framer-motion purely for a
-// slide-up/fade-in toast animation, which dragged the whole framer-motion
-// runtime into the global critical path. A CSS keyframe (see _index.scss)
-// gives the same entrance with zero JS. Exit animation is dropped — toasts are
-// transient and auto-dismiss, so popping out is acceptable.
+// Feedback is mounted on every route, so its toast entrance must stay a pure
+// CSS keyframe (see _index.scss) with zero JS on the global critical path.
+// Exit animation is intentionally absent — toasts are transient and
+// auto-dismiss, so popping out is acceptable.
 export function Feedback() {
   const [set, { add, remove }] = useSet(new Set<FeedbackObject>());
   const queue = useMemo(() => Array.from(set), [set]);

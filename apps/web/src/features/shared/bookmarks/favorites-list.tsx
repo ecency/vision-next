@@ -3,7 +3,6 @@ import { LinearProgress } from "@/features/shared";
 import { FavoriteItem } from "@/features/shared/bookmarks/favorite-item";
 import { getFavoritesInfiniteQueryOptions } from "@ecency/sdk";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { AnimatePresence } from "framer-motion";
 import i18next from "i18next";
 import { getAccessToken } from "@/utils";
 import { Button } from "@ui/button";
@@ -52,11 +51,9 @@ export function FavoritesList({ onHide }: Props) {
       {items && items.length > 0 && (
         <div className="dialog-list">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <AnimatePresence mode="popLayout">
-              {items.map((item, i) => (
-                <FavoriteItem i={i} key={item._id} item={item} onHide={onHide} />
-              ))}
-            </AnimatePresence>
+            {items.map((item, i) => (
+              <FavoriteItem i={i} key={item._id} item={item} onHide={onHide} />
+            ))}
           </div>
           {hasNextPage && (
             <div className="flex justify-center my-4 col-span-full">

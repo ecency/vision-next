@@ -1,5 +1,4 @@
 import { Editor, EditorContent } from "@tiptap/react";
-import { motion } from "framer-motion";
 import { usePublishState } from "../hooks/use-publish-state";
 import { PublishEditorToolbar } from "./publish-editor-toolbar";
 import { PublishTagsSelector } from "./publish-tags-selector";
@@ -14,12 +13,7 @@ export function PublishEditor({ editor }: Props) {
   const { title, setTitleState, tags, setTagsState } = usePublishState();
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="max-w-[1024px] rounded-2xl bg-white dark:bg-gray-800 container mx-auto px-2 py-4"
-    >
+    <div className="max-w-[1024px] rounded-2xl bg-white dark:bg-gray-800 container mx-auto px-2 py-4">
       <input
         type="text"
         className="text-3xl w-full px-3 py-4 pb-3 bg-transparent outline-none font-serif text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
@@ -42,6 +36,6 @@ export function PublishEditor({ editor }: Props) {
         editor={editor}
         className="markdown-body px-3 py-4 md:py-6 xl:py-8 min-h-[400px] focus:outline-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:focus:outline-none"
       />
-    </motion.div>
+    </div>
   );
 }

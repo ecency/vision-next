@@ -16,7 +16,6 @@ import {
   UilQuestionCircle,
   UilTrash
 } from "@tooni/iconscout-unicons-react";
-import { AnimatePresence, motion } from "framer-motion";
 import i18next from "i18next";
 import { useMemo, useRef, useState } from "react";
 import { usePublishState } from "../_hooks";
@@ -121,45 +120,37 @@ export function PublishEditorPollEditor() {
           <div className="flex flex-col items-start gap-4 mt-4">
             <div>{i18next.t("polls.choices")}</div>
 
-            <AnimatePresence>
-              {poll.choices.map((choice, index) => (
-                <motion.div
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 16 }}
-                  key={index}
-                  className="flex w-full items-center gap-2"
-                >
-                  <FormControl
-                    type="text"
-                    value={choice}
-                    placeholder={i18next.t("polls.choice-placeholder", { n: index + 1 })}
-                    onChange={(e) => {
-                      const temp = [...poll?.choices];
-                      temp[index] = e.target.value;
+            {poll.choices.map((choice, index) => (
+              <div key={index} className="animate-fade-in-up flex w-full items-center gap-2">
+                <FormControl
+                  type="text"
+                  value={choice}
+                  placeholder={i18next.t("polls.choice-placeholder", { n: index + 1 })}
+                  onChange={(e) => {
+                    const temp = [...poll?.choices];
+                    temp[index] = e.target.value;
+                    setPoll({
+                      ...poll,
+                      choices: temp
+                    });
+                  }}
+                />
+                {poll.choices.length > 2 && (
+                  <Button
+                    icon={<UilMultiply />}
+                    size="sm"
+                    appearance="gray-link"
+                    onClick={() =>
                       setPoll({
                         ...poll,
-                        choices: temp
-                      });
-                    }}
+                        choices: poll.choices.filter((_, i) => i !== index)
+                      })
+                    }
+                    aria-label={i18next.t("polls.remove-choice", { defaultValue: "Remove choice" })}
                   />
-                  {poll.choices.length > 2 && (
-                    <Button
-                      icon={<UilMultiply />}
-                      size="sm"
-                      appearance="gray-link"
-                      onClick={() =>
-                        setPoll({
-                          ...poll,
-                          choices: poll.choices.filter((_, i) => i !== index)
-                        })
-                      }
-                      aria-label={i18next.t("polls.remove-choice", { defaultValue: "Remove choice" })}
-                    />
-                  )}
-                </motion.div>
-              ))}
-            </AnimatePresence>
+                )}
+              </div>
+            ))}
 
             <Button
               appearance="gray"

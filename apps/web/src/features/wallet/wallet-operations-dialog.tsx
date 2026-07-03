@@ -2,7 +2,6 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { AssetOperation } from "@ecency/sdk";
 import { UilArrowLeft } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
-import { AnimatePresence } from "framer-motion";
 import { HTMLProps, PropsWithChildren, useContext, useEffect, useMemo, useState } from "react";
 import { Button, Modal, ModalHeader } from "../ui";
 import { DropdownContext } from "../ui/dropdown/dropdown-context";
@@ -183,22 +182,20 @@ export function WalletOperationsDialog({
             }}
           />
         )}
-        <AnimatePresence>
-          {step === "sign" && (
-            <WalletOperationSign
-              data={data}
-              asset={asset}
-              operation={operation}
-              onSignSuccess={() => setStep("success")}
-              onSignError={(error) => {
-                setStep("error");
-                setSignError(error);
-              }}
-            />
-          )}
-          {step === "error" && <WalletOperationError error={signError} />}
-          {step === "success" && <WalletOperationSuccess onClose={() => setShow(false)} />}
-        </AnimatePresence>
+        {step === "sign" && (
+          <WalletOperationSign
+            data={data}
+            asset={asset}
+            operation={operation}
+            onSignSuccess={() => setStep("success")}
+            onSignError={(error) => {
+              setStep("error");
+              setSignError(error);
+            }}
+          />
+        )}
+        {step === "error" && <WalletOperationError error={signError} />}
+        {step === "success" && <WalletOperationSuccess onClose={() => setShow(false)} />}
 
         {operation === AssetOperation.WithdrawRoutes && (
           <WalletOperationWithdrawRoutes

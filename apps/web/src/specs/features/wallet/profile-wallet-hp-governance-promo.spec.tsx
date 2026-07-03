@@ -2,19 +2,6 @@ import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-// Mock framer-motion so the confirm Modal renders synchronously in jsdom
-vi.mock("framer-motion", () => ({
-  motion: {
-    div: ({ children, onClick, className, ...props }: any) => (
-      // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
-      <div onClick={onClick} className={className} {...props}>
-        {children}
-      </div>
-    )
-  },
-  AnimatePresence: ({ children }: any) => <>{children}</>
-}));
-
 const { mutateAsync } = vi.hoisted(() => ({
   mutateAsync: vi.fn().mockResolvedValue(undefined)
 }));

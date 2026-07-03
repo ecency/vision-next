@@ -1,6 +1,5 @@
 import { FormControl } from "@/features/ui";
 import { SignupWalletLabeledField } from "./signup-wallet-labeled-field";
-import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import { useDebounce } from "react-use";
 import i18next from "i18next";
@@ -65,38 +64,19 @@ export function SignupWalletChooseUsername({ initialUsername, onAvailableUsernam
         onFocus={() => setHasTouched(true)}
       />
 
-      <AnimatePresence>
-        {usernameError && !isPending && (
-          <motion.div
-            initial={{ opacity: 0, y: -16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            className="text-sm px-4 text-red"
-          >
-            {usernameError}
-          </motion.div>
-        )}
-        {canCreateAccount && (
-          <motion.div
-            initial={{ opacity: 0, y: -16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            className="text-sm px-4 text-green"
-          >
-            {i18next.t("signup-wallets.intro.available")}
-          </motion.div>
-        )}
-        {isPending && (
-          <motion.div
-            initial={{ opacity: 0, y: -16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            className="text-sm px-4 text-gray-400 dark:text-gray-600"
-          >
-            {i18next.t("signup-wallets.intro.checking")}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {usernameError && !isPending && (
+        <div className="text-sm px-4 text-red animate-fade-in-up">{usernameError}</div>
+      )}
+      {canCreateAccount && (
+        <div className="text-sm px-4 text-green animate-fade-in-up">
+          {i18next.t("signup-wallets.intro.available")}
+        </div>
+      )}
+      {isPending && (
+        <div className="text-sm px-4 text-gray-400 dark:text-gray-600 animate-fade-in-up">
+          {i18next.t("signup-wallets.intro.checking")}
+        </div>
+      )}
     </div>
   );
 }

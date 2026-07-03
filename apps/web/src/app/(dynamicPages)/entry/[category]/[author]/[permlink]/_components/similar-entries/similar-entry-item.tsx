@@ -19,10 +19,10 @@ export function SimilarEntryItem({ entry, i }: Props) {
     <Link href={`/@${entry.author}/${entry.permlink}`} className="no-style">
       {/* Entrance animation is CSS (see _index.scss), staggered per item via
           animation-delay — keeps the card visible in the SSR HTML (and with JS
-          disabled) instead of framer-motion's serialized opacity:0. */}
+          disabled) instead of a JS-driven serialized opacity:0. */}
       <div
         className="similar-entries-list-item bg-gray-100 hover:bg-blue-dark-sky-040 dark:bg-gray-900 rounded-2xl overflow-hidden transform transition-transform duration-200 hover:rotate-[1.5deg]"
-        style={{ animationDelay: `${i * 0.2}s` }}
+        style={{ animationDelay: `${Math.min(i, 5) * 50}ms` }}
       >
         {postImage && (
           <Image

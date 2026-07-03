@@ -14,7 +14,6 @@ import { FilterFriendsType } from "@/enums";
 import { FilterFriends } from "./filter-friends";
 import { useDebounce } from "react-use";
 import { FriendListItem } from "@/app/(dynamicPages)/profile/[username]/_components/friends/friend-list-item";
-import { AnimatePresence, motion } from "framer-motion";
 import type { Friend } from "./types";
 
 const loadLimit = 30;
@@ -132,19 +131,15 @@ export const FriendsList = ({ account, mode, variant = "modal" }: Props) => {
             <div className="empty-list"> {i18next.t("g.empty-list")}</div>
           )}
 
-          <AnimatePresence>
-            {dataFlow?.map((item, i) => (
-              <motion.div
-                key={item.name}
-                initial={{ opacity: 0, y: 32 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 32 }}
-                transition={{ delay: i * 0.1 }}
-              >
-                <FriendListItem item={item} />
-              </motion.div>
-            ))}
-          </AnimatePresence>
+          {dataFlow?.map((item, i) => (
+            <div
+              key={item.name}
+              className="animate-fade-in-up"
+              style={{ animationDelay: `${Math.min(i, 5) * 50}ms` }}
+            >
+              <FriendListItem item={item} />
+            </div>
+          ))}
         </div>
       </div>
 

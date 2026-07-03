@@ -3,9 +3,9 @@ import { Button } from "@ui/button";
 import { classNameObject } from "@ui/util";
 import { closeSvg } from "@/assets/img/svg";
 import React, { PropsWithChildren } from "react";
-import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { useMountTransition } from "@/core/hooks";
 
 interface Props {
   show: boolean;
@@ -14,18 +14,17 @@ interface Props {
 
 export function CenterContentLayout({ show, setShow, children }: PropsWithChildren<Props>) {
   const pathname = usePathname();
+  const { mounted, open } = useMountTransition(show, 150);
 
   return (
-    <AnimatePresence>
-      {show && (
-        <motion.div
-          key="center"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.8 }}
+    <>
+      {mounted && (
+        <div
           className={classNameObject({
-            "fixed bg-white dark:bg-dark-200 bottom-4 rounded-2xl overflow-hidden origin-bottom-left w-full max-w-[320px] sm:max-w-[400px]":
+            "fixed bg-white dark:bg-dark-200 bottom-4 rounded-2xl overflow-hidden origin-bottom-left w-full max-w-[320px] sm:max-w-[400px] transition-[opacity,transform] duration-150":
               true,
+            "opacity-100 scale-100": open,
+            "opacity-0 scale-95": !open,
             "left-4": !pathname?.includes("decks"),
             "right-4": pathname?.includes("decks")
           })}
@@ -52,8 +51,8 @@ export function CenterContentLayout({ show, setShow, children }: PropsWithChildr
           <div className="border border-[--border-color] rounded-b-2xl overflow-hidden">
             {children}
           </div>
-        </motion.div>
+        </div>
       )}
-    </AnimatePresence>
+    </>
   );
 }

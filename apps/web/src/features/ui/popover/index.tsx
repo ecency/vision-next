@@ -16,7 +16,6 @@ import { PopoverSheet } from "@ui/popover/popover-sheet";
 import { flip, Placement, shift } from "@floating-ui/dom";
 import { useFloating } from "@floating-ui/react-dom";
 import { safeAutoUpdate } from "@ui/util";
-import { AnimatePresence, motion } from "framer-motion";
 import clsx from "clsx";
 
 interface ShowProps {
@@ -113,22 +112,21 @@ export function Popover(
         !isSheet &&
         portalContainer &&
         createPortal(
-          <AnimatePresence>
-            {show && (
-              <div ref={refs.setFloating} style={floatingStyles} className="absolute z-[1110]">
-                <motion.div
-                  className={
-                    props.customClassName ?? "bg-white border border-[--border-color] rounded-lg dark:bg-dark-200"
-                  }
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                >
-                  {props.children}
-                </motion.div>
+          show ? (
+            <div ref={refs.setFloating} style={floatingStyles} className="absolute z-[1110]">
+              <div
+                className={clsx(
+                  props.customClassName ??
+                    "bg-white border border-[--border-color] rounded-lg dark:bg-dark-200",
+                  "animate-scale-in"
+                )}
+              >
+                {props.children}
               </div>
-            )}
-          </AnimatePresence>,
+            </div>
+          ) : (
+            <></>
+          ),
           portalContainer
         )}
       {isMounted() &&

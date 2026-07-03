@@ -1,5 +1,4 @@
 import { ReactNode } from "react";
-import { AnimatePresence, motion } from "framer-motion";
 import { useGetTokenLogoImage } from "../hooks";
 
 interface WalletOperationCardWrapperProps {
@@ -36,20 +35,14 @@ export function WalletOperationCardWrapper({
           </div>
         </div>
 
-        <AnimatePresence>
-          {balance !== undefined && Number.isFinite(balance) && (
-            <motion.div
-              key="balance"
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              className="text-black dark:text-white font-semibold cursor-pointer hover:text-blue-dark-sky dark:hover:text-blue-dark-sky"
-              onClick={() => onBalanceClick?.(+balance)}
-            >
-              {balance}
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {balance !== undefined && Number.isFinite(balance) && (
+          <div
+            className="animate-fade-in-up text-black dark:text-white font-semibold cursor-pointer hover:text-blue-dark-sky dark:hover:text-blue-dark-sky"
+            onClick={() => onBalanceClick?.(+balance)}
+          >
+            {balance}
+          </div>
+        )}
       </div>
 
       {userContent}

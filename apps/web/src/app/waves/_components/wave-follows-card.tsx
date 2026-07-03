@@ -4,7 +4,6 @@ import { getDiscoverLeaderboardQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import i18next from "i18next";
-import { motion } from "framer-motion";
 import { FollowControls, ProfileLink, UserAvatar } from "@/features/shared";
 import { useMemo } from "react";
 import { StyledTooltip } from "@ui/tooltip";
@@ -55,13 +54,7 @@ export function WaveFollowsCard() {
       </div>
       <div className="flex flex-col gap-4">
         {items?.map((item, i) => (
-          <motion.div
-            className="flex justify-between items-center gap-4 font-semibold"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.1 * i }}
-            key={i}
-          >
+          <div className="flex justify-between items-center gap-4 font-semibold" key={i}>
             <ProfileLink
               username={item._id}
               className="flex items-center gap-4 text-dark-default dark:text-white text-sm"
@@ -72,7 +65,7 @@ export function WaveFollowsCard() {
             <div className="flex gap-2">
               <FollowControls targetUsername={item._id} where="chat-box" showMute={false} />
             </div>
-          </motion.div>
+          </div>
         ))}
       </div>
     </div>

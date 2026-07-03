@@ -17,7 +17,6 @@ import { useQuery } from "@tanstack/react-query";
 import { UilClock, UilSort, UilUser } from "@tooni/iconscout-unicons-react";
 import { Badge } from "@ui/badge";
 import { Button } from "@ui/button";
-import { AnimatePresence, motion } from "framer-motion";
 import i18next from "i18next";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -85,12 +84,7 @@ export function ProfileCommunities() {
         )}
       </div>
       {!isFetching && items?.length === 0 && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          className="py-4"
-        >
+        <div className="py-4">
           <div className="px-2 py-4 sm:px-4 md:p-6 lg:p-12 bg-white rounded-2xl flex flex-col gap-4 md:gap-8 lg:gap-12 xl:gap-16 items-center">
             <div className="flex flex-col items-center justify-center gap-2">
               <UilClock className="text-blue-dark-sky w-12 h-12" />
@@ -115,33 +109,27 @@ export function ProfileCommunities() {
               </div>
             )}
           </div>
-        </motion.div>
+        </div>
       )}
 
       <ul className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        <AnimatePresence>
-          {items.map(
-            (i, k) =>
-              communities.find((c) => c.data?.name === i[0])?.data && (
-                <motion.div
-                  initial={{ opacity: 0, y: -48 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -48 }}
-                  transition={{ delay: k * 0.2 }}
-                  key={k}
-                  className=" bg-white/80 rounded-2xl p-2 xl:p-3 flex flex-col gap-2 xl:gap-3 justify-between"
-                >
-                  <CommunityListItem
-                    small={true}
-                    community={communities.find((c) => c.data?.name === i[0])?.data!}
-                  />
-                  <div>
-                    <Badge>{i[2]}</Badge>
-                  </div>
-                </motion.div>
-              )
-          )}
-        </AnimatePresence>
+        {items.map(
+          (i, k) =>
+            communities.find((c) => c.data?.name === i[0])?.data && (
+              <div
+                key={k}
+                className=" bg-white/80 rounded-2xl p-2 xl:p-3 flex flex-col gap-2 xl:gap-3 justify-between"
+              >
+                <CommunityListItem
+                  small={true}
+                  community={communities.find((c) => c.data?.name === i[0])?.data!}
+                />
+                <div>
+                  <Badge>{i[2]}</Badge>
+                </div>
+              </div>
+            )
+        )}
       </ul>
     </div>
   );

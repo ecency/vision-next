@@ -1,10 +1,10 @@
 "use client";
 
 import { classNameObject, useFilteredProps } from "@ui/util";
-import { AnimatePresence, motion } from "framer-motion";
 import { HTMLProps, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import useMountedState from "react-use/lib/useMountedState";
+import { useMountTransition } from "@/core/hooks";
 import { ModalContext } from "./modal-context";
 
 interface Props {
@@ -16,6 +16,10 @@ interface Props {
   dialogClassName?: string;
   overlayClassName?: string;
   raw?: boolean;
+  // How long the exit transition of the slowest animated piece runs. The modal
+  // stays mounted this long after closing so CSS exits can play
+  // (e.g. ModalSidebar's 300ms slide).
+  exitDurationMs?: number;
 }
 
 export function Modal(props: Omit<HTMLProps<HTMLDivElement>, "size"> & Props) {
@@ -28,11 +32,24 @@ export function Modal(props: Omit<HTMLProps<HTMLDivElement>, "size"> & Props) {
     "onHide",
     "centered",
     "dialogClassName",
-    "raw"
+    "raw",
+    "exitDurationMs"
   ]);
   const isAnimated = useMemo(() => props.animation ?? true, [props.animation]);
 
   const isMounted = useMountedState();
+
+  // CSS-transition replacement for AnimatePresence: `mounted` keeps the modal
+  // in the DOM while the exit transition plays (unmount is timer-based, so
+  // live content updating inside a closing modal can never strand it on
+  // screen), `open` drives the enter/exit classes.
+  // Non-animated modals default to instant unmount — without exit classes the
+  // content would linger fully visible for the exit window (ModalSidebar
+  // passes an explicit exitDurationMs for its sliding surface).
+  const { mounted, open } = useMountTransition(
+    show === true,
+    props.exitDurationMs ?? (isAnimated ? 200 : 0)
+  );
 
   const portalContainer =
     typeof document !== "undefined"
@@ -90,87 +107,58 @@ export function Modal(props: Omit<HTMLProps<HTMLDivElement>, "size"> & Props) {
   }, [show]);
 
   return (
-    <ModalContext.Provider value={{ show, setShow }}>
+    <ModalContext.Provider value={{ show, setShow, open }}>
       {isMounted() &&
         portalContainer &&
+        mounted &&
         createPortal(
-          <AnimatePresence>
-            {show && (
-              <motion.div
-                key="overlay"
-                initial={{
-                  opacity: 0
-                }}
-                animate={{
-                  opacity: 0.5
-                }}
-                exit={{
-                  opacity: 0
-                }}
-                className={classNameObject({
-                  "bg-black z-[1100] fixed top-0 left-0 right-0 bottom-0": true,
-                  [props.overlayClassName ?? ""]: !!props.overlayClassName
-                })}
-              />
-            )}
-          </AnimatePresence>,
+          <div
+            className={classNameObject({
+              "bg-black z-[1100] fixed top-0 left-0 right-0 bottom-0 transition-opacity duration-200":
+                true,
+              "opacity-50": open,
+              // While closing, let clicks reach the page instead of the dying
+              // overlay/wrapper (restored automatically on mid-exit reopen).
+              "opacity-0 pointer-events-none": !open,
+              [props.overlayClassName ?? ""]: !!props.overlayClassName
+            })}
+          />,
           portalContainer
         )}
 
       {isMounted() &&
         portalContainer &&
+        mounted &&
         createPortal(
-          <AnimatePresence>
-            {show && (
-              <motion.div
-                key="modal-content"
-                {...nativeProps}
-                className={classNameObject({
-                  "z-[1100] fixed top-0 pt-24 sm:py-4 md:py-8 left-0 right-0 bottom-0 overflow-y-auto h-full sm:h-auto":
-                    true,
-                  [props.className ?? ""]: true,
-                  "flex justify-center items-start": props.centered
-                })}
-                onClick={() => setShow(false)}
-              >
-                <motion.div
-                  initial={
-                    isAnimated && {
-                      opacity: 0,
-                      y: 24
-                    }
-                  }
-                  animate={
-                    isAnimated && {
-                      opacity: 1,
-                      y: 0
-                    }
-                  }
-                  exit={
-                    isAnimated
-                      ? {
-                          opacity: 0,
-
-                          y: 24
-                        }
-                      : {}
-                  }
-                  onClick={(e) => e.stopPropagation()}
-                  className={classNameObject({
-                    "ecency-modal-content": true,
-                    " md:my-[3rem] w-full mt-auto mx-0 sm:mt-0 sm:mx-3 bg-white border border-[--border-color] rounded-t-xl sm:rounded-xl sm:w-[calc(100%-2rem)]":
-                      !props.raw,
-                    "max-w-[500px]": !props.size || props.size === "md",
-                    "max-w-[800px]": props.size === "lg",
-                    "w-full sm:max-w-[375px]": props.size === "sm",
-                    [props.dialogClassName ?? ""]: true
-                  })}
-                >
-                  {props.children}
-                </motion.div>
-              </motion.div>
-            )}
-          </AnimatePresence>,
+          <div
+            {...nativeProps}
+            className={classNameObject({
+              "z-[1100] fixed top-0 pt-24 sm:py-4 md:py-8 left-0 right-0 bottom-0 overflow-y-auto h-full sm:h-auto":
+                true,
+              [props.className ?? ""]: true,
+              "pointer-events-none": !open,
+              "flex justify-center items-start": props.centered
+            })}
+            onClick={() => setShow(false)}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className={classNameObject({
+                "ecency-modal-content": true,
+                "transition-[opacity,transform] duration-200 ease-out": isAnimated,
+                "opacity-100 translate-y-0": isAnimated && open,
+                "opacity-0 translate-y-6": isAnimated && !open,
+                " md:my-[3rem] w-full mt-auto mx-0 sm:mt-0 sm:mx-3 bg-white border border-[--border-color] rounded-t-xl sm:rounded-xl sm:w-[calc(100%-2rem)]":
+                  !props.raw,
+                "max-w-[500px]": !props.size || props.size === "md",
+                "max-w-[800px]": props.size === "lg",
+                "w-full sm:max-w-[375px]": props.size === "sm",
+                [props.dialogClassName ?? ""]: true
+              })}
+            >
+              {props.children}
+            </div>
+          </div>,
           portalContainer
         )}
     </ModalContext.Provider>

@@ -11,6 +11,9 @@ const config: Config = {
     }),
     animation: {
       none: "none",
+      "fade-in-up": "anim-fade-in-up 0.2s cubic-bezier(0.16, 1, 0.3, 1) both",
+      "scale-in": "anim-scale-in 0.12s cubic-bezier(0.16, 1, 0.3, 1) both",
+      "pop-in": "anim-pop-in 0.15s cubic-bezier(0.16, 1, 0.3, 1) both",
       spin: "spin 1s linear infinite",
       ping: "ping 1s cubic-bezier(0, 0, 0.2, 1) infinite",
       pulse: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",

@@ -52,7 +52,6 @@ import {
 } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
 import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
-import { motion } from "framer-motion";
 import i18next from "i18next";
 import { usePathname } from "next/navigation";
 import { PropsWithChildren, useState } from "react";
@@ -97,13 +96,7 @@ export function PublishActionBar({
   const [_, setShowGuide] = useSynchronizedLocalStorage(PREFIX + "_pub_onboarding_passed", true);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -32 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -32 }}
-      transition={{ delay: 0.4 }}
-      className="container relative z-[11] justify-between gap-4 px-2 md:px-4 flex flex-col-reverse sm:flex-row sm:items-center max-w-[1024px] py-4 mx-auto publish-action-bar"
-    >
+    <div className="container relative z-[11] justify-between gap-4 px-2 md:px-4 flex flex-col-reverse sm:flex-row sm:items-center max-w-[1024px] py-4 mx-auto publish-action-bar">
       {/* Left side of the bar is just the community selector. The mode label
           (New Content / Draft Editing / Post Editing) and the auto-saved time
           live in the PublishModeHeader rendered above the bar, so they are not
@@ -214,6 +207,6 @@ export function PublishActionBar({
       {onImport && (
         <PublishImportDialog show={showImport} setShow={setShowImport} onImport={onImport} />
       )}
-    </motion.div>
+    </div>
   );
 }

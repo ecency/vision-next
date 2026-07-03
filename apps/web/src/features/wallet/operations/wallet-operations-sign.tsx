@@ -7,7 +7,6 @@ import type { AuthContextV2 } from "@ecency/sdk";
 import { PrivateKey } from "@ecency/sdk";
 import { isWif } from "@ecency/sdk";
 import { UilLock, UilArrowLeft } from "@tooni/iconscout-unicons-react";
-import { motion } from "framer-motion";
 import i18next from "i18next";
 import hs from "hivesigner";
 import Image from "next/image";
@@ -182,12 +181,7 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
   return (
     <>
       {step === "sign" && (
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: "auto" }}
-          exit={{ opacity: 0, height: 0 }}
-          className="border-t border-[--border-color] grid grid-cols-2 p-4 gap-4 items-start overflow-hidden"
-        >
+        <div className="animate-fade-in-up border-t border-[--border-color] grid grid-cols-2 p-4 gap-4 items-start overflow-hidden">
           {isMetaMaskUser ? (
             <div className="col-span-2 flex justify-center">
               <MetaMaskSignButton
@@ -292,7 +286,7 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
               )}
             </>
           )}
-        </motion.div>
+        </div>
       )}
       {step === "signing" && <WalletOperationSigning />}
     </>

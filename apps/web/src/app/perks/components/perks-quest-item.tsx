@@ -2,7 +2,6 @@
 
 import { UilCheckCircle } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
-import { motion } from "framer-motion";
 import i18next from "i18next";
 import { ReactNode } from "react";
 
@@ -17,7 +16,6 @@ interface Props {
   hint?: string;
   /** the soft reward cap (where the existing reward decays to ~0); shown subtly */
   cap?: number;
-  index?: number;
   onClick?: () => void;
 }
 
@@ -29,16 +27,12 @@ export function PerksQuestItem({
   completed = false,
   hint,
   cap,
-  index = 0,
   onClick
 }: Props) {
   const pct = goal > 0 ? Math.min(100, Math.round((progress / goal) * 100)) : 0;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05 }}
+    <div
       onClick={onClick}
       role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
@@ -79,10 +73,8 @@ export function PerksQuestItem({
           </span>
         </div>
         <div className="h-1.5 w-full rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: `${pct}%` }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
+          <div
+            style={{ width: `${pct}%` }}
             className={clsx("h-full rounded-full", completed ? "bg-green-500" : "bg-blue-dark-sky")}
           />
         </div>
@@ -92,6 +84,6 @@ export function PerksQuestItem({
           </span>
         )}
       </div>
-    </motion.div>
+    </div>
   );
 }

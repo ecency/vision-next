@@ -5,7 +5,6 @@ import { WaveViewDiscussionItem } from "@/app/waves/[author]/[permlink]/_compone
 import { useEntryDiscussionsList } from "@/features/entry-management";
 import { UilCommentAdd } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
-import { AnimatePresence, motion } from "framer-motion";
 
 interface Props {
   entry: WaveEntry;
@@ -25,19 +24,12 @@ export function WaveViewDiscussion({ entry }: Props) {
             i={i}
           />
         ))}
-        <AnimatePresence>
-          {data?.length === 0 && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="flex flex-col items-center justify-center gap-4 p-4 md:py-6 lg:py-8 text-gray-400 dark:text-gray-600"
-            >
-              <UilCommentAdd />
-              {i18next.t("waves.no-replies")}
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {data?.length === 0 && (
+          <div className="flex flex-col items-center justify-center gap-4 p-4 md:py-6 lg:py-8 text-gray-400 dark:text-gray-600">
+            <UilCommentAdd />
+            {i18next.t("waves.no-replies")}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -4,7 +4,6 @@ import { offset } from "@floating-ui/dom";
 import { flip, useFloating } from "@floating-ui/react-dom";
 import { safeAutoUpdate } from "@ui/util";
 import clsx from "clsx";
-import { motion } from "framer-motion";
 import React, { JSX, ReactNode, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -86,17 +85,17 @@ export function StyledTooltip({
             className="z-[1070] absolute"
             style={{ ...floatingStyles, visibility: show && content ? "visible" : "hidden" }}
           >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.75 }}
-              animate={{ opacity: show && content ? 1 : 0, scale: show && content ? 1 : 0.75 }}
+            <div
               className={clsx(
                 "bg-blue-powder dark:bg-dark-default max-w-[320px] text-blue-dark-sky rounded-lg ",
+                "transition-[opacity,transform] duration-100 origin-top",
+                show && content ? "opacity-100 scale-100" : "opacity-0 scale-75",
                 size === "sm" && "p-1 text-xs font-semibold",
                 size === "md" && "p-2 text-xs"
               )}
             >
               {content}
-            </motion.div>
+            </div>
           </div>,
           portalContainer
         )}

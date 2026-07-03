@@ -1,6 +1,5 @@
 import { UilLock, UilUnlock, UilUserCheck, UilUsersAlt } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
-import { AnimatePresence, motion } from "framer-motion";
 
 export enum CommunityStepperSteps {
   INTRO,
@@ -44,24 +43,21 @@ const steps = [
 export function CommunityCreateStepper({ step: stepProp }: Props) {
   return (
     <div className="grid-cols-1 gap-4 lg:gap-6 hidden md:grid xl:gap-8 pt-8">
-      <AnimatePresence>
-        {steps.map(({ step, title, icon, description }, index) => (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: step === stepProp ? 1 : 0.5 }}
-            exit={{ opacity: 0 }}
-            transition={{ delay: 0.1 * index }}
-            className={clsx("flex text-sm items-start gap-2 md:gap-4")}
-            key={step}
-          >
-            <div className="bg-white dark:bg-dark-default p-2 rounded-xl">{icon}</div>
-            <div>
-              <div className="font-bold">{title}</div>
-              <div className="opacity-75">{description}</div>
-            </div>
-          </motion.div>
-        ))}
-      </AnimatePresence>
+      {steps.map(({ step, title, icon, description }) => (
+        <div
+          className={clsx(
+            "flex text-sm items-start gap-2 md:gap-4 transition-opacity duration-200",
+            step === stepProp ? "opacity-100" : "opacity-50"
+          )}
+          key={step}
+        >
+          <div className="bg-white dark:bg-dark-default p-2 rounded-xl">{icon}</div>
+          <div>
+            <div className="font-bold">{title}</div>
+            <div className="opacity-75">{description}</div>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

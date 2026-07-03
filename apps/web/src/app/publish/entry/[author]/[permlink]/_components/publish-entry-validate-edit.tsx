@@ -3,7 +3,6 @@ import { usePublishState } from "@/app/publish/_hooks";
 import { TagSelector } from "@/app/submit/_components";
 import { Button } from "@/features/ui";
 import { UilMultiply } from "@tooni/iconscout-unicons-react";
-import { motion } from "framer-motion";
 import i18next from "i18next";
 import { usePostEdit } from "../_hooks";
 import { useCallback } from "react";
@@ -46,12 +45,7 @@ export function PublishEntryValidateEdit({ onClose, onSuccess, entry }: Props) {
   }, [content, editPost, metaDescription, onSuccess, selectedThumbnail, tags, title]);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      className="publish-page max-w-[1024px] mx-auto"
-    >
+    <div className="animate-fade-in-up publish-page max-w-[1024px] mx-auto">
       <div className="col-span-2 justify-end flex p-4 pt-0 md:pt-4">
         <Button
           appearance="gray"
@@ -105,6 +99,6 @@ export function PublishEntryValidateEdit({ onClose, onSuccess, entry }: Props) {
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

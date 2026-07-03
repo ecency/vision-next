@@ -12,7 +12,6 @@ import {
 } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
-import { motion } from "framer-motion";
 import i18next from "i18next";
 import { useCallback, useMemo, useState } from "react";
 
@@ -241,11 +240,7 @@ export function AiAssist({ onApply, initialText = "" }: Props) {
     };
 
     return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="flex flex-col gap-4"
-      >
+      <div className="animate-fade-in-up flex flex-col gap-4">
         <div className="font-semibold">{i18next.t("ai-assist.result-title")}</div>
 
         {parsedResult?.type === "titles" ? (
@@ -333,7 +328,7 @@ export function AiAssist({ onApply, initialText = "" }: Props) {
             {i18next.t("ai-assist.try-another")}
           </Button>
         </div>
-      </motion.div>
+      </div>
     );
   }
 
@@ -376,15 +371,13 @@ export function AiAssist({ onApply, initialText = "" }: Props) {
               const freeRemaining = price?.free_remaining ?? 0;
 
               return (
-                <motion.button
+                <button
                   type="button"
                   key={action}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.03 }}
+                  style={{ animationDelay: `${Math.min(i, 5) * 50}ms` }}
                   aria-pressed={selectedAction === action}
                   className={clsx(
-                    "border px-4 py-3 rounded-lg cursor-pointer flex items-center justify-between text-left w-full",
+                    "animate-fade-in-up border px-4 py-3 rounded-lg cursor-pointer flex items-center justify-between text-left w-full",
                     selectedAction === action
                       ? "border-blue-dark-sky bg-blue-dark-sky/10"
                       : "border-[--border-color] hover:bg-gray-100 dark:hover:bg-gray-800"
@@ -412,7 +405,7 @@ export function AiAssist({ onApply, initialText = "" }: Props) {
                       {price?.cost ?? "?"} {i18next.t("ai-assist.points-unit")}
                     </span>
                   </div>
-                </motion.button>
+                </button>
               );
             })}
           </div>
@@ -420,10 +413,7 @@ export function AiAssist({ onApply, initialText = "" }: Props) {
       </div>
 
       {selectedAction && (
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: "auto" }}
-        >
+        <div className="animate-fade-in-up">
           <label className="text-sm font-medium mb-1 block">
             {i18next.t("ai-assist.text-label")}
           </label>
@@ -444,7 +434,7 @@ export function AiAssist({ onApply, initialText = "" }: Props) {
                 : i18next.t("ai-assist.chars-remaining", { count: charsRemaining })}
             </div>
           </div>
-        </motion.div>
+        </div>
       )}
 
       {isInsufficientBalance && (

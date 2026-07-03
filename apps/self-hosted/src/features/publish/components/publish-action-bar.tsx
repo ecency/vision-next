@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { usePublishState } from "../hooks/use-publish-state";
 import { usePublishPost } from "../hooks/use-publish-post";
 import { Link } from "@tanstack/react-router";
@@ -51,12 +50,7 @@ export function PublishActionBar({ onSuccess }: Props) {
         <UilArrowLeft />
         Back to blog
       </Link>
-      <motion.div
-        initial={{ opacity: 0, y: -32 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        className="px-2 md:px-4 py-4 flex justify-end"
-      >
+      <div className="px-2 md:px-4 py-4 flex justify-end">
         <div className="flex flex-col items-end gap-2">
           {error && (
             <div className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-4 py-2 rounded">
@@ -83,7 +77,7 @@ export function PublishActionBar({ onSuccess }: Props) {
             )}
           </button>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }
