@@ -25,9 +25,11 @@ export function ProDialog({ username, onHide, resumePaymentIntent }: Props) {
   const queryClient = useQueryClient();
 
   // On activation, reflect the new membership immediately. The /perks card and every ProBadge
-  // read the shared pro-members roster (5-min stale window), so without this a just-paid user
-  // would still see "Go Pro" and no badge until a later refetch. Optimistically add them, then
-  // invalidate so the authoritative roster catches up.
+  // read the shared pro-members roster, so without this a just-paid user would still see "Go Pro"
+  // and no badge. We optimistically add them but deliberately do NOT invalidate/refetch: the
+  // roster endpoint is edge-cached (~5 min) and would return the pre-grant list, overwriting this
+  // entry. setQueryData marks the query fresh, so it won't refetch until the stale window elapses,
+  // by which point the grant has landed and the endpoint cache has rolled over.
   const handleActivated = () => {
     setDone(true);
     queryClient.setQueryData<ProMembersResponse>(QueryKeys.accounts.proMembers(), (prev) => {
@@ -35,7 +37,6 @@ export function ProDialog({ username, onHide, resumePaymentIntent }: Props) {
       if (members.includes(username)) return prev;
       return { members: [...members, username], count: (prev?.count ?? 0) + 1 };
     });
-    queryClient.invalidateQueries({ queryKey: QueryKeys.accounts.proMembers() });
   };
 
   // Redirect-based methods send the buyer to /perks and Stripe re-appends payment_intent; the
