@@ -289,7 +289,8 @@ export const translateMarkdown = async (
   markdown: string,
   source: string,
   target: string,
-  onProgress?: (done: number, total: number) => void
+  onProgress?: (done: number, total: number) => void,
+  isCancelled?: () => boolean
 ): Promise<string> => {
   const normalized = markdown.replace(/\r\n?/g, "\n");
   if (!normalized.trim()) {
@@ -332,17 +333,25 @@ export const translateMarkdown = async (
       const translatedLines = [...lines];
       lines.forEach((line, lineIndex) => {
         const marker = line.match(LINE_MARKER_PREFIX);
-        const prefix = marker ? marker[1] : "";
+        // Marker-less continuation lines keep their leading indentation,
+        // which translation would otherwise strip.
+        const prefix = marker ? marker[1] : line.match(/^\s*/)?.[0] ?? "";
         const rest = line.slice(prefix.length);
         if (!rest.trim() || IMAGE_ONLY_LINE.test(rest) || URL_ONLY_LINE.test(rest)) {
           return;
         }
-        requests.push({
-          text: rest,
-          apply: (translated) => {
-            translatedLines[lineIndex] = `${prefix}${translated}`;
-            output[index] = translatedLines.join("\n");
-          }
+        const chunks =
+          rest.length > MAX_BLOCK_BATCH_CHARS ? chunkText(rest, MAX_BLOCK_BATCH_CHARS) : [rest];
+        const parts: string[] = new Array(chunks.length).fill("");
+        chunks.forEach((chunk, chunkIndex) => {
+          requests.push({
+            text: chunk,
+            apply: (translated) => {
+              parts[chunkIndex] = translated;
+              translatedLines[lineIndex] = `${prefix}${parts.join(" ")}`;
+              output[index] = translatedLines.join("\n");
+            }
+          });
         });
       });
       return;
@@ -379,6 +388,9 @@ export const translateMarkdown = async (
   onProgress?.(0, requests.length);
   let done = 0;
   for (const request of requests) {
+    if (isCancelled?.()) {
+      throw new Error("translate-cancelled");
+    }
     // Sequential on purpose: gentle on the shared LibreTranslate instance and
     // keeps the progress counter meaningful.
     const { translatedText } = await getTranslation(request.text, source, target);

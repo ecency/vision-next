@@ -19,7 +19,7 @@ import { FormControl } from "@ui/input";
 import { Modal, ModalBody, ModalFooter, ModalHeader } from "@ui/modal";
 import { Spinner } from "@ui/spinner";
 import i18next from "i18next";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { usePublishState } from "../_hooks";
 
 // Same sampling bounds as the reader-side language gate: a few hundred clean
@@ -89,20 +89,44 @@ export function PublishTranslateDialog({ show, setShow, editor }: Props) {
     setTarget(reader && reader !== "en" && LIBRETRANSLATE_TARGETS.has(reader) ? reader : "es");
   }, [source]);
 
+  // A result translated into a previous language pair must never be applied.
+  useEffect(() => {
+    setTranslated("");
+    setFailed(false);
+  }, [source, target]);
+
+  // The dialog unmounts on close; stop the request chain instead of letting
+  // it keep hitting the translation service in the background.
+  const unmounted = useRef(false);
+  useEffect(() => {
+    unmounted.current = false;
+    return () => {
+      unmounted.current = true;
+    };
+  }, []);
+
   const translate = async () => {
     setTranslating(true);
     setFailed(false);
     setTranslated("");
     setProgress([0, 0]);
     try {
-      const result = await translateMarkdown(content ?? "", source, target, (done, total) =>
-        setProgress([done, total])
+      const result = await translateMarkdown(
+        content ?? "",
+        source,
+        target,
+        (done, total) => setProgress([done, total]),
+        () => unmounted.current
       );
       setTranslated(result);
     } catch {
-      setFailed(true);
+      if (!unmounted.current) {
+        setFailed(true);
+      }
     } finally {
-      setTranslating(false);
+      if (!unmounted.current) {
+        setTranslating(false);
+      }
     }
   };
 

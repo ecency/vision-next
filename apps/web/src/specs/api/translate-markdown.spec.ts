@@ -248,4 +248,33 @@ describe("translateMarkdown", () => {
       ].join("\n\n")
     );
   });
+it("preserves leading indentation on marker-less continuation lines", async () => {
+    const result = await translateMarkdown("- item uno\n    continua aqui", "es", "en");
+
+    expect(result).toBe(`- ${wrap("item uno")}\n    ${wrap("continua aqui")}`);
+  });
+
+  it("chunks a single overlong marked line into multiple requests", async () => {
+    const long = Array.from({ length: 200 }, (_, i) => `palabra${i}`).join(" ");
+    const result = await translateMarkdown(`- ${long}`, "es", "en");
+
+    expect(post.mock.calls.length).toBeGreaterThan(1);
+    expect(result.startsWith("- ")).toBe(true);
+    // Stripping the wrap markers must restore the original text: no words may
+    // be lost or duplicated at chunk boundaries.
+    expect(result.slice(2).replace(/[\u00ab\u00bb]/g, "")).toBe(long);
+  });
+
+  it("stops issuing requests once cancelled", async () => {
+    let calls = 0;
+    post.mockImplementation((_url: string, body: { q: string }) => {
+      calls += 1;
+      return Promise.resolve({ data: { translatedText: wrap(body.q) } });
+    });
+
+    await expect(
+      translateMarkdown("One.\n\n---\n\nTwo.\n\n---\n\nThree.", "es", "en", undefined, () => calls >= 1)
+    ).rejects.toThrow("translate-cancelled");
+    expect(calls).toBe(1);
+  });
 });
