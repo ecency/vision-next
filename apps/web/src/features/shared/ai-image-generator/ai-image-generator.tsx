@@ -299,7 +299,6 @@ export function AiImageGenerator({ onInsert, showInsertAction = true, suggestedP
           <PointsTopupCta
             required={cost}
             available={+(activeUserPoints?.points ?? 0)}
-            newTab={true}
           />
         </div>
       )}

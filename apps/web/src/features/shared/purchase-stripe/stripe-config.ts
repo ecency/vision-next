@@ -1,12 +1,20 @@
 import { loadStripe, Stripe } from "@stripe/stripe-js";
 
-// The publishable key is public (safe in the browser) but environment-specific
-// (test vs live). It is baked at build time as a NEXT_PUBLIC_ var. When it is not
-// configured, card payment is disabled (the entry point hides itself) so we never
-// render a broken Payment Element.
-const PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
+// Tier catalog + isStripeEnabled live in a dependency-free module so consumers that
+// only need tier data don't pull in @stripe/stripe-js (its main entry injects the
+// js.stripe.com script on import). Re-exported here for existing import sites.
+export {
+  DEFAULT_STRIPE_TIER_SKU,
+  STRIPE_POINTS_TIERS,
+  isKnownTierSku,
+  isStripeEnabled,
+  suggestPointsSkuForDeficit,
+  type StripePointsTier
+} from "./stripe-tiers";
 
-export const isStripeEnabled = (): boolean => PUBLISHABLE_KEY.trim().length > 0;
+import { isStripeEnabled } from "./stripe-tiers";
+
+const PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
 
 let stripePromise: Promise<Stripe | null> | undefined;
 
@@ -23,25 +31,3 @@ export const getStripePromise = (): Promise<Stripe | null> | undefined => {
   }
   return stripePromise;
 };
-
-export interface StripePointsTier {
-  /** SKU forwarded to ePoints; the amount + Points are derived there server-side. */
-  sku: string;
-  /** USD price (the SKU's leading number IS the price in cents). */
-  usd: number;
-  /** Points delivered. MUST mirror ePoints STRIPE_PRODUCT_MAP (server is the truth). */
-  points: number;
-}
-
-// Mirrors ePoints constants.py STRIPE_PRODUCT_MAP. The smallest IAP tiers (099/199)
-// are intentionally not offered on the card rail. The Points figures are display-only;
-// the actual credit is computed server-side from the SKU, so a drift here only affects
-// the label, never the delivered amount.
-export const STRIPE_POINTS_TIERS: StripePointsTier[] = [
-  { sku: "499points", usd: 4.99, points: 2800 },
-  { sku: "999points", usd: 9.99, points: 6000 },
-  { sku: "4999points", usd: 49.99, points: 31500 },
-  { sku: "9999points", usd: 99.99, points: 70000 }
-];
-
-export const DEFAULT_STRIPE_TIER_SKU = "999points";

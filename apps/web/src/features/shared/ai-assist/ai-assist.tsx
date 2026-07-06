@@ -449,7 +449,6 @@ export function AiAssist({ onApply, initialText = "" }: Props) {
           <PointsTopupCta
             required={selectedPrice?.cost}
             available={+(activeUserPoints?.points ?? 0)}
-            newTab={true}
           />
         </div>
       )}

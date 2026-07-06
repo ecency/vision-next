@@ -1,10 +1,14 @@
-import { PointsTopupCta, suggestPointsSkuForDeficit } from "@/features/shared/points-topup-cta";
+import { PointsTopupCta } from "@/features/shared/points-topup-cta";
+import {
+  isKnownTierSku,
+  suggestPointsSkuForDeficit
+} from "@/features/shared/purchase-stripe/stripe-tiers";
 import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("@/features/shared/purchase-stripe/stripe-config", async () => ({
-  ...(await vi.importActual("@/features/shared/purchase-stripe/stripe-config")),
+vi.mock("@/features/shared/purchase-stripe/stripe-tiers", async () => ({
+  ...(await vi.importActual("@/features/shared/purchase-stripe/stripe-tiers")),
   isStripeEnabled: () => true
 }));
 
@@ -27,12 +31,22 @@ describe("suggestPointsSkuForDeficit", () => {
   });
 });
 
+describe("isKnownTierSku", () => {
+  it("accepts known card-rail tiers and rejects others", () => {
+    expect(isKnownTierSku("999points")).toBe(true);
+    expect(isKnownTierSku("099points")).toBe(false);
+    expect(isKnownTierSku("garbage")).toBe(false);
+    expect(isKnownTierSku("")).toBe(false);
+  });
+});
+
 describe("PointsTopupCta", () => {
-  it("deep-links into card checkout with the tier covering the deficit", () => {
+  it("deep-links into card checkout with the tier covering the deficit, in a new tab", () => {
     render(<PointsTopupCta required={500} available={100} />);
     const link = screen.getByRole("link");
     expect(link).toHaveAttribute("href", "/perks/points?buy=card&sku=499points");
-    expect(link).not.toHaveAttribute("target");
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link).toHaveAttribute("rel", "noopener noreferrer");
   });
 
   it("falls back to the default tier when the deficit is unknown", () => {
@@ -41,10 +55,5 @@ describe("PointsTopupCta", () => {
       "href",
       "/perks/points?buy=card&sku=999points"
     );
-  });
-
-  it("opens in a new tab when requested", () => {
-    render(<PointsTopupCta required={500} available={0} newTab={true} />);
-    expect(screen.getByRole("link")).toHaveAttribute("target", "_blank");
   });
 });

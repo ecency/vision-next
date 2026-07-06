@@ -95,10 +95,7 @@ export function Promote({ onHide, entry }: Props) {
     }
   }, [prices]);
 
-  const price = useMemo(
-    () => prices?.find((x) => x.duration === duration)?.price ?? 0.0,
-    [prices, duration]
-  );
+  const price = prices?.find((x) => x.duration === duration)?.price ?? 0.0;
 
   useEffect(() => {
     setBalanceError(

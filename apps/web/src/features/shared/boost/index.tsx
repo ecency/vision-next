@@ -58,7 +58,7 @@ export function BoostDialog({ onHide }: Props) {
       parseFloat(activeUserPoints?.points ?? "0") < price
         ? i18next.t("trx-common.insufficient-funds")
         : "",
-    [activeUser, price]
+    [activeUserPoints?.points, price]
   );
   const isAlreadyBoosted = useMemo(
     () =>
