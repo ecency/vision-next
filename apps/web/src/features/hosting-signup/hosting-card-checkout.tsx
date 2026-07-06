@@ -80,6 +80,8 @@ export function HostingCardCheckout({ username, sku, payLabel, returnUrl, onActi
     if (!paymentIntentId || pollingRef.current) return;
     pollingRef.current = true;
     setActivating(true);
+    let attempts = 0;
+    const MAX_ATTEMPTS = 45; // ~90s
     const poll = async () => {
       if (!pollingRef.current) return;
       try {
@@ -98,6 +100,15 @@ export function HostingCardCheckout({ username, sku, payLabel, returnUrl, onActi
         }
       } catch {
         // transient (network / not-yet-recorded) -> keep polling
+      }
+      attempts += 1;
+      if (attempts >= MAX_ATTEMPTS) {
+        // Payment succeeded; ePoints keeps retrying activation with backoff, so this is not a
+        // hard failure -- stop the spinner and reassure rather than loop forever.
+        pollingRef.current = false;
+        setActivating(false);
+        setError(i18next.t("hosting.activation-pending"));
+        return;
       }
       timerRef.current = setTimeout(poll, 2000);
     };

@@ -1,6 +1,7 @@
 "use client";
 
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { getUsernameError } from "@/utils/username-validation";
 import { Alert } from "@ui/alert";
 import { Button } from "@ui/button";
 import { FormControl } from "@ui/input";
@@ -13,7 +14,6 @@ type Step = "username" | "configure" | "payment" | "success";
 type Method = "hbd" | "card";
 
 const TERMS = [1, 3, 6, 12];
-const USERNAME_RE = /^[a-z][a-z0-9.-]{2,15}$/;
 
 interface Instructions {
   to: string;
@@ -35,7 +35,10 @@ export function HostingSignup() {
   const [blogUrl, setBlogUrl] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const tenantCreatedRef = useRef(false);
+  // The username we actually created a tenant for; if the user goes back and changes it,
+  // we must create the new one before payment (a stale guard would let them pay for a blog
+  // that was never created and never activates).
+  const createdForRef = useRef("");
 
   const baseDomain = "blogs.ecency.com";
   const cardEnabled = !!methods?.card.enabled && !!activeUser && username === activeUser.username;
@@ -44,32 +47,36 @@ export function HostingSignup() {
     hostingApi.paymentMethods().then(setMethods).catch(() => setMethods(null));
   }, []);
 
-  // Default the payment method to whichever is available (card needs login).
+  // Default to HBD whenever card is not actually available to this visitor (logged out, or
+  // the name is not their own), so the payment step never renders with no method shown.
   useEffect(() => {
-    if (methods && !methods.card.enabled) setMethod("hbd");
-  }, [methods]);
+    if (!cardEnabled) setMethod("hbd");
+  }, [cardEnabled]);
 
   const goConfigure = () => {
     setError("");
-    if (!USERNAME_RE.test(username.trim().toLowerCase())) {
-      setError(i18next.t("hosting.invalid-username"));
+    const err = getUsernameError(username.trim().toLowerCase());
+    if (err) {
+      setError(err);
       return;
     }
     setStep("configure");
   };
 
-  // Create the (inactive) tenant, then move to payment. Payment activates it.
+  // Create the (inactive) tenant for the CURRENT username, then move to payment. Payment
+  // activates it. Re-creates when the username changed since the last creation.
   const goPayment = useCallback(async () => {
     setError("");
     setBusy(true);
+    const uname = username.trim().toLowerCase();
     try {
-      if (!tenantCreatedRef.current) {
-        const res = await hostingApi.createTenant(username.trim().toLowerCase(), {
+      if (createdForRef.current !== uname) {
+        const res = await hostingApi.createTenant(uname, {
           theme: "system",
           title: title.trim() || undefined,
           description: description.trim() || undefined
         });
-        tenantCreatedRef.current = true;
+        createdForRef.current = uname;
         setBlogUrl(res.tenant.blogUrl);
       }
       setStep("payment");
@@ -81,13 +88,22 @@ export function HostingSignup() {
     }
   }, [username, title, description]);
 
-  // HBD: refresh instructions for the selected term whenever it changes on the HBD tab.
+  // HBD: refresh instructions for the selected term. Guard against a slow earlier response
+  // (a different term) landing after a newer one and showing a mismatched amount/memo.
   useEffect(() => {
     if (step !== "payment" || method !== "hbd") return;
+    let stale = false;
     hostingApi
       .paymentInstructions(username.trim().toLowerCase(), months)
-      .then((r) => setInstructions({ to: r.to, amount: r.amount, memo: r.memo }))
-      .catch(() => setInstructions(null));
+      .then((r) => {
+        if (!stale) setInstructions({ to: r.to, amount: r.amount, memo: r.memo });
+      })
+      .catch(() => {
+        if (!stale) setInstructions(null);
+      });
+    return () => {
+      stale = true;
+    };
   }, [step, method, months, username]);
 
   const checkActivation = useCallback(async () => {
@@ -204,6 +220,7 @@ export function HostingSignup() {
 
           {method === "card" && cardEnabled && (
             <HostingCardCheckout
+              key={hostingSkuForMonths(months)}
               username={username.trim().toLowerCase()}
               sku={hostingSkuForMonths(months)}
               payLabel={i18next.t("hosting.pay-now")}

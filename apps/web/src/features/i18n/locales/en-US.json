@@ -24,6 +24,7 @@
     "card-unavailable": "Card payment is unavailable right now.",
     "card-failed": "The payment could not be completed.",
     "activating": "Payment received. Activating your blog.",
+    "activation-pending": "Payment received. Your blog is being set up and will be live shortly. You can safely close this page.",
     "preparing-checkout": "Preparing secure checkout.",
     "coming-soon": "Blog hosting is coming soon."
   },
