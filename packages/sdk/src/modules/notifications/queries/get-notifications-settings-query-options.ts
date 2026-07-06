@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { ApiNotificationSetting } from "../types";
-import { NotifyTypes } from "../enums";
+import { ALL_NOTIFY_TYPES } from "../enums";
 import { CONFIG, QueryKeys } from "@/modules/core";
 
 export function getNotificationsSettingsQueryOptions(
@@ -41,18 +41,7 @@ export function getNotificationsSettingsQueryOptions(
         status: 0,
         system: "web",
         allows_notify: 0,
-        notify_types: initialMuted
-          ? []
-          : ([
-              NotifyTypes.COMMENT,
-              NotifyTypes.FOLLOW,
-              NotifyTypes.MENTION,
-              NotifyTypes.FAVORITES,
-              NotifyTypes.BOOKMARKS,
-              NotifyTypes.VOTE,
-              NotifyTypes.RE_BLOG,
-              NotifyTypes.TRANSFERS,
-            ] as number[]),
+        notify_types: initialMuted ? [] : ([...ALL_NOTIFY_TYPES] as number[]),
       } as ApiNotificationSetting;
     },
   });

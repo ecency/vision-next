@@ -229,6 +229,14 @@ export interface ApiWeeklyEarningsNotification extends BaseAPiNotification {
   curation_usd?: string;
 }
 
+export interface ApiScheduledPublishedNotification extends BaseAPiNotification {
+  type: "scheduled_published";
+  author: string;
+  permlink: string;
+  title: string | null;
+  img_url: string | null;
+}
+
 export interface ApiNotificationSetting {
   system: string; //"web" | "desktop"
   allows_notify: number; //0|1
@@ -249,7 +257,8 @@ export type ApiNotification =
   | ApiInactiveNotification
   | ApiReferralNotification
   | ApiDelegationsNotification
-  | ApiWeeklyEarningsNotification;
+  | ApiWeeklyEarningsNotification
+  | ApiScheduledPublishedNotification;
 
 export interface Notifications {
   filter: NotificationFilter | null;
