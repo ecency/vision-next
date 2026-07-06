@@ -73,6 +73,8 @@ interface PublishStateContextValue {
   addDecentMemesResult: (entry: DecentMemesEntry) => void;
   setDecentMemes: (entries: DecentMemesEntry[]) => void;
   clearDecentMemes: () => void;
+  appliedTemplateBody: string | null;
+  setAppliedTemplateBody: (value: string | null) => void;
 }
 
 const PublishStateContext = createContext<PublishStateContextValue | undefined>(undefined);
@@ -100,6 +102,7 @@ export function PublishStateProvider({ children }: { children: React.ReactNode }
   const hasThreeSpeakVideo = useMemo(() => hasThreeSpeakEmbed(content), [content]);
   const [poll, setPoll] = usePublishPollState(false);
   const [decentMemes, setDecentMemes] = useState<DecentMemesEntry[]>([]);
+  const [appliedTemplateBody, setAppliedTemplateBody] = useState<string | null>(null);
 
   const clearDecentMemes = useCallback(() => setDecentMemes([]), []);
 
@@ -228,6 +231,7 @@ export function PublishStateProvider({ children }: { children: React.ReactNode }
     clearEntryImages();
     clearLocation();
     clearDecentMemes();
+    setAppliedTemplateBody(null);
     setIsReblogToCommunity(false);
   }, [
     setBeneficiaries,
@@ -244,6 +248,7 @@ export function PublishStateProvider({ children }: { children: React.ReactNode }
     clearEntryImages,
     clearLocation,
     clearDecentMemes,
+    setAppliedTemplateBody,
     setIsReblogToCommunity
   ]);
 
@@ -286,7 +291,9 @@ export function PublishStateProvider({ children }: { children: React.ReactNode }
         decentMemes,
         addDecentMemesResult,
         setDecentMemes,
-        clearDecentMemes
+        clearDecentMemes,
+        appliedTemplateBody,
+        setAppliedTemplateBody
       }}
     >
       {children}

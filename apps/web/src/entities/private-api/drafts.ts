@@ -6,6 +6,8 @@ export interface DraftMetadata extends MetaData {
   rewardType: RewardType;
   poll?: PollSnapshot;
   decentMemes?: DecentMemesEntry[];
+  postTemplate?: boolean;
+  templateName?: string;
 }
 
 export interface Draft {

@@ -2201,6 +2201,24 @@
     "validation-body": "Body is required.",
     "form-body": "Body"
   },
+  "post-templates": {
+    "title": "Templates",
+    "save-current": "Save as template",
+    "name-label": "Template name",
+    "name-placeholder": "e.g. Weekly update",
+    "validation-name": "Name is required.",
+    "save": "Save",
+    "cancel": "Cancel",
+    "apply": "Apply",
+    "apply-confirm": "Replace your current draft content?",
+    "delete-confirm": "Delete this template?",
+    "untitled": "Untitled template",
+    "empty-list-hint": "Save your current post as a template to reuse its title, tags and settings later.",
+    "filter": "Search by name",
+    "saved-toast": "Template saved",
+    "similarity-warning": "This post is still mostly your template. Add your own content before publishing.",
+    "load-more": "Load More"
+  },
   "password-update": {
     "title": "Create new keys",
     "account": "Account",

@@ -16,7 +16,10 @@ import { PublishScheduleDialog } from "./publish-schedule-dialog";
 import { PublishValidatePostMeta } from "./publish-validate-post-meta";
 import { PublishValidatePostThumbnailPicker } from "./publish-validate-post-thumbnail-picker";
 import { isCommunity } from "@/utils";
+import { wordOverlapSimilarity } from "@/utils/text-similarity";
 import { hasPublishContent } from "../_utils/content";
+
+const TEMPLATE_SIMILARITY_THRESHOLD = 0.9;
 
 interface Props {
   onClose: () => void;
@@ -35,7 +38,8 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
     isReblogToCommunity,
     setIsReblogToCommunity,
     beneficiaries,
-    title
+    title,
+    appliedTemplateBody
   } = usePublishState();
 
   const [showSchedule, setShowSchedule] = useState(false);
@@ -46,6 +50,13 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
         ? beneficiaries?.find((ben) => ben.account === tags?.[0])?.weight
         : undefined,
     [beneficiaries, tags]
+  );
+
+  const isMostlyTemplate = useMemo(
+    () =>
+      !!appliedTemplateBody &&
+      wordOverlapSimilarity(content ?? "", appliedTemplateBody) >= TEMPLATE_SIMILARITY_THRESHOLD,
+    [appliedTemplateBody, content]
   );
 
   const { mutateAsync: publishNow, isPending: isPublishPending } = usePublishApi();
@@ -194,6 +205,12 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
           {(beneficiaryReward ?? 0) / 100 > 25 && (
             <Alert className="w-full" appearance="warning">
               {i18next.t("publish.community-beneficiary.hint")}
+            </Alert>
+          )}
+
+          {isMostlyTemplate && (
+            <Alert className="w-full" appearance="warning">
+              {i18next.t("post-templates.similarity-warning")}
             </Alert>
           )}
 

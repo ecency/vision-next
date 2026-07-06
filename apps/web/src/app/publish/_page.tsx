@@ -100,6 +100,7 @@ export default function Publish() {
             onPublish={() => setStep("validation")}
             onBackToClassic={() => router.push(routes.SUBMIT)}
             onImport={handleImport}
+            setEditorContent={setEditorContent}
             draftId={draftId}
           />
           <PublishEditor editor={editor} />
