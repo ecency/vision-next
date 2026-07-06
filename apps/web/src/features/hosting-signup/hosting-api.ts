@@ -2,7 +2,12 @@
 // that service already allows ecency.com. The base URL is configured per-environment; the
 // signup page is hidden when it is unset.
 
-const HOSTING_API = (process.env.NEXT_PUBLIC_HOSTING_API ?? "").replace(/\/$/, "");
+// The managed-hosting API is a stable public service; default to it so /hosting works without
+// a build-time env. Override with NEXT_PUBLIC_HOSTING_API (e.g. "" to force the coming-soon gate).
+const HOSTING_API = (process.env.NEXT_PUBLIC_HOSTING_API ?? "https://api.blogs.ecency.com").replace(
+  /\/$/,
+  ""
+);
 
 export interface HostingPaymentMethods {
   hbd: { enabled: boolean; monthly: string; account: string };
