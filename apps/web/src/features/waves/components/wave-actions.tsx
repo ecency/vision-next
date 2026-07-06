@@ -7,6 +7,7 @@ import {
   EntryVotes,
   UserAvatar
 } from "@/features/shared";
+import { TranslateChip } from "@/features/shared/entry-translate/translate-chip";
 import { commentSvg, voteSvg } from "@/app/decks/_components/icons";
 import { Button } from "@ui/button";
 import i18next from "i18next";
@@ -82,6 +83,7 @@ export function WaveActions({
             />
           </div>
           <div>
+            <TranslateChip entry={entry!} />
             <EntryMenu entry={entry!} />
             {activeUser?.username === entry?.author && (
               <Button className="edit-btn" appearance="link" onClick={() => onEdit(entry!)}>

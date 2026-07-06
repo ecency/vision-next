@@ -31,6 +31,7 @@ import { EntryListItemNsfwContent } from "@/features/shared/entry-list-item/entr
 import { EntryListItemClientInit } from "@/features/shared/entry-list-item/entry-list-item-client-init";
 import { EntryListItemPollIcon } from "@/features/shared/entry-list-item/entry-list-item-poll-icon";
 import { HydrateOnVisible } from "@/features/shared/hydrate-on-visible";
+import { TranslateChip } from "@/features/shared/entry-translate/translate-chip";
 import { UilComment } from "@tooni/iconscout-unicons-react";
 
 setProxyBase(defaults.imageServer);
@@ -189,6 +190,9 @@ export function EntryListItemComponent({
           )}
           <EntryReblogBtn entry={entry} />
           <EntryTipBtn entry={entry} />
+          {/* Detection runs only here — inside the near-viewport action island —
+              so off-screen cards never load franc or run detection. */}
+          <TranslateChip entry={entry} />
           <div className="border-r border-[--border-color] w-[1px] h-4" />
           <EntryMenu alignBottom={order >= 1} entry={entry} />
         </div>

@@ -582,7 +582,15 @@
     "edit-classic": "Classic Edit"
   },
   "entry-translate": {
-    "target-language": "Target language"
+    "target-language": "Target language",
+    "banner-detected": "This post is in {{lang}}. Translate to {{target}}?",
+    "translate-to": "Translate to {{lang}}",
+    "show-original": "Show original",
+    "translated-from": "Translated from {{lang}}",
+    "change-language": "Change language",
+    "translating": "Translating…",
+    "dismiss": "Dismiss",
+    "plain-text-note": "Plain-text translation. Images and formatting are shown in the original."
   },
   "cross-post": {
     "title": "Cross Post",
