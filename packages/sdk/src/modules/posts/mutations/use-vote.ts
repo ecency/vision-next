@@ -2,7 +2,23 @@ import { useBroadcastMutation, QueryKeys } from "@/modules/core";
 import type { BroadcastMode } from "@/modules/core";
 import { buildVoteOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
+import type { QueryClient } from "@tanstack/react-query";
 import { EntriesCacheManagement } from "../cache/entries-cache-management";
+
+/**
+ * Whether the cached active_votes list already reflects the broadcast vote:
+ * the voter is present for a vote (weight !== 0) or absent for an unvote
+ * (weight === 0). Used to avoid stacking the SDK's post-broadcast optimistic
+ * update on top of a platform-level optimistic update applied at press time.
+ */
+export function isVoteAlreadyReflected(
+  activeVotes: Array<{ voter: string }>,
+  voter: string | undefined,
+  weight: number
+): boolean {
+  const hasVoterRecord = activeVotes.some((v) => v.voter === voter);
+  return weight !== 0 ? hasVoterRecord : !hasVoterRecord;
+}
 
 /**
  * Payload for voting on a post or comment.
@@ -16,6 +32,41 @@ export interface VotePayload {
   weight: number;
   /** Optional estimated payout change for optimistic UI */
   estimated?: number;
+}
+
+/**
+ * Post-broadcast optimistic cache update for a vote: replaces the voter's
+ * active_votes record and bumps the payout by `estimated`. Skipped when the
+ * cached entry already reflects this vote (voter present for a vote, absent
+ * for an unvote): platforms with their own at-press optimistic layer (e.g.
+ * the mobile app) have applied it by the time the broadcast resolves, and
+ * stacking a second update here double-counts the payout and clobbers the
+ * platform's richer vote record until the deferred invalidation.
+ */
+export function applyVoteCacheUpdate(
+  username: string | undefined,
+  variables: VotePayload,
+  qc?: QueryClient
+): void {
+  const entry = EntriesCacheManagement.getEntry(variables.author, variables.permlink, qc);
+  if (
+    !entry?.active_votes ||
+    isVoteAlreadyReflected(entry.active_votes, username, variables.weight)
+  ) {
+    return;
+  }
+  const newVotes = [
+    ...entry.active_votes.filter((v) => v.voter !== username),
+    ...(variables.weight !== 0 ? [{ rshares: variables.weight, voter: username! }] : [])
+  ];
+  const newPayout = entry.payout + (variables.estimated ?? 0);
+  EntriesCacheManagement.updateVotes(
+    variables.author,
+    variables.permlink,
+    newVotes,
+    newPayout,
+    qc
+  );
 }
 
 /**
@@ -86,21 +137,9 @@ export function useVote(
       buildVoteOp(username!, author, permlink, weight)
     ],
     async (result: any, variables) => {
-      // Optimistic vote list + payout update
-      const entry = EntriesCacheManagement.getEntry(variables.author, variables.permlink);
-      if (entry?.active_votes) {
-        const newVotes = [
-          ...entry.active_votes.filter((v) => v.voter !== username),
-          ...(variables.weight !== 0 ? [{ rshares: variables.weight, voter: username! }] : [])
-        ];
-        const newPayout = entry.payout + (variables.estimated ?? 0);
-        EntriesCacheManagement.updateVotes(
-          variables.author,
-          variables.permlink,
-          newVotes,
-          newPayout
-        );
-      }
+      // Optimistic vote list + payout update (no-op when the cache already
+      // reflects this vote — see applyVoteCacheUpdate).
+      applyVoteCacheUpdate(username, variables);
 
       // Activity tracking (fire-and-forget — non-critical, shouldn't block mutation completion)
       // Async broadcasts return BroadcastResult ({ tx_id, status }) instead of TransactionConfirmation,
