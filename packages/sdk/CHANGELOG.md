@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.35
+
+### Patch Changes
+
+- Streak Freeze: buy UI + SDK (#1081)
+
 ## 2.3.34
 
 ### Patch Changes
