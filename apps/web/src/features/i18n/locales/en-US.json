@@ -2972,6 +2972,11 @@
       }
     }
   },
+  "quest-chip": {
+    "daily-post": "Daily post {{progress}}/{{goal}}",
+    "tooltip": "Publish a post or check in today to keep your streak",
+    "post-quest-complete": "Daily post quest complete"
+  },
   "boost-plus": {
     "title": "Boost+",
     "sub-title": "Boost your account using Ecency points",

@@ -7,6 +7,7 @@ import { PollsContext, PollsManager, useEntryPollExtractor } from "@/features/po
 import { useLocalStorage } from "react-use";
 import { PREFIX } from "@/utils/local-storage";
 import { ProfileLink, UserAvatar } from "@/features/shared";
+import { QuestStreakChip } from "@/features/shared/quest-streak-chip";
 import { WaveFormControl } from "./wave-form-control";
 import i18next from "i18next";
 import { Button } from "@ui/button";
@@ -337,6 +338,8 @@ const WaveFormComponent = ({
             {i18next.t("g.loading")}...
           </div>
         )}
+
+        <QuestStreakChip className="mb-1.5" />
 
         <WaveFormToolbar
           isEdit={!!entry}
