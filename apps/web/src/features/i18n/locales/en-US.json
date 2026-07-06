@@ -1947,6 +1947,7 @@
     "type-nfavorites": "Favorites",
     "type-nbookmarks": "Bookmarks",
     "type-scheduled-published": "Scheduled posts",
+    "type-scheduled_published": "Scheduled posts",
     "group-title-recent": "Recent",
     "vote-str": "{{p}}% voted post",
     "reply-str": "replied to post",
