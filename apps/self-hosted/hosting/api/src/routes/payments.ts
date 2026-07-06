@@ -5,14 +5,23 @@
 import { Hono } from 'hono';
 import { db } from '../db/client';
 import { authMiddleware, adminMiddleware } from '../middleware/auth';
-import { StripeService } from '../services/stripe-service';
-import { TenantService } from '../services/tenant-service';
 
 export const paymentRoutes = new Hono();
 
+// Constant-time check of the shared service-to-service secret (ePoints -> hosting).
+// Fails CLOSED when the secret is unset, so a misconfigured deploy cannot activate blogs.
+function internalSecretOk(provided: string | undefined): boolean {
+  const secret = process.env.HOSTING_INTERNAL_SECRET || '';
+  const given = provided || '';
+  if (secret.length === 0 || given.length !== secret.length) return false;
+  let diff = 0;
+  for (let i = 0; i < secret.length; i++) diff |= given.charCodeAt(i) ^ secret.charCodeAt(i);
+  return diff === 0;
+}
+
 // GET /v1/payments/methods - which rails are available + pricing (for the signup UI)
 paymentRoutes.get('/methods', async (c) => {
-  const monthlyHbd = process.env.MONTHLY_PRICE_HBD || '0.100';
+  const monthlyHbd = process.env.MONTHLY_PRICE_HBD || '2.000';
   const facilitator = process.env.X402_FACILITATOR_URL || '';
   return c.json({
     hbd: {
@@ -24,17 +33,26 @@ paymentRoutes.get('/methods', async (c) => {
       enabled: facilitator.startsWith('https://'),
       monthly: monthlyHbd,
     },
+    // Card is fulfilled through the central ePoints Stripe rail (checkout happens on
+    // the web via the shared Elements flow); this flag only tells the UI whether to
+    // offer the option.
     card: {
-      enabled: StripeService.enabled(),
-      monthlyUsdCents: StripeService.priceUsdCents(),
+      enabled: (process.env.HOSTING_CARD_ENABLED || 'true') === 'true',
+      monthlyUsdCents: parseInt(process.env.HOSTING_CARD_USD_CENTS || '200', 10),
     },
   });
 });
 
-// POST /v1/payments/stripe/checkout - create a one-time card checkout for N months
-paymentRoutes.post('/stripe/checkout', async (c) => {
-  if (!StripeService.enabled()) {
-    return c.json({ error: 'card_unavailable', message: 'Card payment is not available' }, 503);
+// POST /v1/internal/activate - service-to-service activation (NOT public).
+// Called by ePoints' fulfillment after a paid card order settles (ePoints is the single
+// Stripe brain; hosting never sees card data or Stripe keys). Guarded by a shared secret.
+// Idempotent + atomic: dedup on the order id so a fulfillment retry can never double-extend,
+// and the payment record + activation commit together so a crash can't leave a paid tenant
+// uncredited. Returns 200 on success or benign replay; 404 (permanent) if the tenant is gone
+// so ePoints FAILs the order; 5xx (transient) so ePoints leaves it VERIFIED and retries.
+paymentRoutes.post('/internal/activate', async (c) => {
+  if (!internalSecretOk(c.req.header('x-internal-secret'))) {
+    return c.json({ error: 'forbidden' }, 403);
   }
 
   let body: any;
@@ -45,42 +63,75 @@ paymentRoutes.post('/stripe/checkout', async (c) => {
   }
 
   const username = String(body?.username || '').toLowerCase();
-  const months = Math.max(1, Math.min(24, parseInt(body?.months, 10) || 1));
+  const months = Math.max(1, Math.min(24, parseInt(body?.months, 10) || 0));
+  const orderId = String(body?.order_id || '').trim();
+  const amountUsd = typeof body?.amount_usd === 'number' ? body.amount_usd : 0;
 
-  if (!/^[a-z][a-z0-9.-]{2,15}$/.test(username)) {
-    return c.json({ error: 'invalid_username' }, 400);
-  }
-
-  // The tenant must already exist (created in the previous signup step); we only
-  // charge for an existing blog so a stray payment can't be orphaned.
-  const tenant = await TenantService.getByUsername(username);
-  if (!tenant) {
-    return c.json({ error: 'tenant_not_found', message: 'Create your blog first' }, 404);
+  if (!/^[a-z][a-z0-9.-]{2,15}$/.test(username) || months < 1 || !orderId) {
+    return c.json({ error: 'invalid_request' }, 400);
   }
 
   try {
-    const { url } = await StripeService.createCheckoutSession(username, months);
-    return c.json({ url });
-  } catch (e) {
-    console.error('[stripe] checkout failed:', (e as Error).message);
-    return c.json({ error: 'checkout_failed' }, 500);
-  }
-});
+    const result = await db.transaction<{ status: 200 | 404; duplicate?: boolean; expiresAt?: Date }>(
+      async (client) => {
+        // Lock the tenant row (serializes retries) and confirm it still exists.
+        const t = await client.query(
+          `SELECT id, subscription_started_at, subscription_expires_at
+             FROM tenants WHERE username = $1 FOR UPDATE`,
+          [username]
+        );
+        if (t.rowCount === 0) {
+          return { status: 404 };
+        }
+        const tenant = t.rows[0];
 
-// POST /v1/payments/stripe/webhook - Stripe -> activate/extend subscription
-paymentRoutes.post('/stripe/webhook', async (c) => {
-  const sig = c.req.header('stripe-signature');
-  if (!sig) {
-    return c.json({ error: 'missing_signature' }, 400);
-  }
-  // Raw body is required for signature verification.
-  const raw = await c.req.text();
-  try {
-    const res = await StripeService.handleWebhook(raw, sig);
-    return c.json({ received: true, ...res });
+        // Claim the order id. If already recorded, this is a replay -> no re-credit.
+        const claim = await client.query(
+          `INSERT INTO payments
+             (tenant_id, trx_id, block_num, from_account, amount, currency, memo, status, months_credited)
+           VALUES ($1, $2, 0, 'stripe', $3, 'USD', $4, 'processed', $5)
+           ON CONFLICT (trx_id) DO NOTHING
+           RETURNING id`,
+          [tenant.id, orderId, amountUsd, `blog:${username}:${months}`, months]
+        );
+        if (claim.rowCount === 0) {
+          return { status: 200, duplicate: true };
+        }
+
+        // Extend from the later of now / current expiry (same rule as activateSubscription).
+        const now = new Date();
+        const currentExpiry = tenant.subscription_expires_at
+          ? new Date(tenant.subscription_expires_at)
+          : now;
+        const base = currentExpiry > now ? currentExpiry : now;
+        const newExpiry = new Date(base);
+        newExpiry.setMonth(newExpiry.getMonth() + months);
+        const startedAt = tenant.subscription_started_at || now;
+
+        await client.query(
+          `UPDATE tenants
+             SET subscription_status = 'active',
+                 subscription_started_at = $2,
+                 subscription_expires_at = $3,
+                 updated_at = NOW()
+           WHERE id = $1`,
+          [tenant.id, startedAt, newExpiry]
+        );
+        await client.query(
+          `UPDATE payments SET processed_at = NOW(), subscription_extended_to = $2 WHERE trx_id = $1`,
+          [orderId, newExpiry]
+        );
+        return { status: 200, expiresAt: newExpiry };
+      }
+    );
+
+    if (result.status === 404) {
+      return c.json({ error: 'tenant_not_found' }, 404);
+    }
+    return c.json({ activated: true, duplicate: !!result.duplicate, expiresAt: result.expiresAt }, 200);
   } catch (e) {
-    console.error('[stripe] webhook error:', (e as Error).message);
-    return c.json({ error: 'webhook_error' }, 400);
+    console.error('[internal/activate] error:', (e as Error).message);
+    return c.json({ error: 'activation_failed' }, 500);
   }
 });
 
@@ -118,7 +169,7 @@ paymentRoutes.get('/instructions/:username', async (c) => {
   const months = parseInt(c.req.query('months') || '1', 10);
 
   const paymentAccount = process.env.PAYMENT_ACCOUNT || 'ecency.hosting';
-  const monthlyPrice = parseFloat(process.env.MONTHLY_PRICE_HBD || '0.100');
+  const monthlyPrice = parseFloat(process.env.MONTHLY_PRICE_HBD || '2.000');
   const totalAmount = (monthlyPrice * months).toFixed(3);
 
   return c.json({

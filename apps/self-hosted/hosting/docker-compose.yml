@@ -46,11 +46,12 @@ services:
       - PRO_UPGRADE_PRICE_HBD=${PRO_UPGRADE_PRICE_HBD:-5.000}
       # x402 rail (Ecency's facilitator). Empty disables the x402 option in the UI.
       - X402_FACILITATOR_URL=${X402_FACILITATOR_URL:-https://x402.ecency.com}
-      # Stripe (card). Leave the secret empty to hide the card option.
-      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-}
-      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-}
-      - STRIPE_MONTHLY_PRICE_USD_CENTS=${STRIPE_MONTHLY_PRICE_USD_CENTS:-200}
-      - HOSTING_SIGNUP_URL=${HOSTING_SIGNUP_URL:-https://ecency.com/hosting}
+      # Card payments are handled by the central ePoints Stripe rail (no Stripe keys here).
+      # ePoints calls the internal activation endpoint with this shared secret; empty = card
+      # activation disabled (endpoint fails closed).
+      - HOSTING_INTERNAL_SECRET=${HOSTING_INTERNAL_SECRET:-}
+      - HOSTING_CARD_ENABLED=${HOSTING_CARD_ENABLED:-true}
+      - HOSTING_CARD_USD_CENTS=${HOSTING_CARD_USD_CENTS:-200}
     volumes:
       - "tenant-configs:/app/configs"
     networks:

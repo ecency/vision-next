@@ -39,7 +39,7 @@ CREATE TABLE payments (
     tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE,
     
     -- Hive transaction details
-    trx_id VARCHAR(64) NOT NULL UNIQUE,
+    trx_id VARCHAR(255) NOT NULL UNIQUE,  -- Hive trx id (40) or Stripe session id (can exceed 64)
     block_num BIGINT NOT NULL,
     from_account VARCHAR(255) NOT NULL,
     amount DECIMAL(20, 3) NOT NULL,
