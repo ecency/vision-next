@@ -19,7 +19,7 @@ function collectSourceFiles(dir: string, out: string[] = []): string[] {
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) {
       collectSourceFiles(full, out);
-    } else if (/\.(ts|tsx)$/.test(entry.name) && !entry.name.endsWith(".spec.ts")) {
+    } else if (/\.(ts|tsx)$/.test(entry.name) && !/\.spec\.(ts|tsx)$/.test(entry.name)) {
       out.push(full);
     }
   }
@@ -34,7 +34,7 @@ describe("unicons alias coverage", () => {
       const content = fs.readFileSync(file, "utf8");
       for (const match of content.matchAll(IMPORT_RE)) {
         for (const raw of match[1].split(",")) {
-          const name = raw.split(/\s+as\s+/)[0].trim();
+          const name = raw.split(/\s+as\s+/)[0].trim().replace(/^type\s+/, "");
           if (!name) {
             continue;
           }
