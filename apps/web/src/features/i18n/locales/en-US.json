@@ -2972,6 +2972,11 @@
       }
     }
   },
+  "quest-chip": {
+    "daily-post": "Daily post {{progress}}/{{goal}}",
+    "tooltip": "Check in today to keep your streak. The daily post quest earns extra Points.",
+    "post-quest-complete": "Daily post quest complete"
+  },
   "boost-plus": {
     "title": "Boost+",
     "sub-title": "Boost your account using Ecency points",

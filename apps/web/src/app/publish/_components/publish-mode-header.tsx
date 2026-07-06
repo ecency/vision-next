@@ -1,4 +1,5 @@
 import i18next from "i18next";
+import { QuestStreakChip } from "@/features/shared/quest-streak-chip";
 
 interface Props {
   /**
@@ -22,12 +23,15 @@ export function PublishModeHeader({ label, lastSaved }: Props) {
     <div className="container max-w-[1024px] mx-auto text-xs text-gray-600 dark:text-gray-400 px-2 md:px-4 py-2 md:py-0">
       <div className="flex flex-wrap justify-between items-center">
         <span>{label}</span>
-        {lastSaved && (
-          <span className="text-gray-500 dark:text-gray-400">
-            {i18next.t("publish.auto-save")}:{" "}
-          {lastSaved.toLocaleTimeString(i18next.language || undefined)}
-          </span>
-        )}
+        <span className="flex items-center gap-3">
+          {lastSaved && (
+            <span className="text-gray-500 dark:text-gray-400">
+              {i18next.t("publish.auto-save")}:{" "}
+              {lastSaved.toLocaleTimeString(i18next.language || undefined)}
+            </span>
+          )}
+          <QuestStreakChip />
+        </span>
       </div>
     </div>
   );

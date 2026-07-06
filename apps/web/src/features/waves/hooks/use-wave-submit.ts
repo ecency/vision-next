@@ -13,6 +13,7 @@ import i18next from "i18next";
 import { useActiveAccount } from "@/core/hooks";
 import { getQueryClient } from "@/core/react-query";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
+import { scheduleQuestsRefresh } from "@/utils/refresh-quests";
 
 interface Body {
   text: string;
@@ -146,6 +147,7 @@ export function useWaveSubmit(
       }
       if (item) {
         onSuccess?.(item);
+        scheduleQuestsRefresh(getQueryClient(), username);
       }
     }
   });

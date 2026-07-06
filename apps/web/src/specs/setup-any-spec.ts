@@ -81,6 +81,16 @@ vi.mock("@ecency/sdk", () => ({
   })),
   getBoostPlusPricesQueryOptions: vi.fn(() => ({ queryKey: ["boost-prices"], queryFn: vi.fn() })),
   getPointsQueryOptions: vi.fn(() => ({ queryKey: ["points"], queryFn: vi.fn() })),
+  getQuestsQueryOptions: vi.fn((username?: string) => ({
+    queryKey: ["quests", "status", username],
+    queryFn: vi.fn(),
+    enabled: !!username
+  })),
+  getQuestCatalogEntry: vi.fn((tier: string, id: string) =>
+    tier === "daily" && id === "post"
+      ? { id: "post", tier: "daily", goal: 1, i18nKey: "post", icon: "pencil" }
+      : undefined
+  ),
   getSpotlightsQueryOptions: vi.fn(() => ({
     queryKey: ["notifications", "spotlights"],
     queryFn: vi.fn()
