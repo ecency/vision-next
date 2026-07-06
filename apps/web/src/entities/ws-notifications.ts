@@ -151,6 +151,15 @@ export interface WsWeeklyEarningsNotification extends BaseWsNotification {
   };
 }
 
+export interface WsScheduledPublishedNotification extends BaseWsNotification {
+  type: "scheduled_published";
+  extra: {
+    permlink: string;
+    title: string | null;
+    img_url?: string | null;
+  };
+}
+
 export type WsNotification =
   | WsVoteNotification
   | WsMentionNotification
@@ -169,7 +178,8 @@ export type WsNotification =
   | WsPayoutsNotification
   | WsMonthlyPostsNotification
   | WsMonthlyPostsUnderscoreNotification
-  | WsWeeklyEarningsNotification;
+  | WsWeeklyEarningsNotification
+  | WsScheduledPublishedNotification;
 
 // HTTP api notification _types
 
@@ -317,6 +327,14 @@ export interface ApiWeeklyEarningsNotification extends BaseAPiNotification {
   curation_usd?: string;
 }
 
+export interface ApiScheduledPublishedNotification extends BaseAPiNotification {
+  type: "scheduled_published";
+  author: string;
+  permlink: string;
+  title?: string | null;
+  img_url?: string | null;
+}
+
 export interface ApiNotificationSetting {
   system: string; //"web" | "desktop"
   allows_notify: number; //0|1
@@ -342,7 +360,8 @@ export type ApiNotification =
   | ApiPayoutsNotification
   | ApiMonthlyPostsNotification
   | ApiAccountUpdateNotification
-  | ApiWeeklyEarningsNotification;
+  | ApiWeeklyEarningsNotification
+  | ApiScheduledPublishedNotification;
 
 export interface Notifications {
   filter: NotificationFilter | null;

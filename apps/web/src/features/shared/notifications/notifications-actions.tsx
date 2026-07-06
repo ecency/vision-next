@@ -40,6 +40,7 @@ export function NotificationsActions({ filter }: Props) {
     [NotifyTypes.VOTE]: false,
     [NotifyTypes.RE_BLOG]: false,
     [NotifyTypes.TRANSFERS]: false,
+    [NotifyTypes.SCHEDULED_PUBLISHED]: false,
     [NotifyTypes.ALLOW_NOTIFY]: false
   });
 
@@ -245,6 +246,12 @@ export function NotificationsActions({ filter }: Props) {
             {getNotificationSettingsItem(
               i18next.t(`notifications.type-transfers`),
               NotifyTypes.TRANSFERS
+            )}
+          </DropdownItem>
+          <DropdownItem>
+            {getNotificationSettingsItem(
+              i18next.t(`notifications.type-scheduled-published`),
+              NotifyTypes.SCHEDULED_PUBLISHED
             )}
           </DropdownItem>
         </DropdownMenu>

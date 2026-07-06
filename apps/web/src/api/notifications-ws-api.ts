@@ -92,6 +92,12 @@ export class NotificationsWebSocket {
         const total = data.extra?.total_usd ?? "0";
         return i18next.t("notification.weekly-earnings-short", { total });
       }
+      case "scheduled_published": {
+        const title = data.extra?.title;
+        return title
+          ? i18next.t("notification.scheduled-published-title", { title })
+          : i18next.t("notification.scheduled-published");
+      }
       default:
         return "";
     }
@@ -122,6 +128,7 @@ export class NotificationsWebSocket {
       case "bookmarks":
       case "reblog":
       case "payouts":
+      case "scheduled_published":
         // Action on the user's own content — author is the recipient (target).
         return toEntry(data.target, data.extra?.permlink);
       case "mention":
@@ -317,6 +324,8 @@ export class NotificationsWebSocket {
         return NotifyTypes.FAVORITES;
       case "bookmarks":
         return NotifyTypes.BOOKMARKS;
+      case "scheduled_published":
+        return NotifyTypes.SCHEDULED_PUBLISHED;
       default:
         // Types without a user-facing settings toggle (delegations, checkins,
         // payouts, monthly-posts, weekly-earnings) have no per-type opt-out, so
