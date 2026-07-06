@@ -5930,7 +5930,9 @@ declare enum NotificationFilter {
     REPLIES = "replies",
     REBLOGS = "reblogs",
     TRANSFERS = "transfers",
-    DELEGATIONS = "delegations"
+    DELEGATIONS = "delegations",
+    PAYOUTS = "payouts",
+    SCHEDULED_PUBLISHED = "scheduled_published"
 }
 
 declare enum NotifyTypes {
