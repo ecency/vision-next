@@ -58,8 +58,10 @@ export function ProCheckout({ username, returnUrl, onActivated, resumePaymentInt
       try {
         const { client_secret } = await createIntent.mutateAsync({ sku: PRO_SKU, nonce });
         if (alive) setClientSecret(client_secret);
-      } catch (e) {
-        if (alive) setError((e as Error).message || i18next.t("pro.card-unavailable"));
+      } catch {
+        // Upstream throws raw i18n keys / axios technical strings ("Request failed with status
+        // code 500"); never surface those on the payment path -- show a friendly fallback.
+        if (alive) setError(i18next.t("pro.card-unavailable"));
       }
     })();
     return () => {
