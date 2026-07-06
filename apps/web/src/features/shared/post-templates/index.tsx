@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Modal, ModalBody, ModalHeader } from "@ui/modal";
 import { Button, FormControl } from "@/features/ui";
 import { Form } from "@/features/ui/form";
@@ -28,6 +28,15 @@ export function PostTemplatesDialog({
   const [name, setName] = useState("");
 
   const form = useRef<HTMLFormElement>(null);
+
+  // The dialog stays mounted between opens; a dismissed save form must not
+  // reappear the next time it is shown.
+  useEffect(() => {
+    if (!show) {
+      setMode("list");
+      setName("");
+    }
+  }, [show]);
 
   return (
     <Modal show={show} centered={true} onHide={() => setShow(false)} size="lg">
