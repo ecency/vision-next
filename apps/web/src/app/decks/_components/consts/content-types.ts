@@ -91,5 +91,9 @@ export const NOTIFICATION_CONTENT_TYPES = [
   {
     title: i18next.t("decks.columns.delegations"),
     type: "delegations"
+  },
+  {
+    title: i18next.t("decks.columns.scheduled-published"),
+    type: "scheduled_published"
   }
 ];
