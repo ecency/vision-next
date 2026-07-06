@@ -28,6 +28,9 @@ interface Props {
   payLabel: string;
   returnUrl: string;
   onActivated: () => void;
+  /** Fired once the card is confirmed (payment taken); the parent locks the term selector so
+   *  a remount can't cancel the poll for an already-paid intent. */
+  onConfirmed?: () => void;
 }
 
 /**
@@ -37,7 +40,14 @@ interface Props {
  * service's activate endpoint, so the blog is live. The tenant must already exist (the signup
  * flow creates it before this renders).
  */
-export function HostingCardCheckout({ username, sku, payLabel, returnUrl, onActivated }: Props) {
+export function HostingCardCheckout({
+  username,
+  sku,
+  payLabel,
+  returnUrl,
+  onActivated,
+  onConfirmed
+}: Props) {
   const [nonce] = useState(genNonce);
   const [clientSecret, setClientSecret] = useState("");
   const [error, setError] = useState("");
@@ -80,6 +90,9 @@ export function HostingCardCheckout({ username, sku, payLabel, returnUrl, onActi
     if (!paymentIntentId || pollingRef.current) return;
     pollingRef.current = true;
     setActivating(true);
+    // Payment is confirmed at this point -- lock the term selector in the parent so a remount
+    // cannot cancel this poll and strand a paid user.
+    onConfirmed?.();
     let attempts = 0;
     const MAX_ATTEMPTS = 45; // ~90s
     const poll = async () => {
@@ -113,7 +126,7 @@ export function HostingCardCheckout({ username, sku, payLabel, returnUrl, onActi
       timerRef.current = setTimeout(poll, 2000);
     };
     poll();
-  }, [paymentIntentId, username, onActivated]);
+  }, [paymentIntentId, username, onActivated, onConfirmed]);
 
   if (!stripePromise) {
     return <Alert appearance="danger">{i18next.t("hosting.card-unavailable")}</Alert>;

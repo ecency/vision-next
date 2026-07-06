@@ -35,6 +35,8 @@ export function HostingSignup() {
   const [blogUrl, setBlogUrl] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  // Card confirmed -> the term/method are locked so a remount can't cancel the activation poll.
+  const [paying, setPaying] = useState(false);
   // The username we actually created a tenant for; if the user goes back and changes it,
   // we must create the new one before payment (a stale guard would let them pay for a blog
   // that was never created and never activates).
@@ -93,6 +95,8 @@ export function HostingSignup() {
   useEffect(() => {
     if (step !== "payment" || method !== "hbd") return;
     let stale = false;
+    // Clear immediately so the previous term's amount/memo isn't copyable while the new one loads.
+    setInstructions(null);
     hostingApi
       .paymentInstructions(username.trim().toLowerCase(), months)
       .then((r) => {
@@ -187,9 +191,10 @@ export function HostingSignup() {
               <button
                 key={m}
                 onClick={() => setMonths(m)}
+                disabled={paying}
                 className={`px-3 py-2 rounded-lg border text-sm ${
                   months === m ? "border-blue-dark-sky bg-blue-dark-sky/10" : "border-[--border-color]"
-                }`}
+                } ${paying ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 {i18next.t("hosting.term-months", { n: m })}
               </button>
@@ -201,18 +206,20 @@ export function HostingSignup() {
             {cardEnabled && (
               <button
                 onClick={() => setMethod("card")}
+                disabled={paying}
                 className={`flex-1 px-3 py-2 rounded-lg border text-sm ${
                   method === "card" ? "border-blue-dark-sky bg-blue-dark-sky/10" : "border-[--border-color]"
-                }`}
+                } ${paying ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 {i18next.t("hosting.pay-card", { amount: (usdPer * months).toFixed(2) })}
               </button>
             )}
             <button
               onClick={() => setMethod("hbd")}
+              disabled={paying}
               className={`flex-1 px-3 py-2 rounded-lg border text-sm ${
                 method === "hbd" ? "border-blue-dark-sky bg-blue-dark-sky/10" : "border-[--border-color]"
-              }`}
+              } ${paying ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               {i18next.t("hosting.pay-hbd", { amount: (hbdPer * months).toFixed(3) })}
             </button>
@@ -225,6 +232,7 @@ export function HostingSignup() {
               sku={hostingSkuForMonths(months)}
               payLabel={i18next.t("hosting.pay-now")}
               returnUrl={typeof window !== "undefined" ? window.location.href : ""}
+              onConfirmed={() => setPaying(true)}
               onActivated={() => setStep("success")}
             />
           )}
