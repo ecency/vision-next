@@ -42,8 +42,11 @@ export interface QuestStreak {
   best: number;
   /** today has no check-in yet but a streak is active — nudge the user */
   at_risk: boolean;
-  /** unused streak freezes the user holds (auto-consumed to protect a missed day) */
-  freezes_owned: number;
+  /**
+   * Unused streak freezes the user holds (auto-consumed to protect a missed day).
+   * Optional: absent on quests responses cached before this field shipped.
+   */
+  freezes_owned?: number;
 }
 
 /** Result of buying a streak freeze (`/private-api/streak-freeze/buy`). */

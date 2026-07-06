@@ -69,11 +69,18 @@ export function useBuyStreakFreeze(
       return buyStreakFreezeRequest(code);
     },
     onSuccess() {
-      if (!name) {
-        return;
+      // Balance only changes on a successful debit.
+      if (name) {
+        queryClient.invalidateQueries({ queryKey: QueryKeys.points._prefix(name) });
       }
-      queryClient.invalidateQueries({ queryKey: QueryKeys.quests.status(name) });
-      queryClient.invalidateQueries({ queryKey: QueryKeys.points._prefix(name) });
+    },
+    onSettled() {
+      // Refresh freezes_owned on success AND error: a 409 (max owned) means the
+      // client's count is stale, and without this the "Protect streak" button would
+      // never hide and the user could keep re-triggering 409s.
+      if (name) {
+        queryClient.invalidateQueries({ queryKey: QueryKeys.quests.status(name) });
+      }
     },
   });
 }
