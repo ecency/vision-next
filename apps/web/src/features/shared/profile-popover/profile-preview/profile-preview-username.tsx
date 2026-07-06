@@ -6,6 +6,7 @@ import i18next from "i18next";
 import Link from "next/link";
 import { useMemo } from "react";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { ProBadge } from "@/features/pro";
 
 interface Props {
   username: string;
@@ -32,8 +33,9 @@ export function ProfilePreviewUsername({ username }: Props) {
 
   return (
     <>
-      <div>
+      <div className="flex items-center gap-1">
         {isProfileLoading ? <Skeleton className="loading-md" /> : account && account.profile?.name}
+        {!isProfileLoading && <ProBadge username={username} />}
       </div>
       <Link href={`/@${username}`}>
         {isProfileLoading ? (

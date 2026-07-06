@@ -279,6 +279,7 @@ export const QueryKeys = {
       ["accounts", "referrals", username],
     referralsStats: (username: string) =>
       ["accounts", "referrals-stats", username],
+    proMembers: () => ["accounts", "pro-members"],
     _prefix: ["accounts"],
   },
 

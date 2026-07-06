@@ -25,3 +25,4 @@ export * from "./get-account-vote-history-infinite-query-options";
 export * from "./get-profiles-query-options";
 export * from "./get-balance-history-query-options";
 export * from "./get-aggregated-balance-query-options";
+export * from "./get-pro-members-query-options";
