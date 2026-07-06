@@ -42,6 +42,16 @@ export interface QuestStreak {
   best: number;
   /** today has no check-in yet but a streak is active — nudge the user */
   at_risk: boolean;
+  /** unused streak freezes the user holds (auto-consumed to protect a missed day) */
+  freezes_owned: number;
+}
+
+/** Result of buying a streak freeze (`/private-api/streak-freeze/buy`). */
+export interface StreakFreezeBuyResult {
+  /** freezes owned after the purchase */
+  owned: number;
+  /** the user's Points balance after the debit */
+  points: number;
 }
 
 export interface QuestPeriod {

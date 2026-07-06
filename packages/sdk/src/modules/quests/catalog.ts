@@ -42,3 +42,10 @@ export const QUEST_CATALOG: QuestCatalogEntry[] = [
 export function getQuestCatalogEntry(tier: QuestTier, id: string) {
   return QUEST_CATALOG.find((q) => q.tier === tier && q.id === id);
 }
+
+// Streak Freeze display config. MIRRORS the ePoints constants
+// (STREAK_FREEZE_PRICE / STREAK_FREEZE_MAX_OWNED) — the server is the source of truth
+// and validates every purchase; these drive the label + button state only, so a drift
+// here never over-charges (the buy is priced server-side).
+export const STREAK_FREEZE_PRICE = 300;
+export const STREAK_FREEZE_MAX_OWNED = 2;

@@ -2925,6 +2925,13 @@
       "streak-at-risk": "Check in today to keep your streak alive!",
       "available": "Available now",
       "max-rewards": "max rewards today",
+      "freezes": "{{n}} in reserve",
+      "freeze-explain": "If you miss a day, a freeze is used automatically to keep your streak alive.",
+      "buy-freeze": "Protect streak ({{price}} Points)",
+      "freeze-bought": "Streak freeze ready. Your streak is protected.",
+      "freeze-insufficient": "Not enough Points for a freeze.",
+      "freeze-error": "Could not buy a streak freeze. Please try again.",
+      "get-points": "Get more Points",
       "checkin": {
         "title": "Check in"
       },
