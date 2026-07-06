@@ -70,9 +70,10 @@ function ShareBar({ entryInfo }: { entryInfo: EntryInfo }) {
 }
 
 /**
- * One-line quest celebration under the success message. Waits for the quests
- * query (refreshed via `scheduleQuestsRefresh` on publish) and only renders
- * once it confirms the daily post quest is complete.
+ * One-line quest celebration under the success message. Renders whenever the
+ * quests query reports the daily post quest complete: instantly from cache
+ * for a repeat post, or after the post-publish refresh for the first post of
+ * the day.
  */
 function QuestCompleteLine() {
   const { activeUser } = useActiveAccount();
