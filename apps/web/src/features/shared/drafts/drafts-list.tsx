@@ -74,11 +74,22 @@ export function DraftsList({ onHide, onPick }: Props) {
     }
   }, [allDrafts]);
 
+  // A fetched page can consist entirely of templates; keep fetching so the
+  // empty state never hides non-template drafts living on later pages.
+  useEffect(() => {
+    if (hasNextPage && !isFetchingNextPage && allDrafts.length === 0) {
+      fetchNextPage();
+    }
+  }, [allDrafts.length, fetchNextPage, hasNextPage, isFetchingNextPage]);
+
   if (isPending) {
     return <LinearProgress />;
   }
 
   if (allDrafts.length === 0) {
+    if (hasNextPage) {
+      return <LinearProgress />;
+    }
     return <div className="drafts-list">{i18next.t("g.empty-list")}</div>;
   }
 

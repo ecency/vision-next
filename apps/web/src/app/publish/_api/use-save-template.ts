@@ -38,7 +38,7 @@ export function useSaveTemplateApi() {
 
       const username = activeUser.username;
 
-      const tagJ = tags?.join(" ");
+      const tagJ = tags?.join(" ") ?? "";
 
       const metaBuilder = await EntryMetadataManagement.EntryMetadataManager.shared
         .builder()
@@ -67,7 +67,7 @@ export function useSaveTemplateApi() {
         token,
         title!,
         content!,
-        tagJ!,
+        tagJ,
         draftMeta
       );
       success(i18next.t("post-templates.saved-toast"));

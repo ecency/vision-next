@@ -62,10 +62,8 @@ export function PostTemplatesList({ onApply, onSave, confirmApply }: Props) {
   }, [fetchNextPage, hasNextPage, isFetchingNextPage, templates.length]);
 
   useEffect(() => {
-    if (items && items.length > 0) {
-      innerRef.current && innerRef.current.focus();
-    }
-  }, [items]);
+    innerRef.current && innerRef.current.focus();
+  }, []);
 
   return (
     <div>
