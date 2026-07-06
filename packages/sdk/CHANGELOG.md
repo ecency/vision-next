@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.37
+
+### Patch Changes
+
+- Add scheduled posts to the notifications filter menu (#1091)
+
 ## 2.3.36
 
 ### Patch Changes
