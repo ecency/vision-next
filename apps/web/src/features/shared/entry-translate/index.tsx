@@ -6,18 +6,26 @@ import i18next from "i18next";
 import { Modal, ModalBody, ModalHeader } from "@ui/modal";
 import { Spinner } from "@ui/spinner";
 import { Select } from "@ui/input/form-controls/select";
+import { isRtlLang, languageDisplayName, normLang } from "./iso639";
 
 interface Props {
   entry: Entry;
   onHide: () => void;
+  // Pre-select the target language (e.g. from the inline banner's "Change
+  // language" action or a feed/wave chip). Defaults to the UI language.
+  initialTarget?: string;
+  // Source language for the request. Defaults to "auto" (LibreTranslate detects).
+  initialSource?: string;
 }
 
-export function EntryTranslate({ entry, onHide }: Props) {
+export function EntryTranslate({ entry, onHide, initialTarget, initialSource }: Props) {
   const [translated, setTranslated] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [languages, setLanguages] = useState<Language[]>([]);
+  const [detectedFrom, setDetectedFrom] = useState<string>("");
+  const [error, setError] = useState(false);
   const [target, setTarget] = useState<string>(
-    i18next.language.split("-")[0]
+    normLang(initialTarget || i18next.language) || "en"
   );
 
   useEffect(() => {
@@ -28,11 +36,23 @@ export function EntryTranslate({ entry, onHide }: Props) {
     let canceled = false;
     setLoading(true);
     setTranslated("");
+    setDetectedFrom("");
+    setError(false);
     const body = postBodySummary(entry.body);
-    getTranslation(body, "auto", target)
+    getTranslation(body, initialSource ?? "auto", target)
       .then((r) => {
         if (!canceled) {
           setTranslated(r.translatedText);
+          if (r.detectedLanguage?.language) {
+            setDetectedFrom(r.detectedLanguage.language);
+          }
+        }
+      })
+      .catch(() => {
+        // Surface the failure instead of leaving the modal blank (and swallow
+        // the rejection so it isn't unhandled).
+        if (!canceled) {
+          setError(true);
         }
       })
       .finally(() => {
@@ -43,7 +63,7 @@ export function EntryTranslate({ entry, onHide }: Props) {
     return () => {
       canceled = true;
     };
-  }, [entry, target]);
+  }, [entry, target, initialSource]);
 
   return (
     <Modal
@@ -75,11 +95,23 @@ export function EntryTranslate({ entry, onHide }: Props) {
           <div className="flex justify-center p-3">
             <Spinner className="w-4 h-4" />
           </div>
+        ) : error ? (
+          <p className="text-sm text-red-500">{i18next.t("entry-translate.error")}</p>
         ) : (
-          <p className="whitespace-pre-line text-sm">{translated}</p>
+          <>
+            {detectedFrom && (
+              <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+                {i18next.t("entry-translate.translated-from", {
+                  lang: languageDisplayName(detectedFrom, i18next.language)
+                })}
+              </div>
+            )}
+            <p className="whitespace-pre-line text-sm" dir={isRtlLang(target) ? "rtl" : "ltr"}>
+              {translated}
+            </p>
+          </>
         )}
       </ModalBody>
     </Modal>
   );
 }
-

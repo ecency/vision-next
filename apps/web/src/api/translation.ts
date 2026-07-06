@@ -9,6 +9,15 @@ const translationApi = axios.create({
 
 interface TranslationResponse {
   translatedText: string;
+  // Present when source === "auto": LibreTranslate reports what it detected.
+  // Used to relabel the CTA ("Translated from X") and to self-correct a wrong
+  // client-side guess without a separate /detect call.
+  detectedLanguage?: { confidence: number; language: string };
+}
+
+export interface DetectedLanguage {
+  confidence: number;
+  language: string;
 }
 
 interface LanguagesMap {
@@ -100,4 +109,88 @@ export const getLanguages = async (): Promise<Language[]> => {
       targets,
     }))
     .filter((lang) => typeof lang.code === 'string' && lang.code.length > 0);
+};
+
+/**
+ * Ask LibreTranslate to detect the language of a text. Returns confidence-ranked
+ * ISO-639-1 candidates (e.g. [{ confidence: 92.4, language: "es" }]). Used only
+ * on the full-post view to confirm/refine the instant client-side guess (never
+ * per feed item). Callers must handle the empty array / rejection (fail closed).
+ */
+export const detectLanguage = async (text: string): Promise<DetectedLanguage[]> => {
+  const { clean } = stripEmojis(text);
+  if (!clean) {
+    return [];
+  }
+  const { data } = await translationApi.post<DetectedLanguage[]>("/detect", {
+    // A short sample is plenty for detection and keeps the request small.
+    q: clean.slice(0, 800),
+    api_key: ""
+  });
+  return Array.isArray(data) ? data : [];
+};
+
+// LibreTranslate can reject or truncate very long requests. Split the body into
+// chunks on sentence/word boundaries and translate each, so a full-length post
+// translates reliably instead of silently failing.
+const MAX_TRANSLATE_CHARS = 1800;
+
+export const chunkText = (text: string, max: number): string[] => {
+  if (text.length <= max) {
+    return [text];
+  }
+  // Greedy word-accumulation. No regex lookbehind — the body is already plain
+  // text joined with spaces, so word boundaries are a safe, engine-portable
+  // split point (older iOS Safari can't parse lookbehind).
+  const chunks: string[] = [];
+  let buf = "";
+  const flush = () => {
+    if (buf) {
+      chunks.push(buf);
+      buf = "";
+    }
+  };
+  for (const word of text.split(/\s+/)) {
+    // A single "word" longer than the limit — e.g. space-less CJK text, where
+    // the whole body is one token — must be hard-split by character, or it would
+    // be sent as one over-limit request and truncated/rejected.
+    if (word.length > max) {
+      flush();
+      for (let i = 0; i < word.length; i += max) {
+        chunks.push(word.slice(i, i + max));
+      }
+    } else if (buf && buf.length + 1 + word.length > max) {
+      flush();
+      buf = word;
+    } else {
+      buf = buf ? `${buf} ${word}` : word;
+    }
+  }
+  flush();
+  return chunks.filter(Boolean);
+};
+
+/**
+ * Translate a full (possibly long) plain-text body, chunking as needed. Returns
+ * the joined translation plus the language LibreTranslate auto-detected on the
+ * first chunk (authoritative — used to relabel and cache).
+ */
+export const translateLongText = async (
+  text: string,
+  source: string,
+  target: string
+): Promise<TranslationResponse> => {
+  const chunks = chunkText(text, MAX_TRANSLATE_CHARS);
+  const parts: string[] = [];
+  let detectedLanguage: DetectedLanguage | undefined;
+  for (const chunk of chunks) {
+    // Sequential on purpose: a deliberate, spinner-backed user action, and it
+    // keeps us well under the translate endpoint's per-IP rate limit.
+    const res = await getTranslation(chunk, source, target);
+    parts.push(res.translatedText);
+    if (!detectedLanguage && res.detectedLanguage) {
+      detectedLanguage = res.detectedLanguage;
+    }
+  }
+  return { translatedText: parts.join(" "), detectedLanguage };
 };

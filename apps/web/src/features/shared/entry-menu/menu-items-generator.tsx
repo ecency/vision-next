@@ -176,8 +176,13 @@ export function useMenuItemsGenerator(
           icon: !!entry.stats?.gray ? <UilVolumeOff /> : <UilVolume />
         })
       ),
+      // Fallback translate entry: every top-level post AND waves (waves are
+      // technically comments — parent_author "ecency.waves" — so `!isComment`
+      // alone would strip it from the one place it works today). Ordinary reply
+      // comments stay excluded. The prominent inline banner / chip handles the
+      // language-mismatch case; this is the always-available manual option.
       ...safeSpread(
-        () => isWave,
+        () => !isComment || isWave,
         () => ({
           label: i18next.t("entry-menu.translate"),
           onClick: () => setTranslate(true),
