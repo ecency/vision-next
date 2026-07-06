@@ -3,6 +3,7 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { withFeatureFlag } from "@/core/react-query";
 import { error, success } from "@/features/shared";
+import { PointsTopupCta } from "@/features/shared/points-topup-cta";
 import { Button, FormControl } from "@/features/ui";
 import { getAccessToken, ensureValidToken } from "@/utils";
 import {
@@ -291,9 +292,15 @@ export function AiImageGenerator({ onInsert, showInsertAction = true, suggestedP
       )}
 
       {isInsufficientBalance && (
-        <small className="text-red block">
-          {i18next.t("market.more-than-balance")}
-        </small>
+        <div className="flex items-center flex-wrap gap-3">
+          <small className="text-red block">
+            {i18next.t("market.more-than-balance")}
+          </small>
+          <PointsTopupCta
+            required={cost}
+            available={+(activeUserPoints?.points ?? 0)}
+          />
+        </div>
       )}
 
       <div className="flex justify-end">

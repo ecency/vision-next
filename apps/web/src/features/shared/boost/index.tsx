@@ -13,6 +13,7 @@ import { getBoostPlusPricesQueryOptions, getPointsQueryOptions, getBoostPlusAcco
 import { getAccessToken } from "@/utils";
 import i18next from "i18next";
 import { LinearProgress } from "@/features/shared";
+import { PointsTopupCta } from "@/features/shared/points-topup-cta";
 import { checkAllSvg } from "@ui/svg";
 import { useQuery } from "@tanstack/react-query";
 import { withFeatureFlag } from "@/core/react-query";
@@ -57,7 +58,7 @@ export function BoostDialog({ onHide }: Props) {
       parseFloat(activeUserPoints?.points ?? "0") < price
         ? i18next.t("trx-common.insufficient-funds")
         : "",
-    [activeUser, price]
+    [activeUserPoints?.points, price]
   );
   const isAlreadyBoosted = useMemo(
     () =>
@@ -121,7 +122,15 @@ export function BoostDialog({ onHide }: Props) {
                       readOnly={true}
                       value={`${activeUserPoints?.points ?? "0.000"} POINTS`}
                     />
-                    {balanceError && <small className="pl-3 text-red">{balanceError}</small>}
+                    {balanceError && (
+                      <div className="flex items-center flex-wrap gap-3 mt-1">
+                        <small className="pl-3 text-red">{balanceError}</small>
+                        <PointsTopupCta
+                          required={price}
+                          available={parseFloat(activeUserPoints?.points ?? "0")}
+                        />
+                      </div>
+                    )}
                     {isAlreadyBoosted && (
                       <div>
                         <small className="pl-3 text-red">

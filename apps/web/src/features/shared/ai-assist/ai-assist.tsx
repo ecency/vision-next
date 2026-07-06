@@ -3,6 +3,7 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { withFeatureFlag } from "@/core/react-query";
 import { error, success } from "@/features/shared";
+import { PointsTopupCta } from "@/features/shared/points-topup-cta";
 import { Button, FormControl } from "@/features/ui";
 import { getAccessToken, ensureValidToken } from "@/utils";
 import {
@@ -438,12 +439,18 @@ export function AiAssist({ onApply, initialText = "" }: Props) {
       )}
 
       {isInsufficientBalance && (
-        <small className="text-red block">
-          {i18next.t("ai-assist.error-insufficient-points", {
-            required: selectedPrice?.cost ?? 0,
-            available: activeUserPoints?.points ?? "0",
-          })}
-        </small>
+        <div className="flex items-center flex-wrap gap-3">
+          <small className="text-red block">
+            {i18next.t("ai-assist.error-insufficient-points", {
+              required: selectedPrice?.cost ?? 0,
+              available: activeUserPoints?.points ?? "0",
+            })}
+          </small>
+          <PointsTopupCta
+            required={selectedPrice?.cost}
+            available={+(activeUserPoints?.points ?? 0)}
+          />
+        </div>
       )}
 
       <div className="flex justify-end">

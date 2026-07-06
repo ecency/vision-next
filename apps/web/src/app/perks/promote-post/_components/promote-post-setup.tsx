@@ -4,6 +4,7 @@ import { getAccessToken } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { EntryListItem, SuggestionList } from "@/features/shared";
+import { PointsTopupCta } from "@/features/shared/points-topup-cta";
 import { Button, FormControl } from "@/features/ui";
 import { UilTrashAlt } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
@@ -45,13 +46,17 @@ export function PromotePostSetup({ onSuccess, isPending }: Props) {
     permlink
   ));
 
+  const selectedPrice = useMemo(
+    () => prices?.find((p) => p.duration === selectedDuration)?.price,
+    [prices, selectedDuration]
+  );
+
   const isAmountMoreThanBalance = useMemo(() => {
-    const price = prices?.find((p) => p.duration === selectedDuration);
-    if (activeUserPoints && price) {
-      return +activeUserPoints?.points < price.price;
+    if (activeUserPoints && selectedPrice != null) {
+      return +activeUserPoints?.points < selectedPrice;
     }
     return false;
-  }, [activeUserPoints, prices, selectedDuration]);
+  }, [activeUserPoints, selectedPrice]);
 
   useDebounce(() => setPathQuery(path), 500, [path]);
   useDebounce(() => setDebouncedPathQuery(pathQuery), 500, [pathQuery]);
@@ -109,9 +114,16 @@ export function PromotePostSetup({ onSuccess, isPending }: Props) {
         </div>
         <div>
           {isAmountMoreThanBalance && (
-            <small className="usd-balance bold block text-red mt-3">
-              {i18next.t("market.more-than-balance")}
-            </small>
+            <div className="mt-3">
+              <small className="usd-balance bold block text-red">
+                {i18next.t("market.more-than-balance")}
+              </small>
+              <PointsTopupCta
+                className="mt-2 inline-block"
+                required={selectedPrice}
+                available={+(activeUserPoints?.points ?? 0)}
+              />
+            </div>
           )}
         </div>
         <div className="flex md:col-span-2 justify-end">
