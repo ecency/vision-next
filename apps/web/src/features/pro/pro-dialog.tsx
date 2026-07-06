@@ -26,12 +26,14 @@ export function ProDialog({ username, onHide, resumePaymentIntent }: Props) {
 
   // On activation, reflect the new membership immediately. The /perks card and every ProBadge
   // read the shared pro-members roster, so without this a just-paid user would still see "Go Pro"
-  // and no badge. We optimistically add them but deliberately do NOT invalidate/refetch: the
-  // roster endpoint is edge-cached (~5 min) and would return the pre-grant list, overwriting this
-  // entry. setQueryData marks the query fresh, so it won't refetch until the stale window elapses,
-  // by which point the grant has landed and the endpoint cache has rolled over.
-  const handleActivated = () => {
+  // and no badge. Cancel any in-flight roster fetch first so a stale (edge-cached, pre-grant)
+  // response can't land after this write and clobber the optimistic entry. We then optimistically
+  // add them but deliberately do NOT invalidate/refetch: the endpoint is edge-cached (~5 min) and
+  // would return the pre-grant list. setQueryData marks the query fresh, so it won't refetch until
+  // the stale window elapses, by which point the grant and the endpoint cache have caught up.
+  const handleActivated = async () => {
     setDone(true);
+    await queryClient.cancelQueries({ queryKey: QueryKeys.accounts.proMembers() });
     queryClient.setQueryData<ProMembersResponse>(QueryKeys.accounts.proMembers(), (prev) => {
       const members = prev?.members ?? [];
       if (members.includes(username)) return prev;
