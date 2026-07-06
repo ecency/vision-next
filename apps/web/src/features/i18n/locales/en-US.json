@@ -28,6 +28,25 @@
     "preparing-checkout": "Preparing secure checkout.",
     "coming-soon": "Blog hosting is coming soon."
   },
+  "pro": {
+    "title": "Ecency Pro",
+    "subtitle": "Support Ecency and stand out with a verified Pro badge on your profile.",
+    "perk-card-title": "Ecency Pro",
+    "perk-card-description": "Go Pro for $19.99/year. Get a verified badge and support Ecency.",
+    "perk-card-member": "You are a Pro member. Thank you for supporting Ecency.",
+    "benefit-badge": "A verified Pro badge next to your name.",
+    "benefit-support": "Directly support Ecency development.",
+    "benefit-early": "Early access to new features.",
+    "badge-title": "Ecency Pro",
+    "pay-now": "Pay ${{amount}}/year",
+    "card-unavailable": "Card payment is unavailable right now.",
+    "card-failed": "The payment could not be completed.",
+    "activating": "Payment received. Activating your membership.",
+    "activation-pending": "Payment received. Your Pro membership is being set up and will be active shortly. You can safely close this page.",
+    "preparing-checkout": "Preparing secure checkout.",
+    "success-title": "Welcome to Ecency Pro",
+    "success-body": "Your Pro membership is active. Your badge will appear on your profile shortly."
+  },
   "tweet": {
     "load-failed": "Couldn't load this X post.",
     "view-on-x": "View on X"

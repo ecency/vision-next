@@ -34,6 +34,7 @@ import { ProfileCardExtraProperty } from "./profile-card-extra-property";
 import { profileWebsiteHref } from "./website-href";
 import { FinalizeCommunityBanner } from "../finalize-community-banner";
 import { useActiveAccount } from "@/core/hooks";
+import { ProBadge } from "@/features/pro";
 
 interface Props {
   account: Account;
@@ -102,6 +103,7 @@ export function ProfileCard({ account }: Props) {
         <div className="flex flex-col gap-1">
           <div className="font-semibold flex items-center flex-wrap gap-2">
             {data?.profile?.name ?? account.name}
+            <ProBadge username={account.name} />
           </div>
           <span className="text-sm text-gray-600 dark:text-gray-400 truncate flex gap-1">
             @{account.name}

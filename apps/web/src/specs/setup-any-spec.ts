@@ -81,6 +81,10 @@ vi.mock("@ecency/sdk", () => ({
   })),
   getBoostPlusPricesQueryOptions: vi.fn(() => ({ queryKey: ["boost-prices"], queryFn: vi.fn() })),
   getPointsQueryOptions: vi.fn(() => ({ queryKey: ["points"], queryFn: vi.fn() })),
+  getProMembersQueryOptions: vi.fn(() => ({ queryKey: ["accounts", "pro-members"], queryFn: vi.fn() })),
+  // Real pure impl (no deps) so pro-config's isProMember + its spec behave like production.
+  proMembersSet: (members?: string[]) =>
+    new Set((members ?? []).map((m: string) => m.toLowerCase())),
   getQuestsQueryOptions: vi.fn((username?: string) => ({
     queryKey: ["quests", "status", username],
     queryFn: vi.fn(),
