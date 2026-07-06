@@ -46,13 +46,17 @@ export function PromotePostSetup({ onSuccess, isPending }: Props) {
     permlink
   ));
 
+  const selectedPrice = useMemo(
+    () => prices?.find((p) => p.duration === selectedDuration)?.price,
+    [prices, selectedDuration]
+  );
+
   const isAmountMoreThanBalance = useMemo(() => {
-    const price = prices?.find((p) => p.duration === selectedDuration);
-    if (activeUserPoints && price) {
-      return +activeUserPoints?.points < price.price;
+    if (activeUserPoints && selectedPrice != null) {
+      return +activeUserPoints?.points < selectedPrice;
     }
     return false;
-  }, [activeUserPoints, prices, selectedDuration]);
+  }, [activeUserPoints, selectedPrice]);
 
   useDebounce(() => setPathQuery(path), 500, [path]);
   useDebounce(() => setDebouncedPathQuery(pathQuery), 500, [pathQuery]);
@@ -116,7 +120,7 @@ export function PromotePostSetup({ onSuccess, isPending }: Props) {
               </small>
               <PointsTopupCta
                 className="mt-2 inline-block"
-                required={prices?.find((p) => p.duration === selectedDuration)?.price}
+                required={selectedPrice}
                 available={+(activeUserPoints?.points ?? 0)}
               />
             </div>
