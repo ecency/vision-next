@@ -120,6 +120,9 @@ const CONFIG = {
           tileUrl:
             process.env.NEXT_PUBLIC_MAP_TILE_URL ||
             "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+        },
+        composeTranslate: {
+          enabled: true
         }
       },
       aiImageGenerator: {
