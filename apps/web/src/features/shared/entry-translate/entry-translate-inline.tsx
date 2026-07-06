@@ -142,7 +142,9 @@ export function EntryTranslateInline({ entry }: Props) {
     setDismissed(true);
   };
 
-  const rtl = isRtlLang(status === "done" ? fromLang || target : target);
+  // The translated body is always in the TARGET language, so its direction must
+  // follow the target — not the detected source (e.g. Arabic -> English must be LTR).
+  const rtl = isRtlLang(target);
 
   return (
     <div className="entry-translate-inline mb-3">

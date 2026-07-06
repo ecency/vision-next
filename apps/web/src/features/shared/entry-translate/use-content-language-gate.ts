@@ -32,7 +32,19 @@ interface CacheEntry {
 // content language is computed at most once per post for the whole session.
 // Crucially this survives component REMOUNTS (feed scroll/refetch, FlashList-
 // style header churn), so nothing re-runs detection or re-hits the network.
+const MAX_CACHE_ENTRIES = 500;
 const contentLangCache = new Map<string, CacheEntry>();
+
+// Bound memory over long infinite-scroll sessions with simple FIFO eviction.
+function cacheDetection(key: string, entry: CacheEntry): void {
+  if (!contentLangCache.has(key) && contentLangCache.size >= MAX_CACHE_ENTRIES) {
+    const oldest = contentLangCache.keys().next().value;
+    if (oldest !== undefined) {
+      contentLangCache.delete(oldest);
+    }
+  }
+  contentLangCache.set(key, entry);
+}
 
 /** Read the reader's preferred language. MUST be called client-side only. */
 function resolveReaderLang(): string {
@@ -134,7 +146,7 @@ export function useContentLanguageGate(
         const textLength = sample.trim().length;
 
         if (textLength < MIN_DETECT_CHARS) {
-          contentLangCache.set(key, { lang: null, confirmed: true });
+          cacheDetection(key, { lang: null, confirmed: true });
           return; // decision stays null → no CTA
         }
 
@@ -172,7 +184,7 @@ export function useContentLanguageGate(
           }
         }
 
-        contentLangCache.set(key, { lang, confirmed });
+        cacheDetection(key, { lang, confirmed });
         if (!cancelled) {
           setDecision(resolveTranslateCta({ detected: lang, reader, textLength }));
         }

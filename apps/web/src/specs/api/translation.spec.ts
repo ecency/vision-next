@@ -5,7 +5,30 @@ vi.mock("axios", () => ({
   default: { create: () => ({ post, get: vi.fn() }) }
 }));
 
-import { getTranslation, stripEmojis } from "@/api/translation";
+import { chunkText, getTranslation, stripEmojis } from "@/api/translation";
+
+describe("chunkText", () => {
+  it("returns the whole text when within the limit", () => {
+    expect(chunkText("short text", 100)).toEqual(["short text"]);
+  });
+
+  it("splits long spaced text into chunks that respect the limit", () => {
+    const text = Array.from({ length: 50 }, (_, i) => `word${i}`).join(" ");
+    const chunks = chunkText(text, 30);
+    expect(chunks.length).toBeGreaterThan(1);
+    chunks.forEach((c) => expect(c.length).toBeLessThanOrEqual(30));
+    expect(chunks.join(" ")).toBe(text);
+  });
+
+  it("hard-splits a space-less run longer than the limit (CJK)", () => {
+    // A 250-char CJK paragraph with no spaces must not become one over-limit chunk.
+    const cjk = "中".repeat(250);
+    const chunks = chunkText(cjk, 100);
+    expect(chunks.length).toBe(3);
+    chunks.forEach((c) => expect(c.length).toBeLessThanOrEqual(100));
+    expect(chunks.join("")).toBe(cjk);
+  });
+});
 
 describe("stripEmojis", () => {
   it("removes trailing emoji and returns them separately", () => {

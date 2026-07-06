@@ -135,7 +135,7 @@ export const detectLanguage = async (text: string): Promise<DetectedLanguage[]> 
 // translates reliably instead of silently failing.
 const MAX_TRANSLATE_CHARS = 1800;
 
-const chunkText = (text: string, max: number): string[] => {
+export const chunkText = (text: string, max: number): string[] => {
   if (text.length <= max) {
     return [text];
   }
@@ -144,17 +144,29 @@ const chunkText = (text: string, max: number): string[] => {
   // split point (older iOS Safari can't parse lookbehind).
   const chunks: string[] = [];
   let buf = "";
-  for (const word of text.split(/\s+/)) {
-    if (buf && (buf.length + 1 + word.length) > max) {
+  const flush = () => {
+    if (buf) {
       chunks.push(buf);
+      buf = "";
+    }
+  };
+  for (const word of text.split(/\s+/)) {
+    // A single "word" longer than the limit — e.g. space-less CJK text, where
+    // the whole body is one token — must be hard-split by character, or it would
+    // be sent as one over-limit request and truncated/rejected.
+    if (word.length > max) {
+      flush();
+      for (let i = 0; i < word.length; i += max) {
+        chunks.push(word.slice(i, i + max));
+      }
+    } else if (buf && buf.length + 1 + word.length > max) {
+      flush();
       buf = word;
     } else {
       buf = buf ? `${buf} ${word}` : word;
     }
   }
-  if (buf) {
-    chunks.push(buf);
-  }
+  flush();
   return chunks.filter(Boolean);
 };
 

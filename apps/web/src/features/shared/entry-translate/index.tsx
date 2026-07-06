@@ -23,6 +23,7 @@ export function EntryTranslate({ entry, onHide, initialTarget, initialSource }: 
   const [loading, setLoading] = useState(true);
   const [languages, setLanguages] = useState<Language[]>([]);
   const [detectedFrom, setDetectedFrom] = useState<string>("");
+  const [error, setError] = useState(false);
   const [target, setTarget] = useState<string>(
     normLang(initialTarget || i18next.language) || "en"
   );
@@ -36,6 +37,7 @@ export function EntryTranslate({ entry, onHide, initialTarget, initialSource }: 
     setLoading(true);
     setTranslated("");
     setDetectedFrom("");
+    setError(false);
     const body = postBodySummary(entry.body);
     getTranslation(body, initialSource ?? "auto", target)
       .then((r) => {
@@ -44,6 +46,13 @@ export function EntryTranslate({ entry, onHide, initialTarget, initialSource }: 
           if (r.detectedLanguage?.language) {
             setDetectedFrom(r.detectedLanguage.language);
           }
+        }
+      })
+      .catch(() => {
+        // Surface the failure instead of leaving the modal blank (and swallow
+        // the rejection so it isn't unhandled).
+        if (!canceled) {
+          setError(true);
         }
       })
       .finally(() => {
@@ -86,6 +95,8 @@ export function EntryTranslate({ entry, onHide, initialTarget, initialSource }: 
           <div className="flex justify-center p-3">
             <Spinner className="w-4 h-4" />
           </div>
+        ) : error ? (
+          <p className="text-sm text-red-500">{i18next.t("entry-translate.error")}</p>
         ) : (
           <>
             {detectedFrom && (

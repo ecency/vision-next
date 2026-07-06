@@ -590,7 +590,8 @@
     "change-language": "Change language",
     "translating": "Translating…",
     "dismiss": "Dismiss",
-    "plain-text-note": "Plain-text translation. Images and formatting are shown in the original."
+    "plain-text-note": "Plain-text translation. Images and formatting are shown in the original.",
+    "error": "Translation failed. Please try again."
   },
   "cross-post": {
     "title": "Cross Post",
