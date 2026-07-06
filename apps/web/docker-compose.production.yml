@@ -18,8 +18,6 @@ services:
       - SEARCH_API_SECRET
       - TURNSTILE_SECRET
       - STRIPE_INTERNAL_SECRET
-      - CHAINSTACK_API_KEY
-      - CHAINZ_API_KEY
       - BLOCKSTREAM_CLIENT_ID
       - BLOCKSTREAM_CLIENT_SECRET
     restart: always
