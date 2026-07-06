@@ -5,8 +5,84 @@
 import { Hono } from 'hono';
 import { db } from '../db/client';
 import { authMiddleware, adminMiddleware } from '../middleware/auth';
+import { StripeService } from '../services/stripe-service';
+import { TenantService } from '../services/tenant-service';
 
 export const paymentRoutes = new Hono();
+
+// GET /v1/payments/methods - which rails are available + pricing (for the signup UI)
+paymentRoutes.get('/methods', async (c) => {
+  const monthlyHbd = process.env.MONTHLY_PRICE_HBD || '0.100';
+  const facilitator = process.env.X402_FACILITATOR_URL || '';
+  return c.json({
+    hbd: {
+      enabled: true,
+      monthly: monthlyHbd,
+      account: process.env.PAYMENT_ACCOUNT || 'ecency.hosting',
+    },
+    x402: {
+      enabled: facilitator.startsWith('https://'),
+      monthly: monthlyHbd,
+    },
+    card: {
+      enabled: StripeService.enabled(),
+      monthlyUsdCents: StripeService.priceUsdCents(),
+    },
+  });
+});
+
+// POST /v1/payments/stripe/checkout - create a one-time card checkout for N months
+paymentRoutes.post('/stripe/checkout', async (c) => {
+  if (!StripeService.enabled()) {
+    return c.json({ error: 'card_unavailable', message: 'Card payment is not available' }, 503);
+  }
+
+  let body: any;
+  try {
+    body = await c.req.json();
+  } catch {
+    return c.json({ error: 'invalid_body' }, 400);
+  }
+
+  const username = String(body?.username || '').toLowerCase();
+  const months = Math.max(1, Math.min(24, parseInt(body?.months, 10) || 1));
+
+  if (!/^[a-z][a-z0-9.-]{2,15}$/.test(username)) {
+    return c.json({ error: 'invalid_username' }, 400);
+  }
+
+  // The tenant must already exist (created in the previous signup step); we only
+  // charge for an existing blog so a stray payment can't be orphaned.
+  const tenant = await TenantService.getByUsername(username);
+  if (!tenant) {
+    return c.json({ error: 'tenant_not_found', message: 'Create your blog first' }, 404);
+  }
+
+  try {
+    const { url } = await StripeService.createCheckoutSession(username, months);
+    return c.json({ url });
+  } catch (e) {
+    console.error('[stripe] checkout failed:', (e as Error).message);
+    return c.json({ error: 'checkout_failed' }, 500);
+  }
+});
+
+// POST /v1/payments/stripe/webhook - Stripe -> activate/extend subscription
+paymentRoutes.post('/stripe/webhook', async (c) => {
+  const sig = c.req.header('stripe-signature');
+  if (!sig) {
+    return c.json({ error: 'missing_signature' }, 400);
+  }
+  // Raw body is required for signature verification.
+  const raw = await c.req.text();
+  try {
+    const res = await StripeService.handleWebhook(raw, sig);
+    return c.json({ received: true, ...res });
+  } catch (e) {
+    console.error('[stripe] webhook error:', (e as Error).message);
+    return c.json({ error: 'webhook_error' }, 400);
+  }
+});
 
 // GET /v1/payments - Get payment history for authenticated user
 paymentRoutes.get('/', authMiddleware, async (c) => {
