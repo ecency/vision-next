@@ -8,6 +8,35 @@ import { authMiddleware, adminMiddleware } from '../middleware/auth';
 
 export const paymentRoutes = new Hono();
 
+// GET /v1/payments/methods - which rails are available + pricing (for the signup UI)
+paymentRoutes.get('/methods', async (c) => {
+  const monthlyHbd = process.env.MONTHLY_PRICE_HBD || '2.000';
+  const facilitator = process.env.X402_FACILITATOR_URL || '';
+  // Card requires the internal secret (ePoints -> hosting activation). Without it, a paid
+  // card order can only get a 403 from /v1/internal/activate, so never advertise the option.
+  const cardEnabled =
+    (process.env.HOSTING_CARD_ENABLED || 'true') === 'true' &&
+    (process.env.HOSTING_INTERNAL_SECRET || '').length > 0;
+  return c.json({
+    hbd: {
+      enabled: true,
+      monthly: monthlyHbd,
+      account: process.env.PAYMENT_ACCOUNT || 'ecency.hosting',
+    },
+    x402: {
+      enabled: facilitator.startsWith('https://'),
+      monthly: monthlyHbd,
+    },
+    // Card is fulfilled through the central ePoints Stripe rail (checkout happens on
+    // the web via the shared Elements flow); this flag only tells the UI whether to
+    // offer the option.
+    card: {
+      enabled: cardEnabled,
+      monthlyUsdCents: parseInt(process.env.HOSTING_CARD_USD_CENTS || '200', 10),
+    },
+  });
+});
+
 // GET /v1/payments - Get payment history for authenticated user
 paymentRoutes.get('/', authMiddleware, async (c) => {
   const authUser = c.get('user');
@@ -42,7 +71,7 @@ paymentRoutes.get('/instructions/:username', async (c) => {
   const months = parseInt(c.req.query('months') || '1', 10);
 
   const paymentAccount = process.env.PAYMENT_ACCOUNT || 'ecency.hosting';
-  const monthlyPrice = parseFloat(process.env.MONTHLY_PRICE_HBD || '0.100');
+  const monthlyPrice = parseFloat(process.env.MONTHLY_PRICE_HBD || '2.000');
   const totalAmount = (monthlyPrice * months).toFixed(3);
 
   return c.json({
@@ -89,14 +118,18 @@ paymentRoutes.get('/verify/:trxId', async (c) => {
 
 // GET /v1/payments/stats - Admin stats (requires admin auth)
 paymentRoutes.get('/stats', authMiddleware, adminMiddleware, async (c) => {
+  // Amounts are split by currency: HBD (on-chain) and USD (card) must never be summed
+  // together, or revenue totals mix two units.
   const stats = await db.queryOne(`
     SELECT
       COUNT(*) FILTER (WHERE status = 'processed') as total_payments,
-      SUM(amount) FILTER (WHERE status = 'processed') as total_hbd,
+      SUM(amount) FILTER (WHERE status = 'processed' AND currency = 'HBD') as total_hbd,
+      SUM(amount) FILTER (WHERE status = 'processed' AND currency = 'USD') as total_usd,
       SUM(months_credited) FILTER (WHERE status = 'processed') as total_months,
       COUNT(DISTINCT tenant_id) FILTER (WHERE status = 'processed') as unique_tenants,
       COUNT(*) FILTER (WHERE status = 'processed' AND created_at > NOW() - INTERVAL '30 days') as payments_30d,
-      SUM(amount) FILTER (WHERE status = 'processed' AND created_at > NOW() - INTERVAL '30 days') as hbd_30d
+      SUM(amount) FILTER (WHERE status = 'processed' AND currency = 'HBD' AND created_at > NOW() - INTERVAL '30 days') as hbd_30d,
+      SUM(amount) FILTER (WHERE status = 'processed' AND currency = 'USD' AND created_at > NOW() - INTERVAL '30 days') as usd_30d
     FROM payments
   `);
 
@@ -107,11 +140,13 @@ paymentRoutes.get('/stats', authMiddleware, adminMiddleware, async (c) => {
   return c.json({
     totalPayments: parseInt(stats.total_payments || '0'),
     totalHbd: parseFloat(stats.total_hbd || '0'),
+    totalUsd: parseFloat(stats.total_usd || '0'),
     totalMonthsCredited: parseInt(stats.total_months || '0'),
     uniqueTenants: parseInt(stats.unique_tenants || '0'),
     last30Days: {
       payments: parseInt(stats.payments_30d || '0'),
       hbd: parseFloat(stats.hbd_30d || '0'),
+      usd: parseFloat(stats.usd_30d || '0'),
     },
     activeSubscriptions: parseInt(activeSubscriptions?.count || '0'),
   });

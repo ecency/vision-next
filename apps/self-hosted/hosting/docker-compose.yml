@@ -41,6 +41,17 @@ services:
       - PAYMENT_ACCOUNT=${PAYMENT_ACCOUNT:-ecency.hosting}
       - BASE_DOMAIN=${BASE_DOMAIN:-blogs.ecency.com}
       - JWT_SECRET=${JWT_SECRET:?JWT_SECRET is required}
+      # Pricing — the API's payment instructions MUST match what the listener credits.
+      - MONTHLY_PRICE_HBD=${MONTHLY_PRICE_HBD:-2.000}
+      - PRO_UPGRADE_PRICE_HBD=${PRO_UPGRADE_PRICE_HBD:-5.000}
+      # x402 rail (Ecency's facilitator). Empty disables the x402 option in the UI.
+      - X402_FACILITATOR_URL=${X402_FACILITATOR_URL:-https://x402.ecency.com}
+      # Card payments are handled by the central ePoints Stripe rail (no Stripe keys here).
+      # ePoints calls the internal activation endpoint with this shared secret; empty = card
+      # activation disabled (endpoint fails closed).
+      - HOSTING_INTERNAL_SECRET=${HOSTING_INTERNAL_SECRET:-}
+      - HOSTING_CARD_ENABLED=${HOSTING_CARD_ENABLED:-true}
+      - HOSTING_CARD_USD_CENTS=${HOSTING_CARD_USD_CENTS:-200}
     volumes:
       - "tenant-configs:/app/configs"
     networks:
@@ -66,7 +77,8 @@ services:
       - REDIS_URL=redis://redis:6379
       - HIVE_API_URL=${HIVE_API_URL:-https://api.hive.blog}
       - PAYMENT_ACCOUNT=${PAYMENT_ACCOUNT:-ecency.hosting}
-      - MONTHLY_PRICE_HBD=${MONTHLY_PRICE_HBD:-0.100}
+      - MONTHLY_PRICE_HBD=${MONTHLY_PRICE_HBD:-2.000}
+      - PRO_UPGRADE_PRICE_HBD=${PRO_UPGRADE_PRICE_HBD:-5.000}
     networks:
       - ecency-hosting
     depends_on:

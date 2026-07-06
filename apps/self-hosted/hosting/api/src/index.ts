@@ -12,6 +12,7 @@ import { tenantRoutes } from './routes/tenants';
 import { domainRoutes } from './routes/domains';
 import { paymentRoutes } from './routes/payments';
 import { authRoutes } from './routes/auth';
+import { internalRoutes } from './routes/internal';
 import { db } from './db/client';
 
 const app = new Hono();
@@ -46,6 +47,8 @@ app.route('/v1/tenants', tenantRoutes);
 app.route('/v1/domains', domainRoutes);
 app.route('/v1/payments', paymentRoutes);
 app.route('/v1/auth', authRoutes);
+// Service-to-service only (shared-secret guarded); mounted at its own /v1/internal prefix.
+app.route('/v1/internal', internalRoutes);
 
 // Error handling
 app.onError((err, c) => {
