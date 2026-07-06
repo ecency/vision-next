@@ -9,6 +9,7 @@ import { FormControl } from "@ui/input";
 import { Button } from "@ui/button";
 import i18next from "i18next";
 import { LinearProgress, SuggestionList } from "@/features/shared";
+import { PointsTopupCta } from "@/features/shared/points-topup-cta";
 import { checkAllSvg } from "@ui/svg";
 import { usePromoteMutation } from "@/api/sdk-mutations";
 import { usePreCheckPromote } from "@/api/mutations";
@@ -94,14 +95,18 @@ export function Promote({ onHide, entry }: Props) {
     }
   }, [prices]);
 
+  const price = useMemo(
+    () => prices?.find((x) => x.duration === duration)?.price ?? 0.0,
+    [prices, duration]
+  );
+
   useEffect(() => {
-    const { price } = prices?.find((x) => x.duration === duration) ?? { price: 0.0 };
     setBalanceError(
       parseFloat(activeUserPoints?.points ?? "0.0") < price
         ? i18next.t("trx-common.insufficient-funds")
         : ""
     );
-  }, [activeUser, activeUserPoints?.points, duration, prices]);
+  }, [activeUser, activeUserPoints?.points, price]);
 
   const pathChanged = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const path = e.target.value;
@@ -163,7 +168,15 @@ export function Promote({ onHide, entry }: Props) {
                       readOnly={true}
                       value={isPointsPending ? "..." : `${activeUserPoints?.points ?? "0"} POINTS`}
                     />
-                    {balanceError && <small className="pl-3 text-red">{balanceError}</small>}
+                    {balanceError && (
+                      <div className="flex items-center flex-wrap gap-3 mt-1">
+                        <small className="pl-3 text-red">{balanceError}</small>
+                        <PointsTopupCta
+                          required={price}
+                          available={parseFloat(activeUserPoints?.points ?? "0")}
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="grid grid-cols-12 mb-4">

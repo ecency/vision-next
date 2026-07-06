@@ -5,9 +5,13 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { error, success } from "@/features/shared/feedback";
 import { LoginRequired } from "@/features/shared/login-required";
 import { PurchaseQrDialog, PurchaseTypes } from "@/features/shared/purchase-qr";
-import { StripePointsDialog, isStripeEnabled } from "@/features/shared/purchase-stripe";
+import {
+  STRIPE_POINTS_TIERS,
+  StripePointsDialog,
+  isStripeEnabled
+} from "@/features/shared/purchase-stripe";
 import { getPointsQueryOptions, useClaimPoints } from "@ecency/sdk";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import i18next from "i18next";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -22,7 +26,41 @@ export function PointsPage() {
   const [showPurchaseQr, setShowPurchaseQr] = useState(false);
   const [showStripe, setShowStripe] = useState(false);
   const [resumePi, setResumePi] = useState<string | undefined>(undefined);
+  const [deepLinkSku, setDeepLinkSku] = useState<string | undefined>(undefined);
+  const [pendingBuy, setPendingBuy] = useState(false);
   const router = useRouter();
+  const queryClient = useQueryClient();
+
+  // Upsell deep-link (?buy=card&sku=...): open the card dialog with the tier that
+  // covers the caller's deficit preselected. Params are stripped from the address
+  // bar either way; an unknown sku falls back to the dialog default.
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("buy") !== "card") {
+      return;
+    }
+    const sku = params.get("sku") ?? undefined;
+    window.history.replaceState({}, "", window.location.pathname);
+    if (!isStripeEnabled()) {
+      return;
+    }
+    if (sku && STRIPE_POINTS_TIERS.some((tier) => tier.sku === sku)) {
+      setDeepLinkSku(sku);
+    }
+    setPendingBuy(true);
+  }, []);
+
+  // The dialog needs an authenticated user to create the intent, so wait for the
+  // active user (covers login completing after landing on the deep link).
+  useEffect(() => {
+    if (pendingBuy && activeUser) {
+      setShowStripe(true);
+      setPendingBuy(false);
+    }
+  }, [pendingBuy, activeUser]);
 
   // Resume the card flow after a redirect-based payment method returns here (Stripe
   // appends payment_intent + redirect_status to the URL). Card payments resolve
@@ -139,9 +177,16 @@ export function PointsPage() {
             setShowStripe(v);
             if (!v) {
               setResumePi(undefined);
+              setDeepLinkSku(undefined);
             }
           }}
+          defaultSku={deepLinkSku}
           resumePaymentIntent={resumePi}
+          onDelivered={() =>
+            queryClient.invalidateQueries({
+              queryKey: getPointsQueryOptions(activeUser?.username).queryKey
+            })
+          }
         />
       )}
     </div>

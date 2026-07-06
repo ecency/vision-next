@@ -1439,6 +1439,7 @@
   },
   "points": {
     "get": "BUY POINTS",
+    "get-more": "Get more Points",
     "unclaimed-points": "Unclaimed points",
     "claim-reward-points": "Collect points",
     "main-description": "Points can be used for in-app services, like Promote, Boost, Gifting. Earn them just by using Ecency apps and improve your experience.",
