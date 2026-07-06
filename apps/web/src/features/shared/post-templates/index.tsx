@@ -14,6 +14,8 @@ interface Props {
   onSaveCurrent: (name: string) => Promise<unknown>;
   isSaving: boolean;
   confirmApply: boolean;
+  initialMode?: "list" | "save";
+  canSaveCurrent?: boolean;
 }
 
 export function PostTemplatesDialog({
@@ -22,18 +24,25 @@ export function PostTemplatesDialog({
   onApply,
   onSaveCurrent,
   isSaving,
-  confirmApply
+  confirmApply,
+  initialMode = "list",
+  canSaveCurrent = true
 }: Props) {
-  const [mode, setMode] = useState<"list" | "save">("list");
+  const [mode, setMode] = useState<"list" | "save">(initialMode);
   const [name, setName] = useState("");
 
   const form = useRef<HTMLFormElement>(null);
 
-  // The dialog stays mounted between opens; a dismissed save form must not
-  // reappear the next time it is shown.
+  // The dialog stays mounted between opens; each open starts at the caller's
+  // requested mode and a dismissed save form must not reappear. The mode is
+  // read through a ref so the effect only fires on open/close and can never
+  // clobber navigation done inside the dialog.
+  const initialModeRef = useRef(initialMode);
+  initialModeRef.current = initialMode;
   useEffect(() => {
-    if (!show) {
-      setMode("list");
+    if (show) {
+      setMode(initialModeRef.current);
+    } else {
       setName("");
     }
   }, [show]);
@@ -50,9 +59,20 @@ export function PostTemplatesDialog({
               setShow(false);
             }}
             onSave={() => setMode("save")}
+            canSave={canSaveCurrent}
           />
         )}
-        {mode === "save" && (
+        {mode === "save" && !canSaveCurrent && (
+          <div className="flex flex-col items-start gap-4">
+            <div className="text-sm opacity-75">
+              {i18next.t("post-templates.empty-editor-hint")}
+            </div>
+            <Button appearance="gray" size="sm" onClick={() => setMode("list")}>
+              {i18next.t("post-templates.cancel")}
+            </Button>
+          </div>
+        )}
+        {mode === "save" && canSaveCurrent && (
           <Form
             ref={form}
             onSubmit={async (e: React.FormEvent) => {

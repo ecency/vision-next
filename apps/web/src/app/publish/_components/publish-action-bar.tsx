@@ -96,12 +96,14 @@ export function PublishActionBar({
   const [schedule, setSchedule] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
+  const [templatesMode, setTemplatesMode] = useState<"list" | "save">("list");
 
   const pathname = usePathname();
 
   useDefaultBeneficiary();
 
   const canContinue = !!title?.trim() && hasPublishContent(content);
+  const hasEditorContent = !!title?.trim() || hasPublishContent(content);
 
   const { mutateAsync: saveToDraft, isPending: isDraftPending } = useSaveDraftApi(draftId);
   const { mutateAsync: saveTemplate, isPending: isTemplatePending } = useSaveTemplateApi();
@@ -193,9 +195,22 @@ export function PublishActionBar({
             >
               <LoginRequired>
                 <DropdownItemWithIcon
-                  onClick={() => setShowTemplates(true)}
+                  onClick={() => {
+                    setTemplatesMode("list");
+                    setShowTemplates(true);
+                  }}
                   icon={<UilFileBookmarkAlt />}
                   label={i18next.t("post-templates.title")}
+                />
+              </LoginRequired>
+              <LoginRequired>
+                <DropdownItemWithIcon
+                  onClick={() => {
+                    setTemplatesMode("save");
+                    setShowTemplates(true);
+                  }}
+                  icon={<UilFileBookmarkAlt />}
+                  label={i18next.t("post-templates.save-current")}
                 />
               </LoginRequired>
             </EcencyConfigManager.Conditional>
@@ -241,7 +256,9 @@ export function PublishActionBar({
           onApply={applyTemplate}
           onSaveCurrent={(name) => saveTemplate({ name })}
           isSaving={isTemplatePending}
-          confirmApply={!!title?.trim() || hasPublishContent(content)}
+          confirmApply={hasEditorContent}
+          initialMode={templatesMode}
+          canSaveCurrent={hasEditorContent}
         />
       </EcencyConfigManager.Conditional>
     </div>

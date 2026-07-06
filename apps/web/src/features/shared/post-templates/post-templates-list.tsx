@@ -7,6 +7,7 @@ import { Button } from "@ui/button";
 import { FormControl } from "@ui/input";
 import i18next from "i18next";
 import { useEffect, useMemo, useRef, useState } from "react";
+import useMount from "react-use/lib/useMount";
 import { PostTemplatesListItem } from "./post-templates-list-item";
 import { getAccessToken } from "@/utils";
 
@@ -19,10 +20,11 @@ const AUTO_FETCH_PAGE_BUDGET = 5;
 interface Props {
   onApply: (draft: Draft) => void;
   onSave: () => void;
+  canSave: boolean;
   confirmApply: boolean;
 }
 
-export function PostTemplatesList({ onApply, onSave, confirmApply }: Props) {
+export function PostTemplatesList({ onApply, onSave, confirmApply, canSave }: Props) {
   const innerRef = useRef<HTMLInputElement | null>(null);
 
   const { activeUser } = useActiveAccount();
@@ -34,12 +36,19 @@ export function PostTemplatesList({ onApply, onSave, confirmApply }: Props) {
   const {
     data,
     isPending,
+    refetch,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery(
     getDraftsInfiniteQueryOptions(username, accessToken, 10)
   );
+
+  // refetchOnMount is disabled app-wide; a template saved while this list was
+  // unmounted (the dialog shows the save form then) must appear on return.
+  useMount(() => {
+    refetch();
+  });
 
   const templates = useMemo(
     () =>
@@ -86,7 +95,12 @@ export function PostTemplatesList({ onApply, onSave, confirmApply }: Props) {
           style={{ marginRight: "6px" }}
         />
         <div>
-          <Button className="h-full whitespace-nowrap" onClick={onSave}>
+          <Button
+            className="h-full whitespace-nowrap"
+            onClick={onSave}
+            disabled={!canSave}
+            title={canSave ? undefined : i18next.t("post-templates.empty-editor-hint")}
+          >
             {i18next.t("post-templates.save-current")}
           </Button>
         </div>
