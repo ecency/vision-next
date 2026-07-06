@@ -7,8 +7,22 @@ import { Button } from "@ui/button";
 import { FormControl } from "@ui/input";
 import i18next from "i18next";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { HostingCardCheckout } from "./hosting-card-checkout";
 import { hostingApi, hostingSkuForMonths, type HostingPaymentMethods } from "./hosting-api";
+import dynamic from "next/dynamic";
+
+// Lazy-load the card checkout so /hosting doesn't pull @stripe/stripe-js (which injects the
+// js.stripe.com script on import) into its bundle until the user actually picks "card".
+const HostingCardCheckout = dynamic(
+  () => import("./hosting-card-checkout").then((m) => m.HostingCardCheckout),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="py-6 text-center text-sm opacity-75">
+        {i18next.t("hosting.preparing-checkout")}
+      </div>
+    )
+  }
+);
 
 type Step = "username" | "configure" | "payment" | "success";
 type Method = "hbd" | "card";
