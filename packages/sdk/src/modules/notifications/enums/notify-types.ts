@@ -7,6 +7,7 @@ export enum NotifyTypes {
   TRANSFERS = 6,
   FAVORITES = 13,
   BOOKMARKS = 15,
+  SCHEDULED_PUBLISHED = 22,
   ALLOW_NOTIFY = "ALLOW_NOTIFY",
 }
 
@@ -19,6 +20,7 @@ export const ALL_NOTIFY_TYPES = [
   NotifyTypes.TRANSFERS,
   NotifyTypes.FAVORITES,
   NotifyTypes.BOOKMARKS,
+  NotifyTypes.SCHEDULED_PUBLISHED,
 ] as const;
 
 export enum NotificationViewType {

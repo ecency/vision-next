@@ -1929,7 +1929,9 @@
     "payouts-title": "{{body}} \"{{title}}\"",
     "monthly-posts": "You created {{count}} post{{suffix}} this month. Keep it up!",
     "weekly-earnings": "You earned ${{total}} this week - ${{author}} from posts, ${{curation}} from curation.",
-    "weekly-earnings-short": "You earned ${{total}} this week from your posts and curation."
+    "weekly-earnings-short": "You earned ${{total}} this week from your posts and curation.",
+    "scheduled-published": "Your scheduled post is now live.",
+    "scheduled-published-title": "Your scheduled post \"{{title}}\" is now live."
   },
   "notifications": {
     "type-all": "All Notifications",
@@ -1944,6 +1946,7 @@
     "type-payouts": "Payouts",
     "type-nfavorites": "Favorites",
     "type-nbookmarks": "Bookmarks",
+    "type-scheduled-published": "Scheduled posts",
     "group-title-recent": "Recent",
     "vote-str": "{{p}}% voted post",
     "reply-str": "replied to post",
@@ -1970,6 +1973,7 @@
     "account-update-active-authority": "{{accounts}} was granted active authority on your account. If you did not authorize this, revoke it.",
     "account-update-posting-authority": "{{accounts}} can now post and vote on your behalf. If you did not authorize this, revoke it.",
     "weekly-earnings-title": "Weekly earnings summary for @{{username}}",
+    "scheduled-published-str": "Your scheduled post was published",
     "refresh": "Refresh",
     "mark-all-read": "Mark All as Read",
     "mark-read": "Mark as Read",
