@@ -291,4 +291,20 @@ it("still skips a real GFM table (separator directly under the header row)", asy
     expect(result).toContain("\u00ab");
     expect(post).toHaveBeenCalled();
   });
+
+  it("translates pipe prose directly above a separator when cell counts differ", async () => {
+    const block = "El valor |x| es absoluto\n|---|";
+    const result = await translateMarkdown(block, "es", "en");
+
+    expect(result).toContain("\u00ab");
+    expect(post).toHaveBeenCalled();
+  });
+
+  it("still skips a borderless GFM table (header without outer pipes)", async () => {
+    const table = "a | b\n--- | ---\n1 | 2";
+    const result = await translateMarkdown(table, "es", "en");
+
+    expect(result).toBe(table);
+    expect(post).not.toHaveBeenCalled();
+  });
 });
