@@ -2,7 +2,10 @@ import { Button } from "@/features/ui";
 import { UilCheckCircle, UilClock } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
+import { getQuestsQueryOptions } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { deriveQuestChipState } from "@/features/shared/quest-streak-chip/derive-quest-chip-state";
 import {
   makeShareUrlReddit,
   makeShareUrlTwitter,
@@ -10,13 +13,7 @@ import {
   makeShareUrlLinkedin,
   makeShareUrlDiscord
 } from "@/utils/url-share";
-import {
-  facebookSvg,
-  discordSvg,
-  linkedinSvg,
-  redditSvg,
-  twitterSvg
-} from "@ui/svg";
+import { facebookSvg, discordSvg, linkedinSvg, redditSvg, twitterSvg } from "@ui/svg";
 
 interface EntryInfo {
   title: string;
@@ -72,6 +69,32 @@ function ShareBar({ entryInfo }: { entryInfo: EntryInfo }) {
   );
 }
 
+/**
+ * One-line quest celebration under the success message. Waits for the quests
+ * query (refreshed via `scheduleQuestsRefresh` on publish) and only renders
+ * once it confirms the daily post quest is complete.
+ */
+function QuestCompleteLine() {
+  const { activeUser } = useActiveAccount();
+  const { data: quests } = useQuery(getQuestsQueryOptions(activeUser?.username));
+
+  const state = deriveQuestChipState(quests);
+
+  if (!state?.postedToday) {
+    return null;
+  }
+
+  return (
+    <div className="flex items-center gap-1.5 text-sm font-semibold text-green">
+      <span aria-hidden>🔥</span>
+      <span>
+        {i18next.t("quest-chip.post-quest-complete")}
+        {state.streak > 0 && <> · {i18next.t("perks.quests.streak", { n: state.streak })}</>}
+      </span>
+    </div>
+  );
+}
+
 export function PublishSuccessState({ step, setEditStep, entryInfo }: Props) {
   const { activeUser } = useActiveAccount();
   const profileHref = activeUser ? `/@${activeUser.username}/posts` : "/";
@@ -91,6 +114,8 @@ export function PublishSuccessState({ step, setEditStep, entryInfo }: Props) {
             {step === "scheduled" && i18next.t("publish.scheduled-hint")}
           </div>
         </div>
+
+        {step === "published" && <QuestCompleteLine />}
 
         {step === "published" && entryInfo && <ShareBar entryInfo={entryInfo} />}
 

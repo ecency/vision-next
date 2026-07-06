@@ -22,6 +22,7 @@ import {
   makeCommentOptions,
   tempEntry
 } from "@/utils";
+import { scheduleQuestsRefresh } from "@/utils/refresh-quests";
 import { postBodySummary } from "@ecency/render-helper";
 import { EcencyAnalytics } from "@ecency/sdk";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -269,6 +270,8 @@ export function usePublishApi() {
           } as unknown as Poll;
         }
       );
+
+      scheduleQuestsRefresh(queryClient, username);
     }
   });
 }
