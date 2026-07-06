@@ -277,4 +277,18 @@ it("preserves leading indentation on marker-less continuation lines", async () =
     ).rejects.toThrow("translate-cancelled");
     expect(calls).toBe(1);
   });
+it("still skips a real GFM table (separator directly under the header row)", async () => {
+    const table = "| a | b |\n|---|---|\n| 1 | 2 |";
+    const result = await translateMarkdown(`Intro.\n\n${table}`, "es", "en");
+
+    expect(result).toBe(`\u00abIntro.\u00bb\n\n${table}`);
+  });
+
+  it("translates prose containing pipes and a stray separator-like line", async () => {
+    const block = "El valor |x| es absoluto\nnota al margen\n|---|";
+    const result = await translateMarkdown(block, "es", "en");
+
+    expect(result).toContain("\u00ab");
+    expect(post).toHaveBeenCalled();
+  });
 });
