@@ -42,6 +42,7 @@ import {
   UilImage,
   UilImages,
   UilImageShare,
+  UilLanguage,
   UilLink,
   UilListOl,
   UilListUiAlt,
@@ -96,6 +97,13 @@ const PublishImageByLinkDialog = dynamic(
 const PublishEditorGeoTagDialog = dynamic(
   () => import("./publish-editor-geo-tag/publish-editor-geo-tag-dialog").then((m) => ({
     default: m.PublishEditorGeoTagDialog
+  })),
+  { ssr: false }
+);
+
+const PublishTranslateDialog = dynamic(
+  () => import("./publish-translate-dialog").then((m) => ({
+    default: m.PublishTranslateDialog
   })),
   { ssr: false }
 );
@@ -209,6 +217,7 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
   const [showVideoUpload, setShowVideoUpload] = useState(false);
   const [showVideoLink, setShowVideoLink] = useState(false);
   const [showGeoTag, setShowGeoTag] = useState(false);
+  const [showTranslate, setShowTranslate] = useState(false);
   const [showAiGenerator, setShowAiGenerator] = useState(false);
   const [showAiAssist, setShowAiAssist] = useState(false);
   const [showMemeMaker, setShowMemeMaker] = useState(false);
@@ -379,6 +388,20 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
                 aria-label={i18next.t("publish.action-bar.fragments")}
               />
             </LoginRequired>
+          </StyledTooltip>
+        </EcencyConfigManager.Conditional>
+
+        <EcencyConfigManager.Conditional
+          condition={({ visionFeatures }) => visionFeatures.publish.composeTranslate.enabled}
+        >
+          <StyledTooltip content={i18next.t("publish.translate.title")}>
+            <Button
+              appearance="gray-link"
+              size="sm"
+              onClick={() => setShowTranslate(true)}
+              icon={<UilLanguage />}
+              aria-label={i18next.t("publish.translate.title")}
+            />
           </StyledTooltip>
         </EcencyConfigManager.Conditional>
 
@@ -794,6 +817,13 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
               publishState.addDecentMemesResult({ templateId, imageUrl: url, beneficiaries });
               setShowMemeMaker(false);
             }}
+          />
+        )}
+        {showTranslate && (
+          <PublishTranslateDialog
+            show={showTranslate}
+            setShow={setShowTranslate}
+            editor={editor}
           />
         )}
         {showGeoTag && (
