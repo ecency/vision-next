@@ -33,12 +33,6 @@ export function PostTemplatesList({ onApply, onSave, confirmApply, canSave }: Pr
 
   const [filter, setFilter] = useState("");
 
-  // refetchOnMount is disabled app-wide; a template saved while this list was
-  // unmounted (the dialog shows the save form then) must appear on return.
-  useMount(() => {
-    refetch();
-  });
-
   const {
     data,
     isPending,
@@ -49,6 +43,12 @@ export function PostTemplatesList({ onApply, onSave, confirmApply, canSave }: Pr
   } = useInfiniteQuery(
     getDraftsInfiniteQueryOptions(username, accessToken, 10)
   );
+
+  // refetchOnMount is disabled app-wide; a template saved while this list was
+  // unmounted (the dialog shows the save form then) must appear on return.
+  useMount(() => {
+    refetch();
+  });
 
   const templates = useMemo(
     () =>

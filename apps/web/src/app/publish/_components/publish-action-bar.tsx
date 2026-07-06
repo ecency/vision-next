@@ -103,6 +103,7 @@ export function PublishActionBar({
   useDefaultBeneficiary();
 
   const canContinue = !!title?.trim() && hasPublishContent(content);
+  const hasEditorContent = !!title?.trim() || hasPublishContent(content);
 
   const { mutateAsync: saveToDraft, isPending: isDraftPending } = useSaveDraftApi(draftId);
   const { mutateAsync: saveTemplate, isPending: isTemplatePending } = useSaveTemplateApi();
@@ -255,9 +256,9 @@ export function PublishActionBar({
           onApply={applyTemplate}
           onSaveCurrent={(name) => saveTemplate({ name })}
           isSaving={isTemplatePending}
-          confirmApply={!!title?.trim() || hasPublishContent(content)}
+          confirmApply={hasEditorContent}
           initialMode={templatesMode}
-          canSaveCurrent={!!title?.trim() || hasPublishContent(content)}
+          canSaveCurrent={hasEditorContent}
         />
       </EcencyConfigManager.Conditional>
     </div>

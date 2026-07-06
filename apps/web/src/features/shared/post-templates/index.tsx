@@ -34,14 +34,18 @@ export function PostTemplatesDialog({
   const form = useRef<HTMLFormElement>(null);
 
   // The dialog stays mounted between opens; each open starts at the caller's
-  // requested mode and a dismissed save form must not reappear.
+  // requested mode and a dismissed save form must not reappear. The mode is
+  // read through a ref so the effect only fires on open/close and can never
+  // clobber navigation done inside the dialog.
+  const initialModeRef = useRef(initialMode);
+  initialModeRef.current = initialMode;
   useEffect(() => {
     if (show) {
-      setMode(initialMode);
+      setMode(initialModeRef.current);
     } else {
       setName("");
     }
-  }, [show, initialMode]);
+  }, [show]);
 
   return (
     <Modal show={show} centered={true} onHide={() => setShow(false)} size="lg">
