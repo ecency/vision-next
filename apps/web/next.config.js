@@ -390,6 +390,8 @@ const config = {
               [
                 "connect-src 'self'",
                 "https://ecency.com https://hapi.ecency.com https://i.ecency.com https://img.ecency.com https://images.ecency.com",
+                // Managed blog-hosting API (/hosting signup: methods/tenant/status):
+                "https://api.blogs.ecency.com",
                 "https://api.hive.blog https://api.deathwing.me https://api.openhive.network https://techcoderx.com https://rpc.mahdiyari.info https://api.c0ff33a.uk https://api.syncad.com https://hive.atexoras.com:2096",
                 "https://hivesigner.com https://hivesearcher.com https://api.hivesearcher.com",
                 "https://pl.ecency.com https://chat.ecency.com",
