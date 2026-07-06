@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.38
+
+### Patch Changes
+
+- feat(pro): purchasable Ecency Pro membership and profile badge (#1095)
+
 ## 2.3.37
 
 ### Patch Changes
