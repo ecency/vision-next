@@ -63,11 +63,13 @@ paymentRoutes.post('/internal/activate', async (c) => {
   }
 
   const username = String(body?.username || '').toLowerCase();
-  const months = Math.max(1, Math.min(24, parseInt(body?.months, 10) || 0));
+  // Strict: reject a missing/garbage/out-of-range term rather than silently granting 1 month.
+  const monthsRaw = parseInt(body?.months, 10);
+  const months = Number.isInteger(monthsRaw) ? monthsRaw : 0;
   const orderId = String(body?.order_id || '').trim();
   const amountUsd = typeof body?.amount_usd === 'number' ? body.amount_usd : 0;
 
-  if (!/^[a-z][a-z0-9.-]{2,15}$/.test(username) || months < 1 || !orderId) {
+  if (!/^[a-z][a-z0-9.-]{2,15}$/.test(username) || months < 1 || months > 24 || !orderId) {
     return c.json({ error: 'invalid_request' }, 400);
   }
 
