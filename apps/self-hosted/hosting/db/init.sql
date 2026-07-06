@@ -142,7 +142,8 @@ CREATE VIEW payment_stats AS
 SELECT
     DATE_TRUNC('month', created_at) as month,
     COUNT(*) as total_payments,
-    SUM(amount) as total_hbd,
+    SUM(amount) FILTER (WHERE currency = 'HBD') as total_hbd,  -- on-chain
+    SUM(amount) FILTER (WHERE currency = 'USD') as total_usd,  -- card (via ePoints)
     SUM(months_credited) as total_months_credited
 FROM payments
 WHERE status = 'processed'
