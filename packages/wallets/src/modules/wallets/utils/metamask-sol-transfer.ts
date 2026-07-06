@@ -48,7 +48,7 @@ interface JsonRpcResponse<T> {
 /**
  * Call a Solana JSON-RPC method via the Ecency private API proxy.
  * This avoids hitting the public Solana RPC directly from the browser
- * (which returns 403). The proxy forwards to a Chainstack dedicated node.
+ * (which returns 403). The proxy forwards to a public Solana RPC node.
  */
 async function solRpc<T>(method: string, params: unknown[] = []): Promise<T> {
   const baseUrl = ConfigManager.getValidatedBaseUrl();
