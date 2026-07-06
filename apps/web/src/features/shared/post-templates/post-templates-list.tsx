@@ -7,6 +7,7 @@ import { Button } from "@ui/button";
 import { FormControl } from "@ui/input";
 import i18next from "i18next";
 import { useEffect, useMemo, useRef, useState } from "react";
+import useMount from "react-use/lib/useMount";
 import { PostTemplatesListItem } from "./post-templates-list-item";
 import { getAccessToken } from "@/utils";
 
@@ -32,9 +33,16 @@ export function PostTemplatesList({ onApply, onSave, confirmApply, canSave }: Pr
 
   const [filter, setFilter] = useState("");
 
+  // refetchOnMount is disabled app-wide; a template saved while this list was
+  // unmounted (the dialog shows the save form then) must appear on return.
+  useMount(() => {
+    refetch();
+  });
+
   const {
     data,
     isPending,
+    refetch,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
