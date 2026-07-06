@@ -1,4 +1,32 @@
 {
+  "hosting": {
+    "title": "Blog hosting",
+    "subtitle": "Host your Hive blog on your own branded site at yourname.blogs.ecency.com.",
+    "username-label": "Your Hive username",
+    "subdomain-preview": "Your blog: {{url}}",
+    "blog-title-label": "Blog title (optional)",
+    "blog-title-placeholder": "My Hive Blog",
+    "blog-desc-label": "Description (optional)",
+    "blog-desc-placeholder": "Powered by Ecency",
+    "term-months": "{{n}} mo",
+    "pay-card": "Card ${{amount}}",
+    "pay-hbd": "{{amount}} HBD",
+    "pay-now": "Pay now",
+    "hbd-instructions": "Send the exact amount with the exact memo from any Hive wallet, then check activation.",
+    "send-to": "Send to",
+    "amount": "Amount",
+    "memo": "Memo",
+    "ive-paid": "I've sent the payment",
+    "not-yet-active": "Payment not detected yet. It can take a few seconds after confirmation.",
+    "success-title": "Your blog is live",
+    "invalid-username": "Enter a valid Hive username.",
+    "already-registered": "This blog is already registered.",
+    "card-unavailable": "Card payment is unavailable right now.",
+    "card-failed": "The payment could not be completed.",
+    "activating": "Payment received. Activating your blog.",
+    "preparing-checkout": "Preparing secure checkout.",
+    "coming-soon": "Blog hosting is coming soon."
+  },
   "tweet": {
     "load-failed": "Couldn't load this X post.",
     "view-on-x": "View on X"
