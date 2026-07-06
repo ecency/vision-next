@@ -26,6 +26,9 @@ interface Props {
   username: string;
   returnUrl: string;
   onActivated: () => void;
+  /** Set when returning from a redirect-based method: the intent already exists, so skip
+   *  minting and go straight to polling it (Stripe re-appends payment_intent to returnUrl). */
+  resumePaymentIntent?: string;
 }
 
 /**
@@ -34,19 +37,22 @@ interface Props {
  * order status. When the order reaches "success" ePoints has granted the membership. No
  * tenant step (unlike hosting) -- the SKU alone drives the grant.
  */
-export function ProCheckout({ username, returnUrl, onActivated }: Props) {
+export function ProCheckout({ username, returnUrl, onActivated, resumePaymentIntent }: Props) {
   const [nonce] = useState(genNonce);
   const [clientSecret, setClientSecret] = useState("");
   const [error, setError] = useState("");
-  const [activating, setActivating] = useState(false);
+  // On a redirect return the payment is already made; go straight to the activation poll.
+  const [activating, setActivating] = useState(!!resumePaymentIntent);
   const pollingRef = useRef(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const createIntent = useCreateStripeIntent(username);
   const stripePromise = getStripePromise();
 
-  // Mint the PaymentIntent once for this checkout.
+  // Mint the PaymentIntent once for this checkout -- SKIPPED on a redirect resume (the intent
+  // already exists; minting a new one would charge twice).
   useEffect(() => {
+    if (resumePaymentIntent) return;
     let alive = true;
     (async () => {
       try {
@@ -60,7 +66,7 @@ export function ProCheckout({ username, returnUrl, onActivated }: Props) {
       alive = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nonce]);
+  }, [nonce, resumePaymentIntent]);
 
   // Stop polling on unmount.
   useEffect(
@@ -71,7 +77,7 @@ export function ProCheckout({ username, returnUrl, onActivated }: Props) {
     []
   );
 
-  const paymentIntentId = clientSecret ? clientSecret.split("_secret_")[0] : "";
+  const paymentIntentId = resumePaymentIntent || (clientSecret ? clientSecret.split("_secret_")[0] : "");
 
   const startPoll = useCallback(() => {
     if (!paymentIntentId || pollingRef.current) return;
@@ -111,6 +117,12 @@ export function ProCheckout({ username, returnUrl, onActivated }: Props) {
     };
     poll();
   }, [paymentIntentId, username, onActivated]);
+
+  // Redirect return: the payment already completed off-page, so start the grant poll on mount.
+  useEffect(() => {
+    if (resumePaymentIntent) startPoll();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resumePaymentIntent]);
 
   if (!stripePromise) {
     return <Alert appearance="danger">{i18next.t("pro.card-unavailable")}</Alert>;

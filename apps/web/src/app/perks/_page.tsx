@@ -37,10 +37,28 @@ export function PerksPage() {
   const [showBoost, setShowBoost] = useState(false);
   const [showQrDialog, setShowQrDialog] = useState(false);
   const [showPro, setShowPro] = useState(false);
+  const [resumePro, setResumePro] = useState<string | undefined>(undefined);
 
   // Opening the hub clears the one-time discovery dot on the navbar perks button.
   useEffect(() => {
     ls.set(PERKS_SEEN_KEY, true);
+  }, []);
+
+  // A redirect-based Pro payment returns to /perks?pro=1 with Stripe's payment_intent appended.
+  // Reopen the dialog to resume the grant poll, then strip the params so a refresh won't re-fire.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const p = new URLSearchParams(window.location.search);
+    const pi = p.get("payment_intent");
+    if (p.get("pro") === "1" && pi) {
+      setResumePro(pi);
+      setShowPro(true);
+      const url = new URL(window.location.href);
+      ["pro", "payment_intent", "payment_intent_client_secret", "redirect_status"].forEach((k) =>
+        url.searchParams.delete(k)
+      );
+      window.history.replaceState({}, "", url.toString());
+    }
   }, []);
 
   return (
@@ -132,7 +150,14 @@ export function PerksPage() {
         </div>
         {showBoost && <BoostDialog onHide={() => setShowBoost(false)} />}
         {showPro && username && (
-          <ProDialog username={username} onHide={() => setShowPro(false)} />
+          <ProDialog
+            username={username}
+            resumePaymentIntent={resumePro}
+            onHide={() => {
+              setShowPro(false);
+              setResumePro(undefined);
+            }}
+          />
         )}
         <PurchaseQrDialog show={showQrDialog} setShow={(v) => setShowQrDialog(v)} />
       </div>

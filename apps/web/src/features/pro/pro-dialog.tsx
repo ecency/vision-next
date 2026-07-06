@@ -1,5 +1,7 @@
 "use client";
 
+import { QueryKeys, type ProMembersResponse } from "@ecency/sdk";
+import { useQueryClient } from "@tanstack/react-query";
 import { Alert } from "@ui/alert";
 import { Modal, ModalBody, ModalHeader } from "@ui/modal";
 import i18next from "i18next";
@@ -10,14 +12,35 @@ interface Props {
   /** The authenticated buyer. */
   username: string;
   onHide: () => void;
+  /** Set when reopened after a redirect-based payment return, to resume the grant poll. */
+  resumePaymentIntent?: string;
 }
 
 /**
  * Ecency Pro purchase dialog. Dynamically imported from the perks hub (ssr:false) so
  * @stripe/stripe-js stays out of the perks bundle until the user opens it.
  */
-export function ProDialog({ username, onHide }: Props) {
+export function ProDialog({ username, onHide, resumePaymentIntent }: Props) {
   const [done, setDone] = useState(false);
+  const queryClient = useQueryClient();
+
+  // On activation, reflect the new membership immediately. The /perks card and every ProBadge
+  // read the shared pro-members roster (5-min stale window), so without this a just-paid user
+  // would still see "Go Pro" and no badge until a later refetch. Optimistically add them, then
+  // invalidate so the authoritative roster catches up.
+  const handleActivated = () => {
+    setDone(true);
+    queryClient.setQueryData<ProMembersResponse>(QueryKeys.accounts.proMembers(), (prev) => {
+      const members = prev?.members ?? [];
+      if (members.includes(username)) return prev;
+      return { members: [...members, username], count: (prev?.count ?? 0) + 1 };
+    });
+    queryClient.invalidateQueries({ queryKey: QueryKeys.accounts.proMembers() });
+  };
+
+  // Redirect-based methods send the buyer to /perks and Stripe re-appends payment_intent; the
+  // perks page reopens this dialog to resume, so anchor the returnUrl there with a marker.
+  const returnUrl = typeof window !== "undefined" ? `${window.location.origin}/perks?pro=1` : "";
 
   return (
     <Modal show={true} centered={true} onHide={onHide} size="md">
@@ -40,8 +63,9 @@ export function ProDialog({ username, onHide }: Props) {
             </ul>
             <ProCheckout
               username={username}
-              returnUrl={typeof window !== "undefined" ? window.location.href : ""}
-              onActivated={() => setDone(true)}
+              returnUrl={returnUrl}
+              resumePaymentIntent={resumePaymentIntent}
+              onActivated={handleActivated}
             />
           </div>
         )}
