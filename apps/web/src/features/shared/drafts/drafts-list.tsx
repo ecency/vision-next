@@ -12,6 +12,9 @@ import useMount from "react-use/lib/useMount";
 import { getAccessToken } from "@/utils";
 import { Button } from "@ui/button";
 
+// Bounds the automatic page waterfall that skips template-only pages.
+const AUTO_FETCH_PAGE_BUDGET = 5;
+
 interface Props {
   onHide: () => void;
   onPick?: (url: string) => void;
@@ -74,13 +77,22 @@ export function DraftsList({ onHide, onPick }: Props) {
     }
   }, [allDrafts]);
 
+  const pagesLoaded = data?.pages.length ?? 0;
+
   // A fetched page can consist entirely of templates; keep fetching so the
-  // empty state never hides non-template drafts living on later pages.
+  // empty state never hides non-template drafts living on later pages. The
+  // page budget bounds the waterfall for users whose drafts are all
+  // templates; past it, loading continues on demand below.
   useEffect(() => {
-    if (hasNextPage && !isFetchingNextPage && allDrafts.length === 0) {
+    if (
+      hasNextPage &&
+      !isFetchingNextPage &&
+      allDrafts.length === 0 &&
+      pagesLoaded < AUTO_FETCH_PAGE_BUDGET
+    ) {
       fetchNextPage();
     }
-  }, [allDrafts.length, fetchNextPage, hasNextPage, isFetchingNextPage]);
+  }, [allDrafts.length, fetchNextPage, hasNextPage, isFetchingNextPage, pagesLoaded]);
 
   if (isPending) {
     return <LinearProgress />;
@@ -88,7 +100,14 @@ export function DraftsList({ onHide, onPick }: Props) {
 
   if (allDrafts.length === 0) {
     if (hasNextPage) {
-      return <LinearProgress />;
+      if (isFetchingNextPage || pagesLoaded < AUTO_FETCH_PAGE_BUDGET) {
+        return <LinearProgress />;
+      }
+      return (
+        <div className="flex justify-center my-4">
+          <Button onClick={() => fetchNextPage()}>{i18next.t("g.load-more")}</Button>
+        </div>
+      );
     }
     return <div className="drafts-list">{i18next.t("g.empty-list")}</div>;
   }

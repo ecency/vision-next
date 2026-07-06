@@ -11,8 +11,10 @@ import { PostTemplatesListItem } from "./post-templates-list-item";
 import { getAccessToken } from "@/utils";
 
 // Templates are sparse among ordinary drafts, so pages are chain-fetched
-// until at least this many templates have been accumulated.
+// until at least this many templates have been accumulated, bounded by a
+// page budget so a large draft library is never walked end to end.
 const TEMPLATES_AUTO_FETCH_TARGET = 30;
+const AUTO_FETCH_PAGE_BUDGET = 5;
 
 interface Props {
   onApply: (draft: Draft) => void;
@@ -55,11 +57,18 @@ export function PostTemplatesList({ onApply, onSave, confirmApply }: Props) {
     [templates, filter]
   );
 
+  const pagesLoaded = data?.pages.length ?? 0;
+
   useEffect(() => {
-    if (hasNextPage && !isFetchingNextPage && templates.length < TEMPLATES_AUTO_FETCH_TARGET) {
+    if (
+      hasNextPage &&
+      !isFetchingNextPage &&
+      templates.length < TEMPLATES_AUTO_FETCH_TARGET &&
+      pagesLoaded < AUTO_FETCH_PAGE_BUDGET
+    ) {
       fetchNextPage();
     }
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage, templates.length]);
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage, pagesLoaded, templates.length]);
 
   useEffect(() => {
     innerRef.current && innerRef.current.focus();
@@ -83,7 +92,9 @@ export function PostTemplatesList({ onApply, onSave, confirmApply }: Props) {
         </div>
       </div>
 
-      {(isPending || (templates.length === 0 && (hasNextPage || isFetchingNextPage))) && (
+      {(isPending ||
+        (templates.length === 0 &&
+          (isFetchingNextPage || (hasNextPage && pagesLoaded < AUTO_FETCH_PAGE_BUDGET)))) && (
         <LinearProgress />
       )}
       {!isPending && templates.length === 0 && !hasNextPage && !isFetchingNextPage && (
