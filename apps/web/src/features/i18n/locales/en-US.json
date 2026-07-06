@@ -2205,6 +2205,7 @@
   "post-templates": {
     "title": "Templates",
     "save-current": "Save as template",
+    "empty-editor-hint": "Write your post first, then save it as a template.",
     "name-label": "Template name",
     "name-placeholder": "e.g. Weekly update",
     "validation-name": "Name is required.",

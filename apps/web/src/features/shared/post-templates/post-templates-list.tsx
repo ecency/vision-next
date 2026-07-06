@@ -19,10 +19,11 @@ const AUTO_FETCH_PAGE_BUDGET = 5;
 interface Props {
   onApply: (draft: Draft) => void;
   onSave: () => void;
+  canSave: boolean;
   confirmApply: boolean;
 }
 
-export function PostTemplatesList({ onApply, onSave, confirmApply }: Props) {
+export function PostTemplatesList({ onApply, onSave, confirmApply, canSave }: Props) {
   const innerRef = useRef<HTMLInputElement | null>(null);
 
   const { activeUser } = useActiveAccount();
@@ -86,7 +87,12 @@ export function PostTemplatesList({ onApply, onSave, confirmApply }: Props) {
           style={{ marginRight: "6px" }}
         />
         <div>
-          <Button className="h-full whitespace-nowrap" onClick={onSave}>
+          <Button
+            className="h-full whitespace-nowrap"
+            onClick={onSave}
+            disabled={!canSave}
+            title={canSave ? undefined : i18next.t("post-templates.empty-editor-hint")}
+          >
             {i18next.t("post-templates.save-current")}
           </Button>
         </div>

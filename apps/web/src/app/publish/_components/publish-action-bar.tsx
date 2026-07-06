@@ -96,6 +96,7 @@ export function PublishActionBar({
   const [schedule, setSchedule] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
+  const [templatesMode, setTemplatesMode] = useState<"list" | "save">("list");
 
   const pathname = usePathname();
 
@@ -193,9 +194,22 @@ export function PublishActionBar({
             >
               <LoginRequired>
                 <DropdownItemWithIcon
-                  onClick={() => setShowTemplates(true)}
+                  onClick={() => {
+                    setTemplatesMode("list");
+                    setShowTemplates(true);
+                  }}
                   icon={<UilFileBookmarkAlt />}
                   label={i18next.t("post-templates.title")}
+                />
+              </LoginRequired>
+              <LoginRequired>
+                <DropdownItemWithIcon
+                  onClick={() => {
+                    setTemplatesMode("save");
+                    setShowTemplates(true);
+                  }}
+                  icon={<UilFileBookmarkAlt />}
+                  label={i18next.t("post-templates.save-current")}
                 />
               </LoginRequired>
             </EcencyConfigManager.Conditional>
@@ -242,6 +256,8 @@ export function PublishActionBar({
           onSaveCurrent={(name) => saveTemplate({ name })}
           isSaving={isTemplatePending}
           confirmApply={!!title?.trim() || hasPublishContent(content)}
+          initialMode={templatesMode}
+          canSaveCurrent={!!title?.trim() || hasPublishContent(content)}
         />
       </EcencyConfigManager.Conditional>
     </div>
