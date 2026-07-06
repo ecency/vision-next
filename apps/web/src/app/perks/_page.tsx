@@ -44,21 +44,25 @@ export function PerksPage() {
     ls.set(PERKS_SEEN_KEY, true);
   }, []);
 
-  // A redirect-based Pro payment returns to /perks?pro=1 with Stripe's payment_intent appended.
-  // Reopen the dialog to resume the grant poll, then strip the params so a refresh won't re-fire.
+  // A redirect-based Pro payment returns to /perks?pro=1 with Stripe's payment_intent +
+  // redirect_status appended. Only resume the grant poll when the payment actually completed --
+  // a canceled/failed redirect returns the same params, and polling it would show a false
+  // "activating" then pending. Strip the params either way so a refresh won't re-fire.
   useEffect(() => {
     if (typeof window === "undefined") return;
     const p = new URLSearchParams(window.location.search);
     const pi = p.get("payment_intent");
-    if (p.get("pro") === "1" && pi) {
+    if (p.get("pro") !== "1" || !pi) return;
+    const status = p.get("redirect_status");
+    if (status === "succeeded" || status === "processing") {
       setResumePro(pi);
       setShowPro(true);
-      const url = new URL(window.location.href);
-      ["pro", "payment_intent", "payment_intent_client_secret", "redirect_status"].forEach((k) =>
-        url.searchParams.delete(k)
-      );
-      window.history.replaceState({}, "", url.toString());
     }
+    const url = new URL(window.location.href);
+    ["pro", "payment_intent", "payment_intent_client_secret", "redirect_status"].forEach((k) =>
+      url.searchParams.delete(k)
+    );
+    window.history.replaceState({}, "", url.toString());
   }, []);
 
   return (
