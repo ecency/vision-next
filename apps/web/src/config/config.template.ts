@@ -78,6 +78,9 @@ const CONFIG = {
       fragments: {
         enabled: true
       },
+      postTemplates: {
+        enabled: true
+      },
       discover: {
         leaderboard: {
           enabled: true

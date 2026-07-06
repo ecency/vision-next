@@ -1,5 +1,6 @@
 "use client";
 
+import { EcencyConfigManager } from "@/config";
 import { LoginRequired } from "@/features/shared";
 import dynamic from "next/dynamic";
 
@@ -37,6 +38,13 @@ const PublishImportDialog = dynamic(
   })),
   { ssr: false }
 );
+
+const PostTemplatesDialog = dynamic(
+  () => import("@/features/shared/post-templates").then((m) => ({
+    default: m.PostTemplatesDialog
+  })),
+  { ssr: false }
+);
 import { StyledTooltip } from "@/features/ui";
 import { useSynchronizedLocalStorage } from "@/utils";
 import { PREFIX } from "@/utils/local-storage";
@@ -44,6 +52,7 @@ import {
   UilClock,
   UilDocumentInfo,
   UilEllipsisV,
+  UilFileBookmarkAlt,
   UilFileImport,
   UilMoneybag,
   UilQuestionCircle,
@@ -55,8 +64,8 @@ import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@u
 import i18next from "i18next";
 import { usePathname } from "next/navigation";
 import { PropsWithChildren, useState } from "react";
-import { useSaveDraftApi } from "../_api";
-import { useDefaultBeneficiary, usePublishState } from "../_hooks";
+import { useSaveDraftApi, useSaveTemplateApi } from "../_api";
+import { useApplyTemplate, useDefaultBeneficiary, usePublishState } from "../_hooks";
 import { useOptionalUploadTracker } from "../_hooks/use-upload-tracker";
 import { PublishActionBarCommunity } from "./publish-action-bar-community";
 import { hasPublishContent } from "../_utils/content";
@@ -67,6 +76,7 @@ interface Props {
   onPublish: () => void;
   onBackToClassic: () => void;
   onImport?: (result: ImportResult) => void;
+  setEditorContent?: (content: string | undefined) => void;
   draftId?: string;
 }
 
@@ -75,6 +85,7 @@ export function PublishActionBar({
   children,
   onBackToClassic,
   onImport,
+  setEditorContent,
   draftId
 }: PropsWithChildren<Props>) {
   const { schedule: scheduleDate, clearAll, title, content } = usePublishState();
@@ -84,6 +95,7 @@ export function PublishActionBar({
   const [showMetaInfo, setShowMetaInfo] = useState(false);
   const [schedule, setSchedule] = useState(false);
   const [showImport, setShowImport] = useState(false);
+  const [showTemplates, setShowTemplates] = useState(false);
 
   const pathname = usePathname();
 
@@ -92,6 +104,8 @@ export function PublishActionBar({
   const canContinue = !!title?.trim() && hasPublishContent(content);
 
   const { mutateAsync: saveToDraft, isPending: isDraftPending } = useSaveDraftApi(draftId);
+  const { mutateAsync: saveTemplate, isPending: isTemplatePending } = useSaveTemplateApi();
+  const applyTemplate = useApplyTemplate(setEditorContent);
   const uploadTracker = useOptionalUploadTracker();
   const [_, setShowGuide] = useSynchronizedLocalStorage(PREFIX + "_pub_onboarding_passed", true);
 
@@ -174,6 +188,17 @@ export function PublishActionBar({
               icon={<UilDocumentInfo />}
               label={i18next.t("publish.meta-information")}
             />
+            <EcencyConfigManager.Conditional
+              condition={({ visionFeatures }) => visionFeatures.postTemplates.enabled}
+            >
+              <LoginRequired>
+                <DropdownItemWithIcon
+                  onClick={() => setShowTemplates(true)}
+                  icon={<UilFileBookmarkAlt />}
+                  label={i18next.t("post-templates.title")}
+                />
+              </LoginRequired>
+            </EcencyConfigManager.Conditional>
             <div className="border-b border-[--border-color] h-[1px] w-full" />
             <DropdownItemWithIcon
               selected={!!scheduleDate}
@@ -207,6 +232,18 @@ export function PublishActionBar({
       {onImport && (
         <PublishImportDialog show={showImport} setShow={setShowImport} onImport={onImport} />
       )}
+      <EcencyConfigManager.Conditional
+        condition={({ visionFeatures }) => visionFeatures.postTemplates.enabled}
+      >
+        <PostTemplatesDialog
+          show={showTemplates}
+          setShow={setShowTemplates}
+          onApply={applyTemplate}
+          onSaveCurrent={(name) => saveTemplate({ name })}
+          isSaving={isTemplatePending}
+          confirmApply={!!title?.trim() || hasPublishContent(content)}
+        />
+      </EcencyConfigManager.Conditional>
     </div>
   );
 }
