@@ -1,5 +1,5 @@
 import useLocalStorage from "react-use/lib/useLocalStorage";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { Advanced } from "../_types";
 import useMount from "react-use/lib/useMount";
 import { PREFIX } from "@/utils/local-storage";
@@ -14,9 +14,23 @@ export function useAdvancedManager() {
 
   const [advanced, setAdvanced] = useState(false);
   const [reward, setReward, clearReward] = useLocalStorage<RewardType>(PREFIX + "_sa_r", "default");
-  const [beneficiaries, setBeneficiaries, clearBeneficiaries] = useLocalStorage<BeneficiaryRoute[]>(
-    PREFIX + "_sa_b",
-    []
+  const [beneficiaries, setStoredBeneficiaries, clearBeneficiaries] = useLocalStorage<
+    BeneficiaryRoute[]
+  >(PREFIX + "_sa_b", []);
+
+  // react-use's useLocalStorage memoizes its setter against the state captured
+  // on the first render, so a functional update would receive a stale
+  // mount-time snapshot and silently drop rows added since mount. Resolve
+  // updaters against a ref that always tracks the latest value instead.
+  const beneficiariesRef = useRef(beneficiaries ?? []);
+  beneficiariesRef.current = beneficiaries ?? [];
+  const setBeneficiaries = useCallback(
+    (value: BeneficiaryRoute[] | ((prev: BeneficiaryRoute[]) => BeneficiaryRoute[])) => {
+      const next = typeof value === "function" ? value(beneficiariesRef.current) : value;
+      beneficiariesRef.current = next;
+      setStoredBeneficiaries(next);
+    },
+    [setStoredBeneficiaries]
   );
   const [description, setDescription, clearDescription] = useLocalStorage<string | null>(
     PREFIX + "_sa_d",

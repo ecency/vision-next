@@ -65,7 +65,12 @@ import i18next from "i18next";
 import { usePathname } from "next/navigation";
 import { PropsWithChildren, useState } from "react";
 import { useSaveDraftApi, useSaveTemplateApi } from "../_api";
-import { useApplyTemplate, useDefaultBeneficiary, usePublishState } from "../_hooks";
+import {
+  useApplyTemplate,
+  useDefaultBeneficiary,
+  usePublishState,
+  useSupportEcencyBeneficiary
+} from "../_hooks";
 import { useOptionalUploadTracker } from "../_hooks/use-upload-tracker";
 import { PublishActionBarCommunity } from "./publish-action-bar-community";
 import { hasPublishContent } from "../_utils/content";
@@ -101,6 +106,7 @@ export function PublishActionBar({
   const pathname = usePathname();
 
   useDefaultBeneficiary();
+  useSupportEcencyBeneficiary();
 
   const canContinue = !!title?.trim() && hasPublishContent(content);
   const hasEditorContent = !!title?.trim() || hasPublishContent(content);
