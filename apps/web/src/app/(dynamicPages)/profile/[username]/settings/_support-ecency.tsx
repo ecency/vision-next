@@ -50,7 +50,9 @@ export function SupportEcencySettings() {
   );
 
   return (
-    <div className="bg-white rounded-xl p-3 flex flex-col gap-4">
+    // The id lets discovery entry points (e.g. the Perks page card) deep-link
+    // straight to this card; scroll-mt keeps it clear of the fixed navbar.
+    <div id="support-ecency" className="bg-white rounded-xl p-3 flex flex-col gap-4 scroll-mt-20">
       <div className="text-gray-600 dark:text-gray-400 text-sm flex items-center gap-2">
         <UilHeart className="w-4 h-4" />
         {i18next.t("support-ecency.title")}

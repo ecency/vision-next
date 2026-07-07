@@ -11,7 +11,7 @@ import { isProMember } from "@/features/pro";
 import { getProMembersQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import i18next from "i18next";
-import { UilGift, UilGlobe, UilImages, UilStar } from "@tooni/iconscout-unicons-react";
+import { UilGift, UilGlobe, UilHeart, UilImages, UilStar } from "@tooni/iconscout-unicons-react";
 import Image from "next/image";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -199,6 +199,24 @@ export function PerksPage() {
             </Link>
           </div>
         )}
+
+        <div className="col-span-6 row-span-2 md:col-span-3">
+          <LoginRequired>
+            <Link href={`/@${username}/settings#support-ecency`}>
+              <PerksBasicCard className="min-h-[13rem] cursor-pointer p-4">
+                <div className="relative z-10">
+                  <div className="md:text-lg font-bold text-blue-dark-sky">
+                    {i18next.t("support-ecency.perk-card-title")}
+                  </div>
+                  <div className="text-sm md:text-base text-gray-600 dark:text-gray-400">
+                    {i18next.t("support-ecency.perk-card-description")}
+                  </div>
+                </div>
+                <UilHeart className="absolute -bottom-5 -right-3 w-28 h-28 text-blue-dark-sky opacity-10 pointer-events-none" />
+              </PerksBasicCard>
+            </Link>
+          </LoginRequired>
+        </div>
 
         <div id="perks-spin" className="col-span-12 md:col-span-6 row-span-2">
           <LoginRequired>
