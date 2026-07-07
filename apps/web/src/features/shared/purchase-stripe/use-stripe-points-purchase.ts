@@ -26,6 +26,12 @@ export interface StripeOrderStatus {
  * DIFFERENT tenant than the buyer (e.g. a community hive-NNNNN whose owner pays). The order
  * still binds to the authenticated `username` (the payer); only the activated tenant differs.
  * ePoints validates it and ignores it on every non-hosting rail.
+ *
+ * `gift_recipient` / `gift_message` are optional and only meaningful on a POINTS sku: when
+ * `gift_recipient` (a Hive username) is present the purchased Points are credited to that
+ * account instead of the buyer, and the optional `gift_message` is carried along. The order
+ * still binds to the authenticated `username` (the payer); ePoints verifies the recipient
+ * exists and ignores these fields on every non-points rail.
  */
 export function useCreateStripeIntent(username?: string) {
   return useMutation({
@@ -33,11 +39,15 @@ export function useCreateStripeIntent(username?: string) {
     mutationFn: async ({
       sku,
       nonce,
-      hosting_target
+      hosting_target,
+      gift_recipient,
+      gift_message
     }: {
       sku: string;
       nonce: string;
       hosting_target?: string;
+      gift_recipient?: string;
+      gift_message?: string;
     }) => {
       // Await the background token refresh first (a long-lived session can hold a stale
       // token that getAccessToken would return as-is, failing this first call).
@@ -47,7 +57,7 @@ export function useCreateStripeIntent(username?: string) {
       }
       const resp = await appAxios.post<CreateIntentResult>(
         apiBase("/private-api/stripe-create-intent"),
-        { code, sku, nonce, hosting_target }
+        { code, sku, nonce, hosting_target, gift_recipient, gift_message }
       );
       return resp.data;
     }
