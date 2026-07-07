@@ -59,7 +59,7 @@ export function ProfileMenu({ username }: Props) {
       href: `/@${username}/wallet`,
       id: "wallet"
     },
-    ...(activeUser && activeUser.username === username
+    ...(activeUser
       ? [
           {
             label: i18next.t(`profile.section-insights`, { defaultValue: "Insights" }),
