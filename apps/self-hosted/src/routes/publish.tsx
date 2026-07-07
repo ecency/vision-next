@@ -4,7 +4,8 @@ import {
   PublishEditor,
   PublishActionBar,
 } from "@/features/publish";
-import { useIsBlogOwner, useIsAuthEnabled } from "@/features/auth/hooks";
+import { useIsBlogOwner, useIsAuthEnabled, useIsAuthenticated } from "@/features/auth/hooks";
+import { useInstanceConfig } from "@/features/blog/hooks/use-instance-config";
 import { BlogSidebar } from "@/features/blog/layout/blog-sidebar";
 import { useEffect } from "react";
 
@@ -15,16 +16,21 @@ export const Route = createFileRoute("/publish")({
 function RouteComponent() {
   const isBlogOwner = useIsBlogOwner();
   const isAuthEnabled = useIsAuthEnabled();
+  const isAuthenticated = useIsAuthenticated();
+  const { isCommunityMode } = useInstanceConfig();
   const navigate = useNavigate();
 
-  // Redirect if auth is disabled or user is not blog owner
+  // Community instances: any authenticated user can compose (posts publish into the community).
+  // Blog instances: only the instance owner. Redirect anyone who does not qualify.
+  const canPublish = isAuthEnabled && (isCommunityMode ? isAuthenticated : isBlogOwner);
+
   useEffect(() => {
-    if (!isAuthEnabled || !isBlogOwner) {
+    if (!canPublish) {
       navigate({ to: "/blog", search: { filter: "posts" } });
     }
-  }, [isAuthEnabled, isBlogOwner, navigate]);
+  }, [canPublish, navigate]);
 
-  if (!isAuthEnabled || !isBlogOwner) {
+  if (!canPublish) {
     return null;
   }
 

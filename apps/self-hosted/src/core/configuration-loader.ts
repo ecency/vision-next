@@ -41,6 +41,7 @@ export interface InstanceConfig {
     instanceConfiguration: {
       type: 'blog' | 'community';
       username: string;
+      owner?: string;
       communityId: string;
       meta: {
         title: string;
