@@ -149,4 +149,114 @@ describe("getAccountFullQueryOptions", () => {
       await expect(queryFn({ signal: controller.signal })).rejects.toBeTruthy();
     });
   });
+
+  // Some public nodes serve account rows with BOTH metadata fields stripped
+  // to "" while their own hivemind still returns the real profile. A merge
+  // base built from such a row wipes the user's profile on the next partial
+  // account_update2 (pin-to-blog etc.), so the query must never resolve with
+  // a row that hivemind contradicts.
+  describe("stripped-row cross-validation", () => {
+    const FULL_PJM = JSON.stringify({
+      profile: { name: "Alice", profile_image: "https://img", pinned: "a-post", version: 2 }
+    });
+    const goodRow = {
+      name: "alice",
+      owner: { key_auths: [] },
+      active: { key_auths: [] },
+      posting: { key_auths: [] },
+      memo_key: "STM-memo",
+      posting_json_metadata: FULL_PJM,
+      json_metadata: ""
+    };
+    const strippedRow = { ...goodRow, posting_json_metadata: "", json_metadata: "" };
+    const populatedBridge = {
+      reputation: 78.29,
+      stats: { followers: 232, following: 27 },
+      metadata: { profile: { name: "Alice", profile_image: "https://img", about: "" } }
+    };
+
+    const mockGetAccountsSequence = (rows: unknown[][], bridge: unknown) => {
+      let call = 0;
+      mockCallRPC.mockImplementation((method: string) => {
+        if (method === "condenser_api.get_accounts") {
+          return Promise.resolve(rows[Math.min(call++, rows.length - 1)]);
+        }
+        if (method === "bridge.get_profile") {
+          return Promise.resolve(bridge);
+        }
+        return Promise.resolve(null);
+      });
+    };
+
+    it("re-reads once and recovers when the first row is stripped but hivemind has a profile", async () => {
+      mockGetAccountsSequence([[strippedRow], [goodRow]], populatedBridge);
+
+      const result = await runQuery(getAccountFullQueryOptions("alice"));
+
+      expect(result?.profile?.name).toBe("Alice");
+      expect(result?.profile?.pinned).toBe("a-post");
+      expect(result?.posting_json_metadata).toBe(FULL_PJM);
+      const getAccountCalls = mockCallRPC.mock.calls.filter(
+        (c) => c[0] === "condenser_api.get_accounts"
+      );
+      expect(getAccountCalls).toHaveLength(2);
+    });
+
+    it("throws instead of resolving when the re-read is stripped too", async () => {
+      mockGetAccountsSequence([[strippedRow], [strippedRow]], populatedBridge);
+
+      await expect(runQuery(getAccountFullQueryOptions("alice"))).rejects.toThrow(
+        /inconsistent account row/
+      );
+    });
+
+    it("does not flag a legacy account whose profile lives in json_metadata only", async () => {
+      const legacyRow = {
+        ...goodRow,
+        posting_json_metadata: "",
+        json_metadata: JSON.stringify({ profile: { name: "Legacy" } })
+      };
+      mockGetAccountsSequence([[legacyRow]], populatedBridge);
+
+      const result = await runQuery(getAccountFullQueryOptions("alice"));
+
+      expect(result?.name).toBe("alice");
+      expect(
+        mockCallRPC.mock.calls.filter((c) => c[0] === "condenser_api.get_accounts")
+      ).toHaveLength(1);
+    });
+
+    it("does not flag a genuinely profile-less account (hivemind emits empty values)", async () => {
+      const emptyBridge = {
+        reputation: 25,
+        stats: { followers: 0, following: 0 },
+        metadata: { profile: { name: "", about: "", profile_image: "" } }
+      };
+      mockGetAccountsSequence([[strippedRow]], emptyBridge);
+
+      const result = await runQuery(getAccountFullQueryOptions("alice"));
+
+      expect(result?.name).toBe("alice");
+      expect(result?.profile).toEqual({});
+      expect(
+        mockCallRPC.mock.calls.filter((c) => c[0] === "condenser_api.get_accounts")
+      ).toHaveLength(1);
+    });
+
+    it("does not flag a stripped row when hivemind is unavailable", async () => {
+      let call = 0;
+      mockCallRPC.mockImplementation((method: string) => {
+        if (method === "condenser_api.get_accounts") {
+          call++;
+          return Promise.resolve([strippedRow]);
+        }
+        return Promise.reject(new Error("bridge down"));
+      });
+
+      const result = await runQuery(getAccountFullQueryOptions("alice"));
+
+      expect(result?.name).toBe("alice");
+      expect(call).toBe(1);
+    });
+  });
 });

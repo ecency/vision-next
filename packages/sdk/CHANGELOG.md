@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.41
+
+### Patch Changes
+
+- fix(sdk): cross-validate account metadata and never shrink profile merge base (#1115)
+
 ## 2.3.40
 
 ### Patch Changes

@@ -553,6 +553,65 @@ describe("hedged reads", () => {
   });
 });
 
+describe("response payload validation", () => {
+  it("fails over to the next node when a well-formed response fails validation", async () => {
+    const nodes = freshNodes(2);
+    config.nodes = nodes;
+    const fetches = routeFetch({
+      [new URL(nodes[0]).origin]: { kind: "ok", result: "lie" },
+      [new URL(nodes[1]).origin]: { kind: "ok", result: "truth" },
+    });
+
+    const result = await callRPC(METHOD, [["ecency"]], undefined, undefined, undefined, (r) => r === "truth");
+
+    expect(result).toBe("truth");
+    expect(fetches.hostsInOrder()).toEqual([new URL(nodes[0]).origin, new URL(nodes[1]).origin]);
+  });
+
+  it("cools the lying node down for that API immediately (successes must not wash it out)", async () => {
+    const nodes = freshNodes(2);
+    config.nodes = nodes;
+    routeFetch({
+      [new URL(nodes[0]).origin]: { kind: "ok", result: "lie" },
+      [new URL(nodes[1]).origin]: { kind: "ok", result: "truth" },
+    });
+
+    // A single validation failure is a decisive fault: unvalidated calls to a
+    // top-ranked lying node record successes that clear ordinary strikes, so
+    // an accrual-based penalty would reset forever (observed live).
+    await callRPC(METHOD, [["ecency"]], undefined, undefined, undefined, (r) => r === "truth");
+
+    expect(rpcHealthTracker.isNodeHealthy(nodes[0], "condenser_api")).toBe(false);
+    // The fault is API-scoped: the node stays available for other APIs.
+    expect(rpcHealthTracker.isNodeHealthy(nodes[0], "bridge")).toBe(true);
+    // And a later success on that API must not lift the active cooldown early.
+    rpcHealthTracker.recordSuccess(nodes[0], "condenser_api");
+    expect(rpcHealthTracker.isNodeHealthy(nodes[0], "condenser_api")).toBe(false);
+  });
+
+  it("throws the validation error when every node fails validation", async () => {
+    const nodes = freshNodes(2);
+    config.nodes = nodes;
+    config.retry = 1; // 2 attempts total — one per node, no wrap-around
+    routeFetch({
+      [new URL(nodes[0]).origin]: { kind: "ok", result: "lie" },
+      [new URL(nodes[1]).origin]: { kind: "ok", result: "lie" },
+    });
+
+    await expect(
+      callRPC(METHOD, [["ecency"]], undefined, undefined, undefined, () => false)
+    ).rejects.toThrow(/response validation failed/);
+  });
+
+  it("does not interfere with calls that pass no validator", async () => {
+    const nodes = freshNodes(1);
+    config.nodes = nodes;
+    routeFetch({ [new URL(nodes[0]).origin]: { kind: "ok", result: "anything" } });
+
+    await expect(callRPC(METHOD, [["ecency"]])).resolves.toBe("anything");
+  });
+});
+
 describe("HedgeBudget", () => {
   it("spends whole tokens and refills fractionally up to capacity", () => {
     const b = new HedgeBudget();

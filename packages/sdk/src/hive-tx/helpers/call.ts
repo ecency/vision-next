@@ -185,8 +185,14 @@ interface NodeHealth {
   /** Epoch ms of the most recent 429. Used to expire the escalation streak. */
   lastRateLimitAt: number
   /** Per-API failure counters. Some nodes disable specific API plugins; tracking
-   * per-API lets us deprioritize a node only for the APIs that fail, not globally. */
-  apiFailures: Map<string, { count: number; cooldownUntil: number; lastFailureTime: number }>
+   * per-API lets us deprioritize a node only for the APIs that fail, not globally.
+   * `defective` marks a cooldown set by recordDefectiveResponse (payload
+   * validation failure) — unlike ordinary strike cooldowns it survives
+   * recordSuccess and only expires on its own. */
+  apiFailures: Map<
+    string,
+    { count: number; cooldownUntil: number; lastFailureTime: number; defective?: boolean }
+  >
   /** Most recent head_block_number observed for this node. */
   headBlock: number
   /** Epoch ms when the head_block was recorded. Used to expire stale observations. */
@@ -383,8 +389,15 @@ export class NodeHealthTracker {
     // value for an explicit Retry-After).
     h.rateLimitStreak = 0
     if (api) {
-      // A successful API call clears that API's failure counter.
-      h.apiFailures.delete(api)
+      // A successful API call clears that API's failure counter — but never an
+      // ACTIVE defective-response cooldown: the "success" may itself be an
+      // unvalidated read from the same lying node (validated calls are the
+      // minority of traffic), and re-admitting it early defeats the decisive
+      // penalty. That window expires on its own, like rateLimitedUntil above.
+      const apiFail = h.apiFailures.get(api)
+      if (!apiFail || !(apiFail.defective && apiFail.cooldownUntil > Date.now())) {
+        h.apiFailures.delete(api)
+      }
     }
     if (typeof durationMs === 'number' && Number.isFinite(durationMs) && durationMs >= 0) {
       // Latency profiles use the finest key available (full method / endpoint
@@ -497,8 +510,12 @@ export class NodeHealthTracker {
       // This prevents e.g. 3 rc_api failures from marking the node
       // globally unhealthy for condenser_api too.
       const now = Date.now()
-      const existing: { count: number; cooldownUntil: number; lastFailureTime: number } =
-        h.apiFailures.get(api) ?? { count: 0, cooldownUntil: 0, lastFailureTime: 0 }
+      const existing: {
+        count: number
+        cooldownUntil: number
+        lastFailureTime: number
+        defective?: boolean
+      } = h.apiFailures.get(api) ?? { count: 0, cooldownUntil: 0, lastFailureTime: 0 }
       // Reset counter if previous cooldown expired OR last failure was >30s ago
       // (avoids sticky penalties from sparse failures hours apart)
       if (
@@ -519,6 +536,33 @@ export class NodeHealthTracker {
       h.consecutiveFailures++
       h.lastFailureTime = Date.now()
     }
+  }
+
+  /**
+   * A response that failed the caller's payload validation is a decisive,
+   * reproducible node fault — the node answered 200 with data the caller KNOWS
+   * to be impossible — so it trips the per-API cooldown immediately instead of
+   * accruing ordinary strikes. Deliberately its own method rather than
+   * recordFailure × N: ordinary strikes are cleared by any success, and a
+   * top-ranked lying node keeps recording successes on the unvalidated calls
+   * between probes, which would reset its strikes forever and keep it in
+   * rotation (observed live). Scope stays per-API: the node may be perfectly
+   * healthy for its other API families.
+   */
+  recordDefectiveResponse(node: string, api: string): void {
+    const h = this.getOrCreate(node)
+    const now = Date.now()
+    const existing: {
+      count: number
+      cooldownUntil: number
+      lastFailureTime: number
+      defective?: boolean
+    } = h.apiFailures.get(api) ?? { count: 0, cooldownUntil: 0, lastFailureTime: 0 }
+    existing.count = Math.max(existing.count + 1, MAX_API_FAILURES_BEFORE_COOLDOWN)
+    existing.lastFailureTime = now
+    existing.cooldownUntil = now + API_COOLDOWN_MS
+    existing.defective = true
+    h.apiFailures.set(api, existing)
   }
 
   /**
@@ -1093,6 +1137,8 @@ function hedgedRpcAttempt<T>(opts: {
   externalSignal?: AbortSignal
   /** Lets the outer loop add the hedge node to its tried-set at fire time. */
   onHedgeFired: (node: string) => void
+  /** Caller-supplied payload validation — see callRPC's `validate` param. */
+  validate?: (result: unknown) => boolean
 }): Promise<T> {
   const {
     method,
@@ -1104,7 +1150,8 @@ function hedgedRpcAttempt<T>(opts: {
     explicitTimeout,
     deadlineAt,
     externalSignal,
-    onHedgeFired
+    onHedgeFired,
+    validate
   } = opts
   return new Promise<T>((resolve, reject) => {
     let done = false
@@ -1157,6 +1204,24 @@ function hedgedRpcAttempt<T>(opts: {
           pendingLegs--
           if (!isHedge) primarySettled = true
           if (done) return
+          if (validate && !validate(res)) {
+            // Well-formed envelope, impossible payload: a node fault the
+            // HTTP/JSON-RPC layers cannot see. Same handling as the catch
+            // path — record the fault against this node's API health, never
+            // record a success for a lie, and let the other leg still win.
+            rpcHealthTracker.recordDefectiveResponse(node, api)
+            lastError = new Error(
+              `[hive-tx] response validation failed for ${method} from ${node}`
+            )
+            if (!isHedge && !hedgeFired) {
+              finish(() => reject(lastError))
+              return
+            }
+            if (pendingLegs === 0) {
+              finish(() => reject(lastError))
+            }
+            return
+          }
           rpcHealthTracker.recordSuccess(node, api, Date.now() - start, method)
           tryRecordHeadBlock(rpcHealthTracker, node, method, res)
           if (isHedge) {
@@ -1265,6 +1330,15 @@ function hedgedRpcAttempt<T>(opts: {
  * @param retry - Maximum number of retry attempts (default: config.retry). The
  *   wall-clock budget (`config.resilience.totalBudgetFactor` × timeout) may end
  *   the failover walk before the retry count is exhausted.
+ * @param validate - Optional payload validation. Some nodes return a valid
+ *   JSON-RPC envelope carrying an impossible payload (e.g. account rows with
+ *   metadata fields stripped to ""), which no transport-level check can catch.
+ *   When the callback returns false the response is treated as a node fault:
+ *   recorded against that node's per-API health (repeat offenders get an API
+ *   cooldown and are deprioritized) and the failover walk continues to the
+ *   next node instead of returning the lie. Keep validators conservative —
+ *   reject only payloads the caller KNOWS cannot be correct, or a strict
+ *   validator turns every node's honest answer into a failover storm.
  * @returns Promise resolving to the API response
  * @throws {RPCError} On blockchain-level errors (bad params, missing authority, etc.)
  * @throws {Error} If all retry attempts fail
@@ -1285,7 +1359,8 @@ export const callRPC = async <T = any>(
   params: any[] | object = [],
   timeout?: number,
   retry = config.retry,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  validate?: (result: unknown) => boolean
 ): Promise<T> => {
   if (!Array.isArray(config.nodes)) {
     throw new Error('config.nodes is not an array')
@@ -1357,7 +1432,8 @@ export const callRPC = async <T = any>(
           explicitTimeout,
           deadlineAt: deadline,
           externalSignal: signal,
-          onHedgeFired: (n) => triedInRound.add(n)
+          onHedgeFired: (n) => triedInRound.add(n),
+          validate
         })
       } catch (e: any) {
         if (e instanceof RPCError && !isNodeLevelRPCError(e.code, e.message)) {
@@ -1384,6 +1460,18 @@ export const callRPC = async <T = any>(
         false,
         signal
       )
+      if (validate && !validate(res)) {
+        // Well-formed envelope, impossible payload: a node fault the
+        // HTTP/JSON-RPC layers cannot see. Count it against this node's API
+        // health (never record a success or refill the hedge budget for a
+        // lie) and fail over to the next node.
+        rpcHealthTracker.recordDefectiveResponse(node, api)
+        lastError = new Error(`[hive-tx] response validation failed for ${method} from ${node}`)
+        if (attempt < retry) {
+          await jitterDelay()
+        }
+        continue
+      }
       rpcHealthTracker.recordSuccess(node, api, Date.now() - callStart, method)
       // An un-hedged success is what earns hedge budget back (see HedgeBudget).
       rpcHedgeBudget.refill()
