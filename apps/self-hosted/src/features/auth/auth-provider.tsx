@@ -39,7 +39,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // username is the community (hive-NNNNN), so the owner must be used instead.
   const blogOwner = InstanceConfigManager.getConfigValue(
     ({ configuration }) =>
-      configuration.instanceConfiguration.owner ??
+      configuration.instanceConfiguration.owner ||
       configuration.instanceConfiguration.username
   );
 
