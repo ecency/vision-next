@@ -96,12 +96,19 @@ export function getAccountFullQueryOptions(username: string | undefined) {
         isMetadataStripped(chainAccount) &&
         hasProfileValues(bridgeProfile?.metadata?.profile)
       ) {
+        // The re-read carries a payload validator: a stripped row is treated
+        // as a node fault, so the failover walk moves on to other nodes (and
+        // repeat offenders earn a per-API health cooldown) instead of asking
+        // the same lying node twice.
         const reread = await callRPC<RawAccount[]>(
           "condenser_api.get_accounts",
           [[username]],
           undefined,
           undefined,
-          signal
+          signal,
+          (rows) =>
+            Array.isArray(rows) &&
+            (!rows[0] || !isMetadataStripped(rows[0] as RawAccount))
         );
         if (reread[0] && !isMetadataStripped(reread[0])) {
           chainAccount = reread[0];

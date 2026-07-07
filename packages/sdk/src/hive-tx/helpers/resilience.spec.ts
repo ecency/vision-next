@@ -553,6 +553,61 @@ describe("hedged reads", () => {
   });
 });
 
+describe("response payload validation", () => {
+  it("fails over to the next node when a well-formed response fails validation", async () => {
+    const nodes = freshNodes(2);
+    config.nodes = nodes;
+    const fetches = routeFetch({
+      [new URL(nodes[0]).origin]: { kind: "ok", result: "lie" },
+      [new URL(nodes[1]).origin]: { kind: "ok", result: "truth" },
+    });
+
+    const result = await callRPC(METHOD, [["ecency"]], undefined, undefined, undefined, (r) => r === "truth");
+
+    expect(result).toBe("truth");
+    expect(fetches.hostsInOrder()).toEqual([new URL(nodes[0]).origin, new URL(nodes[1]).origin]);
+  });
+
+  it("records the fault against the lying node's API health so repeat offenders cool down", async () => {
+    const nodes = freshNodes(2);
+    config.nodes = nodes;
+    routeFetch({
+      [new URL(nodes[0]).origin]: { kind: "ok", result: "lie" },
+      [new URL(nodes[1]).origin]: { kind: "ok", result: "truth" },
+    });
+
+    // Two validation failures within the window trip the per-API cooldown.
+    await callRPC(METHOD, [["ecency"]], undefined, undefined, undefined, (r) => r === "truth");
+    await callRPC(METHOD, [["ecency"]], undefined, undefined, undefined, (r) => r === "truth");
+
+    expect(rpcHealthTracker.isNodeHealthy(nodes[0], "condenser_api")).toBe(false);
+    // The fault is API-scoped: the node stays available for other APIs.
+    expect(rpcHealthTracker.isNodeHealthy(nodes[0], "bridge")).toBe(true);
+  });
+
+  it("throws the validation error when every node fails validation", async () => {
+    const nodes = freshNodes(2);
+    config.nodes = nodes;
+    config.retry = 1; // 2 attempts total — one per node, no wrap-around
+    routeFetch({
+      [new URL(nodes[0]).origin]: { kind: "ok", result: "lie" },
+      [new URL(nodes[1]).origin]: { kind: "ok", result: "lie" },
+    });
+
+    await expect(
+      callRPC(METHOD, [["ecency"]], undefined, undefined, undefined, () => false)
+    ).rejects.toThrow(/response validation failed/);
+  });
+
+  it("does not interfere with calls that pass no validator", async () => {
+    const nodes = freshNodes(1);
+    config.nodes = nodes;
+    routeFetch({ [new URL(nodes[0]).origin]: { kind: "ok", result: "anything" } });
+
+    await expect(callRPC(METHOD, [["ecency"]])).resolves.toBe("anything");
+  });
+});
+
 describe("HedgeBudget", () => {
   it("spends whole tokens and refills fractionally up to capacity", () => {
     const b = new HedgeBudget();

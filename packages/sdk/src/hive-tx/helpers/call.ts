@@ -1093,6 +1093,8 @@ function hedgedRpcAttempt<T>(opts: {
   externalSignal?: AbortSignal
   /** Lets the outer loop add the hedge node to its tried-set at fire time. */
   onHedgeFired: (node: string) => void
+  /** Caller-supplied payload validation — see callRPC's `validate` param. */
+  validate?: (result: unknown) => boolean
 }): Promise<T> {
   const {
     method,
@@ -1104,7 +1106,8 @@ function hedgedRpcAttempt<T>(opts: {
     explicitTimeout,
     deadlineAt,
     externalSignal,
-    onHedgeFired
+    onHedgeFired,
+    validate
   } = opts
   return new Promise<T>((resolve, reject) => {
     let done = false
@@ -1157,6 +1160,24 @@ function hedgedRpcAttempt<T>(opts: {
           pendingLegs--
           if (!isHedge) primarySettled = true
           if (done) return
+          if (validate && !validate(res)) {
+            // Well-formed envelope, impossible payload: a node fault the
+            // HTTP/JSON-RPC layers cannot see. Same handling as the catch
+            // path — record the fault against this node's API health, never
+            // record a success for a lie, and let the other leg still win.
+            rpcHealthTracker.recordFailure(node, api)
+            lastError = new Error(
+              `[hive-tx] response validation failed for ${method} from ${node}`
+            )
+            if (!isHedge && !hedgeFired) {
+              finish(() => reject(lastError))
+              return
+            }
+            if (pendingLegs === 0) {
+              finish(() => reject(lastError))
+            }
+            return
+          }
           rpcHealthTracker.recordSuccess(node, api, Date.now() - start, method)
           tryRecordHeadBlock(rpcHealthTracker, node, method, res)
           if (isHedge) {
@@ -1265,6 +1286,15 @@ function hedgedRpcAttempt<T>(opts: {
  * @param retry - Maximum number of retry attempts (default: config.retry). The
  *   wall-clock budget (`config.resilience.totalBudgetFactor` × timeout) may end
  *   the failover walk before the retry count is exhausted.
+ * @param validate - Optional payload validation. Some nodes return a valid
+ *   JSON-RPC envelope carrying an impossible payload (e.g. account rows with
+ *   metadata fields stripped to ""), which no transport-level check can catch.
+ *   When the callback returns false the response is treated as a node fault:
+ *   recorded against that node's per-API health (repeat offenders get an API
+ *   cooldown and are deprioritized) and the failover walk continues to the
+ *   next node instead of returning the lie. Keep validators conservative —
+ *   reject only payloads the caller KNOWS cannot be correct, or a strict
+ *   validator turns every node's honest answer into a failover storm.
  * @returns Promise resolving to the API response
  * @throws {RPCError} On blockchain-level errors (bad params, missing authority, etc.)
  * @throws {Error} If all retry attempts fail
@@ -1285,7 +1315,8 @@ export const callRPC = async <T = any>(
   params: any[] | object = [],
   timeout?: number,
   retry = config.retry,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  validate?: (result: unknown) => boolean
 ): Promise<T> => {
   if (!Array.isArray(config.nodes)) {
     throw new Error('config.nodes is not an array')
@@ -1357,7 +1388,8 @@ export const callRPC = async <T = any>(
           explicitTimeout,
           deadlineAt: deadline,
           externalSignal: signal,
-          onHedgeFired: (n) => triedInRound.add(n)
+          onHedgeFired: (n) => triedInRound.add(n),
+          validate
         })
       } catch (e: any) {
         if (e instanceof RPCError && !isNodeLevelRPCError(e.code, e.message)) {
@@ -1384,6 +1416,18 @@ export const callRPC = async <T = any>(
         false,
         signal
       )
+      if (validate && !validate(res)) {
+        // Well-formed envelope, impossible payload: a node fault the
+        // HTTP/JSON-RPC layers cannot see. Count it against this node's API
+        // health (never record a success or refill the hedge budget for a
+        // lie) and fail over to the next node.
+        rpcHealthTracker.recordFailure(node, api)
+        lastError = new Error(`[hive-tx] response validation failed for ${method} from ${node}`)
+        if (attempt < retry) {
+          await jitterDelay()
+        }
+        continue
+      }
       rpcHealthTracker.recordSuccess(node, api, Date.now() - callStart, method)
       // An un-hedged success is what earns hedge budget back (see HedgeBudget).
       rpcHedgeBudget.refill()
