@@ -55,7 +55,7 @@ internalRoutes.post('/activate', async (c) => {
   }
 
   try {
-    const result = await db.transaction<{ status: 200 | 404; duplicate?: boolean; expiresAt?: Date; plan?: string }>(
+    const result = await db.transaction<{ status: 200 | 404 | 409; duplicate?: boolean; expiresAt?: Date; plan?: string }>(
       async (client) => {
         // Lock the tenant row (serializes retries) and confirm it still exists.
         const t = await client.query(
@@ -68,20 +68,21 @@ internalRoutes.post('/activate', async (c) => {
         }
         const tenant = t.rows[0];
 
-        // Apply the Pro upgrade idempotently BEFORE the order-claim guard, so a retry after a
-        // staggered deploy still corrects the tier (the order id only guards double term-extension).
-        // A standard activation never touches the plan, so it can never downgrade a Pro tenant.
-        let effectivePlan: string = tenant.subscription_plan;
-        if (plan === 'pro' && effectivePlan !== 'pro') {
-          await client.query(
-            `UPDATE tenants SET subscription_plan = 'pro', updated_at = NOW() WHERE id = $1`,
-            [tenant.id]
-          );
-          effectivePlan = 'pro';
-        }
+        // Idempotent Pro upgrade for THIS tenant (a standard activation never touches the plan, so
+        // it can never downgrade a Pro tenant). Only ever invoked for an order this tenant owns --
+        // gated by the claim / ownership checks below, so a colliding order id can't grant Pro.
+        const applyPlan = async (): Promise<string> => {
+          if (plan === 'pro' && tenant.subscription_plan !== 'pro') {
+            await client.query(
+              `UPDATE tenants SET subscription_plan = 'pro', updated_at = NOW() WHERE id = $1`,
+              [tenant.id]
+            );
+            return 'pro';
+          }
+          return tenant.subscription_plan;
+        };
 
-        // Claim the order id. If already recorded, this is a replay -> no re-credit (the plan
-        // upgrade above still ran, so a replay corrects the tier without double-extending the term).
+        // Claim the order id.
         const claim = await client.query(
           `INSERT INTO payments
              (tenant_id, trx_id, block_num, from_account, amount, currency, memo, status, months_credited)
@@ -91,8 +92,21 @@ internalRoutes.post('/activate', async (c) => {
           [tenant.id, orderId, amountUsd, `blog:${username}:${months}`, months]
         );
         if (claim.rowCount === 0) {
-          return { status: 200, duplicate: true, plan: effectivePlan };
+          // Replay: the order id already exists. It must belong to THIS tenant; otherwise it is a
+          // collision/misroute and we must not mutate this tenant for an order that isn't theirs.
+          const owner = await client.query(
+            `SELECT tenant_id FROM payments WHERE trx_id = $1`,
+            [orderId]
+          );
+          if (owner.rows[0]?.tenant_id !== tenant.id) {
+            return { status: 409 };
+          }
+          // Genuine replay of this tenant's order: re-apply the upgrade idempotently (self-heal
+          // after a staggered deploy) without re-extending the term.
+          return { status: 200, duplicate: true, plan: await applyPlan() };
         }
+
+        const effectivePlan = await applyPlan();
 
         // Extend from the later of now / current expiry (same rule as activateSubscription).
         const now = new Date();
@@ -123,6 +137,11 @@ internalRoutes.post('/activate', async (c) => {
 
     if (result.status === 404) {
       return c.json({ error: 'tenant_not_found' }, 404);
+    }
+    if (result.status === 409) {
+      // The order id is already recorded against a DIFFERENT tenant -- a collision/misroute.
+      // Surface it (the caller treats non-200/404 as retryable + alerts) rather than mutate.
+      return c.json({ error: 'order_tenant_mismatch' }, 409);
     }
     // Echo the tenant's ACTUAL plan so the caller (ePoints) can confirm the Pro tier was honored.
     // Truthful on replays too (the upgrade is idempotent); an older service that ignores `plan`
