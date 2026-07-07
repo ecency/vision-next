@@ -33,12 +33,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const isAuthEnabled = authConfig?.enabled ?? false;
   const availableMethods = (authConfig?.methods ?? []) as AuthMethod[];
 
-  // Get blog owner username
+  // Get the instance owner. Falls back to the showcased username for older
+  // configs that predate the `owner` field (blog instances where the owner and
+  // the showcased account are the same). In community instances the showcased
+  // username is the community (hive-NNNNN), so the owner must be used instead.
   const blogOwner = InstanceConfigManager.getConfigValue(
-    ({ configuration }) => configuration.instanceConfiguration.username
+    ({ configuration }) =>
+      configuration.instanceConfiguration.owner ??
+      configuration.instanceConfiguration.username
   );
 
-  // Check if current user is blog owner
+  // Check if current user is the instance owner
   const isBlogOwner = useMemo(() => {
     if (!user || !blogOwner) return false;
     return (

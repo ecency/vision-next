@@ -1,20 +1,27 @@
 "use client";
 
 import { InstanceConfigManager, t } from "@/core";
+import { useInstanceConfig } from "@/features/blog/hooks/use-instance-config";
 import { UilPen } from "@tooni/iconscout-unicons-react";
-import { useIsAuthEnabled, useIsBlogOwner } from "../hooks";
+import { useIsAuthEnabled, useIsAuthenticated, useIsBlogOwner } from "../hooks";
 
 export function CreatePostButton() {
   const isBlogOwner = useIsBlogOwner();
   const isAuthEnabled = useIsAuthEnabled();
+  const isAuthenticated = useIsAuthenticated();
+  const { isCommunityMode } = useInstanceConfig();
 
   const createPostUrl = InstanceConfigManager.getConfigValue(
     ({ configuration }) =>
       configuration.general.createPostUrl || "https://ecency.com/submit",
   );
 
-  // Only show for blog owner when auth is enabled
-  if (!isAuthEnabled || !isBlogOwner) {
+  // Community instances: any authenticated user can post into the community
+  // (standard Hive community moderation still applies). Blog instances: only
+  // the instance owner can post.
+  const canCreatePost = isCommunityMode ? isAuthenticated : isBlogOwner;
+
+  if (!isAuthEnabled || !canCreatePost) {
     return null;
   }
 
