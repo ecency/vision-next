@@ -52,6 +52,7 @@ tenantRoutes.get('/:username', async (c) => {
   
   return c.json({
     username: tenant.username,
+    owner: tenant.owner,
     subscriptionStatus: tenant.subscriptionStatus,
     subscriptionPlan: tenant.subscriptionPlan,
     subscriptionExpiresAt: tenant.subscriptionExpiresAt,
