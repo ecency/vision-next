@@ -6,8 +6,9 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- Tenants table - stores blog instance configurations
 CREATE TABLE tenants (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    username VARCHAR(255) NOT NULL UNIQUE,  -- Hive username (also subdomain)
-    
+    username VARCHAR(255) NOT NULL UNIQUE,  -- Showcased Hive account (also subdomain). For a community this is hive-NNNNN.
+    owner VARCHAR(255) NOT NULL,            -- Hive account that created and controls this instance. Equals username for a personal blog; the creator for a community.
+
     -- Subscription
     subscription_status VARCHAR(50) NOT NULL DEFAULT 'inactive', -- active, inactive, expired, suspended
     subscription_plan VARCHAR(50) NOT NULL DEFAULT 'standard',   -- standard, pro
@@ -29,6 +30,7 @@ CREATE TABLE tenants (
 
 -- Index for fast lookups
 CREATE INDEX idx_tenants_username ON tenants(username);
+CREATE INDEX idx_tenants_owner ON tenants(owner);
 CREATE INDEX idx_tenants_custom_domain ON tenants(custom_domain) WHERE custom_domain IS NOT NULL;
 CREATE INDEX idx_tenants_subscription_status ON tenants(subscription_status);
 CREATE INDEX idx_tenants_expires ON tenants(subscription_expires_at) WHERE subscription_status = 'active';

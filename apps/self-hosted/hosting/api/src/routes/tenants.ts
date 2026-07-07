@@ -18,6 +18,7 @@ export const tenantRoutes = new Hono();
 // Validation schemas
 const createTenantSchema = z.object({
   username: z.string().min(3).max(16).regex(/^[a-z][a-z0-9.-]*$/),
+  owner: z.string().min(3).max(16).regex(/^[a-z][a-z0-9.-]*$/).optional(),
   config: z.object({
     theme: z.enum(['light', 'dark', 'system']).optional(),
     styleTemplate: z.enum(['medium', 'minimal', 'magazine', 'developer', 'modern-gradient']).optional(),
@@ -82,21 +83,46 @@ tenantRoutes.get('/:username/config', async (c) => {
 // POST /v1/tenants - Create new tenant (requires payment)
 tenantRoutes.post('/', zValidator('json', createTenantSchema), async (c) => {
   const body = c.req.valid('json');
-  
+
+  // Resolve the controlling account. A personal blog owns itself; a community is owned by its
+  // creator. Every later mutating op (PATCH / DELETE / domains / upgrade) authorizes on this.
+  const owner = (body.owner || body.username).toLowerCase();
+
   // Check if username already exists
   const existing = await TenantService.getByUsername(body.username);
   if (existing) {
     return c.json({ error: 'Username already registered' }, 409);
   }
-  
-  // Verify the Hive account exists
+
+  // Verify the showcased Hive account exists
   const hiveAccountExists = await TenantService.verifyHiveAccount(body.username);
   if (!hiveAccountExists) {
     return c.json({ error: 'Hive account not found' }, 400);
   }
-  
+
+  // Verify the owner Hive account exists
+  const ownerExists = await TenantService.verifyHiveAccount(owner);
+  if (!ownerExists) {
+    return c.json({ error: 'Owner account not found' }, 400);
+  }
+
+  // Community instances: the subdomain IS the community, and the community must exist.
+  if (body.config?.type === 'community') {
+    const communityId = (body.config.communityId || '').toLowerCase();
+    if (!/^hive-\d+$/.test(communityId)) {
+      return c.json({ error: 'Community id must look like hive-NNNN' }, 400);
+    }
+    if (body.username.toLowerCase() !== communityId) {
+      return c.json({ error: 'Subdomain must equal the community id' }, 400);
+    }
+    const communityExists = await TenantService.verifyCommunity(communityId);
+    if (!communityExists) {
+      return c.json({ error: 'Community not found' }, 400);
+    }
+  }
+
   // Create tenant (inactive until payment)
-  const tenant = await TenantService.create(body.username, body.config);
+  const tenant = await TenantService.create(body.username, owner, body.config);
   
   // Generate config file (will be served after payment)
   await ConfigService.generateConfigFile(tenant);
@@ -108,7 +134,7 @@ tenantRoutes.post('/', zValidator('json', createTenantSchema), async (c) => {
   void AuditService.log({
     tenantId: tenant.id,
     eventType: 'tenant.created',
-    eventData: { username: body.username },
+    eventData: { username: body.username, owner },
     ipAddress: parseClientIp(c.req.header('x-forwarded-for')),
     userAgent: c.req.header('user-agent'),
   });
@@ -154,8 +180,11 @@ tenantRoutes.post('/subscribe',
       return c.json({ error: 'Missing or invalid payer/txId from payment settlement' }, 502);
     }
 
+    // Resolve owner (defaults to the showcased account for a self-serve personal blog).
+    const owner = (body.owner || body.username).toLowerCase();
+
     // Prepare config before entering the DB transaction (pure, no I/O)
-    const tenantConfig = await TenantService.buildConfig(body.username, body.config);
+    const tenantConfig = await TenantService.buildConfig(body.username, body.config, owner);
     const blockNum = c.get('blockNum');
     if (!Number.isInteger(blockNum) || blockNum <= 0) {
       return c.json({ error: 'Missing or invalid block number from payment settlement' }, 502);
@@ -165,11 +194,11 @@ tenantRoutes.post('/subscribe',
     const result = await db.transaction(async (client) => {
       // Create tenant — ON CONFLICT handles race with concurrent requests
       const tenantRow = await client.query(
-        `INSERT INTO tenants (username, config, subscription_status, subscription_plan)
-         VALUES ($1, $2, 'inactive', 'standard')
+        `INSERT INTO tenants (username, owner, config, subscription_status, subscription_plan)
+         VALUES ($1, $2, $3, 'inactive', 'standard')
          ON CONFLICT (username) DO NOTHING
          RETURNING *`,
-        [body.username.toLowerCase(), JSON.stringify(tenantConfig)]
+        [body.username.toLowerCase(), owner, JSON.stringify(tenantConfig)]
       );
       if (tenantRow.rowCount === 0) {
         throw Object.assign(new Error('Username already registered'), { isConflict: true });
@@ -253,11 +282,17 @@ tenantRoutes.post('/subscribe',
 // POST /v1/tenants/:username/upgrade - Upgrade to Pro via x402 payment
 // Validation runs before paywall so we don't settle payment for invalid requests
 tenantRoutes.post('/:username/upgrade',
+  authMiddleware,
   async (c, next) => {
     const username = c.req.param('username')!;
+    const authUser = c.get('user');
     const tenant = await TenantService.getByUsername(username);
     if (!tenant) {
       return c.json({ error: 'Tenant not found' }, 404);
+    }
+    // Only the controlling owner may pin a Pro plan onto the tenant, not any wallet that can pay.
+    if (authUser.username !== tenant.owner) {
+      return c.json({ error: 'Unauthorized' }, 403);
     }
     if (tenant.subscriptionStatus !== 'active') {
       return c.json({ error: 'Subscription must be active to upgrade' }, 400);
@@ -378,17 +413,18 @@ tenantRoutes.patch('/:username', authMiddleware, zValidator('json', updateTenant
   const username = c.req.param('username');
   const body = c.req.valid('json');
   const authUser = c.get('user');
-  
-  // Verify user owns this tenant
-  if (authUser.username !== username) {
-    return c.json({ error: 'Unauthorized' }, 403);
-  }
-  
+
   const tenant = await TenantService.getByUsername(username);
   if (!tenant) {
     return c.json({ error: 'Tenant not found' }, 404);
   }
-  
+
+  // Authorize the controlling owner, not the showcased account (a community's keys are held
+  // by no one). For a personal blog owner === username, so this stays equivalent.
+  if (authUser.username !== tenant.owner) {
+    return c.json({ error: 'Unauthorized' }, 403);
+  }
+
   // Update config
   const updatedTenant = await TenantService.updateConfig(username, body.config);
   
@@ -440,18 +476,18 @@ tenantRoutes.get('/:username/status', async (c) => {
 
 // DELETE /v1/tenants/:username - Delete tenant (requires auth)
 tenantRoutes.delete('/:username', authMiddleware, async (c) => {
-  const username = c.req.param('username');
+  const username = c.req.param('username')!;
   const authUser = c.get('user');
 
-  // Verify user owns this tenant
-  if (authUser.username !== username) {
-    return c.json({ error: 'Unauthorized' }, 403);
-  }
-
-  // Capture tenant ID before deletion for audit trail
+  // Capture tenant before deletion (for the owner check and the audit trail)
   const tenant = await TenantService.getByUsername(username);
   if (!tenant) {
     return c.json({ error: 'Tenant not found' }, 404);
+  }
+
+  // Authorize the controlling owner, not the showcased account.
+  if (authUser.username !== tenant.owner) {
+    return c.json({ error: 'Unauthorized' }, 403);
   }
 
   await TenantService.delete(username);

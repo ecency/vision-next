@@ -32,6 +32,11 @@ domainRoutes.post('/', authMiddleware, zValidator('json', addDomainSchema), asyn
     return c.json({ error: 'Tenant not found' }, 404);
   }
 
+  // Authorize the controlling owner, not the showcased account.
+  if (authUser.username !== tenant.owner) {
+    return c.json({ error: 'Unauthorized' }, 403);
+  }
+
   // Check if Pro plan
   if (tenant.subscriptionPlan !== 'pro') {
     return c.json({ error: 'Custom domains require Pro plan' }, 402);
@@ -79,6 +84,11 @@ domainRoutes.post('/verify', authMiddleware, async (c) => {
     return c.json({ error: 'Tenant not found' }, 404);
   }
 
+  // Authorize the controlling owner, not the showcased account.
+  if (authUser.username !== tenant.owner) {
+    return c.json({ error: 'Unauthorized' }, 403);
+  }
+
   if (!tenant.customDomain) {
     return c.json({ error: 'No custom domain configured' }, 400);
   }
@@ -120,6 +130,15 @@ domainRoutes.delete('/', authMiddleware, async (c) => {
 
   try {
     const tenant = await TenantService.getByUsername(username);
+    if (!tenant) {
+      return c.json({ error: 'Tenant not found' }, 404);
+    }
+
+    // Authorize the controlling owner, not the showcased account.
+    if (authUser.username !== tenant.owner) {
+      return c.json({ error: 'Unauthorized' }, 403);
+    }
+
     await TenantService.removeCustomDomain(username);
 
     void AuditService.log({
