@@ -694,6 +694,15 @@ type APIMethods = 'balance' | 'hafah' | 'hafbe' | 'hivemind' | 'hivesense' | 're
  * @param retry - Maximum number of retry attempts (default: config.retry). The
  *   wall-clock budget (`config.resilience.totalBudgetFactor` × timeout) may end
  *   the failover walk before the retry count is exhausted.
+ * @param validate - Optional payload validation. Some nodes return a valid
+ *   JSON-RPC envelope carrying an impossible payload (e.g. account rows with
+ *   metadata fields stripped to ""), which no transport-level check can catch.
+ *   When the callback returns false the response is treated as a node fault:
+ *   recorded against that node's per-API health (repeat offenders get an API
+ *   cooldown and are deprioritized) and the failover walk continues to the
+ *   next node instead of returning the lie. Keep validators conservative —
+ *   reject only payloads the caller KNOWS cannot be correct, or a strict
+ *   validator turns every node's honest answer into a failover storm.
  * @returns Promise resolving to the API response
  * @throws {RPCError} On blockchain-level errors (bad params, missing authority, etc.)
  * @throws {Error} If all retry attempts fail
@@ -709,7 +718,7 @@ type APIMethods = 'balance' | 'hafah' | 'hafbe' | 'hivemind' | 'hivesense' | 're
  * const data = await callRPC('condenser_api.get_content', ['alice', 'test-post'], 10_000, 5)
  * ```
  */
-declare const callRPC: <T = any>(method: string, params?: any[] | object, timeout?: number, retry?: number, signal?: AbortSignal) => Promise<T>;
+declare const callRPC: <T = any>(method: string, params?: any[] | object, timeout?: number, retry?: number, signal?: AbortSignal, validate?: (result: unknown) => boolean) => Promise<T>;
 /**
  * Broadcast-safe RPC call. Only retries on pre-connection errors where the
  * request definitively never reached the server (ECONNREFUSED, ENOTFOUND, etc.).
