@@ -1316,6 +1316,9 @@
   },
   "profile-insights": {
     "description": "See which of your posts resonate most with readers.",
+    "pro-gate-title": "Insights is an Ecency Pro feature",
+    "pro-gate-body": "Go Pro to explore traffic insights for @{{username}} and any other creator on Ecency.",
+    "pro-gate-cta": "Go Pro",
     "today": "Today",
     "yesterday": "Yesterday",
     "last-7": "Last 7 days",
