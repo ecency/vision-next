@@ -48,7 +48,7 @@ export function PerksPointsSpinBanner() {
   return (
     <>
       <PerksBasicCard
-        className="p-4 flex flex-col md:flex-row items-center gap-4 md:hover:!rotate-0 cursor-pointer"
+        className="p-4 flex flex-col lg:flex-row items-center gap-4 md:hover:!rotate-0 cursor-pointer"
         onClick={() => setShowSpinner(true)}
       >
         <Image src="/assets/undraw-gifts.svg" width={240} height={120} alt="" />
