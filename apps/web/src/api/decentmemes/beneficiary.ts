@@ -145,7 +145,13 @@ export function enforceDecentMemesBeneficiary(
   const bumpByAccount = new Map(bumps.map((b) => [b.account.toLowerCase(), b.weight]));
   const merged: BeneficiaryRoute[] = existing.map((b) =>
     bumpByAccount.has(b.account.toLowerCase())
-      ? { ...b, weight: b.weight + bumpByAccount.get(b.account.toLowerCase())! }
+      ? // normalize the merged row: Hive account names are lowercase, so a
+        // mixed-case restored row would fail the broadcast as an invalid name
+        {
+          ...b,
+          account: b.account.toLowerCase(),
+          weight: b.weight + bumpByAccount.get(b.account.toLowerCase())!
+        }
       : b
   );
   additions.forEach((b) => merged.push({ account: b.account, weight: b.weight }));

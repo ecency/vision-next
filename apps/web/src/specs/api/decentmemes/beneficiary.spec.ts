@@ -190,12 +190,14 @@ describe("DecentMemes beneficiaries", () => {
     it("merges into a mixed-case existing row instead of adding a duplicate account", () => {
       // Restored editor state can carry arbitrary casing; Hive compares
       // account names case-insensitively, so "Ecency" and "ecency" are the
-      // same beneficiary and must never both appear.
+      // same beneficiary and must never both appear. The merged row is also
+      // normalized to lowercase, otherwise the broadcast would reject the
+      // invalid mixed-case account name.
       const existing: BeneficiaryRoute[] = [{ account: "Ecency", weight: 500 }];
       const { beneficiaries, dropped } = enforceDecentMemesBeneficiary(existing, [
         { account: "ecency", weight: 100, role: "frontend" } as any
       ]);
-      expect(beneficiaries).toEqual([{ account: "Ecency", weight: 600 }]);
+      expect(beneficiaries).toEqual([{ account: "ecency", weight: 600 }]);
       expect(dropped).toBe(false);
     });
 
