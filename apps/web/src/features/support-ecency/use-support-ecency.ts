@@ -54,9 +54,32 @@ type BeneficiariesFunctionalSetter = (
   updater: (prev: BeneficiaryRoute[] | undefined) => BeneficiaryRoute[]
 ) => void;
 
+export interface SupportEcencyInjectionOptions {
+  /**
+   * Gates the injection entirely. Callers must derive this synchronously
+   * (e.g. from route params), so it is already false while async detectors
+   * (entry/draft queries) are still resolving.
+   */
+  enabled?: boolean;
+  /**
+   * Persisted "already handled this post" flag for editors whose beneficiary
+   * list survives remounts (the classic submit editor keeps it in localStorage
+   * next to the local draft). Without it a reload would re-inject a row the
+   * user removed from the same in-progress post. Editors whose beneficiaries
+   * state resets on remount (publish) can omit it; a per-mount ref is used
+   * then.
+   */
+  settled?: boolean;
+  setSettled?: (value: boolean) => void;
+}
+
 /**
  * Injects the user's stored "Support Ecency" beneficiary preference into an
- * editor's beneficiaries state, once per editor session.
+ * editor's beneficiaries state, once per post session.
+ *
+ * `setBeneficiaries` MUST apply the functional updater to the latest committed
+ * list (real React state does; react-use's useLocalStorage setter does NOT,
+ * see useAdvancedManager's wrapper), otherwise sibling updates get dropped.
  *
  * Rules:
  * - never injects when the active user IS ecency;
@@ -66,12 +89,13 @@ type BeneficiariesFunctionalSetter = (
  *   (injection is skipped instead);
  * - once the row has been present and the user removed it manually, it is not
  *   re-added for this post (follows the hasSetBeneficiary memo precedent in
- *   useDefaultBeneficiary).
+ *   useDefaultBeneficiary). Editors with persisted lists keep that guarantee
+ *   across reloads via the `settled`/`setSettled` options.
  */
 export function useSupportEcencyBeneficiaryInjection(
   beneficiaries: BeneficiaryRoute[] | undefined,
   setBeneficiaries: BeneficiariesFunctionalSetter,
-  enabled = true
+  { enabled = true, settled = false, setSettled }: SupportEcencyInjectionOptions = {}
 ) {
   const { activeUser } = useActiveAccount();
   const username = activeUser?.username;
@@ -91,25 +115,31 @@ export function useSupportEcencyBeneficiaryInjection(
 
   // Once the ecency row is present (injected here, restored from a draft or
   // added by the user) this hook stops managing it, so a manual removal is
-  // never overridden by a re-add.
+  // never overridden by a re-add. The ref guards the current mount; callers
+  // with persisted editor state extend the guard across remounts through the
+  // `settled`/`setSettled` options.
   const settledRef = useRef(false);
 
   useEffect(() => {
-    if (!enabled || settledRef.current) {
+    if (!enabled || settledRef.current || settled) {
       return;
     }
     if (!username || username === SUPPORT_ECENCY_ACCOUNT) {
       return;
     }
-    if (hasEcencyBeneficiary) {
+    const markSettled = () => {
       settledRef.current = true;
+      setSettled?.(true);
+    };
+    if (hasEcencyBeneficiary) {
+      markSettled();
       return;
     }
     if (weight <= 0 || !canFitBeneficiary(beneficiaries, weight)) {
       return;
     }
 
-    settledRef.current = true;
+    markSettled();
     // Functional update: sibling hooks (community default beneficiary, dialogs)
     // may update the same list in the same commit, so never overwrite blindly.
     setBeneficiaries((prev) => {
@@ -121,5 +151,14 @@ export function useSupportEcencyBeneficiaryInjection(
       }
       return [...(prev ?? []), { account: SUPPORT_ECENCY_ACCOUNT, weight }];
     });
-  }, [enabled, username, weight, hasEcencyBeneficiary, beneficiaries, setBeneficiaries]);
+  }, [
+    enabled,
+    settled,
+    setSettled,
+    username,
+    weight,
+    hasEcencyBeneficiary,
+    beneficiaries,
+    setBeneficiaries
+  ]);
 }

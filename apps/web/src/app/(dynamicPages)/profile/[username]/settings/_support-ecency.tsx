@@ -26,8 +26,16 @@ export function SupportEcencySettings() {
   const beneficiaryPercent = settings?.beneficiary_percent ?? 0;
   const curationPercent = settings?.curation_percent ?? 0;
 
+  // Every update carries BOTH percents, so writing before the stored settings
+  // are known (still loading, fetch failed) would silently zero the field that
+  // is not being edited. Keep the controls disabled until then.
+  const controlsDisabled = isPending || !settings;
+
   const persist = useCallback(
     async (beneficiary: number, curation: number) => {
+      if (!settings) {
+        return;
+      }
       try {
         await updateSettings({
           beneficiary_percent: beneficiary,
@@ -38,7 +46,7 @@ export function SupportEcencySettings() {
         error(i18next.t("g.server-error"));
       }
     },
-    [updateSettings]
+    [settings, updateSettings]
   );
 
   return (
@@ -54,7 +62,7 @@ export function SupportEcencySettings() {
           <FormControl
             value={beneficiaryPercent}
             type="select"
-            disabled={isPending}
+            disabled={controlsDisabled}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
               persist(+e.target.value, curationPercent)
             }
@@ -76,7 +84,7 @@ export function SupportEcencySettings() {
           <FormControl
             value={curationPercent}
             type="select"
-            disabled={isPending}
+            disabled={controlsDisabled}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
               persist(beneficiaryPercent, +e.target.value)
             }

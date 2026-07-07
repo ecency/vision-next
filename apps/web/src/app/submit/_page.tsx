@@ -151,10 +151,25 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
     getHasAdvanced
   } = useAdvancedManager();
 
+  // The in-progress post survives reloads (title/body via the local draft,
+  // beneficiaries via the persisted advanced state), so "the ecency row was
+  // already injected/removed for this post" must survive them too.
+  const [supportEcencySettled, setSupportEcencySettled] = useLocalStorage(
+    PREFIX + "_sa_seb",
+    false
+  );
+
   // Inject the stored "Support Ecency" beneficiary preference into new posts
-  // (never while editing an existing one). Same dedup / Hive-limit / no-re-add
-  // rules as the publish editor; flows into publish and scheduled posts alike.
-  useSupportEcencyBeneficiaryInjection(beneficiaries, setBeneficiaries, editingEntry === null);
+  // only. username/permlink exist exclusively on the edit route and are known
+  // synchronously, so the injection stays off during the whole async window
+  // while useEntryDetector still resolves the edited entry (editingEntry is
+  // null until then). Same dedup / Hive-limit / no-re-add rules as the publish
+  // editor; flows into publish and scheduled posts alike.
+  useSupportEcencyBeneficiaryInjection(beneficiaries, setBeneficiaries, {
+    enabled: !username && !permlink && editingEntry === null,
+    settled: supportEcencySettled ?? false,
+    setSettled: setSupportEcencySettled
+  });
 
   const setDescription = useCallback(
     (value: string) => {
@@ -283,6 +298,8 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
     setDescription("");
 
     clearAdvanced();
+    // The next post is a fresh session for the Support Ecency injection.
+    setSupportEcencySettled(false);
     setSelectedThumbnail(undefined);
     setThumbnails([]);
     clearActivePoll();

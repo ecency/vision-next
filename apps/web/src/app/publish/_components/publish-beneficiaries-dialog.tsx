@@ -55,6 +55,11 @@ export function PublishBeneficiariesDialog({ show, setShow }: Props) {
   const supportEnabled = savedSupportPercent > 0;
   const [supportPercent, setSupportPercent] = useState(SUPPORT_ECENCY_DEFAULT_PERCENT);
 
+  // Every update carries BOTH percents, so writing before the stored settings
+  // are known (still loading, fetch failed) would silently zero the curation
+  // holdback. Keep the controls disabled and refuse writes until then.
+  const supportControlsDisabled = isSupportSaving || !supportSettings;
+
   useEffect(() => {
     if (savedSupportPercent > 0) {
       setSupportPercent(savedSupportPercent);
@@ -63,12 +68,15 @@ export function PublishBeneficiariesDialog({ show, setShow }: Props) {
 
   const persistSupportPercent = useCallback(
     async (percent: number) => {
+      if (!supportSettings) {
+        return false;
+      }
       try {
         // Only the beneficiary percent is managed here; keep the stored
         // curation holdback untouched by sending its current value.
         await updateSupportSettings({
           beneficiary_percent: percent,
-          curation_percent: supportSettings?.curation_percent ?? 0
+          curation_percent: supportSettings.curation_percent
         });
         return true;
       } catch (e) {
@@ -76,7 +84,7 @@ export function PublishBeneficiariesDialog({ show, setShow }: Props) {
         return false;
       }
     },
-    [supportSettings?.curation_percent, updateSupportSettings]
+    [supportSettings, updateSupportSettings]
   );
 
   const applySupportRow = useCallback(
@@ -178,7 +186,7 @@ export function PublishBeneficiariesDialog({ show, setShow }: Props) {
                 id="support-ecency-toggle"
                 label={i18next.t("support-ecency.title")}
                 checked={supportEnabled}
-                disabled={isSupportSaving}
+                disabled={supportControlsDisabled}
                 onChange={(v: boolean) => toggleSupport(v)}
               />
               <div className="w-24 shrink-0">
@@ -186,7 +194,7 @@ export function PublishBeneficiariesDialog({ show, setShow }: Props) {
                   type="select"
                   size="sm"
                   value={supportPercent}
-                  disabled={isSupportSaving}
+                  disabled={supportControlsDisabled}
                   onChange={supportPercentChanged}
                   aria-label={i18next.t("support-ecency.percent-label")}
                 >
