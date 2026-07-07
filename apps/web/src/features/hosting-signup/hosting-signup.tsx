@@ -102,6 +102,12 @@ export function HostingSignup() {
     if (customDomain && cardEnabled) setMethod("card");
   }, [customDomain, cardEnabled]);
 
+  // Community has no custom-domain add-on; clear a stale selection carried over from the blog flow,
+  // otherwise the HBD instructions effect (which skips when customDomain is set) never runs.
+  useEffect(() => {
+    if (isCommunity && customDomain) setCustomDomain(false);
+  }, [isCommunity, customDomain]);
+
   const goConfigure = () => {
     setError("");
     if (isCommunity) {
@@ -150,7 +156,13 @@ export function HostingSignup() {
       // The tenant already existing is not an error for the owner: a member who claimed a free
       // blog can come back to add a custom domain / renew. Card is gated to the owner and the
       // checkout only needs the tenant to exist, so proceed straight to payment for own account.
-      if (msg === "Username already registered" && !isCommunity && activeUser?.username === uname) {
+      // The tenant already existing is not an error: a personal-blog owner, or a community whose
+      // tenant was created on a prior attempt, can come back to pay or renew. For a blog we require
+      // the caller to be the owner; a community tenant's owner is fixed at creation, so proceeding
+      // just pays (via HBD) to activate it.
+      const canResume =
+        msg === "Username already registered" && (isCommunity || activeUser?.username === uname);
+      if (canResume) {
         createdForRef.current = uname;
         setBlogUrl(`https://${uname}.${baseDomain}`);
         setStep("payment");
