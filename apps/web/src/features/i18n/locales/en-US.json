@@ -34,7 +34,12 @@
     "custom-domain-explainer": "Use your own domain like blog.yoursite.com. $3/mo total, billed with your hosting.",
     "custom-domain-included-note": "Custom domain is included on the $3/mo plan. Add and verify your domain right after checkout.",
     "custom-domain-hbd-note": "One step custom domain setup is available with card checkout. Pay by card to activate your custom domain in one go.",
-    "custom-domain-use-card": "Pay by card"
+    "custom-domain-use-card": "Pay by card",
+    "perk-card-title": "Your own blog",
+    "perk-card-description": "Host your Hive blog on your own space at yourname.blogs.ecency.com, or your own domain.",
+    "landing-title": "Host your own blog",
+    "landing-description": "Host your Hive blog on your own space at yourname.blogs.ecency.com, or your own domain.",
+    "landing-action": "Get started"
   },
   "custom-domain": {
     "title": "Add your custom domain",

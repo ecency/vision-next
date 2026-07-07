@@ -9,6 +9,7 @@ import { LandingDownloadLinks } from "./landing-download-links";
 import { Suspense } from "react";
 import { LandingTrending, LandingTrendingSkeleton } from "./landing-trending";
 import { LandingExplore } from "./landing-explore";
+import { hostingApi } from "@/features/hosting-signup/hosting-api";
 
 /**
  * Anonymous landing page — conversion-first, mobile-first.
@@ -146,6 +147,42 @@ export async function LandingPage() {
       {/* Topic hubs — crawl entry points into deep content */}
       <LandingExplore />
 
+      {/* Managed blog hosting promo. Subtle single-row card matching the site's
+          card vocabulary, gated on the same check the /hosting page uses so it
+          only shows when hosting is configured. Inline SVG keeps the @ui/svg
+          barrel off this path. */}
+      {hostingApi.isConfigured() && (
+        <section className="relative z-[2] w-full" aria-labelledby="hosting-promo-heading">
+          <div className="inner max-w-[1200px] mx-auto w-full px-4 py-4">
+            <Link
+              href="/hosting"
+              className="group flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5 rounded-2xl border border-[--border-color] bg-white dark:bg-dark-200 px-5 py-5 transition-shadow hover:shadow-md"
+            >
+              <span className="inline-flex items-center justify-center h-11 w-11 shrink-0 rounded-lg bg-blue-dark-sky-040 dark:bg-dark-default text-blue-dark-sky">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path d="M4 4h16a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Zm1 5v9h14V9H5Zm1.5-3a1 1 0 1 0 0 2 1 1 0 0 0 0-2Zm3 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2Z" />
+                </svg>
+              </span>
+              <div className="min-w-0 flex-1">
+                <h2 id="hosting-promo-heading" className="text-lg font-semibold">
+                  {t("hosting.landing-title")}
+                </h2>
+                <p className="mt-1 opacity-70">{t("hosting.landing-description")}</p>
+              </div>
+              <span className="shrink-0 font-semibold text-blue-dark-sky group-hover:underline">
+                {t("hosting.landing-action")}
+              </span>
+            </Link>
+          </div>
+        </section>
+      )}
+
       {/* Why Ecency — compact value prop replacing the old illustrated sections */}
       <section className="relative z-[2] w-full" aria-labelledby="why-heading">
         <div className="inner max-w-[1200px] mx-auto w-full px-4 py-10">
@@ -272,7 +309,13 @@ export async function LandingPage() {
           </div>
 
           <div className="mt-8 flex items-center gap-3 border-t border-[--border-color] pt-6">
-            <img src={defaults.logo} alt={defaults.name} width={36} height={36} className="h-9 w-9" />
+            <img
+              src={defaults.logo}
+              alt={defaults.name}
+              width={36}
+              height={36}
+              className="h-9 w-9"
+            />
             <p className="m-0 text-sm opacity-60">
               {t("landing-page.copy-rights", { year: new Date().getFullYear() })}
             </p>
