@@ -60,17 +60,17 @@ internalRoutes.post('/activate', async (c) => {
   // Optional tier: 'pro' upgrades the tenant to the Pro plan (custom domains). Anything else
   // leaves the current plan untouched, so a standard renewal never downgrades a Pro tenant.
   const plan = body?.plan === 'pro' ? 'pro' : 'standard';
-  // Optional: the paying account. When present it must own the tenant being activated (checked
-  // below), so a card order can only activate a tenant the payer controls (their own blog, or a
-  // community they own). Omitted means no payer check (the HBD rail has no owner-identity payer).
-  const payer = String(body?.payer || '').toLowerCase();
+  // The paying account. `null` ONLY when the field is omitted (the HBD rail has no owner-identity
+  // payer, so no check). A PRESENT payer, including an empty string, is enforced below: it must own
+  // the tenant, so a card caller cannot skip the ownership boundary by sending an empty value.
+  const payer = typeof body?.payer === 'string' ? body.payer.trim().toLowerCase() : null;
 
   if (!/^[a-z][a-z0-9.-]{2,15}$/.test(username) || months < 1 || months > 24 || !orderId) {
     return c.json({ error: 'invalid_request' }, 400);
   }
 
   try {
-    const result = await db.transaction<{ status: 200 | 403 | 404 | 409; duplicate?: boolean; expiresAt?: Date; plan?: string }>(
+    const result = await db.transaction<{ status: 200 | 404 | 409 | 422; duplicate?: boolean; expiresAt?: Date; plan?: string }>(
       async (client) => {
         // Lock the tenant row (serializes retries) and confirm it still exists.
         const t = await client.query(
@@ -83,11 +83,11 @@ internalRoutes.post('/activate', async (c) => {
         }
         const tenant = t.rows[0];
 
-        // Payer authorization: a named paying account must be this tenant's owner. A card order
+        // Payer authorization: a present paying account must be this tenant's owner. A card order
         // activates a tenant different from the payer only for a community the payer owns; anything
-        // else is a payment for a tenant the caller does not control, so refuse it.
-        if (payer && payer !== tenant.owner) {
-          return { status: 403 };
+        // else (including an empty payer) is refused. Omitted payer (null) means no check.
+        if (payer !== null && payer !== tenant.owner) {
+          return { status: 422 };
         }
 
         // Idempotent Pro upgrade for THIS tenant (a standard activation never touches the plan, so
@@ -157,10 +157,10 @@ internalRoutes.post('/activate', async (c) => {
       }
     );
 
-    if (result.status === 403) {
-      // The paying account does not own this tenant. Terminal for the caller (retrying cannot change
-      // ownership), so it is a distinct signal from the secret-misconfig 403 at the top.
-      return c.json({ error: 'payer_not_owner' }, 403);
+    if (result.status === 422) {
+      // The paying account does not own this tenant. A distinct status (not the secret-misconfig 403
+      // at the top) so the caller can treat it as terminal without parsing the body shape.
+      return c.json({ error: 'payer_not_owner' }, 422);
     }
     if (result.status === 404) {
       return c.json({ error: 'tenant_not_found' }, 404);
