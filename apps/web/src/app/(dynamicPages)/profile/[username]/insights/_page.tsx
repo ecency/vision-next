@@ -5,8 +5,10 @@ import i18next from "i18next";
 import Link from "next/link";
 import defaults from "@/defaults";
 import { EcencyConfigManager } from "@/config";
-import { getPageStatsQueryOptions } from "@ecency/sdk";
+import { PageStatsResponse } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { ensureValidToken } from "@/utils";
 import { Spinner, Table, Td, Th, Tr } from "@/features/ui";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "@/features/ui/dropdown";
 
@@ -29,14 +31,35 @@ interface InsightsRow {
 }
 
 function InsightsRange({ username, dateRange, label }: InsightsRangeProps) {
-  const statsQuery = useQuery(
-    getPageStatsQueryOptions(
-      `/@${username}/`,
-      ["event:page"],
-      ["pageviews", "visitors", "visit_duration"],
-      dateRange || undefined
-    )
-  );
+  // Insights are served by the gated `/api/profile-insights` proxy, which verifies
+  // the viewer (own profile or Ecency Pro) from a HiveSigner token before returning
+  // any numbers. The page-level gate already blocks non-viewers, so with no active
+  // user/token there is simply nothing to fetch.
+  const { activeUser } = useActiveAccount();
+
+  const statsQuery = useQuery({
+    queryKey: ["profile-insights", username, dateRange, activeUser?.username],
+    enabled: !!activeUser?.username,
+    // Analytics should always be fresh; users expect current stats when changing range.
+    staleTime: 0,
+    queryFn: async ({ signal }) => {
+      // Refresh an expired/legacy HiveSigner token before posting; a stale token would 401 the
+      // server-verified endpoint and leave the error state stuck until a manual remount.
+      const code = await ensureValidToken(activeUser!.username);
+      const response = await fetch("/api/profile-insights", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, dateRange, code }),
+        signal
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch insights: ${response.status}`);
+      }
+
+      return response.json() as Promise<PageStatsResponse>;
+    }
+  });
 
   // Pinned locale so SSR == client (avoids React #418 hydration mismatch).
   const formatter = useMemo(() => new Intl.NumberFormat("en-US"), []);
