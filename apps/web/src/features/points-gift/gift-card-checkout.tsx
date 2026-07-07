@@ -32,7 +32,11 @@ interface Props {
   message?: string;
   payLabel: string;
   returnUrl: string;
+  /** Fired only on a real `success` order status (Points confirmed credited to the recipient). */
   onDelivered: () => void;
+  /** Fired when the payment succeeded but delivery has not confirmed within the poll window --
+   *  the gift is in flight, NOT confirmed. The parent must show a pending (not success) message. */
+  onPending?: () => void;
   /** Fired once the card is confirmed (payment taken) so the parent can lock the form. */
   onConfirmed?: () => void;
 }
@@ -53,6 +57,7 @@ export function GiftCardCheckout({
   payLabel,
   returnUrl,
   onDelivered,
+  onPending,
   onConfirmed
 }: Props) {
   // The nonce is the create-intent idempotency key, so it must change when the checkout
@@ -133,16 +138,17 @@ export function GiftCardCheckout({
       }
       attempts += 1;
       if (attempts >= MAX_ATTEMPTS) {
-        // Payment succeeded; ePoints keeps retrying delivery, so this is not a hard failure --
-        // treat it as delivered-pending rather than looping forever.
+        // Payment succeeded but delivery never confirmed within the window. ePoints keeps
+        // retrying, so this is not a hard failure -- but we have NOT seen `success`, so report
+        // it as pending (in flight) rather than telling the buyer the gift was delivered.
         pollingRef.current = false;
-        onDelivered();
+        onPending?.();
         return;
       }
       timerRef.current = setTimeout(poll, 2000);
     };
     poll();
-  }, [paymentIntentId, username, onDelivered, onConfirmed]);
+  }, [paymentIntentId, username, onDelivered, onPending, onConfirmed]);
 
   if (!stripePromise) {
     return <Alert appearance="danger">{i18next.t("points-gift.card-unavailable")}</Alert>;
