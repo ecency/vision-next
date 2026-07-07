@@ -8,8 +8,9 @@
 
 export interface Tenant {
   id: string;
-  username: string; // Hive username, also used as subdomain
-  
+  username: string; // Showcased Hive account, also used as subdomain (hive-NNNNN for a community)
+  owner: string; // Hive account that created and controls this instance (equals username for a personal blog)
+
   // Subscription
   subscriptionStatus: 'inactive' | 'active' | 'expired' | 'suspended';
   subscriptionPlan: 'standard' | 'pro';
@@ -80,6 +81,7 @@ export interface BlogConfig {
 export interface TenantRow {
   id: string;
   username: string;
+  owner: string;
   subscription_status: 'inactive' | 'active' | 'expired' | 'suspended';
   subscription_plan: 'standard' | 'pro';
   subscription_started_at: string | null;
@@ -99,6 +101,7 @@ export function mapTenantFromDb(row: TenantRow): Tenant {
   return {
     id: row.id,
     username: row.username,
+    owner: row.owner,
     subscriptionStatus: row.subscription_status,
     subscriptionPlan: row.subscription_plan,
     subscriptionStartedAt: row.subscription_started_at ? new Date(row.subscription_started_at) : null,
@@ -120,6 +123,7 @@ export function mapTenantToDb(tenant: Partial<Tenant>): Record<string, any> {
   const result: Record<string, any> = {};
 
   if (tenant.username !== undefined) result.username = tenant.username;
+  if (tenant.owner !== undefined) result.owner = tenant.owner;
   if (tenant.subscriptionStatus !== undefined) result.subscription_status = tenant.subscriptionStatus;
   if (tenant.subscriptionPlan !== undefined) result.subscription_plan = tenant.subscriptionPlan;
   if (tenant.subscriptionStartedAt !== undefined) result.subscription_started_at = tenant.subscriptionStartedAt;

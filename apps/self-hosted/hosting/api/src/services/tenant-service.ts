@@ -37,20 +37,27 @@ export const TenantService = {
   },
   
   /**
-   * Create new tenant
+   * Create new tenant.
+   *
+   * `owner` is the Hive account that controls the instance and every mutating op is later
+   * authorized against it. It defaults to `username` (a personal blog, where the showcased
+   * account is also the owner). For a community the caller passes their own account as `owner`
+   * while `username` is the community account (hive-NNNNN).
    */
-  async create(username: string, configOverrides?: any): Promise<Tenant> {
+  async create(username: string, owner?: string, configOverrides?: any): Promise<Tenant> {
+    const ownerName = (owner || username).toLowerCase();
+
     // buildConfig normalizes flat API overrides (title, description, theme, styleTemplate, type,
     // communityId) into the nested shape the SPA actually reads. Merging the flat keys directly kept
     // them at the config root, where the SPA ignores them, so a signup's chosen title/theme/style
     // were silently dropped (and any community override too). Route both paths through buildConfig.
-    const config = await this.buildConfig(username, configOverrides);
+    const config = await this.buildConfig(username, configOverrides, ownerName);
 
     const row = await db.queryOne<TenantRow>(
-      `INSERT INTO tenants (username, config, subscription_status, subscription_plan)
-       VALUES ($1, $2, 'inactive', 'standard')
+      `INSERT INTO tenants (username, owner, config, subscription_status, subscription_plan)
+       VALUES ($1, $2, $3, 'inactive', 'standard')
        RETURNING *`,
-      [username.toLowerCase(), JSON.stringify(config)]
+      [username.toLowerCase(), ownerName, JSON.stringify(config)]
     );
 
     return mapTenantFromDb(row!);
@@ -241,6 +248,18 @@ export const TenantService = {
       return false;
     }
   },
+
+  /**
+   * Verify a Hive community exists (not merely an account named hive-NNNNN).
+   */
+  async verifyCommunity(communityId: string): Promise<boolean> {
+    try {
+      const community = await callRPC('bridge.get_community', { name: communityId, observer: '' }) as any;
+      return !!community && community.name === communityId;
+    } catch {
+      return false;
+    }
+  },
   
   /**
    * Get blog URL for tenant
@@ -257,8 +276,8 @@ export const TenantService = {
    * Normalizes flat API overrides into the nested stored config shape.
    * Pure function, safe to call outside a DB transaction.
    */
-  async buildConfig(username: string, configOverrides?: any): Promise<any> {
-    const defaults = await this.getDefaultConfig(username);
+  async buildConfig(username: string, configOverrides?: any, owner?: string): Promise<any> {
+    const defaults = await this.getDefaultConfig(username, owner);
     if (!configOverrides) return defaults;
 
     // Map flat API keys to nested config paths
@@ -267,6 +286,7 @@ export const TenantService = {
     if (configOverrides.styleTemplate) normalized.configuration.general.styleTemplate = configOverrides.styleTemplate;
     if (configOverrides.type) normalized.configuration.instanceConfiguration.type = configOverrides.type;
     if (configOverrides.communityId) normalized.configuration.instanceConfiguration.communityId = configOverrides.communityId;
+    // Owner is server-resolved, not client-supplied, so it is never taken from configOverrides.
     if (configOverrides.title) normalized.configuration.instanceConfiguration.meta.title = configOverrides.title;
     if (configOverrides.description) normalized.configuration.instanceConfiguration.meta.description = configOverrides.description;
 
@@ -274,9 +294,10 @@ export const TenantService = {
   },
 
   /**
-   * Get default config for a new tenant
+   * Get default config for a new tenant.
+   * `owner` is written into instanceConfiguration.owner, which the SPA reads for its ownership gate.
    */
-  async getDefaultConfig(username: string): Promise<any> {
+  async getDefaultConfig(username: string, owner?: string): Promise<any> {
     return {
       version: 1,
       configuration: {
@@ -290,7 +311,7 @@ export const TenantService = {
           dateTimeFormat: 'YYYY-MM-DD HH:mm:ss',
           imageProxy: 'https://i.ecency.com',
           profileBaseUrl: 'https://ecency.com/@',
-          createPostUrl: 'https://ecency.com/submit',
+          createPostUrl: 'https://ecency.com/publish',
           styles: {
             background: 'bg-gradient-to-br from-[#f8fafc] to-[#e2e8f0]',
           },
@@ -298,6 +319,7 @@ export const TenantService = {
         instanceConfiguration: {
           type: 'blog',
           username: username,
+          owner: (owner || username).toLowerCase(),
           communityId: '',
           meta: {
             title: `${username}'s Blog`,

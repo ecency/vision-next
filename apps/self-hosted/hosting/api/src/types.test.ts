@@ -91,6 +91,7 @@ describe('mapTenantFromDb', () => {
   const baseRow: TenantRow = {
     id: '123',
     username: 'alice',
+    owner: 'alice',
     subscription_status: 'active',
     subscription_plan: 'standard',
     subscription_started_at: '2025-01-01T00:00:00Z',
@@ -107,6 +108,7 @@ describe('mapTenantFromDb', () => {
     const tenant = mapTenantFromDb(baseRow);
     expect(tenant.id).toBe('123');
     expect(tenant.username).toBe('alice');
+    expect(tenant.owner).toBe('alice');
     expect(tenant.subscriptionStatus).toBe('active');
     expect(tenant.subscriptionPlan).toBe('standard');
     expect(tenant.customDomain).toBe('alice.blog');
@@ -152,12 +154,14 @@ describe('mapTenantToDb', () => {
   it('maps camelCase to snake_case for all fields', () => {
     const partial: Partial<Tenant> = {
       username: 'bob',
+      owner: 'bob',
       subscriptionStatus: 'active',
       subscriptionPlan: 'pro',
     };
     const dbFields = mapTenantToDb(partial);
     expect(dbFields).toEqual({
       username: 'bob',
+      owner: 'bob',
       subscription_status: 'active',
       subscription_plan: 'pro',
     });
