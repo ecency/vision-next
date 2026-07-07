@@ -156,12 +156,20 @@ export function HostingSignup() {
       // The tenant already existing is not an error for the owner: a member who claimed a free
       // blog can come back to add a custom domain / renew. Card is gated to the owner and the
       // checkout only needs the tenant to exist, so proceed straight to payment for own account.
-      // The tenant already existing is not an error: a personal-blog owner, or a community whose
-      // tenant was created on a prior attempt, can come back to pay or renew. For a blog we require
-      // the caller to be the owner; a community tenant's owner is fixed at creation, so proceeding
-      // just pays (via HBD) to activate it.
-      const canResume =
-        msg === "Username already registered" && (isCommunity || activeUser?.username === uname);
+      // The tenant already existing is not an error: only its OWNER may resume to payment or renew.
+      // For a blog the owner is the account itself. For a community the owner is fixed at creation
+      // (and is not the community account), so confirm the logged-in user owns the existing tenant
+      // before letting them reach the payment/activation step.
+      let canResume =
+        msg === "Username already registered" && !isCommunity && activeUser?.username === uname;
+      if (msg === "Username already registered" && isCommunity && activeUser) {
+        try {
+          const existing = await hostingApi.tenant(uname);
+          canResume = existing.owner === activeUser.username;
+        } catch {
+          canResume = false;
+        }
+      }
       if (canResume) {
         createdForRef.current = uname;
         setBlogUrl(`https://${uname}.${baseDomain}`);
@@ -218,6 +226,18 @@ export function HostingSignup() {
   const usdPer = customDomain ? HOSTING_CUSTOM_DOMAIN_MONTHLY_USD : usdPerBase;
   const hbdPer = customDomain ? hbdPerBase + 1 : hbdPerBase;
   const cardSku = customDomain ? hostingProSkuForMonths(months) : hostingSkuForMonths(months);
+
+  // Only surface a well-formed https URL as a link so a validated subdomain or API-returned blog URL
+  // cannot carry an unexpected scheme into the href (guards CodeQL js/xss-through-dom).
+  let safeBlogUrl = "";
+  try {
+    if (blogUrl) {
+      const parsed = new URL(blogUrl);
+      if (parsed.protocol === "https:") safeBlogUrl = parsed.toString();
+    }
+  } catch {
+    safeBlogUrl = "";
+  }
 
   return (
     <div className="max-w-lg mx-auto flex flex-col gap-4">
@@ -441,14 +461,14 @@ export function HostingSignup() {
           <Alert appearance="success">
             <div className="flex flex-col gap-2">
               <strong>{i18next.t("hosting.success-title")}</strong>
-              {blogUrl && (
+              {safeBlogUrl && (
                 <a
-                  href={blogUrl}
+                  href={safeBlogUrl}
                   target="_blank"
                   rel="noreferrer"
                   className="text-blue-dark-sky underline"
                 >
-                  {blogUrl}
+                  {safeBlogUrl}
                 </a>
               )}
             </div>

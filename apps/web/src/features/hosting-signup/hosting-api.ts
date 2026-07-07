@@ -33,6 +33,7 @@ export interface CreateTenantResult {
 
 export interface TenantInfo {
   username: string;
+  owner?: string;
   subscriptionStatus: "active" | "inactive" | "expired" | "suspended";
   subscriptionExpiresAt?: string | null;
   blogUrl?: string;
