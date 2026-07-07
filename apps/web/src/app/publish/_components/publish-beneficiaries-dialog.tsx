@@ -17,6 +17,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { StyledTooltip } from "@/features/ui";
 import {
   canFitBeneficiary,
+  isSupportEcencyRow,
   SUPPORT_ECENCY_ACCOUNT,
   SUPPORT_ECENCY_BENEFICIARY_PRESETS,
   SUPPORT_ECENCY_DEFAULT_PERCENT,
@@ -90,7 +91,7 @@ export function PublishBeneficiariesDialog({ show, setShow }: Props) {
   const applySupportRow = useCallback(
     (percent: number) => {
       const weight = percent * 100;
-      const rest = beneficiaries?.filter((b) => b.account !== SUPPORT_ECENCY_ACCOUNT) ?? [];
+      const rest = beneficiaries?.filter((b) => !isSupportEcencyRow(b)) ?? [];
       if (!canFitBeneficiary(rest, weight)) {
         error(i18next.t("support-ecency.limits-reached"));
         return;
@@ -110,7 +111,7 @@ export function PublishBeneficiariesDialog({ show, setShow }: Props) {
         applySupportRow(supportPercent);
       } else {
         setBeneficiaries(
-          beneficiaries?.filter((b) => b.account !== SUPPORT_ECENCY_ACCOUNT) ?? []
+          beneficiaries?.filter((b) => !isSupportEcencyRow(b)) ?? []
         );
       }
     },

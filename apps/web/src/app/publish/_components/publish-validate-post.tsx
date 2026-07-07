@@ -21,6 +21,7 @@ import { hasPublishContent } from "../_utils/content";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import {
   canFitBeneficiary,
+  isSupportEcencyRow,
   SUPPORT_ECENCY_ACCOUNT,
   SUPPORT_ECENCY_DEFAULT_PERCENT,
   useSupportEcencySettingsQuery
@@ -62,7 +63,7 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
       !!activeUser?.username &&
       activeUser.username !== SUPPORT_ECENCY_ACCOUNT &&
       (supportSettings?.beneficiary_percent ?? 0) === 0 &&
-      !beneficiaries?.some((b) => b.account === SUPPORT_ECENCY_ACCOUNT) &&
+      !beneficiaries?.some(isSupportEcencyRow) &&
       canFitBeneficiary(beneficiaries, supportWeight),
     [activeUser?.username, beneficiaries, supportSettings?.beneficiary_percent, supportWeight]
   );

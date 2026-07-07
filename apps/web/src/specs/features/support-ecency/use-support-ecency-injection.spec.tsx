@@ -106,6 +106,18 @@ describe("useSupportEcencyBeneficiaryInjection", () => {
     expect(result.current.beneficiaries).toEqual([{ account: "ecency", weight: 100 }]);
   });
 
+  it("treats a mixed-case ecency row as existing and never adds a duplicate", async () => {
+    const setSettled = vi.fn();
+    const { result, waitForSettingsQuery } = renderHarness({
+      initial: [{ account: "Ecency", weight: 100 }],
+      options: { settled: false, setSettled }
+    });
+
+    await waitForSettingsQuery();
+    await waitFor(() => expect(setSettled).toHaveBeenCalledWith(true));
+    expect(result.current.beneficiaries).toEqual([{ account: "Ecency", weight: 100 }]);
+  });
+
   it("skips injection when the Hive weight limit would be exceeded", async () => {
     const setSettled = vi.fn();
     const { result, waitForSettingsQuery } = renderHarness({

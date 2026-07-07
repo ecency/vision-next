@@ -20,6 +20,15 @@ const HIVE_MAX_BENEFICIARIES = 8;
 const HIVE_MAX_TOTAL_WEIGHT = 10000;
 
 /**
+ * True when the beneficiary row targets the ecency account. Hive account names
+ * are lowercase on-chain, but draft or restored editor state may carry any
+ * casing, so compare case-insensitively to keep the list free of duplicates.
+ */
+export function isSupportEcencyRow(beneficiary: Pick<BeneficiaryRoute, "account">): boolean {
+  return beneficiary.account?.toLowerCase() === SUPPORT_ECENCY_ACCOUNT;
+}
+
+/**
  * True when one more beneficiary of the given weight (basis points) still fits
  * into the Hive slot and total weight limits.
  */
@@ -109,7 +118,7 @@ export function useSupportEcencyBeneficiaryInjection(
   const weight = (beneficiaryPercent ?? 0) * 100;
 
   const hasEcencyBeneficiary = useMemo(
-    () => beneficiaries?.some((b) => b.account === SUPPORT_ECENCY_ACCOUNT) ?? false,
+    () => beneficiaries?.some(isSupportEcencyRow) ?? false,
     [beneficiaries]
   );
 
@@ -144,7 +153,7 @@ export function useSupportEcencyBeneficiaryInjection(
     // may update the same list in the same commit, so never overwrite blindly.
     setBeneficiaries((prev) => {
       if (
-        prev?.some((b) => b.account === SUPPORT_ECENCY_ACCOUNT) ||
+        prev?.some(isSupportEcencyRow) ||
         !canFitBeneficiary(prev, weight)
       ) {
         return prev ?? [];
