@@ -1,10 +1,12 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { AssetOperation } from "@ecency/sdk";
-import { UilArrowLeft } from "@tooni/iconscout-unicons-react";
+import { UilArrowLeft, UilGift } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
+import Link from "next/link";
 import { HTMLProps, PropsWithChildren, useContext, useEffect, useMemo, useState } from "react";
 import { Button, Modal, ModalHeader } from "../ui";
 import { DropdownContext } from "../ui/dropdown/dropdown-context";
+import { isStripeEnabled } from "@/features/shared/purchase-stripe/stripe-tiers";
 import {
   WalletOperationError,
   WalletOperationPowerDown,
@@ -161,6 +163,20 @@ export function WalletOperationsDialog({
               setStep("sign");
             }}
           />
+        )}
+        {/* Gift-from-balance sends existing Points. When card payment is available, also
+            offer buying Points to gift so a sender can top up beyond their own balance; the
+            recipient is carried to /gift via ?to= and the buyer is charged there. */}
+        {operation === AssetOperation.Gift && step === "form" && isStripeEnabled() && (
+          <div className="px-4 pb-4 -mt-2">
+            <Link
+              href={to ? `/gift?to=${encodeURIComponent(to.replace(/^@/, ""))}` : "/gift"}
+              className="inline-flex items-center gap-2 text-sm text-blue-dark-sky hover:underline"
+            >
+              <UilGift className="w-4 h-4" />
+              {i18next.t("points-gift.buy-to-gift")}
+            </Link>
+          </div>
         )}
         {[AssetOperation.Swap].includes(operation) && <MarketSwapForm />}
         {[AssetOperation.PowerDown].includes(operation) && (

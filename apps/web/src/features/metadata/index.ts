@@ -101,6 +101,13 @@ export namespace PagesMetadataGenerator {
     };
   }
 
+  function buildForGift(): Metadata {
+    return {
+      title: i18next.t("points-gift.page-title"),
+      description: i18next.t("points-gift.subtitle")
+    };
+  }
+
   function buildForProposals(): Metadata {
     return {
       title: i18next.t("proposals.page-title"),
@@ -154,6 +161,7 @@ export namespace PagesMetadataGenerator {
     if (name === "mobile") return buildForMobile();
     if (name === "onboard-friend") return buildForOnboardFriend();
     if (name === "perks") return buildForPerks();
+    if (name === "gift") return buildForGift();
     if (name === "proposals") return buildForProposals();
     if (name === "search") return buildForSearch();
     if (name === "signup") return buildForSignUp();

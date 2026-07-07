@@ -5,12 +5,13 @@ import { LoginRequired } from "@/features/shared/login-required";
 import { PurchaseQrDialog } from "@/features/shared/purchase-qr";
 import { EcencyConfigManager } from "@/config";
 import { hostingApi } from "@/features/hosting-signup/hosting-api";
+import { isStripeEnabled } from "@/features/shared/purchase-stripe/stripe-tiers";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { isProMember } from "@/features/pro";
 import { getProMembersQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import i18next from "i18next";
-import { UilGlobe, UilImages, UilStar } from "@tooni/iconscout-unicons-react";
+import { UilGift, UilGlobe, UilImages, UilStar } from "@tooni/iconscout-unicons-react";
 import Image from "next/image";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -176,6 +177,24 @@ export function PerksPage() {
                   </div>
                 </div>
                 <UilGlobe className="absolute -bottom-5 -right-3 w-28 h-28 text-blue-dark-sky opacity-10 pointer-events-none" />
+              </PerksBasicCard>
+            </Link>
+          </div>
+        )}
+
+        {isStripeEnabled() && (
+          <div className="col-span-6 row-span-2 md:col-span-3">
+            <Link href="/gift">
+              <PerksBasicCard className="min-h-[13rem] cursor-pointer p-4">
+                <div className="relative z-10">
+                  <div className="md:text-lg font-bold text-blue-dark-sky">
+                    {i18next.t("points-gift.perk-card-title")}
+                  </div>
+                  <div className="text-sm md:text-base text-gray-600 dark:text-gray-400">
+                    {i18next.t("points-gift.perk-card-description")}
+                  </div>
+                </div>
+                <UilGift className="absolute -bottom-5 -right-3 w-28 h-28 text-blue-dark-sky opacity-10 pointer-events-none" />
               </PerksBasicCard>
             </Link>
           </div>
