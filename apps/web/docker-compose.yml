@@ -48,6 +48,7 @@ services:
       - INTERNAL_API_HOST=http://vapi:4000
       - REDIS_URL=redis://redis:6379
       - HIVESIGNER_SECRET
+      - HOSTING_INTERNAL_SECRET
       - PLAUSIBLE_API_KEY
       - NEXT_PUBLIC_GMAPS_MAP_ID
       - NEXT_PUBLIC_GMAPS_API_KEY
