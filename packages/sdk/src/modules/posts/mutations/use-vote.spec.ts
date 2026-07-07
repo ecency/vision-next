@@ -1,5 +1,6 @@
 import { QueryClient } from "@tanstack/react-query";
 import { describe, expect, it } from "vitest";
+import { QueryKeys } from "@/modules/core";
 import { applyVoteCacheUpdate, isVoteAlreadyReflected } from "./use-vote";
 
 describe("isVoteAlreadyReflected", () => {
@@ -30,12 +31,21 @@ describe("isVoteAlreadyReflected", () => {
   });
 });
 
+interface SeededEntry {
+  author: string;
+  permlink: string;
+  payout: number;
+  active_votes: Array<{ voter: string; rshares: number }>;
+  stats: { gray: boolean; hide: boolean; flag_weight: number; total_votes: number };
+  total_votes?: number;
+}
+
 describe("applyVoteCacheUpdate", () => {
-  const entryKey = ["posts", "entry", "/@alice/my-post"];
+  const entryKey = QueryKeys.posts.entry("/@alice/my-post");
 
   const seedEntry = (activeVotes: Array<{ voter: string; rshares: number }>) => {
     const qc = new QueryClient();
-    const entry = {
+    const entry: SeededEntry = {
       author: "alice",
       permlink: "my-post",
       payout: 1,
@@ -51,7 +61,7 @@ describe("applyVoteCacheUpdate", () => {
 
     applyVoteCacheUpdate("carol", { author: "alice", permlink: "my-post", weight: 10000, estimated: 2 }, qc);
 
-    const updated = qc.getQueryData<any>(entryKey);
+    const updated = qc.getQueryData<SeededEntry>(entryKey)!;
     expect(updated.active_votes).toEqual([
       { voter: "bob", rshares: 100 },
       { rshares: 10000, voter: "carol" },
@@ -77,7 +87,7 @@ describe("applyVoteCacheUpdate", () => {
 
     applyVoteCacheUpdate("carol", { author: "alice", permlink: "my-post", weight: 0, estimated: 0 }, qc);
 
-    const updated = qc.getQueryData<any>(entryKey);
+    const updated = qc.getQueryData<SeededEntry>(entryKey)!;
     expect(updated.active_votes).toEqual([{ voter: "bob", rshares: 100 }]);
     expect(updated.total_votes).toBe(1);
   });
