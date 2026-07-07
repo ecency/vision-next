@@ -9,7 +9,7 @@ import {
 import { Elements } from "@stripe/react-stripe-js";
 import { Alert } from "@ui/alert";
 import i18next from "i18next";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const isDarkMode = () =>
   typeof document !== "undefined" && document.documentElement.classList.contains("dark");
@@ -21,10 +21,16 @@ const genNonce = (): string =>
     : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
 interface Props {
-  /** The buyer / blog owner (authenticated). ePoints binds the order to this user. */
+  /** The buyer / payer (authenticated). ePoints binds the Stripe order to this user; the token
+   *  binds to the payer regardless of which tenant is activated. */
   username: string;
   /** The hosting SKU for the chosen term (e.g. "200hosting"). */
   sku: string;
+  /** Optional: activate a DIFFERENT tenant than the payer -- e.g. a community (hive-NNNNN) whose
+   *  owner (the `username` above) pays. Omit for a personal blog (the payer's own account is
+   *  activated). The parent MUST include this in the component `key` so a target change remounts
+   *  with a fresh nonce (the intent is minted once per mount). */
+  hostingTarget?: string;
   payLabel: string;
   returnUrl: string;
   onActivated: () => void;
@@ -37,18 +43,23 @@ interface Props {
  * Card payment for hosting, riding the shared ePoints Stripe rail: create a PaymentIntent for
  * a hosting SKU via vapi, confirm with the Payment Element, then poll the order status. For a
  * hosting SKU the order reaching "success" means ePoints has already called the hosting
- * service's activate endpoint, so the blog is live. The tenant must already exist (the signup
- * flow creates it before this renders).
+ * service's activate endpoint, so the blog is live. The activated tenant is `hostingTarget` when
+ * supplied (e.g. a community), otherwise the payer's own account. The tenant must already exist
+ * (the signup flow creates it before this renders).
  */
 export function HostingCardCheckout({
   username,
   sku,
+  hostingTarget,
   payLabel,
   returnUrl,
   onActivated,
   onConfirmed
 }: Props) {
-  const [nonce] = useState(genNonce);
+  // The nonce is the create-intent idempotency key, so it must change when the checkout identity
+  // (sku or target tenant) changes; otherwise a re-mint for a new target would return the
+  // PaymentIntent already created for the previous one. Fresh nonce per (sku, hostingTarget).
+  const nonce = useMemo(genNonce, [sku, hostingTarget]);
   const [clientSecret, setClientSecret] = useState("");
   const [error, setError] = useState("");
   const [activating, setActivating] = useState(false);
@@ -58,12 +69,15 @@ export function HostingCardCheckout({
   const createIntent = useCreateStripeIntent(username);
   const stripePromise = getStripePromise();
 
-  // Mint the PaymentIntent once for this checkout.
+  // Mint the PaymentIntent for this checkout. Re-mint when the SKU or the target tenant changes so
+  // the active clientSecret always matches what the UI shows: paying with a stale intent would
+  // charge for the previously minted (sku, hostingTarget) rather than the current one.
   useEffect(() => {
     let alive = true;
+    setClientSecret("");
     (async () => {
       try {
-        const { client_secret } = await createIntent.mutateAsync({ sku, nonce });
+        const { client_secret } = await createIntent.mutateAsync({ sku, nonce, hosting_target: hostingTarget });
         if (alive) setClientSecret(client_secret);
       } catch (e) {
         if (alive) setError((e as Error).message || i18next.t("hosting.card-unavailable"));
@@ -73,7 +87,7 @@ export function HostingCardCheckout({
       alive = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sku, nonce]);
+  }, [sku, nonce, hostingTarget]);
 
   // Stop polling on unmount.
   useEffect(
