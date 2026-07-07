@@ -9,6 +9,7 @@ import { isProMember } from "@/features/pro";
 import { getProMembersQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import i18next from "i18next";
+import { UilImages, UilStar } from "@tooni/iconscout-unicons-react";
 import Image from "next/image";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -118,12 +119,17 @@ export function PerksPage() {
               onClick={isPro ? undefined : () => setShowPro(true)}
               style={{ cursor: isPro ? "default" : "pointer" }}
             >
-              <div className="md:text-lg font-bold">{i18next.t("pro.perk-card-title")}</div>
-              <div className="text-sm md:text-base text-gray-600 dark:text-gray-400">
-                {isPro
-                  ? i18next.t("pro.perk-card-member")
-                  : i18next.t("pro.perk-card-description")}
+              <div className="relative z-10">
+                <div className="md:text-lg font-bold text-blue-dark-sky">
+                  {i18next.t("pro.perk-card-title")}
+                </div>
+                <div className="text-sm md:text-base text-gray-600 dark:text-gray-400">
+                  {isPro
+                    ? i18next.t("pro.perk-card-member")
+                    : i18next.t("pro.perk-card-description")}
+                </div>
               </div>
+              <UilStar className="absolute -bottom-5 -right-3 w-28 h-28 text-blue-dark-sky opacity-10 pointer-events-none" />
             </PerksBasicCard>
           </LoginRequired>
         </div>
@@ -135,19 +141,22 @@ export function PerksPage() {
             <LoginRequired>
               <Link href="/perks/ai-generator">
                 <PerksBasicCard className="min-h-[13rem] cursor-pointer p-4">
-                  <div className="md:text-lg font-bold">
-                    {i18next.t("ai-image-generator.perk-card-title")}
+                  <div className="relative z-10">
+                    <div className="md:text-lg font-bold text-blue-dark-sky">
+                      {i18next.t("ai-image-generator.perk-card-title")}
+                    </div>
+                    <div className="text-sm md:text-base text-gray-600 dark:text-gray-400">
+                      {i18next.t("ai-image-generator.perk-card-description")}
+                    </div>
                   </div>
-                  <div className="text-sm md:text-base text-gray-600 dark:text-gray-400">
-                    {i18next.t("ai-image-generator.perk-card-description")}
-                  </div>
+                  <UilImages className="absolute -bottom-5 -right-3 w-28 h-28 text-blue-dark-sky opacity-10 pointer-events-none" />
                 </PerksBasicCard>
               </Link>
             </LoginRequired>
           </div>
         </EcencyConfigManager.Conditional>
 
-        <div id="perks-spin" className="col-span-12 row-span-1">
+        <div id="perks-spin" className="col-span-12 md:col-span-6 row-span-2">
           <LoginRequired>
             <PerksPointsSpinBanner />
           </LoginRequired>
