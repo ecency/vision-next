@@ -45,6 +45,15 @@ export async function POST(request: NextRequest) {
   // Plausible stores the pathname only, so strip any query string / fragment (e.g.
   // a comment permalink's `#@author/permlink`) before matching what's recorded.
   const page = safeDecodeURIComponent(url).split(/[?#]/)[0];
+
+  // A bare profile prefix (`/@user` or `/@user/`) would aggregate every page under a creator --
+  // that is the paid Insights view and must go through the auth-gated /api/profile-insights.
+  // Reject it here so this public proxy only ever serves a single exact page (per-post
+  // entry-stats). A permlink never matches this shape, so entry-stats is unaffected.
+  if (/^\/@[a-z0-9.-]+\/?$/i.test(page)) {
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  }
+
   const pageFilter = page.endsWith("/")
     ? ["contains", filterDimension, [page]]
     : ["matches", filterDimension, [`${escapeRegExp(page)}$`]];
