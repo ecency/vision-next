@@ -66,9 +66,12 @@ export function HostingCardCheckout({
   const createIntent = useCreateStripeIntent(username);
   const stripePromise = getStripePromise();
 
-  // Mint the PaymentIntent once for this checkout.
+  // Mint the PaymentIntent for this checkout. Re-mint when the SKU or the target tenant changes so
+  // the active clientSecret always matches what the UI shows: paying with a stale intent would
+  // charge for the previously minted (sku, hostingTarget) rather than the current one.
   useEffect(() => {
     let alive = true;
+    setClientSecret("");
     (async () => {
       try {
         const { client_secret } = await createIntent.mutateAsync({ sku, nonce, hosting_target: hostingTarget });
@@ -81,7 +84,7 @@ export function HostingCardCheckout({
       alive = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sku, nonce]);
+  }, [sku, nonce, hostingTarget]);
 
   // Stop polling on unmount.
   useEffect(
