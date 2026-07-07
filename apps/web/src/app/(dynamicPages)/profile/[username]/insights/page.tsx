@@ -29,6 +29,13 @@ export default async function InsightsPage({ params }: Props) {
 
   // Own insights stay free; viewing anyone else's is an Ecency Pro perk. Non-Pro viewers get a
   // Go-Pro upsell instead of the data (previously this was a hard owner-only redirect).
+  //
+  // SECURITY NOTE: this SSR check is a UX optimization only (render the data view vs the upsell)
+  // and reads the client-writable `active_user` cookie, so it is deliberately NOT the security
+  // boundary. The Insights numbers are served by `/api/profile-insights`, which verifies the
+  // viewer's real signed HiveSigner identity (own OR Pro) and 403s otherwise. A forged cookie can
+  // only render an empty shell here; it can never fetch another creator's traffic data.
+  //
   // Hive usernames are lowercase; normalize the cookie so a non-canonical case never denies an owner.
   const activeUser = get("active_user")?.value?.toLowerCase();
   let canView = !!activeUser && account.name.toLowerCase() === activeUser;
