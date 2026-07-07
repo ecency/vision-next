@@ -102,6 +102,19 @@ export function enforceDecentMemesBeneficiary(
 ): EnforceResult {
   let dropped = false;
 
+  // 0. Canonicalize the existing rows: restored editor state can carry
+  //    arbitrary casing, but Hive account names are lowercase and the
+  //    broadcast rejects both invalid names and duplicate accounts. Lowercase
+  //    every account and merge case-variant duplicates by summing weights, so
+  //    every comparison below can be exact and every output row is valid.
+  const canonical = new Map<string, BeneficiaryRoute>();
+  for (const b of existing) {
+    const account = b.account.toLowerCase();
+    const prev = canonical.get(account);
+    canonical.set(account, prev ? { ...prev, weight: prev.weight + b.weight } : { ...b, account });
+  }
+  const normalizedExisting = Array.from(canonical.values());
+
   // 1. Clean the widget input (invalid account names / weights are dropped) and
   //    cap the meme contribution to the per-context maximum (10% post / 30% comment).
   let meme = aggregateMemeBeneficiaries(memeBeneficiaries);
@@ -119,7 +132,7 @@ export function enforceDecentMemesBeneficiary(
   meme = postCapped;
 
   // 2. Scale the whole meme contribution down to the remaining weight headroom.
-  const existingTotal = totalWeight(existing);
+  const existingTotal = totalWeight(normalizedExisting);
   const headroom = Math.max(0, HIVE_MAX_TOTAL_WEIGHT - existingTotal);
   const headroomCapped = scaleToCap(meme, headroom);
   if (totalWeight(headroomCapped) < totalWeight(meme)) {
@@ -128,31 +141,20 @@ export function enforceDecentMemesBeneficiary(
   meme = headroomCapped;
 
   // 3. The slot limit only constrains brand-new accounts (bumps reuse a slot).
-  // Existing rows can come from restored editor state with arbitrary casing;
-  // Hive treats account names case-insensitively, so match them that way to
-  // never emit two rows for the same account.
-  const existingAccounts = new Set(existing.map((b) => b.account.toLowerCase()));
-  const bumps = meme.filter((b) => existingAccounts.has(b.account.toLowerCase()));
-  let additions = meme.filter((b) => !existingAccounts.has(b.account.toLowerCase()));
+  const existingAccounts = new Set(normalizedExisting.map((b) => b.account));
+  const bumps = meme.filter((b) => existingAccounts.has(b.account));
+  let additions = meme.filter((b) => !existingAccounts.has(b.account));
 
-  const slotHeadroom = Math.max(0, HIVE_MAX_BENEFICIARIES - existing.length);
+  const slotHeadroom = Math.max(0, HIVE_MAX_BENEFICIARIES - normalizedExisting.length);
   if (additions.length > slotHeadroom) {
     additions = [...additions].sort((a, b) => b.weight - a.weight).slice(0, slotHeadroom);
     dropped = true;
   }
 
   // 4. Apply bumps to existing entries, then append surviving new additions.
-  const bumpByAccount = new Map(bumps.map((b) => [b.account.toLowerCase(), b.weight]));
-  const merged: BeneficiaryRoute[] = existing.map((b) =>
-    bumpByAccount.has(b.account.toLowerCase())
-      ? // normalize the merged row: Hive account names are lowercase, so a
-        // mixed-case restored row would fail the broadcast as an invalid name
-        {
-          ...b,
-          account: b.account.toLowerCase(),
-          weight: b.weight + bumpByAccount.get(b.account.toLowerCase())!
-        }
-      : b
+  const bumpByAccount = new Map(bumps.map((b) => [b.account, b.weight]));
+  const merged: BeneficiaryRoute[] = normalizedExisting.map((b) =>
+    bumpByAccount.has(b.account) ? { ...b, weight: b.weight + bumpByAccount.get(b.account)! } : b
   );
   additions.forEach((b) => merged.push({ account: b.account, weight: b.weight }));
 
