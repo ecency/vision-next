@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.39
+
+### Patch Changes
+
+- fix(sdk): skip vote cache update when entry already reflects the vote (#1096)
+
 ## 2.3.38
 
 ### Patch Changes
