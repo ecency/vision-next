@@ -46,6 +46,9 @@ internalRoutes.post('/activate', async (c) => {
   const months = Number.isInteger(monthsRaw) ? monthsRaw : 0;
   const orderId = String(body?.order_id || '').trim();
   const amountUsd = typeof body?.amount_usd === 'number' ? body.amount_usd : 0;
+  // Optional tier: 'pro' upgrades the tenant to the Pro plan (custom domains). Anything else
+  // leaves the current plan untouched, so a standard renewal never downgrades a Pro tenant.
+  const plan = body?.plan === 'pro' ? 'pro' : 'standard';
 
   if (!/^[a-z][a-z0-9.-]{2,15}$/.test(username) || months < 1 || months > 24 || !orderId) {
     return c.json({ error: 'invalid_request' }, 400);
@@ -93,9 +96,10 @@ internalRoutes.post('/activate', async (c) => {
              SET subscription_status = 'active',
                  subscription_started_at = $2,
                  subscription_expires_at = $3,
+                 subscription_plan = CASE WHEN $4::text = 'pro' THEN 'pro' ELSE subscription_plan END,
                  updated_at = NOW()
            WHERE id = $1`,
-          [tenant.id, startedAt, newExpiry]
+          [tenant.id, startedAt, newExpiry, plan]
         );
         await client.query(
           `UPDATE payments SET processed_at = NOW(), subscription_extended_to = $2 WHERE trx_id = $1`,
@@ -108,7 +112,12 @@ internalRoutes.post('/activate', async (c) => {
     if (result.status === 404) {
       return c.json({ error: 'tenant_not_found' }, 404);
     }
-    return c.json({ activated: true, duplicate: !!result.duplicate, expiresAt: result.expiresAt }, 200);
+    // Echo the plan we applied so the caller (ePoints) can confirm the Pro tier was honored;
+    // an older service that ignores `plan` omits this field, which the caller treats as a mismatch.
+    return c.json(
+      { activated: true, duplicate: !!result.duplicate, expiresAt: result.expiresAt, plan },
+      200
+    );
   } catch (e) {
     console.error('[internal/activate] error:', (e as Error).message);
     return c.json({ error: 'activation_failed' }, 500);
