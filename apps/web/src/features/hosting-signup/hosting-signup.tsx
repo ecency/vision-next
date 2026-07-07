@@ -153,9 +153,6 @@ export function HostingSignup() {
       setStep("payment");
     } catch (e) {
       const msg = (e as Error).message;
-      // The tenant already existing is not an error for the owner: a member who claimed a free
-      // blog can come back to add a custom domain / renew. Card is gated to the owner and the
-      // checkout only needs the tenant to exist, so proceed straight to payment for own account.
       // The tenant already existing is not an error: only its OWNER may resume to payment or renew.
       // For a blog the owner is the account itself. For a community the owner is fixed at creation
       // (and is not the community account), so confirm the logged-in user owns the existing tenant
