@@ -18,6 +18,13 @@ import { PublishValidatePostThumbnailPicker } from "./publish-validate-post-thum
 import { isCommunity } from "@/utils";
 import { wordOverlapSimilarity } from "@/utils/text-similarity";
 import { hasPublishContent } from "../_utils/content";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+import {
+  canFitBeneficiary,
+  SUPPORT_ECENCY_ACCOUNT,
+  SUPPORT_ECENCY_DEFAULT_PERCENT,
+  useSupportEcencySettingsQuery
+} from "@/features/support-ecency";
 
 const TEMPLATE_SIMILARITY_THRESHOLD = 0.9;
 
@@ -38,9 +45,27 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
     isReblogToCommunity,
     setIsReblogToCommunity,
     beneficiaries,
+    setBeneficiaries,
     title,
     appliedTemplateBody
   } = usePublishState();
+
+  const { activeUser } = useActiveAccount();
+  const { data: supportSettings } = useSupportEcencySettingsQuery();
+
+  const supportWeight = SUPPORT_ECENCY_DEFAULT_PERCENT * 100;
+  // One-tap support chip: shown only when the stored preference is off, the
+  // post has no ecency beneficiary yet and one more row still fits the Hive
+  // limits. Adding it affects this post only; the preference is not saved.
+  const showSupportChip = useMemo(
+    () =>
+      !!activeUser?.username &&
+      activeUser.username !== SUPPORT_ECENCY_ACCOUNT &&
+      (supportSettings?.beneficiary_percent ?? 0) === 0 &&
+      !beneficiaries?.some((b) => b.account === SUPPORT_ECENCY_ACCOUNT) &&
+      canFitBeneficiary(beneficiaries, supportWeight),
+    [activeUser?.username, beneficiaries, supportSettings?.beneficiary_percent, supportWeight]
+  );
 
   const [showSchedule, setShowSchedule] = useState(false);
 
@@ -212,6 +237,22 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
             <Alert className="w-full" appearance="warning">
               {i18next.t("post-templates.similarity-warning")}
             </Alert>
+          )}
+
+          {showSupportChip && (
+            <Button
+              size="xs"
+              appearance="gray"
+              className="rounded-full"
+              onClick={() =>
+                setBeneficiaries([
+                  ...(beneficiaries ?? []),
+                  { account: SUPPORT_ECENCY_ACCOUNT, weight: supportWeight }
+                ])
+              }
+            >
+              {i18next.t("support-ecency.add-chip")}
+            </Button>
           )}
 
           <div className="flex items-center gap-2">

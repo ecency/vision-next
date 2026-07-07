@@ -1,7 +1,7 @@
 import { isThreeSpeakBeneficiary } from "@/api/threespeak-embed";
 import { Modal, ModalBody, ModalFooter, ModalHeader } from "@ui/modal";
 import i18next from "i18next";
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePublishState } from "@/app/publish/_hooks";
 import { Button } from "@ui/button";
 import { error } from "@/features/shared";
@@ -15,6 +15,14 @@ import { Alert } from "@ui/alert";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useQueryClient } from "@tanstack/react-query";
 import { StyledTooltip } from "@/features/ui";
+import {
+  canFitBeneficiary,
+  SUPPORT_ECENCY_ACCOUNT,
+  SUPPORT_ECENCY_BENEFICIARY_PRESETS,
+  SUPPORT_ECENCY_DEFAULT_PERCENT,
+  useSupportEcencySettingsQuery,
+  useSupportEcencySettingsUpdate
+} from "@/features/support-ecency";
 
 interface Props {
   show: boolean;
@@ -35,6 +43,84 @@ export function PublishBeneficiariesDialog({ show, setShow }: Props) {
   const used = useMemo(
     () => beneficiaries?.reduce((a, b) => a + b.weight / 100, 0) ?? 0,
     [beneficiaries]
+  );
+
+  // Support Ecency preference (a voluntary beneficiary percent stored on the
+  // user's Ecency settings). Toggling it here both persists the preference and
+  // applies/removes the ecency row on the current post.
+  const { data: supportSettings } = useSupportEcencySettingsQuery();
+  const { mutateAsync: updateSupportSettings, isPending: isSupportSaving } =
+    useSupportEcencySettingsUpdate();
+  const savedSupportPercent = supportSettings?.beneficiary_percent ?? 0;
+  const supportEnabled = savedSupportPercent > 0;
+  const [supportPercent, setSupportPercent] = useState(SUPPORT_ECENCY_DEFAULT_PERCENT);
+
+  useEffect(() => {
+    if (savedSupportPercent > 0) {
+      setSupportPercent(savedSupportPercent);
+    }
+  }, [savedSupportPercent]);
+
+  const persistSupportPercent = useCallback(
+    async (percent: number) => {
+      try {
+        // Only the beneficiary percent is managed here; keep the stored
+        // curation holdback untouched by sending its current value.
+        await updateSupportSettings({
+          beneficiary_percent: percent,
+          curation_percent: supportSettings?.curation_percent ?? 0
+        });
+        return true;
+      } catch (e) {
+        error(i18next.t("g.server-error"));
+        return false;
+      }
+    },
+    [supportSettings?.curation_percent, updateSupportSettings]
+  );
+
+  const applySupportRow = useCallback(
+    (percent: number) => {
+      const weight = percent * 100;
+      const rest = beneficiaries?.filter((b) => b.account !== SUPPORT_ECENCY_ACCOUNT) ?? [];
+      if (!canFitBeneficiary(rest, weight)) {
+        error(i18next.t("support-ecency.limits-reached"));
+        return;
+      }
+      setBeneficiaries([...rest, { account: SUPPORT_ECENCY_ACCOUNT, weight }]);
+    },
+    [beneficiaries, setBeneficiaries]
+  );
+
+  const toggleSupport = useCallback(
+    async (enabled: boolean) => {
+      const ok = await persistSupportPercent(enabled ? supportPercent : 0);
+      if (!ok) {
+        return;
+      }
+      if (enabled) {
+        applySupportRow(supportPercent);
+      } else {
+        setBeneficiaries(
+          beneficiaries?.filter((b) => b.account !== SUPPORT_ECENCY_ACCOUNT) ?? []
+        );
+      }
+    },
+    [applySupportRow, beneficiaries, persistSupportPercent, setBeneficiaries, supportPercent]
+  );
+
+  const supportPercentChanged = useCallback(
+    async (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const percent = +e.target.value;
+      setSupportPercent(percent);
+      if (supportEnabled) {
+        const ok = await persistSupportPercent(percent);
+        if (ok) {
+          applySupportRow(percent);
+        }
+      }
+    },
+    [applySupportRow, persistSupportPercent, supportEnabled]
   );
 
   const submit = useCallback(
@@ -83,6 +169,40 @@ export function PublishBeneficiariesDialog({ show, setShow }: Props) {
       <ModalHeader closeButton={true}>{i18next.t("submit.beneficiaries")}</ModalHeader>
       <ModalBody>
         <Alert className="mb-4">{i18next.t("submit.beneficiaries-hint")}</Alert>
+        {activeUser?.username && activeUser.username !== SUPPORT_ECENCY_ACCOUNT && (
+          <div className="mb-4 p-3 rounded-xl border border-[--border-color] flex flex-col gap-2">
+            <div className="flex items-center justify-between gap-4">
+              <FormControl
+                type="checkbox"
+                isToggle={true}
+                id="support-ecency-toggle"
+                label={i18next.t("support-ecency.title")}
+                checked={supportEnabled}
+                disabled={isSupportSaving}
+                onChange={(v: boolean) => toggleSupport(v)}
+              />
+              <div className="w-24 shrink-0">
+                <FormControl
+                  type="select"
+                  size="sm"
+                  value={supportPercent}
+                  disabled={isSupportSaving}
+                  onChange={supportPercentChanged}
+                  aria-label={i18next.t("support-ecency.percent-label")}
+                >
+                  {SUPPORT_ECENCY_BENEFICIARY_PRESETS.map((p) => (
+                    <option key={p} value={p}>
+                      {p}%
+                    </option>
+                  ))}
+                </FormControl>
+              </div>
+            </div>
+            <div className="text-xs text-gray-600 dark:text-gray-400">
+              {i18next.t("support-ecency.beneficiary-dialog-hint")}
+            </div>
+          </div>
+        )}
         <Form ref={formRef} onSubmit={submit}>
           <div className="beneficiary-list">
             <Table full={true}>

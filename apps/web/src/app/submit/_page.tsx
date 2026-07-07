@@ -46,6 +46,7 @@ import { extractMetaData, isCommunity } from "@/utils";
 import { Draft, Entry, RewardType } from "@/entities";
 import { TextareaAutocomplete } from "@/features/shared/textarea-autocomplete";
 import { useEntryPollExtractor } from "@/features/polls";
+import { useSupportEcencyBeneficiaryInjection } from "@/features/support-ecency";
 import { PREFIX } from "@/utils/local-storage";
 import { useRouter } from "next/navigation";
 import { EcencyConfigManager } from "@/config";
@@ -149,6 +150,11 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
     clearAdvanced,
     getHasAdvanced
   } = useAdvancedManager();
+
+  // Inject the stored "Support Ecency" beneficiary preference into new posts
+  // (never while editing an existing one). Same dedup / Hive-limit / no-re-add
+  // rules as the publish editor; flows into publish and scheduled posts alike.
+  useSupportEcencyBeneficiaryInjection(beneficiaries, setBeneficiaries, editingEntry === null);
 
   const setDescription = useCallback(
     (value: string) => {

@@ -1892,6 +1892,18 @@
     "upload-error": "Could not add the meme to your post. Please try again.",
     "beneficiaries-trimmed": "Some meme rewards were trimmed to fit the beneficiary limits."
   },
+  "support-ecency": {
+    "title": "Support Ecency",
+    "percent-label": "Percent",
+    "beneficiary-title": "Post beneficiary",
+    "beneficiary-hint": "Give a share of your post rewards to @ecency as a beneficiary. It is added automatically when you start a new post and you can remove it from any single post.",
+    "beneficiary-dialog-hint": "Saved as your preference and applied to your new posts. You can always remove the row from a single post.",
+    "curation-title": "Curation reward holdback",
+    "curation-hint": "Ecency pays a daily curation reward share to its Hive Power delegators. Choose what percent of that daily payout you want Ecency to keep as support.",
+    "delegate-link": "Want to support with a Hive Power delegation to @ecency? Open your Hive Power wallet.",
+    "add-chip": "Add 5% beneficiary to support Ecency",
+    "limits-reached": "Could not add the Ecency beneficiary because this post already uses all beneficiary slots or rewards."
+  },
   "gif-picker": {
     "filter-placeholder": "Filter",
     "credits": "Powered by GIPHY",

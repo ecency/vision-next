@@ -167,6 +167,26 @@ describe("DecentMemes beneficiaries", () => {
       expect(dropped).toBe(false);
     });
 
+    it("merges the meme frontend row into an existing Support Ecency row (never a duplicate)", () => {
+      // The Support Ecency preference injects {account: "ecency", weight: 500}
+      // before publish; the DecentMemes widget also routes 1% to the "ecency"
+      // frontend account. Hive rejects duplicate beneficiary accounts, so the
+      // merge must always produce a single combined row.
+      const existing: BeneficiaryRoute[] = [
+        { account: "ecency", weight: 500 },
+        { account: "someuser", weight: 100 }
+      ];
+      const { beneficiaries, dropped } = enforceDecentMemesBeneficiary(existing, [
+        { account: "memecreator", weight: 200, role: "creator" } as any,
+        { account: "ecency", weight: 100, role: "frontend" } as any
+      ]);
+      const ecencyRows = beneficiaries.filter((b) => b.account === "ecency");
+      expect(ecencyRows).toEqual([{ account: "ecency", weight: 600 }]);
+      expect(beneficiaries).toContainEqual({ account: "memecreator", weight: 200 });
+      expect(beneficiaries).toContainEqual({ account: "someuser", weight: 100 });
+      expect(dropped).toBe(false);
+    });
+
     it("produces a list that always satisfies Hive limits", () => {
       const existing: BeneficiaryRoute[] = [
         { account: "a", weight: 4000 },
