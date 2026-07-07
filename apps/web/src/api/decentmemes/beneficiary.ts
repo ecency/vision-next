@@ -109,7 +109,8 @@ export function enforceDecentMemesBeneficiary(
     // Hive rejects any comment_options where a beneficiary equals the author,
     // so a widget that lists the author is silently filtered out rather than
     // failing the whole broadcast.
-    meme = meme.filter((b) => b.account !== author);
+    const authorLower = author.toLowerCase();
+    meme = meme.filter((b) => b.account.toLowerCase() !== authorLower);
   }
   const postCapped = scaleToCap(meme, maxMemeWeight);
   if (totalWeight(postCapped) < totalWeight(meme)) {
@@ -127,9 +128,12 @@ export function enforceDecentMemesBeneficiary(
   meme = headroomCapped;
 
   // 3. The slot limit only constrains brand-new accounts (bumps reuse a slot).
-  const existingAccounts = new Set(existing.map((b) => b.account));
-  const bumps = meme.filter((b) => existingAccounts.has(b.account));
-  let additions = meme.filter((b) => !existingAccounts.has(b.account));
+  // Existing rows can come from restored editor state with arbitrary casing;
+  // Hive treats account names case-insensitively, so match them that way to
+  // never emit two rows for the same account.
+  const existingAccounts = new Set(existing.map((b) => b.account.toLowerCase()));
+  const bumps = meme.filter((b) => existingAccounts.has(b.account.toLowerCase()));
+  let additions = meme.filter((b) => !existingAccounts.has(b.account.toLowerCase()));
 
   const slotHeadroom = Math.max(0, HIVE_MAX_BENEFICIARIES - existing.length);
   if (additions.length > slotHeadroom) {
@@ -138,9 +142,11 @@ export function enforceDecentMemesBeneficiary(
   }
 
   // 4. Apply bumps to existing entries, then append surviving new additions.
-  const bumpByAccount = new Map(bumps.map((b) => [b.account, b.weight]));
+  const bumpByAccount = new Map(bumps.map((b) => [b.account.toLowerCase(), b.weight]));
   const merged: BeneficiaryRoute[] = existing.map((b) =>
-    bumpByAccount.has(b.account) ? { ...b, weight: b.weight + bumpByAccount.get(b.account)! } : b
+    bumpByAccount.has(b.account.toLowerCase())
+      ? { ...b, weight: b.weight + bumpByAccount.get(b.account.toLowerCase())! }
+      : b
   );
   additions.forEach((b) => merged.push({ account: b.account, weight: b.weight }));
 

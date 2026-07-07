@@ -187,6 +187,18 @@ describe("DecentMemes beneficiaries", () => {
       expect(dropped).toBe(false);
     });
 
+    it("merges into a mixed-case existing row instead of adding a duplicate account", () => {
+      // Restored editor state can carry arbitrary casing; Hive compares
+      // account names case-insensitively, so "Ecency" and "ecency" are the
+      // same beneficiary and must never both appear.
+      const existing: BeneficiaryRoute[] = [{ account: "Ecency", weight: 500 }];
+      const { beneficiaries, dropped } = enforceDecentMemesBeneficiary(existing, [
+        { account: "ecency", weight: 100, role: "frontend" } as any
+      ]);
+      expect(beneficiaries).toEqual([{ account: "Ecency", weight: 600 }]);
+      expect(dropped).toBe(false);
+    });
+
     it("produces a list that always satisfies Hive limits", () => {
       const existing: BeneficiaryRoute[] = [
         { account: "a", weight: 4000 },
