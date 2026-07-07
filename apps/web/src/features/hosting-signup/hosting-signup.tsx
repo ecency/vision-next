@@ -1,6 +1,7 @@
 "use client";
 
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useGlobalStore } from "@/core/global-store";
 import { getUsernameError } from "@/utils/username-validation";
 import { Alert } from "@ui/alert";
 import { Button } from "@ui/button";
@@ -12,6 +13,7 @@ import {
   hostingApi,
   hostingSkuForMonths,
   hostingProSkuForMonths,
+  isValidCommunityId,
   HOSTING_CUSTOM_DOMAIN_MONTHLY_USD,
   type HostingPaymentMethods
 } from "./hosting-api";
@@ -34,6 +36,7 @@ const HostingCardCheckout = dynamic(
 
 type Step = "username" | "configure" | "payment" | "success";
 type Method = "hbd" | "card";
+type InstanceType = "blog" | "community";
 
 const TERMS = [1, 3, 6, 12];
 
@@ -45,9 +48,13 @@ interface Instructions {
 
 export function HostingSignup() {
   const { activeUser } = useActiveAccount();
+  const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
 
   const [step, setStep] = useState<Step>("username");
+  // Personal blog (default) vs a Hive community hosted as its own site.
+  const [instanceType, setInstanceType] = useState<InstanceType>("blog");
   const [username, setUsername] = useState(activeUser?.username ?? "");
+  const [communityId, setCommunityId] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [months, setMonths] = useState(1);
@@ -68,7 +75,16 @@ export function HostingSignup() {
   const createdForRef = useRef("");
 
   const baseDomain = "blogs.ecency.com";
-  const cardEnabled = !!methods?.card.enabled && !!activeUser && username === activeUser.username;
+  const isCommunity = instanceType === "community";
+  // The tenant subdomain/name: the Hive user for a personal blog, the community id for a community.
+  // The owner (payer/controller) is always the logged-in account.
+  const tenantUsername = (isCommunity ? communityId : username).trim().toLowerCase();
+  // Card can only activate the payer's own tenant: ePoints binds the Stripe order to the
+  // authenticated buyer, and activation targets that account. A community is keyed by its id, not
+  // by the buyer, so the on-chain HBD memo is the only rail that can target it. Keep card to a
+  // personal blog owned by the buyer.
+  const cardEnabled =
+    !!methods?.card.enabled && !!activeUser && !isCommunity && tenantUsername === activeUser.username;
 
   useEffect(() => {
     hostingApi.paymentMethods().then(setMethods).catch(() => setMethods(null));
@@ -88,10 +104,22 @@ export function HostingSignup() {
 
   const goConfigure = () => {
     setError("");
-    const err = getUsernameError(username.trim().toLowerCase());
-    if (err) {
-      setError(err);
-      return;
+    if (isCommunity) {
+      // The owner (creator) must be logged in: the owner comes from the active account.
+      if (!activeUser) {
+        toggleUIProp("login");
+        return;
+      }
+      if (!isValidCommunityId(communityId)) {
+        setError(i18next.t("hosting.invalid-community-id"));
+        return;
+      }
+    } else {
+      const err = getUsernameError(tenantUsername);
+      if (err) {
+        setError(err);
+        return;
+      }
     }
     setStep("configure");
   };
@@ -101,13 +129,17 @@ export function HostingSignup() {
   const goPayment = useCallback(async () => {
     setError("");
     setBusy(true);
-    const uname = username.trim().toLowerCase();
+    const uname = tenantUsername;
+    // A community is owned and paid for by the logged-in account; a personal blog is owned by the
+    // blog account itself (which may pay by HBD while logged out).
+    const owner = isCommunity ? (activeUser?.username ?? "") : uname;
     try {
       if (createdForRef.current !== uname) {
-        const res = await hostingApi.createTenant(uname, {
+        const res = await hostingApi.createTenant(uname, owner, {
           theme: "system",
           title: title.trim() || undefined,
-          description: description.trim() || undefined
+          description: description.trim() || undefined,
+          ...(isCommunity ? { type: "community", communityId: uname } : {})
         });
         createdForRef.current = uname;
         setBlogUrl(res.tenant.blogUrl);
@@ -118,7 +150,7 @@ export function HostingSignup() {
       // The tenant already existing is not an error for the owner: a member who claimed a free
       // blog can come back to add a custom domain / renew. Card is gated to the owner and the
       // checkout only needs the tenant to exist, so proceed straight to payment for own account.
-      if (msg === "Username already registered" && activeUser?.username === uname) {
+      if (msg === "Username already registered" && !isCommunity && activeUser?.username === uname) {
         createdForRef.current = uname;
         setBlogUrl(`https://${uname}.${baseDomain}`);
         setStep("payment");
@@ -128,7 +160,7 @@ export function HostingSignup() {
     } finally {
       setBusy(false);
     }
-  }, [username, title, description, activeUser]);
+  }, [tenantUsername, isCommunity, title, description, activeUser]);
 
   // HBD: refresh instructions for the selected term. Guard against a slow earlier response
   // (a different term) landing after a newer one and showing a mismatched amount/memo. Skipped
@@ -139,7 +171,7 @@ export function HostingSignup() {
     // Clear immediately so the previous term's amount/memo isn't copyable while the new one loads.
     setInstructions(null);
     hostingApi
-      .paymentInstructions(username.trim().toLowerCase(), months)
+      .paymentInstructions(tenantUsername, months)
       .then((r) => {
         if (!stale) setInstructions({ to: r.to, amount: r.amount, memo: r.memo });
       })
@@ -149,13 +181,13 @@ export function HostingSignup() {
     return () => {
       stale = true;
     };
-  }, [step, method, months, username, customDomain]);
+  }, [step, method, months, tenantUsername, customDomain]);
 
   const checkActivation = useCallback(async () => {
     setError("");
     setBusy(true);
     try {
-      const t = await hostingApi.tenant(username.trim().toLowerCase());
+      const t = await hostingApi.tenant(tenantUsername);
       if (t.subscriptionStatus === "active") {
         setStep("success");
       } else {
@@ -166,7 +198,7 @@ export function HostingSignup() {
     } finally {
       setBusy(false);
     }
-  }, [username]);
+  }, [tenantUsername]);
 
   const usdPerBase = (methods?.card.monthlyUsdCents ?? 200) / 100;
   const hbdPerBase = parseFloat(methods?.hbd.monthly ?? "2");
@@ -189,17 +221,65 @@ export function HostingSignup() {
 
       {step === "username" && (
         <div className="flex flex-col gap-3">
-          <label className="text-sm font-semibold">{i18next.t("hosting.username-label")}</label>
-          <FormControl
-            type="text"
-            value={username}
-            onChange={(e: any) => setUsername(e.target.value)}
-            placeholder="yourname"
-            autoFocus={true}
-          />
-          <p className="text-sm opacity-60">
-            {i18next.t("hosting.subdomain-preview", { url: `${username || "yourname"}.${baseDomain}` })}
-          </p>
+          {/* Instance type: personal blog (default) or a Hive community as its own site. */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => setInstanceType("blog")}
+              className={`flex-1 px-3 py-2 rounded-lg border text-sm ${
+                !isCommunity ? "border-blue-dark-sky bg-blue-dark-sky/10" : "border-[--border-color]"
+              }`}
+            >
+              {i18next.t("hosting.type-blog")}
+            </button>
+            <button
+              onClick={() => setInstanceType("community")}
+              className={`flex-1 px-3 py-2 rounded-lg border text-sm ${
+                isCommunity ? "border-blue-dark-sky bg-blue-dark-sky/10" : "border-[--border-color]"
+              }`}
+            >
+              {i18next.t("hosting.type-community")}
+            </button>
+          </div>
+
+          {isCommunity ? (
+            <>
+              <label className="text-sm font-semibold">
+                {i18next.t("hosting.community-id-label")}
+              </label>
+              <FormControl
+                type="text"
+                value={communityId}
+                onChange={(e: any) => setCommunityId(e.target.value)}
+                placeholder="hive-125125"
+                autoFocus={true}
+              />
+              <p className="text-sm opacity-75">{i18next.t("hosting.community-explainer")}</p>
+              <p className="text-sm opacity-60">
+                {i18next.t("hosting.subdomain-preview", {
+                  url: `${communityId.trim().toLowerCase() || "hive-125125"}.${baseDomain}`
+                })}
+              </p>
+              {!activeUser && (
+                <Alert appearance="primary">{i18next.t("hosting.community-login-required")}</Alert>
+              )}
+            </>
+          ) : (
+            <>
+              <label className="text-sm font-semibold">{i18next.t("hosting.username-label")}</label>
+              <FormControl
+                type="text"
+                value={username}
+                onChange={(e: any) => setUsername(e.target.value)}
+                placeholder="yourname"
+                autoFocus={true}
+              />
+              <p className="text-sm opacity-60">
+                {i18next.t("hosting.subdomain-preview", {
+                  url: `${username || "yourname"}.${baseDomain}`
+                })}
+              </p>
+            </>
+          )}
           <Button onClick={goConfigure} full={true}>
             {i18next.t("g.continue")}
           </Button>
@@ -251,22 +331,25 @@ export function HostingSignup() {
             ))}
           </div>
 
-          {/* Custom domain add-on */}
-          <button
-            onClick={() => setCustomDomain((v) => !v)}
-            disabled={paying}
-            className={`text-left px-4 py-3 rounded-lg border ${
-              customDomain ? "border-blue-dark-sky bg-blue-dark-sky/10" : "border-[--border-color]"
-            } ${paying ? "opacity-50 cursor-not-allowed" : ""}`}
-          >
-            <div className="flex items-center justify-between gap-2">
-              <span className="font-semibold">{i18next.t("hosting.custom-domain-option")}</span>
-              <span className="text-sm text-blue-dark-sky">
-                {customDomain ? i18next.t("hosting.custom-domain-added") : i18next.t("hosting.custom-domain-price")}
-              </span>
-            </div>
-            <p className="text-sm opacity-75 mt-1">{i18next.t("hosting.custom-domain-explainer")}</p>
-          </button>
+          {/* Custom domain add-on. It is a card-only one-step checkout, and card is unavailable for
+              a community (see cardEnabled), so the add-on is offered for personal blogs only. */}
+          {!isCommunity && (
+            <button
+              onClick={() => setCustomDomain((v) => !v)}
+              disabled={paying}
+              className={`text-left px-4 py-3 rounded-lg border ${
+                customDomain ? "border-blue-dark-sky bg-blue-dark-sky/10" : "border-[--border-color]"
+              } ${paying ? "opacity-50 cursor-not-allowed" : ""}`}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-semibold">{i18next.t("hosting.custom-domain-option")}</span>
+                <span className="text-sm text-blue-dark-sky">
+                  {customDomain ? i18next.t("hosting.custom-domain-added") : i18next.t("hosting.custom-domain-price")}
+                </span>
+              </div>
+              <p className="text-sm opacity-75 mt-1">{i18next.t("hosting.custom-domain-explainer")}</p>
+            </button>
+          )}
 
           {/* Method toggle */}
           <div className="flex gap-2">
@@ -299,7 +382,7 @@ export function HostingSignup() {
           {method === "card" && cardEnabled && (
             <HostingCardCheckout
               key={cardSku}
-              username={username.trim().toLowerCase()}
+              username={tenantUsername}
               sku={cardSku}
               payLabel={i18next.t("hosting.pay-now")}
               returnUrl={typeof window !== "undefined" ? window.location.href : ""}
@@ -359,8 +442,9 @@ export function HostingSignup() {
             </div>
           </Alert>
 
-          {/* Custom domain plan -> let the owner attach and verify their domain now. */}
-          {customDomain && activeUser && username === activeUser.username && (
+          {/* Custom domain plan -> let the owner attach and verify their domain now. Personal blog
+              only; the add-on is not offered for a community. */}
+          {!isCommunity && customDomain && activeUser && username === activeUser.username && (
             <CustomDomainManager username={activeUser.username} />
           )}
         </div>

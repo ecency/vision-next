@@ -2,6 +2,12 @@
   "hosting": {
     "title": "Blog hosting",
     "subtitle": "Host your Hive blog on your own branded site at yourname.blogs.ecency.com.",
+    "type-blog": "Personal blog",
+    "type-community": "Community",
+    "community-id-label": "Community ID",
+    "community-explainer": "Host a Hive community you belong to as its own site, on your own domain.",
+    "community-login-required": "Sign in with the Hive account that will own and manage this community site.",
+    "invalid-community-id": "Enter a community ID in the form hive-00000.",
     "username-label": "Your Hive username",
     "subdomain-preview": "Your blog: {{url}}",
     "blog-title-label": "Blog title (optional)",

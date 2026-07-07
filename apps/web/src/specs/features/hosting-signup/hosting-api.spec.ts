@@ -2,7 +2,8 @@ import {
   HOSTING_CUSTOM_DOMAIN_MONTHLY_USD,
   HOSTING_MONTHLY_USD,
   hostingProSkuForMonths,
-  hostingSkuForMonths
+  hostingSkuForMonths,
+  isValidCommunityId
 } from "@/features/hosting-signup/hosting-api";
 import { describe, expect, it } from "vitest";
 
@@ -37,5 +38,25 @@ describe("hostingProSkuForMonths", () => {
     expect(HOSTING_MONTHLY_USD).toBe(2);
     expect(HOSTING_CUSTOM_DOMAIN_MONTHLY_USD).toBe(3);
     expect(HOSTING_CUSTOM_DOMAIN_MONTHLY_USD - HOSTING_MONTHLY_USD).toBe(1);
+  });
+});
+
+describe("isValidCommunityId", () => {
+  it("accepts a well-formed Hive community id", () => {
+    expect(isValidCommunityId("hive-125125")).toBe(true);
+    expect(isValidCommunityId("hive-1")).toBe(true);
+  });
+
+  it("trims and lowercases before validating", () => {
+    expect(isValidCommunityId("  HIVE-125125  ")).toBe(true);
+  });
+
+  it("rejects anything that is not hive-<digits>", () => {
+    expect(isValidCommunityId("hive-")).toBe(false);
+    expect(isValidCommunityId("hive-12a")).toBe(false);
+    expect(isValidCommunityId("hive125125")).toBe(false);
+    expect(isValidCommunityId("alice")).toBe(false);
+    expect(isValidCommunityId("hive-125125-extra")).toBe(false);
+    expect(isValidCommunityId("")).toBe(false);
   });
 });

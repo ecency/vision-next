@@ -20,6 +20,10 @@ export interface HostingConfigInput {
   styleTemplate?: string;
   title?: string;
   description?: string;
+  /** Instance kind. Omit (or "blog") for a personal blog; "community" hosts a Hive community. */
+  type?: "blog" | "community";
+  /** The Hive community id (hive-NNNNN) when type is "community". */
+  communityId?: string;
 }
 
 export interface CreateTenantResult {
@@ -65,9 +69,14 @@ export const hostingApi = {
 
   paymentMethods: () => get<HostingPaymentMethods>("/v1/payments/methods"),
 
-  /** Create the (inactive) tenant. Payment then activates it. */
-  createTenant: (username: string, config?: HostingConfigInput) =>
-    post<CreateTenantResult>("/v1/tenants", { username, config }),
+  /**
+   * Create the (inactive) tenant. Payment then activates it. `username` is the tenant subdomain
+   * (the Hive user for a personal blog, or the community id for a community). `owner` is the Hive
+   * account that controls and pays for the instance; it defaults to `username` for a personal blog
+   * where the showcased account and the owner are the same.
+   */
+  createTenant: (username: string, owner?: string, config?: HostingConfigInput) =>
+    post<CreateTenantResult>("/v1/tenants", { username, owner: owner ?? username, config }),
 
   tenant: (username: string) => get<TenantInfo>(`/v1/tenants/${encodeURIComponent(username)}`),
 
@@ -114,3 +123,11 @@ export function hostingProSkuForMonths(months: number): string {
 export const HOSTING_MONTHLY_USD = 2;
 /** Custom domain plan monthly price in USD (standard + your own domain, +$1/mo). */
 export const HOSTING_CUSTOM_DOMAIN_MONTHLY_USD = 3;
+
+/** A Hive community id is the literal "hive-" followed by digits (e.g. "hive-125125"). */
+export const COMMUNITY_ID_PATTERN = /^hive-\d+$/;
+
+/** True when `id` is a well-formed Hive community id (hive-NNNNN). */
+export function isValidCommunityId(id: string): boolean {
+  return COMMUNITY_ID_PATTERN.test(id.trim().toLowerCase());
+}
