@@ -185,8 +185,14 @@ interface NodeHealth {
   /** Epoch ms of the most recent 429. Used to expire the escalation streak. */
   lastRateLimitAt: number
   /** Per-API failure counters. Some nodes disable specific API plugins; tracking
-   * per-API lets us deprioritize a node only for the APIs that fail, not globally. */
-  apiFailures: Map<string, { count: number; cooldownUntil: number; lastFailureTime: number }>
+   * per-API lets us deprioritize a node only for the APIs that fail, not globally.
+   * `defective` marks a cooldown set by recordDefectiveResponse (payload
+   * validation failure) — unlike ordinary strike cooldowns it survives
+   * recordSuccess and only expires on its own. */
+  apiFailures: Map<
+    string,
+    { count: number; cooldownUntil: number; lastFailureTime: number; defective?: boolean }
+  >
   /** Most recent head_block_number observed for this node. */
   headBlock: number
   /** Epoch ms when the head_block was recorded. Used to expire stale observations. */
@@ -383,8 +389,15 @@ export class NodeHealthTracker {
     // value for an explicit Retry-After).
     h.rateLimitStreak = 0
     if (api) {
-      // A successful API call clears that API's failure counter.
-      h.apiFailures.delete(api)
+      // A successful API call clears that API's failure counter — but never an
+      // ACTIVE defective-response cooldown: the "success" may itself be an
+      // unvalidated read from the same lying node (validated calls are the
+      // minority of traffic), and re-admitting it early defeats the decisive
+      // penalty. That window expires on its own, like rateLimitedUntil above.
+      const apiFail = h.apiFailures.get(api)
+      if (!apiFail || !(apiFail.defective && apiFail.cooldownUntil > Date.now())) {
+        h.apiFailures.delete(api)
+      }
     }
     if (typeof durationMs === 'number' && Number.isFinite(durationMs) && durationMs >= 0) {
       // Latency profiles use the finest key available (full method / endpoint
@@ -497,8 +510,12 @@ export class NodeHealthTracker {
       // This prevents e.g. 3 rc_api failures from marking the node
       // globally unhealthy for condenser_api too.
       const now = Date.now()
-      const existing: { count: number; cooldownUntil: number; lastFailureTime: number } =
-        h.apiFailures.get(api) ?? { count: 0, cooldownUntil: 0, lastFailureTime: 0 }
+      const existing: {
+        count: number
+        cooldownUntil: number
+        lastFailureTime: number
+        defective?: boolean
+      } = h.apiFailures.get(api) ?? { count: 0, cooldownUntil: 0, lastFailureTime: 0 }
       // Reset counter if previous cooldown expired OR last failure was >30s ago
       // (avoids sticky penalties from sparse failures hours apart)
       if (
@@ -519,6 +536,33 @@ export class NodeHealthTracker {
       h.consecutiveFailures++
       h.lastFailureTime = Date.now()
     }
+  }
+
+  /**
+   * A response that failed the caller's payload validation is a decisive,
+   * reproducible node fault — the node answered 200 with data the caller KNOWS
+   * to be impossible — so it trips the per-API cooldown immediately instead of
+   * accruing ordinary strikes. Deliberately its own method rather than
+   * recordFailure × N: ordinary strikes are cleared by any success, and a
+   * top-ranked lying node keeps recording successes on the unvalidated calls
+   * between probes, which would reset its strikes forever and keep it in
+   * rotation (observed live). Scope stays per-API: the node may be perfectly
+   * healthy for its other API families.
+   */
+  recordDefectiveResponse(node: string, api: string): void {
+    const h = this.getOrCreate(node)
+    const now = Date.now()
+    const existing: {
+      count: number
+      cooldownUntil: number
+      lastFailureTime: number
+      defective?: boolean
+    } = h.apiFailures.get(api) ?? { count: 0, cooldownUntil: 0, lastFailureTime: 0 }
+    existing.count = Math.max(existing.count + 1, MAX_API_FAILURES_BEFORE_COOLDOWN)
+    existing.lastFailureTime = now
+    existing.cooldownUntil = now + API_COOLDOWN_MS
+    existing.defective = true
+    h.apiFailures.set(api, existing)
   }
 
   /**
@@ -1165,7 +1209,7 @@ function hedgedRpcAttempt<T>(opts: {
             // HTTP/JSON-RPC layers cannot see. Same handling as the catch
             // path — record the fault against this node's API health, never
             // record a success for a lie, and let the other leg still win.
-            rpcHealthTracker.recordFailure(node, api)
+            rpcHealthTracker.recordDefectiveResponse(node, api)
             lastError = new Error(
               `[hive-tx] response validation failed for ${method} from ${node}`
             )
@@ -1421,7 +1465,7 @@ export const callRPC = async <T = any>(
         // HTTP/JSON-RPC layers cannot see. Count it against this node's API
         // health (never record a success or refill the hedge budget for a
         // lie) and fail over to the next node.
-        rpcHealthTracker.recordFailure(node, api)
+        rpcHealthTracker.recordDefectiveResponse(node, api)
         lastError = new Error(`[hive-tx] response validation failed for ${method} from ${node}`)
         if (attempt < retry) {
           await jitterDelay()

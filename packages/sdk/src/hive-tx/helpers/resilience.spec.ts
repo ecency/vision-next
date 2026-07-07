@@ -568,7 +568,7 @@ describe("response payload validation", () => {
     expect(fetches.hostsInOrder()).toEqual([new URL(nodes[0]).origin, new URL(nodes[1]).origin]);
   });
 
-  it("records the fault against the lying node's API health so repeat offenders cool down", async () => {
+  it("cools the lying node down for that API immediately (successes must not wash it out)", async () => {
     const nodes = freshNodes(2);
     config.nodes = nodes;
     routeFetch({
@@ -576,13 +576,17 @@ describe("response payload validation", () => {
       [new URL(nodes[1]).origin]: { kind: "ok", result: "truth" },
     });
 
-    // Two validation failures within the window trip the per-API cooldown.
-    await callRPC(METHOD, [["ecency"]], undefined, undefined, undefined, (r) => r === "truth");
+    // A single validation failure is a decisive fault: unvalidated calls to a
+    // top-ranked lying node record successes that clear ordinary strikes, so
+    // an accrual-based penalty would reset forever (observed live).
     await callRPC(METHOD, [["ecency"]], undefined, undefined, undefined, (r) => r === "truth");
 
     expect(rpcHealthTracker.isNodeHealthy(nodes[0], "condenser_api")).toBe(false);
     // The fault is API-scoped: the node stays available for other APIs.
     expect(rpcHealthTracker.isNodeHealthy(nodes[0], "bridge")).toBe(true);
+    // And a later success on that API must not lift the active cooldown early.
+    rpcHealthTracker.recordSuccess(nodes[0], "condenser_api");
+    expect(rpcHealthTracker.isNodeHealthy(nodes[0], "condenser_api")).toBe(false);
   });
 
   it("throws the validation error when every node fails validation", async () => {
