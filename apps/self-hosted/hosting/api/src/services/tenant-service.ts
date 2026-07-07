@@ -40,10 +40,11 @@ export const TenantService = {
    * Create new tenant
    */
   async create(username: string, configOverrides?: any): Promise<Tenant> {
-    const defaultConfig = await this.getDefaultConfig(username);
-    const config = configOverrides
-      ? this.mergeConfig(defaultConfig, configOverrides)
-      : defaultConfig;
+    // buildConfig normalizes flat API overrides (title, description, theme, styleTemplate, type,
+    // communityId) into the nested shape the SPA actually reads. Merging the flat keys directly kept
+    // them at the config root, where the SPA ignores them, so a signup's chosen title/theme/style
+    // were silently dropped (and any community override too). Route both paths through buildConfig.
+    const config = await this.buildConfig(username, configOverrides);
 
     const row = await db.queryOne<TenantRow>(
       `INSERT INTO tenants (username, config, subscription_status, subscription_plan)
