@@ -83,8 +83,11 @@ export function HostingSignup() {
   // authenticated buyer, and activation targets that account. A community is keyed by its id, not
   // by the buyer, so the on-chain HBD memo is the only rail that can target it. Keep card to a
   // personal blog owned by the buyer.
+  // Card is available when the logged-in account is the payer: for a personal blog that must be the
+  // blog account itself; for a community the owner (any logged-in account) pays and the community is
+  // activated via hostingTarget, so it does not need to equal the tenant.
   const cardEnabled =
-    !!methods?.card.enabled && !!activeUser && !isCommunity && tenantUsername === activeUser.username;
+    !!methods?.card.enabled && !!activeUser && (isCommunity || tenantUsername === activeUser.username);
 
   useEffect(() => {
     hostingApi.paymentMethods().then(setMethods).catch(() => setMethods(null));
@@ -410,8 +413,9 @@ export function HostingSignup() {
 
           {method === "card" && cardEnabled && (
             <HostingCardCheckout
-              key={cardSku}
-              username={tenantUsername}
+              key={`${cardSku}:${tenantUsername}:${activeUser?.username ?? ""}`}
+              username={activeUser?.username ?? tenantUsername}
+              hostingTarget={isCommunity ? tenantUsername : undefined}
               sku={cardSku}
               payLabel={i18next.t("hosting.pay-now")}
               returnUrl={typeof window !== "undefined" ? window.location.href : ""}
