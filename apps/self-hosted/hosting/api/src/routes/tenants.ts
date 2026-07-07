@@ -82,12 +82,52 @@ tenantRoutes.get('/:username/config', async (c) => {
 });
 
 // POST /v1/tenants - Create new tenant (requires payment)
+// Validate a tenant-create request (shared by POST / and /subscribe). Enforces that the showcased
+// and owner accounts exist; that a PERSONAL blog is controlled by its own account (owner === the
+// username) so a direct API call cannot assign someone else as controller of a blog; and that a
+// COMMUNITY has a real, separate owner account plus a valid, existing community id equal to the
+// subdomain. Returns the resolved owner or a client error.
+async function resolveAndValidateTenant(
+  body: any
+): Promise<{ ok: true; owner: string } | { ok: false; status: 400; error: string }> {
+  const username = body.username.toLowerCase();
+  const owner = (body.owner || body.username).toLowerCase();
+  const isCommunity = body.config?.type === 'community';
+
+  if (!(await TenantService.verifyHiveAccount(username))) {
+    return { ok: false, status: 400, error: 'Hive account not found' };
+  }
+  if (!(await TenantService.verifyHiveAccount(owner))) {
+    return { ok: false, status: 400, error: 'Owner account not found' };
+  }
+
+  if (isCommunity) {
+    const communityId = (body.config.communityId || '').toLowerCase();
+    if (!/^hive-\d+$/.test(communityId)) {
+      return { ok: false, status: 400, error: 'Community id must look like hive-NNNN' };
+    }
+    if (username !== communityId) {
+      return { ok: false, status: 400, error: 'Subdomain must equal the community id' };
+    }
+    // A community account holds no user's keys, so it can never be the controller: require an
+    // explicit, different owner or the instance would be unmanageable.
+    if (!body.owner || owner === communityId) {
+      return { ok: false, status: 400, error: 'A community instance requires a separate owner account' };
+    }
+    if (!(await TenantService.verifyCommunity(communityId))) {
+      return { ok: false, status: 400, error: 'Community not found' };
+    }
+  } else if (owner !== username) {
+    // A personal blog is always controlled by its own account; reject an attempt to assign a
+    // different owner, which would let a direct API call hijack management of someone's blog.
+    return { ok: false, status: 400, error: 'A personal blog must be owned by its own account' };
+  }
+
+  return { ok: true, owner };
+}
+
 tenantRoutes.post('/', zValidator('json', createTenantSchema), async (c) => {
   const body = c.req.valid('json');
-
-  // Resolve the controlling account. A personal blog owns itself; a community is owned by its
-  // creator. Every later mutating op (PATCH / DELETE / domains / upgrade) authorizes on this.
-  const owner = (body.owner || body.username).toLowerCase();
 
   // Check if username already exists
   const existing = await TenantService.getByUsername(body.username);
@@ -95,32 +135,12 @@ tenantRoutes.post('/', zValidator('json', createTenantSchema), async (c) => {
     return c.json({ error: 'Username already registered' }, 409);
   }
 
-  // Verify the showcased Hive account exists
-  const hiveAccountExists = await TenantService.verifyHiveAccount(body.username);
-  if (!hiveAccountExists) {
-    return c.json({ error: 'Hive account not found' }, 400);
+  // Validate accounts + community + ownership rules (shared with /subscribe).
+  const validation = await resolveAndValidateTenant(body);
+  if (!validation.ok) {
+    return c.json({ error: validation.error }, validation.status);
   }
-
-  // Verify the owner Hive account exists
-  const ownerExists = await TenantService.verifyHiveAccount(owner);
-  if (!ownerExists) {
-    return c.json({ error: 'Owner account not found' }, 400);
-  }
-
-  // Community instances: the subdomain IS the community, and the community must exist.
-  if (body.config?.type === 'community') {
-    const communityId = (body.config.communityId || '').toLowerCase();
-    if (!/^hive-\d+$/.test(communityId)) {
-      return c.json({ error: 'Community id must look like hive-NNNN' }, 400);
-    }
-    if (body.username.toLowerCase() !== communityId) {
-      return c.json({ error: 'Subdomain must equal the community id' }, 400);
-    }
-    const communityExists = await TenantService.verifyCommunity(communityId);
-    if (!communityExists) {
-      return c.json({ error: 'Community not found' }, 400);
-    }
-  }
+  const { owner } = validation;
 
   // Create tenant (inactive until payment)
   const tenant = await TenantService.create(body.username, owner, body.config);
@@ -165,9 +185,11 @@ tenantRoutes.post('/subscribe',
     if (existing) {
       return c.json({ error: 'Username already registered' }, 409);
     }
-    const hiveAccountExists = await TenantService.verifyHiveAccount(body.username);
-    if (!hiveAccountExists) {
-      return c.json({ error: 'Hive account not found' }, 400);
+    // Same account + community + ownership validation as POST /, BEFORE the paywall so a payment is
+    // never settled for a request the create route would reject (unverified owner, invalid community).
+    const validation = await resolveAndValidateTenant(body);
+    if (!validation.ok) {
+      return c.json({ error: validation.error }, validation.status);
     }
     await next();
   },
