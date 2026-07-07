@@ -413,7 +413,7 @@ export function HostingSignup() {
 
           {method === "card" && cardEnabled && (
             <HostingCardCheckout
-              key={`${cardSku}:${tenantUsername}`}
+              key={`${cardSku}:${tenantUsername}:${activeUser?.username ?? ""}`}
               username={activeUser?.username ?? tenantUsername}
               hostingTarget={isCommunity ? tenantUsername : undefined}
               sku={cardSku}
