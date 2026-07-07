@@ -4,7 +4,8 @@ import {
   extractAccountProfile,
   buildProfileMetadata,
   parsePostingMetadataRoot,
-  buildPostingJsonMetadata
+  buildPostingJsonMetadata,
+  pickRicherMetadataSnapshot
 } from './profile-metadata'
 import { AccountProfile, FullAccount } from '../types'
 
@@ -356,6 +357,41 @@ describe('profile-metadata utilities', () => {
       )
       expect(out.profile.name).toBe('Fresh')
       expect(out.profile.version).toBe(2)
+    })
+  })
+
+  describe('pickRicherMetadataSnapshot', () => {
+    const full = {
+      posting_json_metadata: JSON.stringify({
+        profile: { name: 'Full', about: 'bio', profile_image: 'https://img', pinned: 'p', version: 2 }
+      })
+    }
+    const stripped = { posting_json_metadata: '' }
+    const partial = {
+      posting_json_metadata: JSON.stringify({ profile: { pinned: 'p', version: 2 } })
+    }
+
+    it('prefers the preferred snapshot when it is at least as rich', () => {
+      expect(pickRicherMetadataSnapshot(full, partial)).toBe(full)
+      expect(pickRicherMetadataSnapshot(full, full)).toBe(full)
+    })
+
+    it('falls back to the richer snapshot when the preferred one was stripped', () => {
+      expect(pickRicherMetadataSnapshot(stripped, full)).toBe(full)
+      expect(pickRicherMetadataSnapshot(partial, full)).toBe(full)
+    })
+
+    it('keeps the preferred snapshot on equal key counts (freshness wins ties)', () => {
+      const samePinnedNewer = {
+        posting_json_metadata: JSON.stringify({ profile: { pinned: 'newer', version: 2 } })
+      }
+      expect(pickRicherMetadataSnapshot(samePinnedNewer, partial)).toBe(samePinnedNewer)
+    })
+
+    it('handles missing snapshots on either side', () => {
+      expect(pickRicherMetadataSnapshot(null, full)).toBe(full)
+      expect(pickRicherMetadataSnapshot(full, undefined)).toBe(full)
+      expect(pickRicherMetadataSnapshot(null, undefined)).toBeUndefined()
     })
   })
 })

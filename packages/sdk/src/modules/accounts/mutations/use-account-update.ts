@@ -8,6 +8,7 @@ import {
   buildPostingJsonMetadata,
   buildProfileMetadata,
   extractAccountProfile,
+  pickRicherMetadataSnapshot,
 } from "../utils/profile-metadata";
 
 interface Payload {
@@ -75,12 +76,18 @@ export function useAccountUpdate(
     username,
     (payload: Partial<Payload>) => {
       // Prefer the freshest cached snapshot. onMutate has just refetched the
-      // account from chain, so this reflects the current on-chain profile
-      // rather than a possibly stale/unloaded render-time value.
-      const account =
+      // account from chain, so this usually reflects the current on-chain
+      // profile rather than a possibly stale/unloaded render-time value. If
+      // the cache instead holds a metadata-poorer row than the render-time
+      // snapshot (e.g. a node served a stripped account row), the richer
+      // snapshot wins — a partial update must never shrink the profile while
+      // any snapshot still knows the full one.
+      const account = pickRicherMetadataSnapshot(
         queryClient.getQueryData<FullAccount>(
           getAccountFullQueryOptions(username).queryKey
-        ) ?? data;
+        ),
+        data
+      );
 
       if (!account) {
         throw new Error("[SDK][Accounts] – cannot update not existing account");

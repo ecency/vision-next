@@ -84,6 +84,31 @@ export function extractAccountProfile(
 }
 
 /**
+ * Choose between two account snapshots for a posting-metadata merge base.
+ * Prefers `preferred` (typically the freshest cache entry) unless `fallback`
+ * carries strictly more profile keys — guarding read-modify-write flows
+ * against a snapshot whose metadata was served stripped by a misbehaving node
+ * while another snapshot still holds the real profile. A partial update must
+ * never shrink the profile while any snapshot still knows the full one.
+ */
+export function pickRicherMetadataSnapshot<
+  T extends Pick<FullAccount, "posting_json_metadata">
+>(
+  preferred: T | null | undefined,
+  fallback: T | null | undefined
+): T | null | undefined {
+  if (!preferred) return fallback;
+  if (!fallback) return preferred;
+  const preferredKeys = Object.keys(
+    parseProfileMetadata(preferred.posting_json_metadata)
+  ).length;
+  const fallbackKeys = Object.keys(
+    parseProfileMetadata(fallback.posting_json_metadata)
+  ).length;
+  return fallbackKeys > preferredKeys ? fallback : preferred;
+}
+
+/**
  * Parse the FULL root object of posting_json_metadata, not just its `profile`
  * key. Returns {} for missing/invalid input or a non-object root.
  *
