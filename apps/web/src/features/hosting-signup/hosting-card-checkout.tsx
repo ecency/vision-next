@@ -9,7 +9,7 @@ import {
 import { Elements } from "@stripe/react-stripe-js";
 import { Alert } from "@ui/alert";
 import i18next from "i18next";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const isDarkMode = () =>
   typeof document !== "undefined" && document.documentElement.classList.contains("dark");
@@ -56,7 +56,10 @@ export function HostingCardCheckout({
   onActivated,
   onConfirmed
 }: Props) {
-  const [nonce] = useState(genNonce);
+  // The nonce is the create-intent idempotency key, so it must change when the checkout identity
+  // (sku or target tenant) changes; otherwise a re-mint for a new target would return the
+  // PaymentIntent already created for the previous one. Fresh nonce per (sku, hostingTarget).
+  const nonce = useMemo(genNonce, [sku, hostingTarget]);
   const [clientSecret, setClientSecret] = useState("");
   const [error, setError] = useState("");
   const [activating, setActivating] = useState(false);
