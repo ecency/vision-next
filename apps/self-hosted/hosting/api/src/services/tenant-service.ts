@@ -311,7 +311,7 @@ export const TenantService = {
           dateTimeFormat: 'YYYY-MM-DD HH:mm:ss',
           imageProxy: 'https://i.ecency.com',
           profileBaseUrl: 'https://ecency.com/@',
-          createPostUrl: 'https://ecency.com/submit',
+          createPostUrl: 'https://ecency.com/publish',
           styles: {
             background: 'bg-gradient-to-br from-[#f8fafc] to-[#e2e8f0]',
           },
