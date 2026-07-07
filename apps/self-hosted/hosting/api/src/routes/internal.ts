@@ -112,7 +112,12 @@ internalRoutes.post('/activate', async (c) => {
     if (result.status === 404) {
       return c.json({ error: 'tenant_not_found' }, 404);
     }
-    return c.json({ activated: true, duplicate: !!result.duplicate, expiresAt: result.expiresAt }, 200);
+    // Echo the plan we applied so the caller (ePoints) can confirm the Pro tier was honored;
+    // an older service that ignores `plan` omits this field, which the caller treats as a mismatch.
+    return c.json(
+      { activated: true, duplicate: !!result.duplicate, expiresAt: result.expiresAt, plan },
+      200
+    );
   } catch (e) {
     console.error('[internal/activate] error:', (e as Error).message);
     return c.json({ error: 'activation_failed' }, 500);
