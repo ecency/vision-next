@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.40
+
+### Patch Changes
+
+- Support Ecency: beneficiary preference and curation holdback settings (#1111)
+
 ## 2.3.39
 
 ### Patch Changes
