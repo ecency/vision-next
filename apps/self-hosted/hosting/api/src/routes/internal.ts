@@ -70,7 +70,7 @@ internalRoutes.post('/activate', async (c) => {
   }
 
   try {
-    const result = await db.transaction<{ status: 200 | 404 | 409 | 422; duplicate?: boolean; expiresAt?: Date; plan?: string }>(
+    const result = await db.transaction<{ status: 200 | 403 | 404 | 409; duplicate?: boolean; expiresAt?: Date; plan?: string }>(
       async (client) => {
         // Lock the tenant row (serializes retries) and confirm it still exists.
         const t = await client.query(
@@ -87,7 +87,7 @@ internalRoutes.post('/activate', async (c) => {
         // activates a tenant different from the payer only for a community the payer owns; anything
         // else (including an empty payer) is refused. Omitted payer (null) means no check.
         if (payer !== null && payer !== tenant.owner) {
-          return { status: 422 };
+          return { status: 403 };
         }
 
         // Idempotent Pro upgrade for THIS tenant (a standard activation never touches the plan, so
@@ -157,10 +157,11 @@ internalRoutes.post('/activate', async (c) => {
       }
     );
 
-    if (result.status === 422) {
-      // The paying account does not own this tenant. A distinct status (not the secret-misconfig 403
-      // at the top) so the caller can treat it as terminal without parsing the body shape.
-      return c.json({ error: 'payer_not_owner' }, 422);
+    if (result.status === 403) {
+      // The paying account does not own this tenant: terminal for the caller. Distinguished from the
+      // secret-misconfig 403 (returned at the top, before any processing) by this error body, which
+      // the caller matches to treat ownership denial as terminal.
+      return c.json({ error: 'payer_not_owner' }, 403);
     }
     if (result.status === 404) {
       return c.json({ error: 'tenant_not_found' }, 404);
