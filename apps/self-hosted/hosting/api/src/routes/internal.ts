@@ -7,8 +7,19 @@
 
 import { Hono } from 'hono';
 import { db } from '../db/client';
+import { TenantService } from '../services/tenant-service';
+import { DomainService } from '../services/domain-service';
+import { ConfigService } from '../services/config-service';
+import { mapTenantFromDb } from '../types';
 
 export const internalRoutes = new Hono();
+
+const baseDomain = process.env.BASE_DOMAIN || 'blogs.ecency.com';
+
+// Hive-username shape, matching the check used by /activate.
+const USERNAME_RE = /^[a-z][a-z0-9.-]{2,15}$/;
+// Same domain shape the public /v1/domains route enforces (zod regex, case-insensitive).
+const DOMAIN_RE = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/i;
 
 // Constant-time check of the shared service-to-service secret (ePoints -> hosting).
 // Fails CLOSED when the secret is unset, so a misconfigured deploy cannot activate blogs.
@@ -153,6 +164,190 @@ internalRoutes.post('/activate', async (c) => {
   } catch (e) {
     console.error('[internal/activate] error:', (e as Error).message);
     return c.json({ error: 'activation_failed' }, 500);
+  }
+});
+
+// POST /v1/internal/domain - attach a custom domain to a tenant (service-to-service).
+// The web proxy has already verified the caller owns `username` (HiveSigner token); the shared
+// secret protects the endpoint. Mirrors the public /v1/domains shape but keyed by body username
+// instead of a user JWT. Custom domains are a Pro-plan (custom-domain add-on) capability.
+internalRoutes.post('/domain', async (c) => {
+  if (!internalSecretOk(c.req.header('x-internal-secret'))) {
+    return c.json({ error: 'forbidden' }, 403);
+  }
+
+  let body: any;
+  try {
+    body = await c.req.json();
+  } catch {
+    return c.json({ error: 'invalid_body' }, 400);
+  }
+
+  const username = String(body?.username || '').toLowerCase();
+  const domain = String(body?.domain || '').toLowerCase().trim();
+
+  if (!USERNAME_RE.test(username) || domain.length < 4 || domain.length > 255 || !DOMAIN_RE.test(domain)) {
+    return c.json({ error: 'invalid_request' }, 400);
+  }
+
+  const tenant = await TenantService.getByUsername(username);
+  if (!tenant) {
+    return c.json({ error: 'tenant_not_found' }, 404);
+  }
+  // Custom domains require the Pro plan (internal value stays 'pro'; user-facing = Custom domain).
+  if (tenant.subscriptionPlan !== 'pro') {
+    return c.json({ error: 'custom_domain_requires_pro' }, 402);
+  }
+
+  // Refuse a domain already verified by a different tenant.
+  const existing = await TenantService.getByDomain(domain);
+  if (existing && existing.username !== username) {
+    return c.json({ error: 'domain_in_use' }, 409);
+  }
+
+  await TenantService.setCustomDomain(username, domain);
+  const verification = await DomainService.createVerification(username, domain);
+  const value = `${username}.${baseDomain}`;
+
+  return c.json({
+    domain,
+    verification: {
+      type: 'CNAME',
+      name: verification.verificationToken,
+      value,
+      instructions: `Add a CNAME record pointing ${domain} to ${value}`,
+    },
+  });
+});
+
+// POST /v1/internal/domain/verify - run the DNS check for a tenant's pending custom domain.
+internalRoutes.post('/domain/verify', async (c) => {
+  if (!internalSecretOk(c.req.header('x-internal-secret'))) {
+    return c.json({ error: 'forbidden' }, 403);
+  }
+
+  let body: any;
+  try {
+    body = await c.req.json();
+  } catch {
+    return c.json({ error: 'invalid_body' }, 400);
+  }
+
+  const username = String(body?.username || '').toLowerCase();
+  if (!USERNAME_RE.test(username)) {
+    return c.json({ error: 'invalid_request' }, 400);
+  }
+
+  const tenant = await TenantService.getByUsername(username);
+  if (!tenant) {
+    return c.json({ error: 'tenant_not_found' }, 404);
+  }
+  if (!tenant.customDomain) {
+    return c.json({ verified: false }, 200);
+  }
+  // Already verified earlier -> idempotent success.
+  if (tenant.customDomainVerified) {
+    return c.json({ verified: true }, 200);
+  }
+
+  const ok = await DomainService.verifyDomain(tenant.customDomain, username);
+  if (!ok) {
+    return c.json({ verified: false }, 200);
+  }
+
+  await TenantService.verifyCustomDomain(username);
+  await DomainService.markVerified(username, tenant.customDomain);
+  return c.json({ verified: true }, 200);
+});
+
+// POST /v1/internal/claim-blog - idempotently give an Ecency Pro member their free blog.
+// The web proxy has already verified the caller is an active Pro member; the shared secret
+// protects the endpoint. Creates a standard tenant if none exists and activates it free for a
+// year. If the tenant already exists it is returned unchanged (no re-activation, no extension).
+internalRoutes.post('/claim-blog', async (c) => {
+  if (!internalSecretOk(c.req.header('x-internal-secret'))) {
+    return c.json({ error: 'forbidden' }, 403);
+  }
+
+  let body: any;
+  try {
+    body = await c.req.json();
+  } catch {
+    return c.json({ error: 'invalid_body' }, 400);
+  }
+
+  const username = String(body?.username || '').toLowerCase();
+  if (!USERNAME_RE.test(username)) {
+    return c.json({ error: 'invalid_request' }, 400);
+  }
+  const title = typeof body?.title === 'string' ? body.title.slice(0, 100) : undefined;
+  const description = typeof body?.description === 'string' ? body.description.slice(0, 500) : undefined;
+
+  try {
+    // Build config outside the transaction (pure, no I/O).
+    const config = await TenantService.buildConfig(username, { title, description });
+
+    const result = await db.transaction<{ created: boolean; row: any }>(async (client) => {
+      // Try to create; ON CONFLICT means the tenant already exists (blocks on a concurrent claim
+      // until it commits, then returns 0 rows) -> we return the existing row unchanged.
+      const inserted = await client.query(
+        `INSERT INTO tenants (username, config, subscription_status, subscription_plan)
+         VALUES ($1, $2, 'inactive', 'standard')
+         ON CONFLICT (username) DO NOTHING
+         RETURNING *`,
+        [username, JSON.stringify(config)]
+      );
+
+      if (inserted.rowCount === 0) {
+        const existing = await client.query(`SELECT * FROM tenants WHERE username = $1`, [username]);
+        return { created: false, row: existing.rows[0] };
+      }
+
+      const tenantId = inserted.rows[0].id;
+      // Record the free grant for the audit/payment trail (idempotent on the synthetic trx_id).
+      await client.query(
+        `INSERT INTO payments
+           (id, tenant_id, trx_id, block_num, from_account, amount, currency, memo, status, months_credited, processed_at)
+         VALUES (gen_random_uuid(), $1, $2, 0, 'ecency-pro', 0, 'USD', $3, 'processed', 12, NOW())
+         ON CONFLICT (trx_id) DO NOTHING`,
+        [tenantId, `free-claim:${username}`, `pro:claim-blog:${username}`]
+      );
+
+      const activated = await client.query(
+        `UPDATE tenants
+           SET subscription_status = 'active',
+               subscription_started_at = NOW(),
+               subscription_expires_at = NOW() + INTERVAL '12 months',
+               updated_at = NOW()
+         WHERE id = $1
+         RETURNING *`,
+        [tenantId]
+      );
+      return { created: true, row: activated.rows[0] };
+    });
+
+    const tenant = mapTenantFromDb(result.row);
+
+    // Generate the config file for a freshly-created tenant (non-critical, outside the tx).
+    if (result.created) {
+      try {
+        await ConfigService.generateConfigFile(tenant);
+      } catch (err) {
+        console.error(`[internal/claim-blog] config generation failed for ${username}:`, err);
+      }
+    }
+
+    return c.json({
+      tenant: {
+        username: tenant.username,
+        blogUrl: TenantService.getBlogUrl(tenant),
+        subscriptionStatus: tenant.subscriptionStatus,
+        subscriptionPlan: tenant.subscriptionPlan,
+      },
+    });
+  } catch (e) {
+    console.error('[internal/claim-blog] error:', (e as Error).message);
+    return c.json({ error: 'claim_failed' }, 500);
   }
 });
 

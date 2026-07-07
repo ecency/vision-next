@@ -30,6 +30,12 @@ const ProDialog = dynamic(() => import("@/features/pro/pro-dialog").then((m) => 
   ssr: false
 });
 
+// Existing Pro members open the free-blog claim (not the checkout) from the Pro card.
+const ProBlogDialog = dynamic(
+  () => import("@/features/pro/pro-blog-dialog").then((m) => m.ProBlogDialog),
+  { ssr: false }
+);
+
 export function PerksPage() {
   const { username } = useActiveAccount();
   const { data: proMembers } = useQuery(getProMembersQueryOptions());
@@ -38,6 +44,7 @@ export function PerksPage() {
   const [showBoost, setShowBoost] = useState(false);
   const [showQrDialog, setShowQrDialog] = useState(false);
   const [showPro, setShowPro] = useState(false);
+  const [showProBlog, setShowProBlog] = useState(false);
   const [resumePro, setResumePro] = useState<string | undefined>(undefined);
 
   // Opening the hub clears the one-time discovery dot on the navbar perks button.
@@ -115,9 +122,8 @@ export function PerksPage() {
         <div className="col-span-6 row-span-2 md:col-span-3">
           <LoginRequired>
             <PerksBasicCard
-              className="min-h-[13rem] p-4"
-              onClick={isPro ? undefined : () => setShowPro(true)}
-              style={{ cursor: isPro ? "default" : "pointer" }}
+              className="min-h-[13rem] p-4 cursor-pointer"
+              onClick={() => (isPro ? setShowProBlog(true) : setShowPro(true))}
             >
               <div className="relative z-10">
                 <div className="md:text-lg font-bold text-blue-dark-sky">
@@ -171,6 +177,9 @@ export function PerksPage() {
               setResumePro(undefined);
             }}
           />
+        )}
+        {showProBlog && username && (
+          <ProBlogDialog username={username} onHide={() => setShowProBlog(false)} />
         )}
         <PurchaseQrDialog show={showQrDialog} setShow={(v) => setShowQrDialog(v)} />
       </div>

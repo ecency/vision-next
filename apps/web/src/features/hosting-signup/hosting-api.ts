@@ -91,3 +91,26 @@ export function hostingSkuForMonths(months: number): string {
       return "200hosting";
   }
 }
+
+/**
+ * SKU for the Custom domain plan (hosting + your own domain) for a given term. Priced at
+ * $3/mo (leading number = price in cents), which the ePoints rail activates on the internal
+ * `pro` plan so custom domains unlock. Kept separate from the standard `*hosting` SKUs above.
+ */
+export function hostingProSkuForMonths(months: number): string {
+  switch (months) {
+    case 3:
+      return "900prohosting";
+    case 6:
+      return "1800prohosting";
+    case 12:
+      return "3600prohosting";
+    default:
+      return "300prohosting";
+  }
+}
+
+/** Standard hosting monthly price in USD (subdomain included). */
+export const HOSTING_MONTHLY_USD = 2;
+/** Custom domain plan monthly price in USD (standard + your own domain, +$1/mo). */
+export const HOSTING_CUSTOM_DOMAIN_MONTHLY_USD = 3;

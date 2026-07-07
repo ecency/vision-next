@@ -6,8 +6,16 @@ import { Alert } from "@ui/alert";
 import { Button } from "@ui/button";
 import { FormControl } from "@ui/input";
 import i18next from "i18next";
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { hostingApi, hostingSkuForMonths, type HostingPaymentMethods } from "./hosting-api";
+import {
+  hostingApi,
+  hostingSkuForMonths,
+  hostingProSkuForMonths,
+  HOSTING_CUSTOM_DOMAIN_MONTHLY_USD,
+  type HostingPaymentMethods
+} from "./hosting-api";
+import { CustomDomainManager } from "./custom-domain-manager";
 import dynamic from "next/dynamic";
 
 // Lazy-load the card checkout so /hosting doesn't pull @stripe/stripe-js (which injects the
@@ -43,6 +51,9 @@ export function HostingSignup() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [months, setMonths] = useState(1);
+  // Custom domain add-on: switches to the $3/mo "prohosting" plan so the tenant activates on the
+  // internal pro plan and can attach a custom domain after checkout.
+  const [customDomain, setCustomDomain] = useState(false);
   const [method, setMethod] = useState<Method>("card");
   const [methods, setMethods] = useState<HostingPaymentMethods | null>(null);
   const [instructions, setInstructions] = useState<Instructions | null>(null);
@@ -68,6 +79,12 @@ export function HostingSignup() {
   useEffect(() => {
     if (!cardEnabled) setMethod("hbd");
   }, [cardEnabled]);
+
+  // Custom domain is a one-step card checkout (the on-chain HBD rail has no single "create + pro"
+  // memo), so prefer card the moment the add-on is chosen and card is available.
+  useEffect(() => {
+    if (customDomain && cardEnabled) setMethod("card");
+  }, [customDomain, cardEnabled]);
 
   const goConfigure = () => {
     setError("");
@@ -98,16 +115,26 @@ export function HostingSignup() {
       setStep("payment");
     } catch (e) {
       const msg = (e as Error).message;
-      setError(msg === "Username already registered" ? i18next.t("hosting.already-registered") : msg);
+      // The tenant already existing is not an error for the owner: a member who claimed a free
+      // blog can come back to add a custom domain / renew. Card is gated to the owner and the
+      // checkout only needs the tenant to exist, so proceed straight to payment for own account.
+      if (msg === "Username already registered" && activeUser?.username === uname) {
+        createdForRef.current = uname;
+        setBlogUrl(`https://${uname}.${baseDomain}`);
+        setStep("payment");
+      } else {
+        setError(msg === "Username already registered" ? i18next.t("hosting.already-registered") : msg);
+      }
     } finally {
       setBusy(false);
     }
-  }, [username, title, description]);
+  }, [username, title, description, activeUser]);
 
   // HBD: refresh instructions for the selected term. Guard against a slow earlier response
-  // (a different term) landing after a newer one and showing a mismatched amount/memo.
+  // (a different term) landing after a newer one and showing a mismatched amount/memo. Skipped
+  // for the custom domain add-on (that is a card-only one-step checkout).
   useEffect(() => {
-    if (step !== "payment" || method !== "hbd") return;
+    if (step !== "payment" || method !== "hbd" || customDomain) return;
     let stale = false;
     // Clear immediately so the previous term's amount/memo isn't copyable while the new one loads.
     setInstructions(null);
@@ -122,7 +149,7 @@ export function HostingSignup() {
     return () => {
       stale = true;
     };
-  }, [step, method, months, username]);
+  }, [step, method, months, username, customDomain]);
 
   const checkActivation = useCallback(async () => {
     setError("");
@@ -141,13 +168,22 @@ export function HostingSignup() {
     }
   }, [username]);
 
-  const usdPer = (methods?.card.monthlyUsdCents ?? 200) / 100;
-  const hbdPer = parseFloat(methods?.hbd.monthly ?? "2");
+  const usdPerBase = (methods?.card.monthlyUsdCents ?? 200) / 100;
+  const hbdPerBase = parseFloat(methods?.hbd.monthly ?? "2");
+  // Custom domain is +$1/mo on top of hosting -> $3/mo total (and +1 HBD/mo for parity).
+  const usdPer = customDomain ? HOSTING_CUSTOM_DOMAIN_MONTHLY_USD : usdPerBase;
+  const hbdPer = customDomain ? hbdPerBase + 1 : hbdPerBase;
+  const cardSku = customDomain ? hostingProSkuForMonths(months) : hostingSkuForMonths(months);
 
   return (
     <div className="max-w-lg mx-auto flex flex-col gap-4">
       <h1 className="text-2xl font-bold">{i18next.t("hosting.title")}</h1>
       <p className="opacity-75">{i18next.t("hosting.subtitle")}</p>
+      <p className="text-sm">
+        <Link href="/perks" className="text-blue-dark-sky hover:underline">
+          {i18next.t("hosting.free-with-pro")}
+        </Link>
+      </p>
 
       {error && <Alert appearance="danger">{error}</Alert>}
 
@@ -215,6 +251,23 @@ export function HostingSignup() {
             ))}
           </div>
 
+          {/* Custom domain add-on */}
+          <button
+            onClick={() => setCustomDomain((v) => !v)}
+            disabled={paying}
+            className={`text-left px-4 py-3 rounded-lg border ${
+              customDomain ? "border-blue-dark-sky bg-blue-dark-sky/10" : "border-[--border-color]"
+            } ${paying ? "opacity-50 cursor-not-allowed" : ""}`}
+          >
+            <div className="flex items-center justify-between gap-2">
+              <span className="font-semibold">{i18next.t("hosting.custom-domain-option")}</span>
+              <span className="text-sm text-blue-dark-sky">
+                {customDomain ? i18next.t("hosting.custom-domain-added") : i18next.t("hosting.custom-domain-price")}
+              </span>
+            </div>
+            <p className="text-sm opacity-75 mt-1">{i18next.t("hosting.custom-domain-explainer")}</p>
+          </button>
+
           {/* Method toggle */}
           <div className="flex gap-2">
             {cardEnabled && (
@@ -239,11 +292,15 @@ export function HostingSignup() {
             </button>
           </div>
 
+          {customDomain && (
+            <p className="text-sm opacity-75">{i18next.t("hosting.custom-domain-included-note")}</p>
+          )}
+
           {method === "card" && cardEnabled && (
             <HostingCardCheckout
-              key={hostingSkuForMonths(months)}
+              key={cardSku}
               username={username.trim().toLowerCase()}
-              sku={hostingSkuForMonths(months)}
+              sku={cardSku}
               payLabel={i18next.t("hosting.pay-now")}
               returnUrl={typeof window !== "undefined" ? window.location.href : ""}
               onConfirmed={() => setPaying(true)}
@@ -251,7 +308,22 @@ export function HostingSignup() {
             />
           )}
 
-          {method === "hbd" && (
+          {/* Custom domain over HBD would need two on-chain steps (subscribe, then upgrade), so
+              steer to the one-step card checkout instead of taking a mis-priced HBD payment. */}
+          {method === "hbd" && customDomain && (
+            <Alert appearance="primary">
+              <div className="flex flex-col gap-2">
+                <span>{i18next.t("hosting.custom-domain-hbd-note")}</span>
+                {cardEnabled && (
+                  <Button appearance="link" onClick={() => setMethod("card")}>
+                    {i18next.t("hosting.custom-domain-use-card")}
+                  </Button>
+                )}
+              </div>
+            </Alert>
+          )}
+
+          {method === "hbd" && !customDomain && (
             <div className="flex flex-col gap-2 text-sm">
               <p>{i18next.t("hosting.hbd-instructions")}</p>
               {instructions && (
@@ -270,16 +342,28 @@ export function HostingSignup() {
       )}
 
       {step === "success" && (
-        <Alert appearance="success">
-          <div className="flex flex-col gap-2">
-            <strong>{i18next.t("hosting.success-title")}</strong>
-            {blogUrl && (
-              <a href={blogUrl} target="_blank" rel="noreferrer" className="text-blue-dark-sky underline">
-                {blogUrl}
-              </a>
-            )}
-          </div>
-        </Alert>
+        <div className="flex flex-col gap-4">
+          <Alert appearance="success">
+            <div className="flex flex-col gap-2">
+              <strong>{i18next.t("hosting.success-title")}</strong>
+              {blogUrl && (
+                <a
+                  href={blogUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-blue-dark-sky underline"
+                >
+                  {blogUrl}
+                </a>
+              )}
+            </div>
+          </Alert>
+
+          {/* Custom domain plan -> let the owner attach and verify their domain now. */}
+          {customDomain && activeUser && username === activeUser.username && (
+            <CustomDomainManager username={activeUser.username} />
+          )}
+        </div>
       )}
     </div>
   );
