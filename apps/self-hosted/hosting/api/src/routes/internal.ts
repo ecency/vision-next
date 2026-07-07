@@ -55,11 +55,11 @@ internalRoutes.post('/activate', async (c) => {
   }
 
   try {
-    const result = await db.transaction<{ status: 200 | 404; duplicate?: boolean; expiresAt?: Date }>(
+    const result = await db.transaction<{ status: 200 | 404; duplicate?: boolean; expiresAt?: Date; plan?: string }>(
       async (client) => {
         // Lock the tenant row (serializes retries) and confirm it still exists.
         const t = await client.query(
-          `SELECT id, subscription_started_at, subscription_expires_at
+          `SELECT id, subscription_started_at, subscription_expires_at, subscription_plan
              FROM tenants WHERE username = $1 FOR UPDATE`,
           [username]
         );
@@ -68,7 +68,20 @@ internalRoutes.post('/activate', async (c) => {
         }
         const tenant = t.rows[0];
 
-        // Claim the order id. If already recorded, this is a replay -> no re-credit.
+        // Apply the Pro upgrade idempotently BEFORE the order-claim guard, so a retry after a
+        // staggered deploy still corrects the tier (the order id only guards double term-extension).
+        // A standard activation never touches the plan, so it can never downgrade a Pro tenant.
+        let effectivePlan: string = tenant.subscription_plan;
+        if (plan === 'pro' && effectivePlan !== 'pro') {
+          await client.query(
+            `UPDATE tenants SET subscription_plan = 'pro', updated_at = NOW() WHERE id = $1`,
+            [tenant.id]
+          );
+          effectivePlan = 'pro';
+        }
+
+        // Claim the order id. If already recorded, this is a replay -> no re-credit (the plan
+        // upgrade above still ran, so a replay corrects the tier without double-extending the term).
         const claim = await client.query(
           `INSERT INTO payments
              (tenant_id, trx_id, block_num, from_account, amount, currency, memo, status, months_credited)
@@ -78,7 +91,7 @@ internalRoutes.post('/activate', async (c) => {
           [tenant.id, orderId, amountUsd, `blog:${username}:${months}`, months]
         );
         if (claim.rowCount === 0) {
-          return { status: 200, duplicate: true };
+          return { status: 200, duplicate: true, plan: effectivePlan };
         }
 
         // Extend from the later of now / current expiry (same rule as activateSubscription).
@@ -96,26 +109,26 @@ internalRoutes.post('/activate', async (c) => {
              SET subscription_status = 'active',
                  subscription_started_at = $2,
                  subscription_expires_at = $3,
-                 subscription_plan = CASE WHEN $4::text = 'pro' THEN 'pro' ELSE subscription_plan END,
                  updated_at = NOW()
            WHERE id = $1`,
-          [tenant.id, startedAt, newExpiry, plan]
+          [tenant.id, startedAt, newExpiry]
         );
         await client.query(
           `UPDATE payments SET processed_at = NOW(), subscription_extended_to = $2 WHERE trx_id = $1`,
           [orderId, newExpiry]
         );
-        return { status: 200, expiresAt: newExpiry };
+        return { status: 200, expiresAt: newExpiry, plan: effectivePlan };
       }
     );
 
     if (result.status === 404) {
       return c.json({ error: 'tenant_not_found' }, 404);
     }
-    // Echo the plan we applied so the caller (ePoints) can confirm the Pro tier was honored;
-    // an older service that ignores `plan` omits this field, which the caller treats as a mismatch.
+    // Echo the tenant's ACTUAL plan so the caller (ePoints) can confirm the Pro tier was honored.
+    // Truthful on replays too (the upgrade is idempotent); an older service that ignores `plan`
+    // omits this field, which the caller treats as a mismatch and retries.
     return c.json(
-      { activated: true, duplicate: !!result.duplicate, expiresAt: result.expiresAt, plan },
+      { activated: true, duplicate: !!result.duplicate, expiresAt: result.expiresAt, plan: result.plan },
       200
     );
   } catch (e) {
