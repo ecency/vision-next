@@ -12,9 +12,6 @@ import { Button } from "@ui/button";
 import { PageMenu, PageMenuItems, PageMenuLink, PageMenuMobileDropdown } from "@ui/index";
 import { EcencyConfigManager } from "@/config";
 import { usePathname } from "next/navigation";
-import { isProMember } from "@/features/pro";
-import { getProMembersQueryOptions } from "@ecency/sdk";
-import { useQuery } from "@tanstack/react-query";
 
 interface Props {
   username: string;
@@ -24,9 +21,6 @@ export function ProfileMenu({ username }: Props) {
   const { activeUser } = useActiveAccount();
   const pathname = usePathname();
   const section = useMemo(() => pathname?.split("/")[2] ?? "posts", [pathname]);
-  // Pro members can open anyone's Insights; everyone can still see their own.
-  const { data: proMembers } = useQuery(getProMembersQueryOptions());
-  const isPro = isProMember(proMembers?.members, activeUser?.username);
 
   const kebabMenuItemsAll = [
     ...["trail", "replies", "followers", "following"].map((x) => ({
@@ -65,7 +59,7 @@ export function ProfileMenu({ username }: Props) {
       href: `/@${username}/wallet`,
       id: "wallet"
     },
-    ...(activeUser && (activeUser.username === username || isPro)
+    ...(activeUser
       ? [
           {
             label: i18next.t(`profile.section-insights`, { defaultValue: "Insights" }),

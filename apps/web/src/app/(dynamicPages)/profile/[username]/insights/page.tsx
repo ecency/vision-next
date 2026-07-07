@@ -29,8 +29,9 @@ export default async function InsightsPage({ params }: Props) {
 
   // Own insights stay free; viewing anyone else's is an Ecency Pro perk. Non-Pro viewers get a
   // Go-Pro upsell instead of the data (previously this was a hard owner-only redirect).
-  const activeUser = get("active_user")?.value;
-  let canView = !!activeUser && account.name === activeUser;
+  // Hive usernames are lowercase; normalize the cookie so a non-canonical case never denies an owner.
+  const activeUser = get("active_user")?.value?.toLowerCase();
+  let canView = !!activeUser && account.name.toLowerCase() === activeUser;
   if (!canView && activeUser) {
     try {
       const proMembers = await prefetchQuery(getProMembersQueryOptions());
