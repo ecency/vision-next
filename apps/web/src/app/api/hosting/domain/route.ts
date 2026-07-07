@@ -1,0 +1,49 @@
+import { NextRequest } from "next/server";
+import { resolveUser, unauthorizedResponse } from "../../threespeak/resolve-user";
+import { callHostingInternal, hostingInternalSecret } from "@/server/hosting-internal";
+
+/**
+ * Attach a custom domain to the authenticated user's blog. Identity comes from a HiveSigner
+ * access token (`body.code`), never a client-supplied username, so the domain is only ever
+ * attached to the caller's own tenant. The internal secret guards the hosting endpoint and is
+ * never exposed to the browser. Custom domains require the Custom domain plan (internal `pro`).
+ */
+export async function POST(request: NextRequest) {
+  const secret = hostingInternalSecret();
+  if (!secret) {
+    return Response.json({ error: "Hosting is not configured" }, { status: 503 });
+  }
+
+  let body: Record<string, unknown>;
+  try {
+    body = await request.json();
+    if (typeof body !== "object" || body === null) {
+      return Response.json({ error: "Invalid request body" }, { status: 400 });
+    }
+  } catch {
+    return Response.json({ error: "Invalid request body" }, { status: 400 });
+  }
+
+  const domain = typeof body.domain === "string" ? body.domain.trim().toLowerCase() : "";
+  if (!domain) {
+    return Response.json({ error: "domain is required" }, { status: 400 });
+  }
+
+  const auth = await resolveUser(request, body);
+  if (!auth.ok) {
+    return unauthorizedResponse(auth.reason);
+  }
+
+  let upstream: Response;
+  try {
+    upstream = await callHostingInternal("/v1/internal/domain", secret, {
+      username: auth.username.toLowerCase(),
+      domain
+    });
+  } catch {
+    return Response.json({ error: "Hosting service unavailable" }, { status: 502 });
+  }
+
+  const data = await upstream.json().catch(() => ({}));
+  return Response.json(data, { status: upstream.status });
+}

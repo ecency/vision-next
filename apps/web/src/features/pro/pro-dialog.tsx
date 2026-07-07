@@ -7,6 +7,7 @@ import { Modal, ModalBody, ModalHeader } from "@ui/modal";
 import i18next from "i18next";
 import { useState } from "react";
 import { ProCheckout } from "./pro-checkout";
+import { ProBlogClaim } from "./pro-blog-claim";
 
 interface Props {
   /** The authenticated buyer. */
@@ -50,17 +51,22 @@ export function ProDialog({ username, onHide, resumePaymentIntent }: Props) {
       <ModalHeader closeButton={true}>{i18next.t("pro.title")}</ModalHeader>
       <ModalBody>
         {done ? (
-          <Alert appearance="success">
-            <div className="flex flex-col gap-1">
-              <strong>{i18next.t("pro.success-title")}</strong>
-              <span>{i18next.t("pro.success-body")}</span>
-            </div>
-          </Alert>
+          <div className="flex flex-col gap-4">
+            <Alert appearance="success">
+              <div className="flex flex-col gap-1">
+                <strong>{i18next.t("pro.success-title")}</strong>
+                <span>{i18next.t("pro.success-body")}</span>
+              </div>
+            </Alert>
+            {/* Ecency Pro bundles a free blog -> let the new member claim it right away. */}
+            <ProBlogClaim username={username} />
+          </div>
         ) : (
           <div className="flex flex-col gap-4">
             <p className="opacity-75 text-sm">{i18next.t("pro.subtitle")}</p>
             <ul className="text-sm flex flex-col gap-1 list-disc pl-5">
               <li>{i18next.t("pro.benefit-badge")}</li>
+              <li>{i18next.t("pro.benefit-blog")}</li>
               <li>{i18next.t("pro.benefit-support")}</li>
               <li>{i18next.t("pro.benefit-early")}</li>
             </ul>
