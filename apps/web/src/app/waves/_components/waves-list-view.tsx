@@ -56,10 +56,12 @@ export function WavesListView({ feedType, username }: Props) {
   // The Following feed needs a username; without one `following` drops and the
   // query would silently become the unfiltered combined feed, so gate it until
   // the active user is known.
-  const { data, fetchNextPage, isError, error, hasNextPage, refetch } = useInfiniteQuery({
-    ...queryOptions,
-    enabled: feedType !== "following" || !!username
-  });
+  const { data, fetchNextPage, isError, error, hasNextPage, isFetched, refetch } = useInfiniteQuery(
+    {
+      ...queryOptions,
+      enabled: feedType !== "following" || !!username
+    }
+  );
   const previousErrorMessage = useRef<string | undefined>(undefined);
 
   useEffect(() => {
@@ -211,6 +213,19 @@ export function WavesListView({ feedType, username }: Props) {
               {i18next.t("g.retry", { defaultValue: "Retry" })}
             </Button>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Genuinely-empty feed (first page fetched fine, nothing to show and nothing
+  // left to paginate) — e.g. a tag/source with no waves or a fresh Following feed.
+  if (isFetched && !isError && combinedDataFlow.length === 0 && !hasNextPage) {
+    return (
+      <div className="rounded-2xl bg-white dark:bg-dark-200 p-4 text-sm text-gray-700 dark:text-gray-300">
+        <div className="font-semibold">{i18next.t("waves.feed.empty-title")}</div>
+        <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+          {i18next.t("waves.feed.empty-subtitle")}
         </div>
       </div>
     );

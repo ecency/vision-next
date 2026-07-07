@@ -17,6 +17,7 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
 import { useWavesCustomFeeds, normalizeWaveTag } from "@/app/waves/_hooks";
 import { SHORTS_SOURCE, WAVE_HOST_LABELS } from "@/features/waves/consts/host-labels";
+import { WavesOnboardingChecklist } from "@/features/waves/components/waves-onboarding-checklist";
 import { WavesFeedType } from "@/app/waves/_constants";
 
 export function WavesPage() {
@@ -103,6 +104,7 @@ export function WavesPage() {
         onSelectSource={selectSource}
         onAdd={() => setShowCustomFeeds(true)}
       />
+      {!isShorts && <WavesOnboardingChecklist />}
       {!isShorts && <WavesCreateCard />}
       {showTagChip && (
         <div className="rounded-2xl bg-white dark:bg-dark-200 p-4 mb-4 flex flex-wrap items-center gap-3 text-sm">
