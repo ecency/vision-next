@@ -104,6 +104,13 @@ describe("deriveWavesOnboardingState", () => {
     });
   });
 
+  it("returns null for a truthy but partial account object", () => {
+    expect(deriveWavesOnboardingState(makeQuests({}), {} as any, [], NOW)).toBeNull();
+    expect(
+      deriveWavesOnboardingState(makeQuests({}), { created: "2026-07-01T00:00:00" } as any, [], NOW)
+    ).toBeNull();
+  });
+
   it("completes check-in via an active streak even without a check-in today", () => {
     const state = deriveWavesOnboardingState(
       makeQuests({ streak: { current: 2, best: 4 } }),

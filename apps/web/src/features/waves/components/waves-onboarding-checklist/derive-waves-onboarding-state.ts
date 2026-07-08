@@ -63,7 +63,8 @@ export function deriveWavesOnboardingState(
   persistedCompleted: WavesOnboardingItemId[] = [],
   now = Date.now()
 ): WavesOnboardingState | null {
-  if (!quests || !account) {
+  // Tolerate a truthy-but-partial account object; treat it as still loading.
+  if (!quests || typeof account?.created !== "string" || typeof account?.post_count !== "number") {
     return null;
   }
 

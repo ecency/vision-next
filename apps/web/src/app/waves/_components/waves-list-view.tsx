@@ -325,7 +325,9 @@ export function WavesListView({ feedType, username }: Props) {
         );
       })}
 
-      <WavesListLoader data={dataFlow} failed={isError} isEndReached={!hasNextPage} />
+      {/* A disabled/not-yet-fetched query (e.g. Following before the active
+          user hydrates) must read as loading, not as an exhausted feed. */}
+      <WavesListLoader data={dataFlow} failed={isError} isEndReached={isFetched && !hasNextPage} />
       {shouldShowDetectBottom && <DetectBottom onBottom={() => fetchNextPage()} />}
 
       <WavesFastReplyDialog
