@@ -14,6 +14,7 @@ import { useActiveAccount } from "@/core/hooks";
 import { getQueryClient } from "@/core/react-query";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { scheduleQuestsRefresh } from "@/utils/refresh-quests";
+import { dispatchWavesOnboardingLatch } from "@/features/waves/components/waves-onboarding-checklist/derive-waves-onboarding-state";
 
 interface Body {
   text: string;
@@ -148,6 +149,11 @@ export function useWaveSubmit(
       if (item) {
         onSuccess?.(item);
         scheduleQuestsRefresh(getQueryClient(), username);
+        // A brand-new top-level wave (not an edit, not a reply) completes the
+        // onboarding checklist's wave item; the quests API cannot signal it.
+        if (!editingEntry && !replySource) {
+          dispatchWavesOnboardingLatch("wave");
+        }
       }
     }
   });

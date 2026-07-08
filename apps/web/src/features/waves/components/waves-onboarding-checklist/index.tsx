@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import {
   deriveWavesOnboardingState,
+  WAVES_ONBOARDING_LATCH_EVENT,
   WavesOnboardingItem,
   WavesOnboardingItemId
 } from "./derive-waves-onboarding-state";
@@ -84,6 +85,20 @@ function ChecklistContent({ username }: { username: string }) {
       setLatched(done);
     }
   }, [state, latched, setLatched]);
+
+  // Latch items completed by the submit path (a wave has no live quest signal,
+  // see WAVES_ONBOARDING_LATCH_EVENT in derive-waves-onboarding-state).
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const id = (e as CustomEvent<WavesOnboardingItemId>).detail;
+      const prev = latched ?? [];
+      if (!prev.includes(id)) {
+        setLatched([...prev, id]);
+      }
+    };
+    window.addEventListener(WAVES_ONBOARDING_LATCH_EVENT, handler);
+    return () => window.removeEventListener(WAVES_ONBOARDING_LATCH_EVENT, handler);
+  }, [latched, setLatched]);
 
   useEffect(() => {
     if (state?.allComplete && !celebrated) {
