@@ -3,7 +3,7 @@ import {
   type MutationKey,
   type UseMutationOptions,
 } from "@tanstack/react-query";
-import { PrivateKey } from "../../../hive-tx";
+import { PrivateKey, BroadcastError } from "../../../hive-tx";
 import type { Operation } from "../../../hive-tx";
 import { broadcastOperations, broadcastOperationsAsync, type TransactionConfirmation } from "@/modules/core/hive-tx";
 import type { BroadcastResult } from "../../../hive-tx";
@@ -578,44 +578,53 @@ export function useBroadcastMutation<T>(
 
       const ops = operations(payload);
 
-      // New: Try auth methods in fallback chain (if enabled)
-      if (auth?.enableFallback !== false && auth?.adapter) {
-        return broadcastWithFallback(username, ops, auth, authority, broadcastMode);
-      }
+      try {
+        // New: Try auth methods in fallback chain (if enabled)
+        if (auth?.enableFallback !== false && auth?.adapter) {
+          return await broadcastWithFallback(username, ops, auth, authority, broadcastMode);
+        }
 
-      // Legacy behavior: try methods in fixed order (backward compatible)
-      if (auth?.broadcast) {
-        return auth.broadcast(ops, authority);
-      }
+        // Legacy behavior: try methods in fixed order (backward compatible)
+        if (auth?.broadcast) {
+          return await auth.broadcast(ops, authority);
+        }
 
-      const postingKey = auth?.postingKey;
-      if (postingKey) {
-        // Legacy auth only supports posting authority
-        if (authority !== 'posting') {
-          throw new Error(
-            `[SDK][Broadcast] Legacy auth only supports posting authority, but '${authority}' was requested. ` +
-            `Use AuthContextV2 with an adapter for ${authority} operations.`
+        const postingKey = auth?.postingKey;
+        if (postingKey) {
+          // Legacy auth only supports posting authority
+          if (authority !== 'posting') {
+            throw new Error(
+              `[SDK][Broadcast] Legacy auth only supports posting authority, but '${authority}' was requested. ` +
+              `Use AuthContextV2 with an adapter for ${authority} operations.`
+            );
+          }
+
+          const privateKey = PrivateKey.fromString(postingKey);
+
+          return await broadcastOperations(
+            ops,
+            privateKey
           );
         }
 
-        const privateKey = PrivateKey.fromString(postingKey);
+        const accessToken = auth?.accessToken;
+        if (accessToken) {
+          const client = new hs.Client({ accessToken });
+          const response = await client.broadcast(ops);
+          return response.result;
+        }
 
-        return broadcastOperations(
-          ops,
-          privateKey
+        throw new Error(
+          "[SDK][Broadcast] – cannot broadcast w/o posting key or token"
         );
+      } catch (e) {
+        if (e instanceof BroadcastError) {
+          // Re-throw as a plain Error so React Query captures it in the
+          // mutation error state rather than as an unhandled promise rejection.
+          throw new Error(`[SDK][Broadcast] Transaction rejected: ${e.message}`)
+        }
+        throw e
       }
-
-      const accessToken = auth?.accessToken;
-      if (accessToken) {
-        const client = new hs.Client({ accessToken });
-        const response = await client.broadcast(ops);
-        return response.result;
-      }
-
-      throw new Error(
-        "[SDK][Broadcast] – cannot broadcast w/o posting key or token"
-      );
     },
   });
 }

@@ -1,4 +1,4 @@
-export { Transaction } from './Transaction'
+export { Transaction, BroadcastError } from './Transaction'
 export { PrivateKey } from './helpers/PrivateKey'
 export { callRPC, callRPCBroadcast, callREST, callWithQuorum } from './helpers/call'
 export { config, setNodes, setRestNodes, setRestNodesByApi, setUserAgent, setResilience } from './config'
