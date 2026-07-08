@@ -3228,7 +3228,21 @@
   "waves": {
     "feed": {
       "for-you": "For you",
-      "following": "Following"
+      "following": "Following",
+      "empty-title": "No waves yet",
+      "empty-subtitle": "Be the first to say hello!"
+    },
+    "onboarding": {
+      "title": "Getting started",
+      "subtitle": "New here? Waves are short posts and the easiest way to jump in.",
+      "progress": "{{completed}}/{{total}}",
+      "dismiss": "Dismiss",
+      "item-wave": "Post your first Wave",
+      "item-vote": "Vote on a Wave you like",
+      "item-reply": "Reply to someone",
+      "item-checkin": "Check in to start your streak",
+      "all-done-title": "All done 🎉",
+      "all-done-subtitle": "You're all set. Keep the waves coming!"
     },
     "sources": "Sources",
     "reply-form-title": "Replying to",

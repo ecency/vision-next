@@ -27,6 +27,7 @@ import { Entry } from "@/entities";
 import { JsonLd, buildBreadcrumbJsonLd } from "@/features/structured-data";
 import { getServerAppBase } from "@/utils/server-app-base";
 import defaults from "@/defaults";
+import { WavesOnboardingChecklist } from "@/features/waves/components/waves-onboarding-checklist";
 
 interface Props {
   params: Promise<{ sections: string[] }>;
@@ -127,6 +128,9 @@ export default async function FeedPage({ params, searchParams }: Props) {
     >
       {breadcrumbJsonLd && <JsonLd data={breadcrumbJsonLd} />}
       <FeedLayout tag={tag} filter={filter} observer={observer}>
+        {/* Personal feed (/@user/feed) is where new users land after login;
+            the card self-gates to fresh accounts and renders nothing otherwise. */}
+        {filter === "feed" && <WavesOnboardingChecklist />}
         <FeedList filter={filter} tag={tag} observer={observer} />
         {olderCursor && (
           <EntryArchivePager basePath={basePath} olderCursor={olderCursor} showLatest={false} />
