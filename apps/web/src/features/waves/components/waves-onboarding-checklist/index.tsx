@@ -9,6 +9,7 @@ import { UilCheckCircle, UilTimes } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
 import i18next from "i18next";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import {
   deriveWavesOnboardingState,
@@ -33,9 +34,12 @@ export function WavesOnboardingChecklist() {
   return <ChecklistContent key={activeUser.username} username={activeUser.username} />;
 }
 
-function focusWaveComposer() {
+// On /waves the composer is on the page; elsewhere (e.g. the personal feed,
+// where new users land after login) fall back to navigating there.
+function focusWaveComposer(navigateToWaves: () => void) {
   const form = document.getElementById("wave-form");
   if (!form) {
+    navigateToWaves();
     return;
   }
   form.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -143,6 +147,7 @@ function ChecklistContent({ username }: { username: string }) {
 }
 
 function ChecklistRow({ item }: { item: WavesOnboardingItem }) {
+  const router = useRouter();
   const label = i18next.t(`waves.onboarding.item-${item.id}`);
   const content = (
     <>
@@ -164,7 +169,7 @@ function ChecklistRow({ item }: { item: WavesOnboardingItem }) {
           rowClassName,
           "text-left hover:bg-gray-100 dark:hover:bg-gray-800 text-blue-dark-sky font-semibold"
         )}
-        onClick={focusWaveComposer}
+        onClick={() => focusWaveComposer(() => router.push("/waves"))}
       >
         {content}
       </button>
