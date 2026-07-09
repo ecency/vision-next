@@ -44,6 +44,7 @@ export function ThreeSpeakVideoRenderer({
       if (
         event.origin !== THREE_SPEAK_EMBED_ORIGIN ||
         event.data?.type !== "3speak-player-ready" ||
+        iframeRef.current?.contentWindow == null ||
         iframeRef.current?.contentWindow !== event.source
       ) {
         return;
@@ -125,6 +126,7 @@ function embedThreeSpeakDirect(element: HTMLElement, embedSrc: string): () => vo
     if (
       event.origin !== THREE_SPEAK_EMBED_ORIGIN ||
       event.data?.type !== "3speak-player-ready" ||
+      iframe.contentWindow == null ||
       iframe.contentWindow !== event.source
     ) {
       return;

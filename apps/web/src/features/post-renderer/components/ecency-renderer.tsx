@@ -53,7 +53,7 @@ export function EcencyRenderer({
 
       const iframes = ref.current?.querySelectorAll<HTMLIFrameElement>(".speak-iframe");
       iframes?.forEach((iframe) => {
-        if (iframe.contentWindow !== event.source) return;
+        if (iframe.contentWindow == null || iframe.contentWindow !== event.source) return;
         const container = iframe.closest(".markdown-video-link-speak");
         if (!container) return;
 
