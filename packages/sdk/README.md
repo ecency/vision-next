@@ -352,8 +352,10 @@ src/hive-tx/            built-in transaction engine (signing, serialization, RPC
 
 src/modules/
   accounts/           account data, relationships, mutations
+  ai/                 AI helpers (queries and mutations)
   analytics/          activity tracking and stats
   auth/               login, tokens, and auth helpers
+  bad-actors/         bad-actor list queries
   bridge/             bridge API helpers
   communities/        community queries and utils
   core/               config, client, query manager, helpers
@@ -364,13 +366,15 @@ src/modules/
   notifications/      notification queries and enums
   operations/         operation signing helpers
   points/             points queries and mutations
+  polls/              poll queries and mutations
   posts/              post queries, mutations, utils
   private-api/         private API helpers
   promotions/         promotion queries
   proposals/          proposal queries and mutations
+  quests/             quest queries and mutations
   resource-credits/   RC stats helpers
   search/             search queries
-  spk/                SPK data helpers
+  support/            support queries and mutations
   wallet/             wallet-related queries and types
   witnesses/          witness queries and votes
 ```
