@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.42
+
+### Patch Changes
+
+- chore(sdk,web): remove decommissioned hapi.ecency.com references (#1119)
+
 ## 2.3.41
 
 ### Patch Changes
