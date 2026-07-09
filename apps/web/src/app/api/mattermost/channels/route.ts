@@ -112,12 +112,38 @@ export async function GET() {
     // the team. Hide them since no Hive user intentionally joined these.
     const MATTERMOST_DEFAULT_CHANNELS = new Set(["town-square", "off-topic"]);
 
+    const channelMembersById = channelMembers.reduce<Record<string, MattermostChannelMemberCounts>>(
+      (acc, member) => {
+        acc[member.channel_id] = member;
+        return acc;
+      },
+      {}
+    );
+
+    // A DM contributes to the unread badge (see channels/unreads/route.ts) whenever
+    // it has unread messages and is neither muted nor never-viewed. Such a DM must
+    // stay visible in the list, otherwise the badge shows a count the user has no
+    // row to open and clear — the "phantom unread" bug for a closed (or
+    // uncategorized) DM that later receives a message.
+    const dmContributesToBadge = (channel: MattermostChannel) => {
+      const member = channelMembersById[channel.id];
+      if (!member) return false;
+      if (member.notify_props?.mark_unread === "mention") return false; // muted
+      if (member.last_viewed_at == null) return false; // never viewed
+      return (channel.total_msg_count || 0) > (member.msg_count || 0);
+    };
+
     const hasCategories = (categoriesResponse.categories || []).length > 0;
     const filteredChannels = channels.filter((channel) => {
       // Filter out Mattermost team default channels
       if (MATTERMOST_DEFAULT_CHANNELS.has(channel.name)) return false;
 
       if (channel.type !== "D") return true;
+
+      // Never hide a DM that contributes to the unread badge, regardless of the
+      // direct_channel_show preference or category membership. This keeps the
+      // badge clearable (the user always has a row to open and read).
+      if (dmContributesToBadge(channel)) return true;
 
       // Extract the other user ID from channel name first
       const parts = channel.name?.split("__") ?? [];
@@ -143,14 +169,6 @@ export async function GET() {
 
       return true;
     });
-
-    const channelMembersById = channelMembers.reduce<Record<string, MattermostChannelMemberCounts>>(
-      (acc, member) => {
-        acc[member.channel_id] = member;
-        return acc;
-      },
-      {}
-    );
 
     const directChannels = filteredChannels.filter((channel) => channel.type === "D");
     const usersById: Record<string, MattermostUser> = {};
