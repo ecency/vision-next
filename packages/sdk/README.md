@@ -9,7 +9,7 @@ Built and maintained by [Ecency](https://ecency.com), an open-source social plat
 - **Built-in transaction engine** — create, sign, and broadcast Hive transactions with ECDSA secp256k1 cryptography, memo encryption, and full serialization for all 50 operation types (built on an improved version of [hive-tx](https://github.com/mahdiyari/hive-tx) by Mahdi Yari)
 - **Multi-node RPC with health tracking** — automatic failover across Hive API nodes with per-node failure tracking, rate-limit detection, stale-head awareness, and quorum-based consensus calls
 - **Query and mutation option builders** powered by [@tanstack/react-query](https://tanstack.com/query)
-- **24 domain modules**: accounts, posts, communities, market, wallet, notifications, analytics, integrations, core, auth, bridge, games, hive-engine, operations, points, private-api, promotions, proposals, resource-credits, search, spk, witnesses
+- **26 domain modules**: accounts, ai, analytics, auth, bad-actors, bridge, communities, core, games, hive-engine, integrations, market, notifications, operations, points, polls, posts, private-api, promotions, proposals, quests, resource-credits, search, support, wallet, witnesses
 - Central configuration via `CONFIG` / `ConfigManager` (RPC nodes, QueryClient, DMCA filtering)
 
 ## Why React Query?
@@ -352,8 +352,10 @@ src/hive-tx/            built-in transaction engine (signing, serialization, RPC
 
 src/modules/
   accounts/           account data, relationships, mutations
+  ai/                 AI helpers (queries and mutations)
   analytics/          activity tracking and stats
   auth/               login, tokens, and auth helpers
+  bad-actors/         bad-actor list queries
   bridge/             bridge API helpers
   communities/        community queries and utils
   core/               config, client, query manager, helpers
@@ -364,13 +366,15 @@ src/modules/
   notifications/      notification queries and enums
   operations/         operation signing helpers
   points/             points queries and mutations
+  polls/              poll queries and mutations
   posts/              post queries, mutations, utils
   private-api/         private API helpers
   promotions/         promotion queries
   proposals/          proposal queries and mutations
+  quests/             quest queries and mutations
   resource-credits/   RC stats helpers
   search/             search queries
-  spk/                SPK data helpers
+  support/            support queries and mutations
   wallet/             wallet-related queries and types
   witnesses/          witness queries and votes
 ```

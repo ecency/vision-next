@@ -4,6 +4,7 @@ import {
   callRPC,
   callREST,
   callWithQuorum,
+  rpcHealthTracker,
   restHealthTracker,
   __LATENCY_TUNING__,
 } from "./call";
@@ -13,7 +14,7 @@ import { config } from "../config";
 // assertions can never silently drift out of sync with call.ts.
 const { MIN_SAMPLES, REPROBE_MS, MAX_AGE_MS, SLOW_FAILURE_MS } = __LATENCY_TUNING__;
 
-const HAPI = "https://hapi.ecency.com"; // our node (biased, no public rate limit)
+const D = "https://api.syncad.com"; // a 4th public node
 const A = "https://api.hive.blog";
 const B = "https://api.deathwing.me";
 const C = "https://api.openhive.network";
@@ -43,7 +44,7 @@ function warm(t: NodeHealthTracker, node: string, ms: number, n: number = MIN_SA
 describe("NodeHealthTracker — adaptive latency ordering", () => {
   it("cold start: no latency data ⇒ config order preserved (today's behavior)", () => {
     const t = new NodeHealthTracker();
-    expect(t.getOrderedNodes([HAPI, A, B])).toEqual([HAPI, A, B]);
+    expect(t.getOrderedNodes([D, A, B])).toEqual([D, A, B]);
   });
 
   it("cold start: REPEATED orderings inside the first re-probe window stay in config order", () => {
@@ -56,7 +57,7 @@ describe("NodeHealthTracker — adaptive latency ordering", () => {
     const t = new NodeHealthTracker();
     for (let i = 0; i < 5; i++) {
       advance(10_000); // 5 × 10s = 50s, still within one LATENCY_REPROBE_MS window
-      expect(t.getOrderedNodes([HAPI, A, B])).toEqual([HAPI, A, B]);
+      expect(t.getOrderedNodes([D, A, B])).toEqual([D, A, B]);
     }
   });
 
@@ -68,39 +69,21 @@ describe("NodeHealthTracker — adaptive latency ordering", () => {
     expect(t.getOrderedNodes([A, B, C])).toEqual([B, A, C]);
   });
 
-  it("our-node bias: hapi a little slower than a peer keeps its slot", () => {
+  it("a proven-slow node is ranked behind even warming peers (absolute score)", () => {
     const t = new NodeHealthTracker();
-    warm(t, HAPI, 300);
-    warm(t, A, 250); // faster, but within the bias envelope
-    warm(t, B, 800);
-    expect(t.getOrderedNodes([HAPI, A, B])[0]).toBe(HAPI);
-  });
-
-  it("our-node demote ceiling: hapi far slower than the fastest peer IS demoted", () => {
-    const t = new NodeHealthTracker();
-    warm(t, HAPI, 8000); // the US case
-    warm(t, A, 850);
-    warm(t, B, 900);
-    const order = t.getOrderedNodes([HAPI, A, B]);
-    expect(order[0]).toBe(A);
-    expect(order[order.length - 1]).toBe(HAPI);
-  });
-
-  it("hapi slow is ranked behind even warming peers (absolute score)", () => {
-    const t = new NodeHealthTracker();
-    warm(t, HAPI, 8000); // only proven node, and it's slow
+    warm(t, D, 8000); // only proven node, and it's slow
     warm(t, A, 100, 1); // warming (1 sample) ⇒ unproven prior, but recently sampled
     warm(t, B, 100, 1);
-    const order = t.getOrderedNodes([HAPI, A, B]);
-    expect(order[order.length - 1]).toBe(HAPI);
+    const order = t.getOrderedNodes([D, A, B]);
+    expect(order[order.length - 1]).toBe(D);
   });
 
-  it("warming node does NOT jump a proven-fast our-node (no churn)", () => {
+  it("warming node does NOT jump a proven-fast node (no churn)", () => {
     const t = new NodeHealthTracker();
-    warm(t, HAPI, 300); // proven fast
+    warm(t, D, 300); // proven fast
     warm(t, A, 100, 2); // 2 samples (< MIN_SAMPLES) ⇒ still warming
     warm(t, B, 100, 1);
-    expect(t.getOrderedNodes([HAPI, A, B])[0]).toBe(HAPI);
+    expect(t.getOrderedNodes([D, A, B])[0]).toBe(D);
   });
 
   it("an INSTANT failure is not mis-read as 'slow' (down node ≠ slow node)", () => {
@@ -113,47 +96,47 @@ describe("NodeHealthTracker — adaptive latency ordering", () => {
     const t = new NodeHealthTracker();
     warm(t, A, 850);
     warm(t, B, 900);
-    for (let i = 0; i < MIN_SAMPLES; i++) t.recordSlowFailure(HAPI, 5000);
-    expect(t.getOrderedNodes([HAPI, A, B]).pop()).toBe(HAPI);
+    for (let i = 0; i < MIN_SAMPLES; i++) t.recordSlowFailure(D, 5000);
+    expect(t.getOrderedNodes([D, A, B]).pop()).toBe(D);
   });
 
   describe("recovery / re-probe (the starvation-trap fix)", () => {
-    /** Set up: A,B fast+proven, HAPI demoted by timeouts, and HAPI made strictly the
+    /** Set up: A,B fast+proven, D demoted by timeouts, and D made strictly the
      *  stalest (overdue for a re-probe) while A,B stay fresh. */
-    function demotedHapiOverdue(t: NodeHealthTracker) {
-      for (let i = 0; i < MIN_SAMPLES; i++) t.recordSlowFailure(HAPI, 5000); // HAPI @ t0
+    function demotedDOverdue(t: NodeHealthTracker) {
+      for (let i = 0; i < MIN_SAMPLES; i++) t.recordSlowFailure(D, 5000); // D @ t0
       advance(1);
-      warm(t, A, 850); // A,B sampled @ t0+1 (fresher than HAPI)
+      warm(t, A, 850); // A,B sampled @ t0+1 (fresher than D)
       warm(t, B, 900);
-      advance(REPROBE_MS); // HAPI now REPROBE+1 stale (strictly stalest)
+      advance(REPROBE_MS); // D now REPROBE+1 stale (strictly stalest)
     }
 
     it("a demoted node overdue for sampling is promoted to front for ONE pass", () => {
       const t = new NodeHealthTracker();
-      demotedHapiOverdue(t);
-      expect(t.getOrderedNodes([HAPI, A, B])[0]).toBe(HAPI);
+      demotedDOverdue(t);
+      expect(t.getOrderedNodes([D, A, B])[0]).toBe(D);
     });
 
     it("single-flight: the immediate next pass does NOT re-promote the same node", () => {
       const t = new NodeHealthTracker();
-      demotedHapiOverdue(t);
-      expect(t.getOrderedNodes([HAPI, A, B])[0]).toBe(HAPI); // promotes hapi, stamps lastProbeAt
-      const second = t.getOrderedNodes([HAPI, A, B]);
+      demotedDOverdue(t);
+      expect(t.getOrderedNodes([D, A, B])[0]).toBe(D); // promotes the demoted node, stamps lastProbeAt
+      const second = t.getOrderedNodes([D, A, B]);
       expect(second[0]).toBe(A); // not re-promoted
-      expect(second.pop()).toBe(HAPI); // still demoted by latency
+      expect(second.pop()).toBe(D); // still demoted by latency
     });
 
     it("a demoted node that recovers climbs back to the front", () => {
       const t = new NodeHealthTracker();
-      demotedHapiOverdue(t);
+      demotedDOverdue(t);
       // re-probes over time now return fast (CF path recovered) ⇒ EWMA decays toward fast
       for (let i = 0; i < 8; i++) {
         advance(REPROBE_MS + 1);
         warm(t, A, 850, 1); // keep peers fresh + proven
         warm(t, B, 900, 1);
-        t.recordSuccess(HAPI, undefined, 250); // the probe call comes back fast now
+        t.recordSuccess(D, undefined, 250); // the probe call comes back fast now
       }
-      expect(t.getOrderedNodes([HAPI, A, B])[0]).toBe(HAPI);
+      expect(t.getOrderedNodes([D, A, B])[0]).toBe(D);
     });
   });
 
@@ -168,25 +151,25 @@ describe("NodeHealthTracker — adaptive latency ordering", () => {
 
   it("rate-limit: node drops to the tail, EWMA preserved, recovers after cooldown", () => {
     const t = new NodeHealthTracker();
-    warm(t, HAPI, 300);
+    warm(t, D, 300);
     warm(t, A, 800);
-    t.recordRateLimit(HAPI, 10_000);
-    const ordered = t.getOrderedNodes([HAPI, A]);
-    expect(ordered[ordered.length - 1]).toBe(HAPI); // rate-limited ⇒ unhealthy tail
-    expect((t as any).health.get(HAPI)?.ewmaLatencyMs).toBe(300); // EWMA untouched
+    t.recordRateLimit(D, 10_000);
+    const ordered = t.getOrderedNodes([D, A]);
+    expect(ordered[ordered.length - 1]).toBe(D); // rate-limited ⇒ unhealthy tail
+    expect((t as any).health.get(D)?.ewmaLatencyMs).toBe(300); // EWMA untouched
     advance(10_001);
-    expect(t.getOrderedNodes([HAPI, A])[0]).toBe(HAPI); // back on preserved fast EWMA
+    expect(t.getOrderedNodes([D, A])[0]).toBe(D); // back on preserved fast EWMA
   });
 
   it("staleness (head-block lag) still wins over low latency", () => {
     const t = new NodeHealthTracker();
-    warm(t, HAPI, 100); // fastest
+    warm(t, D, 100); // fastest
     warm(t, A, 800);
     warm(t, B, 800, 1);
     t.recordHeadBlock(A, 1000);
     t.recordHeadBlock(B, 1000);
-    t.recordHeadBlock(HAPI, 900); // 100 behind > STALE_BLOCK_THRESHOLD(30)
-    expect(t.getOrderedNodes([HAPI, A, B]).pop()).toBe(HAPI);
+    t.recordHeadBlock(D, 900); // 100 behind > STALE_BLOCK_THRESHOLD(30)
+    expect(t.getOrderedNodes([D, A, B]).pop()).toBe(D);
   });
 
   it("capability: ranks only within the per-API node set handed to it", () => {
@@ -258,6 +241,47 @@ describe("call sites feed the tracker — adaptive behavior end to end", () => {
     expect(lastHalf).toBeGreaterThan(firstHalf);
   });
 
+  it("callRPC: a config-first node that FAST-fails (HTTP 530 down node) is demoted, reads still served", async () => {
+    // Distinct from the slow-node case above: a Cloudflare 530 (error 1033 tunnel /
+    // node in maintenance) returns in ~80ms. recordSlowFailure ignores such instant
+    // failures, so the demotion must come from the hard-fault path (NodeError →
+    // recordError → recordFailure). Unique hosts so the file-wide rpcHealthTracker
+    // singleton can be asserted without another test's profile bleeding in.
+    const DOWN = "https://rpc-530.test"; // config-first, fast 530
+    const UP = "https://rpc-live.test";
+    config.nodes = [DOWN, UP];
+    config.retry = 3;
+    const hits: string[] = [];
+    vi.spyOn(globalThis, "fetch").mockImplementation(async (u: any, init: any) => {
+      const url = String(u);
+      const down = url.includes("rpc-530");
+      hits.push(down ? "down" : "up");
+      advance(down ? 80 : 100); // both fast — the 530 is NOT a slow failure
+      if (down) {
+        return new Response("error code: 1033", {
+          status: 530,
+          headers: { "Content-Type": "text/plain" },
+        });
+      }
+      return jsonOk(init, { ok: true });
+    });
+
+    for (let i = 0; i < 8; i++) {
+      await callRPC("condenser_api.get_dynamic_global_properties", []);
+    }
+
+    // failover keeps every read served despite the down config-first node
+    expect(hits.filter((h) => h === "up").length).toBe(8);
+    // the ranker tails the down node and fronts the live one
+    const order = rpcHealthTracker.getOrderedNodes([DOWN, UP]);
+    expect(order[0]).toBe(UP);
+    expect(order[order.length - 1]).toBe(DOWN);
+    // and the down node stops being hit once demoted (not just re-tried every call)
+    const firstHalfDown = hits.slice(0, 4).filter((h) => h === "down").length;
+    const lastHalfDown = hits.slice(-4).filter((h) => h === "down").length;
+    expect(lastHalfDown).toBeLessThan(firstHalfDown);
+  });
+
   it("callREST: a slow-failing node is demoted (the M1b REST penalty path runs)", async () => {
     const SLOWFAIL = "https://rest-slowfail.test"; // config-first, slow 5xx
     const OK = "https://rest-ok.test";
@@ -291,7 +315,7 @@ describe("call sites feed the tracker — adaptive behavior end to end", () => {
     // Regression guard. callRPC bails before recording when the *caller's* signal is
     // aborted; callREST did not — so a React-Query unmount/navigation that cancelled an
     // in-flight REST call booked a failure + slow-latency sample against a perfectly
-    // healthy node (e.g. hapi, which is in restNodes) and could spuriously demote it.
+    // healthy node (e.g. a node still in restNodes) and could spuriously demote it.
     // Asserted directly on the live tracker because failover spreads the (wrongful)
     // penalty across every node it reaches, so node *ordering* alone can't see it.
     // Unique host: restHealthTracker is a file-wide singleton, so another test's host

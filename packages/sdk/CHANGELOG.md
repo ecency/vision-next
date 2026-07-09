@@ -1,10 +1,22 @@
 # Changelog
 
-## 2.3.42
+## 2.3.44
 
 ### Patch Changes
 
 - fix(sdk): handle RPCError: missing required posting authority in Transaction.broadcast (#1118)
+
+## 2.3.43
+
+### Patch Changes
+
+- docs(sdk): correct module list in README (#1121)
+
+## 2.3.42
+
+### Patch Changes
+
+- chore(sdk,web): remove decommissioned hapi.ecency.com references (#1119)
 
 ## 2.3.41
 
