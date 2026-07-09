@@ -300,7 +300,7 @@ const LATENCY_REPROBE_MS = 60_000
  *  when it crosses LATENCY_MIN_SAMPLES — no churn. */
 const LATENCY_UNPROVEN_PRIOR_MS = 1_000
 /** A failed call only feeds a latency penalty if it was actually slow (≥ this). Keeps
- *  a genuine timeout / slow-5xx (the hapi-from-US case) visible to the ranker while an
+ *  a genuine timeout / slow-5xx (the own-node-from-a-far-region case) visible to the ranker while an
  *  instant ECONNREFUSED (a *down* node, handled by consecutiveFailures) is NOT mis-read
  *  as "slow". The penalty value is the *measured* elapsed, never a static constant. */
 const LATENCY_SLOW_FAILURE_MS = 2_000
@@ -333,7 +333,7 @@ export const __LATENCY_TUNING__ = Object.freeze({
 /** Hosts we operate (no public rate limit). Biased so the fleet prefers its own
  *  unlimited node where it is fast, and only steps off it when it is genuinely slow.
  *  Matched by hostname so a path/trailing-slash can't defeat it. */
-const OUR_NODE_HOSTS = new Set(['hapi.ecency.com', 'api.ecency.com'])
+const OUR_NODE_HOSTS = new Set(['api.ecency.com'])
 function isOurNode(node: string): boolean {
   try {
     return OUR_NODE_HOSTS.has(new URL(node).hostname)
@@ -1748,7 +1748,7 @@ export async function callREST(
       }
       // External abort (caller unmounted / React Query cancelled the request) is the
       // client's decision, NOT a node fault. Mirror callRPC: bail before recording any
-      // failure or slow-latency sample so a healthy REST node (e.g. hapi) is never
+      // failure or slow-latency sample so a healthy REST node (e.g. an own node) is never
       // demoted by routine navigation/cancellation.
       if (signal?.aborted) {
         throw e
@@ -1757,7 +1757,7 @@ export async function callREST(
       if (!alreadyRecorded) {
         restHealthTracker.recordFailure(node, api)
       }
-      // A slow failure (timeout/abort/slow-5xx — e.g. hapi from a far region) is a
+      // A slow failure (timeout/abort/slow-5xx — e.g. an own node from a far region) is a
       // latency signal too, so it is demoted by the ranker, not only the failure gate.
       // Measured elapsed; recordSlowFailure floors at LATENCY_SLOW_FAILURE_MS so a fast
       // 404/429 or instant down-node failure is NOT mis-read as "slow".
