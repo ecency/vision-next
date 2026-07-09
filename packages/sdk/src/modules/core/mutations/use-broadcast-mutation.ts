@@ -3,7 +3,7 @@ import {
   type MutationKey,
   type UseMutationOptions,
 } from "@tanstack/react-query";
-import { PrivateKey, BroadcastError } from "../../../hive-tx";
+import { PrivateKey, RPCError } from "../../../hive-tx";
 import type { Operation } from "../../../hive-tx";
 import { broadcastOperations, broadcastOperationsAsync, type TransactionConfirmation } from "@/modules/core/hive-tx";
 import type { BroadcastResult } from "../../../hive-tx";
@@ -618,10 +618,12 @@ export function useBroadcastMutation<T>(
           "[SDK][Broadcast] – cannot broadcast w/o posting key or token"
         );
       } catch (e) {
-        if (e instanceof BroadcastError) {
-          // Re-throw as a plain Error so React Query captures it in the
-          // mutation error state rather than as an unhandled promise rejection.
-          throw new Error(`[SDK][Broadcast] Transaction rejected: ${e.message}`)
+        if (e instanceof RPCError) {
+          // Normalize raw blockchain rejections (missing authority, RC exhaustion,
+          // validation failures) from every broadcast path — sync and async — into
+          // a plain Error whose message is preserved for downstream classification
+          // (formatError), so React Query captures a handled mutation error.
+          throw new Error(e.message);
         }
         throw e
       }

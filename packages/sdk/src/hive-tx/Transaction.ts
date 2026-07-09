@@ -12,25 +12,6 @@ import { Serializer } from './helpers/serializer'
 import { sha256 } from '@noble/hashes/sha2.js'
 import { config } from './config'
 import { callRPC, callRPCBroadcast, RPCError } from './helpers/call'
-
-/**
- * Thrown when the Hive blockchain rejects a broadcast transaction (e.g. missing
- * authority, validation failure). Wraps the original RPCError so callers can
- * catch it explicitly and present a user-friendly message.
- */
-export class BroadcastError extends Error {
-  name = 'BroadcastError'
-  /** Original RPC error code from the node */
-  code: number
-  /** Raw RPC error data, if any */
-  data?: unknown
-
-  constructor(rpcError: RPCError) {
-    super(rpcError.message)
-    this.code = rpcError.code
-    this.data = rpcError.data
-  }
-}
 import { DigestData } from './types'
 import { sleep } from './helpers/sleep'
 
@@ -143,16 +124,8 @@ export class Transaction {
     try {
       await callRPCBroadcast('condenser_api.broadcast_transaction', [this.transaction])
     } catch (e) {
-      if (e instanceof RPCError) {
-        if (e.message.includes('Duplicate transaction check failed')) {
-          // Ignore duplicate transaction errors — can happen during retries.
-        } else {
-          // All other blockchain rejections (e.g. missing authority, validation
-          // failures) are wrapped in a BroadcastError so callers always receive
-          // a typed, handled rejection instead of a raw RPCError escaping
-          // uncaught into the promise chain.
-          throw new BroadcastError(e)
-        }
+      if (e instanceof RPCError && e.message.includes('Duplicate transaction check failed')) {
+        // ignore duplicate transaction error as this can happen when we retry the broadcast
       } else {
         throw e
       }
