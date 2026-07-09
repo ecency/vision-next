@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.43
+
+### Patch Changes
+
+- docs(sdk): correct module list in README (#1121)
+
 ## 2.3.42
 
 ### Patch Changes
