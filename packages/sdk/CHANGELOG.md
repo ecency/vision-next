@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.44
+
+### Patch Changes
+
+- fix(sdk): handle RPCError: missing required posting authority in Transaction.broadcast (#1118)
+
 ## 2.3.43
 
 ### Patch Changes
