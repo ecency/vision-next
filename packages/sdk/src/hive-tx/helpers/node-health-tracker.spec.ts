@@ -14,7 +14,7 @@ import { config } from "../config";
 // assertions can never silently drift out of sync with call.ts.
 const { MIN_SAMPLES, REPROBE_MS, MAX_AGE_MS, SLOW_FAILURE_MS } = __LATENCY_TUNING__;
 
-const OURS = "https://api.ecency.com"; // our node (biased, no public rate limit)
+const D = "https://api.syncad.com"; // a 4th public node
 const A = "https://api.hive.blog";
 const B = "https://api.deathwing.me";
 const C = "https://api.openhive.network";
@@ -44,7 +44,7 @@ function warm(t: NodeHealthTracker, node: string, ms: number, n: number = MIN_SA
 describe("NodeHealthTracker — adaptive latency ordering", () => {
   it("cold start: no latency data ⇒ config order preserved (today's behavior)", () => {
     const t = new NodeHealthTracker();
-    expect(t.getOrderedNodes([OURS, A, B])).toEqual([OURS, A, B]);
+    expect(t.getOrderedNodes([D, A, B])).toEqual([D, A, B]);
   });
 
   it("cold start: REPEATED orderings inside the first re-probe window stay in config order", () => {
@@ -57,7 +57,7 @@ describe("NodeHealthTracker — adaptive latency ordering", () => {
     const t = new NodeHealthTracker();
     for (let i = 0; i < 5; i++) {
       advance(10_000); // 5 × 10s = 50s, still within one LATENCY_REPROBE_MS window
-      expect(t.getOrderedNodes([OURS, A, B])).toEqual([OURS, A, B]);
+      expect(t.getOrderedNodes([D, A, B])).toEqual([D, A, B]);
     }
   });
 
@@ -69,39 +69,21 @@ describe("NodeHealthTracker — adaptive latency ordering", () => {
     expect(t.getOrderedNodes([A, B, C])).toEqual([B, A, C]);
   });
 
-  it("our-node bias: our node a little slower than a peer keeps its slot", () => {
+  it("a proven-slow node is ranked behind even warming peers (absolute score)", () => {
     const t = new NodeHealthTracker();
-    warm(t, OURS, 300);
-    warm(t, A, 250); // faster, but within the bias envelope
-    warm(t, B, 800);
-    expect(t.getOrderedNodes([OURS, A, B])[0]).toBe(OURS);
-  });
-
-  it("our-node demote ceiling: our node far slower than the fastest peer IS demoted", () => {
-    const t = new NodeHealthTracker();
-    warm(t, OURS, 8000); // the US case
-    warm(t, A, 850);
-    warm(t, B, 900);
-    const order = t.getOrderedNodes([OURS, A, B]);
-    expect(order[0]).toBe(A);
-    expect(order[order.length - 1]).toBe(OURS);
-  });
-
-  it("our node slow is ranked behind even warming peers (absolute score)", () => {
-    const t = new NodeHealthTracker();
-    warm(t, OURS, 8000); // only proven node, and it's slow
+    warm(t, D, 8000); // only proven node, and it's slow
     warm(t, A, 100, 1); // warming (1 sample) ⇒ unproven prior, but recently sampled
     warm(t, B, 100, 1);
-    const order = t.getOrderedNodes([OURS, A, B]);
-    expect(order[order.length - 1]).toBe(OURS);
+    const order = t.getOrderedNodes([D, A, B]);
+    expect(order[order.length - 1]).toBe(D);
   });
 
-  it("warming node does NOT jump a proven-fast our-node (no churn)", () => {
+  it("warming node does NOT jump a proven-fast node (no churn)", () => {
     const t = new NodeHealthTracker();
-    warm(t, OURS, 300); // proven fast
+    warm(t, D, 300); // proven fast
     warm(t, A, 100, 2); // 2 samples (< MIN_SAMPLES) ⇒ still warming
     warm(t, B, 100, 1);
-    expect(t.getOrderedNodes([OURS, A, B])[0]).toBe(OURS);
+    expect(t.getOrderedNodes([D, A, B])[0]).toBe(D);
   });
 
   it("an INSTANT failure is not mis-read as 'slow' (down node ≠ slow node)", () => {
@@ -114,47 +96,47 @@ describe("NodeHealthTracker — adaptive latency ordering", () => {
     const t = new NodeHealthTracker();
     warm(t, A, 850);
     warm(t, B, 900);
-    for (let i = 0; i < MIN_SAMPLES; i++) t.recordSlowFailure(OURS, 5000);
-    expect(t.getOrderedNodes([OURS, A, B]).pop()).toBe(OURS);
+    for (let i = 0; i < MIN_SAMPLES; i++) t.recordSlowFailure(D, 5000);
+    expect(t.getOrderedNodes([D, A, B]).pop()).toBe(D);
   });
 
   describe("recovery / re-probe (the starvation-trap fix)", () => {
-    /** Set up: A,B fast+proven, OURS demoted by timeouts, and OURS made strictly the
+    /** Set up: A,B fast+proven, D demoted by timeouts, and D made strictly the
      *  stalest (overdue for a re-probe) while A,B stay fresh. */
-    function demotedOursOverdue(t: NodeHealthTracker) {
-      for (let i = 0; i < MIN_SAMPLES; i++) t.recordSlowFailure(OURS, 5000); // OURS @ t0
+    function demotedDOverdue(t: NodeHealthTracker) {
+      for (let i = 0; i < MIN_SAMPLES; i++) t.recordSlowFailure(D, 5000); // D @ t0
       advance(1);
-      warm(t, A, 850); // A,B sampled @ t0+1 (fresher than OURS)
+      warm(t, A, 850); // A,B sampled @ t0+1 (fresher than D)
       warm(t, B, 900);
-      advance(REPROBE_MS); // OURS now REPROBE+1 stale (strictly stalest)
+      advance(REPROBE_MS); // D now REPROBE+1 stale (strictly stalest)
     }
 
     it("a demoted node overdue for sampling is promoted to front for ONE pass", () => {
       const t = new NodeHealthTracker();
-      demotedOursOverdue(t);
-      expect(t.getOrderedNodes([OURS, A, B])[0]).toBe(OURS);
+      demotedDOverdue(t);
+      expect(t.getOrderedNodes([D, A, B])[0]).toBe(D);
     });
 
     it("single-flight: the immediate next pass does NOT re-promote the same node", () => {
       const t = new NodeHealthTracker();
-      demotedOursOverdue(t);
-      expect(t.getOrderedNodes([OURS, A, B])[0]).toBe(OURS); // promotes our node, stamps lastProbeAt
-      const second = t.getOrderedNodes([OURS, A, B]);
+      demotedDOverdue(t);
+      expect(t.getOrderedNodes([D, A, B])[0]).toBe(D); // promotes the demoted node, stamps lastProbeAt
+      const second = t.getOrderedNodes([D, A, B]);
       expect(second[0]).toBe(A); // not re-promoted
-      expect(second.pop()).toBe(OURS); // still demoted by latency
+      expect(second.pop()).toBe(D); // still demoted by latency
     });
 
     it("a demoted node that recovers climbs back to the front", () => {
       const t = new NodeHealthTracker();
-      demotedOursOverdue(t);
+      demotedDOverdue(t);
       // re-probes over time now return fast (CF path recovered) ⇒ EWMA decays toward fast
       for (let i = 0; i < 8; i++) {
         advance(REPROBE_MS + 1);
         warm(t, A, 850, 1); // keep peers fresh + proven
         warm(t, B, 900, 1);
-        t.recordSuccess(OURS, undefined, 250); // the probe call comes back fast now
+        t.recordSuccess(D, undefined, 250); // the probe call comes back fast now
       }
-      expect(t.getOrderedNodes([OURS, A, B])[0]).toBe(OURS);
+      expect(t.getOrderedNodes([D, A, B])[0]).toBe(D);
     });
   });
 
@@ -169,25 +151,25 @@ describe("NodeHealthTracker — adaptive latency ordering", () => {
 
   it("rate-limit: node drops to the tail, EWMA preserved, recovers after cooldown", () => {
     const t = new NodeHealthTracker();
-    warm(t, OURS, 300);
+    warm(t, D, 300);
     warm(t, A, 800);
-    t.recordRateLimit(OURS, 10_000);
-    const ordered = t.getOrderedNodes([OURS, A]);
-    expect(ordered[ordered.length - 1]).toBe(OURS); // rate-limited ⇒ unhealthy tail
-    expect((t as any).health.get(OURS)?.ewmaLatencyMs).toBe(300); // EWMA untouched
+    t.recordRateLimit(D, 10_000);
+    const ordered = t.getOrderedNodes([D, A]);
+    expect(ordered[ordered.length - 1]).toBe(D); // rate-limited ⇒ unhealthy tail
+    expect((t as any).health.get(D)?.ewmaLatencyMs).toBe(300); // EWMA untouched
     advance(10_001);
-    expect(t.getOrderedNodes([OURS, A])[0]).toBe(OURS); // back on preserved fast EWMA
+    expect(t.getOrderedNodes([D, A])[0]).toBe(D); // back on preserved fast EWMA
   });
 
   it("staleness (head-block lag) still wins over low latency", () => {
     const t = new NodeHealthTracker();
-    warm(t, OURS, 100); // fastest
+    warm(t, D, 100); // fastest
     warm(t, A, 800);
     warm(t, B, 800, 1);
     t.recordHeadBlock(A, 1000);
     t.recordHeadBlock(B, 1000);
-    t.recordHeadBlock(OURS, 900); // 100 behind > STALE_BLOCK_THRESHOLD(30)
-    expect(t.getOrderedNodes([OURS, A, B]).pop()).toBe(OURS);
+    t.recordHeadBlock(D, 900); // 100 behind > STALE_BLOCK_THRESHOLD(30)
+    expect(t.getOrderedNodes([D, A, B]).pop()).toBe(D);
   });
 
   it("capability: ranks only within the per-API node set handed to it", () => {

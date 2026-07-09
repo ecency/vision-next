@@ -300,19 +300,10 @@ const LATENCY_REPROBE_MS = 60_000
  *  when it crosses LATENCY_MIN_SAMPLES — no churn. */
 const LATENCY_UNPROVEN_PRIOR_MS = 1_000
 /** A failed call only feeds a latency penalty if it was actually slow (≥ this). Keeps
- *  a genuine timeout / slow-5xx (the own-node-from-a-far-region case) visible to the ranker while an
+ *  a genuine timeout / slow-5xx (a far-region node case) visible to the ranker while an
  *  instant ECONNREFUSED (a *down* node, handled by consecutiveFailures) is NOT mis-read
  *  as "slow". The penalty value is the *measured* elapsed, never a static constant. */
 const LATENCY_SLOW_FAILURE_MS = 2_000
-/** Our-node additive tolerance (ms): our own unlimited node (no public rate limit via
- *  fleet IP whitelist) is forgiven up to this much extra latency, so it keeps its slot
- *  when it's merely a little slower than a public peer. ~700ms covers the normal
- *  EU/SIN advantage envelope. */
-const OUR_NODE_BIAS_MS = 700
-/** Hard ceiling on the bias: once our node is this many× the fastest proven peer, the
- *  forgiveness is dropped and it ranks on raw latency. Guarantees our node CAN be
- *  demoted when it's genuinely slow (US 6–20s) instead of being pinned #1 forever. */
-const OUR_NODE_DEMOTE_RATIO = 2.5
 
 /**
  * Latency-ranking tuning, re-exported as a frozen bag so tests assert behaviour
@@ -325,22 +316,8 @@ export const __LATENCY_TUNING__ = Object.freeze({
   MAX_AGE_MS: LATENCY_MAX_AGE_MS,
   REPROBE_MS: LATENCY_REPROBE_MS,
   UNPROVEN_PRIOR_MS: LATENCY_UNPROVEN_PRIOR_MS,
-  SLOW_FAILURE_MS: LATENCY_SLOW_FAILURE_MS,
-  OUR_NODE_BIAS_MS,
-  OUR_NODE_DEMOTE_RATIO
+  SLOW_FAILURE_MS: LATENCY_SLOW_FAILURE_MS
 })
-
-/** Hosts we operate (no public rate limit). Biased so the fleet prefers its own
- *  unlimited node where it is fast, and only steps off it when it is genuinely slow.
- *  Matched by hostname so a path/trailing-slash can't defeat it. */
-const OUR_NODE_HOSTS = new Set(['api.ecency.com'])
-function isOurNode(node: string): boolean {
-  try {
-    return OUR_NODE_HOSTS.has(new URL(node).hostname)
-  } catch {
-    return false
-  }
-}
 
 /** @internal Exported for testing only. */
 export class NodeHealthTracker {
@@ -689,12 +666,10 @@ export class NodeHealthTracker {
       return [...healthy, ...unhealthy]
     }
     const now = Date.now()
-    const fastest = this.fastestUsableLatency(healthy, now)
-    // Every score in THIS pass is computed against the same `fastest` and falls back
-    // to config index on ties → a total, transitive order with no memo (so no
-    // stale-denominator inversions).
+    // Every score in THIS pass falls back to config index on ties → a total,
+    // transitive order with no memo (so no stale-denominator inversions).
     const ordered = healthy
-      .map((node, i) => ({ node, i, score: this.scoreNode(node, fastest, now) }))
+      .map((node, i) => ({ node, i, score: this.scoreNode(node, now) }))
       .sort((a, b) => a.score - b.score || a.i - b.i)
       .map((d) => d.node)
     const probe = this.pickReprobeCandidate(healthy, now)
@@ -714,34 +689,15 @@ export class NodeHealthTracker {
     )
   }
 
-  /** Fastest usable EWMA among the given nodes; Infinity if none is profiled yet. */
-  private fastestUsableLatency(nodes: string[], now: number): number {
-    let min = Infinity
-    for (const n of nodes) {
-      const h = this.health.get(n)
-      if (this.isLatencyUsable(h, now)) min = Math.min(min, h!.ewmaLatencyMs!)
-    }
-    return min
-  }
-
   /**
    * Ranking score (lower = better). Unproven/warming nodes get a fixed neutral prior
    * so they sit ahead of a proven-slow node but behind a proven-fast one, and make at
-   * most one rank transition when they cross MIN_SAMPLES (no churn). Our own node is
-   * forgiven OUR_NODE_BIAS_MS of extra latency — bounded by OUR_NODE_DEMOTE_RATIO so it
-   * is genuinely demoted when slow rather than pinned #1.
+   * most one rank transition when they cross MIN_SAMPLES (no churn).
    */
-  private scoreNode(node: string, fastest: number, now: number): number {
+  private scoreNode(node: string, now: number): number {
     const h = this.health.get(node)
     if (!this.isLatencyUsable(h, now)) return LATENCY_UNPROVEN_PRIOR_MS
-    const lat = h!.ewmaLatencyMs!
-    if (isOurNode(node)) {
-      const overCeiling =
-        fastest > 0 && fastest !== Infinity && lat > OUR_NODE_DEMOTE_RATIO * fastest
-      if (overCeiling) return lat // demoted: raw latency, no forgiveness
-      return Math.max(lat - OUR_NODE_BIAS_MS, 0)
-    }
-    return lat
+    return h!.ewmaLatencyMs!
   }
 
   /**
