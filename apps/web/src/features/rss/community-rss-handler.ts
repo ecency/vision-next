@@ -2,6 +2,8 @@ import { EntriesRssHandler } from "@/features/rss/entries-rss-handler";
 import { getPostsRankedInfiniteQueryOptions } from "@ecency/sdk";
 import { getQueryClient } from "@/core/react-query";
 
+const VALID_SORTS = ["trending", "hot", "created", "payout", "payout_comments", "muted"] as const;
+
 export class CommunityRssHandler extends EntriesRssHandler {
   private community = "";
   private tag = "";
@@ -11,7 +13,7 @@ export class CommunityRssHandler extends EntriesRssHandler {
     super();
     this.pathname = pathname;
     this.community = community;
-    this.tag = tag;
+    this.tag = VALID_SORTS.includes(tag as (typeof VALID_SORTS)[number]) ? tag : "created";
   }
 
   protected async fetchData() {
