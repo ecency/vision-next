@@ -4,6 +4,7 @@ import {
   callRPC,
   callREST,
   callWithQuorum,
+  rpcHealthTracker,
   restHealthTracker,
   __LATENCY_TUNING__,
 } from "./call";
@@ -256,6 +257,47 @@ describe("call sites feed the tracker — adaptive behavior end to end", () => {
     expect(hits).toContain("fast");
     // …and by the end the fast node is preferred over the slow config-first node.
     expect(lastHalf).toBeGreaterThan(firstHalf);
+  });
+
+  it("callRPC: a config-first node that FAST-fails (HTTP 530 down node) is demoted, reads still served", async () => {
+    // Distinct from the slow-node case above: a Cloudflare 530 (error 1033 tunnel /
+    // node in maintenance) returns in ~80ms. recordSlowFailure ignores such instant
+    // failures, so the demotion must come from the hard-fault path (NodeError →
+    // recordError → recordFailure). Unique hosts so the file-wide rpcHealthTracker
+    // singleton can be asserted without another test's profile bleeding in.
+    const DOWN = "https://rpc-530.test"; // config-first, fast 530
+    const UP = "https://rpc-live.test";
+    config.nodes = [DOWN, UP];
+    config.retry = 3;
+    const hits: string[] = [];
+    vi.spyOn(globalThis, "fetch").mockImplementation(async (u: any, init: any) => {
+      const url = String(u);
+      const down = url.includes("rpc-530");
+      hits.push(down ? "down" : "up");
+      advance(down ? 80 : 100); // both fast — the 530 is NOT a slow failure
+      if (down) {
+        return new Response("error code: 1033", {
+          status: 530,
+          headers: { "Content-Type": "text/plain" },
+        });
+      }
+      return jsonOk(init, { ok: true });
+    });
+
+    for (let i = 0; i < 8; i++) {
+      await callRPC("condenser_api.get_dynamic_global_properties", []);
+    }
+
+    // failover keeps every read served despite the down config-first node
+    expect(hits.filter((h) => h === "up").length).toBe(8);
+    // the ranker tails the down node and fronts the live one
+    const order = rpcHealthTracker.getOrderedNodes([DOWN, UP]);
+    expect(order[0]).toBe(UP);
+    expect(order[order.length - 1]).toBe(DOWN);
+    // and the down node stops being hit once demoted (not just re-tried every call)
+    const firstHalfDown = hits.slice(0, 4).filter((h) => h === "down").length;
+    const lastHalfDown = hits.slice(-4).filter((h) => h === "down").length;
+    expect(lastHalfDown).toBeLessThan(firstHalfDown);
   });
 
   it("callREST: a slow-failing node is demoted (the M1b REST penalty path runs)", async () => {
