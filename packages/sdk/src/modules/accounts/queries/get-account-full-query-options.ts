@@ -73,7 +73,7 @@ export function getAccountFullQueryOptions(username: string | undefined) {
           return null;
         })
       ]);
-      if (!response[0]) {
+      if (!response?.[0]) {
         // The account does not exist (e.g. not yet finalized on-chain during
         // signup). Treat absence as a recoverable null instead of throwing, so
         // consumers (useQuery hooks and fetchQuery callers) surface it as empty
