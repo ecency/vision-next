@@ -10,7 +10,7 @@ export function getAccountsQueryOptions(usernames: string[]) {
     enabled: usernames.length > 0,
     queryFn: async (): Promise<FullAccount[]> => {
       const response = (await callRPC("condenser_api.get_accounts", [usernames])) as any[];
-      return parseAccounts(response);
+      return parseAccounts(response ?? []);
     },
   });
 }
