@@ -55,7 +55,14 @@ export function useClaimPoints(
         );
       }
 
-      return response.json();
+      const body = await response.text();
+      try {
+        return JSON.parse(body);
+      } catch {
+        throw new Error(
+          `[SDK][Points][Claim] – unexpected non-JSON response: ${body}`
+        );
+      }
     },
     onError,
     onSuccess: () => {
