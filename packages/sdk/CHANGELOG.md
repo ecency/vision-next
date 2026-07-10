@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.45
+
+### Patch Changes
+
+- fix(points): handle non-JSON claim response and stop unhandled claim rejections (#1129)
+
 ## 2.3.44
 
 ### Patch Changes

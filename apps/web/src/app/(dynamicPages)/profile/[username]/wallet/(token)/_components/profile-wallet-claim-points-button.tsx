@@ -98,7 +98,12 @@ export function ProfileWalletClaimPointsButton({
       className={clsx("sm:w-auto", className)}
       disabled={!canClaim || isClaiming}
       isLoading={isClaiming}
-      onClick={() => canClaim && claim({})}
+      // onError already surfaces the toast; swallow the rejection so this
+      // fire-and-forget mutateAsync doesn't raise an unhandled rejection
+      // (ECENCY-NEXT-1FCJ).
+      onClick={() => {
+        if (canClaim) claim({}).catch(() => {});
+      }}
       icon={icon}
       iconClassName={iconClassName}
     >
