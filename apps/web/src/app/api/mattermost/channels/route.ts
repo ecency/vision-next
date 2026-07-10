@@ -5,7 +5,11 @@ import {
   handleMattermostError,
   mmUserFetch
 } from "@/server/mattermost";
-import { fetchAllChannelPages, fetchAllChannelMemberPages } from "./helpers";
+import {
+  fetchAllChannelPages,
+  fetchAllChannelMemberPages,
+  dmContributesToUnreadBadge
+} from "./helpers";
 
 interface MattermostChannel {
   id: string;
@@ -120,18 +124,13 @@ export async function GET() {
       {}
     );
 
-    // A DM contributes to the unread badge (see channels/unreads/route.ts) whenever
-    // it has unread messages and is neither muted nor never-viewed. Such a DM must
-    // stay visible in the list, otherwise the badge shows a count the user has no
-    // row to open and clear — the "phantom unread" bug for a closed (or
-    // uncategorized) DM that later receives a message.
-    const dmContributesToBadge = (channel: MattermostChannel) => {
-      const member = channelMembersById[channel.id];
-      if (!member) return false;
-      if (member.notify_props?.mark_unread === "mention") return false; // muted
-      if (member.last_viewed_at == null) return false; // never viewed
-      return (channel.total_msg_count || 0) > (member.msg_count || 0);
-    };
+    // A DM that contributes to the unread badge must stay visible in the list,
+    // otherwise the badge shows a count the user has no row to open and clear —
+    // the "phantom unread" bug for a closed (or uncategorized) DM that later
+    // receives a message. The rule lives in ./helpers so it stays identical to
+    // the unread-badge computation in channels/unreads/route.ts.
+    const dmContributesToBadge = (channel: MattermostChannel) =>
+      dmContributesToUnreadBadge(channel, channelMembersById[channel.id]);
 
     const hasCategories = (categoriesResponse.categories || []).length > 0;
     const filteredChannels = channels.filter((channel) => {

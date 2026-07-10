@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 /**
@@ -22,12 +23,15 @@ vi.mock("@/server/mattermost", () => ({
   mmUserFetch: (...args: unknown[]) => mockMmUserFetch(...args)
 }));
 
-vi.mock("@/app/api/mattermost/channels/helpers", () => ({
+// Keep the real badge/never-viewed predicates (the route now imports
+// dmContributesToUnreadBadge from here); only the network fetchers are stubbed.
+vi.mock("@/app/api/mattermost/channels/helpers", async () => ({
+  ...(await vi.importActual("@/app/api/mattermost/channels/helpers")),
   fetchAllChannelPages: (...args: unknown[]) => mockFetchAllChannelPages(...args),
   fetchAllChannelMemberPages: (...args: unknown[]) => mockFetchAllChannelMemberPages(...args)
 }));
 
-// Four closed DMs (direct_channel_show=false), each exercising one branch of the
+// Five closed DMs (direct_channel_show=false), each exercising one branch of the
 // "contributes to badge" rule.
 const CHANNELS = [
   // unread + viewed + not muted -> contributes -> must stay visible
@@ -36,8 +40,10 @@ const CHANNELS = [
   { id: "dm-read", name: "u-self__u-read", display_name: "", type: "D", total_msg_count: 3 },
   // muted with unread -> badge zeroes muted -> stays hidden
   { id: "dm-muted", name: "u-self__u-muted", display_name: "", type: "D", total_msg_count: 4 },
-  // never viewed -> badge skips never-viewed -> stays hidden
-  { id: "dm-neverviewed", name: "u-self__u-new", display_name: "", type: "D", total_msg_count: 2 }
+  // never viewed (last_viewed_at null) -> badge skips never-viewed -> stays hidden
+  { id: "dm-neverviewed", name: "u-self__u-new", display_name: "", type: "D", total_msg_count: 2 },
+  // never viewed (last_viewed_at 0, Mattermost's other "never" value) -> stays hidden
+  { id: "dm-neverviewed-zero", name: "u-self__u-zero", display_name: "", type: "D", total_msg_count: 2 }
 ];
 
 const MEMBERS = [
@@ -51,21 +57,24 @@ const MEMBERS = [
     last_viewed_at: 3000,
     notify_props: { mark_unread: "mention" }
   },
-  { user_id: "u-self", channel_id: "dm-neverviewed", mention_count: 0, msg_count: 0, last_viewed_at: null }
+  { user_id: "u-self", channel_id: "dm-neverviewed", mention_count: 0, msg_count: 0, last_viewed_at: null },
+  { user_id: "u-self", channel_id: "dm-neverviewed-zero", mention_count: 0, msg_count: 0, last_viewed_at: 0 }
 ];
 
 const PREFERENCES = [
   { user_id: "u-self", category: "direct_channel_show", name: "u-other", value: "false" },
   { user_id: "u-self", category: "direct_channel_show", name: "u-read", value: "false" },
   { user_id: "u-self", category: "direct_channel_show", name: "u-muted", value: "false" },
-  { user_id: "u-self", category: "direct_channel_show", name: "u-new", value: "false" }
+  { user_id: "u-self", category: "direct_channel_show", name: "u-new", value: "false" },
+  { user_id: "u-self", category: "direct_channel_show", name: "u-zero", value: "false" }
 ];
 
 const DM_USERS = [
   { id: "u-other", username: "other", delete_at: 0 },
   { id: "u-read", username: "readpartner", delete_at: 0 },
   { id: "u-muted", username: "mutedpartner", delete_at: 0 },
-  { id: "u-new", username: "newpartner", delete_at: 0 }
+  { id: "u-new", username: "newpartner", delete_at: 0 },
+  { id: "u-zero", username: "zeropartner", delete_at: 0 }
 ];
 
 describe("channels route — DM unread visibility", () => {
@@ -107,5 +116,10 @@ describe("channels route — DM unread visibility", () => {
   it("does not force-show a never-viewed DM (excluded from the badge)", async () => {
     const ids = await getChannelIds();
     expect(ids).not.toContain("dm-neverviewed");
+  });
+
+  it("treats last_viewed_at of 0 as never-viewed and keeps it hidden", async () => {
+    const ids = await getChannelIds();
+    expect(ids).not.toContain("dm-neverviewed-zero");
   });
 });
