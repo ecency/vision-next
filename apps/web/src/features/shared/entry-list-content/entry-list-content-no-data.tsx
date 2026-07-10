@@ -4,6 +4,7 @@ import { MessageNoData } from "@/features/shared";
 import i18next from "i18next";
 import { isCommunity } from "@/utils";
 import React from "react";
+import Link from "next/link";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
@@ -27,6 +28,9 @@ export function EntryListContentNoData({ username, section, loading }: Props) {
   let description = "";
   let buttonText = "";
   let buttonTo = "";
+  let secondaryButtonText = "";
+  let secondaryButtonTo = "";
+  let footer: React.ReactNode = null;
 
   // Check if this is a personalized feed (feed, trending/my, hot/my, created/my)
   const isPersonalizedFeed = section === "feed" || (["trending","hot","created"].includes(section) && !username && activeUser);
@@ -77,12 +81,35 @@ export function EntryListContentNoData({ username, section, loading }: Props) {
     }
   }
 
+  // An empty personal feed almost always means the user follows no one yet.
+  // Discover (the primary CTA above) points at people to follow, but the fastest
+  // way to actually meet people is Waves — so add it as a secondary path and link
+  // the getting-started guide for anyone who just landed here.
+  if (isPersonalizedFeed) {
+    secondaryButtonText = t("g.jump-into-waves", "Jump into Waves");
+    secondaryButtonTo = "/waves";
+    footer = (
+      <>
+        {t("g.feed-guide-prompt", "New here?")}{" "}
+        <Link
+          href="/@ecency/your-first-week-on-ecency"
+          className="text-blue-dark-sky hover:underline"
+        >
+          {t("g.feed-guide-link", "Read your first week on Ecency")}
+        </Link>
+      </>
+    );
+  }
+
   return (
     <MessageNoData
       title={title}
       description={description}
       buttonText={buttonText}
       buttonTo={buttonTo}
+      secondaryButtonText={secondaryButtonText}
+      secondaryButtonTo={secondaryButtonTo}
+      footer={footer}
     />
   );
 }
