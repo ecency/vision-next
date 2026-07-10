@@ -1,19 +1,74 @@
 import type { QuestsResponse } from "@ecency/sdk";
 
+import { PREFIX } from "@/utils/local-storage";
+
 export type WavesOnboardingItemId = "wave" | "vote" | "reply" | "checkin";
 
 /**
- * Window event fired on wave submit success. On chain a wave is a reply into
- * the waves container, so the quests endpoint counts it as comment activity,
- * not post: the only reliable "posted a wave" signal is the submit path itself.
- * The mounted checklist listens and latches the item.
+ * Window event fired when the submit path latches an onboarding item. On chain a
+ * wave — and a reply to a wave — is comment activity, so the quests endpoint
+ * cannot tell a posted wave from a reply: the submit path is the only reliable
+ * signal for the `wave` and `reply` items. The event carries the submitting
+ * `username` so a checklist mounted for a different account (e.g. after an
+ * account switch) ignores it; the submitting account is persisted directly
+ * regardless (see latchWavesOnboardingItem).
  */
 export const WAVES_ONBOARDING_LATCH_EVENT = "ecency-waves-onboarding-latch";
 
-export function dispatchWavesOnboardingLatch(id: WavesOnboardingItemId) {
-  if (typeof window !== "undefined") {
-    window.dispatchEvent(new CustomEvent(WAVES_ONBOARDING_LATCH_EVENT, { detail: id }));
+export interface WavesOnboardingLatchDetail {
+  username: string;
+  id: WavesOnboardingItemId;
+}
+
+/** localStorage key the checklist latches per-user completions under. Must stay
+ * in sync with the key used by the checklist component's useSynchronizedLocalStorage. */
+function onboardingDoneStorageKey(username: string): string {
+  return `${PREFIX}_waves_onboarding_done_${username}`;
+}
+
+/**
+ * Complete an onboarding item for a specific account from the submit path.
+ *
+ * The completion is persisted straight to the *submitting* account's localStorage
+ * key — passed in by the caller, not read from whatever account is active when an
+ * async submit resolves. This makes the latch reliable in the two cases the old
+ * fire-and-forget window event dropped: a wave posted from a page where the
+ * checklist is not mounted (no listener to catch the event), and a submit that
+ * resolves after the user switches accounts (the event would have marked the new
+ * account). A scoped event still lets a checklist mounted for that same user tick
+ * the item live.
+ */
+export function latchWavesOnboardingItem(username: string, id: WavesOnboardingItemId) {
+  if (typeof window === "undefined" || !username) {
+    return;
   }
+
+  const key = onboardingDoneStorageKey(username);
+  let current: WavesOnboardingItemId[] = [];
+  try {
+    const raw = window.localStorage.getItem(key);
+    const parsed = raw ? JSON.parse(raw) : [];
+    if (Array.isArray(parsed)) {
+      current = parsed;
+    }
+  } catch {
+    current = [];
+  }
+
+  if (!current.includes(id)) {
+    try {
+      window.localStorage.setItem(key, JSON.stringify([...current, id]));
+    } catch {
+      // Ignore storage quota/availability failures; a mounted checklist still
+      // ticks via the event below, and re-derivation re-latches on the next load.
+    }
+  }
+
+  window.dispatchEvent(
+    new CustomEvent<WavesOnboardingLatchDetail>(WAVES_ONBOARDING_LATCH_EVENT, {
+      detail: { username, id }
+    })
+  );
 }
 
 export interface WavesOnboardingItem {
@@ -75,11 +130,14 @@ export function deriveWavesOnboardingState(
 
   const streak = quests.streak?.current ?? 0;
   const items = [
-    // No live quest signal: a wave advances the comment quest (it is a reply
-    // on chain), so this item completes only via the submit-path latch.
+    // No live quest signal for either item: on chain a wave and a reply are both
+    // comment activity, so the `comment` daily quest cannot tell them apart — a
+    // user's very first wave would otherwise also complete "reply" without them
+    // ever replying. Both complete only via the submit-path latch (see
+    // latchWavesOnboardingItem).
     item("wave", false),
     item("vote", dailyProgress(quests, "vote") > 0),
-    item("reply", dailyProgress(quests, "comment") > 0),
+    item("reply", false),
     item("checkin", dailyProgress(quests, "checkin") > 0 || streak >= 1)
   ];
 

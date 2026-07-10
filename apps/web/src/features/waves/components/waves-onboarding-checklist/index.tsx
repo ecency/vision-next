@@ -15,7 +15,8 @@ import {
   deriveWavesOnboardingState,
   WAVES_ONBOARDING_LATCH_EVENT,
   WavesOnboardingItem,
-  WavesOnboardingItemId
+  WavesOnboardingItemId,
+  WavesOnboardingLatchDetail
 } from "./derive-waves-onboarding-state";
 
 /**
@@ -86,19 +87,25 @@ function ChecklistContent({ username }: { username: string }) {
     }
   }, [state, latched, setLatched]);
 
-  // Latch items completed by the submit path (a wave has no live quest signal,
-  // see WAVES_ONBOARDING_LATCH_EVENT in derive-waves-onboarding-state).
+  // Tick items the submit path completes live (a wave and a reply have no live
+  // quest signal, see WAVES_ONBOARDING_LATCH_EVENT in derive-waves-onboarding-state).
+  // Ignore latches for a different account: an async submit can resolve after the
+  // user switches accounts, and the submit path already persisted the submitting
+  // account's completion directly.
   useEffect(() => {
     const handler = (e: Event) => {
-      const id = (e as CustomEvent<WavesOnboardingItemId>).detail;
+      const detail = (e as CustomEvent<WavesOnboardingLatchDetail>).detail;
+      if (!detail || detail.username !== username) {
+        return;
+      }
       const prev = latched ?? [];
-      if (!prev.includes(id)) {
-        setLatched([...prev, id]);
+      if (!prev.includes(detail.id)) {
+        setLatched([...prev, detail.id]);
       }
     };
     window.addEventListener(WAVES_ONBOARDING_LATCH_EVENT, handler);
     return () => window.removeEventListener(WAVES_ONBOARDING_LATCH_EVENT, handler);
-  }, [latched, setLatched]);
+  }, [username, latched, setLatched]);
 
   useEffect(() => {
     if (state?.allComplete && !celebrated) {
