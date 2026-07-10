@@ -178,7 +178,10 @@ export function PointsPage() {
               )}
             </>
           }
-          onClick={() => claim({})}
+          // onError already surfaces the toast; swallow the rejection so this
+          // fire-and-forget mutateAsync doesn't raise an unhandled rejection
+          // (ECENCY-NEXT-1FCJ).
+          onClick={() => claim({}).catch(() => {})}
         />
       </LoginRequired>
 
