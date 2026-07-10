@@ -208,10 +208,16 @@ export function useMattermostMuteChannel() {
       return (await safeJson(res)) as { ok: boolean };
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: ["mattermost-channels"],
-        exact: false
-      });
+      // Refresh both caches: the channel list (mute state hides/shows the row)
+      // and the unread summary. The summary carries `unread_eligible`, which the
+      // realtime updater trusts; a mute toggle changes it, so the cached flag
+      // must be refetched or the badge would keep using the stale value until the
+      // periodic refetch (missing an unread after unmute, or over-counting after
+      // mute).
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["mattermost-channels"], exact: false }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-unread"], exact: false })
+      ]);
     }
   });
 }
