@@ -68,6 +68,46 @@ describe("MessageNoData", () => {
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
   });
 
+  test("does not render a secondary button by default", () => {
+    render(<MessageNoData {...defaultProps} />);
+
+    expect(screen.getAllByRole("link")).toHaveLength(1);
+  });
+
+  test("renders a secondary button when provided", () => {
+    render(
+      <MessageNoData
+        {...defaultProps}
+        secondaryButtonText="Jump into Waves"
+        secondaryButtonTo="/waves"
+      />
+    );
+
+    const waves = screen.getByText("Jump into Waves").closest("a");
+    expect(waves).toHaveAttribute("href", "/waves");
+    // Primary link is still present alongside the secondary one.
+    expect(screen.getAllByRole("link")).toHaveLength(2);
+  });
+
+  test("ignores a secondary button missing its destination", () => {
+    render(<MessageNoData {...defaultProps} secondaryButtonText="Jump into Waves" />);
+
+    expect(screen.queryByText("Jump into Waves")).not.toBeInTheDocument();
+    expect(screen.getAllByRole("link")).toHaveLength(1);
+  });
+
+  test("renders footer content when provided", () => {
+    render(<MessageNoData {...defaultProps} footer={<span>New here? Read the guide</span>} />);
+
+    expect(screen.getByText("New here? Read the guide")).toBeInTheDocument();
+  });
+
+  test("does not render footer by default", () => {
+    render(<MessageNoData {...defaultProps} />);
+
+    expect(screen.queryByText(/New here/)).not.toBeInTheDocument();
+  });
+
   test("applies correct container classes", () => {
     const { container } = render(<MessageNoData {...defaultProps} />);
 
