@@ -6,7 +6,13 @@ import {
   mmUserFetch
 } from "@/server/mattermost";
 import * as Sentry from "@sentry/nextjs";
-import { fetchAllChannelPages, fetchAllChannelMemberPages } from "../helpers";
+import {
+  fetchAllChannelPages,
+  fetchAllChannelMemberPages,
+  isChannelMuted,
+  isChannelNeverViewed,
+  channelUnreadMessageCount
+} from "../helpers";
 
 interface MattermostChannel {
   id: string;
@@ -179,11 +185,11 @@ export async function GET() {
     const channelsWithCounts = filteredChannels.map((channel) => {
       const member = memberByChannelId[channel.id];
 
-      // Muted channels: zero out all counts (mobile parity).
-      // Muted channels are hidden from the channel list so showing their
-      // unreads in the badge would be misleading.
-      const isMuted = member?.notify_props?.mark_unread === "mention";
-      if (isMuted) {
+      // Zero out muted channels (hidden from the list, so their unreads would
+      // mislead) and never-viewed channels (skipped to prevent a historical
+      // message flood). Both rules are shared with the channel-list route via
+      // ./helpers so the two stay in lockstep — see dmContributesToUnreadBadge.
+      if (isChannelMuted(member) || isChannelNeverViewed(member)) {
         return {
           channelId: channel.id,
           type: channel.type,
@@ -193,23 +199,11 @@ export async function GET() {
         };
       }
 
-      // Skip never-viewed channels to prevent historical message flood (mobile parity)
-      if (member?.last_viewed_at == null) {
-        return {
-          channelId: channel.id,
-          type: channel.type,
-          mention_count: 0,
-          message_count: 0,
-          thread_unread: 0
-        };
-      }
-
-      const unreadMessages = Math.max((channel.total_msg_count || 0) - (member?.msg_count || 0), 0);
       return {
         channelId: channel.id,
         type: channel.type,
         mention_count: member?.mention_count || 0,
-        message_count: unreadMessages,
+        message_count: channelUnreadMessageCount(channel, member),
         thread_unread: threadUnreadByChannel[channel.id] || 0
       };
     });
