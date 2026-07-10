@@ -39,8 +39,14 @@ export async function claimPointsRequest(
     }
   );
 
+  // Media types are case-insensitive; normalise once and reuse in every branch.
+  const contentType = (response.headers.get("content-type") ?? "")
+    .split(";")[0]
+    .trim()
+    .toLowerCase();
+  const body = await response.text();
+
   if (!response.ok) {
-    const body = await response.text();
     if (response.status === 406) {
       try {
         return JSON.parse(body);
@@ -48,15 +54,15 @@ export async function claimPointsRequest(
         return { message: body, code: response.status };
       }
     }
+    // Only fold a short JSON error body into the message; an HTML gateway page
+    // (e.g. 502/503) would otherwise fragment the Sentry group per distinct
+    // page — the same problem the non-JSON guard below avoids for a 2xx body.
+    const detail =
+      body && contentType.includes("json") ? `: ${body.slice(0, 200)}` : "";
     throw new Error(
-      `[SDK][Points][Claim] – failed with status ${response.status}${body ? `: ${body}` : ""}`
+      `[SDK][Points][Claim] – failed with status ${response.status}${detail}`
     );
   }
-
-  const contentType = (response.headers.get("content-type") ?? "")
-    .split(";")[0]
-    .trim();
-  const body = await response.text();
 
   if (!contentType.includes("json")) {
     throw new Error(

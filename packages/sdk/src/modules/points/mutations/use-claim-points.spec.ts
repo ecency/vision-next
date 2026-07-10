@@ -48,16 +48,48 @@ describe("claimPointsRequest", () => {
   it("throws a stable, body-free error on a 2xx non-JSON (HTML) response (ECENCY-NEXT-1FCJ)", async () => {
     // An edge/proxy interstitial served with a 200 must not surface as a bare
     // SyntaxError, and the raw HTML must NOT leak into the message (else Sentry
-    // fragments the issue per distinct page).
+    // fragments the issue per distinct page). Capture the single rejection and
+    // assert both facts on the SAME error (a second call would hit an exhausted
+    // mock and pass vacuously).
     fetchMock.mockResolvedValueOnce(
       htmlResponse("<!DOCTYPE html><html><body>Attention Required</body></html>")
     );
 
+    const err = await claimPointsRequest("alice", "hs-token").catch((e) => e as Error);
+    expect(err).toBeInstanceOf(Error);
+    expect(err.message).toMatch(/expected JSON but received "text\/html" response \(status 200\)/);
+    expect(err.message).not.toMatch(/DOCTYPE|Attention/);
+  });
+
+  it("accepts a JSON body regardless of media-type casing", async () => {
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      headers: { get: () => "Application/JSON" },
+      text: async () => JSON.stringify({ points: "5.000" }),
+    });
+
+    await expect(claimPointsRequest("alice", "hs-token")).resolves.toEqual({ points: "5.000" });
+  });
+
+  it("keeps a non-2xx error message stable — no raw HTML from a gateway page", async () => {
+    fetchMock.mockResolvedValueOnce(htmlResponse("<!DOCTYPE html><html>bad gateway</html>", 502));
+
+    const err = await claimPointsRequest("alice", "hs-token").catch((e) => e as Error);
+    expect(err.message).toMatch(/failed with status 502/);
+    expect(err.message).not.toMatch(/DOCTYPE|bad gateway/);
+  });
+
+  it("folds a short JSON error body into a non-2xx message", async () => {
+    fetchMock.mockResolvedValueOnce({
+      ok: false,
+      status: 400,
+      headers: { get: () => "application/json" },
+      text: async () => JSON.stringify({ message: "bad code" }),
+    });
+
     await expect(claimPointsRequest("alice", "hs-token")).rejects.toThrow(
-      /expected JSON but received "text\/html" response \(status 200\)/
-    );
-    await expect(claimPointsRequest("alice", "hs-token")).rejects.not.toThrow(
-      /DOCTYPE|Attention/
+      /failed with status 400.*bad code/
     );
   });
 
