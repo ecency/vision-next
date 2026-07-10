@@ -604,6 +604,11 @@ export interface MattermostUnreadChannel {
   mention_count: number;
   message_count: number;
   thread_unread: number;
+  // Whether the channel may contribute to the unread badge. The unreads route
+  // sets this to false for muted and never-viewed channels (which it keeps out
+  // of the badge); the realtime updater must not grow the badge for them.
+  // Optional so cached responses from an older route are treated as eligible.
+  unread_eligible?: boolean;
 }
 
 export interface MattermostUnreadSummary {

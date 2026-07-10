@@ -722,7 +722,7 @@ export class MattermostWebSocket {
     if (channelId === this.channelId) return;
 
     this.queryClient.setQueriesData<{
-      channels: Array<{ channelId: string; type: string; mention_count: number; message_count: number; thread_unread?: number }>;
+      channels: Array<{ channelId: string; type: string; mention_count: number; message_count: number; thread_unread?: number; unread_eligible?: boolean }>;
       totalMentions: number;
       totalDMs: number;
       totalThreads?: number;
@@ -734,6 +734,12 @@ export class MattermostWebSocket {
 
       const target = data.channels.find((channel) => channel.channelId === channelId);
       if (!target) return data;
+
+      // Muted and never-viewed channels are deliberately kept out of the badge by
+      // the unreads route (unread_eligible === false). Growing the badge here would
+      // count a channel the list route never shows — a phantom unread. Skip them.
+      // (undefined means an older cached response: treat as eligible, no regression.)
+      if (target.unread_eligible === false) return data;
 
       const isDm = target.type === "D";
       // Compute effective unread before and after to get the delta

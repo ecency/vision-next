@@ -189,13 +189,17 @@ export async function GET() {
       // mislead) and never-viewed channels (skipped to prevent a historical
       // message flood). Both rules are shared with the channel-list route via
       // ./helpers so the two stay in lockstep — see dmContributesToUnreadBadge.
+      // `unread_eligible: false` tells the realtime updater not to grow the
+      // badge for these on a websocket post, otherwise the badge could count a
+      // channel the list route never shows (a phantom unread).
       if (isChannelMuted(member) || isChannelNeverViewed(member)) {
         return {
           channelId: channel.id,
           type: channel.type,
           mention_count: 0,
           message_count: 0,
-          thread_unread: 0
+          thread_unread: 0,
+          unread_eligible: false
         };
       }
 
@@ -204,7 +208,8 @@ export async function GET() {
         type: channel.type,
         mention_count: member?.mention_count || 0,
         message_count: channelUnreadMessageCount(channel, member),
-        thread_unread: threadUnreadByChannel[channel.id] || 0
+        thread_unread: threadUnreadByChannel[channel.id] || 0,
+        unread_eligible: true
       };
     });
 
