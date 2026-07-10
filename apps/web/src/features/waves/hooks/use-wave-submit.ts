@@ -14,6 +14,7 @@ import { useActiveAccount } from "@/core/hooks";
 import { getQueryClient } from "@/core/react-query";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { scheduleQuestsRefresh } from "@/utils/refresh-quests";
+import { latchWavesOnboardingItem } from "@/features/waves/components/waves-onboarding-checklist/derive-waves-onboarding-state";
 
 interface Body {
   text: string;
@@ -148,6 +149,14 @@ export function useWaveSubmit(
       if (item) {
         onSuccess?.(item);
         scheduleQuestsRefresh(getQueryClient(), username);
+        // A wave or a reply to a wave completes an onboarding checklist item the
+        // quests API cannot signal (both are comment activity on chain). Latch it
+        // scoped to the wave's actual author — not the active account, which may
+        // have changed while this async submit was in flight — so the correct
+        // user is credited. Edits complete nothing.
+        if (!editingEntry && item.author) {
+          latchWavesOnboardingItem(item.author, replySource ? "reply" : "wave");
+        }
       }
     }
   });

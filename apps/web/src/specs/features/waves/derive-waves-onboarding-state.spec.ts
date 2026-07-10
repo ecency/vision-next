@@ -85,21 +85,50 @@ describe("deriveWavesOnboardingState", () => {
 
   it("marks items complete from daily quest progress", () => {
     const state = deriveWavesOnboardingState(
-      makeQuests({ post: 1, comment: 2 }),
+      makeQuests({ post: 1, vote: 4, checkin: 1 }),
       makeAccount(),
       [],
       NOW
     );
     expect(state).toMatchObject({
       items: [
-        { id: "wave", completed: true },
-        { id: "vote", completed: false },
-        { id: "reply", completed: true },
-        { id: "checkin", completed: false }
+        // A wave counts as comment activity on chain, so the wave item has no
+        // live quest signal; it completes only via the submit-path latch.
+        { id: "wave", completed: false },
+        { id: "vote", completed: true },
+        // Reply is likewise latch-only (see below); comment progress here comes
+        // from the wave, not a reply, so it must not complete.
+        { id: "reply", completed: false },
+        { id: "checkin", completed: true }
       ],
       completedCount: 2,
       allComplete: false
     });
+  });
+
+  it("does not complete the reply item from comment quest progress", () => {
+    // A brand-new top-level wave advances the daily `comment` quest (a wave is a
+    // comment on chain). The reply item must stay incomplete until the user
+    // actually replies, which the submit path latches separately.
+    const state = deriveWavesOnboardingState(
+      makeQuests({ comment: 5 }),
+      makeAccount(),
+      [],
+      NOW
+    );
+    expect(state?.items.find((i) => i.id === "reply")).toEqual({ id: "reply", completed: false });
+  });
+
+  it("keeps the reply item complete once the submit path has latched it", () => {
+    const state = deriveWavesOnboardingState(makeQuests({}), makeAccount(), ["reply"], NOW);
+    expect(state?.items.find((i) => i.id === "reply")).toEqual({ id: "reply", completed: true });
+  });
+
+  it("returns null for a truthy but partial account object", () => {
+    expect(deriveWavesOnboardingState(makeQuests({}), {} as any, [], NOW)).toBeNull();
+    expect(
+      deriveWavesOnboardingState(makeQuests({}), { created: "2026-07-01T00:00:00" } as any, [], NOW)
+    ).toBeNull();
   });
 
   it("completes check-in via an active streak even without a check-in today", () => {
@@ -139,7 +168,7 @@ describe("deriveWavesOnboardingState", () => {
     const state = deriveWavesOnboardingState(
       makeQuests({ post: 1 }),
       makeAccount({ created: "2020-01-01T00:00:00", post_count: 1200 }),
-      [],
+      ["wave"],
       NOW
     );
     expect(state).toMatchObject({ eligible: false });
