@@ -1,8 +1,7 @@
 import { EntriesRssHandler } from "@/features/rss/entries-rss-handler";
+import { resolvePostSort } from "@/features/rss/valid-sorts";
 import { getPostsRankedInfiniteQueryOptions } from "@ecency/sdk";
 import { getQueryClient } from "@/core/react-query";
-
-const VALID_SORTS = ["trending", "hot", "created", "payout", "payout_comments", "muted"] as const;
 
 export class CommunityRssHandler extends EntriesRssHandler {
   private community = "";
@@ -13,7 +12,9 @@ export class CommunityRssHandler extends EntriesRssHandler {
     super();
     this.pathname = pathname;
     this.community = community;
-    this.tag = VALID_SORTS.includes(tag as (typeof VALID_SORTS)[number]) ? tag : "created";
+    // `tag` is the sort key here; clamp unknown crawler-supplied sorts to a
+    // bridge-accepted value to avoid an "Unsupported sort" RPCError.
+    this.tag = resolvePostSort(tag);
   }
 
   protected async fetchData() {

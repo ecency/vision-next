@@ -1,4 +1,5 @@
 import { EntriesRssHandler } from "@/features/rss/entries-rss-handler";
+import { resolvePostSort } from "@/features/rss/valid-sorts";
 import { getPostsRankedInfiniteQueryOptions } from "@ecency/sdk";
 import { getQueryClient } from "@/core/react-query";
 
@@ -10,7 +11,10 @@ export class FeedRssHandler extends EntriesRssHandler {
   constructor(pathname: string, filter: string, tag = "created") {
     super();
     this.pathname = pathname;
-    this.filter = filter;
+    // `filter` is the sort key; crawlers hit /:filter/:tag/rss.xml with
+    // arbitrary segments, so clamp to a bridge-accepted sort to avoid an
+    // "Unsupported sort" RPCError (mirrors the community handler).
+    this.filter = resolvePostSort(filter);
     this.tag = tag;
   }
 

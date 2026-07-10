@@ -52,7 +52,10 @@ export function isTransientUpstreamError(e: unknown): boolean {
   const msg = String(err.message ?? "");
   return (
     /Unable to parse endpoint data/i.test(msg) ||
-    /HTTP 5\d\d/.test(msg) ||
+    // Upstream 5xx, and 429 rate-limits: a crawler fanning out across many feed
+    // paths trips the bridge/API rate limiter, which is a transient upstream
+    // condition (not an app bug), so treat it like the other upstream failures.
+    /HTTP (?:429|5\d\d)/.test(msg) ||
     /fetch failed/i.test(msg) ||
     // Hive's bridge rejects a bad tag/category two different ways depending on
     // the input: "...Tag does not exist" for a valid-but-missing one, and

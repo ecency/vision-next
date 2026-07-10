@@ -33,6 +33,15 @@ describe("isTransientUpstreamError", () => {
     expect(isTransientUpstreamError(new Error("fetch failed"))).toBe(true);
   });
 
+  it("treats an upstream 429 rate-limit as transient (crawler fanout trips the bridge limiter)", () => {
+    // ECENCY-NEXT-1E3Z: crawlers hammering /@user/rss get `HTTP 429 Rate
+    // Limited` from the bridge; that is upstream throttling, not an app bug.
+    expect(isTransientUpstreamError(new Error("HTTP 429 Rate Limited"))).toBe(true);
+    // A non-429/5xx client error must still surface as a real error.
+    expect(isTransientUpstreamError(new Error("HTTP 400 Bad Request"))).toBe(false);
+    expect(isTransientUpstreamError(new Error("HTTP 404 Not Found"))).toBe(false);
+  });
+
   it("does NOT suppress genuine application errors", () => {
     expect(isTransientUpstreamError(new Error("Cannot read properties of undefined"))).toBe(false);
     expect(isTransientUpstreamError(new Error("Assert Exception:something unrelated"))).toBe(false);
