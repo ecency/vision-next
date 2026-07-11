@@ -1,10 +1,9 @@
 "use client";
 
-import React, { cloneElement, ReactElement } from "react";
+import React, { cloneElement, ReactElement, useEffect } from "react";
 import { Entry } from "@/entities";
 import { PopoverConfirm } from "@/features/ui";
 import { useDeleteComment } from "@/api/mutations";
-import { useRouter } from "next/navigation";
 
 interface Props {
   children: ReactElement & { className?: string };
@@ -12,15 +11,29 @@ interface Props {
   parent?: Entry;
   onSuccess?: () => void;
   setDeleteInProgress?: (value: boolean) => void;
-  isComment?: boolean;
 }
-export function EntryDeleteBtn({ children, entry, parent }: Props) {
-  const router = useRouter();
+export function EntryDeleteBtn({
+  children,
+  entry,
+  parent,
+  onSuccess,
+  setDeleteInProgress
+}: Props) {
+  // Navigation after delete is the caller's decision (via onSuccess): in a
+  // discussion thread the entry simply disappears from the cached list, so
+  // forcing a redirect here would yank the user off the page they're reading.
   const { mutateAsync: deleteAction, isPending } = useDeleteComment(
     entry,
-    () => router.push("/"),
+    () => onSuccess?.(),
     parent
   );
+
+  useEffect(() => {
+    setDeleteInProgress?.(isPending);
+    // Don't leave the caller stuck in a loading state if the button unmounts
+    // mid-flight (navigation, list invalidation after a successful delete).
+    return () => setDeleteInProgress?.(false);
+  }, [isPending, setDeleteInProgress]);
 
   // Read the caller's class from children.props (ReactElement.props is typed
   // `unknown` under React 19, hence the cast). The previous code read

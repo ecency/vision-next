@@ -5,10 +5,13 @@ import { useSet } from "react-use";
 
 export * from "./intro-step.interface";
 
+// Anchor elements of currently open click-popovers. Registered by Popover,
+// consumed by Dropdown to decide whether an outside mousedown belongs to a
+// popover it hosts (whose content portals outside the dropdown's DOM).
 export const UIContext = createContext<{
-  openPopovers: Set<string>;
-  addOpenPopover: (v: string) => void;
-  removeOpenPopover: (v: string) => void;
+  openPopovers: Set<HTMLElement>;
+  addOpenPopover: (v: HTMLElement) => void;
+  removeOpenPopover: (v: HTMLElement) => void;
 }>({
   openPopovers: new Set(),
   addOpenPopover: () => {},
@@ -17,7 +20,7 @@ export const UIContext = createContext<{
 
 export function UIManager({ children }: PropsWithChildren<unknown>) {
   const [openPopovers, { add: addOpenPopover, remove: removeOpenPopover }] = useSet(
-    new Set<string>()
+    new Set<HTMLElement>()
   );
 
   const contextValue = useMemo(
