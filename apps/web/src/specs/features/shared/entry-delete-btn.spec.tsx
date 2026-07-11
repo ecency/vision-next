@@ -3,12 +3,6 @@ import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-// next/navigation: EntryDeleteBtn calls useRouter() and pushes "/" on success.
-const push = vi.fn();
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push })
-}));
-
 // useDeleteComment is the data hook that owns the actual broadcast. We mock it
 // so the test is deterministic: we control isPending and inspect mutateAsync.
 const mutateAsync = vi.fn();
@@ -52,7 +46,6 @@ const entry = {
 
 describe("EntryDeleteBtn", () => {
   beforeEach(() => {
-    push.mockReset();
     mutateAsync.mockReset();
     useDeleteComment.mockReset();
     useDeleteComment.mockReturnValue({ mutateAsync, isPending: false });
@@ -118,6 +111,39 @@ describe("EntryDeleteBtn", () => {
     fireEvent.click(screen.getByText("Delete"));
     fireEvent.click(screen.getByText("confirm.cancel"));
     expect(mutateAsync).not.toHaveBeenCalled();
+  });
+
+  it("runs the caller's onSuccess through the mutation's success callback", () => {
+    const onSuccess = vi.fn();
+
+    render(
+      <EntryDeleteBtn entry={entry} onSuccess={onSuccess}>
+        <button type="button">Delete</button>
+      </EntryDeleteBtn>
+    );
+
+    // Second arg to useDeleteComment is the success callback the mutation
+    // fires after a confirmed broadcast; it must invoke the caller's handler.
+    const [, successCallback] = useDeleteComment.mock.calls[0] as unknown as [
+      Entry,
+      () => void
+    ];
+    expect(onSuccess).not.toHaveBeenCalled();
+    successCallback();
+    expect(onSuccess).toHaveBeenCalledTimes(1);
+  });
+
+  it("reports pending state changes through setDeleteInProgress", () => {
+    const setDeleteInProgress = vi.fn();
+    useDeleteComment.mockReturnValue({ mutateAsync, isPending: true });
+
+    render(
+      <EntryDeleteBtn entry={entry} setDeleteInProgress={setDeleteInProgress}>
+        <button type="button">Delete</button>
+      </EntryDeleteBtn>
+    );
+
+    expect(setDeleteInProgress).toHaveBeenCalledWith(true);
   });
 
   it("marks the child with the 'in-progress' class while the delete is pending", () => {

@@ -9,7 +9,7 @@ import { getCommunityCache, useCommunityPin } from "@/core/caches";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
 import { useDeleteComment, usePinToBlog } from "@/api/mutations";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { dotsHorizontal } from "@ui/svg";
 import i18next from "i18next";
 import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
@@ -65,6 +65,7 @@ export const EntryMenu = ({
 }: Props) => {
   const { activeUser } = useActiveAccount();
   const router = useRouter();
+  const pathname = usePathname();
 
   const menuRef = useRef<HTMLDivElement>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -88,7 +89,15 @@ export const EntryMenu = ({
   const { data: community } = useQuery(getCommunityCache(entry.category));
   const { mutateAsync: pinToBlog } = usePinToBlog(entry, () => pinEntry?.(pin ? entry : null));
   const { mutateAsync: pinToCommunity } = useCommunityPin(entry, community);
-  const { mutateAsync: deleteAction } = useDeleteComment(entry, () => router.push("/"));
+  // Navigate away only when the user is on the deleted entry's own page —
+  // there the page's content just vanished. Deleting from a feed, waves or
+  // deck list must keep the user where they are (the item disappears from the
+  // list via cache invalidation, plus a success toast).
+  const { mutateAsync: deleteAction } = useDeleteComment(entry, () => {
+    if (pathname?.endsWith(`/@${entry.author}/${entry.permlink}`)) {
+      router.push("/");
+    }
+  });
 
   const {
     menuItems,

@@ -5,12 +5,15 @@ import {
   HTMLProps,
   PropsWithChildren,
   ReactNode,
+  useContext,
   useEffect,
+  useId,
   useMemo,
   useState
 } from "react";
 import { createPortal } from "react-dom";
 import { useFilteredProps } from "../util";
+import { UIContext } from "../core";
 import { useClickAway, useMountedState, useWindowSize } from "react-use";
 import { PopoverSheet } from "@ui/popover/popover-sheet";
 import { flip, Placement, shift } from "@floating-ui/dom";
@@ -66,6 +69,22 @@ export function Popover(
   const [show, setShow] = useState(
     (props as ShowProps).show ?? (props as Props).defaultShow ?? false
   );
+
+  // Register open click-popovers in the shared UI context. Dropdown's
+  // click-away guard (`openPopovers.size === 0`) relies on this to keep the
+  // menu mounted while a popover portaled outside the dropdown DOM (e.g. a
+  // PopoverConfirm) is awaiting the user's answer — otherwise the mousedown
+  // on the popover's buttons closes the dropdown and unmounts the popover
+  // before its click handler can fire. Hover popovers (tooltips) stay
+  // unregistered so they never pin a dropdown open.
+  const popoverId = useId();
+  const { addOpenPopover, removeOpenPopover } = useContext(UIContext);
+  useEffect(() => {
+    if (props.behavior === "click" && show) {
+      addOpenPopover(popoverId);
+      return () => removeOpenPopover(popoverId);
+    }
+  }, [props.behavior, show, popoverId, addOpenPopover, removeOpenPopover]);
 
   const isMounted = useMountedState();
   const windowSize = useWindowSize();
