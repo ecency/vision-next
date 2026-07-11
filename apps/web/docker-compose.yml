@@ -19,9 +19,13 @@ services:
       - TURNSTILE_SECRET
       - BLOCKSTREAM_CLIENT_ID
       - BLOCKSTREAM_CLIENT_SECRET
-      # Explicit default so the rendered stack spec is deterministic even when
-      # the deploy environment doesn't set it (compose v1 renders bare
-      # passthroughs of unset vars as null).
+      # Pinned to Warning at deploy time (the CI deploy env does not forward
+      # this variable, and compose v1 would render an unset bare passthrough as
+      # null). To enable per-request logs temporarily, set it directly on the
+      # running service:
+      #   docker service update --env-add Logging__LogLevel__Default=Information vision_vapi
+      # The next stack deploy resets it to Warning, so debug logging cannot be
+      # left on by accident.
       - Logging__LogLevel__Default=${Logging__LogLevel__Default:-Warning}
     restart: always
     # Bound container logs so vapi can never grow the host's json-file logs
