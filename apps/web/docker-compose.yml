@@ -19,7 +19,19 @@ services:
       - TURNSTILE_SECRET
       - BLOCKSTREAM_CLIENT_ID
       - BLOCKSTREAM_CLIENT_SECRET
+      # Explicit default so the rendered stack spec is deterministic even when
+      # the deploy environment doesn't set it (compose v1 renders bare
+      # passthroughs of unset vars as null).
+      - Logging__LogLevel__Default=${Logging__LogLevel__Default:-Warning}
     restart: always
+    # Bound container logs so vapi can never grow the host's json-file logs
+    # unchecked (the service itself defaults to Warning-level logging; set
+    # Logging__LogLevel__Default=Information for per-request logs).
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "3"
     ports:
       - "4000:4000"
     hostname: vapi
