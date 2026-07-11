@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.46
+
+### Patch Changes
+
+- fix(sdk): handle null RPC response in get-account-full-query-options (#1131)
+
 ## 2.3.45
 
 ### Patch Changes

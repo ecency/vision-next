@@ -58,7 +58,12 @@ export function getAccountFullQueryOptions(username: string | undefined) {
           [[username]],
           undefined,
           undefined,
-          signal
+          signal,
+          // A correct node always answers get_accounts with an array — a null
+          // result in a well-formed envelope is a node fault (observed in the
+          // wild), so fail over to the next node instead of misreading it as
+          // "account does not exist".
+          (rows) => Array.isArray(rows)
         ),
         callRPC<BridgeProfile>(
           "bridge.get_profile",
@@ -73,7 +78,7 @@ export function getAccountFullQueryOptions(username: string | undefined) {
           return null;
         })
       ]);
-      if (!response[0]) {
+      if (!response?.[0]) {
         // The account does not exist (e.g. not yet finalized on-chain during
         // signup). Treat absence as a recoverable null instead of throwing, so
         // consumers (useQuery hooks and fetchQuery callers) surface it as empty

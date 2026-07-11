@@ -50,6 +50,36 @@ describe("getAccountFullQueryOptions", () => {
     });
   });
 
+  // Regression: ECENCY-NEXT-1GHA. Some nodes answer get_accounts with a
+  // well-formed envelope carrying `result: null`. The payload validator makes
+  // callRPC treat that as a node fault and fail over; should a null still slip
+  // through, the queryFn must not crash on `response[0]`.
+  describe("null get_accounts payload (node fault)", () => {
+    it("passes a payload validator that rejects null and accepts arrays", async () => {
+      mockCallRPC.mockResolvedValue([]);
+
+      await runQuery(getAccountFullQueryOptions("alice"));
+
+      const getAccountsCall = mockCallRPC.mock.calls.find(
+        (c) => c[0] === "condenser_api.get_accounts"
+      );
+      const validate = getAccountsCall?.[5] as (result: unknown) => boolean;
+      expect(validate).toBeTypeOf("function");
+      expect(validate(null)).toBe(false);
+      expect(validate(undefined)).toBe(false);
+      expect(validate([])).toBe(true);
+      expect(validate([{ name: "alice" }])).toBe(true);
+    });
+
+    it("resolves to null instead of throwing a TypeError when callRPC still resolves null", async () => {
+      mockCallRPC.mockImplementation((method: string) =>
+        Promise.resolve(method === "condenser_api.get_accounts" ? null : {})
+      );
+
+      await expect(runQuery(getAccountFullQueryOptions("alice"))).resolves.toBeNull();
+    });
+  });
+
   describe("existing account", () => {
     const mockAccountAndProfile = () =>
       mockCallRPC.mockImplementation((method: string) => {
