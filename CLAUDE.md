@@ -688,6 +688,12 @@ The production build:
 - Transpiles workspace packages
 - Uses sass-embedded for fast SCSS compilation
 
+## Deployment topology (operational context)
+
+- `apps/web/docker-compose.yml` (staging) and `apps/web/docker-compose.production.yml` (prod) define the **whole `vision` swarm stack** — including the `vapi` service (the separate [vision-api](https://github.com/ecency/vision-api) C#/.NET proxy, image `ecency/api`), `web`, and supporting services.
+- CI deploys: push to `develop` → staging stack deploy; push to `main` → production stack deploy. vision-api's own CI independently updates the running `vision_vapi` service by image digest.
+- **A stack deploy from this repo resets the full service spec of every service in the stack** (including `vapi`: image back to `:latest`, env, logging options) to what these compose files declare. Anything applied out-of-band with `docker service update` is overwritten — durable service settings belong in these files.
+
 ## Key Files for Understanding
 
 1. `package.json` - Workspace scripts and configuration
