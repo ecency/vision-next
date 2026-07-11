@@ -22,11 +22,19 @@ export function Dropdown(props: HTMLProps<HTMLDivElement> & Props) {
   const { openPopovers } = useContext(UIContext);
 
   useClickAway(ref, (e) => {
-    if (openPopovers.size === 0) {
-      setShow(false);
-    } else {
+    // An open click-popover anchored inside THIS dropdown (e.g. a confirm
+    // popover whose buttons render in a portal outside our DOM) — keep the
+    // menu mounted until the popover is answered; closing now would unmount
+    // the popover before its buttons' click handlers can fire. Popovers open
+    // elsewhere on the page don't block dismissal.
+    const hostsOpenPopover = Array.from(openPopovers).some((anchor) =>
+      ref.current?.contains(anchor)
+    );
+    if (hostsOpenPopover) {
       return;
     }
+
+    setShow(false);
 
     if (!isInsideDropdown(e) && (props.closeOnClickOutside ?? true)) {
       setShow(false);

@@ -133,17 +133,21 @@ describe("EntryDeleteBtn", () => {
     expect(onSuccess).toHaveBeenCalledTimes(1);
   });
 
-  it("reports pending state changes through setDeleteInProgress", () => {
+  it("reports pending state changes through setDeleteInProgress and resets it on unmount", () => {
     const setDeleteInProgress = vi.fn();
     useDeleteComment.mockReturnValue({ mutateAsync, isPending: true });
 
-    render(
+    const { unmount } = render(
       <EntryDeleteBtn entry={entry} setDeleteInProgress={setDeleteInProgress}>
         <button type="button">Delete</button>
       </EntryDeleteBtn>
     );
 
     expect(setDeleteInProgress).toHaveBeenCalledWith(true);
+
+    // Unmounting mid-flight must not leave the caller stuck in loading state.
+    unmount();
+    expect(setDeleteInProgress).toHaveBeenLastCalledWith(false);
   });
 
   it("marks the child with the 'in-progress' class while the delete is pending", () => {

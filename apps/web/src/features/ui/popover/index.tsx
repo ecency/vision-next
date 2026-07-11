@@ -7,7 +7,6 @@ import {
   ReactNode,
   useContext,
   useEffect,
-  useId,
   useMemo,
   useState
 } from "react";
@@ -70,21 +69,22 @@ export function Popover(
     (props as ShowProps).show ?? (props as Props).defaultShow ?? false
   );
 
-  // Register open click-popovers in the shared UI context. Dropdown's
-  // click-away guard (`openPopovers.size === 0`) relies on this to keep the
-  // menu mounted while a popover portaled outside the dropdown DOM (e.g. a
-  // PopoverConfirm) is awaiting the user's answer — otherwise the mousedown
-  // on the popover's buttons closes the dropdown and unmounts the popover
-  // before its click handler can fire. Hover popovers (tooltips) stay
-  // unregistered so they never pin a dropdown open.
-  const popoverId = useId();
+  // Register the anchor of an open click-popover in the shared UI context.
+  // Dropdown's click-away guard uses this to keep the menu mounted while a
+  // popover IT HOSTS is awaiting the user's answer — the popover's content
+  // portals outside the dropdown DOM, so the mousedown on its buttons would
+  // otherwise close the dropdown and unmount the popover before its click
+  // handler can fire. Registering the anchor element (not a global flag)
+  // lets each dropdown ignore popovers opened elsewhere on the page. Hover
+  // popovers (tooltips) stay unregistered so they never pin a dropdown open.
   const { addOpenPopover, removeOpenPopover } = useContext(UIContext);
   useEffect(() => {
-    if (props.behavior === "click" && show) {
-      addOpenPopover(popoverId);
-      return () => removeOpenPopover(popoverId);
+    const anchor = refs.reference.current;
+    if (props.behavior === "click" && show && anchor instanceof HTMLElement) {
+      addOpenPopover(anchor);
+      return () => removeOpenPopover(anchor);
     }
-  }, [props.behavior, show, popoverId, addOpenPopover, removeOpenPopover]);
+  }, [props.behavior, show, refs.reference, addOpenPopover, removeOpenPopover]);
 
   const isMounted = useMountedState();
   const windowSize = useWindowSize();

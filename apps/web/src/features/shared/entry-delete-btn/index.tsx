@@ -30,6 +30,9 @@ export function EntryDeleteBtn({
 
   useEffect(() => {
     setDeleteInProgress?.(isPending);
+    // Don't leave the caller stuck in a loading state if the button unmounts
+    // mid-flight (navigation, list invalidation after a successful delete).
+    return () => setDeleteInProgress?.(false);
   }, [isPending, setDeleteInProgress]);
 
   // Read the caller's class from children.props (ReactElement.props is typed

@@ -77,4 +77,34 @@ describe("Dropdown + PopoverConfirm", () => {
     fireEvent.mouseDown(document.body);
     expect(screen.queryByText("Delete")).not.toBeInTheDocument();
   });
+
+  it("still closes on outside mousedown while an unrelated click popover is open elsewhere", async () => {
+    // The guard is scoped by anchor containment: only a popover hosted INSIDE
+    // the dropdown may keep it open. A popover open anywhere else on the page
+    // must not pin unrelated dropdowns.
+    render(
+      <UIManager>
+        <PopoverConfirm onConfirm={vi.fn()}>
+          <div>Unrelated</div>
+        </PopoverConfirm>
+        <Dropdown>
+          <DropdownToggle>
+            <button type="button">menu</button>
+          </DropdownToggle>
+          <DropdownMenu>
+            <DropdownItemWithIcon label="item" />
+          </DropdownMenu>
+        </Dropdown>
+      </UIManager>
+    );
+
+    fireEvent.click(screen.getByText("menu"));
+    expect(screen.getByText("item")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("Unrelated"));
+    await screen.findByText("confirm.ok");
+
+    fireEvent.mouseDown(document.body);
+    expect(screen.queryByText("item")).not.toBeInTheDocument();
+  });
 });
