@@ -58,7 +58,12 @@ export function getAccountFullQueryOptions(username: string | undefined) {
           [[username]],
           undefined,
           undefined,
-          signal
+          signal,
+          // A correct node always answers get_accounts with an array — a null
+          // result in a well-formed envelope is a node fault (observed in the
+          // wild), so fail over to the next node instead of misreading it as
+          // "account does not exist".
+          (rows) => Array.isArray(rows)
         ),
         callRPC<BridgeProfile>(
           "bridge.get_profile",
