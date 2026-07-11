@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.47
+
+### Patch Changes
+
+- fix(accounts): prevent TypeError when RPC returns null for get_accounts (#1132)
+
 ## 2.3.46
 
 ### Patch Changes
