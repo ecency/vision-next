@@ -82,6 +82,7 @@ export function ProfileCard({ account }: Props) {
           width={300}
           height={200}
           priority
+          fetchPriority="high"
           onError={() => setImageSrc("/assets/promote-wave-bg.jpg")}
       />
 

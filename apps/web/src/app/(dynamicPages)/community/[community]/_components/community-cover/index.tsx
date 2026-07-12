@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { setProxyBase } from "@ecency/render-helper";
 import "./_index.scss";
@@ -28,7 +28,6 @@ export function CommunityCover({ community, account }: Props) {
   const { activeUser } = useActiveAccount();
   const users = useGlobalStore((state) => state.users);
   const theme = useGlobalStore((state) => state.theme);
-  const imageProxy = useGlobalStore((state) => state.imageProxy);
   const { data: channelData } = useQuery({
     queryKey: ["private-api", "get-community-channel", community.name],
     queryFn: () =>
@@ -38,15 +37,22 @@ export function CommunityCover({ community, account }: Props) {
   });
   const hasCommunityChannel = !!channelData?.channel_id;
 
-  const style = useMemo(() => {
-    let img =
-      theme === "day" ? "/assets/cover-fallback-day.png" : "/assets/cover-fallback-night.png";
-    if (community) {
-      img = `${imageProxy}/u/${community.name}/cover`;
-    }
+  // Reset the error fallback when navigating between communities — this client
+  // component is reused across community routes, so state would persist and a
+  // once-failed cover would wrongly force the fallback on the next community.
+  const [coverError, setCoverError] = useState(false);
+  useEffect(() => setCoverError(false), [community.name]);
 
-    return img ? { backgroundImage: `url('${img}')` } : {};
-  }, [theme, community, imageProxy]);
+  const fallbackCover =
+    theme === "day" ? "/assets/cover-fallback-day.png" : "/assets/cover-fallback-night.png";
+  // Build the src from the canonical image server (a build-time constant),
+  // NOT the client image-proxy store: those differ server- vs client-side, which
+  // would make the eager high-priority <img> fetch once during SSR then re-fetch
+  // after hydration. The /u/<name>/cover endpoint is only served by i.ecency.com.
+  const coverSrc =
+    community && !coverError
+      ? `${defaults.imageServer}/u/${community.name}/cover`
+      : fallbackCover;
   const subscribers = useMemo(
     () => formattedNumber(community.subscribers, { fractionDigits: 0 }),
     [community.subscribers]
@@ -66,9 +72,21 @@ export function CommunityCover({ community, account }: Props) {
 
   return (
     <div className="relative overflow-hidden rounded-2xl lg:max-h-[210px]">
-      <div
-        className="bg-cover absolute top-0 left-0 w-full h-full bg-light-300 dark:bg-dark-default"
-        style={style}
+      {/* Themed placeholder color shown until the cover paints (and if it fails). */}
+      <div className="absolute top-0 left-0 w-full h-full bg-light-300 dark:bg-dark-default" />
+      {/* Render the cover as a real <img> (not a CSS background) so the browser's
+          preload scanner discovers it in the SSR HTML and fetches it eagerly at
+          high priority. This is the community page's LCP element; as a background
+          image it was discovered late and painted seconds after load. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        className="absolute top-0 left-0 w-full h-full object-cover object-left-top"
+        src={coverSrc}
+        alt=""
+        fetchPriority="high"
+        loading="eager"
+        decoding="async"
+        onError={() => setCoverError(true)}
       />
       <div className="grid gap-4 md:gap-6 px-4 pb-4 md:px-6 md:pb-6 pt-16 md:pt-24 grid-cols-2 lg:grid-cols-4 w-full relative">
         <CommunityStatItem value={subscribers} label={i18next.t("community.subscribers")} />

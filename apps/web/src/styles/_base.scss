@@ -218,6 +218,9 @@ a[target="_blank"] {
 html {
   scrollbar-width: auto;
   scrollbar-color: var(--scrollbar-thumb-color, auto) var(--scrollbar-track-color, transparent);
+  // Reserve the scrollbar gutter so opening a modal (which locks body scroll and
+  // hides the scrollbar) does not shift the page horizontally — a CLS source.
+  scrollbar-gutter: stable;
 }
 
 /* WebKit browsers */
