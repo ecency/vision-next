@@ -33,6 +33,15 @@ export const INTERNAL_API_TIMEOUT_MS = 10_000;
 
 export const CONFIG = {
   privateApiHost: "https://ecency.com",
+  /**
+   * First-party client identifier sent as the `X-Ecency-Client` header on
+   * search/private API requests. Lets the origin distinguish Ecency's own
+   * web/mobile/SSR traffic from third-party integrators (who should use the
+   * keyed api.hivesearcher.com backend instead of the public proxy). This is
+   * a routing marker, not a secret. Apps may override via
+   * `ConfigManager.setClientId` (e.g. "web" or "mobile") for observability.
+   */
+  clientId: "ecency-sdk",
   imageHost: "https://i.ecency.com",
   /** Current Hive RPC nodes. Reads from the unified hive-tx config. */
   get hiveNodes(): string[] {
@@ -70,6 +79,17 @@ export namespace ConfigManager {
    */
   export function setPrivateApiHost(host: string) {
     CONFIG.privateApiHost = host;
+  }
+
+  /**
+   * Set the first-party client identifier sent as the `X-Ecency-Client` header
+   * on search/private API requests (e.g. "web" or "mobile"). Defaults to
+   * "ecency-sdk". Used by the origin to tell Ecency's own apps apart from
+   * third-party integrators.
+   * @param clientId - Short client label
+   */
+  export function setClientId(clientId: string) {
+    CONFIG.clientId = clientId;
   }
 
   /**

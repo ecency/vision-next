@@ -64,6 +64,7 @@ export async function search(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "X-Ecency-Client": CONFIG.clientId,
     },
     body: JSON.stringify(data),
     signal: withTimeoutSignal(INTERNAL_API_TIMEOUT_MS, signal),
@@ -89,6 +90,7 @@ export async function similar(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "X-Ecency-Client": CONFIG.clientId,
     },
     body: JSON.stringify(params),
     signal: withTimeoutSignal(timeoutMs, signal),
@@ -103,6 +105,7 @@ export async function searchPath(q: string, signal?: AbortSignal): Promise<strin
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "X-Ecency-Client": CONFIG.clientId,
     },
     body: JSON.stringify({ q }),
     signal: withTimeoutSignal(INTERNAL_API_TIMEOUT_MS, signal),
