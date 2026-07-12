@@ -9,6 +9,7 @@ export function getSearchPathQueryOptions(q: string) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "X-Ecency-Client": CONFIG.clientId,
         },
         body: JSON.stringify({ q }),
       });

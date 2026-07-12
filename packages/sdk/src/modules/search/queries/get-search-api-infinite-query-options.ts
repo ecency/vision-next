@@ -42,6 +42,7 @@ export function getSearchApiInfiniteQueryOptions(
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "X-Ecency-Client": CONFIG.clientId,
         },
         body: JSON.stringify(payload),
         signal: withTimeoutSignal(INTERNAL_API_TIMEOUT_MS, signal),

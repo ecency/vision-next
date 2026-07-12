@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.48
+
+### Patch Changes
+
+- feat(sdk): send X-Ecency-Client header on search API requests (#1137)
+
 ## 2.3.47
 
 ### Patch Changes

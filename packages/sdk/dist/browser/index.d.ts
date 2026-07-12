@@ -957,6 +957,15 @@ declare function withTimeoutSignal(timeoutMs: number, signal?: AbortSignal): Abo
 declare const INTERNAL_API_TIMEOUT_MS = 10000;
 declare const CONFIG: {
     privateApiHost: string;
+    /**
+     * First-party client identifier sent as the `X-Ecency-Client` header on
+     * search/private API requests. Lets the origin distinguish Ecency's own
+     * web/mobile/SSR traffic from third-party integrators (who should use the
+     * keyed api.hivesearcher.com backend instead of the public proxy). This is
+     * a routing marker, not a secret. Apps may override via
+     * `ConfigManager.setClientId` (e.g. "web" or "mobile") for observability.
+     */
+    clientId: string;
     imageHost: string;
     /** Current Hive RPC nodes. Reads from the unified hive-tx config. */
     readonly hiveNodes: string[];
@@ -983,6 +992,14 @@ declare namespace ConfigManager {
      * @param host - The private API host URL (e.g., "https://ecency.com" or "" for relative URLs)
      */
     function setPrivateApiHost(host: string): void;
+    /**
+     * Set the first-party client identifier sent as the `X-Ecency-Client` header
+     * on search/private API requests (e.g. "web" or "mobile"). Defaults to
+     * "ecency-sdk". Used by the origin to tell Ecency's own apps apart from
+     * third-party integrators.
+     * @param clientId - Short client label
+     */
+    function setClientId(clientId: string): void;
     /**
      * Get a validated base URL for API requests
      * Returns a valid base URL that can be used with new URL(path, baseUrl)
