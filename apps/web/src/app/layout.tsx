@@ -104,7 +104,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <script async src="/scripts/config-stub.js" />
         <link rel="dns-prefetch" href="https://i.ecency.com" />
         <link rel="dns-prefetch" href="https://ecency.com" />
-        <link rel="preconnect" href="https://i.ecency.com" crossOrigin="anonymous" />
+        {/* Non-CORS preconnect: cover/avatar <img> and next/image requests to
+            i.ecency.com are credentialed and can't reuse an anonymous (crossorigin)
+            socket, so warm the credentialed connection they actually use. */}
+        <link rel="preconnect" href="https://i.ecency.com" />
         <link rel="preconnect" href="https://ecency.com" crossOrigin="anonymous" />
         <JsonLd data={buildOrganizationJsonLd()} />
       </head>
