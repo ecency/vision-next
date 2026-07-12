@@ -30,6 +30,7 @@ export function searchQueryOptions(
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "X-Ecency-Client": CONFIG.clientId,
         },
         body: JSON.stringify(data),
         signal: withTimeoutSignal(INTERNAL_API_TIMEOUT_MS, signal),
@@ -110,6 +111,7 @@ export function getControversialRisingInfiniteQueryOptions(
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "X-Ecency-Client": CONFIG.clientId,
         },
         body: JSON.stringify(data),
         signal: withTimeoutSignal(INTERNAL_API_TIMEOUT_MS, signal),
