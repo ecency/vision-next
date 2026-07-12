@@ -192,25 +192,43 @@ describe("beforeSend — Chrome botnet 'document' access is dropped", () => {
 });
 
 describe("beforeSend — webkit.messageHandlers (non-WKWebView) is dropped", () => {
-  // ECENCY-NEXT-1GE4: window.webkit exists only inside Apple's WKWebView, so the
-  // external native-bridge helper sendDataToNative throws when the page runs in a
-  // non-WKWebView (e.g. the Facebook in-app browser on iOS). Not an Ecency app
-  // bug — dropped as noise. Requires BOTH the message and a sendDataToNative
-  // stack frame so unrelated errors are never swept up.
+  // ECENCY-NEXT-1GE4 / ECENCY-NEXT-1GHH: window.webkit exists only inside
+  // Apple's WKWebView, so the native-bridge helper sendDataToNative throws when
+  // the page runs in a non-WKWebView (e.g. the Instagram or Facebook in-app
+  // browser on iOS). Not an Ecency app bug — dropped as noise. The stack-frame
+  // check was removed (minification renames sendDataToNative, e.g. to "O"); the
+  // message's property chain is the reliable, non-minifiable signal. The match
+  // is scoped to a TypeError whose message ends `messageHandlers')` (window.webkit
+  // itself undefined), so a genuine in-app missing-handler bug is still reported.
   const MSG = "undefined is not an object (evaluating 'window.webkit.messageHandlers')";
   const NATIVE_FRAME = { function: "sendDataToNative", filename: APP_FRAME.filename };
+  const MINIFIED_FRAME = { function: "O", filename: APP_FRAME.filename };
 
   it("drops the webkit.messageHandlers TypeError thrown from sendDataToNative", () => {
     expect(beforeSend(makeEvent(MSG, [NATIVE_FRAME]))).toBeNull();
   });
 
-  it("does NOT drop a webkit.messageHandlers error that lacks a sendDataToNative frame", () => {
-    const ev = makeEvent(MSG, [APP_FRAME]);
-    expect(beforeSend(ev)).toBe(ev);
+  it("drops the webkit.messageHandlers TypeError when the frame is minified", () => {
+    expect(beforeSend(makeEvent(MSG, [MINIFIED_FRAME]))).toBeNull();
+  });
+
+  it("drops a webkit.messageHandlers error even without a matching stack frame", () => {
+    expect(beforeSend(makeEvent(MSG, [APP_FRAME]))).toBeNull();
   });
 
   it("does NOT drop an unrelated error coming from a sendDataToNative frame", () => {
     const ev = makeEvent("TypeError: foo is not a function", [NATIVE_FRAME]);
+    expect(beforeSend(ev)).toBe(ev);
+  });
+
+  it("does NOT drop a real in-app bug where a named handler is missing", () => {
+    // window.webkit IS present here (real WKWebView); the failing access is a
+    // missing named handler, so the message reads `...messageHandlers.<name>...`
+    // rather than the terminated `messageHandlers')`. That is an actionable bug.
+    const ev = makeEvent(
+      "undefined is not an object (evaluating 'window.webkit.messageHandlers.share.postMessage')",
+      [NATIVE_FRAME]
+    );
     expect(beforeSend(ev)).toBe(ev);
   });
 });
