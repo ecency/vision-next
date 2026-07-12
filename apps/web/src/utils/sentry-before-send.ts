@@ -287,16 +287,16 @@ export function beforeSend(event: SentryErrorEvent): SentryErrorEvent | null {
     return null;
   }
 
-  // ECENCY-NEXT-1GE4: sendDataToNative accesses window.webkit.messageHandlers
-  // without guarding for its existence. This object is only present inside
-  // Apple's WKWebView (the Ecency native iOS app); the Facebook in-app browser
-  // on iOS is NOT a WKWebView, so window.webkit is undefined there and the
-  // unguarded property access throws. This is a known environment mismatch,
-  // not an Ecency app bug — drop it to avoid noise.
-  if (
-    message.includes("window.webkit.messageHandlers") &&
-    stackStr.includes("sendDataToNative")
-  ) {
+  // ECENCY-NEXT-1GE4 / ECENCY-NEXT-1GHH: sendDataToNative accesses
+  // window.webkit.messageHandlers without guarding for its existence. This
+  // object is only present inside Apple's WKWebView (the Ecency native iOS
+  // app); non-WKWebView browsers on iOS (e.g. Instagram or Facebook in-app
+  // browsers) leave window.webkit undefined, so the unguarded access throws.
+  // The stack-frame name check was removed because minification renames
+  // sendDataToNative (e.g. to "O"), making the check unreliable. Any TypeError
+  // whose message references window.webkit.messageHandlers is always this same
+  // environment mismatch — not an Ecency app bug — so drop it as noise.
+  if (message.includes("window.webkit.messageHandlers")) {
     return null;
   }
 

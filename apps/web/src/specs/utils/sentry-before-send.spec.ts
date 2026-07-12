@@ -192,21 +192,26 @@ describe("beforeSend — Chrome botnet 'document' access is dropped", () => {
 });
 
 describe("beforeSend — webkit.messageHandlers (non-WKWebView) is dropped", () => {
-  // ECENCY-NEXT-1GE4: window.webkit exists only inside Apple's WKWebView, so the
-  // external native-bridge helper sendDataToNative throws when the page runs in a
-  // non-WKWebView (e.g. the Facebook in-app browser on iOS). Not an Ecency app
-  // bug — dropped as noise. Requires BOTH the message and a sendDataToNative
-  // stack frame so unrelated errors are never swept up.
+  // ECENCY-NEXT-1GE4 / ECENCY-NEXT-1GHH: window.webkit exists only inside
+  // Apple's WKWebView, so the external native-bridge helper sendDataToNative
+  // throws when the page runs in a non-WKWebView (e.g. the Instagram or
+  // Facebook in-app browser on iOS). Not an Ecency app bug — dropped as noise.
+  // The stack-frame check was removed because minification renames
+  // sendDataToNative (e.g. to "O"), so the message alone is the reliable signal.
   const MSG = "undefined is not an object (evaluating 'window.webkit.messageHandlers')";
   const NATIVE_FRAME = { function: "sendDataToNative", filename: APP_FRAME.filename };
+  const MINIFIED_FRAME = { function: "O", filename: APP_FRAME.filename };
 
   it("drops the webkit.messageHandlers TypeError thrown from sendDataToNative", () => {
     expect(beforeSend(makeEvent(MSG, [NATIVE_FRAME]))).toBeNull();
   });
 
-  it("does NOT drop a webkit.messageHandlers error that lacks a sendDataToNative frame", () => {
-    const ev = makeEvent(MSG, [APP_FRAME]);
-    expect(beforeSend(ev)).toBe(ev);
+  it("drops the webkit.messageHandlers TypeError when the frame is minified", () => {
+    expect(beforeSend(makeEvent(MSG, [MINIFIED_FRAME]))).toBeNull();
+  });
+
+  it("drops a webkit.messageHandlers error even without a matching stack frame", () => {
+    expect(beforeSend(makeEvent(MSG, [APP_FRAME]))).toBeNull();
   });
 
   it("does NOT drop an unrelated error coming from a sendDataToNative frame", () => {
