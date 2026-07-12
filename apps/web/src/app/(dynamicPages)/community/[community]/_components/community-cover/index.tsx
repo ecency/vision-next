@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { setProxyBase } from "@ecency/render-helper";
 import "./_index.scss";
-import defaults from "@/defaults";
+import defaults, { DEFAULT_IMAGE_SERVER } from "@/defaults";
 import i18next from "i18next";
 import { CommunityCoverEditImage } from "@/app/(dynamicPages)/community/[community]/_components/community-cover-edit-image";
 import { SubscriptionBtn } from "@/app/communities/_components";
@@ -45,13 +45,14 @@ export function CommunityCover({ community, account }: Props) {
 
   const fallbackCover =
     theme === "day" ? "/assets/cover-fallback-day.png" : "/assets/cover-fallback-night.png";
-  // Build the src from the canonical image server (a build-time constant),
-  // NOT the client image-proxy store: those differ server- vs client-side, which
-  // would make the eager high-priority <img> fetch once during SSR then re-fetch
-  // after hydration. The /u/<name>/cover endpoint is only served by i.ecency.com.
+  // Build the src from DEFAULT_IMAGE_SERVER (stable across SSR and client), NOT
+  // `defaults.imageServer` (a getter that reads the per-user image_proxy override
+  // from localStorage). Otherwise the eager high-priority <img> is fetched once
+  // during SSR then re-fetched at a different host after hydration. The
+  // /u/<name>/cover endpoint is only served by i.ecency.com anyway.
   const coverSrc =
     community && !coverError
-      ? `${defaults.imageServer}/u/${community.name}/cover`
+      ? `${DEFAULT_IMAGE_SERVER}/u/${community.name}/cover`
       : fallbackCover;
   const subscribers = useMemo(
     () => formattedNumber(community.subscribers, { fractionDigits: 0 }),

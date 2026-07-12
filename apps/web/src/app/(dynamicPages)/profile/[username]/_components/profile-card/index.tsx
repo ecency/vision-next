@@ -2,7 +2,7 @@
 
 import { rcPower } from "@ecency/sdk";
 import { EcencyConfigManager } from "@/config";
-import defaults from "@/defaults";
+import defaults, { DEFAULT_IMAGE_SERVER } from "@/defaults";
 import { Account } from "@/entities";
 import { FollowControls, HivePosh, UserAvatar } from "@/features/shared";
 import { FavoriteBtn } from "@/features/shared/favorite-btn";
@@ -77,7 +77,7 @@ export function ProfileCard({ account }: Props) {
           Render it visible from the server instead. */}
       <Image
           className="absolute top-0 left-0 w-full h-[96px] object-cover"
-          src={imageSrc ?? (data?.profile?.cover_image ? `${defaults.imageServer}/u/${data.name}/cover` : "/assets/promote-wave-bg.jpg")}
+          src={imageSrc ?? (data?.profile?.cover_image ? `${DEFAULT_IMAGE_SERVER}/u/${data.name}/cover` : "/assets/promote-wave-bg.jpg")}
           alt=""
           width={300}
           height={200}

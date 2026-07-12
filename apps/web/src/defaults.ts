@@ -24,6 +24,12 @@ const resolveRuntimeBase = (): string => {
 
 const defaultImageServer = process.env.NEXT_PUBLIC_IMAGE_SERVER || baseDefaults.imageServer;
 
+// The canonical image host, stable across SSR and client (env vars inline
+// identically in both bundles). Unlike `defaults.imageServer` — a getter that
+// reads the per-user `image_proxy` localStorage override — this never diverges
+// after hydration, so it is safe for eager/preloaded above-the-fold images.
+export const DEFAULT_IMAGE_SERVER = defaultImageServer;
+
 export const ALLOWED_IMAGE_SERVERS = [
   "https://i.ecency.com",
   "https://images.ecency.com",
