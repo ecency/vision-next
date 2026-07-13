@@ -62,6 +62,7 @@ export function isTransientUpstreamError(e: unknown): boolean {
     // "invalid tag `Foo`" for one that breaks tag-format rules (e.g. mixed
     // case). Crawlers hit /:filter/:Tag/rss.xml with both, so match both.
     /Assert Exception:.*(Category|Tag).*does not exist/i.test(msg) ||
-    /Assert Exception:\s*invalid (tag|category)/i.test(msg)
+    /Assert Exception:\s*invalid (tag|category)/i.test(msg) ||
+    /Assert Exception:\s*Account.*does not exist/i.test(msg)
   );
 }
