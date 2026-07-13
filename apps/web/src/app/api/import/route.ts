@@ -7,6 +7,7 @@ import { isIP } from "node:net";
 import { Agent } from "undici";
 import { getPost } from "@ecency/sdk";
 import { ACTIVE_USER_COOKIE_NAME } from "@/consts/cookies";
+import { createPinnedLookup } from "./pinned-lookup";
 
 // Undici dispatcher accepts a custom lookup. We pre-resolve and validate
 // every hop's IP via Node's DNS resolver, then pin the TCP connection to
@@ -14,11 +15,6 @@ import { ACTIVE_USER_COOKIE_NAME } from "@/consts/cookies";
 // resolution and connect. The original hostname rides on the request so
 // TLS SNI and certificate validation continue to verify against the
 // legitimate host.
-type LookupCallback = (
-  err: NodeJS.ErrnoException | null,
-  address: string,
-  family: number
-) => void;
 
 interface ArticleData {
   title: string;
@@ -260,12 +256,7 @@ async function fetchPage(url: string, redirectCount = 0): Promise<string> {
   // returns the pinned IP for every connect attempt this dispatcher makes.
   const dispatcher = new Agent({
     connect: {
-      // Undici passes a ConnectOptions object (port, servername, timeout)
-      // here; we don't need any of it but typing as Record<string, unknown>
-      // documents what's available rather than erasing the parameter shape.
-      lookup: (_hostname: string, _options: Record<string, unknown>, callback: LookupCallback) => {
-        callback(null, ip, family);
-      }
+      lookup: createPinnedLookup(ip, family)
     }
   });
 
