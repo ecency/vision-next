@@ -26,6 +26,7 @@ import { useGlobalStore } from "@/core/global-store";
 import { useMarkNotificationsMutation } from "@/api/sdk-mutations";
 import { usePrevious } from "react-use";
 import { FormControl } from "@ui/input";
+import { getNotificationImage } from "@/features/shared/notifications/utils";
 
 interface Props {
   notification: ApiNotification;
@@ -36,6 +37,10 @@ interface Props {
   className?: string;
   onLinkClick?: () => void;
   openLinksInNewTab?: boolean;
+  // Deck columns are too narrow to spare the width for a thumbnail. This is an
+  // explicit prop because the `deck` field the other guards in here read is never
+  // actually set on a notification.
+  isDeck?: boolean;
 }
 
 export const NotificationListItem = memo(function NotificationListItem({
@@ -46,7 +51,8 @@ export const NotificationListItem = memo(function NotificationListItem({
   openLinksInNewTab = false,
   onLinkClick,
   setSelectedNotifications,
-  onMounted
+  onMounted,
+  isDeck = false
 }: Props) {
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
 
@@ -54,6 +60,8 @@ export const NotificationListItem = memo(function NotificationListItem({
   const previousIsSelect = usePrevious(isSelect);
 
   const notification = useMemo(() => primaryNotification || entry, [primaryNotification, entry]);
+
+  const imageUrl = useMemo(() => getNotificationImage(notification!), [notification]);
 
   const markNotifications = useMarkNotificationsMutation();
 
@@ -250,6 +258,13 @@ export const NotificationListItem = memo(function NotificationListItem({
                   {notification.type.replace(/[_-]/g, " ")}
                 </span>
               </div>
+            </div>
+          )}
+
+          {/* Decorative: the row's type component already carries the post link. */}
+          {imageUrl && !isDeck && (
+            <div className="item-image">
+              <img src={imageUrl} alt="" loading="lazy" />
             </div>
           )}
         </div>
