@@ -33,6 +33,8 @@ export interface WsFavoriteNotification extends BaseWsNotification {
     permlink: string;
     is_post: 0 | 1;
     title: string | null;
+    // Image of the newly published post.
+    img_url: string | null;
   };
 }
 
@@ -42,6 +44,8 @@ export interface WsBookmarkNotification extends BaseWsNotification {
     permlink: string;
     is_post: 0 | 1;
     title: string | null;
+    // Image of the bookmarked post that was commented on, not of the comment.
+    parent_img_url: string | null;
   };
 }
 
@@ -193,6 +197,8 @@ export interface ApiFavoriteNotification extends BaseAPiNotification {
   permlink: string;
   post: boolean;
   title: string | null;
+  // Image of the newly published post.
+  img_url: string | null;
 }
 
 export interface ApiBookmarkNotification extends BaseAPiNotification {
@@ -202,6 +208,8 @@ export interface ApiBookmarkNotification extends BaseAPiNotification {
   permlink: string;
   post: boolean;
   title: string | null;
+  // Image of the bookmarked post that was commented on, not of the comment.
+  parent_img_url: string | null;
 }
 
 export interface ApiSpinNotification extends BaseAPiNotification {
