@@ -79,6 +79,19 @@ export interface WsReblogNotification extends BaseWsNotification {
   };
 }
 
+export interface WsPayoutsNotification extends BaseWsNotification {
+  type: "payouts";
+  extra: {
+    permlink: string;
+    title: string | null;
+    amount: string | null;
+    amount_usd: string | null;
+    payout_at: string | null;
+    // Image of the post that paid out.
+    img_url: string | null;
+  };
+}
+
 export interface WsTransferNotification extends BaseWsNotification {
   type: "transfer";
   extra: {
@@ -114,6 +127,7 @@ export type WsNotification =
   | WsFollowNotification
   | WsReplyNotification
   | WsReblogNotification
+  | WsPayoutsNotification
   | WsTransferNotification
   | WsSpinNotification
   | WsInactiveNotification
@@ -181,6 +195,18 @@ export interface ApiReplyNotification extends BaseAPiNotification {
   parent_permlink: string;
   parent_title: string | null;
   parent_img_url: string | null;
+}
+
+export interface ApiPayoutsNotification extends BaseAPiNotification {
+  type: "payouts";
+  author: string;
+  permlink: string;
+  title: string | null;
+  amount: string | null;
+  amount_usd: string | null;
+  payout_at: string | null;
+  // Image of the post that paid out.
+  img_url: string | null;
 }
 
 export interface ApiTransferNotification extends BaseAPiNotification {
@@ -259,6 +285,7 @@ export type ApiNotification =
   | ApiBookmarkNotification
   | ApiFollowNotification
   | ApiReblogNotification
+  | ApiPayoutsNotification
   | ApiReplyNotification
   | ApiTransferNotification
   | ApiSpinNotification
