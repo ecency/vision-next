@@ -584,14 +584,15 @@ describe("beforeSend — unhandled cancellation AbortError is reclassified", () 
     expect(out!.fingerprint).toEqual(["cancellation-abort-unhandled"]);
   });
 
-  it("does NOT reclassify a deliberately captured AbortError (mechanism generic)", () => {
-    // captureException(abortError) from app code means someone decided this
-    // abort is exceptional — it must stay at its original level.
+  it("reclassifies the lazy-sentry replay shape too (mechanism generic/handled)", () => {
+    // Rejections from the pre-init window are replayed through
+    // captureException (mechanism generic/handled:true) — same cancellation,
+    // same bucket. An AbortError is a cancellation whatever path delivered it.
     const ev = makeEvent("signal is aborted without reason", [], { type: "AbortError" });
     (ev as any).exception.values[0].mechanism = { type: "generic", handled: true };
     const out = beforeSend(ev);
-    expect(out!.level).toBeUndefined();
-    expect(out!.fingerprint).toBeUndefined();
+    expect(out!.level).toBe("warning");
+    expect(out!.fingerprint).toEqual(["cancellation-abort-unhandled"]);
   });
 
   it("does NOT reclassify an unhandled TimeoutError (genuine node-health signal)", () => {

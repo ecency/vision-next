@@ -92,7 +92,9 @@ describe("HiveHbdObserver", () => {
     expect(infiniteRefetch).not.toHaveBeenCalled();
   });
 
-  it("fires a round and clears the flag when refresh becomes true", async () => {
+  it("fires a FRESH round (cancelRefetch: true) and clears the flag when refresh becomes true", async () => {
+    // Post-trade, an in-flight request may predate the trade — joining it
+    // would show stale open orders, so this round must cancel and reissue.
     const props = makeProps();
     const { rerender } = render(<HiveHbdObserver {...props} />);
     await flush();
@@ -104,6 +106,9 @@ describe("HiveHbdObserver", () => {
 
     expect(queryRefetch).toHaveBeenCalledTimes(3);
     expect(infiniteRefetch).toHaveBeenCalledTimes(1);
+    for (const call of [...queryRefetch.mock.calls, ...infiniteRefetch.mock.calls]) {
+      expect(call[0]).toEqual({ cancelRefetch: true });
+    }
     expect(props.setRefresh).toHaveBeenCalledWith(false);
   });
 

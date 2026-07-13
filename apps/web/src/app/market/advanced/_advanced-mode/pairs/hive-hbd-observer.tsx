@@ -42,29 +42,37 @@ export const HiveHbdObserver = ({
     activeUsername ?? ""
   ));
 
-  const fetchAllStats = useCallback(async () => {
-    // cancelRefetch: false joins a still-in-flight request instead of aborting
-    // it — the transactions history walk can outlive one poll tick on slow
-    // public nodes, and restarting it every tick would keep it from ever
-    // completing (a frozen trade-history widget).
-    reFetchAllStats({ cancelRefetch: false });
-    reFetchOrderBook({ cancelRefetch: false });
-    if (activeUsername) {
-      reFetchOpenOrders({ cancelRefetch: false });
-      reFetchTransactions({ cancelRefetch: false });
-    }
+  const fetchAllStats = useCallback(
+    async (postTrade = false) => {
+      // Poll ticks join a still-in-flight request (cancelRefetch: false) — the
+      // transactions history walk can outlive one tick on slow public nodes,
+      // and restarting it every tick would keep it from ever completing (a
+      // frozen trade-history widget). The post-trade refresh is the opposite
+      // case: an in-flight request may predate the trade, so it must be
+      // cancelled and reissued for the new order to show up.
+      const options = { cancelRefetch: postTrade };
+      reFetchAllStats(options);
+      reFetchOrderBook(options);
+      if (activeUsername) {
+        reFetchOpenOrders(options);
+        reFetchTransactions(options);
+      }
 
-    try {
-      const usdResponse = await getCGMarket(MarketAsset.HIVE, MarketAsset.HBD);
+      let usdResponse: number[];
+      try {
+        usdResponse = await getCGMarket(MarketAsset.HIVE, MarketAsset.HBD);
+      } catch {
+        // No caller awaits this function (interval/mount/refresh effect), so a
+        // failed CoinGecko lookup must not escape as an unhandled rejection —
+        // the USD price keeps its last value until the next tick.
+        return;
+      }
       if (usdResponse[0]) {
         onUsdChange(usdResponse[0]);
       }
-    } catch {
-      // No caller awaits this function (interval/mount/refresh effect), so a
-      // failed CoinGecko lookup must not escape as an unhandled rejection —
-      // the USD price keeps its last value until the next tick.
-    }
-  }, [activeUsername, onUsdChange, reFetchAllStats, reFetchOpenOrders, reFetchOrderBook, reFetchTransactions]);
+    },
+    [activeUsername, onUsdChange, reFetchAllStats, reFetchOpenOrders, reFetchOrderBook, reFetchTransactions]
+  );
 
   useEffect(() => {
     setAllOrders(
@@ -111,7 +119,7 @@ export const HiveHbdObserver = ({
     if (!refresh) {
       return;
     }
-    fetchAllStats();
+    fetchAllStats(true);
     setRefresh(false);
   }, [fetchAllStats, refresh, setRefresh]);
 

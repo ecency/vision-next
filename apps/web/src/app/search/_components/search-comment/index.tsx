@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useMemo, useState } from "react";
+import React, { Fragment, useMemo, useState } from "react";
 import numeral from "numeral";
 import dayjs, { Dayjs } from "@/utils/dayjs";
 import "./_index.scss";
@@ -12,6 +12,7 @@ import { SearchResult } from "@/entities";
 import { Button } from "@/features/ui";
 import { DateOpt } from "@/enums";
 import { SearchSort } from "@/app/decks/_components/consts";
+import { useBottomPagination } from "@/core/hooks";
 
 interface Props {
   disableResults?: boolean;
@@ -69,14 +70,14 @@ export function SearchComment({ disableResults }: Props) {
     [resultsPages]
   );
 
-  // Guarded: initialData makes `data` defined from the first render, so an
-  // unguarded fetchNextPage() from a re-run of DetectBottom's effect would
-  // abort and restart a page fetch already in flight.
-  const onBottom = useCallback(() => {
-    if (hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+  // initialData seeds this query as "success" with zero pages, so the bottom
+  // sentinel is also what bootstraps page 1 — see useBottomPagination.
+  const onBottom = useBottomPagination({
+    data: resultsPages,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage
+  });
   const hits = useMemo(
     () => resultsPages?.pages?.[resultsPages?.pages?.length - 1]?.hits ?? 0,
     [resultsPages?.pages]

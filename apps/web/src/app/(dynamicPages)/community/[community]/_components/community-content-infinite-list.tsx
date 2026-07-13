@@ -1,7 +1,8 @@
 "use client";
 
 import { DetectBottom, EntryListContent, EntryListContentLoading } from "@/features/shared";
-import React, { useCallback, useMemo } from "react";
+import React, { useMemo } from "react";
+import { useBottomPagination } from "@/core/hooks";
 import { usePostsFeedQuery } from "@/api/queries";
 import { Community, Entry, SearchResponse } from "@/entities";
 import type { UseInfiniteQueryResult, InfiniteData } from "@tanstack/react-query";
@@ -28,15 +29,11 @@ export function CommunityContentInfiniteList({ section, community }: Props) {
     const pageToEntries = (p: FeedPage): Entry[] =>
         Array.isArray(p) ? p : ((p as any).items ?? (p as any).results ?? []);
 
-    // Guarded: this component re-renders when a fetch starts (it reads
-    // isFetching), which re-runs DetectBottom's effect while the sentinel is
-    // still in viewport — an unguarded fetchNextPage() there aborts and
-    // restarts the page fetch it just kicked off.
-    const onBottom = useCallback(() => {
-        if (hasNextPage && !isFetchingNextPage) {
-            fetchNextPage();
-        }
-    }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+    // This component re-renders when a fetch starts (it reads isFetching),
+    // which re-runs DetectBottom's effect while the sentinel is still in
+    // viewport — see useBottomPagination for why the naive inline handler
+    // aborts its own fetch.
+    const onBottom = useBottomPagination({ data, hasNextPage, isFetchingNextPage, fetchNextPage });
 
     const entryList = useMemo(
         () =>

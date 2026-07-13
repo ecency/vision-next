@@ -18,6 +18,7 @@ import {
   WavesFeedType
 } from "@/app/waves/_constants";
 import { useWavesTagFilter } from "@/app/waves/_context";
+import { useBottomPagination } from "@/core/hooks";
 import { Button } from "@ui/button";
 import i18next from "i18next";
 import { sentry } from "@/core/sentry/lazy-sentry";
@@ -56,7 +57,8 @@ export function WavesListView({ feedType, username }: Props) {
   // The Following feed needs a username; without one `following` drops and the
   // query would silently become the unfiltered combined feed, so gate it until
   // the active user is known.
-  const { data, fetchNextPage, isError, error, hasNextPage, isFetched, refetch } = useInfiniteQuery(
+  const { data, fetchNextPage, isError, error, hasNextPage, isFetched, isFetchingNextPage, refetch } =
+    useInfiniteQuery(
     {
       ...queryOptions,
       enabled: feedType !== "following" || !!username
@@ -190,6 +192,7 @@ export function WavesListView({ feedType, username }: Props) {
   // Every feed type now paginates via the keyset cursor, so infinite scroll
   // is enabled across For You, Following and Tag (not just For You).
   const shouldShowDetectBottom = hasNextPage;
+  const onBottom = useBottomPagination({ data, hasNextPage, isFetchingNextPage, fetchNextPage });
 
   if (isError && combinedDataFlow.length === 0) {
     return (
@@ -328,7 +331,7 @@ export function WavesListView({ feedType, username }: Props) {
       {/* A disabled/not-yet-fetched query (e.g. Following before the active
           user hydrates) must read as loading, not as an exhausted feed. */}
       <WavesListLoader data={dataFlow} failed={isError} isEndReached={isFetched && !hasNextPage} />
-      {shouldShowDetectBottom && <DetectBottom onBottom={() => fetchNextPage()} />}
+      {shouldShowDetectBottom && <DetectBottom onBottom={onBottom} />}
 
       <WavesFastReplyDialog
         show={!!replyingEntry}
