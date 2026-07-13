@@ -200,6 +200,18 @@
           width: 40px;
         }
 
+        // Sits at the end of the row and holds its size, letting .item-content
+        // shrink around it rather than pushing the mark-read control out.
+        .item-image {
+          @apply ml-auto shrink-0 self-start pl-2;
+
+          img {
+            @apply rounded-lg object-cover;
+            height: 48px;
+            width: 48px;
+          }
+        }
+
         .item-content {
           float: left;
           width: calc(100% - 94px);

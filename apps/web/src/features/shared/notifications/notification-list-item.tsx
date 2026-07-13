@@ -26,6 +26,7 @@ import { useGlobalStore } from "@/core/global-store";
 import { useMarkNotificationsMutation } from "@/api/sdk-mutations";
 import { usePrevious } from "react-use";
 import { FormControl } from "@ui/input";
+import { getNotificationImage } from "@/features/shared/notifications/utils";
 
 interface Props {
   notification: ApiNotification;
@@ -54,6 +55,8 @@ export const NotificationListItem = memo(function NotificationListItem({
   const previousIsSelect = usePrevious(isSelect);
 
   const notification = useMemo(() => primaryNotification || entry, [primaryNotification, entry]);
+
+  const imageUrl = useMemo(() => getNotificationImage(notification!), [notification]);
 
   const markNotifications = useMarkNotificationsMutation();
 
@@ -250,6 +253,14 @@ export const NotificationListItem = memo(function NotificationListItem({
                   {notification.type.replace(/[_-]/g, " ")}
                 </span>
               </div>
+            </div>
+          )}
+
+          {/* Decorative: the row's type component already carries the post link.
+              Skipped in deck mode, where the row is too narrow to spare the width. */}
+          {imageUrl && !(notification as ApiMentionNotification).deck && (
+            <div className="item-image">
+              <img src={imageUrl} alt="" loading="lazy" />
             </div>
           )}
         </div>
