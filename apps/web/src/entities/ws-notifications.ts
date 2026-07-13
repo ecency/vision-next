@@ -111,6 +111,8 @@ export interface WsPayoutsNotification extends BaseWsNotification {
     amount_usd?: string;
     title?: string | null;
     permlink?: string;
+    // Image of the post that paid out.
+    img_url?: string | null;
   };
 }
 
@@ -305,11 +307,15 @@ export interface ApiCheckinNotification extends BaseAPiNotification {
 
 export interface ApiPayoutsNotification extends BaseAPiNotification {
   type: "payouts";
-  amount?: string;
-  amount_usd?: string;
+  // The api builds these with .get(), so they can come back null, not just absent.
+  amount?: string | null;
+  amount_usd?: string | null;
+  payout_at?: string | null;
   title?: string | null;
   author: string;
   permlink: string;
+  // Image of the post that paid out.
+  img_url?: string | null;
 }
 
 export interface ApiMonthlyPostsNotification extends BaseAPiNotification {
