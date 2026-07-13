@@ -4,10 +4,18 @@ import { ApiNotification } from "@/entities";
 // The 48px slot in the notification row, at 2x pixel density.
 const THUMB_SIZE = 96;
 
+// Types whose image is the post the notification is about: the post you were
+// mentioned in, the one that was reblogged, the one that just went live.
+//
 // Vote notifications also carry img_url, but they are by far the highest-volume
 // type and every thumbnail would be a repeat of the user's own post, so they are
 // deliberately left text-only.
-const IMAGE_TYPES = ["mention", "reblog", "scheduled_published"];
+const IMAGE_TYPES = ["mention", "reblog", "scheduled_published", "favorites"];
+
+// Types whose image hangs off the PARENT post, because the notification itself is
+// about a comment: your post that was replied to, or the post you bookmarked that
+// someone has now commented on. Either way the parent is the useful context.
+const PARENT_IMAGE_TYPES = ["reply", "bookmarks"];
 
 /**
  * Thumbnail for a notification row, or null when the notification has no post
@@ -19,14 +27,11 @@ const IMAGE_TYPES = ["mention", "reblog", "scheduled_published"];
 export function getNotificationImage(notification: ApiNotification): string | null {
   const anyNotification = notification as any;
 
-  // A reply points at the parent post, i.e. the user's own post that was replied
-  // to, which is the context that makes the row readable.
-  const rawUrl =
-    anyNotification?.type === "reply"
-      ? anyNotification?.parent_img_url
-      : IMAGE_TYPES.includes(anyNotification?.type)
-        ? anyNotification?.img_url
-        : null;
+  const rawUrl = PARENT_IMAGE_TYPES.includes(anyNotification?.type)
+    ? anyNotification?.parent_img_url
+    : IMAGE_TYPES.includes(anyNotification?.type)
+      ? anyNotification?.img_url
+      : null;
 
   if (!rawUrl || typeof rawUrl !== "string") {
     return null;

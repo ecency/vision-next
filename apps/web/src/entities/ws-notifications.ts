@@ -257,6 +257,9 @@ export interface ApiFavoriteNotification extends BaseAPiNotification {
   permlink: string;
   post: boolean;
   title: string | null;
+  // Image of the newly published post. Optional so this stays structurally
+  // compatible with the published @ecency/sdk types, which do not declare it yet.
+  img_url?: string | null;
 }
 
 export interface ApiBookmarkNotification extends BaseAPiNotification {
@@ -266,6 +269,10 @@ export interface ApiBookmarkNotification extends BaseAPiNotification {
   permlink: string;
   post: boolean;
   title: string | null;
+  // Image of the bookmarked post that was commented on, not of the comment.
+  // Optional so this stays structurally compatible with the published
+  // @ecency/sdk types, which do not declare it yet.
+  parent_img_url?: string | null;
 }
 
 export interface ApiSpinNotification extends BaseAPiNotification {
