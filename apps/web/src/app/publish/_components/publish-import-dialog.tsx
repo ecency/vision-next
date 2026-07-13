@@ -20,7 +20,14 @@ export async function fetchImport(url: string): Promise<ImportResult> {
     body: JSON.stringify({ url: url.trim() })
   });
 
-  const data = await response.json();
+  let data: ImportResult & { error?: string };
+  try {
+    data = await response.json();
+  } catch {
+    // Gateways and reverse proxies may return plain text or HTML. Keep those
+    // implementation details out of the modal and show the normal import error.
+    throw new Error(i18next.t("publish.import-failed"));
+  }
 
   if (!response.ok) {
     const key = data.error ? `publish.${data.error}` : "publish.import-failed";
