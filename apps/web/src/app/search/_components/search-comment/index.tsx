@@ -1,4 +1,4 @@
-import React, { Fragment, useMemo, useState } from "react";
+import React, { Fragment, useCallback, useMemo, useState } from "react";
 import numeral from "numeral";
 import dayjs, { Dayjs } from "@/utils/dayjs";
 import "./_index.scss";
@@ -49,7 +49,8 @@ export function SearchComment({ disableResults }: Props) {
     data: resultsPages,
     isLoading,
     fetchNextPage,
-    hasNextPage
+    hasNextPage,
+    isFetchingNextPage
   } = useInfiniteQuery({
     ...getSearchApiInfiniteQueryOptions(
       params?.get("q") ?? "",
@@ -67,6 +68,15 @@ export function SearchComment({ disableResults }: Props) {
       [],
     [resultsPages]
   );
+
+  // Guarded: initialData makes `data` defined from the first render, so an
+  // unguarded fetchNextPage() from a re-run of DetectBottom's effect would
+  // abort and restart a page fetch already in flight.
+  const onBottom = useCallback(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
   const hits = useMemo(
     () => resultsPages?.pages?.[resultsPages?.pages?.length - 1]?.hits ?? 0,
     [resultsPages?.pages]
@@ -138,7 +148,7 @@ export function SearchComment({ disableResults }: Props) {
 
         {!disableResults && isLoading && <LinearProgress />}
       </div>
-      <DetectBottom onBottom={() => fetchNextPage()} />
+      <DetectBottom onBottom={onBottom} />
     </div>
   );
 }

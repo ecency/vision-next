@@ -43,16 +43,26 @@ export const HiveHbdObserver = ({
   ));
 
   const fetchAllStats = useCallback(async () => {
-    reFetchAllStats();
-    reFetchOrderBook();
+    // cancelRefetch: false joins a still-in-flight request instead of aborting
+    // it — the transactions history walk can outlive one poll tick on slow
+    // public nodes, and restarting it every tick would keep it from ever
+    // completing (a frozen trade-history widget).
+    reFetchAllStats({ cancelRefetch: false });
+    reFetchOrderBook({ cancelRefetch: false });
     if (activeUsername) {
-      reFetchOpenOrders();
-      reFetchTransactions();
+      reFetchOpenOrders({ cancelRefetch: false });
+      reFetchTransactions({ cancelRefetch: false });
     }
 
-    const usdResponse = await getCGMarket(MarketAsset.HIVE, MarketAsset.HBD);
-    if (usdResponse[0]) {
-      onUsdChange(usdResponse[0]);
+    try {
+      const usdResponse = await getCGMarket(MarketAsset.HIVE, MarketAsset.HBD);
+      if (usdResponse[0]) {
+        onUsdChange(usdResponse[0]);
+      }
+    } catch {
+      // No caller awaits this function (interval/mount/refresh effect), so a
+      // failed CoinGecko lookup must not escape as an unhandled rejection —
+      // the USD price keeps its last value until the next tick.
     }
   }, [activeUsername, onUsdChange, reFetchAllStats, reFetchOpenOrders, reFetchOrderBook, reFetchTransactions]);
 
@@ -94,6 +104,13 @@ export const HiveHbdObserver = ({
   }, [openOrders, setOpenOrders]);
 
   useEffect(() => {
+    // `refresh` (set after a successful trade) is the only trigger here; the
+    // mount fetch is handled by useMount above. Ungated, this effect re-fired
+    // a full four-query round every time a parent re-render changed
+    // fetchAllStats' identity.
+    if (!refresh) {
+      return;
+    }
     fetchAllStats();
     setRefresh(false);
   }, [fetchAllStats, refresh, setRefresh]);
