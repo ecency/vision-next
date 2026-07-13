@@ -307,9 +307,10 @@ export interface ApiCheckinNotification extends BaseAPiNotification {
 
 export interface ApiPayoutsNotification extends BaseAPiNotification {
   type: "payouts";
-  amount?: string;
-  amount_usd?: string;
-  payout_at?: string;
+  // The api builds these with .get(), so they can come back null, not just absent.
+  amount?: string | null;
+  amount_usd?: string | null;
+  payout_at?: string | null;
   title?: string | null;
   author: string;
   permlink: string;
