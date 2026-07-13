@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useMemo, useRef, useState } from "react";
-import { ApiMentionNotification, ApiNotification } from "@/entities";
+import { ApiNotification } from "@/entities";
 import { NotificationReferralType } from "@/features/shared/notifications/notification-types/notification-referral-type";
 import { NotificationInactiveType } from "@/features/shared/notifications/notification-types/notification-inactive-type";
 import { NotificationSpinType } from "@/features/shared/notifications/notification-types/notification-spin-type";
@@ -37,9 +37,8 @@ interface Props {
   className?: string;
   onLinkClick?: () => void;
   openLinksInNewTab?: boolean;
-  // Deck columns are too narrow to spare the width for a thumbnail. This is an
-  // explicit prop because the `deck` field the other guards in here read is never
-  // actually set on a notification.
+  // True when this row is rendered inside a deck column, which is narrow and has
+  // no notifications dropdown to toggle.
   isDeck?: boolean;
 }
 
@@ -79,13 +78,18 @@ export const NotificationListItem = memo(function NotificationListItem({
   }, [isSelect, previousIsSelect]);
 
   const markAsRead = () => {
-    if (notification!.read === 0 && !(notification as ApiMentionNotification).deck) {
+    if (notification!.read === 0) {
       markNotifications.mutateAsync({ id: notification!.id });
     }
   };
 
   const afterClick = () => {
-    !(entry && (entry as any).toggleNotNeeded) && toggleUIProp("notifications");
+    // A deck column has no notifications dropdown to close, and opening the
+    // navbar one on top of the deck is not what the click asked for. The other
+    // deck columns already opt out of this via entry.toggleNotNeeded.
+    if (!isDeck && !(entry && (entry as any).toggleNotNeeded)) {
+      toggleUIProp("notifications");
+    }
     markAsRead();
   };
 
@@ -120,7 +124,7 @@ export const NotificationListItem = memo(function NotificationListItem({
       title={notification.timestamp}
       className={classNameObject({
         "list-item": true,
-        "not-read": notification.read === 0 && !(notification as ApiMentionNotification).deck,
+        "not-read": notification.read === 0,
         [className ?? ""]: !!className
       })}
       role="button"
@@ -134,9 +138,7 @@ export const NotificationListItem = memo(function NotificationListItem({
       }}
       key={notification.id}
     >
-      <div
-        className={`item-inner ${(notification as ApiMentionNotification).deck ? "p-2 m-0" : ""}`}
-      >
+      <div className={`item-inner ${isDeck ? "p-2 m-0" : ""}`}>
         <div className="flex w-full">
           <div className="source pt-0.5">{sourceLinkMain}</div>
 
@@ -274,12 +276,8 @@ export const NotificationListItem = memo(function NotificationListItem({
             <FormControl type="checkbox" checked={isChecked} onChange={() => {}} />
           </div>
         ) : (
-          <div
-            className={`item-control ${
-              (notification as ApiMentionNotification).deck ? "item-control-deck" : ""
-            }`}
-          >
-            {!(notification as ApiMentionNotification).deck && notification.read === 0 && (
+          <div className={`item-control ${isDeck ? "item-control-deck" : ""}`}>
+            {notification.read === 0 && (
               <Tooltip content={i18next.t("notifications.mark-read")}>
                 <span
                   role="button"
