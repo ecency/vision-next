@@ -140,6 +140,37 @@ export function beforeSend(event: SentryErrorEvent): SentryErrorEvent | null {
     }
   }
 
+  // A cancellation AbortError that surfaces as an UNHANDLED rejection is not a
+  // crash: the page keeps working — something cancelled a fetch on purpose
+  // (React Query's cancelRefetch aborting a superseded refetch, the Next router
+  // aborting a navigation fetch, an unmount) and a promise nobody awaits was
+  // left holding the rejection. Our own chains all consume their abort
+  // rejections (React Query attaches catch handlers throughout, and the SDK's
+  // callREST rethrows external aborts into an awaited chain), which is why
+  // these events' stacks point at the ABORTER (query-core's
+  // abortController.abort()) rather than any app frame — the leaked promise is
+  // a derived one created outside our code (typically an injected fetch
+  // wrapper), and the whole family is Chrome-only. RECLASSIFY (not drop) to a
+  // single low-severity fingerprint, keeping the timeoutUrl tag applied above:
+  // a genuine first-party regression that floats abort rejections would still
+  // show as a spike on this fingerprint instead of spawning per-page error
+  // issues. Gated on mechanism onunhandledrejection so a deliberate
+  // captureException(abortError) from app code stays error-level, and
+  // TimeoutError is intentionally NOT reclassified — "signal timed out" means
+  // a request genuinely exceeded its window, which is node-health signal.
+  // The `^AbortError:` message form covers rejections wrapped in a plain Error
+  // (e.g. "Error > AbortError: The user aborted a request.").
+  const mechanismType = event.exception?.values?.[0]?.mechanism?.type;
+  if (
+    mechanismType === "onunhandledrejection" &&
+    (exceptionType === "AbortError" || /^AbortError:/.test(message))
+  ) {
+    event.level = "warning";
+    event.tags = { ...event.tags, cancellation_abort: "true" };
+    event.fingerprint = ["cancellation-abort-unhandled"];
+    return event;
+  }
+
   // React 19 SSR streaming-resume ($RS) crash that FOLLOWS a hydration mismatch.
   // React #418 (text-content mismatch — commonly a browser extension or
   // auto-translate rewriting text on legacy/non-English browsers, or a residual
