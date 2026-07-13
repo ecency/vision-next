@@ -33,6 +33,8 @@ export interface WsFavoriteNotification extends BaseWsNotification {
     permlink: string;
     is_post: 0 | 1;
     title: string | null;
+    // Image of the newly published post.
+    img_url: string | null;
   };
 }
 
@@ -42,6 +44,8 @@ export interface WsBookmarkNotification extends BaseWsNotification {
     permlink: string;
     is_post: 0 | 1;
     title: string | null;
+    // Image of the bookmarked post that was commented on, not of the comment.
+    parent_img_url: string | null;
   };
 }
 
@@ -71,6 +75,19 @@ export interface WsReblogNotification extends BaseWsNotification {
   extra: {
     permlink: string;
     title: string | null;
+    img_url: string | null;
+  };
+}
+
+export interface WsPayoutsNotification extends BaseWsNotification {
+  type: "payouts";
+  extra: {
+    permlink: string;
+    title: string | null;
+    amount: string | null;
+    amount_usd: string | null;
+    payout_at: string | null;
+    // Image of the post that paid out.
     img_url: string | null;
   };
 }
@@ -110,6 +127,7 @@ export type WsNotification =
   | WsFollowNotification
   | WsReplyNotification
   | WsReblogNotification
+  | WsPayoutsNotification
   | WsTransferNotification
   | WsSpinNotification
   | WsInactiveNotification
@@ -179,6 +197,18 @@ export interface ApiReplyNotification extends BaseAPiNotification {
   parent_img_url: string | null;
 }
 
+export interface ApiPayoutsNotification extends BaseAPiNotification {
+  type: "payouts";
+  author: string;
+  permlink: string;
+  title: string | null;
+  amount: string | null;
+  amount_usd: string | null;
+  payout_at: string | null;
+  // Image of the post that paid out.
+  img_url: string | null;
+}
+
 export interface ApiTransferNotification extends BaseAPiNotification {
   type: "transfer";
   to: string;
@@ -193,6 +223,8 @@ export interface ApiFavoriteNotification extends BaseAPiNotification {
   permlink: string;
   post: boolean;
   title: string | null;
+  // Image of the newly published post.
+  img_url: string | null;
 }
 
 export interface ApiBookmarkNotification extends BaseAPiNotification {
@@ -202,6 +234,8 @@ export interface ApiBookmarkNotification extends BaseAPiNotification {
   permlink: string;
   post: boolean;
   title: string | null;
+  // Image of the bookmarked post that was commented on, not of the comment.
+  parent_img_url: string | null;
 }
 
 export interface ApiSpinNotification extends BaseAPiNotification {
@@ -251,6 +285,7 @@ export type ApiNotification =
   | ApiBookmarkNotification
   | ApiFollowNotification
   | ApiReblogNotification
+  | ApiPayoutsNotification
   | ApiReplyNotification
   | ApiTransferNotification
   | ApiSpinNotification
