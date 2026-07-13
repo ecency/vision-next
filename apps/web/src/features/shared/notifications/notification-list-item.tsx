@@ -37,6 +37,10 @@ interface Props {
   className?: string;
   onLinkClick?: () => void;
   openLinksInNewTab?: boolean;
+  // Deck columns are too narrow to spare the width for a thumbnail. This is an
+  // explicit prop because the `deck` field the other guards in here read is never
+  // actually set on a notification.
+  isDeck?: boolean;
 }
 
 export const NotificationListItem = memo(function NotificationListItem({
@@ -47,7 +51,8 @@ export const NotificationListItem = memo(function NotificationListItem({
   openLinksInNewTab = false,
   onLinkClick,
   setSelectedNotifications,
-  onMounted
+  onMounted,
+  isDeck = false
 }: Props) {
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
 
@@ -256,9 +261,8 @@ export const NotificationListItem = memo(function NotificationListItem({
             </div>
           )}
 
-          {/* Decorative: the row's type component already carries the post link.
-              Skipped in deck mode, where the row is too narrow to spare the width. */}
-          {imageUrl && !(notification as ApiMentionNotification).deck && (
+          {/* Decorative: the row's type component already carries the post link. */}
+          {imageUrl && !isDeck && (
             <div className="item-image">
               <img src={imageUrl} alt="" loading="lazy" />
             </div>
