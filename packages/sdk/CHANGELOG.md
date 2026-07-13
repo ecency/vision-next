@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.49
+
+### Patch Changes
+
+- Declare the notification image fields on the sdk types (#1143)
+
 ## 2.3.48
 
 ### Patch Changes
