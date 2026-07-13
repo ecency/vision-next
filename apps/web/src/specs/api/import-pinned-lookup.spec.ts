@@ -11,6 +11,18 @@ describe("createPinnedLookup", () => {
     expect(callback).toHaveBeenCalledWith(null, "203.0.113.10", 4);
   });
 
+  it("returns a scalar address when lookup options are missing", () => {
+    const callback = vi.fn();
+
+    createPinnedLookup("203.0.113.10", 4)(
+      "example.com",
+      undefined as never,
+      callback
+    );
+
+    expect(callback).toHaveBeenCalledWith(null, "203.0.113.10", 4);
+  });
+
   it("returns an address array when Node requests all results", () => {
     const callback = vi.fn();
 

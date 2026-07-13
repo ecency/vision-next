@@ -11,7 +11,7 @@ import type { LookupFunction } from "node:net";
  */
 export function createPinnedLookup(ip: string, family: 4 | 6): LookupFunction {
   return (_hostname, options, callback) => {
-    if (options.all) {
+    if (options?.all) {
       callback(null, [{ address: ip, family }]);
       return;
     }
