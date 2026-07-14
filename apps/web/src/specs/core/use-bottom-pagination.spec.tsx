@@ -108,4 +108,23 @@ describe("useBottomPagination", () => {
     rerender({ ...base, isFetching: false });
     expect(result.current).toBe(during);
   });
+
+  it("can retry after a failed fetch even when the callback was minted mid-flight", () => {
+    // Stale-closure regression: a callback created while a fetch is in
+    // flight (e.g. a list that mounts fetching) whose fetch then FAILS gets
+    // no dep change — a closure-captured isFetching would stay true forever
+    // and viewport re-entry / load-more clicks could never retry. The
+    // latest-value ref must see the idle state.
+    const base = makeQuery({ isFetching: true });
+    const { result, rerender } = renderHook((q) => useBottomPagination(q), {
+      initialProps: base
+    });
+    result.current();
+    expect(base.fetchNextPage).not.toHaveBeenCalled();
+
+    rerender({ ...base, isFetching: false });
+    result.current();
+    expect(base.fetchNextPage).toHaveBeenCalledTimes(1);
+    expect(base.fetchNextPage).toHaveBeenCalledWith({ cancelRefetch: false });
+  });
 });

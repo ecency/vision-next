@@ -126,4 +126,16 @@ describe("HiveHbdObserver", () => {
     expect(props.onUsdChange).toHaveBeenCalledTimes(1);
     expect(props.onUsdChange).toHaveBeenCalledWith(0);
   });
+
+  it("normalizes a falsy resolved quote through the same 'no quote' sentinel", async () => {
+    // A degraded CoinGecko response (missing/zero quote) must also clear a
+    // previously rendered price instead of silently holding it.
+    getCGMarketMock.mockResolvedValue([undefined as unknown as number, 1]);
+    const props = makeProps();
+    render(<HiveHbdObserver {...props} />);
+    await flush();
+
+    expect(props.onUsdChange).toHaveBeenCalledTimes(1);
+    expect(props.onUsdChange).toHaveBeenCalledWith(0);
+  });
 });

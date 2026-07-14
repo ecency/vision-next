@@ -70,9 +70,10 @@ export const HiveHbdObserver = ({
         onUsdChange(0);
         return;
       }
-      if (usdResponse[0]) {
-        onUsdChange(usdResponse[0]);
-      }
+      // Normalize any unusable quote (0/undefined/NaN) through the same
+      // "no quote" sentinel as the catch path, so a degraded response also
+      // clears a previously rendered price.
+      onUsdChange(usdResponse[0] || 0);
     },
     [activeUsername, onUsdChange, reFetchAllStats, reFetchOpenOrders, reFetchOrderBook, reFetchTransactions]
   );
