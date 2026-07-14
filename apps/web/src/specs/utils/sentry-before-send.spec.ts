@@ -555,14 +555,25 @@ describe("beforeSend — unhandled cancellation AbortError is reclassified", () 
   it("reclassifies the plain-Error wrap whose message is prefixed 'AbortError:'", () => {
     // ECENCY-NEXT-M4Q shape: the rejection reason was wrapped in a plain Error,
     // so the exception type is Error and only the message carries AbortError.
-    const out = beforeSend(
-      makeEvent("AbortError: The user aborted a request.", [], {
-        type: "Error",
-        handled: false
-      })
-    );
+    // The wrapped form must ALSO pass the timeoutUrl tagging block above the
+    // reclassification — a gap there would strip these events of their
+    // correlation tag.
+    const ev = makeEvent("AbortError: The user aborted a request.", [], {
+      type: "Error",
+      handled: false
+    });
+    (ev as any).breadcrumbs = [
+      {
+        category: "fetch",
+        data: { url: "https://api.example.com/hafah-api/accounts/alice/operations?page=2" }
+      }
+    ];
+    const out = beforeSend(ev);
     expect(out!.level).toBe("warning");
     expect(out!.fingerprint).toEqual(["cancellation-abort-unhandled"]);
+    expect(out!.tags?.timeoutUrl).toBe(
+      "https://api.example.com/hafah-api/accounts/alice/operations"
+    );
   });
 
   it("keeps the timeoutUrl breadcrumb tag on the reclassified event", () => {

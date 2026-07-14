@@ -48,6 +48,7 @@ export function SearchComment({ disableResults }: Props) {
 
   const {
     data: resultsPages,
+    dataUpdatedAt,
     isLoading,
     isFetching,
     fetchNextPage,
@@ -74,6 +75,7 @@ export function SearchComment({ disableResults }: Props) {
   // sentinel is also what bootstraps page 1 — see useBottomPagination.
   const onBottom = useBottomPagination({
     data: resultsPages,
+    dataUpdatedAt,
     hasNextPage,
     isFetching,
     fetchNextPage

@@ -21,6 +21,7 @@ export function CommunityContentInfiniteList({ section, community }: Props) {
     const fetchNextPage = result.fetchNextPage;
     const isFetching = result.isFetching;
     const hasNextPage = result.hasNextPage;
+    const dataUpdatedAt = result.dataUpdatedAt;
 
     // Make 'data' explicit: it's InfiniteData<FeedPage, unknown> | undefined
     const data = result.data as InfiniteData<FeedPage, unknown> | undefined;
@@ -32,7 +33,13 @@ export function CommunityContentInfiniteList({ section, community }: Props) {
     // which re-runs DetectBottom's effect while the sentinel is still in
     // viewport — see useBottomPagination for why the naive inline handler
     // aborts its own fetch.
-    const onBottom = useBottomPagination({ data, hasNextPage, isFetching, fetchNextPage });
+    const onBottom = useBottomPagination({
+        data,
+        dataUpdatedAt,
+        hasNextPage,
+        isFetching,
+        fetchNextPage
+    });
 
     const entryList = useMemo(
         () =>

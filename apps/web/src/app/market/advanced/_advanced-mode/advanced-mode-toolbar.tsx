@@ -55,7 +55,9 @@ export const AdvancedModeToolbar = ({
             <div className={"amount " + (dayChange.percent > 0 ? "text-green" : "text-red")}>
               {formattedNumber(dayChange.price)}
             </div>
-            <div className="usd-value">${usdPrice.toFixed(2)}</div>
+            {/* 0 means "no quote yet" (initial state, or CoinGecko still
+                unreachable) — don't present it as a real price. */}
+            {usdPrice > 0 && <div className="usd-value">${usdPrice.toFixed(2)}</div>}
           </div>
           <div className="day-change-price change-price">
             <label>24h change</label>

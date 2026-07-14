@@ -112,6 +112,10 @@ export function beforeSend(event: SentryErrorEvent): SentryErrorEvent | null {
   if (
     (exceptionType === "TimeoutError" ||
       exceptionType === "AbortError" ||
+      // Wrapped form: a plain Error whose message carries the AbortError —
+      // must be tagged here too or the reclassification below loses its
+      // correlation tag.
+      /^AbortError:/.test(message) ||
       /signal timed out/i.test(message)) &&
     !event.tags?.timeoutUrl
   ) {
