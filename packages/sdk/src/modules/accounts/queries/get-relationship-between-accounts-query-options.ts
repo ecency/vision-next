@@ -14,7 +14,14 @@ export function getRelationshipBetweenAccountsQueryOptions(
     refetchInterval: 3_600_000,
     queryFn: async () => {
       const result = await callRPC("bridge.get_relationship_between_accounts", [reference, target]);
-      return (result ?? { follows: false, ignores: false, is_blacklisted: false, follows_blacklists: false }) as AccountRelationship;
+      const fallback: AccountRelationship = {
+        follows: false,
+        ignores: false,
+        blacklists: false,
+        follows_muted: false,
+        follows_blacklists: false,
+      };
+      return (result ?? fallback) as AccountRelationship;
     },
   });
 }
