@@ -59,15 +59,15 @@ export function MarketAdvancedPage() {
               setRefresh={setRefresh}
               fromAsset={fromAsset}
               toAsset={toAsset}
-              onDayChange={(dayChange) => setDayChange(dayChange)}
-              onHistoryChange={(history) => setHistory(history)}
-              onUsdChange={(usdPrice) => setUsdPrice(usdPrice)}
+              onDayChange={setDayChange}
+              onHistoryChange={setHistory}
+              onUsdChange={setUsdPrice}
               setOpenOrders={setOpenOrdersData}
             />
             <UserBalanceObserver
               fromAsset={fromAsset}
-              setBuyBalance={(v) => setBuyBalance(v)}
-              setSellBalance={(v) => setSellBalance(v)}
+              setBuyBalance={setBuyBalance}
+              setSellBalance={setSellBalance}
             />
             <AdvancedModeToolbar
               fromAsset={fromAsset}

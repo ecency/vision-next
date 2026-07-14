@@ -12,6 +12,7 @@ import { SearchResult } from "@/entities";
 import { Button } from "@/features/ui";
 import { DateOpt } from "@/enums";
 import { SearchSort } from "@/app/decks/_components/consts";
+import { useBottomPagination } from "@/core/hooks";
 
 interface Props {
   disableResults?: boolean;
@@ -47,7 +48,9 @@ export function SearchComment({ disableResults }: Props) {
 
   const {
     data: resultsPages,
+    dataUpdatedAt,
     isLoading,
+    isFetching,
     fetchNextPage,
     hasNextPage
   } = useInfiniteQuery({
@@ -67,6 +70,16 @@ export function SearchComment({ disableResults }: Props) {
       [],
     [resultsPages]
   );
+
+  // initialData seeds this query as "success" with zero pages, so the bottom
+  // sentinel is also what bootstraps page 1 — see useBottomPagination.
+  const onBottom = useBottomPagination({
+    data: resultsPages,
+    dataUpdatedAt,
+    hasNextPage,
+    isFetching,
+    fetchNextPage
+  });
   const hits = useMemo(
     () => resultsPages?.pages?.[resultsPages?.pages?.length - 1]?.hits ?? 0,
     [resultsPages?.pages]
@@ -120,7 +133,7 @@ export function SearchComment({ disableResults }: Props) {
 
                 {hasNextPage && (
                   <div className="flex justify-center capitalize">
-                    <Button outline={true} onClick={() => fetchNextPage()}>
+                    <Button outline={true} disabled={isFetching} onClick={onBottom}>
                       {i18next.t("search-comment.show-more")}
                     </Button>
                   </div>
@@ -138,7 +151,7 @@ export function SearchComment({ disableResults }: Props) {
 
         {!disableResults && isLoading && <LinearProgress />}
       </div>
-      <DetectBottom onBottom={() => fetchNextPage()} />
+      <DetectBottom onBottom={onBottom} />
     </div>
   );
 }

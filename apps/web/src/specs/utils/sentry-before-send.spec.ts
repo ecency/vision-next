@@ -519,3 +519,109 @@ describe("beforeSend — Firefox iframe contentWindow-null teardown is reclassif
     expect(ev.fingerprint).toBeUndefined();
   });
 });
+
+describe("beforeSend — unhandled cancellation AbortError is reclassified", () => {
+  // The chronic AbortError family (ECENCY-NEXT-13T7/1GHQ/KE4/1BRF/1ABA/1GEM/M4Q):
+  // a deliberate fetch cancellation (React Query cancelRefetch, router
+  // navigation abort, unmount) whose DOMException is left on a promise nobody
+  // awaits. First-party chains all consume their abort rejections, so the
+  // leaked promise is a derived one created outside app code; the events'
+  // stacks name the aborter, not an app bug. Reclassified (NOT dropped) to one
+  // fingerprinted warning so a genuine floating-abort regression still spikes.
+  it("reclassifies the Chrome DOMException phrasing (signal is aborted without reason)", () => {
+    const ev = makeEvent("signal is aborted without reason", [], {
+      type: "AbortError",
+      handled: false
+    });
+    const out = beforeSend(ev);
+    expect(out).not.toBeNull();
+    expect(out!.level).toBe("warning");
+    expect(out!.tags?.cancellation_abort).toBe("true");
+    expect(out!.fingerprint).toEqual(["cancellation-abort-unhandled"]);
+  });
+
+  it("reclassifies the other engine phrasings under the AbortError type", () => {
+    for (const msg of [
+      "Fetch is aborted",
+      "The operation was aborted. ",
+      "The user aborted a request."
+    ]) {
+      const out = beforeSend(makeEvent(msg, [], { type: "AbortError", handled: false }));
+      expect(out!.level).toBe("warning");
+      expect(out!.fingerprint).toEqual(["cancellation-abort-unhandled"]);
+    }
+  });
+
+  it("reclassifies the plain-Error wrap whose message is prefixed 'AbortError:'", () => {
+    // ECENCY-NEXT-M4Q shape: the rejection reason was wrapped in a plain Error,
+    // so the exception type is Error and only the message carries AbortError.
+    // The wrapped form must ALSO pass the timeoutUrl tagging block above the
+    // reclassification — a gap there would strip these events of their
+    // correlation tag.
+    const ev = makeEvent("AbortError: The user aborted a request.", [], {
+      type: "Error",
+      handled: false
+    });
+    (ev as any).breadcrumbs = [
+      {
+        category: "fetch",
+        data: { url: "https://api.example.com/hafah-api/accounts/alice/operations?page=2" }
+      }
+    ];
+    const out = beforeSend(ev);
+    expect(out!.level).toBe("warning");
+    expect(out!.fingerprint).toEqual(["cancellation-abort-unhandled"]);
+    expect(out!.tags?.timeoutUrl).toBe(
+      "https://api.example.com/hafah-api/accounts/alice/operations"
+    );
+  });
+
+  it("keeps the timeoutUrl breadcrumb tag on the reclassified event", () => {
+    // The tagging block above the reclassification must still run, and the
+    // query string must still be stripped from the tagged URL.
+    const ev = makeEvent("signal is aborted without reason", [], {
+      type: "AbortError",
+      handled: false
+    });
+    (ev as any).breadcrumbs = [
+      {
+        category: "fetch",
+        data: { url: "https://api.example.com/hafah-api/accounts/alice/operations?page=2" }
+      }
+    ];
+    const out = beforeSend(ev);
+    expect(out!.tags?.timeoutUrl).toBe("https://api.example.com/hafah-api/accounts/alice/operations");
+    expect(out!.level).toBe("warning");
+    expect(out!.fingerprint).toEqual(["cancellation-abort-unhandled"]);
+  });
+
+  it("reclassifies the lazy-sentry replay shape too (mechanism generic/handled)", () => {
+    // Rejections from the pre-init window are replayed through
+    // captureException (mechanism generic/handled:true) — same cancellation,
+    // same bucket. An AbortError is a cancellation whatever path delivered it.
+    const ev = makeEvent("signal is aborted without reason", [], { type: "AbortError" });
+    (ev as any).exception.values[0].mechanism = { type: "generic", handled: true };
+    const out = beforeSend(ev);
+    expect(out!.level).toBe("warning");
+    expect(out!.fingerprint).toEqual(["cancellation-abort-unhandled"]);
+  });
+
+  it("does NOT reclassify an unhandled TimeoutError (genuine node-health signal)", () => {
+    // "signal timed out" means a request exceeded its window — that volume is
+    // how slow nodes surface; it must not be folded into cancellation noise.
+    const ev = makeEvent("signal timed out", [], { type: "TimeoutError", handled: false });
+    const out = beforeSend(ev);
+    expect(out!.level).toBeUndefined();
+    expect(out!.fingerprint).toBeUndefined();
+  });
+
+  it("does NOT reclassify an ordinary Error merely mentioning an abort mid-message", () => {
+    const ev = makeEvent("upload failed: request aborted by server", [], {
+      type: "Error",
+      handled: false
+    });
+    const out = beforeSend(ev);
+    expect(out!.level).toBeUndefined();
+    expect(out!.fingerprint).toBeUndefined();
+  });
+});

@@ -42,19 +42,41 @@ export const HiveHbdObserver = ({
     activeUsername ?? ""
   ));
 
-  const fetchAllStats = useCallback(async () => {
-    reFetchAllStats();
-    reFetchOrderBook();
-    if (activeUsername) {
-      reFetchOpenOrders();
-      reFetchTransactions();
-    }
+  const fetchAllStats = useCallback(
+    async (postTrade = false) => {
+      // Poll ticks join a still-in-flight request (cancelRefetch: false) — the
+      // transactions history walk can outlive one tick on slow public nodes,
+      // and restarting it every tick would keep it from ever completing (a
+      // frozen trade-history widget). The post-trade refresh is the opposite
+      // case: an in-flight request may predate the trade, so it must be
+      // cancelled and reissued for the new order to show up.
+      const options = { cancelRefetch: postTrade };
+      reFetchAllStats(options);
+      reFetchOrderBook(options);
+      if (activeUsername) {
+        reFetchOpenOrders(options);
+        reFetchTransactions(options);
+      }
 
-    const usdResponse = await getCGMarket(MarketAsset.HIVE, MarketAsset.HBD);
-    if (usdResponse[0]) {
-      onUsdChange(usdResponse[0]);
-    }
-  }, [activeUsername, onUsdChange, reFetchAllStats, reFetchOpenOrders, reFetchOrderBook, reFetchTransactions]);
+      let usdResponse: number[];
+      try {
+        usdResponse = await getCGMarket(MarketAsset.HIVE, MarketAsset.HBD);
+      } catch {
+        // No caller awaits this function (interval/mount/refresh effect), so a
+        // failed CoinGecko lookup must not escape as an unhandled rejection.
+        // Publish 0 — the shared "no quote" value the USD displays hide on —
+        // so an outage doesn't leave an old quote rendered as current; the
+        // next successful tick restores it.
+        onUsdChange(0);
+        return;
+      }
+      // Normalize any unusable quote (0/undefined/NaN) through the same
+      // "no quote" sentinel as the catch path, so a degraded response also
+      // clears a previously rendered price.
+      onUsdChange(usdResponse[0] || 0);
+    },
+    [activeUsername, onUsdChange, reFetchAllStats, reFetchOpenOrders, reFetchOrderBook, reFetchTransactions]
+  );
 
   useEffect(() => {
     setAllOrders(
@@ -94,7 +116,14 @@ export const HiveHbdObserver = ({
   }, [openOrders, setOpenOrders]);
 
   useEffect(() => {
-    fetchAllStats();
+    // `refresh` (set after a successful trade) is the only trigger here; the
+    // mount fetch is handled by useMount above. Ungated, this effect re-fired
+    // a full four-query round every time a parent re-render changed
+    // fetchAllStats' identity.
+    if (!refresh) {
+      return;
+    }
+    fetchAllStats(true);
     setRefresh(false);
   }, [fetchAllStats, refresh, setRefresh]);
 
