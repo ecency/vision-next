@@ -49,9 +49,9 @@ export function SearchComment({ disableResults }: Props) {
   const {
     data: resultsPages,
     isLoading,
+    isFetching,
     fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage
+    hasNextPage
   } = useInfiniteQuery({
     ...getSearchApiInfiniteQueryOptions(
       params?.get("q") ?? "",
@@ -75,7 +75,7 @@ export function SearchComment({ disableResults }: Props) {
   const onBottom = useBottomPagination({
     data: resultsPages,
     hasNextPage,
-    isFetchingNextPage,
+    isFetching,
     fetchNextPage
   });
   const hits = useMemo(
@@ -131,7 +131,7 @@ export function SearchComment({ disableResults }: Props) {
 
                 {hasNextPage && (
                   <div className="flex justify-center capitalize">
-                    <Button outline={true} onClick={() => fetchNextPage()}>
+                    <Button outline={true} disabled={isFetching} onClick={onBottom}>
                       {i18next.t("search-comment.show-more")}
                     </Button>
                   </div>

@@ -57,7 +57,7 @@ export function WavesListView({ feedType, username }: Props) {
   // The Following feed needs a username; without one `following` drops and the
   // query would silently become the unfiltered combined feed, so gate it until
   // the active user is known.
-  const { data, fetchNextPage, isError, error, hasNextPage, isFetched, isFetchingNextPage, refetch } =
+  const { data, fetchNextPage, isError, error, hasNextPage, isFetched, isFetching, refetch } =
     useInfiniteQuery(
     {
       ...queryOptions,
@@ -192,7 +192,7 @@ export function WavesListView({ feedType, username }: Props) {
   // Every feed type now paginates via the keyset cursor, so infinite scroll
   // is enabled across For You, Following and Tag (not just For You).
   const shouldShowDetectBottom = hasNextPage;
-  const onBottom = useBottomPagination({ data, hasNextPage, isFetchingNextPage, fetchNextPage });
+  const onBottom = useBottomPagination({ data, hasNextPage, isFetching, fetchNextPage });
 
   if (isError && combinedDataFlow.length === 0) {
     return (
