@@ -1587,7 +1587,8 @@ interface FullAccount {
 interface AccountRelationship {
     follows: boolean;
     ignores: boolean;
-    is_blacklisted: boolean;
+    blacklists: boolean;
+    follows_muted: boolean;
     follows_blacklists: boolean;
 }
 
@@ -1975,7 +1976,8 @@ type Kind = "toggle-ignore" | "toggle-follow";
 declare function useAccountRelationsUpdate(reference: string | undefined, target: string | undefined, auth: AuthContext | undefined, onSuccess: (data: Partial<AccountRelationship> | undefined) => void, onError: (e: Error) => void): _tanstack_react_query.UseMutationResult<{
     ignores: boolean | undefined;
     follows: boolean | undefined;
-    is_blacklisted?: boolean | undefined;
+    blacklists?: boolean | undefined;
+    follows_muted?: boolean | undefined;
     follows_blacklists?: boolean | undefined;
 }, Error, Kind, unknown>;
 

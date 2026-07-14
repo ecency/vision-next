@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.50
+
+### Patch Changes
+
+- fix(follow-controls): handle null API response for relationships (#1148)
+
 ## 2.3.49
 
 ### Patch Changes

@@ -56,7 +56,7 @@ function MuteButton({ disabled, following }: ButtonProps) {
     (err) => error(...formatError(err))
   );
 
-  const ignores = data === undefined ? undefined : data.ignores === true;
+  const ignores = data == null ? undefined : data.ignores === true;
   const shouldPop = useRelationPop(ignores);
 
   return activeUser?.username !== following ? (
@@ -101,7 +101,7 @@ function FollowButton({ disabled, following }: ButtonProps) {
     (err) => error(...formatError(err))
   );
 
-  const follows = data === undefined ? undefined : data.follows === true;
+  const follows = data == null ? undefined : data.follows === true;
   const shouldPop = useRelationPop(follows);
 
   return (
