@@ -63,8 +63,11 @@ export const HiveHbdObserver = ({
         usdResponse = await getCGMarket(MarketAsset.HIVE, MarketAsset.HBD);
       } catch {
         // No caller awaits this function (interval/mount/refresh effect), so a
-        // failed CoinGecko lookup must not escape as an unhandled rejection —
-        // the USD price keeps its last value until the next tick.
+        // failed CoinGecko lookup must not escape as an unhandled rejection.
+        // Publish 0 — the shared "no quote" value the USD displays hide on —
+        // so an outage doesn't leave an old quote rendered as current; the
+        // next successful tick restores it.
+        onUsdChange(0);
         return;
       }
       if (usdResponse[0]) {

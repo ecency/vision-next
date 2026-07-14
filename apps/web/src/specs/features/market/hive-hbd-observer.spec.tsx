@@ -112,14 +112,18 @@ describe("HiveHbdObserver", () => {
     expect(props.setRefresh).toHaveBeenCalledWith(false);
   });
 
-  it("contains a CoinGecko failure instead of leaking an unhandled rejection", async () => {
+  it("contains a CoinGecko failure and publishes the 'no quote' value", async () => {
     // Callers never await fetchAllStats, so before the try/catch this
     // rejection escaped as an unhandled rejection (vitest would fail the run).
+    // The failure must also publish 0 — the shared "no quote" value the USD
+    // displays hide on — so an outage doesn't leave an old quote rendered as
+    // current.
     getCGMarketMock.mockRejectedValue(new Error("coingecko down"));
     const props = makeProps();
     render(<HiveHbdObserver {...props} />);
     await flush();
 
-    expect(props.onUsdChange).not.toHaveBeenCalled();
+    expect(props.onUsdChange).toHaveBeenCalledTimes(1);
+    expect(props.onUsdChange).toHaveBeenCalledWith(0);
   });
 });

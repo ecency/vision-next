@@ -201,7 +201,9 @@ export const StakeWidget = ({
           </div>
           <div className="market-stake-widget-current-price py-2">
             <span className="price">{price.toFixed(3)}</span>
-            <span className="usd-price">${usdPrice.toFixed(3)}</span>
+            {/* 0 means "no quote" (initial state or CoinGecko unavailable) —
+                don't present it as a real price. */}
+            {usdPrice > 0 && <span className="usd-price">${usdPrice.toFixed(3)}</span>}
           </div>
           <div className="market-stake-widget-buy">
             <div className="market-stake-widget-sell pt-0 history-widget-content">
