@@ -5,6 +5,7 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { getAccessToken, getRefreshToken } from "@/utils";
 import { useGlobalStore } from "@/core/global-store";
 import { hsTokenRenew } from "@ecency/sdk";
+import { chatApiFetch, chatPollInterval, type ChatPollQuery } from "./chat-api-guard";
 
 /** Safely parse JSON from a fetch response, falling back to a readable error */
 async function safeJson<T>(res: Response): Promise<T> {
@@ -151,8 +152,11 @@ export function useMattermostChannels(enabled: boolean) {
     staleTime: 120 * 1000,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
+    // Invalidations re-run this; retrying more than once just piles requests
+    // onto an unhealthy backend.
+    retry: 1,
     queryFn: async () => {
-      const res = await fetch("/api/mattermost/channels");
+      const res = await chatApiFetch("/api/mattermost/channels");
       if (!res.ok) {
         const data = await safeJson<{ error?: string }>(res);
         throw new Error(data?.error || "Unable to load channels");
@@ -519,11 +523,15 @@ export function useMattermostUnread(enabled: boolean) {
   return useQuery({
     queryKey: ["mattermost-unread", username],
     enabled: enabled && Boolean(username),
-    refetchInterval: 60000,
+    // Mounted in the navbar on every page: back off while the endpoint is
+    // failing so open tabs don't keep a struggling backend under load.
+    refetchInterval: (query) => chatPollInterval(60000, query),
     refetchOnWindowFocus: false,
     staleTime: 60000,
+    // No retry: the next poll cycle is the retry.
+    retry: false,
     queryFn: async () => {
-      const res = await fetch("/api/mattermost/channels/unreads");
+      const res = await chatApiFetch("/api/mattermost/channels/unreads");
 
       if (res.status === 401) {
         return {
@@ -660,14 +668,18 @@ export function useMattermostPostsInfinite(
   return useInfiniteQuery({
     queryKey: ["mattermost-posts-infinite", channelId],
     enabled: Boolean(channelId),
-    refetchInterval: options?.refetchInterval ?? false,
+    // Polling fallback when the websocket is down: back off while failing.
+    refetchInterval: (query: ChatPollQuery) => {
+      const base = options?.refetchInterval;
+      return base ? chatPollInterval(base, query) : false;
+    },
     queryFn: async ({ pageParam }) => {
       const includeOnlineQuery = options?.includeOnline ? "include_online=1" : "";
       const url = pageParam
         ? `/api/mattermost/channels/${channelId}/posts?before=${pageParam}${includeOnlineQuery ? `&${includeOnlineQuery}` : ""}`
         : `/api/mattermost/channels/${channelId}/posts${includeOnlineQuery ? `?${includeOnlineQuery}` : ""}`;
 
-      const res = await fetch(url);
+      const res = await chatApiFetch(url);
       if (!res.ok) {
         const data = await safeJson<{ error?: string }>(res);
         throw new Error(data?.error || "Unable to load messages");
