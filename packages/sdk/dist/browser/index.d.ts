@@ -6350,7 +6350,7 @@ declare function getSpotlightsQueryOptions(_accessToken?: string): _tanstack_rea
  * markAsRead.mutate({});
  * ```
  */
-declare function useMarkNotificationsRead(username: string | undefined, code: string | undefined, onSuccess?: (unreadCount?: number) => void, onError?: (e: Error) => void): _tanstack_react_query.UseMutationResult<Record<string, unknown>, Error, {
+declare function useMarkNotificationsRead(username: string | undefined, code: string | undefined, onSuccess?: (unreadCount?: number) => void, onError?: (e: Error) => void): _tanstack_react_query.UseMutationResult<Record<string, unknown> | undefined, Error, {
     id?: string;
 }, {
     previousData: [readonly unknown[], unknown][];

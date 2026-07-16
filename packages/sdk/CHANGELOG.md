@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.51
+
+### Patch Changes
+
+- fix(sdk): prevent unhandled error on mark-notifications-read without auth (#1152)
+
 ## 2.3.50
 
 ### Patch Changes
