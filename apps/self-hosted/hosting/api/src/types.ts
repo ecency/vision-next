@@ -46,6 +46,8 @@ export interface BlogConfig {
     instanceConfiguration: {
       type: 'blog' | 'community';
       username: string;
+      /** Controlling Hive account; the SPA's ownership gate reads it. */
+      owner?: string;
       communityId?: string;
       meta: {
         title: string;

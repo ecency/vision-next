@@ -105,12 +105,6 @@ export function HostingSignup() {
     if (customDomain && cardEnabled) setMethod("card");
   }, [customDomain, cardEnabled]);
 
-  // Community has no custom-domain add-on; clear a stale selection carried over from the blog flow,
-  // otherwise the HBD instructions effect (which skips when customDomain is set) never runs.
-  useEffect(() => {
-    if (isCommunity && customDomain) setCustomDomain(false);
-  }, [isCommunity, customDomain]);
-
   const goConfigure = () => {
     setError("");
     if (isCommunity) {
@@ -363,25 +357,23 @@ export function HostingSignup() {
             ))}
           </div>
 
-          {/* Custom domain add-on. It is a card-only one-step checkout, and card is unavailable for
-              a community (see cardEnabled), so the add-on is offered for personal blogs only. */}
-          {!isCommunity && (
-            <button
-              onClick={() => setCustomDomain((v) => !v)}
-              disabled={paying}
-              className={`text-left px-4 py-3 rounded-lg border ${
-                customDomain ? "border-blue-dark-sky bg-blue-dark-sky/10" : "border-[--border-color]"
-              } ${paying ? "opacity-50 cursor-not-allowed" : ""}`}
-            >
-              <div className="flex items-center justify-between gap-2">
-                <span className="font-semibold">{i18next.t("hosting.custom-domain-option")}</span>
-                <span className="text-sm text-blue-dark-sky">
-                  {customDomain ? i18next.t("hosting.custom-domain-added") : i18next.t("hosting.custom-domain-price")}
-                </span>
-              </div>
-              <p className="text-sm opacity-75 mt-1">{i18next.t("hosting.custom-domain-explainer")}</p>
-            </button>
-          )}
+          {/* Custom domain add-on. A card-only one-step checkout, for both instance types: card is
+              available to a community too (the owner pays and hostingTarget routes activation). */}
+          <button
+            onClick={() => setCustomDomain((v) => !v)}
+            disabled={paying}
+            className={`text-left px-4 py-3 rounded-lg border ${
+              customDomain ? "border-blue-dark-sky bg-blue-dark-sky/10" : "border-[--border-color]"
+            } ${paying ? "opacity-50 cursor-not-allowed" : ""}`}
+          >
+            <div className="flex items-center justify-between gap-2">
+              <span className="font-semibold">{i18next.t("hosting.custom-domain-option")}</span>
+              <span className="text-sm text-blue-dark-sky">
+                {customDomain ? i18next.t("hosting.custom-domain-added") : i18next.t("hosting.custom-domain-price")}
+              </span>
+            </div>
+            <p className="text-sm opacity-75 mt-1">{i18next.t("hosting.custom-domain-explainer")}</p>
+          </button>
 
           {/* Method toggle */}
           <div className="flex gap-2">
@@ -475,10 +467,28 @@ export function HostingSignup() {
             </div>
           </Alert>
 
-          {/* Custom domain plan -> let the owner attach and verify their domain now. Personal blog
-              only; the add-on is not offered for a community. */}
-          {!isCommunity && customDomain && activeUser && username === activeUser.username && (
-            <CustomDomainManager username={activeUser.username} />
+          {/* The site starts on a default template; without these steps owners don't discover
+              that they can sign in on their new site and configure it (settings button). */}
+          <div className="rounded-lg border border-[--border-color] p-4 flex flex-col gap-2">
+            <div className="font-semibold">{i18next.t("hosting.next-steps-title")}</div>
+            <ol className="list-decimal list-inside text-sm flex flex-col gap-1.5">
+              <li>
+                {i18next.t("hosting.next-step-login", {
+                  owner: isCommunity ? (activeUser?.username ?? "") : tenantUsername
+                })}
+              </li>
+              <li>{i18next.t("hosting.next-step-configure")}</li>
+              <li>{i18next.t("hosting.next-step-renew")}</li>
+            </ol>
+          </div>
+
+          {/* Custom domain plan -> let the owner attach and verify their domain now. For a
+              community the tenant is the community id while the logged-in owner authorizes. */}
+          {customDomain && activeUser && (isCommunity || username === activeUser.username) && (
+            <CustomDomainManager
+              username={activeUser.username}
+              tenant={isCommunity ? tenantUsername : undefined}
+            />
           )}
         </div>
       )}

@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { InstanceConfigManager } from '@/core';
-import { authenticationStore } from '@/store';
+import {
+  clearHostingToken,
+  getHostingToken,
+} from '@/features/auth/utils/hosting-token';
 import { configFieldsMap } from '../config-fields';
 import { FLOATING_MENU_THEME } from '../constants';
 import type { ConfigValue } from '../types';
@@ -194,6 +197,7 @@ export function FloatingMenuWindow({
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [saveError, setSaveError] = useState<string | null>(null);
   const originalStateRef = useRef<OriginalState | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const managed = useMemo(() => isManagedHosting(), []);
@@ -231,31 +235,51 @@ export function FloatingMenuWindow({
 
   const handleSave = useCallback(async () => {
     const username = getTenantUsername();
-    const user = authenticationStore.getState().user;
-    if (!username || !user?.accessToken) {
+    if (!username) {
       setSaveStatus('error');
+      setSaveError('This site is not on managed hosting.');
       return;
     }
 
     setIsSaving(true);
     setSaveStatus('idle');
+    setSaveError(null);
     try {
-      const response = await fetch(`${HOSTING_API_URL}/v1/tenants/${encodeURIComponent(username)}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${user.accessToken}`,
-        },
-        body: JSON.stringify({ config }),
-      });
+      const saveWith = (token: string) =>
+        fetch(`${HOSTING_API_URL}/v1/tenants/${encodeURIComponent(username)}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ config }),
+        });
+
+      let response = await saveWith(await getHostingToken(HOSTING_API_URL));
+      if (response.status === 401) {
+        // Cached hosting token no longer accepted; get a fresh one and retry once.
+        clearHostingToken();
+        response = await saveWith(await getHostingToken(HOSTING_API_URL));
+      }
+
       if (!response.ok) {
-        throw new Error('Failed to save');
+        if (response.status === 403) {
+          throw new Error('Only the site owner can save the configuration.');
+        }
+        const data = await response.json().catch(() => ({}));
+        throw new Error(
+          (data as { error?: string }).error || `Save failed (${response.status})`,
+        );
       }
       setSaveStatus('success');
       setTimeout(() => setSaveStatus('idle'), 3000);
-    } catch {
+    } catch (e) {
       setSaveStatus('error');
-      setTimeout(() => setSaveStatus('idle'), 3000);
+      setSaveError(e instanceof Error ? e.message : 'Failed to save');
+      setTimeout(() => {
+        setSaveStatus('idle');
+        setSaveError(null);
+      }, 8000);
     } finally {
       setIsSaving(false);
     }
@@ -523,6 +547,17 @@ export function FloatingMenuWindow({
               </button>
             </div>
           </header>
+
+          {/* Save error detail */}
+          {saveError && (
+            <div
+              className="px-4 py-2 text-sm font-sans text-red-400 border-b shrink-0"
+              style={{ borderColor: FLOATING_MENU_THEME.borderColor }}
+              role="alert"
+            >
+              {saveError}
+            </div>
+          )}
 
           {/* Content */}
           <main className="flex-1 overflow-y-auto p-6 min-h-0">

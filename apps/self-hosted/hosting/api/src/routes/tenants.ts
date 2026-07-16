@@ -29,15 +29,52 @@ const createTenantSchema = z.object({
   }).optional(),
 });
 
+// PATCH accepts either the FULL config document (what the instance's Configuration Editor
+// holds: { version, configuration: {...} }) or the legacy flat keys. The union is ordered
+// full-document first: a flat body has no `configuration` key so it falls through, while a
+// full document must never be matched by the flat schema (which would strip everything).
+const fullConfigDocSchema = z.object({
+  version: z.number().int().optional(),
+  configuration: z.record(z.any()),
+});
+const flatConfigUpdateSchema = z.object({
+  theme: z.enum(['light', 'dark', 'system']).optional(),
+  styleTemplate: z.enum(['medium', 'minimal', 'magazine', 'developer', 'modern-gradient']).optional(),
+  title: z.string().max(100).optional(),
+  description: z.string().max(500).optional(),
+  listType: z.enum(['list', 'grid']).optional(),
+  sidebarPlacement: z.enum(['left', 'right']).optional(),
+});
 const updateTenantSchema = z.object({
-  config: z.object({
-    theme: z.enum(['light', 'dark', 'system']).optional(),
-    styleTemplate: z.enum(['medium', 'minimal', 'magazine', 'developer', 'modern-gradient']).optional(),
-    title: z.string().max(100).optional(),
-    description: z.string().max(500).optional(),
-    listType: z.enum(['list', 'grid']).optional(),
-    sidebarPlacement: z.enum(['left', 'right']).optional(),
-  }).optional(),
+  config: z.union([fullConfigDocSchema, flatConfigUpdateSchema]).optional(),
+});
+
+// Upper bound for a config document; far above any real config, guards the DB row.
+const MAX_CONFIG_BYTES = 64 * 1024;
+
+// GET /v1/tenants?owner=name - List the tenants an account controls (public info only,
+// the same fields GET /:username already exposes). Lets the hosting page show a "manage"
+// view for an owner's blog and communities.
+tenantRoutes.get('/', async (c) => {
+  const owner = (c.req.query('owner') || '').toLowerCase().trim();
+  if (!/^[a-z][a-z0-9.-]{2,15}$/.test(owner)) {
+    return c.json({ error: 'owner query parameter is required' }, 400);
+  }
+
+  const tenants = await TenantService.getByOwner(owner);
+  return c.json({
+    tenants: tenants.map((tenant) => ({
+      username: tenant.username,
+      owner: tenant.owner,
+      type: tenant.config?.configuration?.instanceConfiguration?.type || 'blog',
+      subscriptionStatus: tenant.subscriptionStatus,
+      subscriptionPlan: tenant.subscriptionPlan,
+      subscriptionExpiresAt: tenant.subscriptionExpiresAt,
+      customDomain: tenant.customDomain,
+      customDomainVerified: tenant.customDomainVerified,
+      blogUrl: TenantService.getBlogUrl(tenant),
+    })),
+  });
 });
 
 // GET /v1/tenants/:username - Get tenant info
@@ -206,7 +243,8 @@ tenantRoutes.post('/subscribe',
     // Resolve owner (defaults to the showcased account for a self-serve personal blog).
     const owner = (body.owner || body.username).toLowerCase();
 
-    // Prepare config before entering the DB transaction (pure, no I/O)
+    // Prepare config before entering the DB transaction (may fetch a community title, never
+    // throws for it; no DB I/O)
     const tenantConfig = await TenantService.buildConfig(body.username, body.config, owner);
     const blockNum = c.get('blockNum');
     if (!Number.isInteger(blockNum) || blockNum <= 0) {
@@ -448,8 +486,17 @@ tenantRoutes.patch('/:username', authMiddleware, zValidator('json', updateTenant
     return c.json({ error: 'Unauthorized' }, 403);
   }
 
-  // Update config
-  const updatedTenant = await TenantService.updateConfig(username, body.config);
+  if (body.config && JSON.stringify(body.config).length > MAX_CONFIG_BYTES) {
+    return c.json({ error: 'Configuration document too large' }, 413);
+  }
+
+  // Full document (Configuration Editor) replaces the stored config with identity fields
+  // pinned server-side; flat keys merge into it.
+  const isFullDoc =
+    !!body.config && typeof body.config === 'object' && 'configuration' in body.config;
+  const updatedTenant = isFullDoc
+    ? await TenantService.replaceConfig(username, body.config)
+    : await TenantService.updateConfig(username, body.config);
   
   // Regenerate config file
   await ConfigService.generateConfigFile(updatedTenant);
