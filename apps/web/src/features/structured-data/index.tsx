@@ -1,5 +1,6 @@
 import { catchPostImage, postBodySummary } from "@ecency/render-helper";
 import defaults from "@/defaults.json";
+import { entryDisplayTitle } from "@/utils/entry-display-title";
 import { Entry, FullAccount, Community } from "@/entities";
 
 /**
@@ -133,7 +134,8 @@ export function buildArticleJsonLd({
   base?: string;
 }): JsonLdData {
   const authorName = account?.profile?.name?.trim() || entry.author;
-  const headline = (entry.title ?? "").slice(0, HEADLINE_MAX);
+  // entryDisplayTitle: title-less posts get a body-summary headline instead of "".
+  const headline = entryDisplayTitle(entry).slice(0, HEADLINE_MAX);
   const image = catchPostImage(entry, 1200, 630, "match") || undefined;
   // json_metadata is untrusted on-chain data: guard that `tags` is actually an
   // array before filtering to non-empty strings — a truthy non-array value

@@ -117,7 +117,7 @@ describe("buildEntryBreadcrumbs", () => {
 
   it("builds Home > #tag > title for a normal tag post", () => {
     const crumbs = buildEntryBreadcrumbs(
-      { parent_author: undefined, category: "photography", community_title: undefined, title: "Pic", author: "alice", permlink: "p" },
+      { parent_author: undefined, category: "photography", community_title: undefined, title: "Pic", body: "body", author: "alice", permlink: "p" },
       opts
     );
     expect(crumbs.map((c) => c.name)).toEqual(["Ecency", "#photography", "Pic"]);
@@ -126,7 +126,7 @@ describe("buildEntryBreadcrumbs", () => {
 
   it("uses the community title as the section for a community post", () => {
     const crumbs = buildEntryBreadcrumbs(
-      { parent_author: undefined, category: "hive-125125", community_title: "Ecency", title: "Pic", author: "alice", permlink: "p" },
+      { parent_author: undefined, category: "hive-125125", community_title: "Ecency", title: "Pic", body: "body", author: "alice", permlink: "p" },
       opts
     );
     expect(crumbs.map((c) => c.name)).toEqual(["Ecency", "Ecency", "Pic"]);
@@ -134,16 +134,24 @@ describe("buildEntryBreadcrumbs", () => {
 
   it("omits the section crumb (no raw hive id) when a community post has no title", () => {
     const crumbs = buildEntryBreadcrumbs(
-      { parent_author: undefined, category: "hive-125125", community_title: undefined, title: "Pic", author: "alice", permlink: "p" },
+      { parent_author: undefined, category: "hive-125125", community_title: undefined, title: "Pic", body: "body", author: "alice", permlink: "p" },
       opts
     );
     expect(crumbs.map((c) => c.name)).toEqual(["Ecency", "Pic"]);
     expect(crumbs.some((c) => c.name.includes("hive-"))).toBe(false);
   });
 
+  it("never emits an empty last-crumb name: a title-less post falls back to its body summary", () => {
+    const crumbs = buildEntryBreadcrumbs(
+      { parent_author: undefined, category: "hive-193084", community_title: "DBuzz", title: "", body: "Short buzz message here", author: "alice", permlink: "p" },
+      opts
+    );
+    expect(crumbs.map((c) => c.name)).toEqual(["Ecency", "DBuzz", "Short buzz message here"]);
+  });
+
   it("returns no trail for a comment", () => {
     const crumbs = buildEntryBreadcrumbs(
-      { parent_author: "bob", category: "photography", community_title: undefined, title: "re", author: "alice", permlink: "p" },
+      { parent_author: "bob", category: "photography", community_title: undefined, title: "re", body: "body", author: "alice", permlink: "p" },
       opts
     );
     expect(crumbs).toEqual([]);

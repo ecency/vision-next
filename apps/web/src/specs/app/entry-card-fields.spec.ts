@@ -46,6 +46,18 @@ describe("buildEntryCardFields", () => {
     expect(fields.title).toBe(`@${e.author}: ${truncate(postBodySummary(e.body, 12), 67)}`);
   });
 
+  it("falls back to a body-summary title for a title-less root post (e.g. D.Buzz)", () => {
+    const e = entry({ title: "" });
+    const fields = buildEntryCardFields(e as any);
+    expect(fields.title).toBe(truncate(postBodySummary(e.body, 67), 67));
+    expect(fields.title.length).toBeGreaterThan(0);
+  });
+
+  it("falls back to a byline title when a title-less post has no summarizable body", () => {
+    const e = entry({ title: "", body: "![img](https://example.com/a.png)" });
+    expect(buildEntryCardFields(e as any).title).toBe("Post by @alice");
+  });
+
   it("prefers an author-set json_metadata.description for the summary", () => {
     const e = entry({ json_metadata: { description: "Author provided summary" } });
     expect(buildEntryCardFields(e as any).summary).toBe("Author provided summary");

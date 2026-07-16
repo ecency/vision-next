@@ -1,4 +1,5 @@
 import { Entry } from "@/entities";
+import { entryDisplayTitle } from "@/utils/entry-display-title";
 
 export interface BreadcrumbCrumb {
   name: string;
@@ -14,11 +15,14 @@ export interface BreadcrumbCrumb {
  * return []). The section crumb is omitted when the category is a raw
  * "hive-12345" id and there is no community title, so the trail never surfaces a
  * machine id (mirrors buildArticleJsonLd's articleSection + resolveRelatedSource).
+ * The last crumb uses entryDisplayTitle, so a title-less post (e.g. a D.Buzz
+ * microblog) never emits an empty BreadcrumbList item name — Google flags
+ * those as invalid structured data.
  */
 export function buildEntryBreadcrumbs(
   entry: Pick<
     Entry,
-    "parent_author" | "category" | "community_title" | "title" | "author" | "permlink"
+    "parent_author" | "category" | "community_title" | "title" | "body" | "author" | "permlink"
   >,
   opts: { siteName: string; base: string; entryUrl: string }
 ): BreadcrumbCrumb[] {
@@ -41,6 +45,6 @@ export function buildEntryBreadcrumbs(
           }
         ]
       : []),
-    { name: entry.title, path: `/@${entry.author}/${entry.permlink}`, url: entryUrl }
+    { name: entryDisplayTitle(entry), path: `/@${entry.author}/${entry.permlink}`, url: entryUrl }
   ];
 }
