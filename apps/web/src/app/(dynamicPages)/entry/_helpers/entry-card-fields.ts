@@ -1,4 +1,5 @@
 import { truncate } from "@/utils";
+import { entryDisplayTitle } from "@/utils/entry-display-title";
 import { catchPostImage, postBodySummary } from "@ecency/render-helper";
 import type { Entry } from "@/entities";
 
@@ -33,7 +34,10 @@ export interface EntryCardFields {
 export function buildEntryCardFields(entry: Entry): EntryCardFields {
   const isComment = !!entry.parent_author;
 
-  let title = truncate(entry.title, 67);
+  // entryDisplayTitle never returns "" (title-less microblog posts fall back
+  // to a body summary, then a byline), so the page <title>, og/twitter cards
+  // and oEmbed can't render an empty title.
+  let title = truncate(entryDisplayTitle(entry), 67);
   if (isComment) {
     const rawCommentTitle = truncate(postBodySummary(entry.body, 12), 67);
     title = `@${entry.author}: ${rawCommentTitle}`;
