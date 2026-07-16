@@ -35,8 +35,19 @@ export const ConfigService = {
       },
     };
 
-    // Write config file
-    await fs.writeFile(configPath, JSON.stringify(config, null, 2), 'utf-8');
+    const content = JSON.stringify(config, null, 2);
+
+    // Skip identical content so the periodic sync doesn't rewrite every file each pass.
+    try {
+      const existing = await fs.readFile(configPath, 'utf-8');
+      if (existing === content) {
+        return configPath;
+      }
+    } catch {
+      // Missing or unreadable: write it.
+    }
+
+    await fs.writeFile(configPath, content, 'utf-8');
 
     console.log('[ConfigService] Generated config:', configPath);
     return configPath;

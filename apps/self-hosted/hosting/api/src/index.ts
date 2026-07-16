@@ -78,22 +78,30 @@ export default {
   fetch: app.fetch,
 };
 
+// Regenerate every active tenant's served config file (idempotent: identical files are
+// left untouched). Errors are contained here; per-tenant failures are isolated inside
+// syncAllConfigs.
+async function syncTenantConfigs(): Promise<void> {
+  try {
+    const tenants = await TenantService.getActiveTenants();
+    await ConfigService.syncAllConfigs(tenants);
+  } catch (e) {
+    console.error('[Startup] config sync failed:', (e as Error).message);
+  }
+}
+
 // Warm request-critical state BEFORE accepting traffic, bounded so a slow or down DB
 // cannot block startup (health checks would loop the container):
 //  - the verified custom-domain CORS set, so a restart can't deny valid origins
 //  - regenerated tenant config files, so config-shape changes (e.g. the injected managed
 //    flag) are in place before a custom-domain visitor loads one and caches a session
-//    without the editor's Save. The periodic refresh / next deploy catch up if the
-//    deadline wins.
+//    without the editor's Save.
+// If the deadline wins, the in-flight sync still completes in the background and the
+// periodic config sync below retries any tenant that failed.
 await Promise.race([
   (async () => {
     await refreshVerifiedDomainOrigins();
-    try {
-      const tenants = await TenantService.getActiveTenants();
-      await ConfigService.syncAllConfigs(tenants);
-    } catch (e) {
-      console.error('[Startup] config sync failed:', (e as Error).message);
-    }
+    await syncTenantConfigs();
   })(),
   new Promise((resolve) => setTimeout(resolve, 5000)),
 ]);
@@ -107,3 +115,8 @@ if (typeof (globalThis as any).Bun === 'undefined') {
 
 // Keep the verified custom-domain CORS set fresh.
 startVerifiedDomainRefresh();
+
+// Retry loop for served config files: a tenant whose write failed (or was cut off by the
+// startup deadline) converges within a few minutes; identical files are not rewritten.
+const configSyncTimer = setInterval(() => void syncTenantConfigs(), 5 * 60 * 1000);
+configSyncTimer.unref?.();

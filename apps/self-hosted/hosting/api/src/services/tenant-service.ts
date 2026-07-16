@@ -223,14 +223,15 @@ export const TenantService = {
         }
         result[key] = this.mergeConfigGuarded(stored, incoming);
       } else if (Array.isArray(stored)) {
-        if (!incomingIsArray) {
+        if (!incomingIsArray || !this.isValidArrayReplacement(stored, incoming)) {
           console.warn('[TenantService] Dropped type-mismatched config value for key:', key);
           continue;
         }
         result[key] = incoming;
       } else {
-        // Stored scalar: only another scalar may replace it.
-        if (incomingIsPlainObject || incomingIsArray) {
+        // Stored scalar: only a scalar of the SAME primitive type may replace it, so a
+        // string "false" cannot stand in for a boolean, nor 42 for a string.
+        if (incomingIsPlainObject || incomingIsArray || typeof incoming !== typeof stored) {
           console.warn('[TenantService] Dropped type-mismatched config value for key:', key);
           continue;
         }
@@ -239,6 +240,19 @@ export const TenantService = {
     }
 
     return result;
+  },
+
+  /**
+   * Config arrays hold primitives (post filters, auth methods). A replacement array must
+   * contain only primitives, of the same type the stored array demonstrates when it has
+   * elements. Pure.
+   */
+  isValidArrayReplacement(stored: any[], incoming: any[]): boolean {
+    const elementType = stored.length > 0 ? typeof stored[0] : null;
+    return incoming.every((item) => {
+      if (item === null || typeof item === 'object') return false;
+      return elementType ? typeof item === elementType : true;
+    });
   },
 
   /**

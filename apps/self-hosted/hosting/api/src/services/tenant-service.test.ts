@@ -254,6 +254,40 @@ describe('TenantService.sanitizeConfigDocument', () => {
     expect(merged.configuration.instanceConfiguration.layout.listType).toBe('list');
   });
 
+  it('scalar replacements must match the stored primitive type', async () => {
+    // "false" must not stand in for a boolean, 42 must not stand in for a string, and
+    // array elements must match the stored element type.
+    const stored = await TenantService.buildConfig('bob', undefined, 'bob');
+    const hostile = TenantService.sanitizeConfigDocument(
+      {
+        configuration: {
+          general: { theme: 42 },
+          instanceConfiguration: {
+            features: {
+              likes: { enabled: 'false' },
+              postsFilters: [1, 2],
+            },
+          },
+        },
+      },
+      {
+        version: 1,
+        username: 'bob',
+        owner: 'bob',
+        type: 'blog',
+        communityId: '',
+      }
+    );
+    const merged = TenantService.mergeConfigGuarded(stored, hostile);
+
+    expect(merged.configuration.general.theme).toBe('system');
+    expect(merged.configuration.instanceConfiguration.features.likes.enabled).toBe(true);
+    expect(merged.configuration.instanceConfiguration.features.postsFilters).toEqual([
+      'posts',
+      'blog',
+    ]);
+  });
+
   it('well-shaped nested updates still apply through the guarded merge', async () => {
     const stored = await TenantService.buildConfig('bob', undefined, 'bob');
     const update = TenantService.sanitizeConfigDocument(
