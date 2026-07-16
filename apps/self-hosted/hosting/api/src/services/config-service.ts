@@ -83,9 +83,15 @@ export const ConfigService = {
   },
 
   /**
-   * Delete config file for a tenant
+   * Delete config file for a tenant. Serialized through the same per-tenant lock as
+   * writes, so an in-flight sync write cannot resurrect the file after deletion.
    */
-  async deleteConfigFile(username: string): Promise<void> {
+  deleteConfigFile(username: string): Promise<void> {
+    return withTenantWriteLock(username, () => this.removeConfigFileUnlocked(username));
+  },
+
+  /** The actual unlink; only ever invoked under the per-tenant lock. */
+  async removeConfigFileUnlocked(username: string): Promise<void> {
     const configPath = this.getConfigPath(username);
 
     try {
@@ -154,14 +160,17 @@ export const ConfigService = {
     for (const tenant of tenants) {
       if (tenant.subscriptionStatus !== 'active') continue;
       try {
-        // Re-read the row just before writing: the pass iterates a snapshot, and a tenant
-        // updated mid-pass must not have its fresh file overwritten with snapshot data.
-        // Together with the per-tenant write lock this makes the last write on disk always
-        // carry the newest stored config. One query per active tenant per pass, fine at
-        // this scale.
-        const fresh = await TenantService.getByUsername(tenant.username);
-        if (!fresh || fresh.subscriptionStatus !== 'active') continue;
-        await this.generateConfigFile(fresh);
+        // The pass iterates a snapshot, so the row is re-read INSIDE the per-tenant lock:
+        // any update or deletion that enqueued its file operation first has fully finished
+        // by the time this read runs, so the sync can never publish older data than what a
+        // concurrent operation just wrote (a re-read before enqueueing would leave exactly
+        // that window). The unlocked writer is used because the lock is not reentrant.
+        // One query per active tenant per pass, fine at this scale.
+        await withTenantWriteLock(tenant.username, async () => {
+          const fresh = await TenantService.getByUsername(tenant.username);
+          if (!fresh || fresh.subscriptionStatus !== 'active') return;
+          await this.writeConfigFile(fresh);
+        });
       } catch (err) {
         failed++;
         console.error(
