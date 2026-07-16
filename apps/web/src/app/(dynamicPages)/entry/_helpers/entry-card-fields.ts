@@ -34,13 +34,16 @@ export interface EntryCardFields {
 export function buildEntryCardFields(entry: Entry): EntryCardFields {
   const isComment = !!entry.parent_author;
 
-  // entryDisplayTitle never returns "" (title-less microblog posts fall back
-  // to a body summary, then a byline), so the page <title>, og/twitter cards
-  // and oEmbed can't render an empty title.
-  let title = truncate(entryDisplayTitle(entry), 67);
+  let title: string;
   if (isComment) {
     const rawCommentTitle = truncate(postBodySummary(entry.body, 12), 67);
     title = `@${entry.author}: ${rawCommentTitle}`;
+  } else {
+    // entryDisplayTitle never returns "" (title-less microblog posts fall back
+    // to a body summary, then a byline), so the page <title>, og/twitter cards
+    // and oEmbed can't render an empty title. Root posts only: comments build
+    // their own summary above (entryDisplayTitle would render the body twice).
+    title = truncate(entryDisplayTitle(entry), 67);
   }
 
   // Cap at 160 chars to match Google's desktop snippet width; consumers may
