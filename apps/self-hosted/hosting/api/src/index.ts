@@ -80,13 +80,18 @@ export default {
 
 // Regenerate every active tenant's served config file (idempotent: identical files are
 // left untouched). Errors are contained here; per-tenant failures are isolated inside
-// syncAllConfigs.
+// syncAllConfigs. Single-flight: a slow pass must not be overlapped by the next tick.
+let configSyncRunning = false;
 async function syncTenantConfigs(): Promise<void> {
+  if (configSyncRunning) return;
+  configSyncRunning = true;
   try {
     const tenants = await TenantService.getActiveTenants();
     await ConfigService.syncAllConfigs(tenants);
   } catch (e) {
     console.error('[Startup] config sync failed:', (e as Error).message);
+  } finally {
+    configSyncRunning = false;
   }
 }
 

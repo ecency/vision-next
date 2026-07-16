@@ -6,15 +6,44 @@
 
 import { promises as fs } from 'fs';
 import path from 'path';
-import type { Tenant } from './tenant-service';
+import { TenantService, type Tenant } from './tenant-service';
 
 const CONFIG_DIR = process.env.CONFIG_DIR || '/app/configs';
 
+// Per-tenant write chains: every config-file write for a tenant runs strictly after the
+// previous one, so the periodic sync and a concurrent tenant update can never interleave.
+// Bounded by tenant count; entries are never removed (tiny, and removal would race).
+const writeChains = new Map<string, Promise<void>>();
+
+/**
+ * Serialize an async operation per tenant. The next operation runs regardless of whether
+ * the previous one failed; the caller still sees its own operation's result or error.
+ */
+export function withTenantWriteLock<T>(username: string, fn: () => Promise<T>): Promise<T> {
+  const key = username.toLowerCase();
+  const prev = writeChains.get(key) ?? Promise.resolve();
+  const run = prev.then(fn, fn);
+  writeChains.set(
+    key,
+    run.then(
+      () => undefined,
+      () => undefined
+    )
+  );
+  return run;
+}
+
 export const ConfigService = {
   /**
-   * Generate config file for a tenant
+   * Generate config file for a tenant. Writes are serialized per tenant (see
+   * withTenantWriteLock), so a sync-pass write and an update write cannot interleave.
    */
-  async generateConfigFile(tenant: Tenant): Promise<string> {
+  generateConfigFile(tenant: Tenant): Promise<string> {
+    return withTenantWriteLock(tenant.username, () => this.writeConfigFile(tenant));
+  },
+
+  /** The actual write; only ever invoked under the per-tenant lock. */
+  async writeConfigFile(tenant: Tenant): Promise<string> {
     const configPath = this.getConfigPath(tenant.username);
 
     // Ensure directory exists
@@ -125,7 +154,14 @@ export const ConfigService = {
     for (const tenant of tenants) {
       if (tenant.subscriptionStatus !== 'active') continue;
       try {
-        await this.generateConfigFile(tenant);
+        // Re-read the row just before writing: the pass iterates a snapshot, and a tenant
+        // updated mid-pass must not have its fresh file overwritten with snapshot data.
+        // Together with the per-tenant write lock this makes the last write on disk always
+        // carry the newest stored config. One query per active tenant per pass, fine at
+        // this scale.
+        const fresh = await TenantService.getByUsername(tenant.username);
+        if (!fresh || fresh.subscriptionStatus !== 'active') continue;
+        await this.generateConfigFile(fresh);
       } catch (err) {
         failed++;
         console.error(
