@@ -184,14 +184,36 @@ export const TenantService = {
   },
 
   /**
-   * Sanitize a client-supplied full config document: deep-copy through mergeConfig (strips
-   * prototype-pollution vectors) and pin the server-owned identity fields. Pure.
+   * Recursively drop null values from a client document. mergeConfig treats null as a
+   * replacement value, so without this a document carrying `general: null` (or any nulled
+   * nested key) would erase that whole stored section on merge. Null never means anything
+   * in a config document; absence does. Pure.
+   */
+  stripNulls(value: any): any {
+    if (Array.isArray(value)) {
+      return value.filter((item) => item !== null && item !== undefined).map((item) => this.stripNulls(item));
+    }
+    if (value && typeof value === 'object') {
+      const result: any = Object.create(null);
+      for (const key of Object.keys(value)) {
+        if (value[key] === null || value[key] === undefined) continue;
+        result[key] = this.stripNulls(value[key]);
+      }
+      return result;
+    }
+    return value;
+  },
+
+  /**
+   * Sanitize a client-supplied full config document: drop null values (a null section must
+   * never erase stored settings), deep-copy through mergeConfig (strips prototype-pollution
+   * vectors) and pin the server-owned identity fields. Pure.
    */
   sanitizeConfigDocument(
     doc: any,
     pins: { version: number; username: string; owner: string; type: string; communityId: string }
   ): any {
-    const clean = this.mergeConfig(Object.create(null), doc || {});
+    const clean = this.mergeConfig(Object.create(null), this.stripNulls(doc || {}));
     clean.version = pins.version;
     if (!clean.configuration || typeof clean.configuration !== 'object') {
       throw new Error('Invalid configuration document');

@@ -139,6 +139,46 @@ describe('TenantService.sanitizeConfigDocument', () => {
     expect(clean.configuration.general).toBeDefined();
   });
 
+  it('nulled sections cannot erase stored configuration', async () => {
+    // A document carrying nulls (hand-crafted API call or a buggy client) must not wipe the
+    // sections it nulls: mergeConfig treats null as a replacement value, so sanitize strips it.
+    const stored = await TenantService.buildConfig('bob', { title: 'Kept title' }, 'bob');
+    const hostile = {
+      configuration: {
+        general: null,
+        instanceConfiguration: { meta: { title: null, description: 'New desc' } },
+      },
+    };
+    const clean = TenantService.sanitizeConfigDocument(hostile, {
+      version: 1,
+      username: 'bob',
+      owner: 'bob',
+      type: 'blog',
+      communityId: '',
+    });
+    const merged = TenantService.mergeConfig(stored, clean);
+
+    expect(merged.configuration.general.theme).toBe('system');
+    expect(merged.configuration.general.imageProxy).toBe('https://i.ecency.com');
+    expect(merged.configuration.instanceConfiguration.meta.title).toBe('Kept title');
+    expect(merged.configuration.instanceConfiguration.meta.description).toBe('New desc');
+  });
+
+  it('strips null entries inside arrays', () => {
+    const clean = TenantService.sanitizeConfigDocument(
+      {
+        configuration: {
+          instanceConfiguration: { features: { postsFilters: ['trending', null, 'hot'] } },
+        },
+      },
+      pins
+    );
+    expect(clean.configuration.instanceConfiguration.features.postsFilters).toEqual([
+      'trending',
+      'hot',
+    ]);
+  });
+
   it('merged into the stored config, a partial document cannot erase other sections', async () => {
     // Mirrors applyConfigDocument: sanitize the client document, then deep-merge it into the
     // stored config. A document carrying only one section must leave the rest intact.
