@@ -165,5 +165,14 @@ export function parseAllExtensionsToDoc(value?: string) {
       li.insertBefore(p, first);
     }
   });
+
+  // Ensure empty blockquotes have at least one paragraph to satisfy ProseMirror schema.
+  // Blockquotes with bare text are left alone — the editor wraps that text in a paragraph itself.
+  (Array.from(tree.querySelectorAll("blockquote")) as HTMLElement[]).forEach((bq) => {
+    if (!bq.firstElementChild && !bq.textContent?.trim()) {
+      bq.appendChild(document.createElement("p"));
+    }
+  });
+
   return tree.innerHTML;
 }
