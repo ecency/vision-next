@@ -57,13 +57,21 @@ export function useMarkNotificationsRead(
 
     mutationFn: async ({ id }: { id?: string }) => {
       if (!username || !code) {
-        throw new Error("[SDK][Notifications] – missing auth for markNotifications");
+        if (process.env.NODE_ENV !== "production") {
+          console.warn("[SDK][Notifications] – missing auth for markNotifications");
+        }
+        return;
       }
       return markNotifications(code, id);
     },
 
     // Optimistic update: Immediately mark notifications as read in cache
     onMutate: async ({ id }: { id?: string }) => {
+      // Skip optimistic updates when auth is not available
+      if (!username || !code) {
+        return { previousData: [] };
+      }
+
       // Cancel any outgoing refetches to prevent overwriting optimistic update
       await queryClient.cancelQueries({ queryKey: QueryKeys.notifications._prefix });
 
