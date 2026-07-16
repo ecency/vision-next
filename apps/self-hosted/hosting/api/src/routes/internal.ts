@@ -11,6 +11,7 @@ import { TenantService } from '../services/tenant-service';
 import { DomainService } from '../services/domain-service';
 import { ConfigService } from '../services/config-service';
 import { mapTenantFromDb } from '../types';
+import { addVerifiedDomainOrigin } from '../utils/cors-domains';
 
 export const internalRoutes = new Hono();
 
@@ -223,14 +224,17 @@ internalRoutes.post('/domain', async (c) => {
   }
 
   await TenantService.setCustomDomain(username, domain);
-  const verification = await DomainService.createVerification(username, domain);
+  await DomainService.createVerification(username, domain);
   const value = `${username}.${baseDomain}`;
 
+  // The record NAME must be the domain itself: verification resolves the domain's CNAME
+  // (and serving requires it too). The internal verification token is bookkeeping only;
+  // surfacing it as the record name produced instructions that could never verify.
   return c.json({
     domain,
     verification: {
       type: 'CNAME',
-      name: verification.verificationToken,
+      name: domain,
       value,
       instructions: `Add a CNAME record pointing ${domain} to ${value}`,
     },
@@ -274,6 +278,7 @@ internalRoutes.post('/domain/verify', async (c) => {
 
   await TenantService.verifyCustomDomain(username);
   await DomainService.markVerified(username, tenant.customDomain);
+  addVerifiedDomainOrigin(tenant.customDomain);
   return c.json({ verified: true }, 200);
 });
 

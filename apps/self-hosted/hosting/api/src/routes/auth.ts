@@ -126,6 +126,67 @@ authRoutes.post(
   }
 );
 
+// POST /v1/auth/hivesigner - Exchange a HiveSigner access token for a hosting token.
+// HiveSigner sessions cannot sign an arbitrary challenge in the browser, so identity is
+// established by asking HiveSigner itself (same pattern the web app uses server-side).
+const hivesignerLoginSchema = z.object({
+  accessToken: z.string().min(16).max(4096),
+});
+
+authRoutes.post(
+  '/hivesigner',
+  zValidator('json', hivesignerLoginSchema),
+  async (c) => {
+    const { accessToken } = c.req.valid('json');
+
+    let res: Response;
+    try {
+      res = await fetch('https://hivesigner.com/api/me', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+        signal: AbortSignal.timeout(8000),
+      });
+    } catch {
+      return c.json({ error: 'Auth service unavailable' }, 503);
+    }
+
+    if (res.status === 401 || res.status === 403) {
+      return c.json({ error: 'Invalid or expired HiveSigner token' }, 401);
+    }
+    if (!res.ok) {
+      return c.json({ error: 'Auth service unavailable' }, 503);
+    }
+
+    let username: unknown;
+    try {
+      const data = (await res.json()) as any;
+      username = data?.account?.name ?? data?.user;
+    } catch {
+      return c.json({ error: 'Auth service unavailable' }, 503);
+    }
+
+    if (typeof username !== 'string' || !/^[a-z][a-z0-9.-]{2,15}$/.test(username)) {
+      return c.json({ error: 'Invalid or expired HiveSigner token' }, 401);
+    }
+
+    const expiresInMs = 24 * 60 * 60 * 1000; // 24 hours
+    const token = createToken(username, expiresInMs);
+    const expiresAt = getTokenExpiry(token);
+
+    void AuditService.log({
+      eventType: 'auth.login',
+      eventData: { username, method: 'hivesigner' },
+      ipAddress: parseClientIp(c.req.header('x-forwarded-for')),
+      userAgent: c.req.header('user-agent'),
+    });
+
+    return c.json({
+      token,
+      username,
+      expiresAt: expiresAt?.toISOString(),
+    });
+  }
+);
+
 // GET /v1/auth/me - Get current user info
 authRoutes.get('/me', async (c) => {
   const authHeader = c.req.header('Authorization');

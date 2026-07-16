@@ -42,6 +42,8 @@ export interface InstanceConfig {
       type: 'blog' | 'community';
       username: string;
       owner?: string;
+      /** Set by the managed-hosting API in served configs; absent on true self-hosting. */
+      managed?: boolean;
       communityId: string;
       meta: {
         title: string;

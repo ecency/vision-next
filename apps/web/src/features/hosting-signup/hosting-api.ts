@@ -39,6 +39,18 @@ export interface TenantInfo {
   blogUrl?: string;
 }
 
+export interface OwnedTenant {
+  username: string;
+  owner: string;
+  type: "blog" | "community";
+  subscriptionStatus: "active" | "inactive" | "expired" | "suspended";
+  subscriptionPlan: "standard" | "pro";
+  subscriptionExpiresAt?: string | null;
+  customDomain?: string | null;
+  customDomainVerified?: boolean;
+  blogUrl?: string;
+}
+
 async function parseError(r: Response): Promise<string> {
   try {
     const data = await r.json();
@@ -80,6 +92,10 @@ export const hostingApi = {
     post<CreateTenantResult>("/v1/tenants", { username, owner: owner ?? username, config }),
 
   tenant: (username: string) => get<TenantInfo>(`/v1/tenants/${encodeURIComponent(username)}`),
+
+  /** All tenants an account controls (its personal blog and any communities). */
+  tenantsByOwner: (owner: string) =>
+    get<{ tenants: OwnedTenant[] }>(`/v1/tenants?owner=${encodeURIComponent(owner)}`),
 
   /** HBD payment instructions for a given term. */
   paymentInstructions: (username: string, months: number) =>

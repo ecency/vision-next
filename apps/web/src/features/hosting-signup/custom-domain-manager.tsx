@@ -18,6 +18,12 @@ interface Verification {
 interface Props {
   /** The authenticated blog owner. Its HiveSigner token authorizes the domain calls. */
   username: string;
+  /**
+   * The tenant to attach the domain to when it differs from the owner account: a community
+   * instance is keyed by its community id while the owner authorizes the call. Defaults to
+   * the owner's personal blog.
+   */
+  tenant?: string;
 }
 
 /**
@@ -26,7 +32,7 @@ interface Props {
  * (/api/hosting/domain[/verify]) which verify identity and hold the internal secret; the
  * browser never sees it.
  */
-export function CustomDomainManager({ username }: Props) {
+export function CustomDomainManager({ username, tenant }: Props) {
   const [domain, setDomain] = useState("");
   const [verification, setVerification] = useState<Verification | null>(null);
   const [verified, setVerified] = useState(false);
@@ -54,7 +60,7 @@ export function CustomDomainManager({ username }: Props) {
       const r = await fetch("/api/hosting/domain", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ domain: d, code })
+        body: JSON.stringify({ domain: d, code, ...(tenant ? { tenant } : {}) })
       });
       const data = await r.json().catch(() => ({}));
       if (!r.ok) {
@@ -70,7 +76,7 @@ export function CustomDomainManager({ username }: Props) {
     } finally {
       setBusy(false);
     }
-  }, [domain, username]);
+  }, [domain, username, tenant]);
 
   const verify = useCallback(async () => {
     setError("");
@@ -85,7 +91,7 @@ export function CustomDomainManager({ username }: Props) {
       const r = await fetch("/api/hosting/domain/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code })
+        body: JSON.stringify({ code, ...(tenant ? { tenant } : {}) })
       });
       const data = await r.json().catch(() => ({}));
       if (!r.ok) {
@@ -102,7 +108,7 @@ export function CustomDomainManager({ username }: Props) {
     } finally {
       setBusy(false);
     }
-  }, [username]);
+  }, [username, tenant]);
 
   if (verified) {
     return (

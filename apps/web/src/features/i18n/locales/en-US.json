@@ -41,6 +41,18 @@
     "custom-domain-included-note": "Custom domain is included on the $3/mo plan. Add and verify your domain right after checkout.",
     "custom-domain-hbd-note": "One step custom domain setup is available with card checkout. Pay by card to activate your custom domain in one go.",
     "custom-domain-use-card": "Pay by card",
+    "next-steps-title": "What's next?",
+    "next-step-login": "Open your new site and sign in with @{{owner}}, the owner account, using Keychain or HiveSigner.",
+    "next-step-configure": "Press the round settings button in the bottom-right corner to open the Configuration Editor and customize title, theme, layout and post filters. Save applies instantly.",
+    "next-step-renew": "Return to this page any time to check status, renew or manage a custom domain.",
+    "manage-title": "Your hosted sites",
+    "manage-status-active": "Active until {{date}}",
+    "manage-status-inactive": "Awaiting payment",
+    "manage-status-expired": "Expired",
+    "manage-status-suspended": "Suspended",
+    "manage-plan-pro": "Custom domain plan",
+    "manage-domain": "Set up custom domain",
+    "manage-domain-active": "Custom domain: {{domain}}",
     "perk-card-title": "Your own blog",
     "perk-card-description": "Host your Hive blog on your own space at yourname.blogs.ecency.com, or your own domain.",
     "landing-title": "Host your own blog",
@@ -64,7 +76,7 @@
     "verify": "Verify",
     "verify-failed": "Could not verify the domain. Please try again.",
     "verified-title": "Custom domain verified",
-    "verified-body": "Your blog is now available at {{domain}}."
+    "verified-body": "Domain verified. Your site goes live at {{domain}} with HTTPS within about 10 minutes."
   },
   "pro-blog": {
     "title": "Your free Ecency Pro blog",

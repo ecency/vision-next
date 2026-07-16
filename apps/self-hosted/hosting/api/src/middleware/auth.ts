@@ -13,6 +13,8 @@ declare module 'hono' {
     payer: string;
     txId: string;
     blockNum: number;
+    /** Tenant config prebuilt BEFORE a paywall settles (see /subscribe). */
+    tenantConfig: any;
   }
 }
 

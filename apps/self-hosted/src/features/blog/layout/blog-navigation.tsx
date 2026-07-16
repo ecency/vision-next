@@ -74,7 +74,7 @@ export function BlogNavigation() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto border-b border-theme pb-3 sm:pb-4 mb-6 sm:mb-8">
+    <div className="max-w-3xl mx-auto mb-6 sm:mb-8">
       <div className="flex items-center justify-between mb-4 sm:mb-6">
         <div className="flex items-center gap-3 sm:gap-4">
           {displayLogo && (
@@ -103,7 +103,10 @@ export function BlogNavigation() {
         </div>
       </div>
 
-      <nav className="flex gap-4 sm:gap-6 pt-3 sm:pt-4 overflow-x-auto">
+      {/* Single rule under the tabs: the nav carries the divider and the active tab's
+          2px indicator overlaps it (-mb-px). no-underline kills the template's global
+          link underline, which stacked a third line under the labels. */}
+      <nav className="flex gap-4 sm:gap-6 pt-3 sm:pt-4 overflow-x-auto border-b border-theme">
         {availableFilters.map((filter) => {
           const isActive = currentFilter === filter;
           return (
@@ -112,7 +115,7 @@ export function BlogNavigation() {
               to="/blog"
               search={{ filter }}
               className={clsx(
-                'text-sm font-normal transition-theme pb-2 border-b-2 font-theme-ui whitespace-nowrap',
+                'text-sm font-normal transition-theme pb-2 border-b-2 -mb-px no-underline font-theme-ui whitespace-nowrap',
                 isActive
                   ? 'border-theme-strong text-theme-primary'
                   : 'border-transparent text-theme-muted hover:text-theme-primary hover:border-theme',

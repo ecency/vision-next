@@ -14,6 +14,13 @@ import { paymentRoutes } from './routes/payments';
 import { authRoutes } from './routes/auth';
 import { internalRoutes } from './routes/internal';
 import { db } from './db/client';
+import { TenantService } from './services/tenant-service';
+import { ConfigService } from './services/config-service';
+import {
+  isVerifiedDomainOrigin,
+  refreshVerifiedDomainOrigins,
+  startVerifiedDomainRefresh,
+} from './utils/cors-domains';
 
 const app = new Hono();
 
@@ -32,6 +39,8 @@ app.use('*', cors({
     if (allowed.includes(origin)) return origin;
     // Allow any subdomain of the base domain (tenant blogs)
     if (origin.endsWith(`.${baseDomain}`) && origin.startsWith('https://')) return origin;
+    // Verified custom domains are tenant sites too (cached set, refreshed from the DB)
+    if (origin.startsWith('https://') && isVerifiedDomainOrigin(origin)) return origin;
     return null;
   },
   allowMethods: ['GET', 'POST', 'PATCH', 'DELETE'],
@@ -69,9 +78,50 @@ export default {
   fetch: app.fetch,
 };
 
+// Regenerate every active tenant's served config file (idempotent: identical files are
+// left untouched). Errors are contained here; per-tenant failures are isolated inside
+// syncAllConfigs. Single-flight: a slow pass must not be overlapped by the next tick.
+let configSyncRunning = false;
+async function syncTenantConfigs(): Promise<void> {
+  if (configSyncRunning) return;
+  configSyncRunning = true;
+  try {
+    const tenants = await TenantService.getActiveTenants();
+    await ConfigService.syncAllConfigs(tenants);
+  } catch (e) {
+    console.error('[Startup] config sync failed:', (e as Error).message);
+  } finally {
+    configSyncRunning = false;
+  }
+}
+
+// Warm request-critical state BEFORE accepting traffic, bounded so a slow or down DB
+// cannot block startup (health checks would loop the container):
+//  - the verified custom-domain CORS set, so a restart can't deny valid origins
+//  - regenerated tenant config files, so config-shape changes (e.g. the injected managed
+//    flag) are in place before a custom-domain visitor loads one and caches a session
+//    without the editor's Save.
+// If the deadline wins, the in-flight sync still completes in the background and the
+// periodic config sync below retries any tenant that failed.
+await Promise.race([
+  (async () => {
+    await refreshVerifiedDomainOrigins();
+    await syncTenantConfigs();
+  })(),
+  new Promise((resolve) => setTimeout(resolve, 5000)),
+]);
+
 // For node environments
 if (typeof (globalThis as any).Bun === 'undefined') {
   const { serve } = await import('@hono/node-server');
   serve({ fetch: app.fetch, port });
   console.log(`Ecency Hosting API running on http://localhost:${port}`);
 }
+
+// Keep the verified custom-domain CORS set fresh.
+startVerifiedDomainRefresh();
+
+// Retry loop for served config files: a tenant whose write failed (or was cut off by the
+// startup deadline) converges within a few minutes; identical files are not rewritten.
+const configSyncTimer = setInterval(() => void syncTenantConfigs(), 5 * 60 * 1000);
+configSyncTimer.unref?.();

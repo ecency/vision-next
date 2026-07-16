@@ -1,6 +1,10 @@
 import { NextRequest } from "next/server";
 import { resolveUser, unauthorizedResponse } from "../../threespeak/resolve-user";
-import { callHostingInternal, hostingInternalSecret } from "@/server/hosting-internal";
+import {
+  callHostingInternal,
+  hostingInternalSecret,
+  resolveOwnedTenant
+} from "@/server/hosting-internal";
 
 /**
  * Attach a custom domain to the authenticated user's blog. Identity comes from a HiveSigner
@@ -34,10 +38,17 @@ export async function POST(request: NextRequest) {
     return unauthorizedResponse(auth.reason);
   }
 
+  // Optional body.tenant targets a tenant the caller owns but that isn't their personal blog
+  // (a community instance); ownership is verified against the hosting service.
+  const target = await resolveOwnedTenant(body.tenant, auth.username.toLowerCase());
+  if (!target.ok) {
+    return Response.json({ error: target.error }, { status: target.status });
+  }
+
   let upstream: Response;
   try {
     upstream = await callHostingInternal("/v1/internal/domain", secret, {
-      username: auth.username.toLowerCase(),
+      username: target.username,
       domain
     });
   } catch {

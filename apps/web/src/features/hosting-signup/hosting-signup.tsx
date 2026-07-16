@@ -105,11 +105,11 @@ export function HostingSignup() {
     if (customDomain && cardEnabled) setMethod("card");
   }, [customDomain, cardEnabled]);
 
-  // Community has no custom-domain add-on; clear a stale selection carried over from the blog flow,
-  // otherwise the HBD instructions effect (which skips when customDomain is set) never runs.
+  // Card-only add-on: drop a stale selection if card becomes unavailable (logout, method
+  // probe failure), otherwise the payment step dead-ends on the HBD note.
   useEffect(() => {
-    if (isCommunity && customDomain) setCustomDomain(false);
-  }, [isCommunity, customDomain]);
+    if (!cardEnabled && customDomain) setCustomDomain(false);
+  }, [cardEnabled, customDomain]);
 
   const goConfigure = () => {
     setError("");
@@ -363,9 +363,11 @@ export function HostingSignup() {
             ))}
           </div>
 
-          {/* Custom domain add-on. It is a card-only one-step checkout, and card is unavailable for
-              a community (see cardEnabled), so the add-on is offered for personal blogs only. */}
-          {!isCommunity && (
+          {/* Custom domain add-on. A card-only one-step checkout, for both instance types: card is
+              available to a community too (the owner pays and hostingTarget routes activation).
+              Only offered while card checkout is actually available to this visitor, so the
+              add-on can never be selected without a payment path. */}
+          {cardEnabled && (
             <button
               onClick={() => setCustomDomain((v) => !v)}
               disabled={paying}
@@ -475,10 +477,28 @@ export function HostingSignup() {
             </div>
           </Alert>
 
-          {/* Custom domain plan -> let the owner attach and verify their domain now. Personal blog
-              only; the add-on is not offered for a community. */}
-          {!isCommunity && customDomain && activeUser && username === activeUser.username && (
-            <CustomDomainManager username={activeUser.username} />
+          {/* The site starts on a default template; without these steps owners don't discover
+              that they can sign in on their new site and configure it (settings button). */}
+          <div className="rounded-lg border border-[--border-color] p-4 flex flex-col gap-2">
+            <div className="font-semibold">{i18next.t("hosting.next-steps-title")}</div>
+            <ol className="list-decimal list-inside text-sm flex flex-col gap-1.5">
+              <li>
+                {i18next.t("hosting.next-step-login", {
+                  owner: isCommunity ? (activeUser?.username ?? "") : tenantUsername
+                })}
+              </li>
+              <li>{i18next.t("hosting.next-step-configure")}</li>
+              <li>{i18next.t("hosting.next-step-renew")}</li>
+            </ol>
+          </div>
+
+          {/* Custom domain plan -> let the owner attach and verify their domain now. For a
+              community the tenant is the community id while the logged-in owner authorizes. */}
+          {customDomain && activeUser && (isCommunity || username === activeUser.username) && (
+            <CustomDomainManager
+              username={activeUser.username}
+              tenant={isCommunity ? tenantUsername : undefined}
+            />
           )}
         </div>
       )}

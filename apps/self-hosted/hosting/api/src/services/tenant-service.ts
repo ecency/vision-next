@@ -35,6 +35,17 @@ export const TenantService = {
     );
     return row ? mapTenantFromDb(row) : null;
   },
+
+  /**
+   * All tenants controlled by an owner account (their personal blog and any communities).
+   */
+  async getByOwner(owner: string): Promise<Tenant[]> {
+    const rows = await db.queryAll<TenantRow>(
+      'SELECT * FROM tenants WHERE owner = $1 ORDER BY created_at',
+      [owner.toLowerCase()]
+    );
+    return rows.map(mapTenantFromDb);
+  },
   
   /**
    * Create new tenant.
@@ -120,7 +131,12 @@ export const TenantService = {
     const tenant = await this.getByUsername(username);
     if (!tenant) throw new Error('Tenant not found');
 
-    const newConfig = this.mergeConfig(tenant.config, configUpdates);
+    // Flat keys must be normalized into the nested stored shape first; merging them at the
+    // config root leaves them where the SPA never reads them (same bug create() had).
+    const newConfig = this.mergeConfig(
+      tenant.config,
+      this.normalizeFlatOverrides(configUpdates || {})
+    );
 
     const row = await db.queryOne<TenantRow>(
       `UPDATE tenants
@@ -132,6 +148,171 @@ export const TenantService = {
     );
 
     return mapTenantFromDb(row!);
+  },
+
+  /**
+   * Apply a config document edited in the instance's Configuration Editor. The sanitized
+   * document is deep-merged into the stored config, so a partial document can only change the
+   * sections it carries and can never erase the rest. Identity fields (username, owner, type,
+   * communityId) are server-owned and pinned from the stored config so a config save can
+   * never reassign control or re-type the tenant.
+   */
+  async applyConfigDocument(username: string, doc: any): Promise<Tenant> {
+    const tenant = await this.getByUsername(username);
+    if (!tenant) throw new Error('Tenant not found');
+
+    const current = tenant.config?.configuration?.instanceConfiguration || {};
+    // Identity comes from the tenant ROW (authorization's source of truth), never from the
+    // stored config JSON, which could carry stale values from before the owner column.
+    const clean = this.sanitizeConfigDocument(doc, {
+      version: tenant.config?.version ?? 1,
+      username: tenant.username,
+      owner: tenant.owner,
+      type: current.type ?? 'blog',
+      communityId: current.communityId ?? '',
+    });
+    const newConfig = this.mergeConfigGuarded(tenant.config, clean);
+
+    const row = await db.queryOne<TenantRow>(
+      `UPDATE tenants
+       SET config = $2,
+           updated_at = NOW()
+       WHERE username = $1
+       RETURNING *`,
+      [username.toLowerCase(), JSON.stringify(newConfig)]
+    );
+
+    return mapTenantFromDb(row!);
+  },
+
+  /**
+   * Deep-merge a sanitized client document into the stored config, enforcing shape
+   * agreement with the stored value at every depth: an object section can only be updated
+   * by an object, an array only by an array, and a scalar only by another scalar. Keys the
+   * stored config doesn't carry are accepted as-is (new settings). Stored configs always
+   * originate from getDefaultConfig, so the stored document itself is the shape contract;
+   * this keeps every known section's runtime shape intact no matter what an authenticated
+   * client sends (e.g. `general: "oops"` or `postsFilters: "trending"`).
+   */
+  mergeConfigGuarded(base: any, updates: any): any {
+    const result = Object.assign(Object.create(null), base);
+
+    for (const key of Object.keys(updates)) {
+      if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+        console.warn('[TenantService] Blocked prototype pollution attempt with key:', key);
+        continue;
+      }
+
+      const incoming = updates[key];
+      if (incoming === undefined) continue;
+
+      const stored = result[key];
+      const incomingIsPlainObject =
+        incoming && typeof incoming === 'object' && !Array.isArray(incoming);
+      const incomingIsArray = Array.isArray(incoming);
+
+      if (stored === undefined || stored === null) {
+        // No stored shape to agree with; take the incoming value.
+        result[key] = incomingIsPlainObject
+          ? this.mergeConfigGuarded(Object.create(null), incoming)
+          : incoming;
+      } else if (typeof stored === 'object' && !Array.isArray(stored)) {
+        if (!incomingIsPlainObject) {
+          console.warn('[TenantService] Dropped type-mismatched config value for key:', key);
+          continue;
+        }
+        result[key] = this.mergeConfigGuarded(stored, incoming);
+      } else if (Array.isArray(stored)) {
+        if (!incomingIsArray || !this.isValidArrayReplacement(stored, incoming)) {
+          console.warn('[TenantService] Dropped type-mismatched config value for key:', key);
+          continue;
+        }
+        result[key] = incoming;
+      } else {
+        // Stored scalar: only a scalar of the SAME primitive type may replace it, so a
+        // string "false" cannot stand in for a boolean, nor 42 for a string.
+        if (incomingIsPlainObject || incomingIsArray || typeof incoming !== typeof stored) {
+          console.warn('[TenantService] Dropped type-mismatched config value for key:', key);
+          continue;
+        }
+        result[key] = incoming;
+      }
+    }
+
+    return result;
+  },
+
+  /**
+   * Config arrays hold primitives (post filters, auth methods). A replacement array must
+   * contain only primitives, of the same type the stored array demonstrates when it has
+   * elements. Pure.
+   */
+  isValidArrayReplacement(stored: any[], incoming: any[]): boolean {
+    const elementType = stored.length > 0 ? typeof stored[0] : null;
+    return incoming.every((item) => {
+      if (item === null || typeof item === 'object') return false;
+      return elementType ? typeof item === elementType : true;
+    });
+  },
+
+  /**
+   * Recursively drop null values from a client document. mergeConfig treats null as a
+   * replacement value, so without this a document carrying `general: null` (or any nulled
+   * nested key) would erase that whole stored section on merge. Null never means anything
+   * in a config document; absence does. Pure.
+   */
+  stripNulls(value: any): any {
+    if (Array.isArray(value)) {
+      return value.filter((item) => item !== null && item !== undefined).map((item) => this.stripNulls(item));
+    }
+    if (value && typeof value === 'object') {
+      const result: any = Object.create(null);
+      for (const key of Object.keys(value)) {
+        if (value[key] === null || value[key] === undefined) continue;
+        result[key] = this.stripNulls(value[key]);
+      }
+      return result;
+    }
+    return value;
+  },
+
+  /**
+   * Sanitize a client-supplied full config document: drop null values (a null section must
+   * never erase stored settings), deep-copy through mergeConfig (strips prototype-pollution
+   * vectors) and pin the server-owned identity fields. Pure.
+   */
+  sanitizeConfigDocument(
+    doc: any,
+    pins: { version: number; username: string; owner: string; type: string; communityId: string }
+  ): any {
+    const clean = this.mergeConfig(Object.create(null), this.stripNulls(doc || {}));
+    clean.version = pins.version;
+    // Arrays must be rejected, not just non-objects: an array passes typeof === 'object',
+    // silently drops any pinned properties when serialized, and would replace the stored
+    // object section wholesale on merge.
+    if (
+      !clean.configuration ||
+      typeof clean.configuration !== 'object' ||
+      Array.isArray(clean.configuration) ||
+      Array.isArray(clean.configuration.instanceConfiguration)
+    ) {
+      throw new Error('Invalid configuration document');
+    }
+    const instance = (clean.configuration.instanceConfiguration =
+      clean.configuration.instanceConfiguration &&
+      typeof clean.configuration.instanceConfiguration === 'object'
+        ? clean.configuration.instanceConfiguration
+        : Object.create(null));
+
+    instance.username = pins.username;
+    instance.owner = pins.owner;
+    instance.type = pins.type;
+    instance.communityId = pins.communityId;
+    // Served-only marker (injected at config-file generation); must never round-trip from a
+    // client document into the stored config.
+    delete instance.managed;
+
+    return clean;
   },
   
   /**
@@ -278,19 +459,68 @@ export const TenantService = {
    */
   async buildConfig(username: string, configOverrides?: any, owner?: string): Promise<any> {
     const defaults = await this.getDefaultConfig(username, owner);
-    if (!configOverrides) return defaults;
+    const merged = configOverrides
+      ? this.mergeConfig(defaults, this.normalizeFlatOverrides(configOverrides))
+      : defaults;
 
-    // Map flat API keys to nested config paths
-    const normalized: any = { configuration: { general: {}, instanceConfiguration: { meta: {} } } };
+    // A community instance browses community feeds, not a personal blog's timeline; give it
+    // community defaults wherever the signup didn't say otherwise.
+    const instance = merged.configuration.instanceConfiguration;
+    if (instance.type === 'community') {
+      instance.features.postsFilters = ['trending', 'hot', 'created'];
+      const communityId = instance.communityId || username;
+      if (!configOverrides?.title) {
+        const communityTitle = await this.getCommunityTitle(communityId);
+        instance.meta.title = communityTitle || `${communityId} community`;
+      }
+      if (!configOverrides?.description) {
+        instance.meta.description = 'A community powered by Hive blockchain';
+      }
+    }
+
+    return merged;
+  },
+
+  /**
+   * Map flat API keys (signup form / legacy PATCH body) to their nested stored-config paths.
+   * Owner is server-resolved, not client-supplied, so it is never taken from overrides.
+   */
+  normalizeFlatOverrides(configOverrides: any): any {
+    const normalized: any = {
+      configuration: {
+        general: {},
+        instanceConfiguration: { meta: {}, layout: { sidebar: {} } },
+      },
+    };
     if (configOverrides.theme) normalized.configuration.general.theme = configOverrides.theme;
     if (configOverrides.styleTemplate) normalized.configuration.general.styleTemplate = configOverrides.styleTemplate;
     if (configOverrides.type) normalized.configuration.instanceConfiguration.type = configOverrides.type;
     if (configOverrides.communityId) normalized.configuration.instanceConfiguration.communityId = configOverrides.communityId;
-    // Owner is server-resolved, not client-supplied, so it is never taken from configOverrides.
-    if (configOverrides.title) normalized.configuration.instanceConfiguration.meta.title = configOverrides.title;
-    if (configOverrides.description) normalized.configuration.instanceConfiguration.meta.description = configOverrides.description;
+    // undefined means "not provided"; an explicit empty string clears the field.
+    if (configOverrides.title !== undefined) normalized.configuration.instanceConfiguration.meta.title = configOverrides.title;
+    if (configOverrides.description !== undefined) normalized.configuration.instanceConfiguration.meta.description = configOverrides.description;
+    if (configOverrides.listType) normalized.configuration.instanceConfiguration.layout.listType = configOverrides.listType;
+    if (configOverrides.sidebarPlacement) normalized.configuration.instanceConfiguration.layout.sidebar.placement = configOverrides.sidebarPlacement;
+    return normalized;
+  },
 
-    return this.mergeConfig(defaults, normalized);
+  /**
+   * Title of a Hive community, or null when the lookup fails (callers fall back to a
+   * generated title; creation must not fail on a flaky RPC).
+   */
+  async getCommunityTitle(communityId: string): Promise<string | null> {
+    try {
+      // Bounded: this runs inside signup/payment flows, so a slow RPC must degrade to the
+      // generated fallback title instead of holding the request.
+      const community = await Promise.race([
+        callRPC('bridge.get_community', { name: communityId, observer: '' }),
+        new Promise((resolve) => setTimeout(() => resolve(null), 4000)),
+      ]) as any;
+      const title = community?.title;
+      return typeof title === 'string' && title.trim().length > 0 ? title.trim().slice(0, 100) : null;
+    } catch {
+      return null;
+    }
   },
 
   /**
