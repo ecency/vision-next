@@ -109,13 +109,26 @@ export const ConfigService = {
   async syncAllConfigs(tenants: Tenant[]): Promise<void> {
     console.log('[ConfigService] Syncing', tenants.length, 'configs to disk...');
 
+    // Per-tenant isolation: one bad write must not abort the rest of the rollout.
+    let failed = 0;
     for (const tenant of tenants) {
-      if (tenant.subscriptionStatus === 'active') {
+      if (tenant.subscriptionStatus !== 'active') continue;
+      try {
         await this.generateConfigFile(tenant);
+      } catch (err) {
+        failed++;
+        console.error(
+          `[ConfigService] Sync failed for ${tenant.username}:`,
+          (err as Error).message
+        );
       }
     }
 
-    console.log('[ConfigService] Sync complete');
+    console.log(
+      failed
+        ? `[ConfigService] Sync complete with ${failed} failure(s)`
+        : '[ConfigService] Sync complete'
+    );
   },
 
   /**

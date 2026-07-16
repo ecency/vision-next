@@ -228,6 +228,11 @@ tenantRoutes.post('/subscribe',
     if (!validation.ok) {
       return c.json({ error: validation.error }, validation.status);
     }
+    // Build the tenant config on the UNPAID side of the paywall: it may fetch a community
+    // title over RPC, and once payment settles nothing but the DB transaction may stand
+    // between settlement and the recorded claim (a crash inside a network wait would leave
+    // a settled payment with no tenant/payment row).
+    c.set('tenantConfig', await TenantService.buildConfig(body.username, body.config, validation.owner));
     await next();
   },
   subscriptionPaywall,
@@ -243,9 +248,12 @@ tenantRoutes.post('/subscribe',
     // Resolve owner (defaults to the showcased account for a self-serve personal blog).
     const owner = (body.owner || body.username).toLowerCase();
 
-    // Prepare config before entering the DB transaction (may fetch a community title, never
-    // throws for it; no DB I/O)
-    const tenantConfig = await TenantService.buildConfig(body.username, body.config, owner);
+    // Prebuilt on the unpaid side of the paywall (see the validation middleware above); no
+    // network I/O should run between payment settlement and the DB transaction. The inline
+    // rebuild is a defensive fallback only: payment HAS settled here, so recording it late
+    // beats refusing to record it at all.
+    const tenantConfig =
+      c.get('tenantConfig') ?? (await TenantService.buildConfig(body.username, body.config, owner));
     const blockNum = c.get('blockNum');
     if (!Number.isInteger(blockNum) || blockNum <= 0) {
       return c.json({ error: 'Missing or invalid block number from payment settlement' }, 502);

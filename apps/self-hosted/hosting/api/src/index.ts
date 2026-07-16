@@ -78,12 +78,24 @@ export default {
   fetch: app.fetch,
 };
 
-// Warm the verified custom-domain CORS set before accepting requests, so a restart can't
-// briefly deny valid custom-domain origins. Bounded: a slow or down DB must not block
-// startup (health checks would loop the container); the periodic refresh catches up.
+// Warm request-critical state BEFORE accepting traffic, bounded so a slow or down DB
+// cannot block startup (health checks would loop the container):
+//  - the verified custom-domain CORS set, so a restart can't deny valid origins
+//  - regenerated tenant config files, so config-shape changes (e.g. the injected managed
+//    flag) are in place before a custom-domain visitor loads one and caches a session
+//    without the editor's Save. The periodic refresh / next deploy catch up if the
+//    deadline wins.
 await Promise.race([
-  refreshVerifiedDomainOrigins(),
-  new Promise((resolve) => setTimeout(resolve, 3000)),
+  (async () => {
+    await refreshVerifiedDomainOrigins();
+    try {
+      const tenants = await TenantService.getActiveTenants();
+      await ConfigService.syncAllConfigs(tenants);
+    } catch (e) {
+      console.error('[Startup] config sync failed:', (e as Error).message);
+    }
+  })(),
+  new Promise((resolve) => setTimeout(resolve, 5000)),
 ]);
 
 // For node environments
@@ -95,15 +107,3 @@ if (typeof (globalThis as any).Bun === 'undefined') {
 
 // Keep the verified custom-domain CORS set fresh.
 startVerifiedDomainRefresh();
-
-// Regenerate every active tenant's served config file at startup so config-shape changes
-// (e.g. the injected managed flag) roll out on deploy without waiting for a tenant update.
-// Non-fatal: a failed sync must not take the API down.
-void (async () => {
-  try {
-    const tenants = await TenantService.getActiveTenants();
-    await ConfigService.syncAllConfigs(tenants);
-  } catch (e) {
-    console.error('[Startup] config sync failed:', (e as Error).message);
-  }
-})();

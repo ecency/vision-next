@@ -61,12 +61,14 @@ domainRoutes.post('/', authMiddleware, zValidator('json', addDomainSchema), asyn
     userAgent: c.req.header('user-agent'),
   });
 
+  // The record NAME must be the domain itself: verification resolves the domain's CNAME
+  // (and serving requires it too). The internal verification token is bookkeeping only.
   return c.json({
     domain,
     verification: {
       method: verification.verificationMethod,
       type: 'CNAME',
-      name: verification.verificationToken,
+      name: domain,
       value: username + '.' + (process.env.BASE_DOMAIN || 'blogs.ecency.com'),
       instructions: `Add a CNAME record pointing ${domain} to ${username}.${process.env.BASE_DOMAIN || 'blogs.ecency.com'}`,
       expiresAt: verification.expiresAt,

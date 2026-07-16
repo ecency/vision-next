@@ -218,6 +218,71 @@ describe('TenantService.sanitizeConfigDocument', () => {
     ]);
   });
 
+  it('type-mismatched nested sections cannot replace stored objects or arrays', async () => {
+    // Beyond the outer containers: a scalar or array standing in for any object-valued
+    // section (general, meta, layout, features) must be dropped, and a scalar standing in
+    // for an array (postsFilters) too. The stored config is the shape contract.
+    const stored = await TenantService.buildConfig('bob', { title: 'Kept' }, 'bob');
+    const hostile = TenantService.sanitizeConfigDocument(
+      {
+        configuration: {
+          general: 'oops',
+          instanceConfiguration: {
+            meta: ['not', 'an', 'object'],
+            features: { postsFilters: 'trending', likes: 'yes' },
+            layout: 42,
+          },
+        },
+      },
+      {
+        version: 1,
+        username: 'bob',
+        owner: 'bob',
+        type: 'blog',
+        communityId: '',
+      }
+    );
+    const merged = TenantService.mergeConfigGuarded(stored, hostile);
+
+    expect(merged.configuration.general.theme).toBe('system');
+    expect(merged.configuration.instanceConfiguration.meta.title).toBe('Kept');
+    expect(merged.configuration.instanceConfiguration.features.postsFilters).toEqual([
+      'posts',
+      'blog',
+    ]);
+    expect(merged.configuration.instanceConfiguration.features.likes).toEqual({ enabled: true });
+    expect(merged.configuration.instanceConfiguration.layout.listType).toBe('list');
+  });
+
+  it('well-shaped nested updates still apply through the guarded merge', async () => {
+    const stored = await TenantService.buildConfig('bob', undefined, 'bob');
+    const update = TenantService.sanitizeConfigDocument(
+      {
+        configuration: {
+          general: { theme: 'dark' },
+          instanceConfiguration: {
+            features: { postsFilters: ['comments'], likes: { enabled: false } },
+          },
+        },
+      },
+      {
+        version: 1,
+        username: 'bob',
+        owner: 'bob',
+        type: 'blog',
+        communityId: '',
+      }
+    );
+    const merged = TenantService.mergeConfigGuarded(stored, update);
+
+    expect(merged.configuration.general.theme).toBe('dark');
+    expect(merged.configuration.instanceConfiguration.features.postsFilters).toEqual([
+      'comments',
+    ]);
+    expect(merged.configuration.instanceConfiguration.features.likes.enabled).toBe(false);
+    expect(merged.configuration.general.imageProxy).toBe('https://i.ecency.com');
+  });
+
   it('merged into the stored config, a partial document cannot erase other sections', async () => {
     // Mirrors applyConfigDocument: sanitize the client document, then deep-merge it into the
     // stored config. A document carrying only one section must leave the rest intact.

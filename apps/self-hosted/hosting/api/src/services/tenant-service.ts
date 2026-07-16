@@ -171,7 +171,7 @@ export const TenantService = {
       type: current.type ?? 'blog',
       communityId: current.communityId ?? '',
     });
-    const newConfig = this.mergeConfig(tenant.config, clean);
+    const newConfig = this.mergeConfigGuarded(tenant.config, clean);
 
     const row = await db.queryOne<TenantRow>(
       `UPDATE tenants
@@ -183,6 +183,62 @@ export const TenantService = {
     );
 
     return mapTenantFromDb(row!);
+  },
+
+  /**
+   * Deep-merge a sanitized client document into the stored config, enforcing shape
+   * agreement with the stored value at every depth: an object section can only be updated
+   * by an object, an array only by an array, and a scalar only by another scalar. Keys the
+   * stored config doesn't carry are accepted as-is (new settings). Stored configs always
+   * originate from getDefaultConfig, so the stored document itself is the shape contract;
+   * this keeps every known section's runtime shape intact no matter what an authenticated
+   * client sends (e.g. `general: "oops"` or `postsFilters: "trending"`).
+   */
+  mergeConfigGuarded(base: any, updates: any): any {
+    const result = Object.assign(Object.create(null), base);
+
+    for (const key of Object.keys(updates)) {
+      if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+        console.warn('[TenantService] Blocked prototype pollution attempt with key:', key);
+        continue;
+      }
+
+      const incoming = updates[key];
+      if (incoming === undefined) continue;
+
+      const stored = result[key];
+      const incomingIsPlainObject =
+        incoming && typeof incoming === 'object' && !Array.isArray(incoming);
+      const incomingIsArray = Array.isArray(incoming);
+
+      if (stored === undefined || stored === null) {
+        // No stored shape to agree with; take the incoming value.
+        result[key] = incomingIsPlainObject
+          ? this.mergeConfigGuarded(Object.create(null), incoming)
+          : incoming;
+      } else if (typeof stored === 'object' && !Array.isArray(stored)) {
+        if (!incomingIsPlainObject) {
+          console.warn('[TenantService] Dropped type-mismatched config value for key:', key);
+          continue;
+        }
+        result[key] = this.mergeConfigGuarded(stored, incoming);
+      } else if (Array.isArray(stored)) {
+        if (!incomingIsArray) {
+          console.warn('[TenantService] Dropped type-mismatched config value for key:', key);
+          continue;
+        }
+        result[key] = incoming;
+      } else {
+        // Stored scalar: only another scalar may replace it.
+        if (incomingIsPlainObject || incomingIsArray) {
+          console.warn('[TenantService] Dropped type-mismatched config value for key:', key);
+          continue;
+        }
+        result[key] = incoming;
+      }
+    }
+
+    return result;
   },
 
   /**
