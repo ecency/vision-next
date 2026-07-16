@@ -71,6 +71,18 @@ describe('TenantService.buildConfig owner + community', () => {
 });
 
 describe('TenantService.normalizeFlatOverrides', () => {
+  it('lets an explicit empty string clear title and description', () => {
+    const normalized = TenantService.normalizeFlatOverrides({ title: '', description: '' });
+    expect(normalized.configuration.instanceConfiguration.meta.title).toBe('');
+    expect(normalized.configuration.instanceConfiguration.meta.description).toBe('');
+  });
+
+  it('leaves title and description untouched when not provided', () => {
+    const normalized = TenantService.normalizeFlatOverrides({ theme: 'dark' });
+    expect('title' in normalized.configuration.instanceConfiguration.meta).toBe(false);
+    expect('description' in normalized.configuration.instanceConfiguration.meta).toBe(false);
+  });
+
   it('maps every flat key to its nested config path', () => {
     const normalized = TenantService.normalizeFlatOverrides({
       theme: 'dark',
@@ -128,6 +140,33 @@ describe('TenantService.sanitizeConfigDocument', () => {
     expect(() => TenantService.sanitizeConfigDocument({ version: 1 }, pins)).toThrow(
       'Invalid configuration document'
     );
+  });
+
+  it('rejects array-valued configuration containers', () => {
+    // typeof [] === 'object', but serializing an array drops any pinned properties, so an
+    // array must never be allowed to stand in for an identity-bearing object section.
+    expect(() =>
+      TenantService.sanitizeConfigDocument({ configuration: [] }, pins)
+    ).toThrow('Invalid configuration document');
+    expect(() =>
+      TenantService.sanitizeConfigDocument(
+        { configuration: { instanceConfiguration: [] } },
+        pins
+      )
+    ).toThrow('Invalid configuration document');
+  });
+
+  it('strips the served-only managed marker from client documents', () => {
+    const clean = TenantService.sanitizeConfigDocument(
+      {
+        configuration: {
+          instanceConfiguration: { managed: true, meta: { title: 'T' } },
+        },
+      },
+      pins
+    );
+    expect(clean.configuration.instanceConfiguration.managed).toBeUndefined();
+    expect(clean.configuration.instanceConfiguration.meta.title).toBe('T');
   });
 
   it('drops prototype pollution vectors', () => {

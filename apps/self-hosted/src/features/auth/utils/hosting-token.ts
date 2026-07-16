@@ -68,11 +68,15 @@ interface TokenResponse {
   expiresAt?: string;
 }
 
+/** Deadline for hosting API calls so a stalled service fails the save instead of hanging. */
+export const HOSTING_FETCH_TIMEOUT_MS = 15_000;
+
 async function postJson<T>(url: string, body: unknown): Promise<T> {
   const response = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
+    signal: AbortSignal.timeout(HOSTING_FETCH_TIMEOUT_MS),
   });
   if (!response.ok) {
     const data = (await response.json().catch(() => ({}))) as {

@@ -486,7 +486,10 @@ tenantRoutes.patch('/:username', authMiddleware, zValidator('json', updateTenant
     return c.json({ error: 'Unauthorized' }, 403);
   }
 
-  if (body.config && JSON.stringify(body.config).length > MAX_CONFIG_BYTES) {
+  if (
+    body.config &&
+    Buffer.byteLength(JSON.stringify(body.config), 'utf8') > MAX_CONFIG_BYTES
+  ) {
     return c.json({ error: 'Configuration document too large' }, 413);
   }
 

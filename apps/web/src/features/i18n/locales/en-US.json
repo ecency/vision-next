@@ -49,6 +49,7 @@
     "manage-status-active": "Active until {{date}}",
     "manage-status-inactive": "Awaiting payment",
     "manage-status-expired": "Expired",
+    "manage-status-suspended": "Suspended",
     "manage-plan-pro": "Custom domain plan",
     "manage-domain": "Set up custom domain",
     "manage-domain-active": "Custom domain: {{domain}}",

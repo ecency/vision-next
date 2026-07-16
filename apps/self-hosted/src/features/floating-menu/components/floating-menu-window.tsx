@@ -3,6 +3,7 @@ import { InstanceConfigManager } from '@/core';
 import {
   clearHostingToken,
   getHostingToken,
+  HOSTING_FETCH_TIMEOUT_MS,
 } from '@/features/auth/utils/hosting-token';
 import { configFieldsMap } from '../config-fields';
 import { FLOATING_MENU_THEME } from '../constants';
@@ -267,6 +268,7 @@ export function FloatingMenuWindow({
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ config }),
+          signal: AbortSignal.timeout(HOSTING_FETCH_TIMEOUT_MS),
         });
 
       let response = await saveWith(await getHostingToken(HOSTING_API_URL));

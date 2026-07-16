@@ -1,6 +1,7 @@
 "use client";
 
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useQuery } from "@tanstack/react-query";
 import i18next from "i18next";
 import { useEffect, useState } from "react";
 import { CustomDomainManager } from "./custom-domain-manager";
@@ -14,27 +15,20 @@ import { hostingApi, type OwnedTenant } from "./hosting-api";
  */
 export function HostingManage() {
   const { activeUser } = useActiveAccount();
-  const [tenants, setTenants] = useState<OwnedTenant[]>([]);
+  const username = activeUser?.username ?? "";
   const [domainOpenFor, setDomainOpenFor] = useState<string | null>(null);
 
+  // Keyed by owner so switching accounts can never render the previous account's tenants.
+  const { data } = useQuery({
+    queryKey: ["hosting", "owned-tenants", username],
+    queryFn: () => hostingApi.tenantsByOwner(username),
+    enabled: username.length > 0
+  });
+  const tenants = data?.tenants ?? [];
+
   useEffect(() => {
-    let stale = false;
-    if (!activeUser?.username) {
-      setTenants([]);
-      return;
-    }
-    hostingApi
-      .tenantsByOwner(activeUser.username)
-      .then((r) => {
-        if (!stale) setTenants(r.tenants ?? []);
-      })
-      .catch(() => {
-        if (!stale) setTenants([]);
-      });
-    return () => {
-      stale = true;
-    };
-  }, [activeUser?.username]);
+    setDomainOpenFor(null);
+  }, [username]);
 
   if (!activeUser || tenants.length === 0) {
     return null;
@@ -48,6 +42,7 @@ export function HostingManage() {
       return i18next.t("hosting.manage-status-active", { date });
     }
     if (t.subscriptionStatus === "inactive") return i18next.t("hosting.manage-status-inactive");
+    if (t.subscriptionStatus === "suspended") return i18next.t("hosting.manage-status-suspended");
     return i18next.t("hosting.manage-status-expired");
   };
 
@@ -93,8 +88,8 @@ export function HostingManage() {
                 </span>
               ) : domainOpenFor === t.username ? (
                 <CustomDomainManager
-                  username={activeUser.username}
-                  tenant={t.username !== activeUser.username ? t.username : undefined}
+                  username={username}
+                  tenant={t.username !== username ? t.username : undefined}
                 />
               ) : (
                 <button

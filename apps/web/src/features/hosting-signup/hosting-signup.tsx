@@ -105,6 +105,12 @@ export function HostingSignup() {
     if (customDomain && cardEnabled) setMethod("card");
   }, [customDomain, cardEnabled]);
 
+  // Card-only add-on: drop a stale selection if card becomes unavailable (logout, method
+  // probe failure), otherwise the payment step dead-ends on the HBD note.
+  useEffect(() => {
+    if (!cardEnabled && customDomain) setCustomDomain(false);
+  }, [cardEnabled, customDomain]);
+
   const goConfigure = () => {
     setError("");
     if (isCommunity) {
@@ -358,22 +364,26 @@ export function HostingSignup() {
           </div>
 
           {/* Custom domain add-on. A card-only one-step checkout, for both instance types: card is
-              available to a community too (the owner pays and hostingTarget routes activation). */}
-          <button
-            onClick={() => setCustomDomain((v) => !v)}
-            disabled={paying}
-            className={`text-left px-4 py-3 rounded-lg border ${
-              customDomain ? "border-blue-dark-sky bg-blue-dark-sky/10" : "border-[--border-color]"
-            } ${paying ? "opacity-50 cursor-not-allowed" : ""}`}
-          >
-            <div className="flex items-center justify-between gap-2">
-              <span className="font-semibold">{i18next.t("hosting.custom-domain-option")}</span>
-              <span className="text-sm text-blue-dark-sky">
-                {customDomain ? i18next.t("hosting.custom-domain-added") : i18next.t("hosting.custom-domain-price")}
-              </span>
-            </div>
-            <p className="text-sm opacity-75 mt-1">{i18next.t("hosting.custom-domain-explainer")}</p>
-          </button>
+              available to a community too (the owner pays and hostingTarget routes activation).
+              Only offered while card checkout is actually available to this visitor, so the
+              add-on can never be selected without a payment path. */}
+          {cardEnabled && (
+            <button
+              onClick={() => setCustomDomain((v) => !v)}
+              disabled={paying}
+              className={`text-left px-4 py-3 rounded-lg border ${
+                customDomain ? "border-blue-dark-sky bg-blue-dark-sky/10" : "border-[--border-color]"
+              } ${paying ? "opacity-50 cursor-not-allowed" : ""}`}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-semibold">{i18next.t("hosting.custom-domain-option")}</span>
+                <span className="text-sm text-blue-dark-sky">
+                  {customDomain ? i18next.t("hosting.custom-domain-added") : i18next.t("hosting.custom-domain-price")}
+                </span>
+              </div>
+              <p className="text-sm opacity-75 mt-1">{i18next.t("hosting.custom-domain-explainer")}</p>
+            </button>
+          )}
 
           {/* Method toggle */}
           <div className="flex gap-2">

@@ -162,10 +162,12 @@ export const TenantService = {
     if (!tenant) throw new Error('Tenant not found');
 
     const current = tenant.config?.configuration?.instanceConfiguration || {};
+    // Identity comes from the tenant ROW (authorization's source of truth), never from the
+    // stored config JSON, which could carry stale values from before the owner column.
     const clean = this.sanitizeConfigDocument(doc, {
       version: tenant.config?.version ?? 1,
-      username: current.username ?? tenant.username,
-      owner: current.owner ?? tenant.owner,
+      username: tenant.username,
+      owner: tenant.owner,
       type: current.type ?? 'blog',
       communityId: current.communityId ?? '',
     });
@@ -215,7 +217,15 @@ export const TenantService = {
   ): any {
     const clean = this.mergeConfig(Object.create(null), this.stripNulls(doc || {}));
     clean.version = pins.version;
-    if (!clean.configuration || typeof clean.configuration !== 'object') {
+    // Arrays must be rejected, not just non-objects: an array passes typeof === 'object',
+    // silently drops any pinned properties when serialized, and would replace the stored
+    // object section wholesale on merge.
+    if (
+      !clean.configuration ||
+      typeof clean.configuration !== 'object' ||
+      Array.isArray(clean.configuration) ||
+      Array.isArray(clean.configuration.instanceConfiguration)
+    ) {
       throw new Error('Invalid configuration document');
     }
     const instance = (clean.configuration.instanceConfiguration =
@@ -228,6 +238,9 @@ export const TenantService = {
     instance.owner = pins.owner;
     instance.type = pins.type;
     instance.communityId = pins.communityId;
+    // Served-only marker (injected at config-file generation); must never round-trip from a
+    // client document into the stored config.
+    delete instance.managed;
 
     return clean;
   },
@@ -413,8 +426,9 @@ export const TenantService = {
     if (configOverrides.styleTemplate) normalized.configuration.general.styleTemplate = configOverrides.styleTemplate;
     if (configOverrides.type) normalized.configuration.instanceConfiguration.type = configOverrides.type;
     if (configOverrides.communityId) normalized.configuration.instanceConfiguration.communityId = configOverrides.communityId;
-    if (configOverrides.title) normalized.configuration.instanceConfiguration.meta.title = configOverrides.title;
-    if (configOverrides.description) normalized.configuration.instanceConfiguration.meta.description = configOverrides.description;
+    // undefined means "not provided"; an explicit empty string clears the field.
+    if (configOverrides.title !== undefined) normalized.configuration.instanceConfiguration.meta.title = configOverrides.title;
+    if (configOverrides.description !== undefined) normalized.configuration.instanceConfiguration.meta.description = configOverrides.description;
     if (configOverrides.listType) normalized.configuration.instanceConfiguration.layout.listType = configOverrides.listType;
     if (configOverrides.sidebarPlacement) normalized.configuration.instanceConfiguration.layout.sidebar.placement = configOverrides.sidebarPlacement;
     return normalized;
@@ -426,7 +440,12 @@ export const TenantService = {
    */
   async getCommunityTitle(communityId: string): Promise<string | null> {
     try {
-      const community = await callRPC('bridge.get_community', { name: communityId, observer: '' }) as any;
+      // Bounded: this runs inside signup/payment flows, so a slow RPC must degrade to the
+      // generated fallback title instead of holding the request.
+      const community = await Promise.race([
+        callRPC('bridge.get_community', { name: communityId, observer: '' }),
+        new Promise((resolve) => setTimeout(() => resolve(null), 4000)),
+      ]) as any;
       const title = community?.title;
       return typeof title === 'string' && title.trim().length > 0 ? title.trim().slice(0, 100) : null;
     } catch {

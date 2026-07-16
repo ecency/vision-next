@@ -18,6 +18,7 @@ import { TenantService } from './services/tenant-service';
 import { ConfigService } from './services/config-service';
 import {
   isVerifiedDomainOrigin,
+  refreshVerifiedDomainOrigins,
   startVerifiedDomainRefresh,
 } from './utils/cors-domains';
 
@@ -77,6 +78,14 @@ export default {
   fetch: app.fetch,
 };
 
+// Warm the verified custom-domain CORS set before accepting requests, so a restart can't
+// briefly deny valid custom-domain origins. Bounded: a slow or down DB must not block
+// startup (health checks would loop the container); the periodic refresh catches up.
+await Promise.race([
+  refreshVerifiedDomainOrigins(),
+  new Promise((resolve) => setTimeout(resolve, 3000)),
+]);
+
 // For node environments
 if (typeof (globalThis as any).Bun === 'undefined') {
   const { serve } = await import('@hono/node-server');
@@ -84,7 +93,7 @@ if (typeof (globalThis as any).Bun === 'undefined') {
   console.log(`Ecency Hosting API running on http://localhost:${port}`);
 }
 
-// Load verified custom domains for CORS and keep them fresh.
+// Keep the verified custom-domain CORS set fresh.
 startVerifiedDomainRefresh();
 
 // Regenerate every active tenant's served config file at startup so config-shape changes
