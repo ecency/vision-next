@@ -20,8 +20,23 @@ export const ConfigService = {
     // Ensure directory exists
     await fs.mkdir(CONFIG_DIR, { recursive: true });
 
+    // Serve-time copy marks the instance as managed so the app enables managed-hosting
+    // features (config saves) on any hostname, including verified custom domains where the
+    // subdomain heuristic can't identify the tenant. Injected here rather than stored so
+    // truly self-hosted configs can never carry it.
+    const config = {
+      ...tenant.config,
+      configuration: {
+        ...tenant.config?.configuration,
+        instanceConfiguration: {
+          ...tenant.config?.configuration?.instanceConfiguration,
+          managed: true,
+        },
+      },
+    };
+
     // Write config file
-    await fs.writeFile(configPath, JSON.stringify(tenant.config, null, 2), 'utf-8');
+    await fs.writeFile(configPath, JSON.stringify(config, null, 2), 'utf-8');
 
     console.log('[ConfigService] Generated config:', configPath);
     return configPath;

@@ -490,12 +490,12 @@ tenantRoutes.patch('/:username', authMiddleware, zValidator('json', updateTenant
     return c.json({ error: 'Configuration document too large' }, 413);
   }
 
-  // Full document (Configuration Editor) replaces the stored config with identity fields
-  // pinned server-side; flat keys merge into it.
+  // Full document (Configuration Editor) deep-merges into the stored config with identity
+  // fields pinned server-side; flat keys are normalized first, then merge the same way.
   const isFullDoc =
     !!body.config && typeof body.config === 'object' && 'configuration' in body.config;
   const updatedTenant = isFullDoc
-    ? await TenantService.replaceConfig(username, body.config)
+    ? await TenantService.applyConfigDocument(username, body.config)
     : await TenantService.updateConfig(username, body.config);
   
   // Regenerate config file

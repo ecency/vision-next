@@ -9,6 +9,7 @@ import { TenantService } from '../services/tenant-service';
 import { DomainService } from '../services/domain-service';
 import { authMiddleware } from '../middleware/auth';
 import { AuditService, parseClientIp } from '../services/audit-service';
+import { addVerifiedDomainOrigin } from '../utils/cors-domains';
 
 export const domainRoutes = new Hono();
 
@@ -107,6 +108,7 @@ domainRoutes.post('/verify', authMiddleware, async (c) => {
   // Mark as verified
   await TenantService.verifyCustomDomain(username);
   await DomainService.markVerified(username, tenant.customDomain);
+  addVerifiedDomainOrigin(tenant.customDomain);
 
   void AuditService.log({
     tenantId: tenant.id,

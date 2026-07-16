@@ -75,7 +75,7 @@
     "verify": "Verify",
     "verify-failed": "Could not verify the domain. Please try again.",
     "verified-title": "Custom domain verified",
-    "verified-body": "Your blog is now available at {{domain}}."
+    "verified-body": "Domain verified. Your site goes live at {{domain}} with HTTPS within about 10 minutes."
   },
   "pro-blog": {
     "title": "Your free Ecency Pro blog",

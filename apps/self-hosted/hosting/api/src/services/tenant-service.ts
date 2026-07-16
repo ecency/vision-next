@@ -151,11 +151,13 @@ export const TenantService = {
   },
 
   /**
-   * Replace the whole config document with the one edited in the instance's Configuration
-   * Editor. Identity fields (username, owner, type, communityId) are server-owned and pinned
-   * from the stored config so a config save can never reassign control or re-type the tenant.
+   * Apply a config document edited in the instance's Configuration Editor. The sanitized
+   * document is deep-merged into the stored config, so a partial document can only change the
+   * sections it carries and can never erase the rest. Identity fields (username, owner, type,
+   * communityId) are server-owned and pinned from the stored config so a config save can
+   * never reassign control or re-type the tenant.
    */
-  async replaceConfig(username: string, doc: any): Promise<Tenant> {
+  async applyConfigDocument(username: string, doc: any): Promise<Tenant> {
     const tenant = await this.getByUsername(username);
     if (!tenant) throw new Error('Tenant not found');
 
@@ -167,6 +169,7 @@ export const TenantService = {
       type: current.type ?? 'blog',
       communityId: current.communityId ?? '',
     });
+    const newConfig = this.mergeConfig(tenant.config, clean);
 
     const row = await db.queryOne<TenantRow>(
       `UPDATE tenants
@@ -174,7 +177,7 @@ export const TenantService = {
            updated_at = NOW()
        WHERE username = $1
        RETURNING *`,
-      [username.toLowerCase(), JSON.stringify(clean)]
+      [username.toLowerCase(), JSON.stringify(newConfig)]
     );
 
     return mapTenantFromDb(row!);

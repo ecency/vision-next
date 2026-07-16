@@ -48,6 +48,8 @@ export interface BlogConfig {
       username: string;
       /** Controlling Hive account; the SPA's ownership gate reads it. */
       owner?: string;
+      /** Injected into SERVED config files only (never stored): instance is on managed hosting. */
+      managed?: boolean;
       communityId?: string;
       meta: {
         title: string;

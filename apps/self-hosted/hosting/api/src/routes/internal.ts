@@ -11,6 +11,7 @@ import { TenantService } from '../services/tenant-service';
 import { DomainService } from '../services/domain-service';
 import { ConfigService } from '../services/config-service';
 import { mapTenantFromDb } from '../types';
+import { addVerifiedDomainOrigin } from '../utils/cors-domains';
 
 export const internalRoutes = new Hono();
 
@@ -274,6 +275,7 @@ internalRoutes.post('/domain/verify', async (c) => {
 
   await TenantService.verifyCustomDomain(username);
   await DomainService.markVerified(username, tenant.customDomain);
+  addVerifiedDomainOrigin(tenant.customDomain);
   return c.json({ verified: true }, 200);
 });
 

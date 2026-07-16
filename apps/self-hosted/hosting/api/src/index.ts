@@ -14,6 +14,12 @@ import { paymentRoutes } from './routes/payments';
 import { authRoutes } from './routes/auth';
 import { internalRoutes } from './routes/internal';
 import { db } from './db/client';
+import { TenantService } from './services/tenant-service';
+import { ConfigService } from './services/config-service';
+import {
+  isVerifiedDomainOrigin,
+  startVerifiedDomainRefresh,
+} from './utils/cors-domains';
 
 const app = new Hono();
 
@@ -32,6 +38,8 @@ app.use('*', cors({
     if (allowed.includes(origin)) return origin;
     // Allow any subdomain of the base domain (tenant blogs)
     if (origin.endsWith(`.${baseDomain}`) && origin.startsWith('https://')) return origin;
+    // Verified custom domains are tenant sites too (cached set, refreshed from the DB)
+    if (origin.startsWith('https://') && isVerifiedDomainOrigin(origin)) return origin;
     return null;
   },
   allowMethods: ['GET', 'POST', 'PATCH', 'DELETE'],
@@ -75,3 +83,18 @@ if (typeof (globalThis as any).Bun === 'undefined') {
   serve({ fetch: app.fetch, port });
   console.log(`Ecency Hosting API running on http://localhost:${port}`);
 }
+
+// Load verified custom domains for CORS and keep them fresh.
+startVerifiedDomainRefresh();
+
+// Regenerate every active tenant's served config file at startup so config-shape changes
+// (e.g. the injected managed flag) roll out on deploy without waiting for a tenant update.
+// Non-fatal: a failed sync must not take the API down.
+void (async () => {
+  try {
+    const tenants = await TenantService.getActiveTenants();
+    await ConfigService.syncAllConfigs(tenants);
+  } catch (e) {
+    console.error('[Startup] config sync failed:', (e as Error).message);
+  }
+})();

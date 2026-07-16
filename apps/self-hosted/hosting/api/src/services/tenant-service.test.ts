@@ -138,4 +138,27 @@ describe('TenantService.sanitizeConfigDocument', () => {
     expect(({} as any).polluted).toBeUndefined();
     expect(clean.configuration.general).toBeDefined();
   });
+
+  it('merged into the stored config, a partial document cannot erase other sections', async () => {
+    // Mirrors applyConfigDocument: sanitize the client document, then deep-merge it into the
+    // stored config. A document carrying only one section must leave the rest intact.
+    const stored = await TenantService.buildConfig('bob', { title: 'Kept title' }, 'bob');
+    const partial = { configuration: { general: { theme: 'dark' } } };
+    const clean = TenantService.sanitizeConfigDocument(partial, {
+      version: 1,
+      username: 'bob',
+      owner: 'bob',
+      type: 'blog',
+      communityId: '',
+    });
+    const merged = TenantService.mergeConfig(stored, clean);
+
+    expect(merged.configuration.general.theme).toBe('dark');
+    expect(merged.configuration.instanceConfiguration.meta.title).toBe('Kept title');
+    expect(merged.configuration.instanceConfiguration.features.postsFilters).toEqual([
+      'posts',
+      'blog',
+    ]);
+    expect(merged.configuration.general.imageProxy).toBe('https://i.ecency.com');
+  });
 });

@@ -14,14 +14,28 @@ const HOSTING_API_URL = 'https://api.blogs.ecency.com/hosting';
 
 function isManagedHosting(): boolean {
   if (typeof window === 'undefined') return false;
-  return window.location.hostname.endsWith('.blogs.ecency.com');
+  if (window.location.hostname.endsWith('.blogs.ecency.com')) return true;
+  // Verified custom domains serve a config with the managed flag injected by the hosting
+  // API; a truly self-hosted config never carries it.
+  return (
+    InstanceConfigManager.getConfigValue(
+      ({ configuration }) => configuration.instanceConfiguration.managed,
+    ) === true
+  );
 }
 
 function getTenantUsername(): string | null {
   if (typeof window === 'undefined') return null;
   const hostname = window.location.hostname;
   const match = hostname.match(/^([a-z0-9-]+)\.blogs\.ecency\.com$/);
-  return match?.[1] ?? null;
+  if (match) return match[1];
+  if (!isManagedHosting()) return null;
+  // Custom domain: the tenant name comes from the served config instead of the hostname.
+  return (
+    InstanceConfigManager.getConfigValue(
+      ({ configuration }) => configuration.instanceConfiguration.username,
+    ) || null
+  );
 }
 
 interface OriginalState {
