@@ -94,7 +94,9 @@ authRoutes.post(
 
     // Verify the signature against EVERY posting key on the account, not just the first:
     // accounts often carry several posting key_auths and the signer may hold any of them.
-    if (!verifyChallengeSignature(account.posting?.key_auths, challenge, signature)) {
+    // The full posting authority is passed so key weights are checked against the
+    // threshold (a partial-authority key on a multisig account must not log in).
+    if (!verifyChallengeSignature(account.posting, challenge, signature)) {
       return c.json({ error: 'Invalid signature' }, 401);
     }
 
