@@ -173,14 +173,19 @@ internalRoutes.post('/activate', async (c) => {
       return c.json({ error: 'order_tenant_mismatch' }, 409);
     }
 
-    // Do not acknowledge fulfillment until the paid tenant is actually being served. A failure
-    // returns 500 so ePoints keeps the order VERIFIED and retries; replay is safe because the
-    // order claim above is idempotent and does not extend the subscription twice.
+    // Do not acknowledge a new fulfillment until the paid tenant is actually being served. An
+    // active duplicate also retries config publication (the first response may have failed here),
+    // while an expired/suspended duplicate is already-processed history and remains idempotently
+    // acknowledgeable without reactivating or extending it.
     const tenant = await TenantService.getByUsername(username);
-    if (!tenant || tenant.subscriptionStatus !== 'active') {
+    if (!tenant) {
       throw new Error(`Activated tenant ${username} is not available for config generation`);
     }
-    await ConfigService.generateConfigFile(tenant);
+    if (tenant.subscriptionStatus === 'active') {
+      await ConfigService.generateConfigFile(tenant);
+    } else if (!result.duplicate) {
+      throw new Error(`Activated tenant ${username} is not active for config generation`);
+    }
 
     // Echo the tenant's ACTUAL plan so the caller (ePoints) can confirm the Pro tier was honored.
     // Truthful on replays too (the upgrade is idempotent); an older service that ignores `plan`

@@ -64,6 +64,56 @@ describe('POST /activate config publication', () => {
     expect(await response.json()).toEqual({ error: 'activation_failed' });
   });
 
+  it('returns a retryable server error when a new activation tenant is missing or inactive', async () => {
+    mocks.getByUsername.mockResolvedValueOnce(null);
+
+    const missingResponse = await activate();
+
+    expect(missingResponse.status).toBe(500);
+    expect(await missingResponse.json()).toEqual({ error: 'activation_failed' });
+
+    mocks.getByUsername.mockResolvedValueOnce({
+      username: 'alice',
+      subscriptionStatus: 'inactive',
+    });
+
+    const inactiveResponse = await activate();
+
+    expect(inactiveResponse.status).toBe(500);
+    expect(await inactiveResponse.json()).toEqual({ error: 'activation_failed' });
+  });
+
+  it('acknowledges an expired duplicate without extending or republishing it', async () => {
+    mocks.transaction.mockResolvedValueOnce({
+      status: 200,
+      duplicate: true,
+      plan: 'standard',
+    });
+    mocks.getByUsername.mockResolvedValueOnce({
+      username: 'alice',
+      subscriptionStatus: 'expired',
+    });
+
+    const response = await activate();
+
+    expect(response.status).toBe(200);
+    expect(mocks.generateConfigFile).not.toHaveBeenCalled();
+    expect(await response.json()).toMatchObject({ activated: true, duplicate: true });
+  });
+
+  it('retries config publication for an active duplicate', async () => {
+    mocks.transaction.mockResolvedValueOnce({
+      status: 200,
+      duplicate: true,
+      plan: 'standard',
+    });
+
+    const response = await activate();
+
+    expect(response.status).toBe(200);
+    expect(mocks.generateConfigFile).toHaveBeenCalledTimes(1);
+  });
+
   it('acknowledges activation only after config publication succeeds', async () => {
     const response = await activate();
 
