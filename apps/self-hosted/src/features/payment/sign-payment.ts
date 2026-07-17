@@ -50,8 +50,14 @@ export async function signX402Payment(
   switch (method) {
     case 'keychain': {
       // Transaction signing needs the callback API (Keychain/Keeper); resolve the
-      // account's chosen extension. Peak Vault has no requestSignTx.
-      const instance = resolveKeychainLikeInstance(username) ?? undefined;
+      // account's chosen extension. Peak Vault has no requestSignTx, and a user who
+      // chose it must get a clear error, not a prompt from a wallet they didn't pick.
+      const instance = resolveKeychainLikeInstance(username);
+      if (!instance) {
+        throw new Error(
+          'No compatible extension available to sign this payment. Use the active key option instead.',
+        );
+      }
       const resp = await signTx(username, transaction as any, 'Active', instance);
       if (!resp.result) {
         throw new Error('The extension did not return a signed transaction');

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { login } from '../auth-actions';
 import type { HiveExtensionId } from '../types';
 import {
@@ -46,6 +46,32 @@ export function ExtensionLogin({ onSuccess, onError }: ExtensionLoginProps) {
   const selected =
     extensions.find((e) => e.id === selectedId) ??
     (extensions.length === 1 ? extensions[0] : null);
+
+  // Extensions can inject AFTER React mounts (slow devices, MV3 startup); a
+  // one-time detection would then show "no extension found" forever. Poll
+  // briefly and re-check on window focus (e.g. returning from the web store).
+  useEffect(() => {
+    if (extensions.length > 0) return;
+
+    const detect = () => {
+      const found = getDetectedExtensions();
+      if (found.length > 0) setExtensions(found);
+      return found.length > 0;
+    };
+
+    let tries = 0;
+    const interval = setInterval(() => {
+      tries += 1;
+      if (detect() || tries >= 10) clearInterval(interval);
+    }, 500);
+    const onFocus = () => detect();
+    window.addEventListener('focus', onFocus);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', onFocus);
+    };
+  }, [extensions.length]);
 
   const handleLogin = async () => {
     if (!username.trim()) {

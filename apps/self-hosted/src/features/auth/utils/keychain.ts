@@ -16,21 +16,21 @@ export interface HiveKeychain {
     message: string,
     authType: AuthorityType,
     callback: (response: KeychainResponse) => void,
-    rpc?: string | null
+    rpc?: string | null,
   ) => void;
   requestBroadcast: (
     account: string,
     operations: Operation[],
     authType: AuthorityType,
     callback: (response: KeychainResponse) => void,
-    rpc?: string | null
+    rpc?: string | null,
   ) => void;
   requestSignTx?: (
     account: string,
     tx: Record<string, unknown>,
     authType: AuthorityType,
     callback: (response: KeychainSignTxResponse) => void,
-    rpc?: string | null
+    rpc?: string | null,
   ) => void;
 }
 
@@ -76,7 +76,7 @@ export function signBuffer(
   account: string,
   message: string,
   authType: AuthorityType = 'Posting',
-  instance?: HiveKeychain
+  instance?: HiveKeychain,
 ): Promise<KeychainResponse> {
   return new Promise<KeychainResponse>((resolve, reject) => {
     const keychain = instance ?? defaultInstance();
@@ -84,7 +84,23 @@ export function signBuffer(
       reject(new Error('Hive extension is unavailable or disabled.'));
       return;
     }
+
+    // A wedged MV3 worker can silently never call back; without a deadline the
+    // caller's spinner runs forever.
+    let finished = false;
+    const timeout = setTimeout(() => {
+      if (!finished) {
+        reject(
+          new Error(
+            "The extension didn't respond. If no popup appeared, click its icon to wake it, then try again.",
+          ),
+        );
+      }
+    }, 30000);
+
     keychain.requestSignBuffer(account, message, authType, (resp) => {
+      finished = true;
+      clearTimeout(timeout);
       if (!resp.success) {
         reject(new Error(resp.error || 'Operation cancelled'));
         return;
@@ -101,7 +117,7 @@ export function broadcast(
   account: string,
   operations: Operation[],
   authType: AuthorityType = 'Posting',
-  instance?: HiveKeychain
+  instance?: HiveKeychain,
 ): Promise<KeychainResponse> {
   return new Promise<KeychainResponse>((resolve, reject) => {
     const keychain = instance ?? defaultInstance();
@@ -138,7 +154,7 @@ export function signTx(
   account: string,
   tx: Record<string, unknown>,
   authType: AuthorityType = 'Active',
-  instance?: HiveKeychain
+  instance?: HiveKeychain,
 ): Promise<KeychainSignTxResponse> {
   return new Promise<KeychainSignTxResponse>((resolve, reject) => {
     const keychain = instance ?? defaultInstance();
@@ -149,7 +165,11 @@ export function signTx(
     }
 
     if (!keychain.requestSignTx) {
-      reject(new Error('This extension does not support requestSignTx. Please update it.'));
+      reject(
+        new Error(
+          'This extension does not support requestSignTx. Please update it.',
+        ),
+      );
       return;
     }
 

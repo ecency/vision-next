@@ -252,9 +252,11 @@ function getPeakVaultInstance(): PeakVaultApi | null {
 /**
  * Resolve the Keychain-compatible instance for an account, honoring its saved
  * preference. A "keychain" preference resolves strictly to the real Keychain
- * (not Keeper's alias); "peakvault" or no preference falls through to
- * Keeper-first auto-detect (Peak Vault has no callback API for the specialized
- * requests that need this instance, e.g. transaction signing).
+ * (not Keeper's alias). A "peakvault" preference resolves to NULL: Peak Vault
+ * has no callback API for the specialized requests that need this instance
+ * (transaction signing), and silently prompting a different wallet than the
+ * one the user chose is worse than a clear error. No preference falls through
+ * to Keeper-first auto-detect.
  */
 export function resolveKeychainLikeInstance(
   username?: string,
@@ -263,6 +265,7 @@ export function resolveKeychainLikeInstance(
   const extId = getPreferredExtensionId(username);
   if (extId === 'keychain') return getKeychainInstance();
   if (extId === 'hive-keeper') return getHiveKeeperInstance();
+  if (extId === 'peakvault') return null;
   return getHiveKeeperInstance() || getKeychainInstance();
 }
 
@@ -272,6 +275,64 @@ export function resolveKeychainLikeInstance(
 
 const NO_EXTENSION_ERROR =
   'No Hive browser extension found. Please install Hive Keeper, Keychain, or Peak Vault.';
+
+/**
+ * Fast liveness ping (ported from the main app). Keychain-compatible extensions
+ * run a Manifest V3 service worker that idles after ~30s; the first request to
+ * a sleeping or crashed worker can silently never call back. requestHandshake
+ * wakes the worker so a genuinely dead one fails fast with an actionable
+ * message. Resolves for instances without requestHandshake.
+ */
+function pingKeychain(keychain: HiveKeychain, timeoutMs = 6000): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (typeof keychain.requestHandshake !== 'function') {
+      resolve();
+      return;
+    }
+    let settled = false;
+    const fail = () => {
+      if (settled) return;
+      settled = true;
+      reject(
+        new Error(
+          'Extension is not responding. Click its icon to wake it, then try again.',
+        ),
+      );
+    };
+    const timeoutId = setTimeout(fail, timeoutMs);
+    try {
+      keychain.requestHandshake(() => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timeoutId);
+        resolve();
+      });
+    } catch {
+      clearTimeout(timeoutId);
+      fail();
+    }
+  });
+}
+
+async function signViaKeychainLike(
+  instance: HiveKeychain,
+  account: string,
+  message: string,
+  authType: AuthorityType,
+): Promise<KeychainResponse> {
+  await pingKeychain(instance);
+  return signBufferViaKeychain(account, message, authType, instance);
+}
+
+async function broadcastViaKeychainLike(
+  instance: HiveKeychain,
+  account: string,
+  operations: Operation[],
+  authType: AuthorityType,
+): Promise<KeychainResponse> {
+  await pingKeychain(instance);
+  return broadcastViaKeychain(account, operations, authType, instance);
+}
 
 async function signBufferViaPeakVault(
   peakvault: PeakVaultApi,
@@ -334,14 +395,14 @@ export function signBufferWithExtension(
     const instance =
       extId === 'hive-keeper' ? getHiveKeeperInstance() : getKeychainInstance();
     if (instance)
-      return signBufferViaKeychain(account, message, authType, instance);
+      return signViaKeychainLike(instance, account, message, authType);
     // Chosen extension is gone (uninstalled); forget the stale preference.
     if (!preferredId) setPreferredExtensionId(account, null);
   }
 
   const keychainLike = resolveKeychainLikeInstance();
   if (keychainLike)
-    return signBufferViaKeychain(account, message, authType, keychainLike);
+    return signViaKeychainLike(keychainLike, account, message, authType);
   const pv = getPeakVaultInstance();
   if (pv) return signBufferViaPeakVault(pv, account, message, authType);
   return Promise.reject(new Error(NO_EXTENSION_ERROR));
@@ -362,13 +423,18 @@ export function broadcastWithExtension(
     const instance =
       extId === 'hive-keeper' ? getHiveKeeperInstance() : getKeychainInstance();
     if (instance)
-      return broadcastViaKeychain(account, operations, authType, instance);
+      return broadcastViaKeychainLike(instance, account, operations, authType);
     if (!preferredId) setPreferredExtensionId(account, null);
   }
 
   const keychainLike = resolveKeychainLikeInstance();
   if (keychainLike)
-    return broadcastViaKeychain(account, operations, authType, keychainLike);
+    return broadcastViaKeychainLike(
+      keychainLike,
+      account,
+      operations,
+      authType,
+    );
   const pv = getPeakVaultInstance();
   if (pv) return broadcastViaPeakVault(pv, account, operations, authType);
   return Promise.reject(new Error(NO_EXTENSION_ERROR));
