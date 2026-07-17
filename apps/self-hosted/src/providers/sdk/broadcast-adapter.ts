@@ -3,9 +3,9 @@ import type { PlatformAdapter } from "@ecency/sdk";
 import { authenticationStore } from "@/store";
 import { queryClient } from "@/consts/react-query";
 import {
-  broadcast as keychainBroadcast,
-  isKeychainAvailable,
-} from "@/features/auth/utils/keychain";
+  broadcastWithExtension,
+  hasAnyHiveExtension,
+} from "@/features/auth/utils/hive-extensions";
 import { broadcastWithHiveAuth } from "@/features/auth/utils/hive-auth";
 
 /**
@@ -80,14 +80,17 @@ export function createBroadcastAdapter(): PlatformAdapter {
       ops: Operation[],
       keyType: "posting" | "active" | "owner" | "memo"
     ): Promise<TransactionConfirmation> {
-      if (!isKeychainAvailable()) {
-        throw new Error("Hive Keychain extension is unavailable or disabled.");
+      if (!hasAnyHiveExtension()) {
+        throw new Error("No Hive browser extension is available.");
       }
 
-      const response = await keychainBroadcast(
+      // Routes through the extension this account logged in with (stored
+      // per-user preference), falling back to the best available one.
+      const response = await broadcastWithExtension(
         username,
         ops,
-        toKeychainAuthType(keyType)
+        toKeychainAuthType(keyType),
+        authenticationStore.getState().user?.extension
       );
 
       // KeychainResponse.result contains the transaction confirmation

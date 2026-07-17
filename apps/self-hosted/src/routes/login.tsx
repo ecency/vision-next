@@ -3,7 +3,7 @@
 import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { useAuth, useIsAuthenticated, useIsAuthEnabled, useAvailableAuthMethods } from '@/features/auth';
-import { KeychainLogin } from '@/features/auth/components/keychain-login';
+import { ExtensionLogin } from '@/features/auth/components/extension-login';
 import { HiveAuthLogin } from '@/features/auth/components/hiveauth-login';
 import { HivesignerLogin } from '@/features/auth/components/hivesigner-login';
 import { InstanceConfigManager } from '@/core';
@@ -103,7 +103,7 @@ function LoginPage() {
 
           <div className="space-y-3">
             {availableMethods.includes('keychain') && (
-              <KeychainLogin onSuccess={handleSuccess} onError={handleError} />
+              <ExtensionLogin onSuccess={handleSuccess} onError={handleError} />
             )}
             {availableMethods.includes('hivesigner') && <HivesignerLogin />}
             {availableMethods.includes('hiveauth') && (

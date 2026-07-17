@@ -31,6 +31,12 @@ export {
 
 // Utils
 export { isKeychainAvailable } from './utils/keychain';
+export {
+  getDetectedExtensions,
+  getExtensionName,
+  hasAnyHiveExtension,
+  hasKeychainLikeExtension,
+} from './utils/hive-extensions';
 export { isHivesignerCallback, parseHivesignerCallback } from './utils/hivesigner';
 export { isHiveAuthSessionValid } from './utils/hive-auth';
 

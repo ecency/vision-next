@@ -19,13 +19,13 @@ export const SESSION_DURATION = 7 * 24 * 60 * 60 * 1000;
 // Auth method labels
 export const AUTH_METHOD_LABELS: Record<string, string> = {
   hivesigner: 'Hivesigner',
-  keychain: 'Hive Keychain',
+  keychain: 'Browser extension',
   hiveauth: 'HiveAuth',
 };
 
 // Auth method descriptions
 export const AUTH_METHOD_DESCRIPTIONS: Record<string, string> = {
   hivesigner: 'Login with your Hive account via Hivesigner',
-  keychain: 'Login using the Hive Keychain browser extension',
+  keychain: 'Sign with Hive Keeper, Keychain or Peak Vault',
   hiveauth: 'Scan QR code with HiveAuth mobile app',
 };
