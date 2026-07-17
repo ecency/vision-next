@@ -11,6 +11,7 @@ import { mapTenantFromDb } from '../types';
 import { ConfigService } from '../services/config-service';
 import { authMiddleware } from '../middleware/auth';
 import { subscriptionPaywall, proUpgradePaywall } from '../middleware/x402-paywall';
+import { withPaymentTargetLock } from '../middleware/payment-target-lock';
 import { AuditService, parseClientIp } from '../services/audit-service';
 
 export const tenantRoutes = new Hono();
@@ -163,59 +164,69 @@ async function resolveAndValidateTenant(
   return { ok: true, owner };
 }
 
-tenantRoutes.post('/', zValidator('json', createTenantSchema), async (c) => {
-  const body = c.req.valid('json');
+tenantRoutes.post(
+  '/',
+  zValidator('json', createTenantSchema),
+  // Use the same target reservation as paid /subscribe. Otherwise this unpaid create can insert
+  // after the paid request's availability check but before its post-settlement tenant insert.
+  (c, next) => withPaymentTargetLock(c, next, 'subscribe', c.req.valid('json').username),
+  async (c) => {
+    const body = c.req.valid('json');
 
-  // Check if username already exists
-  const existing = await TenantService.getByUsername(body.username);
-  if (existing) {
-    return c.json({ error: 'Username already registered' }, 409);
+    // Check if username already exists
+    const existing = await TenantService.getByUsername(body.username);
+    if (existing) {
+      return c.json({ error: 'Username already registered' }, 409);
+    }
+
+    // Validate accounts + community + ownership rules (shared with /subscribe).
+    const validation = await resolveAndValidateTenant(body);
+    if (!validation.ok) {
+      return c.json({ error: validation.error }, validation.status);
+    }
+    const { owner } = validation;
+
+    // Create tenant (inactive until payment). The served config file is NOT written here:
+    // nginx serves any file that exists with no subscription check, so writing it now would
+    // put an unpaid blog live forever. The file is generated only on activation (payment
+    // listener / internal activate / subscribe).
+    const tenant = await TenantService.create(body.username, owner, body.config);
+
+    const baseDomain = process.env.BASE_DOMAIN || 'blogs.ecency.com';
+    const paymentAccount = process.env.PAYMENT_ACCOUNT || 'ecency.hosting';
+    const monthlyPrice = process.env.MONTHLY_PRICE_HBD || '0.100';
+
+    void AuditService.log({
+      tenantId: tenant.id,
+      eventType: 'tenant.created',
+      eventData: { username: body.username, owner },
+      ipAddress: parseClientIp(c.req.header('x-forwarded-for')),
+      userAgent: c.req.header('user-agent'),
+    });
+
+    return c.json({
+      tenant: {
+        username: tenant.username,
+        subscriptionStatus: tenant.subscriptionStatus,
+        blogUrl: `https://${tenant.username}.${baseDomain}`,
+      },
+      paymentInstructions: {
+        to: paymentAccount,
+        amount: `${monthlyPrice} HBD`,
+        memo: `blog:${tenant.username}`,
+        note: 'Send this exact memo to activate your blog',
+      },
+    }, 201);
   }
-
-  // Validate accounts + community + ownership rules (shared with /subscribe).
-  const validation = await resolveAndValidateTenant(body);
-  if (!validation.ok) {
-    return c.json({ error: validation.error }, validation.status);
-  }
-  const { owner } = validation;
-
-  // Create tenant (inactive until payment). The served config file is NOT written here:
-  // nginx serves any file that exists with no subscription check, so writing it now would
-  // put an unpaid blog live forever. The file is generated only on activation (payment
-  // listener / internal activate / subscribe).
-  const tenant = await TenantService.create(body.username, owner, body.config);
-
-  const baseDomain = process.env.BASE_DOMAIN || 'blogs.ecency.com';
-  const paymentAccount = process.env.PAYMENT_ACCOUNT || 'ecency.hosting';
-  const monthlyPrice = process.env.MONTHLY_PRICE_HBD || '0.100';
-  
-  void AuditService.log({
-    tenantId: tenant.id,
-    eventType: 'tenant.created',
-    eventData: { username: body.username, owner },
-    ipAddress: parseClientIp(c.req.header('x-forwarded-for')),
-    userAgent: c.req.header('user-agent'),
-  });
-
-  return c.json({
-    tenant: {
-      username: tenant.username,
-      subscriptionStatus: tenant.subscriptionStatus,
-      blogUrl: `https://${tenant.username}.${baseDomain}`,
-    },
-    paymentInstructions: {
-      to: paymentAccount,
-      amount: `${monthlyPrice} HBD`,
-      memo: `blog:${tenant.username}`,
-      note: 'Send this exact memo to activate your blog',
-    },
-  }, 201);
-});
+);
 
 // POST /v1/tenants/subscribe - Create tenant via x402 payment
 // Validation runs before paywall so we don't settle payment for invalid requests
 tenantRoutes.post('/subscribe',
   zValidator('json', createTenantSchema),
+  // Hold the target reservation across validation, facilitator settlement, and the DB mutation.
+  // A competing paid request is rejected here, before its signed transfer can be broadcast.
+  (c, next) => withPaymentTargetLock(c, next, 'subscribe', c.req.valid('json').username),
   async (c, next) => {
     const body = c.req.valid('json');
     const existing = await TenantService.getByUsername(body.username);
@@ -354,6 +365,9 @@ tenantRoutes.post('/subscribe',
 // Validation runs before paywall so we don't settle payment for invalid requests
 tenantRoutes.post('/:username/upgrade',
   authMiddleware,
+  // See /subscribe: serialize eligibility + settlement + mutation for this tenant so two
+  // concurrent upgrade requests cannot both pay before one observes the other's Pro update.
+  (c, next) => withPaymentTargetLock(c, next, 'upgrade', c.req.param('username')!),
   async (c, next) => {
     const username = c.req.param('username')!;
     const authUser = c.get('user');
