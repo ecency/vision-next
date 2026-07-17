@@ -6,9 +6,40 @@
  */
 
 import jwt from 'jsonwebtoken';
+import { createHash } from 'crypto';
+import { PublicKey, Signature } from '@ecency/sdk/hive';
 
 export interface AuthUser {
   username: string;
+}
+
+/**
+ * True when `signature` over sha256(challenge) verifies against ANY of the account's
+ * posting keys. Accounts routinely carry several posting key_auths (app keys, rotated
+ * keys); checking only the first rejects valid logins from holders of the others.
+ * Malformed entries are skipped; a malformed signature or empty key list fails.
+ */
+export function verifyChallengeSignature(
+  keyAuths: Array<[string, number]> | undefined,
+  challenge: string,
+  signature: string
+): boolean {
+  let sig: Signature;
+  try {
+    sig = Signature.from(signature);
+  } catch {
+    return false;
+  }
+
+  const messageHash = createHash('sha256').update(challenge).digest();
+
+  return (keyAuths ?? []).some(([key]) => {
+    try {
+      return PublicKey.fromString(key).verify(messageHash, sig);
+    } catch {
+      return false;
+    }
+  });
 }
 
 interface TokenPayload {
