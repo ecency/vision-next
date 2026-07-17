@@ -9,7 +9,15 @@ export function getConfiguredPostsFilters(): string[] {
     ({ configuration }) =>
       configuration.instanceConfiguration.features.postsFilters,
   );
-  return filters && filters.length > 0 ? filters : ['posts'];
+  // Self-hosted config.json is hand-edited: a scalar like "trending" would
+  // otherwise pass a truthy length check and index to its first CHARACTER.
+  const validFilters = Array.isArray(filters)
+    ? filters.filter(
+        (filter): filter is string =>
+          typeof filter === 'string' && filter.length > 0,
+      )
+    : [];
+  return validFilters.length > 0 ? validFilters : ['posts'];
 }
 
 /**
