@@ -1,6 +1,6 @@
 'use client';
 
-import { searchQueryOptions } from '@ecency/sdk';
+import { type Entry, type SearchResult, searchQueryOptions } from '@ecency/sdk';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { t } from '@/core';
@@ -9,6 +9,29 @@ import { BlogPostItem } from './blog-post-item';
 
 interface Props {
   query: string;
+}
+
+/**
+ * The search API returns a SearchResult (created_at, img_url, top-level tags), but BlogPostItem
+ * expects an Entry (created, json_metadata.image/tags, active_votes, ...). Passing the raw result
+ * left `created` undefined, and formatDate(undefined) threw during render, taking down the whole
+ * app via the root ErrorBoundary. Map into the shape BlogPostItem reads.
+ */
+function searchResultToEntry(result: SearchResult): Entry {
+  return {
+    author: result.author,
+    permlink: result.permlink,
+    title: result.title,
+    body: result.body,
+    category: result.category,
+    created: result.created_at,
+    children: result.children,
+    active_votes: [],
+    json_metadata: {
+      tags: result.tags,
+      image: result.img_url ? [result.img_url] : undefined,
+    },
+  } as unknown as Entry;
 }
 
 export function SearchResults({ query }: Props) {
@@ -42,17 +65,13 @@ export function SearchResults({ query }: Props) {
 
   if (isLoading) {
     return (
-      <div className="text-center py-12 text-theme-muted">
-        {t('searching')}
-      </div>
+      <div className="text-center py-12 text-theme-muted">{t('searching')}</div>
     );
   }
 
   if (error) {
     return (
-      <div className="text-center py-12 text-red-500">
-        {t('search_error')}
-      </div>
+      <div className="text-center py-12 text-red-500">{t('search_error')}</div>
     );
   }
 
@@ -75,7 +94,7 @@ export function SearchResults({ query }: Props) {
         {results.map((result, index) => (
           <BlogPostItem
             key={`${result.author}/${result.permlink}`}
-            entry={result as any}
+            entry={searchResultToEntry(result)}
             index={index}
           />
         ))}

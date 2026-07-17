@@ -4,7 +4,7 @@ import { renderPostBody } from '@ecency/render-helper';
 import type { Entry } from '@ecency/sdk';
 import { UilComment, UilHeart } from '@tooni/iconscout-unicons-react';
 import { useMemo, useState } from 'react';
-import { formatRelativeTime } from '@/core';
+import { formatRelativeTime, InstanceConfigManager } from '@/core';
 import { UserAvatar } from '@/features/shared/user-avatar';
 import { BlogDiscussionList } from './blog-discussion-list';
 
@@ -24,6 +24,15 @@ export function BlogDiscussionItem({
   const [showReplies, setShowReplies] = useState(false);
 
   const likesCount = useMemo(() => entry.active_votes?.length || 0, [entry]);
+  // Honor the likes flag, read the same way every other config-flag consumer does
+  // (blog-post-item, blog-post-footer). A live owner-preview toggle is NOT reflected by any
+  // consumer because the preview flow applies edits via DOM attributes, not the config store;
+  // making it live is an app-wide preview change (store-based preview re-renders the whole
+  // tree per keystroke), out of scope here. For real visitors the config is static per load.
+  const showLikes = InstanceConfigManager.getConfigValue(
+    ({ configuration }) =>
+      configuration.instanceConfiguration.features.likes?.enabled ?? true,
+  );
 
   const repliesCount = useMemo(
     () =>
@@ -84,10 +93,12 @@ export function BlogDiscussionItem({
           </div>
 
           <div className="flex items-center gap-3 sm:gap-4 mt-2 sm:mt-3 text-xs text-theme-muted font-theme-ui">
-            <div className="flex items-center gap-1">
-              <UilHeart className="w-3 h-3" />
-              <span>{likesCount}</span>
-            </div>
+            {showLikes && (
+              <div className="flex items-center gap-1">
+                <UilHeart className="w-3 h-3" />
+                <span>{likesCount}</span>
+              </div>
+            )}
             {hasReplies && (
               <button
                 type="button"

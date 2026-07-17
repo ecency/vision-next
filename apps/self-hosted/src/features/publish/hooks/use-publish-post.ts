@@ -1,13 +1,17 @@
-import { useAuth } from "@/features/auth/hooks";
-import { useInstanceConfig } from "@/features/blog/hooks/use-instance-config";
-import { useNavigate } from "@tanstack/react-router";
-import { useComment } from "@ecency/sdk";
-import { useMutation } from "@tanstack/react-query";
-import { createPermlink } from "../utils/permlink";
-import { resolvePublishTarget } from "../utils/publish-target";
-import { createBroadcastAdapter } from "@/providers/sdk";
+import { useComment } from '@ecency/sdk';
+import { useMutation } from '@tanstack/react-query';
+import { useNavigate } from '@tanstack/react-router';
+import { useAuth } from '@/features/auth/hooks';
+import { useInstanceConfig } from '@/features/blog/hooks/use-instance-config';
+import { createBroadcastAdapter } from '@/providers/sdk';
+import { createPermlink } from '../utils/permlink';
+import { resolvePublishTarget } from '../utils/publish-target';
 
-export function usePublishPost({ beforeNavigate }: { beforeNavigate?: () => void } = {}) {
+export function usePublishPost({
+  beforeNavigate,
+}: {
+  beforeNavigate?: () => void;
+} = {}) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { isCommunityMode, communityId } = useInstanceConfig();
@@ -16,7 +20,7 @@ export function usePublishPost({ beforeNavigate }: { beforeNavigate?: () => void
   const commentMutation = useComment(user?.username, { adapter });
 
   return useMutation({
-    mutationKey: ["publish-post"],
+    mutationKey: ['publish-post'],
     mutationFn: async ({
       title,
       body,
@@ -27,19 +31,19 @@ export function usePublishPost({ beforeNavigate }: { beforeNavigate?: () => void
       tags: string[];
     }) => {
       if (!user) {
-        throw new Error("Authentication required to publish post");
+        throw new Error('Authentication required to publish post');
       }
 
       if (!title.trim()) {
-        throw new Error("Title cannot be empty");
+        throw new Error('Title cannot be empty');
       }
 
       if (!body.trim()) {
-        throw new Error("Post content cannot be empty");
+        throw new Error('Post content cannot be empty');
       }
 
       if (!tags.length) {
-        throw new Error("At least one tag is required");
+        throw new Error('At least one tag is required');
       }
 
       const permlink = createPermlink(title, true);
@@ -53,25 +57,33 @@ export function usePublishPost({ beforeNavigate }: { beforeNavigate?: () => void
         communityId,
       });
 
-      const result = await commentMutation.mutateAsync({
+      await commentMutation.mutateAsync({
         author: user.username,
         permlink,
-        parentAuthor: "",
+        parentAuthor: '',
         parentPermlink,
         title: title.trim(),
         body: body.trim(),
         jsonMetadata: {
           tags: metadataTags,
-          app: "ecency-selfhost/1.0",
-          format: "markdown",
+          app: 'ecency-selfhost/1.0',
+          format: 'markdown',
         },
       });
 
-      return result;
+      // Return where the new post lives so onSuccess can land the author ON it.
+      return { author: user.username, permlink };
     },
-    onSuccess: () => {
+    onSuccess: ({ author, permlink }) => {
       beforeNavigate?.();
-      navigate({ to: "/blog", search: { filter: "posts" } });
+      // Redirect to the new post, not a hardcoded feed: a fresh post has no votes, so on a
+      // community (whose default filter is trending/hot) the author would land on a feed
+      // without their post and think publishing failed.
+      navigate({
+        to: '/$author/$permlink',
+        params: { author: `@${author}`, permlink },
+        search: { raw: undefined },
+      });
     },
   });
 }

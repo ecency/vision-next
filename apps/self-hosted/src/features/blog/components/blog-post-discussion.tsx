@@ -1,11 +1,11 @@
 'use client';
 
-import { callRPC, type Entry } from '@ecency/sdk';
+import { callRPC, type Entry, QueryKeys } from '@ecency/sdk';
 import { useQuery } from '@tanstack/react-query';
 import { UilComment } from '@tooni/iconscout-unicons-react';
 import { useMemo, useState } from 'react';
-import { BlogDiscussionList } from './blog-discussion-list';
 import { CommentForm } from '@/features/auth';
+import { BlogDiscussionList } from './blog-discussion-list';
 
 interface Props {
   entry: Entry;
@@ -64,7 +64,16 @@ export function BlogPostDiscussion({ entry, isRawContent }: Props) {
   const entryData = entry.original_entry || entry;
 
   const { data: allComments = [], isLoading } = useQuery({
-    queryKey: ['discussions', entryData.author, entryData.permlink, order],
+    // Use the SDK's canonical discussions key so useComment's post-broadcast invalidation
+    // (which matches ["posts","discussions",author,permlink,...]) actually refetches this
+    // list; a bespoke ["discussions",...] key never matched, so new comments only appeared
+    // after a full reload.
+    queryKey: QueryKeys.posts.discussions(
+      entryData.author,
+      entryData.permlink,
+      order,
+      entryData.author,
+    ),
     queryFn: async () => {
       const response = await callRPC('bridge.get_discussion', {
         author: entryData.author,
