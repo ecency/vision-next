@@ -2,12 +2,15 @@ import { createFileRoute, Link } from '@tanstack/react-router';
 import { useMemo } from 'react';
 import { BlogLayout } from '@/features/blog';
 import { BlogPostsList } from '@/features/blog/components/blog-posts-list';
+import { resolvePostsFilter } from '@/features/blog/utils/post-filters';
 
 export const Route = createFileRoute('/blog')({
   component: RouteComponent,
   validateSearch: (search: Record<string, unknown>) => {
+    // Clamp to the configured filters so a stale bookmark or the historic
+    // hardcoded default never selects a feed the owner disabled.
     return {
-      filter: (search.filter as string) || 'posts',
+      filter: resolvePostsFilter(search.filter),
     };
   },
 });
@@ -25,7 +28,8 @@ function HostingBanner() {
     <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
       <div className="container mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
         <p className="text-sm font-medium">
-          Start your own Hive-powered blog - custom subdomain, instant setup, from 0.1 HBD/month
+          Start your own Hive-powered blog - custom subdomain, instant setup,
+          from $2/month
         </p>
         <Link
           to="/hosting"
