@@ -11,6 +11,7 @@ import { mapTenantFromDb } from '../types';
 import { ConfigService } from '../services/config-service';
 import { authMiddleware } from '../middleware/auth';
 import { subscriptionPaywall, proUpgradePaywall } from '../middleware/x402-paywall';
+import { withPaymentTargetLock } from '../middleware/payment-target-lock';
 import { AuditService, parseClientIp } from '../services/audit-service';
 
 export const tenantRoutes = new Hono();
@@ -216,6 +217,9 @@ tenantRoutes.post('/', zValidator('json', createTenantSchema), async (c) => {
 // Validation runs before paywall so we don't settle payment for invalid requests
 tenantRoutes.post('/subscribe',
   zValidator('json', createTenantSchema),
+  // Hold the target reservation across validation, facilitator settlement, and the DB mutation.
+  // A competing paid request is rejected here, before its signed transfer can be broadcast.
+  (c, next) => withPaymentTargetLock(c, next, 'subscribe', c.req.valid('json').username),
   async (c, next) => {
     const body = c.req.valid('json');
     const existing = await TenantService.getByUsername(body.username);
@@ -354,6 +358,9 @@ tenantRoutes.post('/subscribe',
 // Validation runs before paywall so we don't settle payment for invalid requests
 tenantRoutes.post('/:username/upgrade',
   authMiddleware,
+  // See /subscribe: serialize eligibility + settlement + mutation for this tenant so two
+  // concurrent upgrade requests cannot both pay before one observes the other's Pro update.
+  (c, next) => withPaymentTargetLock(c, next, 'upgrade', c.req.param('username')!),
   async (c, next) => {
     const username = c.req.param('username')!;
     const authUser = c.get('user');
