@@ -40,6 +40,7 @@ export default function InvitedSignupPage() {
   // Check if username already exists (debounced)
   useDebounce(
     () => {
+      if (getUsernameError(username)) return;
       if (username.length >= 3 && username.length <= 16) {
         queryClient.fetchQuery(getAccountsQueryOptions([username])).then((r) => {
           if (r.length > 0) {
