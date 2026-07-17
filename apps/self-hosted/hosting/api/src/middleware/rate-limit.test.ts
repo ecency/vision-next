@@ -40,7 +40,7 @@ describe('rateLimit', () => {
 
     mocks.eval.mockResolvedValueOnce(4); // over limit
     const ctx = makeCtx();
-    const res = await mw(ctx, next);
+    const res = (await mw(ctx, next)) as { status: number };
     expect(next).toHaveBeenCalledTimes(1); // not called again
     expect(res.status).toBe(429);
     expect(ctx._resHeaders['Retry-After']).toBe('60');
@@ -62,11 +62,25 @@ describe('rateLimit', () => {
     expect(next).toHaveBeenCalledTimes(1);
   });
 
-  it('keys by the first x-forwarded-for entry', async () => {
+  it('keys by the trusted LAST x-forwarded-for entry, not the spoofable leftmost', async () => {
     const mw = rateLimit({ name: 'test', limit: 5, windowMs: 60_000 });
     mocks.eval.mockResolvedValue(1);
+    // Attacker sets 9.9.9.9; the trusted proxy appends the real peer 10.0.0.1 on the right.
     await mw(makeCtx('9.9.9.9, 10.0.0.1'), vi.fn());
     const call = mocks.eval.mock.calls[0][1];
-    expect(call.keys[0]).toBe('rl:test:9.9.9.9');
+    expect(call.keys[0]).toBe('rl:test:10.0.0.1');
+  });
+
+  it('skips limiting (fails open) when there is no proxy IP header', async () => {
+    const mw = rateLimit({ name: 'test', limit: 1, windowMs: 60_000 });
+    const next = vi.fn();
+    const ctx = {
+      req: { header: () => undefined },
+      header: () => {},
+      json: (b: unknown, s?: number) => ({ body: b, status: s ?? 200 }),
+    } as any;
+    await mw(ctx, next);
+    expect(next).toHaveBeenCalledTimes(1);
+    expect(mocks.eval).not.toHaveBeenCalled();
   });
 });

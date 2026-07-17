@@ -9,7 +9,7 @@ import { callRPC, setNodes } from '@ecency/sdk/hive';
 import { db } from './db/client';
 import { TenantService } from './services/tenant-service';
 import { ConfigService } from './services/config-service';
-import { parseMemo, type ParsedMemo } from './types';
+import { parseMemo, mapTenantFromDb, type ParsedMemo } from './types';
 import { AuditService } from './services/audit-service';
 
 // Configuration
@@ -251,9 +251,23 @@ class PaymentListener {
     let updatedTenant: any = null;
 
     try {
-      // Use transaction to ensure atomicity of payment insert and subscription update
-      await db.transaction(async (client) => {
-        // 1. Insert payment with 'processing' status first (serves as dedup via unique trx_id)
+      // Pre-transaction (no DB mutation): if the tenant doesn't exist yet, confirm the Hive
+      // account is real. accountExistsStrict THROWS on an RPC outage (transient -> retry the
+      // block) rather than reporting the account absent, so a real payment isn't stranded when
+      // a node is down. Kept out of the transaction so no RPC holds a DB tx open.
+      const preexisting = await TenantService.getByUsername(username);
+      if (!preexisting && !(await TenantService.accountExistsStrict(username))) {
+        throw Object.assign(new Error('Hive account not found'), { permanent: true });
+      }
+      // Default config for a possible create (pure for a blog tenant, no RPC).
+      const defaultConfig = await TenantService.buildConfig(username);
+
+      // Everything that mutates state runs on the SAME transaction client so the payment
+      // dedup row and the subscription extension commit or roll back together. This is what
+      // makes a retry safe: a transient failure after activation rolls the extension back
+      // WITH the dedup row, so reprocessing extends exactly once (no double-credit).
+      updatedTenant = await db.transaction(async (client) => {
+        // 1. Claim the transfer (dedup via unique trx_id).
         const insertResult = await client.query(
           `INSERT INTO payments
            (tenant_id, trx_id, block_num, from_account, amount, currency, memo, status, months_credited)
@@ -262,51 +276,66 @@ class PaymentListener {
            RETURNING id`,
           [transfer.trxId, transfer.blockNum, transfer.from, amount, transfer.memo, months]
         );
-
-        // If no row returned, trx_id already exists (duplicate)
         if (insertResult.rows.length === 0) {
           console.log('[PaymentListener] Duplicate transaction detected:', transfer.trxId);
-          return;
+          return null;
         }
-
         const paymentId = insertResult.rows[0].id;
 
-        // 2. Check if tenant exists, create if not
-        let tenant = await TenantService.getByUsername(username);
-
-        if (!tenant) {
-          // Strict check: throws on an RPC outage (transient) rather than reporting the
-          // account absent, so a real payment isn't permanently failed when a node is down.
-          const accountExists = await TenantService.accountExistsStrict(username);
-          if (!accountExists) {
-            // Genuinely no such Hive account -> permanent: mark failed and do not retry.
-            throw Object.assign(new Error('Hive account not found'), { permanent: true });
-          }
-
-          tenant = await TenantService.create(username);
+        // 2. Ensure the tenant exists, locked for update. ON CONFLICT + re-select handles a
+        // concurrent create (e.g. the web signup racing us) without failing.
+        let row = (
+          await client.query(`SELECT * FROM tenants WHERE username = $1 FOR UPDATE`, [username])
+        ).rows[0];
+        if (!row) {
+          const inserted = await client.query(
+            `INSERT INTO tenants (username, owner, config, subscription_status, subscription_plan)
+             VALUES ($1, $1, $2, 'inactive', 'standard')
+             ON CONFLICT (username) DO NOTHING
+             RETURNING *`,
+            [username, JSON.stringify(defaultConfig)]
+          );
+          row =
+            inserted.rows[0] ??
+            (await client.query(`SELECT * FROM tenants WHERE username = $1 FOR UPDATE`, [username]))
+              .rows[0];
           console.log('[PaymentListener] Created new tenant:', username);
         }
 
-        // 3. Activate/extend subscription
-        updatedTenant = await TenantService.activateSubscription(username, months);
+        // 3. Extend from the later of now / current expiry (same rule as activateSubscription).
+        const now = new Date();
+        const currentExpiry = row.subscription_expires_at
+          ? new Date(row.subscription_expires_at)
+          : now;
+        const base = currentExpiry > now ? currentExpiry : now;
+        const newExpiry = new Date(base);
+        newExpiry.setMonth(newExpiry.getMonth() + months);
+        const startedAt = row.subscription_started_at || now;
 
-        // 4. Update payment to 'processed' with tenant_id and subscription info
+        const activated = await client.query(
+          `UPDATE tenants
+           SET subscription_status = 'active',
+               subscription_started_at = $2,
+               subscription_expires_at = $3,
+               updated_at = NOW()
+           WHERE id = $1
+           RETURNING *`,
+          [row.id, startedAt, newExpiry]
+        );
+
+        // 4. Mark the payment processed in the SAME transaction.
         await client.query(
           `UPDATE payments
            SET tenant_id = $2, status = 'processed', subscription_extended_to = $3
            WHERE id = $1`,
-          [paymentId, updatedTenant.id, updatedTenant.subscriptionExpiresAt]
+          [paymentId, row.id, newExpiry]
         );
 
-        console.log(
-          '[PaymentListener] Subscription activated for',
-          username,
-          'until',
-          updatedTenant.subscriptionExpiresAt
-        );
+        console.log('[PaymentListener] Subscription activated for', username, 'until', newExpiry);
+        return mapTenantFromDb(activated.rows[0]);
       });
 
-      // 5. Post-commit side effects (only if transaction succeeded)
+      // 5. Post-commit side effects (only if the transaction committed a real activation)
       if (updatedTenant) {
         await ConfigService.generateConfigFile(updatedTenant);
 

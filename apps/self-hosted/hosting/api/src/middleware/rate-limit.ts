@@ -13,6 +13,7 @@
 
 import type { Context, Next } from 'hono';
 import { getRedisClient } from '../utils/redis';
+import { parseClientIp } from '../services/audit-service';
 
 // INCR the counter and set the window TTL only on the first hit, atomically. Returns the
 // current count so the caller can compare against the limit.
@@ -33,22 +34,29 @@ export interface RateLimitOptions {
   windowMs: number;
 }
 
-/** The client IP, taken from the trusted proxy header set by the fronting nginx/Traefik. */
-function clientIp(c: Context): string {
-  const xff = c.req.header('x-forwarded-for');
-  if (xff) {
-    // First entry is the original client; the rest are proxies.
-    const first = xff.split(',')[0]?.trim();
-    if (first) return first;
-  }
-  return c.req.header('x-real-ip')?.trim() || 'unknown';
+/**
+ * The client IP as the trusted fronting proxy saw it: the LAST X-Forwarded-For entry (nginx
+ * appends the real peer with $proxy_add_x_forwarded_for), NOT the leftmost value, which is
+ * client-supplied and could be rotated per request to mint a fresh bucket and bypass the
+ * limit. Returns null when no proxy header is present.
+ */
+function trustedClientIp(c: Context): string | null {
+  return (
+    parseClientIp(c.req.header('x-forwarded-for')) || c.req.header('x-real-ip')?.trim() || null
+  );
 }
 
 export function rateLimit(options: RateLimitOptions) {
   const { name, limit, windowMs } = options;
 
   return async function rateLimitMiddleware(c: Context, next: Next) {
-    const ip = clientIp(c);
+    const ip = trustedClientIp(c);
+    // No trusted proxy IP (request didn't traverse the fronting proxy). Do NOT bucket these
+    // together under a shared key — one client could exhaust it and 429 unrelated clients.
+    // Behind the real deployment every request carries the header; skip limiting otherwise.
+    if (!ip) {
+      return next();
+    }
     const key = `rl:${name}:${ip}`;
 
     let count: number;
