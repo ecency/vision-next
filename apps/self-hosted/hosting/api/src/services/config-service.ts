@@ -10,6 +10,16 @@ import { TenantService, type Tenant } from './tenant-service';
 
 const CONFIG_DIR = process.env.CONFIG_DIR || '/app/configs';
 
+/** Escape a string for safe interpolation into HTML text and attribute values. */
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 // Per-tenant write chains: every config-file write for a tenant runs strictly after the
 // previous one, so the periodic sync and a concurrent tenant update can never interleave.
 // Bounded by tenant count; entries are never removed (tiny, and removal would race).
@@ -49,6 +59,14 @@ export const ConfigService = {
     // Ensure directory exists
     await fs.mkdir(CONFIG_DIR, { recursive: true });
 
+    // Head-metadata snippet served into the static HTML via nginx SSI, so link unfurls
+    // and crawlers see the blog's real title instead of a build-tool default (the SPA
+    // only sets the title at runtime, which unfurlers never execute).
+    await this.writeIfChanged(
+      this.getMetaPath(tenant.username),
+      this.buildMetaHtml(tenant)
+    );
+
     // Serve-time copy marks the instance as managed so the app enables managed-hosting
     // features (config saves) on any hostname, including verified custom domains where the
     // subdomain heuristic can't identify the tenant. Injected here rather than stored so
@@ -66,20 +84,62 @@ export const ConfigService = {
 
     const content = JSON.stringify(config, null, 2);
 
-    // Skip identical content so the periodic sync doesn't rewrite every file each pass.
+    if (await this.writeIfChanged(configPath, content)) {
+      console.log('[ConfigService] Generated config:', configPath);
+    }
+    return configPath;
+  },
+
+  /**
+   * Write `content` to `path` unless the file already holds it, so the periodic sync
+   * doesn't rewrite every file each pass. Returns true when a write happened.
+   */
+  async writeIfChanged(path: string, content: string): Promise<boolean> {
     try {
-      const existing = await fs.readFile(configPath, 'utf-8');
+      const existing = await fs.readFile(path, 'utf-8');
       if (existing === content) {
-        return configPath;
+        return false;
       }
     } catch {
       // Missing or unreadable: write it.
     }
+    await fs.writeFile(path, content, 'utf-8');
+    return true;
+  },
 
-    await fs.writeFile(configPath, content, 'utf-8');
+  /**
+   * The SSI head snippet for a tenant: title, description, OG/Twitter tags and favicon.
+   * Title and description are OWNER-SUPPLIED and land verbatim in every visitor's HTML,
+   * so they are HTML-escaped here; the favicon must be an http(s) URL or it falls back.
+   */
+  buildMetaHtml(tenant: Tenant): string {
+    const meta = tenant.config?.configuration?.instanceConfiguration?.meta ?? ({} as any);
+    const title = escapeHtml(
+      (typeof meta.title === 'string' && meta.title.trim()) || `${tenant.username} blog`
+    );
+    const description = escapeHtml(
+      (typeof meta.description === 'string' && meta.description.trim()) ||
+        'A blog powered by Hive blockchain and Ecency.'
+    );
+    const faviconRaw = typeof meta.favicon === 'string' ? meta.favicon.trim() : '';
+    const favicon = /^https?:\/\//i.test(faviconRaw) ? escapeHtml(faviconRaw) : '/favicon.ico';
 
-    console.log('[ConfigService] Generated config:', configPath);
-    return configPath;
+    return [
+      `<title>${title}</title>`,
+      `<meta name="description" content="${description}" />`,
+      `<meta property="og:title" content="${title}" />`,
+      `<meta property="og:description" content="${description}" />`,
+      `<meta property="og:type" content="website" />`,
+      `<meta property="og:site_name" content="${title}" />`,
+      `<meta name="twitter:card" content="summary" />`,
+      `<link rel="icon" href="${favicon}" />`,
+      '',
+    ].join('\n');
+  },
+
+  /** Path of a tenant's SSI head-metadata snippet. */
+  getMetaPath(username: string): string {
+    return path.join(CONFIG_DIR, username.toLowerCase() + '.meta.html');
   },
 
   /**
@@ -92,14 +152,14 @@ export const ConfigService = {
 
   /** The actual unlink; only ever invoked under the per-tenant lock. */
   async removeConfigFileUnlocked(username: string): Promise<void> {
-    const configPath = this.getConfigPath(username);
-
-    try {
-      await fs.unlink(configPath);
-      console.log('[ConfigService] Deleted config:', configPath);
-    } catch (err: any) {
-      if (err.code !== 'ENOENT') {
-        throw err;
+    for (const filePath of [this.getConfigPath(username), this.getMetaPath(username)]) {
+      try {
+        await fs.unlink(filePath);
+        console.log('[ConfigService] Deleted config:', filePath);
+      } catch (err: any) {
+        if (err.code !== 'ENOENT') {
+          throw err;
+        }
       }
     }
   },
@@ -152,20 +212,20 @@ export const ConfigService = {
   /**
    * Sync all tenant configs to disk
    */
-  async syncAllConfigs(tenants: Tenant[]): Promise<void> {
-    console.log('[ConfigService] Syncing', tenants.length, 'configs to disk...');
+  async syncAllConfigs(activeTenants: Tenant[]): Promise<void> {
+    console.log('[ConfigService] Syncing', activeTenants.length, 'active configs to disk...');
+
+    const activeNames = new Set(activeTenants.map((t) => t.username.toLowerCase()));
 
     // Per-tenant isolation: one bad write must not abort the rest of the rollout.
     let failed = 0;
-    for (const tenant of tenants) {
-      if (tenant.subscriptionStatus !== 'active') continue;
+    for (const tenant of activeTenants) {
       try {
         // The pass iterates a snapshot, so the row is re-read INSIDE the per-tenant lock:
         // any update or deletion that enqueued its file operation first has fully finished
         // by the time this read runs, so the sync can never publish older data than what a
         // concurrent operation just wrote (a re-read before enqueueing would leave exactly
         // that window). The unlocked writer is used because the lock is not reentrant.
-        // One query per active tenant per pass, fine at this scale.
         await withTenantWriteLock(tenant.username, async () => {
           const fresh = await TenantService.getByUsername(tenant.username);
           if (!fresh || fresh.subscriptionStatus !== 'active') return;
@@ -180,10 +240,29 @@ export const ConfigService = {
       }
     }
 
+    // Remove files for tenants that were NEVER activated (status 'inactive') or whose row
+    // is gone. nginx serves any file that exists with no subscription check, so a file
+    // written for an unpaid tenant keeps a free blog live forever. Expired/suspended tenants
+    // are intentionally left serving (accepted grace-period behavior) and handled elsewhere.
+    let removed = 0;
+    for (const username of await this.listConfigFiles()) {
+      if (activeNames.has(username.toLowerCase())) continue;
+      try {
+        const tenant = await TenantService.getByUsername(username);
+        if (tenant && tenant.subscriptionStatus !== 'inactive') continue;
+        await this.deleteConfigFile(username);
+        removed++;
+      } catch (err) {
+        console.error(
+          `[ConfigService] Failed to remove stale config for ${username}:`,
+          (err as Error).message
+        );
+      }
+    }
+
     console.log(
-      failed
-        ? `[ConfigService] Sync complete with ${failed} failure(s)`
-        : '[ConfigService] Sync complete'
+      `[ConfigService] Sync complete${failed ? ` with ${failed} write failure(s)` : ''}` +
+        (removed ? `, removed ${removed} stale file(s)` : '')
     );
   },
 

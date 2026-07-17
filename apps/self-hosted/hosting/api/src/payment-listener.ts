@@ -51,8 +51,12 @@ class PaymentListener {
     this.isRunning = true;
     this.pollLoop();
 
-    // Also run subscription expiry check periodically
-    this.expirationIntervalId = setInterval(() => this.checkExpirations(), 60 * 60 * 1000); // Every hour
+    // Sweep expirations at startup (the interval otherwise first fires an hour in, so a
+    // just-lapsed subscription would keep serving that whole window) and then hourly. The
+    // callback swallows its own errors so one transient DB failure can't become an unhandled
+    // rejection that kills the process (and with it the only expiry sweep).
+    void this.checkExpirations();
+    this.expirationIntervalId = setInterval(() => void this.checkExpirations(), 60 * 60 * 1000);
   }
 
   async stop() {
@@ -99,7 +103,15 @@ class PaymentListener {
 
   private async processBlock(blockNum: number) {
     const block = await callRPC('condenser_api.get_block', [blockNum]) as any;
-    if (!block || !block.transactions) return;
+    // A null/undefined block means this node doesn't have the block yet (the load-balanced
+    // cluster can lag the head-block check by a block or two). Throw so the caller retries
+    // the SAME height next tick instead of advancing past it and losing any payment in it.
+    if (!block) {
+      throw new Error(`Block ${blockNum} not available yet`);
+    }
+    // A real block always carries a transactions array (possibly empty); no transactions is
+    // a valid empty block, so advance past it.
+    if (!block.transactions) return;
 
     // transaction_ids array contains the IDs - tx.transaction_id is undefined
     const transactionIds = (block as any).transaction_ids as string[] | undefined;
@@ -172,8 +184,13 @@ class PaymentListener {
 
     // Process based on action
     if (parsed.action === 'blog') {
-      // For blog subscriptions: validate monthly payment
-      const monthsFromAmount = Math.floor(amount / CONFIG.MONTHLY_PRICE_HBD);
+      // For blog subscriptions: validate monthly payment. Integer millis math so an exact
+      // payment isn't under-credited by float error (e.g. 0.3/0.1 === 2.9999… → 2), which
+      // would then reject a correct blog:name:3 memo. (2.000 is binary-exact, so this is
+      // latent today and detonates on the first non-exact price.)
+      const amountMillis = Math.round(amount * 1000);
+      const priceMillis = Math.round(CONFIG.MONTHLY_PRICE_HBD * 1000);
+      const monthsFromAmount = priceMillis > 0 ? Math.floor(amountMillis / priceMillis) : 0;
 
       if (monthsFromAmount < 1) {
         console.log('[PaymentListener] Insufficient amount:', amount, 'HBD for', parsed.username);
@@ -374,10 +391,15 @@ class PaymentListener {
   }
 
   private async checkExpirations() {
-    console.log('[PaymentListener] Checking subscription expirations...');
-    const expired = await TenantService.expireSubscriptions();
-    if (expired > 0) {
-      console.log('[PaymentListener] Expired', expired, 'subscriptions');
+    try {
+      console.log('[PaymentListener] Checking subscription expirations...');
+      const expired = await TenantService.expireSubscriptions();
+      if (expired > 0) {
+        console.log('[PaymentListener] Expired', expired, 'subscriptions');
+      }
+    } catch (error) {
+      // Never let a transient DB error escape an interval/void call as an unhandled rejection.
+      console.error('[PaymentListener] Expiry check failed:', (error as Error).message);
     }
   }
 
@@ -387,20 +409,29 @@ class PaymentListener {
   }
 
   private async getLastProcessedBlock(): Promise<number | null> {
-    try {
-      const result = await db.queryOne<{ value: string }>(
-        "SELECT value FROM system_config WHERE key = 'payment_listener.last_block'"
-      );
-      if (result && result.value) {
-        const blockNum = parseInt(result.value, 10);
-        if (!isNaN(blockNum) && blockNum > 0) {
-          return blockNum;
+    // Retry the read until the DB answers: a query error (e.g. Postgres not yet accepting
+    // connections on a cold stack boot) must NOT be treated as "no saved block", which would
+    // resume from head-100 and permanently skip every payment in a longer downtime gap. Only
+    // a successful query that returns no/invalid row falls back to backfill (true first boot).
+    for (let attempt = 1; ; attempt++) {
+      try {
+        const result = await db.queryOne<{ value: string }>(
+          "SELECT value FROM system_config WHERE key = 'payment_listener.last_block'"
+        );
+        if (result && result.value) {
+          const blockNum = parseInt(result.value, 10);
+          if (!isNaN(blockNum) && blockNum > 0) {
+            return blockNum;
+          }
         }
+        return null;
+      } catch (error) {
+        console.error(
+          `[PaymentListener] Error loading last processed block (attempt ${attempt}):`,
+          (error as Error).message
+        );
+        await this.sleep(Math.min(30000, 1000 * attempt));
       }
-      return null;
-    } catch (error) {
-      console.error('[PaymentListener] Error loading last processed block:', error);
-      return null;
     }
   }
 
@@ -424,9 +455,14 @@ class PaymentListener {
   }
 }
 
-// Start the listener
+// Start the listener. A boot-time failure (e.g. RPC down while fetching the head block) must
+// not crash-loop through the fragile startup path with an unhandled rejection: log and let
+// the container's restart policy retry with backoff.
 const listener = new PaymentListener();
-listener.start();
+listener.start().catch((error) => {
+  console.error('[PaymentListener] Fatal startup error:', (error as Error).message);
+  process.exit(1);
+});
 
 // Handle graceful shutdown
 process.on('SIGTERM', () => listener.stop());
