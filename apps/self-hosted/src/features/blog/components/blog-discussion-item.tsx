@@ -24,9 +24,12 @@ export function BlogDiscussionItem({
   const [showReplies, setShowReplies] = useState(false);
 
   const likesCount = useMemo(() => entry.active_votes?.length || 0, [entry]);
-  // Honor the likes flag; the reactive hook keeps it live if the owner toggles likes while
-  // previewing config, instead of showing a stale heart until an unrelated re-render.
-  const showLikes = InstanceConfigManager.useConfig(
+  // Honor the likes flag, read the same way every other config-flag consumer does
+  // (blog-post-item, blog-post-footer). A live owner-preview toggle is NOT reflected by any
+  // consumer because the preview flow applies edits via DOM attributes, not the config store;
+  // making it live is an app-wide preview change (store-based preview re-renders the whole
+  // tree per keystroke), out of scope here. For real visitors the config is static per load.
+  const showLikes = InstanceConfigManager.getConfigValue(
     ({ configuration }) =>
       configuration.instanceConfiguration.features.likes?.enabled ?? true,
   );

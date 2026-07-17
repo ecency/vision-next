@@ -16,9 +16,10 @@ function RouteComponent() {
   const { q } = Route.useSearch();
 
   // The search entry point is hidden when the owner disables search, but a direct or
-  // bookmarked /search?q= would still query Hive; send it home instead. Reactive read so the
-  // gate updates live if search is toggled while this route is mounted.
-  const searchEnabled = InstanceConfigManager.useConfig(
+  // bookmarked /search?q= would still query Hive; send it home instead. Snapshot read (as
+  // elsewhere in the app); a live owner-preview toggle isn't reflected because preview edits
+  // are applied via DOM attributes, not the config store. Config is static per real load.
+  const searchEnabled = InstanceConfigManager.getConfigValue(
     ({ configuration }) =>
       configuration.instanceConfiguration.layout.search?.enabled ?? true,
   );
