@@ -4,6 +4,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!--# include virtual="/__tenant-meta" -->
+    <!--
+      The SSI include above injects the tenant's real <title>/OG tags (multi-tenant hosting).
+      Browsers use the FIRST <title>, so the injected one wins when SSI is active. On a
+      deployment WITHOUT SSI (single-tenant self-hosting, static host) the include is an inert
+      comment and this fallback title is the only one, so the page is never title-less pre-JS.
+      The runtime app also sets document.title from config once JS runs.
+    -->
+    <title>Ecency Blog</title>
   </head>
   <body>
     <div id="root"></div>

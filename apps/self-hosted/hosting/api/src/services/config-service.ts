@@ -196,14 +196,20 @@ export const ConfigService = {
   },
 
   /**
-   * List all config files
+   * List every tenant username that has ANY served file on disk (config .json OR .meta.html).
+   * The reconcile sweep keys off this, so a tenant whose .json was removed but whose
+   * .meta.html lingered (partial delete failure) is still revisited and cleaned up.
    */
   async listConfigFiles(): Promise<string[]> {
     try {
       const files = await fs.readdir(CONFIG_DIR);
-      return files
-        .filter(f => f.endsWith('.json'))
-        .map(f => f.replace('.json', ''));
+      const names = new Set<string>();
+      for (const f of files) {
+        if (f === 'default.json') continue;
+        if (f.endsWith('.meta.html')) names.add(f.slice(0, -'.meta.html'.length));
+        else if (f.endsWith('.json')) names.add(f.slice(0, -'.json'.length));
+      }
+      return [...names];
     } catch {
       return [];
     }
