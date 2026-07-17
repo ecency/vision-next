@@ -275,15 +275,12 @@ class PaymentListener {
         let tenant = await TenantService.getByUsername(username);
 
         if (!tenant) {
-          // Verify Hive account exists
-          const accountExists = await TenantService.verifyHiveAccount(username);
+          // Strict check: throws on an RPC outage (transient) rather than reporting the
+          // account absent, so a real payment isn't permanently failed when a node is down.
+          const accountExists = await TenantService.accountExistsStrict(username);
           if (!accountExists) {
-            // Update payment to failed status
-            await client.query(
-              `UPDATE payments SET status = 'failed' WHERE id = $1`,
-              [paymentId]
-            );
-            throw new Error('Hive account not found');
+            // Genuinely no such Hive account -> permanent: mark failed and do not retry.
+            throw Object.assign(new Error('Hive account not found'), { permanent: true });
           }
 
           tenant = await TenantService.create(username);
@@ -320,9 +317,24 @@ class PaymentListener {
         });
       }
     } catch (error) {
-      console.error('[PaymentListener] Failed to process subscription for', username, error);
-      // Log failure (may fail if trx_id already exists, which is fine)
-      await this.logPayment(transfer, amount, 'failed', 0, null, String(error));
+      // Only a PERMANENT error (genuinely invalid, e.g. no such Hive account) records a
+      // 'failed' payment — after which the trx_id dedup means it's never retried. A transient
+      // error (RPC/DB outage, or a create racing the signup flow that inserts the tenant
+      // between our read and create) must be rethrown WITHOUT a failed row: the transaction
+      // has rolled back the 'processing' row, so re-throwing lets the block be retried and the
+      // transfer reprocessed cleanly once the condition clears. Recording 'failed' here would
+      // strand a real, paid transfer forever.
+      if ((error as { permanent?: boolean }).permanent) {
+        console.error('[PaymentListener] Permanently rejecting payment for', username, error);
+        await this.logPayment(transfer, amount, 'failed', 0, null, String(error));
+        return;
+      }
+      console.error(
+        '[PaymentListener] Transient error, will retry block for',
+        username,
+        (error as Error).message
+      );
+      throw error;
     }
   }
 
@@ -354,8 +366,15 @@ class PaymentListener {
 
       console.log('[PaymentListener] Upgraded', username, 'to Pro plan');
     } catch (error) {
-      console.error('[PaymentListener] Failed to process upgrade for', username, error);
-      await this.logPayment(transfer, amount, 'failed', 0, null, String(error));
+      // Same rule as processSubscription: a transient error (RPC/DB) must not record a
+      // 'failed' row, or the paid upgrade is stranded forever by the trx_id dedup. No
+      // 'processing' row is written here, so rethrowing simply lets the block retry.
+      console.error(
+        '[PaymentListener] Transient error, will retry upgrade for',
+        username,
+        (error as Error).message
+      );
+      throw error;
     }
   }
 

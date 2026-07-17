@@ -13,6 +13,7 @@ import { domainRoutes } from './routes/domains';
 import { paymentRoutes } from './routes/payments';
 import { authRoutes } from './routes/auth';
 import { internalRoutes } from './routes/internal';
+import { rateLimit } from './middleware/rate-limit';
 import { db } from './db/client';
 import { TenantService } from './services/tenant-service';
 import { ConfigService } from './services/config-service';
@@ -48,8 +49,21 @@ app.use('*', cors({
   exposeHeaders: ['x-payment', 'x-payment-response'],
 }));
 
-// Health check
+// Health check (before rate limiting so container probes are never throttled)
 app.get('/health', (c) => c.json({ status: 'ok', timestamp: new Date().toISOString() }));
+
+// Per-IP rate limiting. A general budget on all public routes caps the unauthenticated
+// tenant-creation + RPC-amplification abuse; a tighter budget on /v1/auth throttles the
+// challenge/verify/hivesigner endpoints, which each spend an RPC or external call per hit.
+// The shared-secret /v1/internal routes (called by ePoints, not end users) are NOT IP-limited.
+const generalLimit = rateLimit({ name: 'api', limit: 180, windowMs: 60_000 });
+const authLimit = rateLimit({ name: 'auth', limit: 30, windowMs: 60_000 });
+app.use('/v1/tenants/*', generalLimit);
+app.use('/v1/tenants', generalLimit);
+app.use('/v1/domains/*', generalLimit);
+app.use('/v1/payments/*', generalLimit);
+app.use('/v1/auth/*', generalLimit);
+app.use('/v1/auth/*', authLimit);
 
 // API Routes
 app.route('/v1/tenants', tenantRoutes);
