@@ -37,7 +37,8 @@ function isWebpackFactoryError(error: { message?: string; stack?: string }): boo
     /Cannot read propert(?:y|ies) of undefined \(reading 'call'\)/i.test(message) || // Chrome
     /undefined is not an object \(evaluating '[^']*\.call'\)/i.test(message) || // Safari
     /can't access property ['"]?call\b/i.test(message) || // Firefox (\b so it can't match "callback")
-    /'call' of undefined/i.test(message)
+    /'call' of undefined/i.test(message) ||
+    /\bis undefined$/i.test(message) // Firefox: e[t] is undefined (direct factory invocation)
   );
 }
 
