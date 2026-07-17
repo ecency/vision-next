@@ -73,6 +73,10 @@ export function HostingSignup() {
   // we must create the new one before payment (a stale guard would let them pay for a blog
   // that was never created and never activates).
   const createdForRef = useRef("");
+  // Expiry of an ALREADY-ACTIVE tenant captured when entering the payment step (renewal).
+  // "I've sent the payment" must then require the expiry to move FORWARD, otherwise a
+  // renewing owner sees "your blog is live" without any payment having landed.
+  const renewBaselineExpiryRef = useRef<string | null>(null);
 
   const baseDomain = "blogs.ecency.com";
   const isCommunity = instanceType === "community";
@@ -152,6 +156,7 @@ export function HostingSignup() {
         });
         createdForRef.current = uname;
         setBlogUrl(res.tenant.blogUrl);
+        renewBaselineExpiryRef.current = null; // freshly created, inactive
       }
       setStep("payment");
     } catch (e) {
@@ -162,17 +167,27 @@ export function HostingSignup() {
       // before letting them reach the payment/activation step.
       let canResume =
         msg === "Username already registered" && !isCommunity && activeUser?.username === uname;
-      if (msg === "Username already registered" && isCommunity && activeUser) {
+      let existing: Awaited<ReturnType<typeof hostingApi.tenant>> | null = null;
+      if (msg === "Username already registered" && activeUser) {
         try {
-          const existing = await hostingApi.tenant(uname);
-          canResume = existing.owner === activeUser.username;
+          existing = await hostingApi.tenant(uname);
+          if (isCommunity) {
+            canResume = existing.owner === activeUser.username;
+          }
         } catch {
-          canResume = false;
+          existing = null;
+          if (isCommunity) canResume = false;
         }
       }
       if (canResume) {
         createdForRef.current = uname;
         setBlogUrl(`https://${uname}.${baseDomain}`);
+        // Renewal of an already-active tenant: remember the current expiry so activation is
+        // only confirmed once it advances.
+        renewBaselineExpiryRef.current =
+          existing?.subscriptionStatus === "active"
+            ? (existing.subscriptionExpiresAt ?? null)
+            : null;
         setStep("payment");
       } else {
         setError(msg === "Username already registered" ? i18next.t("hosting.already-registered") : msg);
@@ -208,7 +223,15 @@ export function HostingSignup() {
     setBusy(true);
     try {
       const t = await hostingApi.tenant(tenantUsername);
-      if (t.subscriptionStatus === "active") {
+      // For a renewal (tenant was already active on entry) require the expiry to have moved
+      // forward — otherwise "active" is trivially true and would confirm success with no
+      // payment. For a first activation there is no baseline, so "active" is sufficient.
+      const baseline = renewBaselineExpiryRef.current;
+      const advanced =
+        !baseline ||
+        (!!t.subscriptionExpiresAt &&
+          new Date(t.subscriptionExpiresAt).getTime() > new Date(baseline).getTime());
+      if (t.subscriptionStatus === "active" && advanced) {
         setStep("success");
       } else {
         setError(i18next.t("hosting.not-yet-active"));
@@ -493,8 +516,10 @@ export function HostingSignup() {
           </div>
 
           {/* Custom domain plan -> let the owner attach and verify their domain now. For a
-              community the tenant is the community id while the logged-in owner authorizes. */}
-          {customDomain && activeUser && (isCommunity || username === activeUser.username) && (
+              community the tenant is the community id while the logged-in owner authorizes.
+              Compare the normalized tenantUsername (not the raw field) so "Alice"/"alice "
+              still shows the manager for tenant "alice". */}
+          {customDomain && activeUser && (isCommunity || tenantUsername === activeUser.username) && (
             <CustomDomainManager
               username={activeUser.username}
               tenant={isCommunity ? tenantUsername : undefined}

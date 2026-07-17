@@ -61,7 +61,13 @@ export function HostingCardCheckout({
   // PaymentIntent already created for the previous one. Fresh nonce per (sku, hostingTarget).
   const nonce = useMemo(genNonce, [sku, hostingTarget]);
   const [clientSecret, setClientSecret] = useState("");
+  // Terminal states that replace the whole checkout (mint failure, order failed, activation
+  // pending). A card decline is NOT terminal — it uses formError below so the user can retry.
   const [error, setError] = useState("");
+  const [errorAppearance, setErrorAppearance] = useState<"danger" | "primary">("danger");
+  // Decline / validation error shown ABOVE the still-mounted payment form so the buyer can
+  // fix the card and try again instead of dead-ending on a red alert.
+  const [formError, setFormError] = useState("");
   const [activating, setActivating] = useState(false);
   const pollingRef = useRef(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -79,8 +85,13 @@ export function HostingCardCheckout({
       try {
         const { client_secret } = await createIntent.mutateAsync({ sku, nonce, hosting_target: hostingTarget });
         if (alive) setClientSecret(client_secret);
-      } catch (e) {
-        if (alive) setError((e as Error).message || i18next.t("hosting.card-unavailable"));
+      } catch {
+        // Intent-mint failures throw raw messages / i18n keys (e.g. "stripe-points.not-
+        // authenticated") and axios status text; show a stable user-facing message instead.
+        if (alive) {
+          setErrorAppearance("danger");
+          setError(i18next.t("hosting.card-unavailable"));
+        }
       }
     })();
     return () => {
@@ -122,6 +133,7 @@ export function HostingCardCheckout({
         if (st.status === "failed") {
           pollingRef.current = false;
           setActivating(false);
+          setErrorAppearance("danger");
           setError(i18next.t("hosting.card-failed"));
           return;
         }
@@ -131,9 +143,10 @@ export function HostingCardCheckout({
       attempts += 1;
       if (attempts >= MAX_ATTEMPTS) {
         // Payment succeeded; ePoints keeps retrying activation with backoff, so this is not a
-        // hard failure -- stop the spinner and reassure rather than loop forever.
+        // hard failure -- stop the spinner and reassure (primary, not danger) rather than loop.
         pollingRef.current = false;
         setActivating(false);
+        setErrorAppearance("primary");
         setError(i18next.t("hosting.activation-pending"));
         return;
       }
@@ -145,8 +158,9 @@ export function HostingCardCheckout({
   if (!stripePromise) {
     return <Alert appearance="danger">{i18next.t("hosting.card-unavailable")}</Alert>;
   }
+  // Terminal states (mint failure, order failed, activation pending) replace the checkout.
   if (error) {
-    return <Alert appearance="danger">{error}</Alert>;
+    return <Alert appearance={errorAppearance}>{error}</Alert>;
   }
   if (activating) {
     return <div className="py-6 text-center text-sm opacity-75">{i18next.t("hosting.activating")}</div>;
@@ -158,16 +172,23 @@ export function HostingCardCheckout({
   }
 
   return (
-    <Elements
-      stripe={stripePromise}
-      options={{ clientSecret, appearance: { theme: isDarkMode() ? "night" : "stripe" } }}
-    >
-      <StripeCheckoutForm
-        returnUrl={returnUrl}
-        payLabel={payLabel}
-        onPaid={startPoll}
-        onError={setError}
-      />
-    </Elements>
+    <div className="flex flex-col gap-3">
+      {/* A card decline keeps the form mounted so the buyer can correct and retry. */}
+      {formError && <Alert appearance="danger">{formError}</Alert>}
+      <Elements
+        stripe={stripePromise}
+        options={{ clientSecret, appearance: { theme: isDarkMode() ? "night" : "stripe" } }}
+      >
+        <StripeCheckoutForm
+          returnUrl={returnUrl}
+          payLabel={payLabel}
+          onPaid={() => {
+            setFormError("");
+            startPoll();
+          }}
+          onError={setFormError}
+        />
+      </Elements>
+    </div>
   );
 }
