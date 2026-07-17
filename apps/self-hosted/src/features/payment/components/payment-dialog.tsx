@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import { useState } from 'react';
 import type { PaymentRequirements } from '../x402-client';
 import { signX402Payment, type PaymentSignMethod } from '../sign-payment';
-import { isKeychainAvailable } from '../../auth/utils/keychain';
+import { hasKeychainLikeExtension } from '../../auth/utils/hive-extensions';
 
 interface PaymentDialogProps {
   requirements: PaymentRequirements;
@@ -24,7 +24,8 @@ export function PaymentDialog({
   const [activeKey, setActiveKey] = useState('');
   const [showKeyInput, setShowKeyInput] = useState(false);
 
-  const keychainAvailable = isKeychainAvailable();
+  // Transaction signing needs the callback API (Keychain or Hive Keeper).
+  const keychainAvailable = hasKeychainLikeExtension();
 
   async function handleSign(method: PaymentSignMethod) {
     setLoadingMethod(method);

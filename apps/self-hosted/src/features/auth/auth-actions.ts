@@ -10,9 +10,13 @@ import {
   saveUser,
 } from "./storage";
 import {
-  broadcast as keychainBroadcast,
-  loginWithKeychain,
-} from "./utils/keychain";
+  broadcastWithExtension,
+  getDetectedExtensions,
+  getPreferredExtensionId,
+  setPreferredExtensionId,
+  signBufferWithExtension,
+} from "./utils/hive-extensions";
+import type { HiveExtensionId } from "./types";
 import {
   broadcastWithHivesigner,
   getHivesignerLoginUrl,
@@ -22,19 +26,33 @@ import { broadcastWithHiveAuth, loginWithHiveAuth } from "./utils/hive-auth";
 /**
  * Login with the given method and username.
  * Updates store and storage; callers should handle loading state.
+ * `extension` picks which browser extension signs (Keeper / Keychain / Peak
+ * Vault) for the "keychain" method; it is remembered per username.
  */
-export async function login(method: AuthMethod, username: string): Promise<void> {
+export async function login(
+  method: AuthMethod,
+  username: string,
+  extension?: HiveExtensionId,
+): Promise<void> {
   const { setUser, setSession } = authenticationStore.getState();
 
   switch (method) {
     case "keychain": {
-      await loginWithKeychain(username);
+      const chosen =
+        extension ?? getPreferredExtensionId(username) ?? getDetectedExtensions()[0]?.id;
+
+      // Prove control of a posting key by signing a throwaway challenge.
+      const challenge = `Login to Ecency Blog: ${Date.now()}`;
+      await signBufferWithExtension(username, challenge, "Posting", chosen);
+
       const newUser: AuthUser = {
         username,
         loginType: "keychain",
+        ...(chosen ? { extension: chosen } : {}),
       };
       setUser(newUser);
       saveUser(newUser);
+      if (chosen) setPreferredExtensionId(username, chosen);
       break;
     }
 
@@ -115,7 +133,9 @@ export async function broadcast(
 
   switch (user.loginType) {
     case "keychain":
-      return keychainBroadcast(user.username, operations, authorityType);
+      // Routes through the extension this account logged in with (Keeper,
+      // Keychain or Peak Vault), falling back to the best available one.
+      return broadcastWithExtension(user.username, operations, authorityType, user.extension);
 
     case "hivesigner":
       if (!user.accessToken) {

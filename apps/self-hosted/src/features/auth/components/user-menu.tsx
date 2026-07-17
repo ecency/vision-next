@@ -1,5 +1,6 @@
 'use client';
 
+import { getExtensionName } from '../utils/hive-extensions';
 import { Link } from '@tanstack/react-router';
 import clsx from 'clsx';
 import { useCallback, useRef, useState, useEffect } from 'react';
@@ -85,7 +86,7 @@ export function UserMenu({ className }: UserMenuProps) {
         <div className="absolute right-0 mt-2 w-48 py-1 rounded-md shadow-lg bg-theme border border-theme z-50">
           <div className="px-4 py-2 border-b border-theme">
             <p className="text-sm font-medium text-theme-primary truncate">{user?.username}</p>
-            <p className="text-xs text-theme-muted capitalize">{user?.loginType}</p>
+            <p className="text-xs text-theme-muted capitalize">{user?.extension ? getExtensionName(user.extension) : user?.loginType}</p>
           </div>
           <button
             type="button"

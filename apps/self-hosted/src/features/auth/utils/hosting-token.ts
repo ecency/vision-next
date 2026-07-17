@@ -11,7 +11,7 @@
  */
 
 import { authenticationStore } from '@/store';
-import { signBuffer } from './keychain';
+import { signBufferWithExtension } from './hive-extensions';
 
 const STORAGE_KEY = 'ecency_hosting_token';
 // Refuse a cached token that expires within a minute so an in-flight save can't outlive it.
@@ -120,10 +120,11 @@ export async function getHostingToken(apiBase: string): Promise<string> {
         `${apiBase}/v1/auth/challenge`,
         { username: user.username },
       );
-      const signed = await signBuffer(
+      const signed = await signBufferWithExtension(
         user.username,
         challengeResponse.challenge,
         'Posting',
+        user.extension,
       );
       if (typeof signed.result !== 'string' || signed.result.length === 0) {
         throw new Error('Keychain signing was cancelled.');
@@ -138,7 +139,7 @@ export async function getHostingToken(apiBase: string): Promise<string> {
 
     default:
       throw new Error(
-        'Saving with a HiveAuth session is not supported yet. Log in with Keychain or HiveSigner to save changes.',
+        'Saving with a HiveAuth session is not supported yet. Log in with a browser extension or HiveSigner to save changes.',
       );
   }
 

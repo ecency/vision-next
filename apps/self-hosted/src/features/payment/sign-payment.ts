@@ -11,6 +11,7 @@
  */
 
 import { signTx } from '../auth/utils/keychain';
+import { resolveKeychainLikeInstance } from '../auth/utils/hive-extensions';
 import {
   buildPaymentTx,
   encodePaymentHeader,
@@ -48,9 +49,12 @@ export async function signX402Payment(
 
   switch (method) {
     case 'keychain': {
-      const resp = await signTx(username, transaction as any, 'Active');
+      // Transaction signing needs the callback API (Keychain/Keeper); resolve the
+      // account's chosen extension. Peak Vault has no requestSignTx.
+      const instance = resolveKeychainLikeInstance(username) ?? undefined;
+      const resp = await signTx(username, transaction as any, 'Active', instance);
       if (!resp.result) {
-        throw new Error('Keychain did not return signed transaction');
+        throw new Error('The extension did not return a signed transaction');
       }
       try {
         signedTx = JSON.parse(resp.result);

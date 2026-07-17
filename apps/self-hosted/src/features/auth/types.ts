@@ -1,11 +1,16 @@
 export type AuthMethod = "hivesigner" | "keychain" | "hiveauth";
 
+/** Keychain-compatible browser extensions the app can sign with. */
+export type HiveExtensionId = "keychain" | "hive-keeper" | "peakvault";
+
 export interface AuthUser {
   username: string;
   accessToken?: string;
   refreshToken?: string;
   postingKey?: string;
   loginType: AuthMethod;
+  /** Which browser extension signs for this session (loginType "keychain" only). */
+  extension?: HiveExtensionId;
   expiresAt?: number;
 }
 
