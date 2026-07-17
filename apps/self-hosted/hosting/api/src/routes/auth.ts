@@ -7,11 +7,15 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
-import { callRPC, Signature, PublicKey, config as hiveTxConfig } from '@ecency/sdk/hive';
-import { createHash } from 'crypto';
+import { callRPC, config as hiveTxConfig } from '@ecency/sdk/hive';
 import { TenantService } from '../services/tenant-service';
 import { nanoid } from 'nanoid';
-import { createToken, verifyToken, getTokenExpiry } from '../utils/auth';
+import {
+  createToken,
+  verifyChallengeSignature,
+  verifyToken,
+  getTokenExpiry,
+} from '../utils/auth';
 import { challengeStore } from '../utils/redis';
 import { AuditService, parseClientIp } from '../services/audit-service';
 
@@ -88,19 +92,12 @@ authRoutes.post(
 
     const account = accounts[0];
 
-    // Verify signature against posting key
-    try {
-      const publicKey = PublicKey.fromString(account.posting.key_auths[0][0]);
-      const sig = Signature.from(signature);
-      const messageHash = createHash('sha256').update(challenge).digest();
-
-      const verified = publicKey.verify(messageHash, sig);
-      if (!verified) {
-        return c.json({ error: 'Invalid signature' }, 401);
-      }
-    } catch (err) {
-      console.error('Signature verification error:', err);
-      return c.json({ error: 'Invalid signature format' }, 400);
+    // Verify the signature against EVERY posting key on the account, not just the first:
+    // accounts often carry several posting key_auths and the signer may hold any of them.
+    // The full posting authority is passed so key weights are checked against the
+    // threshold (a partial-authority key on a multisig account must not log in).
+    if (!verifyChallengeSignature(account.posting, challenge, signature)) {
+      return c.json({ error: 'Invalid signature' }, 401);
     }
 
     // Clean up challenge from Redis

@@ -6,9 +6,50 @@
  */
 
 import jwt from 'jsonwebtoken';
+import { createHash } from 'crypto';
+import { PublicKey, Signature } from '@ecency/sdk/hive';
 
 export interface AuthUser {
   username: string;
+}
+
+export interface PostingAuthority {
+  weight_threshold: number;
+  key_auths: Array<[string, number]>;
+}
+
+/**
+ * True when `signature` over sha256(challenge) verifies against one of the account's
+ * posting keys whose weight alone satisfies the posting threshold. Accounts routinely
+ * carry several posting key_auths (app keys, rotated keys); checking only the first
+ * rejects valid logins from holders of the others. A single login signature can only
+ * ever prove ONE key, so on weighted/multisig authorities the signing key's own weight
+ * must meet weight_threshold; a partial-authority key must not obtain a session.
+ * Malformed entries are skipped; a malformed signature or empty key list fails.
+ */
+export function verifyChallengeSignature(
+  posting: PostingAuthority | undefined,
+  challenge: string,
+  signature: string
+): boolean {
+  let sig: Signature;
+  try {
+    sig = Signature.from(signature);
+  } catch {
+    return false;
+  }
+
+  const threshold = posting?.weight_threshold ?? 1;
+  const messageHash = createHash('sha256').update(challenge).digest();
+
+  return (posting?.key_auths ?? []).some(([key, weight]) => {
+    if (typeof weight !== 'number' || weight < threshold) return false;
+    try {
+      return PublicKey.fromString(key).verify(messageHash, sig);
+    } catch {
+      return false;
+    }
+  });
 }
 
 interface TokenPayload {
