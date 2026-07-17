@@ -24,9 +24,9 @@ export function BlogDiscussionItem({
   const [showReplies, setShowReplies] = useState(false);
 
   const likesCount = useMemo(() => entry.active_votes?.length || 0, [entry]);
-  // Honor the same likes flag the post-level UI does, so a config with likes disabled
-  // doesn't still show a heart + count on every comment.
-  const showLikes = InstanceConfigManager.getConfigValue(
+  // Honor the likes flag; the reactive hook keeps it live if the owner toggles likes while
+  // previewing config, instead of showing a stale heart until an unrelated re-render.
+  const showLikes = InstanceConfigManager.useConfig(
     ({ configuration }) =>
       configuration.instanceConfiguration.features.likes?.enabled ?? true,
   );
