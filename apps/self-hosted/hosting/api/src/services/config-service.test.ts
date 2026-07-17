@@ -121,4 +121,80 @@ describe('ConfigService.syncAllConfigs ordering', () => {
       spy.mockRestore();
     }
   });
+
+  it('sync removes the served file of a never-activated (inactive) tenant', async () => {
+    // The free-blog hole: a file written for an unpaid tenant must be swept so nginx stops
+    // serving it. Write one, then run a sync whose active set does not include it.
+    await ConfigService.generateConfigFile(tenant('grace', 'Grace'));
+    await expect(fs.access(ConfigService.getConfigPath('grace'))).resolves.toBeUndefined();
+
+    const spy = vi
+      .spyOn(TenantService, 'getByUsername')
+      .mockImplementation(async (u: string) =>
+        u === 'grace' ? { ...tenant('grace', 'Grace'), subscriptionStatus: 'inactive' } : null
+      );
+    try {
+      await ConfigService.syncAllConfigs([]); // no active tenants
+      await expect(fs.access(ConfigService.getConfigPath('grace'))).rejects.toThrow();
+      await expect(fs.access(ConfigService.getMetaPath('grace'))).rejects.toThrow();
+    } finally {
+      spy.mockRestore();
+    }
+  });
+});
+
+describe('ConfigService.buildMetaHtml', () => {
+  it('uses the tenant title/description and a generated <title>/OG tags', () => {
+    const html = ConfigService.buildMetaHtml(
+      tenant('dan', 'Dan’s Blog') as any
+    );
+    expect(html).toContain('<title>Dan’s Blog</title>');
+    expect(html).toContain('<meta property="og:title" content="Dan’s Blog" />');
+    expect(html).toContain('<link rel="icon"');
+  });
+
+  it('HTML-escapes owner-supplied title and description (they land in every visitor page)', () => {
+    const malicious = {
+      username: 'evil',
+      config: {
+        configuration: {
+          instanceConfiguration: {
+            meta: {
+              title: '</title><script>alert(1)</script>',
+              description: '"><img src=x onerror=alert(1)>',
+            },
+          },
+        },
+      },
+    } as any;
+    const html = ConfigService.buildMetaHtml(malicious);
+    expect(html).not.toContain('<script>');
+    expect(html).not.toContain('<img src=x');
+    expect(html).toContain('&lt;script&gt;');
+    expect(html).toContain('&quot;&gt;&lt;img');
+  });
+
+  it('only allows an http(s) favicon, else falls back to the bundled icon', () => {
+    const withJs = {
+      username: 'x',
+      config: {
+        configuration: {
+          instanceConfiguration: { meta: { favicon: 'javascript:alert(1)' } },
+        },
+      },
+    } as any;
+    expect(ConfigService.buildMetaHtml(withJs)).toContain('href="/favicon.ico"');
+
+    const withHttps = {
+      username: 'x',
+      config: {
+        configuration: {
+          instanceConfiguration: { meta: { favicon: 'https://cdn.example.com/f.png' } },
+        },
+      },
+    } as any;
+    expect(ConfigService.buildMetaHtml(withHttps)).toContain(
+      'href="https://cdn.example.com/f.png"'
+    );
+  });
 });

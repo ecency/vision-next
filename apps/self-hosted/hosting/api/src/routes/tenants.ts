@@ -179,12 +179,12 @@ tenantRoutes.post('/', zValidator('json', createTenantSchema), async (c) => {
   }
   const { owner } = validation;
 
-  // Create tenant (inactive until payment)
+  // Create tenant (inactive until payment). The served config file is NOT written here:
+  // nginx serves any file that exists with no subscription check, so writing it now would
+  // put an unpaid blog live forever. The file is generated only on activation (payment
+  // listener / internal activate / subscribe).
   const tenant = await TenantService.create(body.username, owner, body.config);
-  
-  // Generate config file (will be served after payment)
-  await ConfigService.generateConfigFile(tenant);
-  
+
   const baseDomain = process.env.BASE_DOMAIN || 'blogs.ecency.com';
   const paymentAccount = process.env.PAYMENT_ACCOUNT || 'ecency.hosting';
   const monthlyPrice = process.env.MONTHLY_PRICE_HBD || '0.100';
@@ -254,10 +254,12 @@ tenantRoutes.post('/subscribe',
     // beats refusing to record it at all.
     const tenantConfig =
       c.get('tenantConfig') ?? (await TenantService.buildConfig(body.username, body.config, owner));
-    const blockNum = c.get('blockNum');
-    if (!Number.isInteger(blockNum) || blockNum <= 0) {
-      return c.json({ error: 'Missing or invalid block number from payment settlement' }, 502);
-    }
+    // The x402 paywall settles the payment (money has moved) and provides payer + txId, but
+    // not a block number. Payment MUST still be recorded and the blog activated; refusing on
+    // a missing block would take money and grant nothing. block_num 0 is informational only
+    // (dedup is on trx_id), matching the card/internal-activate path.
+    const blockNumRaw = c.get('blockNum');
+    const blockNum = Number.isInteger(blockNumRaw) && blockNumRaw > 0 ? blockNumRaw : 0;
 
     // All mutations inside a DB transaction to prevent orphan tenants
     const result = await db.transaction(async (client) => {
@@ -381,10 +383,10 @@ tenantRoutes.post('/:username/upgrade',
       return c.json({ error: 'Missing or invalid payer/txId from payment settlement' }, 502);
     }
 
-    const blockNum = c.get('blockNum');
-    if (!Number.isInteger(blockNum) || blockNum <= 0) {
-      return c.json({ error: 'Missing or invalid block number from payment settlement' }, 502);
-    }
+    // See /subscribe: x402 settlement provides no block number; record with 0 rather than
+    // 502-ing after the money has already moved.
+    const blockNumRaw = c.get('blockNum');
+    const blockNum = Number.isInteger(blockNumRaw) && blockNumRaw > 0 ? blockNumRaw : 0;
 
     // Payment claim + upgrade inside a DB transaction with row lock
     const result = await db.transaction(async (client) => {

@@ -172,6 +172,20 @@ internalRoutes.post('/activate', async (c) => {
       // Surface it (the caller treats non-200/404 as retryable + alerts) rather than mutate.
       return c.json({ error: 'order_tenant_mismatch' }, 409);
     }
+
+    // Generate the served config file now that the tenant is active. Creation no longer
+    // writes it (so unpaid tenants can't serve), and the card/ePoints rail activates through
+    // this endpoint, so without this a paid tenant would serve the default blog until the
+    // periodic sync catches up. Non-fatal + idempotent (writes only on change).
+    try {
+      const tenant = await TenantService.getByUsername(username);
+      if (tenant && tenant.subscriptionStatus === 'active') {
+        await ConfigService.generateConfigFile(tenant);
+      }
+    } catch (err) {
+      console.error(`[internal/activate] config generation failed for ${username}:`, (err as Error).message);
+    }
+
     // Echo the tenant's ACTUAL plan so the caller (ePoints) can confirm the Pro tier was honored.
     // Truthful on replays too (the upgrade is idempotent); an older service that ignores `plan`
     // omits this field, which the caller treats as a mismatch and retries.
