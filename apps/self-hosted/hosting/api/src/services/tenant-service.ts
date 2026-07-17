@@ -419,15 +419,30 @@ export const TenantService = {
   },
   
   /**
-   * Verify Hive account exists
+   * Verify Hive account exists. Returns false on ANY failure, so callers that only need a
+   * best-effort check (signup validation) get a simple boolean; an RPC outage looks the same
+   * as a genuinely-absent account here. Payment processing must NOT use this — it needs to
+   * tell those apart (see accountExistsStrict) so a real payment isn't permanently failed.
    */
   async verifyHiveAccount(username: string): Promise<boolean> {
     try {
-      const accounts = await callRPC('condenser_api.get_accounts', [[username]]) as any[];
-      return Array.isArray(accounts) && accounts.length > 0;
+      return await this.accountExistsStrict(username);
     } catch {
       return false;
     }
+  },
+
+  /**
+   * Definitive account existence check: resolves true/false only for a real answer and
+   * THROWS on an RPC/transport error. The payment listener relies on the throw to retry the
+   * block rather than record a paid transfer as permanently failed during a node outage.
+   */
+  async accountExistsStrict(username: string): Promise<boolean> {
+    const accounts = await callRPC('condenser_api.get_accounts', [[username]]);
+    if (!Array.isArray(accounts)) {
+      throw new Error('Unexpected get_accounts response');
+    }
+    return accounts.length > 0;
   },
 
   /**
