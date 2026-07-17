@@ -73,6 +73,10 @@ export function HostingSignup() {
   // we must create the new one before payment (a stale guard would let them pay for a blog
   // that was never created and never activates).
   const createdForRef = useRef("");
+  // Expiry of an ALREADY-ACTIVE tenant captured when entering the payment step (renewal).
+  // "I've sent the payment" must then require the expiry to move FORWARD, otherwise a
+  // renewing owner sees "your blog is live" without any payment having landed.
+  const renewBaselineExpiryRef = useRef<string | null>(null);
 
   const baseDomain = "blogs.ecency.com";
   const isCommunity = instanceType === "community";
@@ -152,31 +156,47 @@ export function HostingSignup() {
         });
         createdForRef.current = uname;
         setBlogUrl(res.tenant.blogUrl);
+        renewBaselineExpiryRef.current = null; // freshly created, inactive
       }
       setStep("payment");
     } catch (e) {
       const msg = (e as Error).message;
-      // The tenant already existing is not an error: only its OWNER may resume to payment or renew.
-      // For a blog the owner is the account itself. For a community the owner is fixed at creation
-      // (and is not the community account), so confirm the logged-in user owns the existing tenant
-      // before letting them reach the payment/activation step.
-      let canResume =
-        msg === "Username already registered" && !isCommunity && activeUser?.username === uname;
-      if (msg === "Username already registered" && isCommunity && activeUser) {
-        try {
-          const existing = await hostingApi.tenant(uname);
-          canResume = existing.owner === activeUser.username;
-        } catch {
-          canResume = false;
-        }
+      if (msg !== "Username already registered") {
+        setError(msg);
+        return;
       }
-      if (canResume) {
-        createdForRef.current = uname;
-        setBlogUrl(`https://${uname}.${baseDomain}`);
-        setStep("payment");
-      } else {
-        setError(msg === "Username already registered" ? i18next.t("hosting.already-registered") : msg);
+      // The tenant already existing is not an error: only its OWNER may resume to payment or
+      // renew. Establishing the renewal baseline (the current expiry) requires reading the
+      // tenant, so if that read fails we must NOT proceed — otherwise checkActivation would
+      // treat this renewal as a first activation and could confirm success without the expiry
+      // moving. Surface a retry instead. (For a personal blog the owner is the account itself;
+      // for a community the owner is confirmed against the fetched record.)
+      if (!activeUser) {
+        setError(i18next.t("hosting.already-registered"));
+        return;
       }
+      let existing: Awaited<ReturnType<typeof hostingApi.tenant>>;
+      try {
+        existing = await hostingApi.tenant(uname);
+      } catch {
+        setError(i18next.t("hosting.status-check-failed"));
+        return;
+      }
+      const isOwner = isCommunity
+        ? existing.owner === activeUser.username
+        : activeUser.username === uname;
+      if (!isOwner) {
+        setError(i18next.t("hosting.already-registered"));
+        return;
+      }
+      createdForRef.current = uname;
+      setBlogUrl(`https://${uname}.${baseDomain}`);
+      // Renewal of an already-active tenant: remember the current expiry so activation is only
+      // confirmed once it advances. null (an inactive tenant resuming its first payment) means
+      // checkActivation confirms on active status alone.
+      renewBaselineExpiryRef.current =
+        existing.subscriptionStatus === "active" ? (existing.subscriptionExpiresAt ?? null) : null;
+      setStep("payment");
     } finally {
       setBusy(false);
     }
@@ -208,7 +228,15 @@ export function HostingSignup() {
     setBusy(true);
     try {
       const t = await hostingApi.tenant(tenantUsername);
-      if (t.subscriptionStatus === "active") {
+      // For a renewal (tenant was already active on entry) require the expiry to have moved
+      // forward — otherwise "active" is trivially true and would confirm success with no
+      // payment. For a first activation there is no baseline, so "active" is sufficient.
+      const baseline = renewBaselineExpiryRef.current;
+      const advanced =
+        !baseline ||
+        (!!t.subscriptionExpiresAt &&
+          new Date(t.subscriptionExpiresAt).getTime() > new Date(baseline).getTime());
+      if (t.subscriptionStatus === "active" && advanced) {
         setStep("success");
       } else {
         setError(i18next.t("hosting.not-yet-active"));
@@ -493,8 +521,10 @@ export function HostingSignup() {
           </div>
 
           {/* Custom domain plan -> let the owner attach and verify their domain now. For a
-              community the tenant is the community id while the logged-in owner authorizes. */}
-          {customDomain && activeUser && (isCommunity || username === activeUser.username) && (
+              community the tenant is the community id while the logged-in owner authorizes.
+              Compare the normalized tenantUsername (not the raw field) so "Alice"/"alice "
+              still shows the manager for tenant "alice". */}
+          {customDomain && activeUser && (isCommunity || tenantUsername === activeUser.username) && (
             <CustomDomainManager
               username={activeUser.username}
               tenant={isCommunity ? tenantUsername : undefined}

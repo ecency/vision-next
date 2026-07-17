@@ -27,6 +27,7 @@
     "success-title": "Your blog is live",
     "invalid-username": "Enter a valid Hive username.",
     "already-registered": "This blog is already registered.",
+    "status-check-failed": "Could not load your blog status. Please try again in a moment.",
     "card-unavailable": "Card payment is unavailable right now.",
     "card-failed": "The payment could not be completed.",
     "activating": "Payment received. Activating your blog.",
