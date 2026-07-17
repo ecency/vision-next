@@ -16,13 +16,18 @@ export function SignupWalletChooseUsername({ initialUsername, onAvailableUsernam
   const [usernameInput, setUsernameInput] = useState(initialUsername);
   const [username, setUsername] = useState("");
   const [hasTouched, setHasTouched] = useState(false);
+  const normalizedUsername = username.toLowerCase();
+  const usernameRuleError = getUsernameError(normalizedUsername);
 
   const {
     data: foundAccounts,
     isSuccess,
     isPending
-  } = useQuery(getAccountsQueryOptions([username.toLowerCase()]));
-  const { data } = useQuery(checkUsernameWalletsPendingQueryOptions(username.toLowerCase(), undefined));
+  } = useQuery({
+    ...getAccountsQueryOptions([normalizedUsername]),
+    enabled: !usernameRuleError
+  });
+  const { data } = useQuery(checkUsernameWalletsPendingQueryOptions(normalizedUsername, undefined));
 
   const existingAccount = useMemo(() => foundAccounts?.[0], [foundAccounts]);
   const usernameError = useMemo(() => {
@@ -36,8 +41,8 @@ export function SignupWalletChooseUsername({ initialUsername, onAvailableUsernam
 
     // Single source of truth for chain-validity + exchange/uid policy. Keeps this
     // step from drifting from the other signup flows (see getUsernameError).
-    return getUsernameError(username) ?? undefined;
-  }, [existingAccount, username, hasTouched, data]);
+    return usernameRuleError ?? undefined;
+  }, [existingAccount, usernameRuleError, hasTouched, data]);
   const canCreateAccount = useMemo(
     () => !usernameError && username && isSuccess,
     [usernameError, username, isSuccess]
