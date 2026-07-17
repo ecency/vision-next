@@ -4,7 +4,7 @@ import { renderPostBody } from '@ecency/render-helper';
 import type { Entry } from '@ecency/sdk';
 import { UilComment, UilHeart } from '@tooni/iconscout-unicons-react';
 import { useMemo, useState } from 'react';
-import { formatRelativeTime } from '@/core';
+import { formatRelativeTime, InstanceConfigManager } from '@/core';
 import { UserAvatar } from '@/features/shared/user-avatar';
 import { BlogDiscussionList } from './blog-discussion-list';
 
@@ -24,6 +24,12 @@ export function BlogDiscussionItem({
   const [showReplies, setShowReplies] = useState(false);
 
   const likesCount = useMemo(() => entry.active_votes?.length || 0, [entry]);
+  // Honor the same likes flag the post-level UI does, so a config with likes disabled
+  // doesn't still show a heart + count on every comment.
+  const showLikes = InstanceConfigManager.getConfigValue(
+    ({ configuration }) =>
+      configuration.instanceConfiguration.features.likes?.enabled ?? true,
+  );
 
   const repliesCount = useMemo(
     () =>
@@ -84,10 +90,12 @@ export function BlogDiscussionItem({
           </div>
 
           <div className="flex items-center gap-3 sm:gap-4 mt-2 sm:mt-3 text-xs text-theme-muted font-theme-ui">
-            <div className="flex items-center gap-1">
-              <UilHeart className="w-3 h-3" />
-              <span>{likesCount}</span>
-            </div>
+            {showLikes && (
+              <div className="flex items-center gap-1">
+                <UilHeart className="w-3 h-3" />
+                <span>{likesCount}</span>
+              </div>
+            )}
             {hasReplies && (
               <button
                 type="button"

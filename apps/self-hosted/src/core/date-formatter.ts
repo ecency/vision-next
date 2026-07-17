@@ -1,6 +1,5 @@
-import { format, formatDistanceToNow, formatRelative } from 'date-fns';
-import { toZonedTime } from 'date-fns-tz';
 import type { Locale } from 'date-fns';
+import { format, formatDistanceToNow, formatRelative } from 'date-fns';
 import {
   de,
   enUS,
@@ -18,6 +17,7 @@ import {
   vi,
   zhCN,
 } from 'date-fns/locale';
+import { toZonedTime } from 'date-fns-tz';
 import { InstanceConfigManager } from './configuration-loader';
 
 // Map language codes to date-fns locales
@@ -60,10 +60,24 @@ function parseHiveDate(date: Date | string | number): Date {
 
   // Hive dates don't have timezone indicator, treat as UTC
   const dateStr = String(date);
-  if (!dateStr.endsWith('Z') && !dateStr.includes('+') && !dateStr.includes('-', 10)) {
+  if (
+    !dateStr.endsWith('Z') &&
+    !dateStr.includes('+') &&
+    !dateStr.includes('-', 10)
+  ) {
     return new Date(dateStr + 'Z');
   }
   return new Date(dateStr);
+}
+
+/**
+ * True for an unparseable/invalid Date. date-fns v4's `format` THROWS a RangeError on an
+ * Invalid Date; since these formatters run during render and the only boundary is the
+ * app-wide ErrorBoundary, an unexpected date (e.g. an undefined field) would otherwise blank
+ * the entire page. The formatters below return "" for such input instead.
+ */
+function isValidDate(d: Date): boolean {
+  return !Number.isNaN(d.getTime());
 }
 
 function getLocale(): Locale {
@@ -105,6 +119,7 @@ function getDateTimeFormat(): string {
  */
 export function formatDate(date: Date | string | number): string {
   const utcDate = parseHiveDate(date);
+  if (!isValidDate(utcDate)) return '';
   const zonedDate = toZonedTime(utcDate, getTimezone());
   return format(zonedDate, getDateFormat(), { locale: getLocale() });
 }
@@ -114,6 +129,7 @@ export function formatDate(date: Date | string | number): string {
  */
 export function formatTime(date: Date | string | number): string {
   const utcDate = parseHiveDate(date);
+  if (!isValidDate(utcDate)) return '';
   const zonedDate = toZonedTime(utcDate, getTimezone());
   return format(zonedDate, getTimeFormat(), { locale: getLocale() });
 }
@@ -123,6 +139,7 @@ export function formatTime(date: Date | string | number): string {
  */
 export function formatDateTime(date: Date | string | number): string {
   const utcDate = parseHiveDate(date);
+  if (!isValidDate(utcDate)) return '';
   const zonedDate = toZonedTime(utcDate, getTimezone());
   return format(zonedDate, getDateTimeFormat(), { locale: getLocale() });
 }
@@ -133,6 +150,7 @@ export function formatDateTime(date: Date | string | number): string {
  */
 export function formatRelativeTime(date: Date | string | number): string {
   const utcDate = parseHiveDate(date);
+  if (!isValidDate(utcDate)) return '';
   // formatDistanceToNow compares UTC timestamps internally, so we just need
   // to ensure the input date is parsed as UTC (which parseHiveDate does)
   return formatDistanceToNow(utcDate, { addSuffix: true, locale: getLocale() });
@@ -143,6 +161,7 @@ export function formatRelativeTime(date: Date | string | number): string {
  */
 export function formatRelativeDate(date: Date | string | number): string {
   const utcDate = parseHiveDate(date);
+  if (!isValidDate(utcDate)) return '';
   const timezone = getTimezone();
   const zonedDate = toZonedTime(utcDate, timezone);
   const zonedNow = toZonedTime(new Date(), timezone);
