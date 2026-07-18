@@ -10,7 +10,6 @@ import {
   TenantService,
   isReregisterableAbandoned,
   ABANDONED_REREGISTER_QUARANTINE_HOURS,
-  CAUGHT_UP_SQL,
 } from '../services/tenant-service';
 import { mapTenantFromDb } from '../types';
 import { ConfigService } from '../services/config-service';
@@ -297,11 +296,14 @@ tenantRoutes.post('/subscribe',
 
     // All mutations inside a DB transaction to prevent orphan tenants
     const result = await db.transaction(async (client) => {
-      // Create tenant — the upsert both handles a concurrent-create race and revives a row the
-      // sweep marked 'abandoned' AND past the re-registration quarantine. A live tenant, or one
-      // reclaimed too recently (a payment could still be in flight for it), leaves the WHERE
-      // unsatisfied, returns no row, and is reported as a conflict rather than silently
-      // overwritten. This matches the pre-paywall availability check above.
+      // Create tenant — the upsert handles a concurrent-create race and revives a row the sweep
+      // marked 'abandoned' AND past the re-registration quarantine. Unlike the create/claim-blog
+      // upserts, this one deliberately does NOT re-check the listener caught-up watermark: this
+      // runs AFTER the paywall has settled the payment, and the pre-paywall availability check
+      // already verified the watermark (a fresh watermark there means the name had no pending
+      // on-chain payment at settle time). Re-checking a watermark that can flip stale during
+      // settlement would turn a listener blip into a paid-but-unrecorded order. The quarantine
+      // guard, which only moves forward, is stable across the settlement and is kept.
       const tenantRow = await client.query(
         `INSERT INTO tenants (username, owner, config, subscription_status, subscription_plan)
          VALUES ($1, $2, $3, 'inactive', 'standard')
@@ -314,7 +316,6 @@ tenantRoutes.post('/subscribe',
                updated_at = NOW()
            WHERE tenants.subscription_status = 'abandoned'
              AND tenants.updated_at < NOW() - ($4 * INTERVAL '1 hour')
-             AND ${CAUGHT_UP_SQL}
          RETURNING *`,
         [body.username.toLowerCase(), owner, JSON.stringify(tenantConfig), ABANDONED_REREGISTER_QUARANTINE_HOURS]
       );
