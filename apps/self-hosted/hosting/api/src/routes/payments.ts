@@ -69,21 +69,30 @@ paymentRoutes.get('/', authMiddleware, async (c) => {
 paymentRoutes.get('/instructions/:username', async (c) => {
   const username = c.req.param('username');
   const months = parseInt(c.req.query('months') || '1', 10);
+  // ?domain=1 quotes the one-step custom-domain (pro) tier: higher monthly price and a ':domain'
+  // memo that activates the blog AND unlocks custom domains in a single HBD transfer.
+  const domain = c.req.query('domain') === '1' || c.req.query('domain') === 'true';
 
   const paymentAccount = process.env.PAYMENT_ACCOUNT || 'ecency.hosting';
-  const monthlyPrice = parseFloat(process.env.MONTHLY_PRICE_HBD || '2.000');
+  const baseMonthly = parseFloat(process.env.MONTHLY_PRICE_HBD || '2.000');
+  const monthlyPrice = domain
+    ? parseFloat(process.env.CUSTOM_DOMAIN_MONTHLY_PRICE_HBD || (baseMonthly + 1).toString())
+    : baseMonthly;
   const totalAmount = (monthlyPrice * months).toFixed(3);
+  // blog:name / blog:name:months, with a trailing :domain for the custom-domain tier.
+  const memo = `blog:${username}${months > 1 ? ':' + months : ''}${domain ? ':domain' : ''}`;
 
   return c.json({
     to: paymentAccount,
     amount: totalAmount + ' HBD',
-    memo: months > 1 ? `blog:${username}:${months}` : `blog:${username}`,
+    memo,
     monthlyPrice: monthlyPrice + ' HBD',
     months,
     totalAmount: totalAmount + ' HBD',
+    customDomain: domain,
     instructions: [
       `Send ${totalAmount} HBD to @${paymentAccount}`,
-      `Use memo: blog:${username}${months > 1 ? ':' + months : ''}`,
+      `Use memo: ${memo}`,
       'Your blog will be activated within seconds of payment confirmation',
     ],
   });

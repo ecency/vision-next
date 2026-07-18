@@ -27,6 +27,13 @@ const CONFIG = {
   PAYMENT_ACCOUNT: process.env.PAYMENT_ACCOUNT || 'ecency.hosting',
   MONTHLY_PRICE_HBD: parseFloat(process.env.MONTHLY_PRICE_HBD || '0.100'),
   PRO_UPGRADE_PRICE_HBD: parseFloat(process.env.PRO_UPGRADE_PRICE_HBD || '0.500'),
+  // Monthly price for a blog WITH the custom-domain add-on (the 'pro' tier), paid in one HBD
+  // transfer via a blog:name[:months]:domain memo. Mirrors the card side's +$1/mo: standard + the
+  // add-on delta. Configurable, but defaults to standard + 1 HBD.
+  CUSTOM_DOMAIN_MONTHLY_PRICE_HBD: parseFloat(
+    process.env.CUSTOM_DOMAIN_MONTHLY_PRICE_HBD ||
+      (parseFloat(process.env.MONTHLY_PRICE_HBD || '0.100') + 1).toString()
+  ),
   HIVE_API_NODES: (process.env.HIVE_API_URL || 'https://api.hive.blog').split(','),
   POLL_INTERVAL_MS: 3000, // 3 seconds (1 block)
   // Days an unpaid (inactive) tenant reserves its username before the sweep reclaims it (marks
@@ -226,12 +233,16 @@ class PaymentListener {
 
     // Process based on action
     if (parsed.action === 'blog') {
-      // For blog subscriptions: validate monthly payment. Integer millis math so an exact
-      // payment isn't under-credited by float error (e.g. 0.3/0.1 === 2.9999… → 2), which
-      // would then reject a correct blog:name:3 memo. (2.000 is binary-exact, so this is
-      // latent today and detonates on the first non-exact price.)
+      // For blog subscriptions: validate monthly payment. The custom-domain (':domain') memo is
+      // priced at the higher custom-domain monthly rate, so months are derived from that price —
+      // an underpaid ':domain' transfer is rejected below rather than silently credited as extra
+      // standard months. Integer millis math so an exact payment isn't under-credited by float
+      // error (e.g. 0.3/0.1 === 2.9999… → 2), which would then reject a correct blog:name:3 memo.
+      const monthlyPrice = parsed.customDomain
+        ? CONFIG.CUSTOM_DOMAIN_MONTHLY_PRICE_HBD
+        : CONFIG.MONTHLY_PRICE_HBD;
       const amountMillis = Math.round(amount * 1000);
-      const priceMillis = Math.round(CONFIG.MONTHLY_PRICE_HBD * 1000);
+      const priceMillis = Math.round(monthlyPrice * 1000);
       const monthsFromAmount = priceMillis > 0 ? Math.floor(amountMillis / priceMillis) : 0;
 
       if (monthsFromAmount < 1) {
@@ -263,7 +274,7 @@ class PaymentListener {
 
       // Grant only the months that were paid for
       const months = monthsFromAmount;
-      await this.processSubscription(transfer, parsed.username, months, amount);
+      await this.processSubscription(transfer, parsed.username, months, amount, parsed.customDomain);
     } else if (parsed.action === 'upgrade') {
       // For upgrades: validate against pro upgrade price, not monthly price
       if (amount < CONFIG.PRO_UPGRADE_PRICE_HBD) {
@@ -286,7 +297,11 @@ class PaymentListener {
     transfer: any,
     username: string,
     months: number,
-    amount: number
+    amount: number,
+    // A ':domain' memo activates on the custom-domain ('pro') tier. Set the plan on activation so a
+    // one-step blog:name:months:domain payment both creates/extends the blog AND unlocks custom
+    // domains. A standard memo passes false and never downgrades an existing pro tenant.
+    pro: boolean = false
   ) {
     console.log('[PaymentListener] Processing subscription:', username, 'for', months, 'months');
 
@@ -370,10 +385,13 @@ class PaymentListener {
            SET subscription_status = 'active',
                subscription_started_at = $2,
                subscription_expires_at = $3,
+               subscription_plan = COALESCE($4, subscription_plan),
                updated_at = NOW()
            WHERE id = $1
            RETURNING *`,
-          [row.id, startedAt, newExpiry]
+          // COALESCE: a ':domain' payment upgrades to 'pro'; a standard payment ($4 = null) keeps
+          // the current plan, so a plain renewal never downgrades a pro tenant to standard.
+          [row.id, startedAt, newExpiry, pro ? 'pro' : null]
         );
 
         // 5. Mark the payment processed in the SAME transaction.

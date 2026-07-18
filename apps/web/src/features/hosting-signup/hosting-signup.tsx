@@ -122,17 +122,9 @@ export function HostingSignup() {
     if (!cardEnabled) setMethod("hbd");
   }, [cardEnabled]);
 
-  // Custom domain is a one-step card checkout (the on-chain HBD rail has no single "create + pro"
-  // memo), so prefer card the moment the add-on is chosen and card is available.
-  useEffect(() => {
-    if (customDomain && cardEnabled) setMethod("card");
-  }, [customDomain, cardEnabled]);
-
-  // Card-only add-on: drop a stale selection if card becomes unavailable (logout, method
-  // probe failure), otherwise the payment step dead-ends on the HBD note.
-  useEffect(() => {
-    if (!cardEnabled && customDomain) setCustomDomain(false);
-  }, [cardEnabled, customDomain]);
+  // Custom domain now works on BOTH rails: card ($3/mo) and HBD via a one-step
+  // blog:name[:months]:domain memo (+1 HBD/mo). So the add-on no longer forces a rail and no
+  // longer has to be dropped when card is unavailable — an HBD-only visitor can add it too.
 
   const goConfigure = () => {
     setError("");
@@ -221,16 +213,17 @@ export function HostingSignup() {
     }
   }, [tenantUsername, isCommunity, title, description, activeUser]);
 
-  // HBD: refresh instructions for the selected term. Guard against a slow earlier response
-  // (a different term) landing after a newer one and showing a mismatched amount/memo. Skipped
-  // for the custom domain add-on (that is a card-only one-step checkout).
+  // HBD: refresh instructions for the selected term (and custom-domain add-on). Guard against a
+  // slow earlier response (a different term/tier) landing after a newer one and showing a
+  // mismatched amount/memo. With the add-on the endpoint returns the higher price and a ':domain'
+  // memo, so the on-chain rail activates the custom-domain tier in one transfer.
   useEffect(() => {
-    if (step !== "payment" || method !== "hbd" || customDomain) return;
+    if (step !== "payment" || method !== "hbd") return;
     let stale = false;
     // Clear immediately so the previous term's amount/memo isn't copyable while the new one loads.
     setInstructions(null);
     hostingApi
-      .paymentInstructions(tenantUsername, months)
+      .paymentInstructions(tenantUsername, months, customDomain)
       .then((r) => {
         if (!stale) setInstructions({ to: r.to, amount: r.amount, memo: r.memo });
       })
@@ -553,11 +546,10 @@ export function HostingSignup() {
             ))}
           </div>
 
-          {/* Custom domain add-on. A card-only one-step checkout, for both instance types: card is
-              available to a community too (the owner pays and hostingTarget routes activation).
-              Only offered while card checkout is actually available to this visitor, so the
-              add-on can never be selected without a payment path. */}
-          {cardEnabled && (
+          {/* Custom domain add-on, for both instance types and both rails: card ($3/mo) or the
+              one-step HBD ':domain' memo (+1 HBD/mo). Shown whenever a payment method is available
+              (methods loaded), so an HBD-only visitor can add it too. */}
+          {methods && (
             <button
               onClick={() => setCustomDomain((v) => !v)}
               disabled={paying}
@@ -616,22 +608,7 @@ export function HostingSignup() {
             />
           )}
 
-          {/* Custom domain over HBD would need two on-chain steps (subscribe, then upgrade), so
-              steer to the one-step card checkout instead of taking a mis-priced HBD payment. */}
-          {method === "hbd" && customDomain && (
-            <Alert appearance="primary">
-              <div className="flex flex-col gap-2">
-                <span>{i18next.t("hosting.custom-domain-hbd-note")}</span>
-                {cardEnabled && (
-                  <Button appearance="link" onClick={() => setMethod("card")}>
-                    {i18next.t("hosting.custom-domain-use-card")}
-                  </Button>
-                )}
-              </div>
-            </Alert>
-          )}
-
-          {method === "hbd" && !customDomain && (
+          {method === "hbd" && (
             <div className="flex flex-col gap-3 text-sm">
               {canOneClickHive ? (
                 <>
