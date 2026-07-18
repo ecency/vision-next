@@ -182,10 +182,12 @@ export const TenantService = {
   },
   
   /**
-   * Upgrade to Pro plan. The `subscription_plan != 'pro'` guard makes the standard->Pro transition
-   * atomic: if a concurrent upgrade already flipped the tenant to Pro (or it doesn't exist), no row
-   * is updated and this returns null, so the caller records the racing payment as failed instead of
-   * a second "processed" upgrade for no benefit.
+   * Upgrade an ACTIVE tenant to the Pro plan. Both eligibility checks are in the single UPDATE so
+   * the standard->Pro transition is atomic against a concurrent change between the caller's read and
+   * this write: `subscription_plan != 'pro'` (a racing upgrade already flipped it) and
+   * `subscription_status = 'active'` (the expiry sweep flipped it to 'expired' — upgrading then
+   * would sell Pro on a dead blog). When no row matches, no update happens and this returns null, so
+   * the caller records the racing payment as failed instead of a second/void "processed" upgrade.
    */
   async upgradeToPro(username: string): Promise<Tenant | null> {
     const row = await db.queryOne<TenantRow>(
@@ -194,6 +196,7 @@ export const TenantService = {
            updated_at = NOW()
        WHERE username = $1
          AND subscription_plan != 'pro'
+         AND subscription_status = 'active'
        RETURNING *`,
       [username.toLowerCase()]
     );

@@ -151,7 +151,9 @@ describe('TenantService.upgradeToPro (atomic standard->pro)', () => {
     const r = await TenantService.upgradeToPro("a");
     expect(r).not.toBeNull();
     const [sql] = mocks.queryOne.mock.calls[0];
+    // Both eligibility checks are in the single UPDATE (atomic against a concurrent flip).
     expect(sql).toMatch(/subscription_plan != 'pro'/);
+    expect(sql).toMatch(/subscription_status = 'active'/);
   });
 
   it("returns null when no row is updated (already Pro / raced / gone)", async () => {
