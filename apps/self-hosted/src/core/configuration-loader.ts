@@ -44,6 +44,12 @@ export interface InstanceConfig {
       owner?: string;
       /** Set by the managed-hosting API in served configs; absent on true self-hosting. */
       managed?: boolean;
+      /**
+       * Marks the shared default template served for an UNCLAIMED *.blogs.ecency.com subdomain
+       * (no tenant row yet). The app shows the claim landing instead of a blog. Only present on the
+       * managed default config, never on a real tenant or a true self-host.
+       */
+      template?: boolean;
       communityId: string;
       meta: {
         title: string;

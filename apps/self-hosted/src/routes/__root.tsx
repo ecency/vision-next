@@ -5,6 +5,7 @@ import { ConfigManager } from "@ecency/sdk";
 import { queryClient } from "@/consts/react-query";
 import { FloatingMenu } from "@/features/floating-menu";
 import { AuthProvider, useIsBlogOwner } from "@/features/auth";
+import { ClaimLanding } from "@/features/claim";
 import { ErrorBoundary, SkipToContent } from "@/features/shared";
 import {
   clearHiveAuthSession,
@@ -13,7 +14,7 @@ import {
   getUser,
 } from "@/features/auth/storage";
 import { authenticationStore } from "@/store";
-import { t } from "@/core";
+import { t, InstanceConfigManager } from "@/core";
 
 // Check if we're in development mode
 const isDev = process.env.NODE_ENV === "development";
@@ -60,6 +61,13 @@ export const Route = createRootRoute({
 });
 
 function RootComponent() {
+  // Unclaimed *.blogs.ecency.com subdomains are served the shared default template config, which
+  // carries `template: true`. Short-circuit the whole app to the claim landing so no route renders
+  // someone else's content. Reactive so it flips once the runtime config replaces the build-time one.
+  const isTemplate = InstanceConfigManager.useConfig(
+    ({ configuration }) => configuration.instanceConfiguration.template === true
+  );
+
   return (
     <QueryClientProvider client={queryClient}>
       {isDev && (
@@ -69,10 +77,14 @@ function RootComponent() {
       )}
       <SkipToContent />
       <ErrorBoundary>
-        <AuthProvider>
-          <Outlet />
-          <AuthorizedFloatingMenu />
-        </AuthProvider>
+        {isTemplate ? (
+          <ClaimLanding />
+        ) : (
+          <AuthProvider>
+            <Outlet />
+            <AuthorizedFloatingMenu />
+          </AuthProvider>
+        )}
       </ErrorBoundary>
     </QueryClientProvider>
   );
