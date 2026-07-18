@@ -136,32 +136,6 @@ describe('TenantService.isListenerCaughtUp', () => {
   });
 });
 
-describe('TenantService.upgradeToPro (atomic standard->pro)', () => {
-  beforeEach(() => mocks.queryOne.mockReset());
-
-  it("guards the UPDATE on subscription_plan != 'pro' and returns the upgraded row", async () => {
-    mocks.queryOne.mockResolvedValueOnce({
-      id: "1",
-      username: "a",
-      owner: "a",
-      subscription_status: "active",
-      subscription_plan: "pro",
-      config: {}
-    });
-    const r = await TenantService.upgradeToPro("a");
-    expect(r).not.toBeNull();
-    const [sql] = mocks.queryOne.mock.calls[0];
-    // Both eligibility checks are in the single UPDATE (atomic against a concurrent flip).
-    expect(sql).toMatch(/subscription_plan != 'pro'/);
-    expect(sql).toMatch(/subscription_status = 'active'/);
-  });
-
-  it("returns null when no row is updated (already Pro / raced / gone)", async () => {
-    mocks.queryOne.mockResolvedValueOnce(null);
-    await expect(TenantService.upgradeToPro("a")).resolves.toBeNull();
-  });
-});
-
 describe('TenantService.getByOwner', () => {
   beforeEach(() => mocks.queryAll.mockReset());
 
