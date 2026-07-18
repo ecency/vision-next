@@ -230,17 +230,39 @@ export function HostingSignup() {
   // the params, then advances via goPayment (which resumes an existing owned tenant to payment)
   // once that state has propagated.
   const [resumeName, setResumeName] = useState<string | null>(null);
+  const activeUsername = activeUser?.username;
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const params = new URLSearchParams(window.location.search);
-    const resume = params.get("resume");
+    if (typeof window === "undefined" || !activeUsername) return;
+    const resume = new URLSearchParams(window.location.search).get("resume")?.trim().toLowerCase();
     if (!resume) return;
-    const isComm = params.get("type") === "community";
-    setInstanceType(isComm ? "community" : "blog");
-    if (isComm) setCommunityId(resume);
-    else setUsername(resume);
-    setResumeName(resume.trim().toLowerCase());
-  }, []);
+    // Consume the param immediately so a refresh/remount after activation can't replay the flow
+    // (which, since goPayment lets an active owned tenant through as a renewal, would otherwise
+    // send them back to payment for an accidental extra term).
+    window.history.replaceState(null, "", window.location.pathname);
+    let cancelled = false;
+    (async () => {
+      let owned;
+      try {
+        owned = (await hostingApi.tenantsByOwner(activeUsername)).tenants;
+      } catch {
+        return;
+      }
+      if (cancelled) return;
+      // Only resume a reservation the current account actually OWNS and that is still awaiting
+      // payment, and take the instance type from the record (not the URL) — a crafted or incomplete
+      // resume URL must not create a new, or wrong-typed, reservation via goPayment's createTenant.
+      const t = owned.find((x) => x.username.toLowerCase() === resume);
+      if (!t || t.subscriptionStatus !== "inactive") return;
+      const isComm = t.type === "community";
+      setInstanceType(isComm ? "community" : "blog");
+      if (isComm) setCommunityId(t.username);
+      else setUsername(t.username);
+      setResumeName(t.username.toLowerCase());
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [activeUsername]);
   useEffect(() => {
     if (resumeName && step === "username" && tenantUsername === resumeName && activeUser) {
       setResumeName(null);

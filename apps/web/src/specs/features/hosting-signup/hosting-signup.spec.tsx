@@ -76,15 +76,30 @@ describe("HostingSignup one-click HBD pay", () => {
     mutateAsync.mockResolvedValue({ id: "tx1" });
   });
 
-  it("resumes straight to the payment step from a ?resume= deep-link (finalize pending)", async () => {
+  it("resumes to payment from a ?resume= deep-link only for an owned, pending reservation", async () => {
+    hostingApi.tenantsByOwner.mockResolvedValue({
+      tenants: [{ username: "alice", type: "blog", subscriptionStatus: "inactive", owner: "alice" }]
+    });
     window.history.replaceState(null, "", "/hosting?resume=alice");
     render(<HostingSignup />);
-    // Skips username/configure and resumes the existing reservation at payment: createTenant is
-    // invoked (which refreshes the owned tenant), then the payment UI renders.
+    // Verified against the owned list, then resumes the reservation at payment (createTenant
+    // refreshes it), and the resume param is consumed from the URL.
     await waitFor(() =>
       expect(hostingApi.createTenant).toHaveBeenCalledWith("alice", "alice", expect.anything())
     );
     await screen.findByRole("button", { name: "hosting.pay-hbd-oneclick" });
+    expect(window.location.search).toBe("");
+  });
+
+  it("ignores a ?resume= for a name the user does not own (no reservation created)", async () => {
+    hostingApi.tenantsByOwner.mockResolvedValue({ tenants: [] }); // alice owns nothing matching
+    window.history.replaceState(null, "", "/hosting?resume=victim");
+    render(<HostingSignup />);
+    // Give the async owned-tenants check time to resolve, then assert no tenant was created and we
+    // stayed on the first step.
+    await waitFor(() => expect(hostingApi.tenantsByOwner).toHaveBeenCalled());
+    expect(hostingApi.createTenant).not.toHaveBeenCalled();
+    expect(screen.queryByRole("button", { name: "hosting.pay-hbd-oneclick" })).toBeNull();
   });
 
   it("fetches custom-domain (:domain) HBD instructions when the add-on is toggled", async () => {

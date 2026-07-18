@@ -107,9 +107,7 @@ export function HostingManage() {
           {t.subscriptionStatus === "inactive" && (
             <div className="text-sm">
               <a
-                href={`/hosting?resume=${encodeURIComponent(t.username)}${
-                  t.type === "community" ? "&type=community" : ""
-                }`}
+                href={`/hosting?resume=${encodeURIComponent(t.username)}`}
                 className="text-blue-dark-sky hover:underline"
               >
                 {i18next.t("hosting.manage-continue-payment")}
