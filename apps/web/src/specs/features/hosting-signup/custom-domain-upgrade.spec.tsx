@@ -76,6 +76,15 @@ describe("CustomDomainUpgrade", () => {
     expect(mutateAsync).not.toHaveBeenCalled();
   });
 
+  it("does not broadcast if the pre-pay re-check errors (fail closed)", async () => {
+    hostingApi.upgradeQuote.mockResolvedValueOnce(QUOTE).mockRejectedValueOnce(new Error("network"));
+    render(<CustomDomainUpgrade tenant="alice" onUpgraded={vi.fn()} />);
+    const payBtn = await screen.findByRole("button", { name: "hosting.upgrade-domain-pay" });
+    fireEvent.click(payBtn);
+    await screen.findByText("hosting.status-check-failed");
+    expect(mutateAsync).not.toHaveBeenCalled();
+  });
+
   it("shows unavailable when the tenant isn't eligible (already Pro / not active)", async () => {
     hostingApi.upgradeQuote.mockResolvedValue({ eligible: false, reason: "already_pro" });
     render(<CustomDomainUpgrade tenant="alice" onUpgraded={vi.fn()} />);

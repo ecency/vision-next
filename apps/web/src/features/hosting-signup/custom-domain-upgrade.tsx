@@ -69,11 +69,15 @@ export function CustomDomainUpgrade({
     // term/price changed) since the panel opened. Broadcasting a stale upgrade against an already-
     // Pro tenant would spend HBD the listener then rejects for no benefit. Pay the FRESH quote, or
     // stop and show unavailable if it's no longer eligible.
-    let fresh: UpgradeQuote = quote;
+    let fresh: UpgradeQuote;
     try {
       fresh = await hostingApi.upgradeQuote(tenant);
     } catch {
-      // keep the last-known quote on a transient read error
+      // Can't confirm eligibility fresh — fail closed and DON'T broadcast: paying against a stale
+      // quote risks an already-Pro tenant rejecting the transfer for no benefit. Ask to retry.
+      setError(i18next.t("hosting.status-check-failed"));
+      setBusy(false);
+      return;
     }
     if (!fresh.eligible) {
       setQuote(fresh);
