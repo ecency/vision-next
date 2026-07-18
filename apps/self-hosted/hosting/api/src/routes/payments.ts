@@ -5,10 +5,14 @@
 import { Hono } from 'hono';
 import { db } from '../db/client';
 import { authMiddleware, adminMiddleware } from '../middleware/auth';
+import { TenantService } from '../services/tenant-service';
 import {
   PAYMENT_ACCOUNT,
   MONTHLY_PRICE_HBD,
   CUSTOM_DOMAIN_MONTHLY_PRICE_HBD,
+  CUSTOM_DOMAIN_UPGRADE_DELTA_HBD,
+  remainingMonths,
+  customDomainUpgradeHbd,
   hbd,
 } from '../pricing';
 
@@ -98,6 +102,42 @@ paymentRoutes.get('/instructions/:username', async (c) => {
       `Use memo: ${memo}`,
       'Your blog will be activated within seconds of payment confirmation',
     ],
+  });
+});
+
+// GET /v1/payments/upgrade-quote/:username - Prorated cost to add a custom domain (upgrade an
+// existing ACTIVE standard tenant to the Pro tier) for the months remaining on its current term.
+// Public read (no secrets): only quotes an amount + the upgrade memo; the on-chain payment and the
+// listener re-validate. `eligible: false` when the tenant is missing, not active, or already Pro.
+paymentRoutes.get('/upgrade-quote/:username', async (c) => {
+  const username = c.req.param('username');
+  const tenant = await TenantService.getByUsername(username);
+
+  if (!tenant || tenant.subscriptionStatus !== 'active') {
+    return c.json({ eligible: false, reason: 'not_active' });
+  }
+  if (tenant.subscriptionPlan === 'pro') {
+    return c.json({ eligible: false, reason: 'already_pro' });
+  }
+
+  const now = new Date();
+  const months = remainingMonths(tenant.subscriptionExpiresAt, now);
+  // Expiry has passed (but the hourly expire sweep hasn't flipped status yet): there is no term to
+  // prorate against, so quoting eligible would produce a 0.000 HBD upgrade the UI can't pay. Report
+  // ineligible so the owner renews first.
+  if (months < 1) {
+    return c.json({ eligible: false, reason: 'expired' });
+  }
+  const amount = customDomainUpgradeHbd(tenant.subscriptionExpiresAt, now);
+
+  return c.json({
+    eligible: true,
+    to: PAYMENT_ACCOUNT,
+    amount: hbd(amount) + ' HBD',
+    memo: `upgrade:${username.toLowerCase()}`,
+    remainingMonths: months,
+    perMonth: hbd(CUSTOM_DOMAIN_UPGRADE_DELTA_HBD) + ' HBD',
+    expiresAt: tenant.subscriptionExpiresAt,
   });
 });
 

@@ -272,19 +272,10 @@ class PaymentListener {
       const months = monthsFromAmount;
       await this.processSubscription(transfer, parsed.username, months, amount, parsed.customDomain);
     } else if (parsed.action === 'upgrade') {
-      // For upgrades: validate against pro upgrade price, not monthly price
-      if (amount < CONFIG.PRO_UPGRADE_PRICE_HBD) {
-        console.log('[PaymentListener] Insufficient amount for upgrade:', amount, 'HBD');
-        await this.logPayment(
-          transfer,
-          amount,
-          'failed',
-          0,
-          null,
-          `Insufficient amount for Pro upgrade (need ${CONFIG.PRO_UPGRADE_PRICE_HBD} HBD)`
-        );
-        return;
-      }
+      // The amount is validated inside processUpgrade against the PRORATED custom-domain cost
+      // (which depends on the tenant's remaining term). No flat pre-gate here: a flat
+      // PRO_UPGRADE_PRICE_HBD floor could reject a correctly-quoted prorated transfer whenever the
+      // per-month premium is below that floor.
       await this.processUpgrade(transfer, parsed.username, amount);
     }
   }
@@ -448,12 +439,6 @@ class PaymentListener {
   private async processUpgrade(transfer: any, username: string, amount: number) {
     console.log('[PaymentListener] Processing upgrade:', username);
 
-    if (amount < CONFIG.PRO_UPGRADE_PRICE_HBD) {
-      console.log('[PaymentListener] Insufficient amount for upgrade:', amount, 'HBD');
-      await this.logPayment(transfer, amount, 'failed', 0, null, 'Insufficient for upgrade');
-      return;
-    }
-
     try {
       const tenant = await TenantService.getByUsername(username);
       if (!tenant) {
@@ -462,10 +447,10 @@ class PaymentListener {
         return;
       }
 
-      // A Pro upgrade only applies to a currently-serviceable (active) blog — same rule the x402
-      // /upgrade route enforces. Reject a reserved/inactive, reclaimed/abandoned, or expired
-      // tenant: upgrading one would take the payment for a blog that isn't running, and a plan
-      // bought while a name was abandoned must not carry over to a later fresh reservation.
+      // A custom-domain (Pro) upgrade only applies to a currently-serviceable (active) blog — same
+      // rule the x402 /upgrade route enforces. Reject a reserved/inactive, reclaimed/abandoned, or
+      // expired tenant: upgrading one would take the payment for a blog that isn't running, and a
+      // plan bought while a name was abandoned must not carry over to a later fresh reservation.
       if (tenant.subscriptionStatus !== 'active') {
         console.log(
           '[PaymentListener] Tenant not active for upgrade:',
@@ -476,8 +461,55 @@ class PaymentListener {
         return;
       }
 
-      await TenantService.upgradeToPro(username);
-      await this.logPayment(transfer, amount, 'processed', 0, null, 'Upgraded to Pro');
+      // Already on the custom-domain (Pro) tier: a repeated or manually-sent upgrade memo would
+      // otherwise be recorded as processed for a no-op upgradeToPro, consuming the payment for no
+      // benefit (no term extension, already Pro). Reject it instead. The quote route likewise
+      // reports already-Pro tenants as ineligible, so the UI never offers this.
+      if (tenant.subscriptionPlan === 'pro') {
+        console.log('[PaymentListener] Tenant already on Pro plan, skipping upgrade:', username);
+        await this.logPayment(transfer, amount, 'failed', 0, null, 'Tenant already on Pro plan');
+        return;
+      }
+
+      // Prorated: the owner pays the +1/mo custom-domain premium for the months remaining on their
+      // current term (upgrade in place, no term extension). Integer-millis compare so an exact
+      // payment isn't rejected by float error. The quote and this validation use the same
+      // remainingMonths(); since time only moves forward, remaining only shrinks, so a payment made
+      // against the (equal-or-higher) quote is never rejected here.
+      const now = new Date();
+      const months = Pricing.remainingMonths(tenant.subscriptionExpiresAt, now);
+      if (months < 1) {
+        // Expiry has passed (active only because the hourly expire sweep hasn't run yet): there is
+        // no term to prorate, so don't take the payment for a term-less upgrade.
+        console.log('[PaymentListener] No remaining term to upgrade:', username);
+        await this.logPayment(transfer, amount, 'failed', 0, null, 'No remaining term to upgrade');
+        return;
+      }
+      const required = Pricing.customDomainUpgradeHbd(tenant.subscriptionExpiresAt, now);
+      if (Math.round(amount * 1000) < Math.round(required * 1000)) {
+        console.log('[PaymentListener] Insufficient for custom-domain upgrade:', amount, 'HBD <', required);
+        await this.logPayment(
+          transfer,
+          amount,
+          'failed',
+          0,
+          null,
+          `Insufficient for custom-domain upgrade (need ${Pricing.hbd(required)} HBD for ${months} month(s) remaining)`
+        );
+        return;
+      }
+
+      // Atomic standard->Pro transition. Returns null if a concurrent change between the checks
+      // above and here made the tenant ineligible — already Pro (a racing upgrade) or no longer
+      // active (the expiry sweep). Either way this transfer earned no usable upgrade, so record it
+      // as failed rather than a second/void 'processed' upgrade.
+      const upgraded = await TenantService.upgradeToPro(username);
+      if (!upgraded) {
+        console.log('[PaymentListener] Upgrade no longer eligible (raced), not crediting:', username);
+        await this.logPayment(transfer, amount, 'failed', 0, null, 'Upgrade no longer eligible (already Pro or not active)');
+        return;
+      }
+      await this.logPayment(transfer, amount, 'processed', 0, null, 'Upgraded to Pro (custom domain)');
 
       void AuditService.log({
         tenantId: tenant.id,

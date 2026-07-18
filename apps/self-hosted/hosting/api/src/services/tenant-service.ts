@@ -182,20 +182,26 @@ export const TenantService = {
   },
   
   /**
-   * Upgrade to Pro plan
+   * Upgrade an ACTIVE tenant to the Pro plan. Both eligibility checks are in the single UPDATE so
+   * the standard->Pro transition is atomic against a concurrent change between the caller's read and
+   * this write: `subscription_plan != 'pro'` (a racing upgrade already flipped it) and
+   * `subscription_status = 'active'` (the expiry sweep flipped it to 'expired' — upgrading then
+   * would sell Pro on a dead blog). When no row matches, no update happens and this returns null, so
+   * the caller records the racing payment as failed instead of a second/void "processed" upgrade.
    */
-  async upgradeToPro(username: string): Promise<Tenant> {
+  async upgradeToPro(username: string): Promise<Tenant | null> {
     const row = await db.queryOne<TenantRow>(
       `UPDATE tenants
        SET subscription_plan = 'pro',
            updated_at = NOW()
        WHERE username = $1
+         AND subscription_plan != 'pro'
+         AND subscription_status = 'active'
        RETURNING *`,
       [username.toLowerCase()]
     );
 
-    if (!row) throw new Error('Tenant not found');
-    return mapTenantFromDb(row);
+    return row ? mapTenantFromDb(row) : null;
   },
   
   /**

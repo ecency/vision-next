@@ -34,7 +34,8 @@ export interface CreateTenantResult {
 export interface TenantInfo {
   username: string;
   owner?: string;
-  subscriptionStatus: "active" | "inactive" | "expired" | "suspended";
+  subscriptionStatus: "active" | "inactive" | "expired" | "suspended" | "abandoned";
+  subscriptionPlan?: "standard" | "pro";
   subscriptionExpiresAt?: string | null;
   blogUrl?: string;
 }
@@ -102,8 +103,25 @@ export const hostingApi = {
   paymentInstructions: (username: string, months: number, domain = false) =>
     get<{ to: string; amount: string; memo: string; totalAmount: string; instructions: string[] }>(
       `/v1/payments/instructions/${encodeURIComponent(username)}?months=${months}${domain ? "&domain=1" : ""}`
-    )
+    ),
+
+  /** Prorated cost to add a custom domain (upgrade an existing active standard tenant to Pro) for
+   *  the months remaining on its current term. `eligible: false` when not active / already Pro. */
+  upgradeQuote: (username: string) =>
+    get<UpgradeQuote>(`/v1/payments/upgrade-quote/${encodeURIComponent(username)}`)
 };
+
+export type UpgradeQuote =
+  | { eligible: false; reason: string }
+  | {
+      eligible: true;
+      to: string;
+      amount: string;
+      memo: string;
+      remainingMonths: number;
+      perMonth: string;
+      expiresAt: string | null;
+    };
 
 /** SKU the ePoints Stripe rail expects for a hosting term (leading number = price in cents). */
 export function hostingSkuForMonths(months: number): string {
