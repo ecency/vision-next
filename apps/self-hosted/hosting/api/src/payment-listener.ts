@@ -477,9 +477,16 @@ class PaymentListener {
       // remainingMonths(); since time only moves forward, remaining only shrinks, so a payment made
       // against the (equal-or-higher) quote is never rejected here.
       const now = new Date();
+      const months = Pricing.remainingMonths(tenant.subscriptionExpiresAt, now);
+      if (months < 1) {
+        // Expiry has passed (active only because the hourly expire sweep hasn't run yet): there is
+        // no term to prorate, so don't take the payment for a term-less upgrade.
+        console.log('[PaymentListener] No remaining term to upgrade:', username);
+        await this.logPayment(transfer, amount, 'failed', 0, null, 'No remaining term to upgrade');
+        return;
+      }
       const required = Pricing.customDomainUpgradeHbd(tenant.subscriptionExpiresAt, now);
       if (Math.round(amount * 1000) < Math.round(required * 1000)) {
-        const months = Pricing.remainingMonths(tenant.subscriptionExpiresAt, now);
         console.log('[PaymentListener] Insufficient for custom-domain upgrade:', amount, 'HBD <', required);
         await this.logPayment(
           transfer,

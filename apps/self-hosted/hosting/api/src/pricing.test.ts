@@ -30,6 +30,13 @@ describe('remainingMonths', () => {
   it('is at least 1 for any future expiry (min one month of the add-on)', () => {
     expect(remainingMonths(new Date('2026-01-16T00:00:00.000Z'), now)).toBe(1);
   });
+
+  it('handles JS end-of-month rollover as a single month (Jan 31 + 1mo -> Mar 3 = 1)', () => {
+    const jan31 = new Date('2026-01-31T00:00:00.000Z');
+    // A one-month term bought on Jan 31 lands on Mar 3 (Feb has no 31st). Upgrading immediately
+    // must count that as ONE remaining month, not two.
+    expect(remainingMonths(new Date('2026-03-03T00:00:00.000Z'), jan31)).toBe(1);
+  });
 });
 
 describe('customDomainUpgradeHbd', () => {

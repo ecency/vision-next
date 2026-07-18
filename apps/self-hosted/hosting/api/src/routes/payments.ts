@@ -122,6 +122,12 @@ paymentRoutes.get('/upgrade-quote/:username', async (c) => {
 
   const now = new Date();
   const months = remainingMonths(tenant.subscriptionExpiresAt, now);
+  // Expiry has passed (but the hourly expire sweep hasn't flipped status yet): there is no term to
+  // prorate against, so quoting eligible would produce a 0.000 HBD upgrade the UI can't pay. Report
+  // ineligible so the owner renews first.
+  if (months < 1) {
+    return c.json({ eligible: false, reason: 'expired' });
+  }
   const amount = customDomainUpgradeHbd(tenant.subscriptionExpiresAt, now);
 
   return c.json({

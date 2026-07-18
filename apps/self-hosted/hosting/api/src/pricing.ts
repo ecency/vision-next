@@ -29,15 +29,33 @@ export const CUSTOM_DOMAIN_UPGRADE_DELTA_HBD = Math.max(
   CUSTOM_DOMAIN_MONTHLY_PRICE_HBD - MONTHLY_PRICE_HBD
 );
 
-// Whole months remaining on a subscription, rounding a partial month UP (so an active tenant always
-// pays for at least one month of the add-on). Both the upgrade quote and the listener validation
-// use this, computed at their own "now" — since time only moves forward, remaining only shrinks, so
-// a payment made against an earlier (higher) quote is never later rejected as insufficient.
+// Whole months remaining on a subscription, rounding a partial month UP (so an active tenant with
+// any remaining term pays for at least one month of the add-on). Returns 0 for a null/past expiry.
+//
+// Counts by repeatedly adding one calendar month — the SAME setMonth() arithmetic the activation
+// paths use to build the expiry — rather than a raw month-index difference. That matters for JS
+// end-of-month rollover: a 1-month term bought on Jan 31 becomes March 3 (Feb has no 31st), and a
+// month-index diff would miscount that as 2 months and double-charge the upgrade. Stepping with
+// setMonth reproduces the rollover, so Jan 31 -> March 3 is one month.
+//
+// Both the quote and the listener use this at their own "now"; since time only moves forward,
+// remaining only shrinks, so a payment made against an earlier (equal-or-higher) quote is never
+// later rejected as insufficient.
 export function remainingMonths(expiresAt: Date | null, now: Date): number {
   if (!expiresAt || expiresAt.getTime() <= now.getTime()) return 0;
-  let months =
-    (expiresAt.getFullYear() - now.getFullYear()) * 12 + (expiresAt.getMonth() - now.getMonth());
-  if (expiresAt.getDate() > now.getDate()) months += 1;
+  // Count how many whole calendar months fit before expiry: step `now` forward a month at a time
+  // while the step stays at/before expiry.
+  let months = 0;
+  const step = new Date(now.getTime());
+  step.setMonth(step.getMonth() + 1);
+  while (step.getTime() <= expiresAt.getTime() && months < 600) {
+    months += 1;
+    step.setMonth(step.getMonth() + 1);
+  }
+  // If those whole months don't reach expiry exactly, a partial month remains and rounds up.
+  const atMonths = new Date(now.getTime());
+  atMonths.setMonth(atMonths.getMonth() + months);
+  if (atMonths.getTime() < expiresAt.getTime()) months += 1;
   return Math.max(1, months);
 }
 
