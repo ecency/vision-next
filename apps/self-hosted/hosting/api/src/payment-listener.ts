@@ -13,9 +13,12 @@ import { parseMemo, mapTenantFromDb, type ParsedMemo } from './types';
 import { AuditService } from './services/audit-service';
 
 // Parse the abandoned-tenant grace window from env, failing safe to 7 for any value that is not a
-// positive integer (empty, non-numeric, zero, or negative). Exported for unit testing.
+// positive integer. The whole (trimmed) string must be digits — parseInt alone would accept
+// partial matches like '13.9' or '7foo', silently bypassing the safe fallback with a truncated
+// value. Empty, non-numeric, zero, and negative all fall back to 7. Exported for unit testing.
 export function parseAbandonedGraceDays(raw: string | undefined): number {
-  const n = parseInt(raw ?? '', 10);
+  const trimmed = (raw ?? '').trim();
+  const n = /^\d+$/.test(trimmed) ? parseInt(trimmed, 10) : NaN;
   return Number.isInteger(n) && n > 0 ? n : 7;
 }
 
@@ -415,6 +418,20 @@ class PaymentListener {
       if (!tenant) {
         console.log('[PaymentListener] Tenant not found for upgrade:', username);
         await this.logPayment(transfer, amount, 'failed', 0, null, 'Tenant not found');
+        return;
+      }
+
+      // A Pro upgrade only applies to a currently-serviceable (active) blog — same rule the x402
+      // /upgrade route enforces. Reject a reserved/inactive, reclaimed/abandoned, or expired
+      // tenant: upgrading one would take the payment for a blog that isn't running, and a plan
+      // bought while a name was abandoned must not carry over to a later fresh reservation.
+      if (tenant.subscriptionStatus !== 'active') {
+        console.log(
+          '[PaymentListener] Tenant not active for upgrade:',
+          username,
+          tenant.subscriptionStatus
+        );
+        await this.logPayment(transfer, amount, 'failed', 0, null, 'Tenant not active for upgrade');
         return;
       }
 

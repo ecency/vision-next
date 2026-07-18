@@ -29,7 +29,15 @@ describe('parseAbandonedGraceDays', () => {
     expect(parseAbandonedGraceDays(undefined)).toBe(7);
   });
 
-  it('truncates a decimal via parseInt (13.9 -> 13, still positive)', () => {
-    expect(parseAbandonedGraceDays('13.9')).toBe(13);
+  it('rejects partial-numeric strings that parseInt would otherwise truncate', () => {
+    // parseInt('13.9') === 13 and parseInt('7foo') === 7; both must fall back, not slip through.
+    expect(parseAbandonedGraceDays('13.9')).toBe(7);
+    expect(parseAbandonedGraceDays('7foo')).toBe(7);
+    expect(parseAbandonedGraceDays('7.0')).toBe(7); // rejected as non-integer, coincidentally 7
+    expect(parseAbandonedGraceDays('1e3')).toBe(7);
+  });
+
+  it('trims surrounding whitespace on an otherwise-valid integer', () => {
+    expect(parseAbandonedGraceDays('  14  ')).toBe(14);
   });
 });
