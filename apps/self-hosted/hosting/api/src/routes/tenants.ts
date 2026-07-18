@@ -12,6 +12,7 @@ import {
   ABANDONED_REREGISTER_QUARANTINE_HOURS,
 } from '../services/tenant-service';
 import { mapTenantFromDb } from '../types';
+import { PAYMENT_ACCOUNT, MONTHLY_PRICE_HBD, PRO_UPGRADE_PRICE_HBD, hbd } from '../pricing';
 import { ConfigService } from '../services/config-service';
 import { authMiddleware } from '../middleware/auth';
 import { subscriptionPaywall, proUpgradePaywall } from '../middleware/x402-paywall';
@@ -211,8 +212,8 @@ tenantRoutes.post(
     }
 
     const baseDomain = process.env.BASE_DOMAIN || 'blogs.ecency.com';
-    const paymentAccount = process.env.PAYMENT_ACCOUNT || 'ecency.hosting';
-    const monthlyPrice = process.env.MONTHLY_PRICE_HBD || '0.100';
+    const paymentAccount = PAYMENT_ACCOUNT;
+    const monthlyPrice = hbd(MONTHLY_PRICE_HBD);
 
     void AuditService.log({
       tenantId: tenant.id,
@@ -334,7 +335,7 @@ tenantRoutes.post('/subscribe',
           txId,
           blockNum,
           payer,
-          parseFloat(process.env.MONTHLY_PRICE_HBD || '0.100'),
+          MONTHLY_PRICE_HBD,
           `x402:subscribe:${body.username}`,
         ]
       );
@@ -466,7 +467,7 @@ tenantRoutes.post('/:username/upgrade',
           txId,
           blockNum,
           payer,
-          parseFloat(process.env.PRO_UPGRADE_PRICE_HBD || '0.500'),
+          PRO_UPGRADE_PRICE_HBD,
           `x402:upgrade:${username}`,
         ]
       );

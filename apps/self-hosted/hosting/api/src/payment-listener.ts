@@ -11,6 +11,7 @@ import { TenantService } from './services/tenant-service';
 import { ConfigService } from './services/config-service';
 import { parseMemo, mapTenantFromDb, type ParsedMemo } from './types';
 import { AuditService } from './services/audit-service';
+import * as Pricing from './pricing';
 
 // Parse the abandoned-tenant grace window from env, failing safe to 7 for any value that is not a
 // positive integer. The whole (trimmed) string must be digits — parseInt alone would accept
@@ -22,22 +23,13 @@ export function parseAbandonedGraceDays(raw: string | undefined): number {
   return Number.isInteger(n) && n > 0 ? n : 7;
 }
 
-// Configuration
+// Configuration. Payment amounts come from the shared pricing module so the listener validates
+// against exactly what every quoting route tells the user to pay.
 const CONFIG = {
-  PAYMENT_ACCOUNT: process.env.PAYMENT_ACCOUNT || 'ecency.hosting',
-  // Default matches the /v1/payments/instructions route (and prod's MONTHLY_PRICE_HBD env) so a
-  // user following quoted instructions is credited the right number of months even when the env is
-  // unset — a lower default here would derive fewer HBD-per-month and over-credit the payment.
-  MONTHLY_PRICE_HBD: parseFloat(process.env.MONTHLY_PRICE_HBD || '2.000'),
-  PRO_UPGRADE_PRICE_HBD: parseFloat(process.env.PRO_UPGRADE_PRICE_HBD || '0.500'),
-  // Monthly price for a blog WITH the custom-domain add-on (the 'pro' tier), paid in one HBD
-  // transfer via a blog:name[:months]:domain memo. Mirrors the card side's +$1/mo: standard + the
-  // add-on delta. Configurable, but defaults to standard + 1 HBD (using the SAME standard default
-  // as above, so it stays consistent with the instructions route's quoted amount).
-  CUSTOM_DOMAIN_MONTHLY_PRICE_HBD: parseFloat(
-    process.env.CUSTOM_DOMAIN_MONTHLY_PRICE_HBD ||
-      (parseFloat(process.env.MONTHLY_PRICE_HBD || '2.000') + 1).toString()
-  ),
+  PAYMENT_ACCOUNT: Pricing.PAYMENT_ACCOUNT,
+  MONTHLY_PRICE_HBD: Pricing.MONTHLY_PRICE_HBD,
+  PRO_UPGRADE_PRICE_HBD: Pricing.PRO_UPGRADE_PRICE_HBD,
+  CUSTOM_DOMAIN_MONTHLY_PRICE_HBD: Pricing.CUSTOM_DOMAIN_MONTHLY_PRICE_HBD,
   HIVE_API_NODES: (process.env.HIVE_API_URL || 'https://api.hive.blog').split(','),
   POLL_INTERVAL_MS: 3000, // 3 seconds (1 block)
   // Days an unpaid (inactive) tenant reserves its username before the sweep reclaims it (marks
