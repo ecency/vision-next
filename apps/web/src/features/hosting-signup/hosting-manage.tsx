@@ -102,10 +102,25 @@ export function HostingManage() {
             </div>
           )}
 
+          {/* Awaiting payment (never activated): let the owner jump straight back into the payment
+              step for this reservation instead of dead-ending on the status label. */}
+          {t.subscriptionStatus === "inactive" && (
+            <div className="text-sm">
+              <a
+                href={`/hosting?resume=${encodeURIComponent(t.username)}${
+                  t.type === "community" ? "&type=community" : ""
+                }`}
+                className="text-blue-dark-sky hover:underline"
+              >
+                {i18next.t("hosting.manage-continue-payment")}
+              </a>
+            </div>
+          )}
+
           {/* Discoverability: a standard-plan owner otherwise never learns custom domains exist.
-              Surface the offer (the Custom domain plan) without a broken upgrade button — the
-              in-place mid-term upgrade/pricing flow is a separate decision. Matched explicitly on
-              'standard' so a future/legacy plan value doesn't get mislabeled with this upsell. */}
+              Kept informational (no actionable upgrade button) because a mid-term upgrade of an
+              active tenant needs a pricing decision — a pro-rate renewal would upgrade the whole
+              remaining term for one month's price. Wired once that model is chosen. */}
           {t.subscriptionPlan === "standard" && t.subscriptionStatus === "active" && (
             <div className="text-sm opacity-75">
               <span className="font-medium">{i18next.t("hosting.manage-add-domain")}</span>

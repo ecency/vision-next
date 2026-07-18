@@ -50,6 +50,7 @@ describe("HostingSignup one-click HBD pay", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     sessionStorage.clear();
+    window.history.replaceState(null, "", "/"); // clear any ?resume= from a prior test
     mocks.authLoginType = "keychain";
     // Card disabled so the payment step defaults to the HBD rail (where the one-click lives).
     hostingApi.paymentMethods.mockResolvedValue({
@@ -73,6 +74,17 @@ describe("HostingSignup one-click HBD pay", () => {
       subscriptionExpiresAt: "2026-08-16T00:00:00.000Z"
     });
     mutateAsync.mockResolvedValue({ id: "tx1" });
+  });
+
+  it("resumes straight to the payment step from a ?resume= deep-link (finalize pending)", async () => {
+    window.history.replaceState(null, "", "/hosting?resume=alice");
+    render(<HostingSignup />);
+    // Skips username/configure and resumes the existing reservation at payment: createTenant is
+    // invoked (which refreshes the owned tenant), then the payment UI renders.
+    await waitFor(() =>
+      expect(hostingApi.createTenant).toHaveBeenCalledWith("alice", "alice", expect.anything())
+    );
+    await screen.findByRole("button", { name: "hosting.pay-hbd-oneclick" });
   });
 
   it("fetches custom-domain (:domain) HBD instructions when the add-on is toggled", async () => {
