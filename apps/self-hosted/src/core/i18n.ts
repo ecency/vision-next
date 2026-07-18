@@ -64,6 +64,10 @@ type TranslationKey =
   | 'page_not_found'
   | 'page_not_found_description'
   | 'back_to_blog'
+  | 'claim_title_blog'
+  | 'claim_title_community'
+  | 'claim_subtitle'
+  | 'claim_cta'
   | 'edit_post'
   | 'updating'
   | 'update'
@@ -151,6 +155,10 @@ const translations: Record<string, Translations> = {
     page_not_found: 'Page not found',
     page_not_found_description: 'The page you are looking for does not exist.',
     back_to_blog: 'Back to blog',
+    claim_title_blog: "This blog isn't set up yet",
+    claim_title_community: "This community isn't set up yet",
+    claim_subtitle: 'Is this yours? Claim it and launch on Ecency in minutes.',
+    claim_cta: 'Claim on Ecency',
     edit_post: 'Edit',
     updating: 'Updating...',
     update: 'Update',
@@ -234,6 +242,10 @@ const translations: Record<string, Translations> = {
     page_not_found: 'Página no encontrada',
     page_not_found_description: 'La página que buscas no existe.',
     back_to_blog: 'Volver al blog',
+    claim_title_blog: "This blog isn't set up yet",
+    claim_title_community: "This community isn't set up yet",
+    claim_subtitle: 'Is this yours? Claim it and launch on Ecency in minutes.',
+    claim_cta: 'Claim on Ecency',
     edit_post: 'Editar',
     updating: 'Actualizando...',
     update: 'Actualizar',
@@ -317,6 +329,10 @@ const translations: Record<string, Translations> = {
     page_not_found: 'Seite nicht gefunden',
     page_not_found_description: 'Die gesuchte Seite existiert nicht.',
     back_to_blog: 'Zurück zum Blog',
+    claim_title_blog: "This blog isn't set up yet",
+    claim_title_community: "This community isn't set up yet",
+    claim_subtitle: 'Is this yours? Claim it and launch on Ecency in minutes.',
+    claim_cta: 'Claim on Ecency',
     edit_post: 'Bearbeiten',
     updating: 'Aktualisierung...',
     update: 'Aktualisieren',
@@ -401,6 +417,10 @@ const translations: Record<string, Translations> = {
     page_not_found: 'Page non trouvée',
     page_not_found_description: "La page que vous recherchez n'existe pas.",
     back_to_blog: 'Retour au blog',
+    claim_title_blog: "This blog isn't set up yet",
+    claim_title_community: "This community isn't set up yet",
+    claim_subtitle: 'Is this yours? Claim it and launch on Ecency in minutes.',
+    claim_cta: 'Claim on Ecency',
     edit_post: 'Modifier',
     updating: 'Mise à jour...',
     update: 'Mettre à jour',
@@ -484,6 +504,10 @@ const translations: Record<string, Translations> = {
     page_not_found: '페이지를 찾을 수 없습니다',
     page_not_found_description: '찾으시는 페이지가 존재하지 않습니다.',
     back_to_blog: '블로그로 돌아가기',
+    claim_title_blog: "This blog isn't set up yet",
+    claim_title_community: "This community isn't set up yet",
+    claim_subtitle: 'Is this yours? Claim it and launch on Ecency in minutes.',
+    claim_cta: 'Claim on Ecency',
     edit_post: '편집',
     updating: '업데이트 중...',
     update: '업데이트',
@@ -567,6 +591,10 @@ const translations: Record<string, Translations> = {
     page_not_found: 'Страница не найдена',
     page_not_found_description: 'Запрашиваемая страница не существует.',
     back_to_blog: 'Вернуться в блог',
+    claim_title_blog: "This blog isn't set up yet",
+    claim_title_community: "This community isn't set up yet",
+    claim_subtitle: 'Is this yours? Claim it and launch on Ecency in minutes.',
+    claim_cta: 'Claim on Ecency',
     edit_post: 'Редактировать',
     updating: 'Обновление...',
     update: 'Обновить',

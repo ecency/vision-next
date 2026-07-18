@@ -18,6 +18,7 @@
     },
     "instanceConfiguration": {
       "type": "blog",
+      "template": true,
       "username": "ecency",
       "communityId": "",
       "meta": {

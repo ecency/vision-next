@@ -270,6 +270,30 @@ export function HostingSignup() {
     }
   }, [resumeName, step, tenantUsername, activeUser, goPayment]);
 
+  // Deep-link from an unclaimed *.blogs.ecency.com subdomain's claim landing: ?claim=<name>
+  // prefills the form so the visitor arrives ready to reserve that exact name. A hive-<digits>
+  // name preselects a community, anything else an author blog. Prefill only, no auto-advance: the
+  // visitor still reviews the plan and pays, and the usual validation applies. Runs once and
+  // consumes the param so a refresh doesn't re-apply it.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const claim = params.get("claim")?.trim().toLowerCase();
+    if (!claim) return;
+    // Consume ONLY the claim param, preserving any others (e.g. resume) so the resume effect,
+    // which reads window.location.search after auth state is available, still sees them.
+    params.delete("claim");
+    const qs = params.toString();
+    window.history.replaceState(null, "", window.location.pathname + (qs ? `?${qs}` : ""));
+    if (/^hive-\d+$/.test(claim)) {
+      setInstanceType("community");
+      setCommunityId(claim);
+    } else {
+      setInstanceType("blog");
+      setUsername(claim);
+    }
+  }, []);
+
   // HBD: refresh instructions for the selected term (and custom-domain add-on). Guard against a
   // slow earlier response (a different term/tier) landing after a newer one and showing a
   // mismatched amount/memo. With the add-on the endpoint returns the higher price and a ':domain'
