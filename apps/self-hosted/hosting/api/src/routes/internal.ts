@@ -351,8 +351,20 @@ internalRoutes.post('/claim-blog', async (c) => {
       );
 
       if (inserted.rowCount === 0) {
-        const existing = await client.query(`SELECT * FROM tenants WHERE username = $1`, [username]);
-        return { created: false, row: existing.rows[0] };
+        const existing = await client.query(
+          `SELECT * FROM tenants WHERE username = $1 FOR UPDATE`,
+          [username]
+        );
+        const row = existing.rows[0];
+        // A row that is still 'abandoned' means the DO UPDATE was blocked by the re-registration
+        // quarantine, not by a live tenant. Returning it here would report success while skipping
+        // activation, leaving the claimant a non-active blog. Reject as retryable so the claim is
+        // retried after the quiet period instead. A live tenant (any other status) is a genuine
+        // "already exists" and is returned unchanged.
+        if (row?.subscription_status === 'abandoned') {
+          throw Object.assign(new Error('reclaimed_recently'), { retryable: true });
+        }
+        return { created: false, row };
       }
 
       const tenantId = inserted.rows[0].id;
@@ -398,7 +410,11 @@ internalRoutes.post('/claim-blog', async (c) => {
       },
     });
   } catch (e) {
-    console.error('[internal/claim-blog] error:', (e as Error).message);
+    const err = e as Error & { retryable?: boolean };
+    console.error('[internal/claim-blog] error:', err.message);
+    // 503 (transient) so the caller retries the claim after the re-registration quiet period,
+    // rather than a permanent failure or a false success.
+    if (err.retryable) return c.json({ error: 'reclaimed_recently' }, 503);
     return c.json({ error: 'claim_failed' }, 500);
   }
 });
