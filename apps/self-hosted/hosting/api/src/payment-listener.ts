@@ -268,12 +268,18 @@ class PaymentListener {
       // makes a retry safe: a transient failure after activation rolls the extension back
       // WITH the dedup row, so reprocessing extends exactly once (no double-credit).
       updatedTenant = await db.transaction(async (client) => {
-        // 1. Lock the target tenant row FIRST — before any other await — so the lock covers
-        // the WHOLE processing window that can overlap the abandoned sweep. The sweep's DELETE
-        // must lock the same row, so it blocks here and then re-evaluates its 'inactive'
-        // predicate against the now-active row -> it skips the tenant instead of deleting one
-        // whose payment we're mid-recording. (An existing tenant is the only sweep target; a
-        // payment row keyed on tenant_id NULL can't protect this window on its own.)
+        // 1. Lock the target tenant row FIRST — before any other await. The abandoned sweep
+        // takes the same row lock to flip status to 'abandoned', so the two serialize: if we
+        // win, the sweep re-evaluates its 'inactive' predicate against the now-active row and
+        // skips it; if the sweep won, we find the surviving 'abandoned' row here and revive it.
+        // Either way the payment lands on the ORIGINAL row, keeping its owner + config intact.
+        //
+        // Note this path never assigns ownership to the payer: an existing row (inactive or
+        // abandoned) is activated under its stored owner, and a brand-new row (step 3) is created
+        // with owner = username. An HBD transfer is thus gift-style — it activates the named blog
+        // under its existing owner — while an actual ownership change goes through create/subscribe
+        // (which runs ownership validation). This is exactly why reviving beats recreating: a
+        // recreate would reset a community's owner to the community account and orphan it.
         let row = (
           await client.query(`SELECT * FROM tenants WHERE username = $1 FOR UPDATE`, [username])
         ).rows[0];
@@ -293,13 +299,13 @@ class PaymentListener {
         }
         const paymentId = insertResult.rows[0].id;
 
-        // 3. Create the tenant if it didn't exist. The account check + config build happen
-        // HERE, inside the transaction, but only for a brand-new tenant — which is never a
-        // sweep target (the sweep only deletes existing 'inactive' rows), so no lock is held
-        // across the RPC for a tenant that could be swept. accountExistsStrict THROWS on an
-        // RPC outage (transient -> retry) rather than reporting the account absent, so a real
-        // payment isn't stranded when a node is down. ON CONFLICT + re-select handles a
-        // concurrent create (e.g. the web signup racing us) without failing.
+        // 3. Create the tenant if no row exists at all. The account check + config build happen
+        // HERE, inside the transaction, but only for a brand-new tenant. accountExistsStrict
+        // THROWS on an RPC outage (transient -> retry) rather than reporting the account absent,
+        // so a real payment isn't stranded when a node is down. ON CONFLICT + re-select handles a
+        // concurrent create (e.g. the web signup racing us) without failing. An already-existing
+        // row — including one the sweep marked 'abandoned' — skips this block and is revived in
+        // place by the activation in step 4, preserving its stored owner + config.
         if (!row) {
           if (!(await TenantService.accountExistsStrict(username))) {
             throw Object.assign(new Error('Hive account not found'), { permanent: true });
