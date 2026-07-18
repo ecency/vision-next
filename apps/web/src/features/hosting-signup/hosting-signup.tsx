@@ -106,6 +106,13 @@ export function HostingSignup() {
   const cardEnabled =
     !!methods?.card.enabled && !!activeUser && (isCommunity || tenantUsername === activeUser.username);
 
+  // The custom-domain add-on is only offered to a logged-in OWNER of the tenant (their own personal
+  // blog, or a community they own) — on either rail. This matches the condition that gates the
+  // domain-setup UI on the success screen and in the manage panel, so the add-on is never sold to a
+  // visitor (logged out, gifting, or paying for someone else's blog) who then can't attach or
+  // verify the domain in-flow.
+  const canManageDomain = !!activeUser && (isCommunity || tenantUsername === activeUser.username);
+
   // One-click HBD is only offered for Keychain (and Keychain-compatible extensions such as Keeper /
   // PeakVault, which all report loginType "keychain"): they sign the transfer in-page so the await
   // resolves here and we can poll for activation. HiveSigner and keychain-mobile redirect the whole
@@ -123,8 +130,12 @@ export function HostingSignup() {
   }, [cardEnabled]);
 
   // Custom domain now works on BOTH rails: card ($3/mo) and HBD via a one-step
-  // blog:name[:months]:domain memo (+1 HBD/mo). So the add-on no longer forces a rail and no
-  // longer has to be dropped when card is unavailable — an HBD-only visitor can add it too.
+  // blog:name[:months]:domain memo (+1 HBD/mo). It no longer forces a rail, but it IS dropped when
+  // the visitor can't own/manage the domain (logged out, or paying for a tenant that isn't theirs),
+  // so a stale toggle can't sell an add-on that has no in-flow setup.
+  useEffect(() => {
+    if (!canManageDomain && customDomain) setCustomDomain(false);
+  }, [canManageDomain, customDomain]);
 
   const goConfigure = () => {
     setError("");
@@ -547,9 +558,9 @@ export function HostingSignup() {
           </div>
 
           {/* Custom domain add-on, for both instance types and both rails: card ($3/mo) or the
-              one-step HBD ':domain' memo (+1 HBD/mo). Shown whenever a payment method is available
-              (methods loaded), so an HBD-only visitor can add it too. */}
-          {methods && (
+              one-step HBD ':domain' memo (+1 HBD/mo). Offered only to a logged-in owner (either
+              rail) so the buyer can actually attach + verify the domain after checkout. */}
+          {methods && canManageDomain && (
             <button
               onClick={() => setCustomDomain((v) => !v)}
               disabled={paying}
