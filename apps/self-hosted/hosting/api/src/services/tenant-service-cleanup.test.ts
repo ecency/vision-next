@@ -38,7 +38,9 @@ describe('TenantService.reclaimAbandonedTenants', () => {
     expect(sql).toMatch(/SET subscription_status = 'abandoned'/);
     expect(sql).toMatch(/subscription_status = 'inactive'/); // still only targets inactive rows
     expect(sql).toMatch(/created_at < NOW\(\) - \(\$1 \* INTERVAL '1 day'\)/);
-    expect(sql).toMatch(/NOT IN \(SELECT tenant_id FROM payments/i);
+    expect(sql).toMatch(/NOT IN \(\s*SELECT tenant_id FROM payments/i);
+    // Only real/in-flight payments pin a name; a 'failed'/'refunded' row must not protect it.
+    expect(sql).toMatch(/status NOT IN \('failed', 'refunded'\)/);
     expect(params).toEqual([7]);
   });
 

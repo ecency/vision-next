@@ -471,6 +471,11 @@ export const TenantService = {
    * already keys on 'active', so an abandoned row neither serves nor blocks re-registration.
    * Because the operation is reversible, it needs no "listener caught up to head" gate — a
    * premature mark is harmless. Returns the reclaimed usernames for logging.
+   *
+   * The "has a payment" guard counts only real/in-flight payments (status not 'failed' or
+   * 'refunded'): a rejected payment — e.g. an upgrade transfer refused because the tenant was
+   * not active — logs a 'failed' row linked to the tenant, and if that counted here it would
+   * permanently pin the (reusable) username against every future reclaim.
    */
   async reclaimAbandonedTenants(graceDays: number): Promise<string[]> {
     const rows = await db.queryAll<{ username: string }>(
@@ -478,7 +483,10 @@ export const TenantService = {
          SET subscription_status = 'abandoned', updated_at = NOW()
          WHERE subscription_status = 'inactive'
            AND created_at < NOW() - ($1 * INTERVAL '1 day')
-           AND id NOT IN (SELECT tenant_id FROM payments WHERE tenant_id IS NOT NULL)
+           AND id NOT IN (
+             SELECT tenant_id FROM payments
+             WHERE tenant_id IS NOT NULL AND status NOT IN ('failed', 'refunded')
+           )
        RETURNING username`,
       [graceDays]
     );
