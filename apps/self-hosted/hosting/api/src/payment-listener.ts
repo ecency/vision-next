@@ -499,7 +499,15 @@ class PaymentListener {
         return;
       }
 
-      await TenantService.upgradeToPro(username);
+      // Atomic standard->Pro transition. Returns null if a concurrent upgrade already flipped the
+      // tenant to Pro between the read above and here — in which case this transfer earned no
+      // upgrade, so record it as failed rather than a second 'processed' upgrade.
+      const upgraded = await TenantService.upgradeToPro(username);
+      if (!upgraded) {
+        console.log('[PaymentListener] Upgrade raced (already Pro), not crediting:', username);
+        await this.logPayment(transfer, amount, 'failed', 0, null, 'Tenant already on Pro plan');
+        return;
+      }
       await this.logPayment(transfer, amount, 'processed', 0, null, 'Upgraded to Pro (custom domain)');
 
       void AuditService.log({

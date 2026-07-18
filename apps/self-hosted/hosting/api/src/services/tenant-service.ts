@@ -182,20 +182,23 @@ export const TenantService = {
   },
   
   /**
-   * Upgrade to Pro plan
+   * Upgrade to Pro plan. The `subscription_plan != 'pro'` guard makes the standard->Pro transition
+   * atomic: if a concurrent upgrade already flipped the tenant to Pro (or it doesn't exist), no row
+   * is updated and this returns null, so the caller records the racing payment as failed instead of
+   * a second "processed" upgrade for no benefit.
    */
-  async upgradeToPro(username: string): Promise<Tenant> {
+  async upgradeToPro(username: string): Promise<Tenant | null> {
     const row = await db.queryOne<TenantRow>(
       `UPDATE tenants
        SET subscription_plan = 'pro',
            updated_at = NOW()
        WHERE username = $1
+         AND subscription_plan != 'pro'
        RETURNING *`,
       [username.toLowerCase()]
     );
 
-    if (!row) throw new Error('Tenant not found');
-    return mapTenantFromDb(row);
+    return row ? mapTenantFromDb(row) : null;
   },
   
   /**
