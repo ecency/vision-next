@@ -281,7 +281,16 @@ class PaymentListener {
       // makes a retry safe: a transient failure after activation rolls the extension back
       // WITH the dedup row, so reprocessing extends exactly once (no double-credit).
       updatedTenant = await db.transaction(async (client) => {
-        // 1. Claim the transfer (dedup via unique trx_id).
+        // 1. Lock the target tenant row FIRST (before claiming the payment). The abandoned
+        // sweep's DELETE must lock the same row, so it blocks here and then re-evaluates its
+        // 'inactive' predicate against the now-active row -> it skips the tenant instead of
+        // deleting one whose payment we're mid-recording. (The payment row is inserted with
+        // tenant_id NULL, so a guard keyed on tenant_id alone can't protect this window.)
+        let row = (
+          await client.query(`SELECT * FROM tenants WHERE username = $1 FOR UPDATE`, [username])
+        ).rows[0];
+
+        // 2. Claim the transfer (dedup via unique trx_id).
         const insertResult = await client.query(
           `INSERT INTO payments
            (tenant_id, trx_id, block_num, from_account, amount, currency, memo, status, months_credited)
@@ -296,11 +305,8 @@ class PaymentListener {
         }
         const paymentId = insertResult.rows[0].id;
 
-        // 2. Ensure the tenant exists, locked for update. ON CONFLICT + re-select handles a
-        // concurrent create (e.g. the web signup racing us) without failing.
-        let row = (
-          await client.query(`SELECT * FROM tenants WHERE username = $1 FOR UPDATE`, [username])
-        ).rows[0];
+        // 3. Create the tenant if it didn't exist. ON CONFLICT + re-select handles a concurrent
+        // create (e.g. the web signup racing us) without failing.
         if (!row) {
           const inserted = await client.query(
             `INSERT INTO tenants (username, owner, config, subscription_status, subscription_plan)
@@ -316,7 +322,7 @@ class PaymentListener {
           console.log('[PaymentListener] Created new tenant:', username);
         }
 
-        // 3. Extend from the later of now / current expiry (same rule as activateSubscription).
+        // 4. Extend from the later of now / current expiry (same rule as activateSubscription).
         const now = new Date();
         const currentExpiry = row.subscription_expires_at
           ? new Date(row.subscription_expires_at)
@@ -337,7 +343,7 @@ class PaymentListener {
           [row.id, startedAt, newExpiry]
         );
 
-        // 4. Mark the payment processed in the SAME transaction.
+        // 5. Mark the payment processed in the SAME transaction.
         await client.query(
           `UPDATE payments
            SET tenant_id = $2, status = 'processed', subscription_extended_to = $3
