@@ -224,6 +224,52 @@ export function HostingSignup() {
     }
   }, [tenantUsername, isCommunity, title, description, activeUser]);
 
+  // Deep-link from the "Your hosted sites" manage panel: ?resume=<username>[&type=community] jumps
+  // straight to the payment step for an existing reservation, so an "Awaiting payment" tenant has a
+  // one-click way to finalize instead of dead-ending on the status label. Sets the form state from
+  // the params, then advances via goPayment (which resumes an existing owned tenant to payment)
+  // once that state has propagated.
+  const [resumeName, setResumeName] = useState<string | null>(null);
+  const activeUsername = activeUser?.username;
+  useEffect(() => {
+    if (typeof window === "undefined" || !activeUsername) return;
+    const resume = new URLSearchParams(window.location.search).get("resume")?.trim().toLowerCase();
+    if (!resume) return;
+    // Consume the param immediately so a refresh/remount after activation can't replay the flow
+    // (which, since goPayment lets an active owned tenant through as a renewal, would otherwise
+    // send them back to payment for an accidental extra term).
+    window.history.replaceState(null, "", window.location.pathname);
+    let cancelled = false;
+    (async () => {
+      let owned;
+      try {
+        owned = (await hostingApi.tenantsByOwner(activeUsername)).tenants;
+      } catch {
+        return;
+      }
+      if (cancelled) return;
+      // Only resume a reservation the current account actually OWNS and that is still awaiting
+      // payment, and take the instance type from the record (not the URL) — a crafted or incomplete
+      // resume URL must not create a new, or wrong-typed, reservation via goPayment's createTenant.
+      const t = owned.find((x) => x.username.toLowerCase() === resume);
+      if (!t || t.subscriptionStatus !== "inactive") return;
+      const isComm = t.type === "community";
+      setInstanceType(isComm ? "community" : "blog");
+      if (isComm) setCommunityId(t.username);
+      else setUsername(t.username);
+      setResumeName(t.username.toLowerCase());
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [activeUsername]);
+  useEffect(() => {
+    if (resumeName && step === "username" && tenantUsername === resumeName && activeUser) {
+      setResumeName(null);
+      void goPayment();
+    }
+  }, [resumeName, step, tenantUsername, activeUser, goPayment]);
+
   // HBD: refresh instructions for the selected term (and custom-domain add-on). Guard against a
   // slow earlier response (a different term/tier) landing after a newer one and showing a
   // mismatched amount/memo. With the add-on the endpoint returns the higher price and a ':domain'
@@ -514,19 +560,28 @@ export function HostingSignup() {
 
       {step === "configure" && (
         <div className="flex flex-col gap-3">
-          <label className="text-sm font-semibold">{i18next.t("hosting.blog-title-label")}</label>
+          <p className="text-sm opacity-75">
+            {i18next.t(isCommunity ? "hosting.configure-hint-community" : "hosting.configure-hint-blog")}
+          </p>
+          <label className="text-sm font-semibold">
+            {i18next.t(isCommunity ? "hosting.community-title-label" : "hosting.blog-title-label")}
+          </label>
           <FormControl
             type="text"
             value={title}
             onChange={(e: any) => setTitle(e.target.value)}
-            placeholder={i18next.t("hosting.blog-title-placeholder")}
+            placeholder={i18next.t(
+              isCommunity ? "hosting.community-title-placeholder" : "hosting.blog-title-placeholder"
+            )}
           />
           <label className="text-sm font-semibold">{i18next.t("hosting.blog-desc-label")}</label>
           <FormControl
             type="text"
             value={description}
             onChange={(e: any) => setDescription(e.target.value)}
-            placeholder={i18next.t("hosting.blog-desc-placeholder")}
+            placeholder={i18next.t(
+              isCommunity ? "hosting.community-desc-placeholder" : "hosting.blog-desc-placeholder"
+            )}
           />
           <div className="flex gap-2">
             <Button appearance="secondary" onClick={() => setStep("username")}>
