@@ -12,6 +12,16 @@ import { ConfigService } from './services/config-service';
 import { parseMemo, mapTenantFromDb, type ParsedMemo } from './types';
 import { AuditService } from './services/audit-service';
 
+// Parse the abandoned-tenant grace window from env, failing safe to 7 for any value that is not a
+// positive integer. The whole (trimmed) string must be digits — parseInt alone would accept
+// partial matches like '13.9' or '7foo', silently bypassing the safe fallback with a truncated
+// value. Empty, non-numeric, zero, and negative all fall back to 7. Exported for unit testing.
+export function parseAbandonedGraceDays(raw: string | undefined): number {
+  const trimmed = (raw ?? '').trim();
+  const n = /^\d+$/.test(trimmed) ? parseInt(trimmed, 10) : NaN;
+  return Number.isInteger(n) && n > 0 ? n : 7;
+}
+
 // Configuration
 const CONFIG = {
   PAYMENT_ACCOUNT: process.env.PAYMENT_ACCOUNT || 'ecency.hosting',
@@ -19,11 +29,20 @@ const CONFIG = {
   PRO_UPGRADE_PRICE_HBD: parseFloat(process.env.PRO_UPGRADE_PRICE_HBD || '0.500'),
   HIVE_API_NODES: (process.env.HIVE_API_URL || 'https://api.hive.blog').split(','),
   POLL_INTERVAL_MS: 3000, // 3 seconds (1 block)
+  // Days an unpaid (inactive) tenant reserves its username before the sweep reclaims it (marks
+  // it 'abandoned'). Must be a positive integer: a zero/negative/NaN value would make the SQL
+  // cutoff `NOW() - (n * INTERVAL '1 day')` land at or after now and sweep EVERY inactive tenant,
+  // so a misconfigured env falls back to 7 rather than mass-reclaiming.
+  ABANDONED_GRACE_DAYS: parseAbandonedGraceDays(process.env.ABANDONED_TENANT_GRACE_DAYS),
 };
 
 // Configure hive-tx nodes. setNodes() trims/validates entries and no-ops on an
 // empty list, so a misconfigured HIVE_API_URL can't wipe the built-in fallbacks.
 setNodes(CONFIG.HIVE_API_NODES);
+
+// How near head replay must be for the abandoned sweep to run (see isCaughtUp). Small enough to
+// stay false during a real backlog, loose enough to hold during normal one-block-behind tailing.
+const CAUGHT_UP_BLOCK_THRESHOLD = 3;
 
 class PaymentListener {
   private lastProcessedBlock: number = 0;
@@ -98,6 +117,29 @@ class PaymentListener {
         console.error('[PaymentListener] Error processing block', blockNum, error);
         break; // Stop and retry this block next iteration
       }
+    }
+
+    // Publish a caught-up watermark for the hosting-api. Re-registration of a reclaimed username
+    // is gated on this being fresh (see TenantService.create), so that even after the time-based
+    // quarantine expires, a listener that is stalled or replaying a backlog — and therefore may not
+    // have processed a pending on-chain payment yet — blocks the name from being overwritten. It is
+    // written only while genuinely near head; a backlog or a stall leaves it stale.
+    if (headBlock - this.lastProcessedBlock <= CAUGHT_UP_BLOCK_THRESHOLD) {
+      await this.markCaughtUp();
+    }
+  }
+
+  private async markCaughtUp(): Promise<void> {
+    try {
+      await db.query(
+        `INSERT INTO system_config (key, value, updated_at)
+         VALUES ('payment_listener.caught_up', '1', NOW())
+         ON CONFLICT (key) DO UPDATE SET value = '1', updated_at = NOW()`
+      );
+    } catch (error) {
+      // Best-effort heartbeat: a write failure must not break block processing. A stale watermark
+      // fails safe (re-registration is blocked), so skipping one write is harmless.
+      console.error('[PaymentListener] Error writing caught-up watermark:', (error as Error).message);
     }
   }
 
@@ -251,23 +293,28 @@ class PaymentListener {
     let updatedTenant: any = null;
 
     try {
-      // Pre-transaction (no DB mutation): if the tenant doesn't exist yet, confirm the Hive
-      // account is real. accountExistsStrict THROWS on an RPC outage (transient -> retry the
-      // block) rather than reporting the account absent, so a real payment isn't stranded when
-      // a node is down. Kept out of the transaction so no RPC holds a DB tx open.
-      const preexisting = await TenantService.getByUsername(username);
-      if (!preexisting && !(await TenantService.accountExistsStrict(username))) {
-        throw Object.assign(new Error('Hive account not found'), { permanent: true });
-      }
-      // Default config for a possible create (pure for a blog tenant, no RPC).
-      const defaultConfig = await TenantService.buildConfig(username);
-
       // Everything that mutates state runs on the SAME transaction client so the payment
       // dedup row and the subscription extension commit or roll back together. This is what
       // makes a retry safe: a transient failure after activation rolls the extension back
       // WITH the dedup row, so reprocessing extends exactly once (no double-credit).
       updatedTenant = await db.transaction(async (client) => {
-        // 1. Claim the transfer (dedup via unique trx_id).
+        // 1. Lock the target tenant row FIRST — before any other await. The abandoned sweep
+        // takes the same row lock to flip status to 'abandoned', so the two serialize: if we
+        // win, the sweep re-evaluates its 'inactive' predicate against the now-active row and
+        // skips it; if the sweep won, we find the surviving 'abandoned' row here and revive it.
+        // Either way the payment lands on the ORIGINAL row, keeping its owner + config intact.
+        //
+        // Note this path never assigns ownership to the payer: an existing row (inactive or
+        // abandoned) is activated under its stored owner, and a brand-new row (step 3) is created
+        // with owner = username. An HBD transfer is thus gift-style — it activates the named blog
+        // under its existing owner — while an actual ownership change goes through create/subscribe
+        // (which runs ownership validation). This is exactly why reviving beats recreating: a
+        // recreate would reset a community's owner to the community account and orphan it.
+        let row = (
+          await client.query(`SELECT * FROM tenants WHERE username = $1 FOR UPDATE`, [username])
+        ).rows[0];
+
+        // 2. Claim the transfer (dedup via unique trx_id).
         const insertResult = await client.query(
           `INSERT INTO payments
            (tenant_id, trx_id, block_num, from_account, amount, currency, memo, status, months_credited)
@@ -282,12 +329,18 @@ class PaymentListener {
         }
         const paymentId = insertResult.rows[0].id;
 
-        // 2. Ensure the tenant exists, locked for update. ON CONFLICT + re-select handles a
-        // concurrent create (e.g. the web signup racing us) without failing.
-        let row = (
-          await client.query(`SELECT * FROM tenants WHERE username = $1 FOR UPDATE`, [username])
-        ).rows[0];
+        // 3. Create the tenant if no row exists at all. The account check + config build happen
+        // HERE, inside the transaction, but only for a brand-new tenant. accountExistsStrict
+        // THROWS on an RPC outage (transient -> retry) rather than reporting the account absent,
+        // so a real payment isn't stranded when a node is down. ON CONFLICT + re-select handles a
+        // concurrent create (e.g. the web signup racing us) without failing. An already-existing
+        // row — including one the sweep marked 'abandoned' — skips this block and is revived in
+        // place by the activation in step 4, preserving its stored owner + config.
         if (!row) {
+          if (!(await TenantService.accountExistsStrict(username))) {
+            throw Object.assign(new Error('Hive account not found'), { permanent: true });
+          }
+          const defaultConfig = await TenantService.buildConfig(username);
           const inserted = await client.query(
             `INSERT INTO tenants (username, owner, config, subscription_status, subscription_plan)
              VALUES ($1, $1, $2, 'inactive', 'standard')
@@ -302,7 +355,7 @@ class PaymentListener {
           console.log('[PaymentListener] Created new tenant:', username);
         }
 
-        // 3. Extend from the later of now / current expiry (same rule as activateSubscription).
+        // 4. Extend from the later of now / current expiry (same rule as activateSubscription).
         const now = new Date();
         const currentExpiry = row.subscription_expires_at
           ? new Date(row.subscription_expires_at)
@@ -323,7 +376,7 @@ class PaymentListener {
           [row.id, startedAt, newExpiry]
         );
 
-        // 4. Mark the payment processed in the SAME transaction.
+        // 5. Mark the payment processed in the SAME transaction.
         await client.query(
           `UPDATE payments
            SET tenant_id = $2, status = 'processed', subscription_extended_to = $3
@@ -395,6 +448,20 @@ class PaymentListener {
         return;
       }
 
+      // A Pro upgrade only applies to a currently-serviceable (active) blog — same rule the x402
+      // /upgrade route enforces. Reject a reserved/inactive, reclaimed/abandoned, or expired
+      // tenant: upgrading one would take the payment for a blog that isn't running, and a plan
+      // bought while a name was abandoned must not carry over to a later fresh reservation.
+      if (tenant.subscriptionStatus !== 'active') {
+        console.log(
+          '[PaymentListener] Tenant not active for upgrade:',
+          username,
+          tenant.subscriptionStatus
+        );
+        await this.logPayment(transfer, amount, 'failed', 0, null, 'Tenant not active for upgrade');
+        return;
+      }
+
       await TenantService.upgradeToPro(username);
       await this.logPayment(transfer, amount, 'processed', 0, null, 'Upgraded to Pro');
 
@@ -456,6 +523,27 @@ class PaymentListener {
       if (expired > 0) {
         console.log('[PaymentListener] Expired', expired, 'subscriptions');
       }
+
+      // Reclaim abandoned signups (created, never paid, past the grace window). This is a SOFT
+      // delete — it flips status to 'abandoned' and keeps the row — so a payment still in flight
+      // simply revives the surviving row in place on replay/activation, with its original owner +
+      // config intact. No served-file cleanup: an abandoned tenant was never activated, and files
+      // are only written on activation, so it has none.
+      //
+      // Gated on the listener being caught up to head, so the reclaim never runs concurrently with
+      // a replay backlog (e.g. at startup after downtime). While behind, an on-chain HBD payment
+      // for a reservation may sit in a not-yet-replayed block; reclaiming then, with catch-up
+      // taking longer than the re-registration quarantine, could free the name before the payment
+      // is processed. Waiting until caught up guarantees any such payment has already activated its
+      // reservation (so it is not a reclaim target), and the quarantine only ever has to cover the
+      // seconds of live tailing, not an unbounded backlog. (Card orders, which have no on-chain
+      // signal, are instead protected by the checkout grace-clock refresh in TenantService.create.)
+      if (await this.isCaughtUp()) {
+        const reclaimed = await TenantService.reclaimAbandonedTenants(CONFIG.ABANDONED_GRACE_DAYS);
+        if (reclaimed.length > 0) {
+          console.log('[PaymentListener] Reclaimed', reclaimed.length, 'abandoned inactive tenants');
+        }
+      }
     } catch (error) {
       // Never let a transient DB error escape an interval/void call as an unhandled rejection.
       console.error('[PaymentListener] Expiry check failed:', (error as Error).message);
@@ -465,6 +553,20 @@ class PaymentListener {
   private async getHeadBlockNumber(): Promise<number> {
     const props = await callRPC('condenser_api.get_dynamic_global_properties', []) as any;
     return props.head_block_number;
+  }
+
+  // Whether block replay has essentially caught up to head. A small tolerance (not exact head) is
+  // deliberate: during healthy live tailing the loop trails head by the one block produced each
+  // poll interval, so requiring exact equality would seldom hold. When genuinely behind (a startup
+  // backlog of thousands of blocks), this is false and the abandoned sweep is deferred. Fails safe
+  // to false if head can't be read.
+  private async isCaughtUp(): Promise<boolean> {
+    try {
+      const headBlock = await this.getHeadBlockNumber();
+      return headBlock - this.lastProcessedBlock <= CAUGHT_UP_BLOCK_THRESHOLD;
+    } catch {
+      return false;
+    }
   }
 
   private async getLastProcessedBlock(): Promise<number | null> {
@@ -517,12 +619,18 @@ class PaymentListener {
 // Start the listener. A boot-time failure (e.g. RPC down while fetching the head block) must
 // not crash-loop through the fragile startup path with an unhandled rejection: log and let
 // the container's restart policy retry with backoff.
-const listener = new PaymentListener();
-listener.start().catch((error) => {
-  console.error('[PaymentListener] Fatal startup error:', (error as Error).message);
-  process.exit(1);
-});
+//
+// Skipped under Vitest (which sets process.env.VITEST) so a unit test can import this module for
+// its pure helpers without opening a block-poll loop or DB/RPC connections. Production is
+// unaffected — VITEST is never set there.
+if (!process.env.VITEST) {
+  const listener = new PaymentListener();
+  listener.start().catch((error) => {
+    console.error('[PaymentListener] Fatal startup error:', (error as Error).message);
+    process.exit(1);
+  });
 
-// Handle graceful shutdown
-process.on('SIGTERM', () => listener.stop());
-process.on('SIGINT', () => listener.stop());
+  // Handle graceful shutdown
+  process.on('SIGTERM', () => listener.stop());
+  process.on('SIGINT', () => listener.stop());
+}

@@ -7,7 +7,11 @@
 
 import { Hono } from 'hono';
 import { db } from '../db/client';
-import { TenantService } from '../services/tenant-service';
+import {
+  TenantService,
+  ABANDONED_REREGISTER_QUARANTINE_HOURS,
+  CAUGHT_UP_SQL,
+} from '../services/tenant-service';
 import { DomainService } from '../services/domain-service';
 import { ConfigService } from '../services/config-service';
 import { mapTenantFromDb } from '../types';
@@ -325,19 +329,47 @@ internalRoutes.post('/claim-blog', async (c) => {
     const config = await TenantService.buildConfig(username, { title, description });
 
     const result = await db.transaction<{ created: boolean; row: any }>(async (client) => {
-      // Try to create; ON CONFLICT means the tenant already exists (blocks on a concurrent claim
-      // until it commits, then returns 0 rows) -> we return the existing row unchanged.
+      // Try to create; ON CONFLICT means the tenant already exists. DO UPDATE revives a row the
+      // sweep marked 'abandoned' (an unpaid reservation) so a returning Pro member still gets their
+      // free blog activated below; a LIVE tenant (WHERE unsatisfied) returns 0 rows and is handed
+      // back unchanged (no re-activation, no extension). The revive is gated on the same
+      // re-registration quarantine as the public create/subscribe paths, so a claim can't overwrite
+      // a just-reclaimed row whose in-flight payment hasn't settled yet.
+      //
+      // owner is set to the claimant (= username; claim-blog is a personal Pro blog, owned by its
+      // own account) on BOTH insert and revive. Setting it on revive avoids leaving a reclaimed
+      // row's stale previous owner in place, and setting it on insert fixes the owner NOT NULL
+      // column, which this INSERT previously omitted.
       const inserted = await client.query(
-        `INSERT INTO tenants (username, config, subscription_status, subscription_plan)
-         VALUES ($1, $2, 'inactive', 'standard')
-         ON CONFLICT (username) DO NOTHING
+        `INSERT INTO tenants (username, owner, config, subscription_status, subscription_plan)
+         VALUES ($1, $1, $2, 'inactive', 'standard')
+         ON CONFLICT (username) DO UPDATE
+           SET owner = EXCLUDED.owner,
+               config = EXCLUDED.config,
+               subscription_status = 'inactive',
+               updated_at = NOW()
+           WHERE tenants.subscription_status = 'abandoned'
+             AND tenants.updated_at < NOW() - ($3 * INTERVAL '1 hour')
+             AND ${CAUGHT_UP_SQL}
          RETURNING *`,
-        [username, JSON.stringify(config)]
+        [username, JSON.stringify(config), ABANDONED_REREGISTER_QUARANTINE_HOURS]
       );
 
       if (inserted.rowCount === 0) {
-        const existing = await client.query(`SELECT * FROM tenants WHERE username = $1`, [username]);
-        return { created: false, row: existing.rows[0] };
+        const existing = await client.query(
+          `SELECT * FROM tenants WHERE username = $1 FOR UPDATE`,
+          [username]
+        );
+        const row = existing.rows[0];
+        // A row that is still 'abandoned' means the DO UPDATE was blocked by the re-registration
+        // quarantine, not by a live tenant. Returning it here would report success while skipping
+        // activation, leaving the claimant a non-active blog. Reject as retryable so the claim is
+        // retried after the quiet period instead. A live tenant (any other status) is a genuine
+        // "already exists" and is returned unchanged.
+        if (row?.subscription_status === 'abandoned') {
+          throw Object.assign(new Error('reclaimed_recently'), { retryable: true });
+        }
+        return { created: false, row };
       }
 
       const tenantId = inserted.rows[0].id;
@@ -383,7 +415,11 @@ internalRoutes.post('/claim-blog', async (c) => {
       },
     });
   } catch (e) {
-    console.error('[internal/claim-blog] error:', (e as Error).message);
+    const err = e as Error & { retryable?: boolean };
+    console.error('[internal/claim-blog] error:', err.message);
+    // 503 (transient) so the caller retries the claim after the re-registration quiet period,
+    // rather than a permanent failure or a false success.
+    if (err.retryable) return c.json({ error: 'reclaimed_recently' }, 503);
     return c.json({ error: 'claim_failed' }, 500);
   }
 });

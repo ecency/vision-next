@@ -13,6 +13,45 @@ export type { Tenant } from '../types';
 hiveTxConfig.nodes = process.env.HIVE_API_URL?.split(',') || ['https://api.hive.blog'];
 const baseDomain = process.env.BASE_DOMAIN || 'blogs.ecency.com';
 
+// Quiet period after the sweep marks a username 'abandoned' before it can be reserved again. It is
+// a backstop; three enforced guarantees keep a paid-for reservation out of a re-registration:
+//   1. create() refreshes the grace clock on every checkout re-entry, so an actively-paid
+//      reservation is never a sweep target (covers card, whose ePoints activation may retry with
+//      backoff far longer than an hour, and any web re-entry).
+//   2. The sweep only reclaims while the listener is caught up (payment-listener isCaughtUp), so it
+//      never marks a row abandoned during a replay backlog with unprocessed on-chain payments.
+//   3. Re-registration itself is gated on a FRESH listener caught-up watermark (CAUGHT_UP_SQL), so
+//      a listener that stalls AFTER a reclaim — leaving a just-arrived on-chain payment unprocessed
+//      — blocks the name from being overwritten no matter how long the stall lasts.
+// The time-based quarantine then only has to cover the residual seconds of healthy live tailing.
+export const ABANDONED_REREGISTER_QUARANTINE_HOURS = 1;
+
+// Whether an existing row is an abandoned reservation that has cleared the re-registration
+// quarantine (so a fresh signup may reclaim its username). A live row, or one reclaimed within
+// the quarantine, is NOT reusable. The SQL upsert applies the same guard atomically; this is the
+// pre-check that also lets /subscribe reject before settling a payment.
+export function isReregisterableAbandoned(t: Pick<Tenant, 'subscriptionStatus' | 'updatedAt'>): boolean {
+  if (t.subscriptionStatus !== 'abandoned') return false;
+  const cutoff = Date.now() - ABANDONED_REREGISTER_QUARANTINE_HOURS * 60 * 60 * 1000;
+  return t.updatedAt.getTime() < cutoff;
+}
+
+// How fresh the payment-listener's caught-up watermark must be for re-registration of a reclaimed
+// name to be allowed. The listener refreshes it every poll (~3s) while near head, so a value older
+// than this means it is stalled or replaying a backlog and may not have processed a pending payment
+// yet — in which case re-registration must be blocked regardless of the time-based quarantine. Used
+// both as the SQL guard on the reclaim branch and by isListenerCaughtUp for the pre-paywall check.
+export const LISTENER_CAUGHT_UP_MAX_AGE = "2 minutes";
+
+// Reclaim-branch guard: true only if the payment listener has reported itself caught up to head
+// recently. Fails safe to false (blocks re-registration) if the watermark is missing or stale.
+// Exported so the /subscribe and claim-blog upserts apply the identical guard.
+export const CAUGHT_UP_SQL = `EXISTS (
+  SELECT 1 FROM system_config
+  WHERE key = 'payment_listener.caught_up'
+    AND updated_at > NOW() - INTERVAL '${LISTENER_CAUGHT_UP_MAX_AGE}'
+)`;
+
 export const TenantService = {
   /**
    * Get tenant by username
@@ -40,8 +79,11 @@ export const TenantService = {
    * All tenants controlled by an owner account (their personal blog and any communities).
    */
   async getByOwner(owner: string): Promise<Tenant[]> {
+    // Exclude 'abandoned' rows: a reclaimed, re-registerable reservation is effectively gone, so
+    // it must not surface in the owner's manage listing (where an unmodeled status would render
+    // as a misleading "expired" label).
     const rows = await db.queryAll<TenantRow>(
-      'SELECT * FROM tenants WHERE owner = $1 ORDER BY created_at',
+      `SELECT * FROM tenants WHERE owner = $1 AND subscription_status != 'abandoned' ORDER BY created_at`,
       [owner.toLowerCase()]
     );
     return rows.map(mapTenantFromDb);
@@ -64,14 +106,46 @@ export const TenantService = {
     // were silently dropped (and any community override too). Route both paths through buildConfig.
     const config = await this.buildConfig(username, configOverrides, ownerName);
 
+    // Upsert with two conflict outcomes, distinguished by the existing row's status:
+    //
+    //  - 'abandoned' (past the re-registration quarantine): a fresh reservation RECLAIMS the name —
+    //    overwrite owner + config. The quarantine (updated_at older than the window) protects a row
+    //    whose earlier payment may still be in flight.
+    //  - 'inactive' owned by the SAME owner: this is a re-entry into checkout for an existing
+    //    reservation. REFRESH its grace clock (created_at = NOW) so the abandoned sweep can't
+    //    reclaim it while it is actively being paid for — closing the window where an old reservation
+    //    is swept mid-checkout and then overwritten before a slow payment (e.g. a card order ePoints
+    //    retries with backoff for far longer than the quarantine) is finally recorded. Keep owner +
+    //    config unchanged here (via CASE) so re-entry never overwrites an unpaid reservation's config.
+    //
+    // Any other row (live tenant, or a different owner's inactive reservation) leaves the WHERE
+    // unsatisfied, returns no row, and is surfaced as a conflict. A brand-new username inserts.
     const row = await db.queryOne<TenantRow>(
       `INSERT INTO tenants (username, owner, config, subscription_status, subscription_plan)
        VALUES ($1, $2, $3, 'inactive', 'standard')
+       ON CONFLICT (username) DO UPDATE
+         SET owner = CASE WHEN tenants.subscription_status = 'abandoned'
+                          THEN EXCLUDED.owner ELSE tenants.owner END,
+             config = CASE WHEN tenants.subscription_status = 'abandoned'
+                           THEN EXCLUDED.config ELSE tenants.config END,
+             subscription_plan = 'standard',
+             subscription_status = 'inactive',
+             created_at = NOW(),
+             updated_at = NOW()
+         WHERE (tenants.subscription_status = 'abandoned'
+                  AND tenants.updated_at < NOW() - ($4 * INTERVAL '1 hour')
+                  AND ${CAUGHT_UP_SQL})
+            OR (tenants.subscription_status = 'inactive' AND tenants.owner = EXCLUDED.owner)
        RETURNING *`,
-      [username.toLowerCase(), ownerName, JSON.stringify(config)]
+      [username.toLowerCase(), ownerName, JSON.stringify(config), ABANDONED_REREGISTER_QUARANTINE_HOURS]
     );
 
-    return mapTenantFromDb(row!);
+    if (!row) {
+      // Conflict with a live (non-abandoned) tenant — the username is genuinely taken.
+      throw Object.assign(new Error('Username already registered'), { isConflict: true });
+    }
+
+    return mapTenantFromDb(row);
   },
   
   /**
@@ -400,12 +474,66 @@ export const TenantService = {
    */
   async expireSubscriptions(): Promise<number> {
     const result = await db.query(
-      `UPDATE tenants 
+      `UPDATE tenants
        SET subscription_status = 'expired'
-       WHERE subscription_status = 'active' 
+       WHERE subscription_status = 'active'
          AND subscription_expires_at < NOW()`
     );
     return result.rowCount || 0;
+  },
+
+  /**
+   * Reclaim abandoned signups: tenants that were created but NEVER paid (status 'inactive',
+   * no payment rows) and have sat past the grace window. This frees their username, which an
+   * inactive record would otherwise reserve forever.
+   *
+   * It SOFT-deletes — flips status to 'abandoned' rather than removing the row — precisely so a
+   * payment that is still in flight when the sweep runs stays safe:
+   *   - An HBD transfer sitting in a not-yet-replayed block has no payment row yet, so the
+   *     `id NOT IN payments` guard cannot protect it; but because the row survives, replay's
+   *     processSubscription finds it and activates it IN PLACE, keeping the original owner and
+   *     config (a hard delete would recreate it with default config + owner = username, losing a
+   *     personal blog's setup and making a community unmanageable).
+   *   - A card order mid-settlement has no payment row either; the row surviving means
+   *     /internal/activate still finds it and does not 404 the paid order.
+   * A fresh reservation revives an 'abandoned' row (see create()), and every serve/list path
+   * already keys on 'active', so an abandoned row neither serves nor blocks re-registration.
+   * Because the operation is reversible, it needs no "listener caught up to head" gate — a
+   * premature mark is harmless. Returns the reclaimed usernames for logging.
+   *
+   * The "has a payment" guard counts only real/in-flight payments (status not 'failed' or
+   * 'refunded'): a rejected payment — e.g. an upgrade transfer refused because the tenant was
+   * not active — logs a 'failed' row linked to the tenant, and if that counted here it would
+   * permanently pin the (reusable) username against every future reclaim.
+   */
+  /**
+   * Whether the payment listener has reported itself caught up to head recently. Mirrors the
+   * CAUGHT_UP_SQL guard for use as a pre-check on paths that must decide BEFORE a payment settles
+   * (e.g. /subscribe's pre-paywall availability check) whether a reclaimed name may be reused.
+   * Fails safe to false if the watermark is missing or stale.
+   */
+  async isListenerCaughtUp(): Promise<boolean> {
+    const row = await db.queryOne<{ fresh: boolean }>(
+      `SELECT (updated_at > NOW() - INTERVAL '${LISTENER_CAUGHT_UP_MAX_AGE}') AS fresh
+         FROM system_config WHERE key = 'payment_listener.caught_up'`
+    );
+    return row?.fresh === true;
+  },
+
+  async reclaimAbandonedTenants(graceDays: number): Promise<string[]> {
+    const rows = await db.queryAll<{ username: string }>(
+      `UPDATE tenants
+         SET subscription_status = 'abandoned', updated_at = NOW()
+         WHERE subscription_status = 'inactive'
+           AND created_at < NOW() - ($1 * INTERVAL '1 day')
+           AND id NOT IN (
+             SELECT tenant_id FROM payments
+             WHERE tenant_id IS NOT NULL AND status NOT IN ('failed', 'refunded')
+           )
+       RETURNING username`,
+      [graceDays]
+    );
+    return rows.map((r) => r.username);
   },
   
   /**

@@ -6,7 +6,11 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
 import { db } from '../db/client';
-import { TenantService } from '../services/tenant-service';
+import {
+  TenantService,
+  isReregisterableAbandoned,
+  ABANDONED_REREGISTER_QUARANTINE_HOURS,
+} from '../services/tenant-service';
 import { mapTenantFromDb } from '../types';
 import { ConfigService } from '../services/config-service';
 import { authMiddleware } from '../middleware/auth';
@@ -173,9 +177,13 @@ tenantRoutes.post(
   async (c) => {
     const body = c.req.valid('json');
 
-    // Check if username already exists
+    // Check if username already exists. An 'abandoned' row (an unpaid reservation the sweep
+    // reclaimed) reads as available once it has cleared the re-registration quarantine — create()
+    // revives it below. Within the quarantine — or while the payment listener isn't confirmed
+    // caught up to head (so a pending on-chain payment for it may be unprocessed) — it is still
+    // treated as taken so an in-flight payment for it isn't overwritten.
     const existing = await TenantService.getByUsername(body.username);
-    if (existing) {
+    if (existing && !(isReregisterableAbandoned(existing) && (await TenantService.isListenerCaughtUp()))) {
       return c.json({ error: 'Username already registered' }, 409);
     }
 
@@ -189,8 +197,18 @@ tenantRoutes.post(
     // Create tenant (inactive until payment). The served config file is NOT written here:
     // nginx serves any file that exists with no subscription check, so writing it now would
     // put an unpaid blog live forever. The file is generated only on activation (payment
-    // listener / internal activate / subscribe).
-    const tenant = await TenantService.create(body.username, owner, body.config);
+    // listener / internal activate / subscribe). create() upserts, so it also revives an
+    // 'abandoned' row and throws isConflict only if a LIVE tenant now holds the name (a race
+    // the target lock makes near-impossible, but handled for safety).
+    let tenant;
+    try {
+      tenant = await TenantService.create(body.username, owner, body.config);
+    } catch (err: any) {
+      if (err?.isConflict) {
+        return c.json({ error: 'Username already registered' }, 409);
+      }
+      throw err;
+    }
 
     const baseDomain = process.env.BASE_DOMAIN || 'blogs.ecency.com';
     const paymentAccount = process.env.PAYMENT_ACCOUNT || 'ecency.hosting';
@@ -229,8 +247,12 @@ tenantRoutes.post('/subscribe',
   (c, next) => withPaymentTargetLock(c, next, 'subscribe', c.req.valid('json').username),
   async (c, next) => {
     const body = c.req.valid('json');
+    // An 'abandoned' row past the re-registration quarantine reads as available; the DB
+    // transaction below revives it on settlement. Checked BEFORE the paywall so a payment is never
+    // settled for a name that is still quarantined, or whose listener isn't confirmed caught up
+    // (either of which would fail the upsert's guard and strand the settlement).
     const existing = await TenantService.getByUsername(body.username);
-    if (existing) {
+    if (existing && !(isReregisterableAbandoned(existing) && (await TenantService.isListenerCaughtUp()))) {
       return c.json({ error: 'Username already registered' }, 409);
     }
     // Same account + community + ownership validation as POST /, BEFORE the paywall so a payment is
@@ -274,13 +296,28 @@ tenantRoutes.post('/subscribe',
 
     // All mutations inside a DB transaction to prevent orphan tenants
     const result = await db.transaction(async (client) => {
-      // Create tenant — ON CONFLICT handles race with concurrent requests
+      // Create tenant — the upsert handles a concurrent-create race and revives a row the sweep
+      // marked 'abandoned' AND past the re-registration quarantine. Unlike the create/claim-blog
+      // upserts, this one deliberately does NOT re-check the listener caught-up watermark: this
+      // runs AFTER the paywall has settled the payment, and the pre-paywall availability check
+      // already verified the watermark (a fresh watermark there means the name had no pending
+      // on-chain payment at settle time). Re-checking a watermark that can flip stale during
+      // settlement would turn a listener blip into a paid-but-unrecorded order. The quarantine
+      // guard, which only moves forward, is stable across the settlement and is kept.
       const tenantRow = await client.query(
         `INSERT INTO tenants (username, owner, config, subscription_status, subscription_plan)
          VALUES ($1, $2, $3, 'inactive', 'standard')
-         ON CONFLICT (username) DO NOTHING
+         ON CONFLICT (username) DO UPDATE
+           SET owner = EXCLUDED.owner,
+               config = EXCLUDED.config,
+               subscription_plan = 'standard',
+               subscription_status = 'inactive',
+               created_at = NOW(),
+               updated_at = NOW()
+           WHERE tenants.subscription_status = 'abandoned'
+             AND tenants.updated_at < NOW() - ($4 * INTERVAL '1 hour')
          RETURNING *`,
-        [body.username.toLowerCase(), owner, JSON.stringify(tenantConfig)]
+        [body.username.toLowerCase(), owner, JSON.stringify(tenantConfig), ABANDONED_REREGISTER_QUARANTINE_HOURS]
       );
       if (tenantRow.rowCount === 0) {
         throw Object.assign(new Error('Username already registered'), { isConflict: true });
