@@ -95,12 +95,6 @@ class PaymentListener {
     // Process up to 100 blocks at a time to catch up
     const maxBlocks = Math.min(headBlock - this.lastProcessedBlock, 100);
 
-    // Caught up once we're within a block or two of head (no meaningful replay backlog left).
-    // Gates the abandoned-tenant sweep; never un-set, since a normal small lag isn't a backlog.
-    if (headBlock - this.lastProcessedBlock <= 2) {
-      this.caughtUp = true;
-    }
-
     for (let i = 0; i < maxBlocks; i++) {
       const blockNum = this.lastProcessedBlock + 1;
 
@@ -112,6 +106,14 @@ class PaymentListener {
         console.error('[PaymentListener] Error processing block', blockNum, error);
         break; // Stop and retry this block next iteration
       }
+    }
+
+    // Caught up only once this pass has actually drained the backlog up to the head it saw
+    // (i.e. no block errored out and broke the loop early). Set AFTER the loop so the sweep,
+    // which is gated on this flag, can never run while a payment in one of the just-processed
+    // blocks is still pending. Never un-set: a normal 1-block steady-state lag isn't a backlog.
+    if (this.lastProcessedBlock >= headBlock) {
+      this.caughtUp = true;
     }
   }
 
