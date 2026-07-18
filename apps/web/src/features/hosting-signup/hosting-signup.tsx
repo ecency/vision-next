@@ -1,6 +1,7 @@
 "use client";
 
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useTransferMutation } from "@/api/sdk-mutations";
 import { useGlobalStore } from "@/core/global-store";
 import { getUsernameError } from "@/utils/username-validation";
 import { Alert } from "@ui/alert";
@@ -223,20 +224,24 @@ export function HostingSignup() {
     };
   }, [step, method, months, tenantUsername, customDomain]);
 
+  // A tenant read counts as "paid + live" only when it is active AND, for a renewal (a tenant that
+  // was already active when we entered payment), its expiry has moved FORWARD past the captured
+  // baseline — otherwise "active" is trivially true and would confirm success with no payment.
+  const isActivated = useCallback((t: Awaited<ReturnType<typeof hostingApi.tenant>>) => {
+    const baseline = renewBaselineExpiryRef.current;
+    const advanced =
+      !baseline ||
+      (!!t.subscriptionExpiresAt &&
+        new Date(t.subscriptionExpiresAt).getTime() > new Date(baseline).getTime());
+    return t.subscriptionStatus === "active" && advanced;
+  }, []);
+
   const checkActivation = useCallback(async () => {
     setError("");
     setBusy(true);
     try {
       const t = await hostingApi.tenant(tenantUsername);
-      // For a renewal (tenant was already active on entry) require the expiry to have moved
-      // forward — otherwise "active" is trivially true and would confirm success with no
-      // payment. For a first activation there is no baseline, so "active" is sufficient.
-      const baseline = renewBaselineExpiryRef.current;
-      const advanced =
-        !baseline ||
-        (!!t.subscriptionExpiresAt &&
-          new Date(t.subscriptionExpiresAt).getTime() > new Date(baseline).getTime());
-      if (t.subscriptionStatus === "active" && advanced) {
+      if (isActivated(t)) {
         setStep("success");
       } else {
         setError(i18next.t("hosting.not-yet-active"));
@@ -246,7 +251,56 @@ export function HostingSignup() {
     } finally {
       setBusy(false);
     }
-  }, [tenantUsername]);
+  }, [tenantUsername, isActivated]);
+
+  // After an on-chain transfer is broadcast, poll the tenant until the payment listener replays
+  // the block and activates it (usually a few seconds). Returns true once active. Never throws —
+  // a failed read just retries — so a caller can distinguish "broadcast ok but not confirmed yet"
+  // from a broadcast error.
+  const pollActivation = useCallback(async () => {
+    for (let i = 0; i < 15; i++) {
+      try {
+        const t = await hostingApi.tenant(tenantUsername);
+        if (isActivated(t)) return true;
+      } catch {
+        // transient read error — keep polling
+      }
+      await new Promise((r) => setTimeout(r, 3000));
+    }
+    return false;
+  }, [tenantUsername, isActivated]);
+
+  // One-click HBD: broadcast the exact transfer (to/amount/memo from the instructions) through the
+  // logged-in account's own auth (Keychain / HiveSigner / HiveAuth / key), then poll for activation.
+  // This removes the "copy memo, pay elsewhere, click I've paid" round trip that leaves dormant
+  // unpaid records. The manual instructions remain as a fallback (logged-out payers, other wallets).
+  const transfer = useTransferMutation();
+  const payWithHive = useCallback(async () => {
+    if (!instructions) return;
+    setError("");
+    setBusy(true);
+    setPaying(true);
+    try {
+      await transfer.mutateAsync({
+        to: instructions.to,
+        amount: instructions.amount,
+        memo: instructions.memo
+      });
+      if (await pollActivation()) {
+        setStep("success");
+      } else {
+        // Broadcast landed but activation hasn't been observed yet; let them re-check manually.
+        setError(i18next.t("hosting.not-yet-active"));
+        setPaying(false);
+      }
+    } catch (e) {
+      // Wallet prompt cancelled or broadcast failed — keep them on the step to retry / pay manually.
+      setError((e as Error)?.message || i18next.t("hosting.pay-failed"));
+      setPaying(false);
+    } finally {
+      setBusy(false);
+    }
+  }, [instructions, transfer, pollActivation]);
 
   const usdPerBase = (methods?.card.monthlyUsdCents ?? 200) / 100;
   const hbdPerBase = parseFloat(methods?.hbd.monthly ?? "2");
@@ -266,6 +320,27 @@ export function HostingSignup() {
   } catch {
     safeBlogUrl = "";
   }
+
+  // Manual HBD instructions (send-to / amount / memo), shared by the logged-out flow and the
+  // "pay manually" fallback under the one-click button.
+  const hbdManualInstructions = (
+    <>
+      <p>{i18next.t("hosting.hbd-instructions")}</p>
+      {instructions && (
+        <div className="rounded-lg border border-[--border-color] p-3 flex flex-col gap-1 font-mono">
+          <div>
+            {i18next.t("hosting.send-to")}: @{instructions.to}
+          </div>
+          <div>
+            {i18next.t("hosting.amount")}: {instructions.amount}
+          </div>
+          <div>
+            {i18next.t("hosting.memo")}: {instructions.memo}
+          </div>
+        </div>
+      )}
+    </>
+  );
 
   return (
     <div className="max-w-lg mx-auto flex flex-col gap-4">
@@ -470,18 +545,48 @@ export function HostingSignup() {
           )}
 
           {method === "hbd" && !customDomain && (
-            <div className="flex flex-col gap-2 text-sm">
-              <p>{i18next.t("hosting.hbd-instructions")}</p>
-              {instructions && (
-                <div className="rounded-lg border border-[--border-color] p-3 flex flex-col gap-1 font-mono">
-                  <div>{i18next.t("hosting.send-to")}: @{instructions.to}</div>
-                  <div>{i18next.t("hosting.amount")}: {instructions.amount}</div>
-                  <div>{i18next.t("hosting.memo")}: {instructions.memo}</div>
-                </div>
+            <div className="flex flex-col gap-3 text-sm">
+              {activeUser ? (
+                <>
+                  {/* One-click: broadcast the transfer through the user's own Hive auth. */}
+                  <Button
+                    onClick={payWithHive}
+                    disabled={busy || !instructions}
+                    isLoading={busy}
+                    full={true}
+                  >
+                    {i18next.t("hosting.pay-hbd-oneclick", {
+                      amount: (hbdPer * months).toFixed(3)
+                    })}
+                  </Button>
+                  {paying && <p className="opacity-75">{i18next.t("hosting.pay-hbd-sending")}</p>}
+                  {/* Fallback: another wallet, or paying from a different account (e.g. a gift). */}
+                  <details className="rounded-lg border border-[--border-color] p-3">
+                    <summary className="cursor-pointer select-none">
+                      {i18next.t("hosting.pay-hbd-manual")}
+                    </summary>
+                    <div className="flex flex-col gap-2 mt-3">
+                      {hbdManualInstructions}
+                      <Button
+                        appearance="secondary"
+                        onClick={checkActivation}
+                        disabled={busy}
+                        isLoading={busy}
+                        full={true}
+                      >
+                        {i18next.t("hosting.ive-paid")}
+                      </Button>
+                    </div>
+                  </details>
+                </>
+              ) : (
+                <>
+                  {hbdManualInstructions}
+                  <Button onClick={checkActivation} disabled={busy} isLoading={busy} full={true}>
+                    {i18next.t("hosting.ive-paid")}
+                  </Button>
+                </>
               )}
-              <Button onClick={checkActivation} disabled={busy} isLoading={busy} full={true}>
-                {i18next.t("hosting.ive-paid")}
-              </Button>
             </div>
           )}
         </div>
