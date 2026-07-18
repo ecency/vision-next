@@ -104,8 +104,9 @@ export function HostingManage() {
 
           {/* Discoverability: a standard-plan owner otherwise never learns custom domains exist.
               Surface the offer (the Custom domain plan) without a broken upgrade button — the
-              in-place mid-term upgrade/pricing flow is a separate decision. */}
-          {t.subscriptionPlan !== "pro" && t.subscriptionStatus === "active" && (
+              in-place mid-term upgrade/pricing flow is a separate decision. Matched explicitly on
+              'standard' so a future/legacy plan value doesn't get mislabeled with this upsell. */}
+          {t.subscriptionPlan === "standard" && t.subscriptionStatus === "active" && (
             <div className="text-sm opacity-75">
               <span className="font-medium">{i18next.t("hosting.manage-add-domain")}</span>
               {" — "}

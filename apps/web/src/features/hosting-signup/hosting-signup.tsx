@@ -2,6 +2,7 @@
 
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useTransferMutation } from "@/api/sdk-mutations";
+import { getLoginType } from "@/utils/user-token";
 import { useGlobalStore } from "@/core/global-store";
 import { getUsernameError } from "@/utils/username-validation";
 import { Alert } from "@ui/alert";
@@ -93,6 +94,12 @@ export function HostingSignup() {
   // activated via hostingTarget, so it does not need to equal the tenant.
   const cardEnabled =
     !!methods?.card.enabled && !!activeUser && (isCommunity || tenantUsername === activeUser.username);
+
+  // One-click HBD is only offered for Keychain (and Keychain-compatible extensions such as Keeper /
+  // PeakVault, which all report loginType "keychain"): they sign the transfer in-page so the await
+  // resolves here and we can poll for activation. HiveSigner and keychain-mobile redirect the whole
+  // page for an active op, which would abandon this flow mid-send, so those fall back to manual.
+  const canOneClickHive = !!activeUser && getLoginType(activeUser.username) === "keychain";
 
   useEffect(() => {
     hostingApi.paymentMethods().then(setMethods).catch(() => setMethods(null));
@@ -546,9 +553,8 @@ export function HostingSignup() {
 
           {method === "hbd" && !customDomain && (
             <div className="flex flex-col gap-3 text-sm">
-              {activeUser ? (
+              {canOneClickHive ? (
                 <>
-                  {/* One-click: broadcast the transfer through the user's own Hive auth. */}
                   <Button
                     onClick={payWithHive}
                     disabled={busy || !instructions}

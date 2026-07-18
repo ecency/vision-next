@@ -8,6 +8,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 // Hoisted so the vi.mock factories (which run before top-level consts initialize) can reference them.
 const mocks = vi.hoisted(() => ({
   mutateAsync: vi.fn(),
+  authLoginType: "keychain" as string,
   hostingApi: {
     paymentMethods: vi.fn(),
     createTenant: vi.fn(),
@@ -31,6 +32,12 @@ vi.mock("@/core/hooks/use-active-account", () => ({
   useActiveAccount: () => ({ activeUser: { username: "alice" } })
 }));
 
+// getLoginType drives whether the in-page one-click button is offered: Keychain-family extensions
+// sign in-page, while HiveSigner/keychain-mobile redirect and must fall back to manual.
+vi.mock("@/utils/user-token", () => ({
+  getLoginType: () => mocks.authLoginType
+}));
+
 vi.mock("@/core/global-store", () => ({
   useGlobalStore: (selector: (s: any) => unknown) => selector({ toggleUiProp: vi.fn() })
 }));
@@ -42,6 +49,7 @@ const INSTRUCTIONS = { to: "ecency.hosting", amount: "2.000 HBD", memo: "blog:al
 describe("HostingSignup one-click HBD pay", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.authLoginType = "keychain";
     // Card disabled so the payment step defaults to the HBD rail (where the one-click lives).
     hostingApi.paymentMethods.mockResolvedValue({
       hbd: { enabled: true, monthly: "2.000", account: "ecency.hosting" },
@@ -98,5 +106,16 @@ describe("HostingSignup one-click HBD pay", () => {
     fireEvent.click(await screen.findByText("g.continue"));
     await screen.findByText("hosting.pay-hbd-oneclick");
     expect(mutateAsync).not.toHaveBeenCalled();
+  });
+
+  it("falls back to manual (no one-click) for a redirecting login like HiveSigner", async () => {
+    mocks.authLoginType = "hivesigner";
+    render(<HostingSignup />);
+    fireEvent.click(screen.getByText("g.continue"));
+    fireEvent.click(await screen.findByText("g.continue"));
+    // Manual path is shown; the in-page one-click button is not offered (it would be abandoned by
+    // the HiveSigner page redirect mid-transfer).
+    await screen.findByText("hosting.ive-paid");
+    expect(screen.queryByText("hosting.pay-hbd-oneclick")).toBeNull();
   });
 });
