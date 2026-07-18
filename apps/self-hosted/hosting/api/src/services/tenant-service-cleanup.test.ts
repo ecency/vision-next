@@ -16,7 +16,10 @@ vi.mock('@ecency/sdk/hive', () => ({
   setNodes: vi.fn(),
 }));
 
-const { TenantService } = await import('./tenant-service');
+const { TenantService, isReregisterableAbandoned, ABANDONED_REREGISTER_QUARANTINE_HOURS } =
+  await import('./tenant-service');
+
+const HOUR_MS = 60 * 60 * 1000;
 
 describe('TenantService.reclaimAbandonedTenants', () => {
   beforeEach(() => mocks.queryAll.mockReset());
@@ -64,10 +67,14 @@ describe('TenantService.create (revives abandoned reservations)', () => {
     await TenantService.create('demo', 'demo', undefined);
 
     // A personal blog with no overrides makes no other queryOne calls, so the upsert is call 0.
-    const [sql] = mocks.queryOne.mock.calls[mocks.queryOne.mock.calls.length - 1];
+    const [sql, params] = mocks.queryOne.mock.calls[mocks.queryOne.mock.calls.length - 1];
     expect(sql).toMatch(/INSERT INTO tenants/i);
     expect(sql).toMatch(/ON CONFLICT \(username\) DO UPDATE/i);
     expect(sql).toMatch(/WHERE tenants\.subscription_status = 'abandoned'/);
+    // The overwrite is also gated on the re-registration quarantine so an in-flight payment's
+    // reservation can't be replaced before it settles.
+    expect(sql).toMatch(/tenants\.updated_at < NOW\(\) - \(\$4 \* INTERVAL '1 hour'\)/);
+    expect(params[3]).toBe(ABANDONED_REREGISTER_QUARANTINE_HOURS);
   });
 
   it('throws a conflict when the upsert returns no row (a live tenant holds the name)', async () => {
@@ -76,5 +83,37 @@ describe('TenantService.create (revives abandoned reservations)', () => {
     await expect(TenantService.create('demo', 'demo', undefined)).rejects.toMatchObject({
       isConflict: true,
     });
+  });
+});
+
+describe('isReregisterableAbandoned (re-registration quarantine)', () => {
+  const mk = (status: string, updatedAt: Date) => ({ subscriptionStatus: status, updatedAt } as any);
+
+  it('is false for any non-abandoned status', () => {
+    const old = new Date(Date.now() - 100 * HOUR_MS);
+    for (const s of ['inactive', 'active', 'expired', 'suspended']) {
+      expect(isReregisterableAbandoned(mk(s, old))).toBe(false);
+    }
+  });
+
+  it('is false for a freshly-reclaimed row still inside the quarantine window', () => {
+    const justNow = new Date(Date.now() - (ABANDONED_REREGISTER_QUARANTINE_HOURS / 2) * HOUR_MS);
+    expect(isReregisterableAbandoned(mk('abandoned', justNow))).toBe(false);
+  });
+
+  it('is true once an abandoned row has cleared the quarantine window', () => {
+    const past = new Date(Date.now() - (ABANDONED_REREGISTER_QUARANTINE_HOURS + 1) * HOUR_MS);
+    expect(isReregisterableAbandoned(mk('abandoned', past))).toBe(true);
+  });
+});
+
+describe('TenantService.getByOwner', () => {
+  beforeEach(() => mocks.queryAll.mockReset());
+
+  it('excludes abandoned rows so reclaimed reservations do not show in the owner listing', async () => {
+    mocks.queryAll.mockResolvedValueOnce([]);
+    await TenantService.getByOwner('alice');
+    const [sql] = mocks.queryAll.mock.calls[0];
+    expect(sql).toMatch(/subscription_status != 'abandoned'/);
   });
 });

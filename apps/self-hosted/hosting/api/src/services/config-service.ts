@@ -246,16 +246,18 @@ export const ConfigService = {
       }
     }
 
-    // Remove files for tenants that were NEVER activated (status 'inactive') or whose row
-    // is gone. nginx serves any file that exists with no subscription check, so a file
-    // written for an unpaid tenant keeps a free blog live forever. Expired/suspended tenants
-    // are intentionally left serving (accepted grace-period behavior) and handled elsewhere.
+    // Remove files for tenants that were NEVER activated (status 'inactive'), that the sweep
+    // reclaimed ('abandoned'), or whose row is gone. nginx serves any file that exists with no
+    // subscription check, so a file left behind for a non-serving tenant keeps a free blog live
+    // forever. Expired/suspended tenants are intentionally left serving (accepted grace-period
+    // behavior) and handled elsewhere.
+    const removableStatuses = new Set(['inactive', 'abandoned']);
     let removed = 0;
     for (const username of await this.listConfigFiles()) {
       if (activeNames.has(username.toLowerCase())) continue;
       try {
         const tenant = await TenantService.getByUsername(username);
-        if (tenant && tenant.subscriptionStatus !== 'inactive') continue;
+        if (tenant && !removableStatuses.has(tenant.subscriptionStatus)) continue;
         await this.deleteConfigFile(username);
         removed++;
       } catch (err) {

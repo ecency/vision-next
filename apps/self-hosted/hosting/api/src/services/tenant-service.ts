@@ -13,6 +13,27 @@ export type { Tenant } from '../types';
 hiveTxConfig.nodes = process.env.HIVE_API_URL?.split(',') || ['https://api.hive.blog'];
 const baseDomain = process.env.BASE_DOMAIN || 'blogs.ecency.com';
 
+// Quiet period after the sweep marks a username 'abandoned' before it can be reserved again.
+// A payment that was already in flight when the sweep ran (an on-chain HBD transfer awaiting
+// block replay, or a card order awaiting settlement) has no payments row yet, so nothing else
+// pins the row; this window lets that payment settle and activate the ORIGINAL reservation
+// (owner + config intact) before a different owner could overwrite it via re-registration.
+// One hour comfortably covers HBD replay — including catch-up after a listener restart — and
+// settlement latency; the web also creates/refreshes the reservation immediately before card or
+// HBD checkout, so a row is not sweepable mid-flow and this mainly defends a direct on-chain
+// transfer against an old reservation.
+export const ABANDONED_REREGISTER_QUARANTINE_HOURS = 1;
+
+// Whether an existing row is an abandoned reservation that has cleared the re-registration
+// quarantine (so a fresh signup may reclaim its username). A live row, or one reclaimed within
+// the quarantine, is NOT reusable. The SQL upsert applies the same guard atomically; this is the
+// pre-check that also lets /subscribe reject before settling a payment.
+export function isReregisterableAbandoned(t: Pick<Tenant, 'subscriptionStatus' | 'updatedAt'>): boolean {
+  if (t.subscriptionStatus !== 'abandoned') return false;
+  const cutoff = Date.now() - ABANDONED_REREGISTER_QUARANTINE_HOURS * 60 * 60 * 1000;
+  return t.updatedAt.getTime() < cutoff;
+}
+
 export const TenantService = {
   /**
    * Get tenant by username
@@ -40,8 +61,11 @@ export const TenantService = {
    * All tenants controlled by an owner account (their personal blog and any communities).
    */
   async getByOwner(owner: string): Promise<Tenant[]> {
+    // Exclude 'abandoned' rows: a reclaimed, re-registerable reservation is effectively gone, so
+    // it must not surface in the owner's manage listing (where an unmodeled status would render
+    // as a misleading "expired" label).
     const rows = await db.queryAll<TenantRow>(
-      'SELECT * FROM tenants WHERE owner = $1 ORDER BY created_at',
+      `SELECT * FROM tenants WHERE owner = $1 AND subscription_status != 'abandoned' ORDER BY created_at`,
       [owner.toLowerCase()]
     );
     return rows.map(mapTenantFromDb);
@@ -66,9 +90,11 @@ export const TenantService = {
 
     // Upsert so a username the sweep marked 'abandoned' can be reserved again: the row still
     // exists (we soft-delete, never hard-delete, so an in-flight payment can revive it), and a
-    // fresh reservation reclaims it. DO UPDATE is gated on `status = 'abandoned'` — a live row
-    // (inactive/active/expired/suspended) makes the WHERE fail so nothing is updated and no row
-    // is returned, which we surface as a conflict. A brand-new username inserts normally.
+    // fresh reservation reclaims it. DO UPDATE is gated on `status = 'abandoned'` AND the
+    // re-registration quarantine (updated_at older than the window) — a live row, or one
+    // reclaimed too recently to be sure no payment is still in flight for it, makes the WHERE
+    // fail so nothing is updated and no row is returned, which we surface as a conflict. A
+    // brand-new username inserts normally.
     const row = await db.queryOne<TenantRow>(
       `INSERT INTO tenants (username, owner, config, subscription_status, subscription_plan)
        VALUES ($1, $2, $3, 'inactive', 'standard')
@@ -80,8 +106,9 @@ export const TenantService = {
              created_at = NOW(),
              updated_at = NOW()
          WHERE tenants.subscription_status = 'abandoned'
+           AND tenants.updated_at < NOW() - ($4 * INTERVAL '1 hour')
        RETURNING *`,
-      [username.toLowerCase(), ownerName, JSON.stringify(config)]
+      [username.toLowerCase(), ownerName, JSON.stringify(config), ABANDONED_REREGISTER_QUARANTINE_HOURS]
     );
 
     if (!row) {

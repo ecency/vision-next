@@ -141,6 +141,26 @@ describe('ConfigService.syncAllConfigs ordering', () => {
       spy.mockRestore();
     }
   });
+
+  it('sync removes the served file of a reclaimed (abandoned) tenant', async () => {
+    // Once the sweep marks a stale row 'abandoned' it must not keep serving; sync treats
+    // abandoned like inactive and removes any leftover file (a status-skip would strand it).
+    await ConfigService.generateConfigFile(tenant('gone', 'Gone'));
+    await expect(fs.access(ConfigService.getConfigPath('gone'))).resolves.toBeUndefined();
+
+    const spy = vi
+      .spyOn(TenantService, 'getByUsername')
+      .mockImplementation(async (u: string) =>
+        u === 'gone' ? { ...tenant('gone', 'Gone'), subscriptionStatus: 'abandoned' } : null
+      );
+    try {
+      await ConfigService.syncAllConfigs([]);
+      await expect(fs.access(ConfigService.getConfigPath('gone'))).rejects.toThrow();
+      await expect(fs.access(ConfigService.getMetaPath('gone'))).rejects.toThrow();
+    } finally {
+      spy.mockRestore();
+    }
+  });
 });
 
 describe('ConfigService.buildMetaHtml', () => {

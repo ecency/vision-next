@@ -6,7 +6,11 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
 import { db } from '../db/client';
-import { TenantService } from '../services/tenant-service';
+import {
+  TenantService,
+  isReregisterableAbandoned,
+  ABANDONED_REREGISTER_QUARANTINE_HOURS,
+} from '../services/tenant-service';
 import { mapTenantFromDb } from '../types';
 import { ConfigService } from '../services/config-service';
 import { authMiddleware } from '../middleware/auth';
@@ -174,9 +178,11 @@ tenantRoutes.post(
     const body = c.req.valid('json');
 
     // Check if username already exists. An 'abandoned' row (an unpaid reservation the sweep
-    // reclaimed) reads as available — create() revives it below.
+    // reclaimed) reads as available once it has cleared the re-registration quarantine — create()
+    // revives it below. Within the quarantine it is still treated as taken so an in-flight
+    // payment for it isn't overwritten.
     const existing = await TenantService.getByUsername(body.username);
-    if (existing && existing.subscriptionStatus !== 'abandoned') {
+    if (existing && !isReregisterableAbandoned(existing)) {
       return c.json({ error: 'Username already registered' }, 409);
     }
 
@@ -240,9 +246,11 @@ tenantRoutes.post('/subscribe',
   (c, next) => withPaymentTargetLock(c, next, 'subscribe', c.req.valid('json').username),
   async (c, next) => {
     const body = c.req.valid('json');
-    // An 'abandoned' row reads as available; the DB transaction below revives it on settlement.
+    // An 'abandoned' row past the re-registration quarantine reads as available; the DB
+    // transaction below revives it on settlement. Checked BEFORE the paywall so a payment is
+    // never settled for a name that is still quarantined (and would fail the upsert's guard).
     const existing = await TenantService.getByUsername(body.username);
-    if (existing && existing.subscriptionStatus !== 'abandoned') {
+    if (existing && !isReregisterableAbandoned(existing)) {
       return c.json({ error: 'Username already registered' }, 409);
     }
     // Same account + community + ownership validation as POST /, BEFORE the paywall so a payment is
@@ -287,9 +295,10 @@ tenantRoutes.post('/subscribe',
     // All mutations inside a DB transaction to prevent orphan tenants
     const result = await db.transaction(async (client) => {
       // Create tenant — the upsert both handles a concurrent-create race and revives a row the
-      // sweep marked 'abandoned'. DO UPDATE is gated on `status = 'abandoned'`, so a live tenant
-      // (inactive/active/expired/suspended) leaves the WHERE unsatisfied, returns no row, and is
-      // reported as a conflict rather than silently overwritten.
+      // sweep marked 'abandoned' AND past the re-registration quarantine. A live tenant, or one
+      // reclaimed too recently (a payment could still be in flight for it), leaves the WHERE
+      // unsatisfied, returns no row, and is reported as a conflict rather than silently
+      // overwritten. This matches the pre-paywall availability check above.
       const tenantRow = await client.query(
         `INSERT INTO tenants (username, owner, config, subscription_status, subscription_plan)
          VALUES ($1, $2, $3, 'inactive', 'standard')
@@ -301,8 +310,9 @@ tenantRoutes.post('/subscribe',
                created_at = NOW(),
                updated_at = NOW()
            WHERE tenants.subscription_status = 'abandoned'
+             AND tenants.updated_at < NOW() - ($4 * INTERVAL '1 hour')
          RETURNING *`,
-        [body.username.toLowerCase(), owner, JSON.stringify(tenantConfig)]
+        [body.username.toLowerCase(), owner, JSON.stringify(tenantConfig), ABANDONED_REREGISTER_QUARANTINE_HOURS]
       );
       if (tenantRow.rowCount === 0) {
         throw Object.assign(new Error('Username already registered'), { isConflict: true });
