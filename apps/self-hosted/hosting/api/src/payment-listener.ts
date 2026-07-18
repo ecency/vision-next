@@ -28,14 +28,14 @@ const CONFIG = {
 // empty list, so a misconfigured HIVE_API_URL can't wipe the built-in fallbacks.
 setNodes(CONFIG.HIVE_API_NODES);
 
+// How close to head the listener must be for the abandoned-tenant sweep to run. A payment in
+// an unreplayed block has no `payments` row yet, so sweeping while behind could delete a tenant
+// whose payment is about to activate it; requiring near-head replay avoids that.
+const CAUGHT_UP_BLOCK_THRESHOLD = 3;
+
 class PaymentListener {
   private lastProcessedBlock: number = 0;
   private isRunning: boolean = false;
-  // True once block processing has reached the chain head. The abandoned-tenant sweep is
-  // gated on this so it can't delete an abandoned tenant whose late payment is still sitting
-  // in an unreplayed block during a post-downtime catch-up (which would briefly free the name
-  // before the replayed payment re-creates it).
-  private caughtUp: boolean = false;
   private expirationIntervalId: ReturnType<typeof setInterval> | null = null;
 
   async start() {
@@ -107,13 +107,19 @@ class PaymentListener {
         break; // Stop and retry this block next iteration
       }
     }
+  }
 
-    // Caught up only once this pass has actually drained the backlog up to the head it saw
-    // (i.e. no block errored out and broke the loop early). Set AFTER the loop so the sweep,
-    // which is gated on this flag, can never run while a payment in one of the just-processed
-    // blocks is still pending. Never un-set: a normal 1-block steady-state lag isn't a backlog.
-    if (this.lastProcessedBlock >= headBlock) {
-      this.caughtUp = true;
+  /**
+   * Whether block replay is currently near head. Checked at sweep time (not a sticky flag) so
+   * it reflects the LIVE state: a later RPC/DB outage that leaves the listener lagging again
+   * correctly blocks the sweep. Fails safe (returns false) if head can't be read.
+   */
+  private async isCaughtUp(): Promise<boolean> {
+    try {
+      const headBlock = await this.getHeadBlockNumber();
+      return headBlock - this.lastProcessedBlock <= CAUGHT_UP_BLOCK_THRESHOLD;
+    } catch {
+      return false;
     }
   }
 
@@ -479,11 +485,12 @@ class PaymentListener {
         console.log('[PaymentListener] Expired', expired, 'subscriptions');
       }
 
-      // Sweep abandoned signups (created, never paid, past the grace window), but ONLY once
-      // caught up to head — otherwise a late payment still in an unreplayed block could see
-      // its 7-day-old inactive tenant deleted first (it would be re-created on replay, but the
-      // name would be briefly free). This frees usernames an inactive record would else hold.
-      if (this.caughtUp) {
+      // Sweep abandoned signups (created, never paid, past the grace window), but ONLY when
+      // replay is currently near head — otherwise a payment still in an unreplayed block could
+      // see its 7-day-old inactive tenant deleted first (it would be re-created on replay, but
+      // the name would be briefly free). Checked live so a mid-run outage that leaves the
+      // listener lagging again also blocks the sweep. Frees names an inactive record would hold.
+      if (await this.isCaughtUp()) {
         const deleted = await TenantService.deleteAbandonedTenants(CONFIG.ABANDONED_GRACE_DAYS);
         if (deleted.length > 0) {
           console.log('[PaymentListener] Deleted', deleted.length, 'abandoned inactive tenants');
