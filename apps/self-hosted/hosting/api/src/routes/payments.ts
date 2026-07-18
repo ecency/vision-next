@@ -5,12 +5,18 @@
 import { Hono } from 'hono';
 import { db } from '../db/client';
 import { authMiddleware, adminMiddleware } from '../middleware/auth';
+import {
+  PAYMENT_ACCOUNT,
+  MONTHLY_PRICE_HBD,
+  CUSTOM_DOMAIN_MONTHLY_PRICE_HBD,
+  hbd,
+} from '../pricing';
 
 export const paymentRoutes = new Hono();
 
 // GET /v1/payments/methods - which rails are available + pricing (for the signup UI)
 paymentRoutes.get('/methods', async (c) => {
-  const monthlyHbd = process.env.MONTHLY_PRICE_HBD || '2.000';
+  const monthlyHbd = hbd(MONTHLY_PRICE_HBD);
   const facilitator = process.env.X402_FACILITATOR_URL || '';
   // Card requires the internal secret (ePoints -> hosting activation). Without it, a paid
   // card order can only get a 403 from /v1/internal/activate, so never advertise the option.
@@ -21,7 +27,7 @@ paymentRoutes.get('/methods', async (c) => {
     hbd: {
       enabled: true,
       monthly: monthlyHbd,
-      account: process.env.PAYMENT_ACCOUNT || 'ecency.hosting',
+      account: PAYMENT_ACCOUNT,
     },
     x402: {
       enabled: facilitator.startsWith('https://'),
@@ -69,21 +75,27 @@ paymentRoutes.get('/', authMiddleware, async (c) => {
 paymentRoutes.get('/instructions/:username', async (c) => {
   const username = c.req.param('username');
   const months = parseInt(c.req.query('months') || '1', 10);
+  // ?domain=1 quotes the one-step custom-domain (pro) tier: higher monthly price and a ':domain'
+  // memo that activates the blog AND unlocks custom domains in a single HBD transfer.
+  const domain = c.req.query('domain') === '1' || c.req.query('domain') === 'true';
 
-  const paymentAccount = process.env.PAYMENT_ACCOUNT || 'ecency.hosting';
-  const monthlyPrice = parseFloat(process.env.MONTHLY_PRICE_HBD || '2.000');
+  const paymentAccount = PAYMENT_ACCOUNT;
+  const monthlyPrice = domain ? CUSTOM_DOMAIN_MONTHLY_PRICE_HBD : MONTHLY_PRICE_HBD;
   const totalAmount = (monthlyPrice * months).toFixed(3);
+  // blog:name / blog:name:months, with a trailing :domain for the custom-domain tier.
+  const memo = `blog:${username}${months > 1 ? ':' + months : ''}${domain ? ':domain' : ''}`;
 
   return c.json({
     to: paymentAccount,
     amount: totalAmount + ' HBD',
-    memo: months > 1 ? `blog:${username}:${months}` : `blog:${username}`,
-    monthlyPrice: monthlyPrice + ' HBD',
+    memo,
+    monthlyPrice: hbd(monthlyPrice) + ' HBD',
     months,
     totalAmount: totalAmount + ' HBD',
+    customDomain: domain,
     instructions: [
       `Send ${totalAmount} HBD to @${paymentAccount}`,
-      `Use memo: blog:${username}${months > 1 ? ':' + months : ''}`,
+      `Use memo: ${memo}`,
       'Your blog will be activated within seconds of payment confirmation',
     ],
   });

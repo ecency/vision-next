@@ -14,72 +14,91 @@ import {
 describe('parseMemo', () => {
   it('parses "blog:username" as 1-month subscription', () => {
     const result = parseMemo('blog:alice');
-    expect(result).toEqual({ action: 'blog', username: 'alice', months: 1 });
+    expect(result).toEqual({ action: 'blog', username: 'alice', months: 1, customDomain: false });
   });
 
   it('parses "blog:username:months" with explicit months', () => {
     const result = parseMemo('blog:bob:6');
-    expect(result).toEqual({ action: 'blog', username: 'bob', months: 6 });
+    expect(result).toEqual({ action: 'blog', username: 'bob', months: 6, customDomain: false });
   });
 
   it('parses "blog:username:12" for a yearly subscription', () => {
     const result = parseMemo('blog:charlie:12');
-    expect(result).toEqual({ action: 'blog', username: 'charlie', months: 12 });
+    expect(result).toEqual({ action: 'blog', username: 'charlie', months: 12, customDomain: false });
+  });
+
+  it('parses "blog:username:domain" as 1-month with the custom-domain tier', () => {
+    const result = parseMemo('blog:alice:domain');
+    expect(result).toEqual({ action: 'blog', username: 'alice', months: 1, customDomain: true });
+  });
+
+  it('parses "blog:username:months:domain" as N-month with the custom-domain tier', () => {
+    const result = parseMemo('blog:bob:6:domain');
+    expect(result).toEqual({ action: 'blog', username: 'bob', months: 6, customDomain: true });
+  });
+
+  it('lowercases and trims a :domain memo', () => {
+    expect(parseMemo('  BLOG:Alice:12:DOMAIN ')).toEqual({
+      action: 'blog',
+      username: 'alice',
+      months: 12,
+      customDomain: true
+    });
   });
 
   it('defaults months to 1 when the months segment is non-numeric', () => {
     const result = parseMemo('blog:dave:abc');
-    expect(result).toEqual({ action: 'blog', username: 'dave', months: 1 });
+    expect(result).toEqual({ action: 'blog', username: 'dave', months: 1, customDomain: false });
   });
 
   it('handles uppercase memos by lowercasing', () => {
     const result = parseMemo('BLOG:Alice');
-    expect(result).toEqual({ action: 'blog', username: 'alice', months: 1 });
+    expect(result).toEqual({ action: 'blog', username: 'alice', months: 1, customDomain: false });
   });
 
   it('trims whitespace around the memo', () => {
     const result = parseMemo('  blog:alice  ');
-    expect(result).toEqual({ action: 'blog', username: 'alice', months: 1 });
+    expect(result).toEqual({ action: 'blog', username: 'alice', months: 1, customDomain: false });
   });
 
   it('parses "upgrade:username"', () => {
     const result = parseMemo('upgrade:alice');
-    expect(result).toEqual({ action: 'upgrade', username: 'alice', months: 1 });
+    expect(result).toEqual({ action: 'upgrade', username: 'alice', months: 1, customDomain: false });
   });
 
   it('returns unknown for empty string', () => {
     const result = parseMemo('');
-    expect(result).toEqual({ action: 'unknown', username: '', months: 0 });
+    expect(result).toEqual({ action: 'unknown', username: '', months: 0, customDomain: false });
   });
 
   it('returns unknown for random text', () => {
     const result = parseMemo('hello world');
-    expect(result).toEqual({ action: 'unknown', username: '', months: 0 });
+    expect(result).toEqual({ action: 'unknown', username: '', months: 0, customDomain: false });
   });
 
   it('returns unknown when action is "blog" but username is missing', () => {
     const result = parseMemo('blog:');
-    expect(result).toEqual({ action: 'unknown', username: '', months: 0 });
+    expect(result).toEqual({ action: 'unknown', username: '', months: 0, customDomain: false });
   });
 
   it('returns unknown when action is "upgrade" but username is missing', () => {
     const result = parseMemo('upgrade:');
-    expect(result).toEqual({ action: 'unknown', username: '', months: 0 });
+    expect(result).toEqual({ action: 'unknown', username: '', months: 0, customDomain: false });
   });
 
   it('returns unknown for unrecognized action', () => {
     const result = parseMemo('refund:alice');
-    expect(result).toEqual({ action: 'unknown', username: '', months: 0 });
+    expect(result).toEqual({ action: 'unknown', username: '', months: 0, customDomain: false });
   });
 
   it('defaults months to 1 when months is 0', () => {
     const result = parseMemo('blog:alice:0');
-    expect(result).toEqual({ action: 'blog', username: 'alice', months: 1 });
+    expect(result).toEqual({ action: 'blog', username: 'alice', months: 1, customDomain: false });
   });
 
   it('defaults negative months to 1', () => {
     const result = parseMemo('blog:alice:-1');
-    expect(result).toEqual({ action: 'blog', username: 'alice', months: 1 });
+    expect(result).toEqual({ action: 'blog', username: 'alice', months: 1, customDomain: false });
   });
 });
 

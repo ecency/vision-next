@@ -97,10 +97,11 @@ export const hostingApi = {
   tenantsByOwner: (owner: string) =>
     get<{ tenants: OwnedTenant[] }>(`/v1/tenants?owner=${encodeURIComponent(owner)}`),
 
-  /** HBD payment instructions for a given term. */
-  paymentInstructions: (username: string, months: number) =>
+  /** HBD payment instructions for a given term. `domain` quotes the one-step custom-domain tier
+   *  (higher price + a blog:name[:months]:domain memo that unlocks custom domains). */
+  paymentInstructions: (username: string, months: number, domain = false) =>
     get<{ to: string; amount: string; memo: string; totalAmount: string; instructions: string[] }>(
-      `/v1/payments/instructions/${encodeURIComponent(username)}?months=${months}`
+      `/v1/payments/instructions/${encodeURIComponent(username)}?months=${months}${domain ? "&domain=1" : ""}`
     )
 };
 

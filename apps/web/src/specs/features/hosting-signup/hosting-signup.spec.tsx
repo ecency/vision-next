@@ -75,6 +75,22 @@ describe("HostingSignup one-click HBD pay", () => {
     mutateAsync.mockResolvedValue({ id: "tx1" });
   });
 
+  it("fetches custom-domain (:domain) HBD instructions when the add-on is toggled", async () => {
+    render(<HostingSignup />);
+    fireEvent.click(screen.getByText("g.continue"));
+    fireEvent.click(await screen.findByText("g.continue"));
+    // Standard HBD instructions are fetched first (domain = false).
+    await waitFor(() =>
+      expect(hostingApi.paymentInstructions).toHaveBeenCalledWith("alice", 1, false)
+    );
+    // Toggle the custom-domain add-on -> instructions are re-fetched with domain = true so the
+    // memo/price reflect the one-step :domain tier on the HBD rail (no steer to card).
+    fireEvent.click(await screen.findByText("hosting.custom-domain-option"));
+    await waitFor(() =>
+      expect(hostingApi.paymentInstructions).toHaveBeenCalledWith("alice", 1, true)
+    );
+  });
+
   it("broadcasts the exact transfer and advances to success", async () => {
     render(<HostingSignup />);
 

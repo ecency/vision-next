@@ -318,6 +318,11 @@ export interface ParsedMemo {
   action: 'blog' | 'upgrade' | 'unknown';
   username: string;
   months: number;
+  // A trailing ':domain' on a blog memo enables the custom-domain tier (internally the 'pro'
+  // subscription_plan) in one payment, at the higher custom-domain monthly price. Named 'domain'
+  // (never 'pro') so it can't be confused with — or become a backdoor to — the separate account-
+  // level Ecency Pro membership, which this hosting rail has no connection to.
+  customDomain: boolean;
 }
 
 export function parseMemo(memo: string): ParsedMemo {
@@ -327,14 +332,22 @@ export function parseMemo(memo: string): ParsedMemo {
   const username = parts[1]?.trim() || '';
 
   if (parts[0] === 'blog' && username !== '') {
-    // Trim months string before parsing to avoid whitespace issues
-    const monthsStr = parts[2]?.trim() || '1';
+    // Segments after the username, trimmed. An optional trailing ':domain' turns on the
+    // custom-domain tier; it may appear as blog:name:domain (1 month) or blog:name:<months>:domain.
+    let rest = parts.slice(2).map((p) => p.trim()).filter((p) => p !== '');
+    let customDomain = false;
+    if (rest[rest.length - 1] === 'domain') {
+      customDomain = true;
+      rest = rest.slice(0, -1);
+    }
+    const monthsStr = rest[0] || '1';
     const parsed = parseInt(monthsStr, 10);
     const months = parsed > 0 ? parsed : 1;
     return {
       action: 'blog',
       username,
       months,
+      customDomain,
     };
   }
 
@@ -343,6 +356,7 @@ export function parseMemo(memo: string): ParsedMemo {
       action: 'upgrade',
       username,
       months: 1,
+      customDomain: false,
     };
   }
 
@@ -350,5 +364,6 @@ export function parseMemo(memo: string): ParsedMemo {
     action: 'unknown',
     username: '',
     months: 0,
+    customDomain: false,
   };
 }
