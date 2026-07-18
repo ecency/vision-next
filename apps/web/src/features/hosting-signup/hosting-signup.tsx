@@ -277,9 +277,14 @@ export function HostingSignup() {
   // consumes the param so a refresh doesn't re-apply it.
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const claim = new URLSearchParams(window.location.search).get("claim")?.trim().toLowerCase();
+    const params = new URLSearchParams(window.location.search);
+    const claim = params.get("claim")?.trim().toLowerCase();
     if (!claim) return;
-    window.history.replaceState(null, "", window.location.pathname);
+    // Consume ONLY the claim param, preserving any others (e.g. resume) so the resume effect,
+    // which reads window.location.search after auth state is available, still sees them.
+    params.delete("claim");
+    const qs = params.toString();
+    window.history.replaceState(null, "", window.location.pathname + (qs ? `?${qs}` : ""));
     if (/^hive-\d+$/.test(claim)) {
       setInstanceType("community");
       setCommunityId(claim);

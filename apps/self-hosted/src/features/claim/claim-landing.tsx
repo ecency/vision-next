@@ -8,9 +8,11 @@ import { parseClaimTarget } from "./parse-claim-target";
  * working blog full of someone else's content, it invites the visitor to claim the subdomain.
  *
  * The instance type is derived from the hostname client-side: a `hive-<digits>` label reads as a
- * community, anything else as an author blog. noindex is emitted server-side via public/meta.html
- * (the SSI fallback for unclaimed hosts); the runtime meta below is a belt-and-suspenders for
- * JS-capable crawlers.
+ * community, anything else as an author blog. The noindex meta is set here at runtime rather than
+ * in the shared static meta.html: that fallback is also served when a CLAIMED tenant's own meta is
+ * momentarily missing, so a static noindex there could deindex a live blog. Gating it on the same
+ * `template` flag that renders this page keeps it scoped to genuinely unclaimed hosts (Googlebot
+ * renders JS, and unclaimed subdomains carry no inbound links to index anyway).
  */
 const HOSTING_URL = "https://ecency.com/hosting";
 const BASE_DOMAIN = "blogs.ecency.com";
@@ -24,8 +26,7 @@ export function ClaimLanding() {
   useEffect(() => {
     const prevTitle = document.title;
     document.title = title;
-    // Keep unclaimed placeholders out of the index even for JS-running crawlers. The static
-    // fallback meta.html sets the same header for everyone else.
+    // Keep unclaimed placeholders out of the search index (only ever runs on a `template` host).
     const meta = document.createElement("meta");
     meta.name = "robots";
     meta.content = "noindex, nofollow";
