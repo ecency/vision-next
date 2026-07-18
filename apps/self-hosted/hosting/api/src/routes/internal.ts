@@ -325,12 +325,18 @@ internalRoutes.post('/claim-blog', async (c) => {
     const config = await TenantService.buildConfig(username, { title, description });
 
     const result = await db.transaction<{ created: boolean; row: any }>(async (client) => {
-      // Try to create; ON CONFLICT means the tenant already exists (blocks on a concurrent claim
-      // until it commits, then returns 0 rows) -> we return the existing row unchanged.
+      // Try to create; ON CONFLICT means the tenant already exists. DO UPDATE revives a row the
+      // sweep marked 'abandoned' (an unpaid reservation) so a returning Pro member still gets their
+      // free blog activated below; a LIVE tenant (WHERE unsatisfied) returns 0 rows and is handed
+      // back unchanged (no re-activation, no extension).
       const inserted = await client.query(
         `INSERT INTO tenants (username, config, subscription_status, subscription_plan)
          VALUES ($1, $2, 'inactive', 'standard')
-         ON CONFLICT (username) DO NOTHING
+         ON CONFLICT (username) DO UPDATE
+           SET config = EXCLUDED.config,
+               subscription_status = 'inactive',
+               updated_at = NOW()
+           WHERE tenants.subscription_status = 'abandoned'
          RETURNING *`,
         [username, JSON.stringify(config)]
       );

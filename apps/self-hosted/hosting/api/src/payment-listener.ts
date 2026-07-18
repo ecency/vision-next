@@ -12,6 +12,13 @@ import { ConfigService } from './services/config-service';
 import { parseMemo, mapTenantFromDb, type ParsedMemo } from './types';
 import { AuditService } from './services/audit-service';
 
+// Parse the abandoned-tenant grace window from env, failing safe to 7 for any value that is not a
+// positive integer (empty, non-numeric, zero, or negative). Exported for unit testing.
+export function parseAbandonedGraceDays(raw: string | undefined): number {
+  const n = parseInt(raw ?? '', 10);
+  return Number.isInteger(n) && n > 0 ? n : 7;
+}
+
 // Configuration
 const CONFIG = {
   PAYMENT_ACCOUNT: process.env.PAYMENT_ACCOUNT || 'ecency.hosting',
@@ -19,29 +26,16 @@ const CONFIG = {
   PRO_UPGRADE_PRICE_HBD: parseFloat(process.env.PRO_UPGRADE_PRICE_HBD || '0.500'),
   HIVE_API_NODES: (process.env.HIVE_API_URL || 'https://api.hive.blog').split(','),
   POLL_INTERVAL_MS: 3000, // 3 seconds (1 block)
-  // Days an unpaid (inactive) tenant reserves its username before the sweep deletes it. Long
-  // enough to comfortably cover an in-flight HBD payment; a late payment re-creates the tenant.
-  ABANDONED_GRACE_DAYS: parseInt(process.env.ABANDONED_TENANT_GRACE_DAYS || '7', 10) || 7,
+  // Days an unpaid (inactive) tenant reserves its username before the sweep reclaims it (marks
+  // it 'abandoned'). Must be a positive integer: a zero/negative/NaN value would make the SQL
+  // cutoff `NOW() - (n * INTERVAL '1 day')` land at or after now and sweep EVERY inactive tenant,
+  // so a misconfigured env falls back to 7 rather than mass-reclaiming.
+  ABANDONED_GRACE_DAYS: parseAbandonedGraceDays(process.env.ABANDONED_TENANT_GRACE_DAYS),
 };
 
 // Configure hive-tx nodes. setNodes() trims/validates entries and no-ops on an
 // empty list, so a misconfigured HIVE_API_URL can't wipe the built-in fallbacks.
 setNodes(CONFIG.HIVE_API_NODES);
-
-// How close to head the listener must be for the abandoned-tenant sweep to run. A payment in
-// an unreplayed block has no `payments` row yet, so sweeping while behind could delete a tenant
-// whose payment is about to activate it; requiring near-head replay avoids that.
-//
-// A small tolerance (not exact head) is deliberate: checkExpirations samples head on its own
-// hourly timer, and by the time it reads head the live-tailing loop has almost always fallen one
-// block behind (a block is produced during each POLL_INTERVAL_MS sleep), so an exact `>= head`
-// gate would seldom be satisfied and the sweep would rarely run. The residual 1-3 block window is
-// harmless: an abandoned tenant is 'inactive', so its config can never have been edited (both the
-// config read and update routes reject inactive tenants) and no served file exists; if a valid
-// payment does land in that window, replay recreates the tenant from the same default config and
-// activates it. The sweep is therefore self-healing, never lossy — it only reclaims the username
-// slightly early.
-const CAUGHT_UP_BLOCK_THRESHOLD = 3;
 
 class PaymentListener {
   private lastProcessedBlock: number = 0;
@@ -116,20 +110,6 @@ class PaymentListener {
         console.error('[PaymentListener] Error processing block', blockNum, error);
         break; // Stop and retry this block next iteration
       }
-    }
-  }
-
-  /**
-   * Whether block replay is currently near head. Checked at sweep time (not a sticky flag) so
-   * it reflects the LIVE state: a later RPC/DB outage that leaves the listener lagging again
-   * correctly blocks the sweep. Fails safe (returns false) if head can't be read.
-   */
-  private async isCaughtUp(): Promise<boolean> {
-    try {
-      const headBlock = await this.getHeadBlockNumber();
-      return headBlock - this.lastProcessedBlock <= CAUGHT_UP_BLOCK_THRESHOLD;
-    } catch {
-      return false;
     }
   }
 
@@ -494,20 +474,15 @@ class PaymentListener {
         console.log('[PaymentListener] Expired', expired, 'subscriptions');
       }
 
-      // Sweep abandoned signups (created, never paid, past the grace window), but ONLY when
-      // replay is currently near head — otherwise a payment still in an unreplayed block could
-      // see its 7-day-old inactive tenant deleted first (it would be re-created on replay, but
-      // the name would be briefly free). Checked live so a mid-run outage that leaves the
-      // listener lagging again also blocks the sweep. Frees names an inactive record would hold.
-      if (await this.isCaughtUp()) {
-        const deleted = await TenantService.deleteAbandonedTenants(CONFIG.ABANDONED_GRACE_DAYS);
-        if (deleted.length > 0) {
-          // No served-file cleanup here: an abandoned tenant is 'inactive' with no payments,
-          // i.e. NEVER activated, and config files are only written on activation — so it has
-          // none. Deleting files by the (now reusable) username would only risk removing a
-          // freshly-recreated tenant's config.
-          console.log('[PaymentListener] Deleted', deleted.length, 'abandoned inactive tenants');
-        }
+      // Reclaim abandoned signups (created, never paid, past the grace window). This is a SOFT
+      // delete — it flips status to 'abandoned' and keeps the row — so it needs no "listener
+      // caught up to head" gate: a payment still sitting in an unreplayed block (or a card order
+      // mid-settlement) simply revives the surviving row in place on replay/activation, with its
+      // original owner + config intact. No served-file cleanup: an abandoned tenant was never
+      // activated, and files are only written on activation, so it has none.
+      const reclaimed = await TenantService.reclaimAbandonedTenants(CONFIG.ABANDONED_GRACE_DAYS);
+      if (reclaimed.length > 0) {
+        console.log('[PaymentListener] Reclaimed', reclaimed.length, 'abandoned inactive tenants');
       }
     } catch (error) {
       // Never let a transient DB error escape an interval/void call as an unhandled rejection.
@@ -570,12 +545,18 @@ class PaymentListener {
 // Start the listener. A boot-time failure (e.g. RPC down while fetching the head block) must
 // not crash-loop through the fragile startup path with an unhandled rejection: log and let
 // the container's restart policy retry with backoff.
-const listener = new PaymentListener();
-listener.start().catch((error) => {
-  console.error('[PaymentListener] Fatal startup error:', (error as Error).message);
-  process.exit(1);
-});
+//
+// Skipped under Vitest (which sets process.env.VITEST) so a unit test can import this module for
+// its pure helpers without opening a block-poll loop or DB/RPC connections. Production is
+// unaffected — VITEST is never set there.
+if (!process.env.VITEST) {
+  const listener = new PaymentListener();
+  listener.start().catch((error) => {
+    console.error('[PaymentListener] Fatal startup error:', (error as Error).message);
+    process.exit(1);
+  });
 
-// Handle graceful shutdown
-process.on('SIGTERM', () => listener.stop());
-process.on('SIGINT', () => listener.stop());
+  // Handle graceful shutdown
+  process.on('SIGTERM', () => listener.stop());
+  process.on('SIGINT', () => listener.stop());
+}

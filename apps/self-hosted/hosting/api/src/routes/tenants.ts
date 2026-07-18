@@ -173,9 +173,10 @@ tenantRoutes.post(
   async (c) => {
     const body = c.req.valid('json');
 
-    // Check if username already exists
+    // Check if username already exists. An 'abandoned' row (an unpaid reservation the sweep
+    // reclaimed) reads as available — create() revives it below.
     const existing = await TenantService.getByUsername(body.username);
-    if (existing) {
+    if (existing && existing.subscriptionStatus !== 'abandoned') {
       return c.json({ error: 'Username already registered' }, 409);
     }
 
@@ -189,8 +190,18 @@ tenantRoutes.post(
     // Create tenant (inactive until payment). The served config file is NOT written here:
     // nginx serves any file that exists with no subscription check, so writing it now would
     // put an unpaid blog live forever. The file is generated only on activation (payment
-    // listener / internal activate / subscribe).
-    const tenant = await TenantService.create(body.username, owner, body.config);
+    // listener / internal activate / subscribe). create() upserts, so it also revives an
+    // 'abandoned' row and throws isConflict only if a LIVE tenant now holds the name (a race
+    // the target lock makes near-impossible, but handled for safety).
+    let tenant;
+    try {
+      tenant = await TenantService.create(body.username, owner, body.config);
+    } catch (err: any) {
+      if (err?.isConflict) {
+        return c.json({ error: 'Username already registered' }, 409);
+      }
+      throw err;
+    }
 
     const baseDomain = process.env.BASE_DOMAIN || 'blogs.ecency.com';
     const paymentAccount = process.env.PAYMENT_ACCOUNT || 'ecency.hosting';
@@ -229,8 +240,9 @@ tenantRoutes.post('/subscribe',
   (c, next) => withPaymentTargetLock(c, next, 'subscribe', c.req.valid('json').username),
   async (c, next) => {
     const body = c.req.valid('json');
+    // An 'abandoned' row reads as available; the DB transaction below revives it on settlement.
     const existing = await TenantService.getByUsername(body.username);
-    if (existing) {
+    if (existing && existing.subscriptionStatus !== 'abandoned') {
       return c.json({ error: 'Username already registered' }, 409);
     }
     // Same account + community + ownership validation as POST /, BEFORE the paywall so a payment is
@@ -274,11 +286,21 @@ tenantRoutes.post('/subscribe',
 
     // All mutations inside a DB transaction to prevent orphan tenants
     const result = await db.transaction(async (client) => {
-      // Create tenant — ON CONFLICT handles race with concurrent requests
+      // Create tenant — the upsert both handles a concurrent-create race and revives a row the
+      // sweep marked 'abandoned'. DO UPDATE is gated on `status = 'abandoned'`, so a live tenant
+      // (inactive/active/expired/suspended) leaves the WHERE unsatisfied, returns no row, and is
+      // reported as a conflict rather than silently overwritten.
       const tenantRow = await client.query(
         `INSERT INTO tenants (username, owner, config, subscription_status, subscription_plan)
          VALUES ($1, $2, $3, 'inactive', 'standard')
-         ON CONFLICT (username) DO NOTHING
+         ON CONFLICT (username) DO UPDATE
+           SET owner = EXCLUDED.owner,
+               config = EXCLUDED.config,
+               subscription_plan = 'standard',
+               subscription_status = 'inactive',
+               created_at = NOW(),
+               updated_at = NOW()
+           WHERE tenants.subscription_status = 'abandoned'
          RETURNING *`,
         [body.username.toLowerCase(), owner, JSON.stringify(tenantConfig)]
       );

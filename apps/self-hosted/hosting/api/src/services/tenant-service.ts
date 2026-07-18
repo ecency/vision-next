@@ -64,14 +64,32 @@ export const TenantService = {
     // were silently dropped (and any community override too). Route both paths through buildConfig.
     const config = await this.buildConfig(username, configOverrides, ownerName);
 
+    // Upsert so a username the sweep marked 'abandoned' can be reserved again: the row still
+    // exists (we soft-delete, never hard-delete, so an in-flight payment can revive it), and a
+    // fresh reservation reclaims it. DO UPDATE is gated on `status = 'abandoned'` — a live row
+    // (inactive/active/expired/suspended) makes the WHERE fail so nothing is updated and no row
+    // is returned, which we surface as a conflict. A brand-new username inserts normally.
     const row = await db.queryOne<TenantRow>(
       `INSERT INTO tenants (username, owner, config, subscription_status, subscription_plan)
        VALUES ($1, $2, $3, 'inactive', 'standard')
+       ON CONFLICT (username) DO UPDATE
+         SET owner = EXCLUDED.owner,
+             config = EXCLUDED.config,
+             subscription_plan = 'standard',
+             subscription_status = 'inactive',
+             created_at = NOW(),
+             updated_at = NOW()
+         WHERE tenants.subscription_status = 'abandoned'
        RETURNING *`,
       [username.toLowerCase(), ownerName, JSON.stringify(config)]
     );
 
-    return mapTenantFromDb(row!);
+    if (!row) {
+      // Conflict with a live (non-abandoned) tenant — the username is genuinely taken.
+      throw Object.assign(new Error('Username already registered'), { isConflict: true });
+    }
+
+    return mapTenantFromDb(row);
   },
   
   /**
@@ -409,16 +427,28 @@ export const TenantService = {
   },
 
   /**
-   * Delete abandoned signups: tenants that were created but NEVER paid (status 'inactive',
+   * Reclaim abandoned signups: tenants that were created but NEVER paid (status 'inactive',
    * no payment rows) and have sat past the grace window. This frees their username, which an
-   * inactive record would otherwise reserve forever. Safe to run repeatedly — a tenant with
-   * any payment history (which would have activated it) is excluded, and a late HBD payment
-   * simply re-creates + activates the tenant. Returns the deleted usernames so the caller can
-   * remove any leftover served files.
+   * inactive record would otherwise reserve forever.
+   *
+   * It SOFT-deletes — flips status to 'abandoned' rather than removing the row — precisely so a
+   * payment that is still in flight when the sweep runs stays safe:
+   *   - An HBD transfer sitting in a not-yet-replayed block has no payment row yet, so the
+   *     `id NOT IN payments` guard cannot protect it; but because the row survives, replay's
+   *     processSubscription finds it and activates it IN PLACE, keeping the original owner and
+   *     config (a hard delete would recreate it with default config + owner = username, losing a
+   *     personal blog's setup and making a community unmanageable).
+   *   - A card order mid-settlement has no payment row either; the row surviving means
+   *     /internal/activate still finds it and does not 404 the paid order.
+   * A fresh reservation revives an 'abandoned' row (see create()), and every serve/list path
+   * already keys on 'active', so an abandoned row neither serves nor blocks re-registration.
+   * Because the operation is reversible, it needs no "listener caught up to head" gate — a
+   * premature mark is harmless. Returns the reclaimed usernames for logging.
    */
-  async deleteAbandonedTenants(graceDays: number): Promise<string[]> {
+  async reclaimAbandonedTenants(graceDays: number): Promise<string[]> {
     const rows = await db.queryAll<{ username: string }>(
-      `DELETE FROM tenants
+      `UPDATE tenants
+         SET subscription_status = 'abandoned', updated_at = NOW()
          WHERE subscription_status = 'inactive'
            AND created_at < NOW() - ($1 * INTERVAL '1 day')
            AND id NOT IN (SELECT tenant_id FROM payments WHERE tenant_id IS NOT NULL)

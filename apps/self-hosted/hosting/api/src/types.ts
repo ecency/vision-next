@@ -11,8 +11,10 @@ export interface Tenant {
   username: string; // Showcased Hive account, also used as subdomain (hive-NNNNN for a community)
   owner: string; // Hive account that created and controls this instance (equals username for a personal blog)
 
-  // Subscription
-  subscriptionStatus: 'inactive' | 'active' | 'expired' | 'suspended';
+  // Subscription. 'abandoned' = an unpaid reservation the sweep reclaimed after the grace
+  // window; the row is kept (not deleted) so an in-flight payment can still revive it in place,
+  // and the username reads as available again for a fresh reservation.
+  subscriptionStatus: 'inactive' | 'active' | 'expired' | 'suspended' | 'abandoned';
   subscriptionPlan: 'standard' | 'pro';
   subscriptionStartedAt: Date | null;
   subscriptionExpiresAt: Date | null;
@@ -86,7 +88,7 @@ export interface TenantRow {
   id: string;
   username: string;
   owner: string;
-  subscription_status: 'inactive' | 'active' | 'expired' | 'suspended';
+  subscription_status: 'inactive' | 'active' | 'expired' | 'suspended' | 'abandoned';
   subscription_plan: 'standard' | 'pro';
   subscription_started_at: string | null;
   subscription_expires_at: string | null;
