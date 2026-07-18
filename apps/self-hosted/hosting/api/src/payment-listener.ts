@@ -448,12 +448,6 @@ class PaymentListener {
   private async processUpgrade(transfer: any, username: string, amount: number) {
     console.log('[PaymentListener] Processing upgrade:', username);
 
-    if (amount < CONFIG.PRO_UPGRADE_PRICE_HBD) {
-      console.log('[PaymentListener] Insufficient amount for upgrade:', amount, 'HBD');
-      await this.logPayment(transfer, amount, 'failed', 0, null, 'Insufficient for upgrade');
-      return;
-    }
-
     try {
       const tenant = await TenantService.getByUsername(username);
       if (!tenant) {
@@ -462,10 +456,10 @@ class PaymentListener {
         return;
       }
 
-      // A Pro upgrade only applies to a currently-serviceable (active) blog — same rule the x402
-      // /upgrade route enforces. Reject a reserved/inactive, reclaimed/abandoned, or expired
-      // tenant: upgrading one would take the payment for a blog that isn't running, and a plan
-      // bought while a name was abandoned must not carry over to a later fresh reservation.
+      // A custom-domain (Pro) upgrade only applies to a currently-serviceable (active) blog — same
+      // rule the x402 /upgrade route enforces. Reject a reserved/inactive, reclaimed/abandoned, or
+      // expired tenant: upgrading one would take the payment for a blog that isn't running, and a
+      // plan bought while a name was abandoned must not carry over to a later fresh reservation.
       if (tenant.subscriptionStatus !== 'active') {
         console.log(
           '[PaymentListener] Tenant not active for upgrade:',
@@ -476,8 +470,29 @@ class PaymentListener {
         return;
       }
 
+      // Prorated: the owner pays the +1/mo custom-domain premium for the months remaining on their
+      // current term (upgrade in place, no term extension). Integer-millis compare so an exact
+      // payment isn't rejected by float error. The quote and this validation use the same
+      // remainingMonths(); since time only moves forward, remaining only shrinks, so a payment made
+      // against the (equal-or-higher) quote is never rejected here.
+      const now = new Date();
+      const required = Pricing.customDomainUpgradeHbd(tenant.subscriptionExpiresAt, now);
+      if (Math.round(amount * 1000) < Math.round(required * 1000)) {
+        const months = Pricing.remainingMonths(tenant.subscriptionExpiresAt, now);
+        console.log('[PaymentListener] Insufficient for custom-domain upgrade:', amount, 'HBD <', required);
+        await this.logPayment(
+          transfer,
+          amount,
+          'failed',
+          0,
+          null,
+          `Insufficient for custom-domain upgrade (need ${Pricing.hbd(required)} HBD for ${months} month(s) remaining)`
+        );
+        return;
+      }
+
       await TenantService.upgradeToPro(username);
-      await this.logPayment(transfer, amount, 'processed', 0, null, 'Upgraded to Pro');
+      await this.logPayment(transfer, amount, 'processed', 0, null, 'Upgraded to Pro (custom domain)');
 
       void AuditService.log({
         tenantId: tenant.id,

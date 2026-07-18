@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import i18next from "i18next";
 import { useEffect, useState } from "react";
 import { CustomDomainManager } from "./custom-domain-manager";
+import { CustomDomainUpgrade } from "./custom-domain-upgrade";
 import { hostingApi, type OwnedTenant } from "./hosting-api";
 
 /**
@@ -17,9 +18,10 @@ export function HostingManage() {
   const { activeUser } = useActiveAccount();
   const username = activeUser?.username ?? "";
   const [domainOpenFor, setDomainOpenFor] = useState<string | null>(null);
+  const [upgradeOpenFor, setUpgradeOpenFor] = useState<string | null>(null);
 
   // Keyed by owner so switching accounts can never render the previous account's tenants.
-  const { data } = useQuery({
+  const { data, refetch } = useQuery({
     queryKey: ["hosting", "owned-tenants", username],
     queryFn: () => hostingApi.tenantsByOwner(username),
     enabled: username.length > 0
@@ -28,6 +30,7 @@ export function HostingManage() {
 
   useEffect(() => {
     setDomainOpenFor(null);
+    setUpgradeOpenFor(null);
   }, [username]);
 
   if (!activeUser || tenants.length === 0) {
@@ -115,15 +118,33 @@ export function HostingManage() {
             </div>
           )}
 
-          {/* Discoverability: a standard-plan owner otherwise never learns custom domains exist.
-              Kept informational (no actionable upgrade button) because a mid-term upgrade of an
-              active tenant needs a pricing decision — a pro-rate renewal would upgrade the whole
-              remaining term for one month's price. Wired once that model is chosen. */}
+          {/* Standard active tenant: add a custom domain by upgrading to Pro, prorated (+1/mo for
+              the months left on the current term). Expands the upgrade flow inline; on success the
+              tenant is Pro and a refetch swaps in the domain manager above. */}
           {t.subscriptionPlan === "standard" && t.subscriptionStatus === "active" && (
-            <div className="text-sm opacity-75">
-              <span className="font-medium">{i18next.t("hosting.manage-add-domain")}</span>
-              {" — "}
-              {i18next.t("hosting.manage-add-domain-hint")}
+            <div className="text-sm">
+              {upgradeOpenFor === t.username ? (
+                <CustomDomainUpgrade
+                  tenant={t.username}
+                  onUpgraded={() => {
+                    setUpgradeOpenFor(null);
+                    void refetch();
+                  }}
+                />
+              ) : (
+                <>
+                  <button
+                    className="text-blue-dark-sky hover:underline font-medium"
+                    onClick={() => setUpgradeOpenFor(t.username)}
+                  >
+                    {i18next.t("hosting.manage-add-domain")}
+                  </button>
+                  <span className="opacity-75">
+                    {" — "}
+                    {i18next.t("hosting.manage-add-domain-hint")}
+                  </span>
+                </>
+              )}
             </div>
           )}
         </div>
