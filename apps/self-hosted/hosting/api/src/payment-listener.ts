@@ -31,6 +31,11 @@ setNodes(CONFIG.HIVE_API_NODES);
 class PaymentListener {
   private lastProcessedBlock: number = 0;
   private isRunning: boolean = false;
+  // True once block processing has reached the chain head. The abandoned-tenant sweep is
+  // gated on this so it can't delete an abandoned tenant whose late payment is still sitting
+  // in an unreplayed block during a post-downtime catch-up (which would briefly free the name
+  // before the replayed payment re-creates it).
+  private caughtUp: boolean = false;
   private expirationIntervalId: ReturnType<typeof setInterval> | null = null;
 
   async start() {
@@ -89,6 +94,12 @@ class PaymentListener {
 
     // Process up to 100 blocks at a time to catch up
     const maxBlocks = Math.min(headBlock - this.lastProcessedBlock, 100);
+
+    // Caught up once we're within a block or two of head (no meaningful replay backlog left).
+    // Gates the abandoned-tenant sweep; never un-set, since a normal small lag isn't a backlog.
+    if (headBlock - this.lastProcessedBlock <= 2) {
+      this.caughtUp = true;
+    }
 
     for (let i = 0; i < maxBlocks; i++) {
       const blockNum = this.lastProcessedBlock + 1;
@@ -460,20 +471,28 @@ class PaymentListener {
         console.log('[PaymentListener] Expired', expired, 'subscriptions');
       }
 
-      // Sweep abandoned signups (created, never paid, past the grace window). This frees
-      // usernames an inactive record would otherwise hold forever. Remove any leftover served
-      // files too, though a never-activated tenant should have none.
-      const deleted = await TenantService.deleteAbandonedTenants(CONFIG.ABANDONED_GRACE_DAYS);
-      if (deleted.length > 0) {
-        console.log('[PaymentListener] Deleted', deleted.length, 'abandoned inactive tenants');
-        for (const username of deleted) {
-          try {
-            await ConfigService.deleteConfigFile(username);
-          } catch (err) {
-            console.error(
-              `[PaymentListener] Failed to remove files for abandoned tenant ${username}:`,
-              (err as Error).message
-            );
+      // Sweep abandoned signups (created, never paid, past the grace window), but ONLY once
+      // caught up to head — otherwise a late payment still in an unreplayed block could see
+      // its 7-day-old inactive tenant deleted first (it would be re-created on replay, but the
+      // name would be briefly free). This frees usernames an inactive record would else hold.
+      if (this.caughtUp) {
+        const deleted = await TenantService.deleteAbandonedTenants(CONFIG.ABANDONED_GRACE_DAYS);
+        if (deleted.length > 0) {
+          console.log('[PaymentListener] Deleted', deleted.length, 'abandoned inactive tenants');
+          for (const username of deleted) {
+            try {
+              // Re-check: if the name was claimed again between the DELETE and now (a paid
+              // /subscribe or HBD activation racing this sweep), leave the new tenant's freshly
+              // generated files alone. A never-activated tenant has no files anyway.
+              const current = await TenantService.getByUsername(username);
+              if (current) continue;
+              await ConfigService.deleteConfigFile(username);
+            } catch (err) {
+              console.error(
+                `[PaymentListener] Failed to remove files for abandoned tenant ${username}:`,
+                (err as Error).message
+              );
+            }
           }
         }
       }
