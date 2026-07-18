@@ -84,6 +84,16 @@ export function CustomDomainUpgrade({
       setBusy(false);
       return;
     }
+    // The amount the user authorizes must match the amount on the button. A concurrent renewal can
+    // extend the term and raise the prorated price between the panel rendering and this click; if
+    // the fresh quote differs, update what's shown and require another click so the user confirms
+    // the NEW amount rather than us silently broadcasting a different one.
+    if (fresh.amount !== quote.amount) {
+      setQuote(fresh);
+      setError(i18next.t("hosting.upgrade-domain-amount-changed", { amount: fresh.amount }));
+      setBusy(false);
+      return;
+    }
     setPaying(true);
     try {
       await transfer.mutateAsync({ to: fresh.to, amount: fresh.amount, memo: fresh.memo });

@@ -41,6 +41,7 @@
     "upgrade-domain-pending": "Payment sent. If your custom domain isn't enabled shortly, use \"I've sent the payment\" below to re-check. Don't send again.",
     "upgrade-domain-loading": "Loading price…",
     "upgrade-domain-unavailable": "Custom domain upgrade isn't available for this blog right now.",
+    "upgrade-domain-amount-changed": "The price updated to {{amount}} (your remaining term changed). Review it and tap to pay again.",
     "success-title": "Your blog is live",
     "invalid-username": "Enter a valid Hive username.",
     "already-registered": "This blog is already registered.",

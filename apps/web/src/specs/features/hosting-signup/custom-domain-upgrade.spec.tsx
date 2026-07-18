@@ -85,6 +85,35 @@ describe("CustomDomainUpgrade", () => {
     expect(mutateAsync).not.toHaveBeenCalled();
   });
 
+  it("does not broadcast a changed amount; it re-displays and requires another click", async () => {
+    // The term (and thus the prorated price) changed between the panel rendering and the click —
+    // e.g. a concurrent renewal. The re-fetch returns a higher amount; we must NOT broadcast the
+    // amount the user didn't see. Instead update the shown price and wait for a fresh confirmation.
+    const onUpgraded = vi.fn();
+    hostingApi.upgradeQuote
+      .mockResolvedValueOnce(QUOTE)
+      .mockResolvedValueOnce({ ...QUOTE, amount: "6.000 HBD", remainingMonths: 6 });
+    render(<CustomDomainUpgrade tenant="alice" onUpgraded={onUpgraded} />);
+    const payBtn = await screen.findByRole("button", { name: "hosting.upgrade-domain-pay" });
+    fireEvent.click(payBtn);
+
+    // Notice shown, nothing broadcast on this click.
+    await screen.findByText("hosting.upgrade-domain-amount-changed");
+    expect(mutateAsync).not.toHaveBeenCalled();
+
+    // A second click now confirms the updated amount and broadcasts exactly that.
+    hostingApi.upgradeQuote.mockResolvedValue({ ...QUOTE, amount: "6.000 HBD", remainingMonths: 6 });
+    fireEvent.click(await screen.findByRole("button", { name: "hosting.upgrade-domain-pay" }));
+    await waitFor(() =>
+      expect(mutateAsync).toHaveBeenCalledWith({
+        to: "ecency.hosting",
+        amount: "6.000 HBD",
+        memo: "upgrade:alice"
+      })
+    );
+    await waitFor(() => expect(onUpgraded).toHaveBeenCalled());
+  });
+
   it("shows unavailable when the tenant isn't eligible (already Pro / not active)", async () => {
     hostingApi.upgradeQuote.mockResolvedValue({ eligible: false, reason: "already_pro" });
     render(<CustomDomainUpgrade tenant="alice" onUpgraded={vi.fn()} />);

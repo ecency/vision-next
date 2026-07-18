@@ -47,7 +47,7 @@ setNodes(CONFIG.HIVE_API_NODES);
 // stay false during a real backlog, loose enough to hold during normal one-block-behind tailing.
 const CAUGHT_UP_BLOCK_THRESHOLD = 3;
 
-class PaymentListener {
+export class PaymentListener {
   private lastProcessedBlock: number = 0;
   private isRunning: boolean = false;
   private expirationIntervalId: ReturnType<typeof setInterval> | null = null;
@@ -439,95 +439,127 @@ class PaymentListener {
   private async processUpgrade(transfer: any, username: string, amount: number) {
     console.log('[PaymentListener] Processing upgrade:', username);
 
+    // Result of the transaction, decided inside it and acted on after commit.
+    type UpgradeOutcome =
+      | { status: 'processed'; tenantId: string }
+      | { status: 'failed'; note: string }
+      | { status: 'duplicate' };
+    let outcome: UpgradeOutcome | null = null;
+
     try {
-      const tenant = await TenantService.getByUsername(username);
-      if (!tenant) {
-        console.log('[PaymentListener] Tenant not found for upgrade:', username);
-        await this.logPayment(transfer, amount, 'failed', 0, null, 'Tenant not found');
-        return;
-      }
+      // Everything that mutates state runs on the SAME transaction client so the payment dedup row
+      // and the standard->Pro flip commit or roll back together. Splitting them (flip via a
+      // separate autocommit, then a separate logPayment) let a single realistic path corrupt the
+      // record: if the flip commits and the payment write then fails transiently, the block retries,
+      // finds the tenant already Pro, and records the transfer 'failed' — leaving a Pro tenant with
+      // a failed payment. Two listeners on the same trx had the same split-brain. One transaction
+      // closes both. Mirrors processSubscription.
+      outcome = await db.transaction<UpgradeOutcome>(async (client) => {
+        // 1. Lock the tenant row FIRST — before any other await — so eligibility can't change under
+        // us. The expiry / abandon sweeps take the same row lock, so check-then-flip is atomic
+        // without relying on the UPDATE predicate alone.
+        const row = (
+          await client.query(`SELECT * FROM tenants WHERE username = $1 FOR UPDATE`, [username])
+        ).rows[0];
 
-      // A custom-domain (Pro) upgrade only applies to a currently-serviceable (active) blog — same
-      // rule the x402 /upgrade route enforces. Reject a reserved/inactive, reclaimed/abandoned, or
-      // expired tenant: upgrading one would take the payment for a blog that isn't running, and a
-      // plan bought while a name was abandoned must not carry over to a later fresh reservation.
-      if (tenant.subscriptionStatus !== 'active') {
-        console.log(
-          '[PaymentListener] Tenant not active for upgrade:',
-          username,
-          tenant.subscriptionStatus
+        // 2. Claim the transfer (dedup via unique trx_id). A replayed/duplicate block finds the row
+        // already present and bails, so the upgrade is applied at most once.
+        const claim = await client.query(
+          `INSERT INTO payments
+           (tenant_id, trx_id, block_num, from_account, amount, currency, memo, status, months_credited)
+           VALUES ($1, $2, $3, $4, $5, 'HBD', $6, 'processing', 0)
+           ON CONFLICT (trx_id) DO NOTHING
+           RETURNING id`,
+          [row?.id ?? null, transfer.trxId, transfer.blockNum, transfer.from, amount, transfer.memo]
         );
-        await this.logPayment(transfer, amount, 'failed', 0, null, 'Tenant not active for upgrade');
-        return;
-      }
+        if (claim.rows.length === 0) {
+          console.log('[PaymentListener] Duplicate upgrade transaction detected:', transfer.trxId);
+          return { status: 'duplicate' };
+        }
+        const paymentId = claim.rows[0].id;
 
-      // Already on the custom-domain (Pro) tier: a repeated or manually-sent upgrade memo would
-      // otherwise be recorded as processed for a no-op upgradeToPro, consuming the payment for no
-      // benefit (no term extension, already Pro). Reject it instead. The quote route likewise
-      // reports already-Pro tenants as ineligible, so the UI never offers this.
-      if (tenant.subscriptionPlan === 'pro') {
-        console.log('[PaymentListener] Tenant already on Pro plan, skipping upgrade:', username);
-        await this.logPayment(transfer, amount, 'failed', 0, null, 'Tenant already on Pro plan');
-        return;
-      }
+        // Mark an ineligible/underpaid transfer terminally 'failed' in the SAME transaction — it
+        // commits with the claim (so it isn't reprocessed) and no tenant change is made.
+        const fail = async (note: string): Promise<UpgradeOutcome> => {
+          await client.query(`UPDATE payments SET status = 'failed' WHERE id = $1`, [paymentId]);
+          console.log('[PaymentListener] Upgrade not applied for', username, '-', note);
+          return { status: 'failed', note };
+        };
 
-      // Prorated: the owner pays the +1/mo custom-domain premium for the months remaining on their
-      // current term (upgrade in place, no term extension). Integer-millis compare so an exact
-      // payment isn't rejected by float error. The quote and this validation use the same
-      // remainingMonths(); since time only moves forward, remaining only shrinks, so a payment made
-      // against the (equal-or-higher) quote is never rejected here.
-      const now = new Date();
-      const months = Pricing.remainingMonths(tenant.subscriptionExpiresAt, now);
-      if (months < 1) {
-        // Expiry has passed (active only because the hourly expire sweep hasn't run yet): there is
-        // no term to prorate, so don't take the payment for a term-less upgrade.
-        console.log('[PaymentListener] No remaining term to upgrade:', username);
-        await this.logPayment(transfer, amount, 'failed', 0, null, 'No remaining term to upgrade');
-        return;
-      }
-      const required = Pricing.customDomainUpgradeHbd(tenant.subscriptionExpiresAt, now);
-      if (Math.round(amount * 1000) < Math.round(required * 1000)) {
-        console.log('[PaymentListener] Insufficient for custom-domain upgrade:', amount, 'HBD <', required);
-        await this.logPayment(
-          transfer,
-          amount,
-          'failed',
-          0,
-          null,
-          `Insufficient for custom-domain upgrade (need ${Pricing.hbd(required)} HBD for ${months} month(s) remaining)`
+        // 3. Eligibility, evaluated against the locked row.
+        if (!row) return fail('Tenant not found');
+        // A custom-domain (Pro) upgrade only applies to a currently-serviceable (active) blog — same
+        // rule the x402 /upgrade route enforces. Reject a reserved/inactive, reclaimed/abandoned, or
+        // expired tenant: upgrading one would take the payment for a blog that isn't running, and a
+        // plan bought while a name was abandoned must not carry over to a later fresh reservation.
+        if (row.subscription_status !== 'active') return fail('Tenant not active for upgrade');
+        // Already Pro: a repeated or manual upgrade memo would otherwise be taken for a no-op.
+        if (row.subscription_plan === 'pro') return fail('Tenant already on Pro plan');
+
+        // Prorated: the owner pays the +1/mo custom-domain premium for the months remaining on their
+        // current term (upgrade in place, no term extension). Integer-millis compare so an exact
+        // payment isn't rejected by float error. The quote and this validation use the same
+        // remainingMonths(); since time only moves forward, remaining only shrinks, so a payment
+        // made against the (equal-or-higher) quote is never rejected here.
+        const now = new Date();
+        const expiresAt = row.subscription_expires_at
+          ? new Date(row.subscription_expires_at)
+          : null;
+        const months = Pricing.remainingMonths(expiresAt, now);
+        if (months < 1) {
+          // Expiry has passed (active only because the hourly expire sweep hasn't run yet): there is
+          // no term to prorate, so don't take the payment for a term-less upgrade.
+          return fail('No remaining term to upgrade');
+        }
+        const required = Pricing.customDomainUpgradeHbd(expiresAt, now);
+        if (Math.round(amount * 1000) < Math.round(required * 1000)) {
+          return fail(
+            `Insufficient for custom-domain upgrade (need ${Pricing.hbd(required)} HBD for ${months} month(s) remaining)`
+          );
+        }
+
+        // 4. Flip to Pro in place. The predicate re-asserts full eligibility (standard + active +
+        // unexpired) as a documented guard; it can't fail here since we hold the row lock and just
+        // validated the same conditions, but if it somehow matched nothing we record failed rather
+        // than mark a non-upgrade processed.
+        const upd = await client.query(
+          `UPDATE tenants
+              SET subscription_plan = 'pro', updated_at = NOW()
+            WHERE id = $1
+              AND subscription_plan = 'standard'
+              AND subscription_status = 'active'
+              AND subscription_expires_at > NOW()
+            RETURNING id`,
+          [row.id]
         );
-        return;
-      }
+        if (upd.rows.length === 0) return fail('Upgrade no longer eligible');
 
-      // Atomic standard->Pro transition. Returns null if a concurrent change between the checks
-      // above and here made the tenant ineligible — already Pro (a racing upgrade) or no longer
-      // active (the expiry sweep). Either way this transfer earned no usable upgrade, so record it
-      // as failed rather than a second/void 'processed' upgrade.
-      const upgraded = await TenantService.upgradeToPro(username);
-      if (!upgraded) {
-        console.log('[PaymentListener] Upgrade no longer eligible (raced), not crediting:', username);
-        await this.logPayment(transfer, amount, 'failed', 0, null, 'Upgrade no longer eligible (already Pro or not active)');
-        return;
-      }
-      await this.logPayment(transfer, amount, 'processed', 0, null, 'Upgraded to Pro (custom domain)');
+        // 5. Mark the payment processed in the SAME transaction.
+        await client.query(`UPDATE payments SET status = 'processed' WHERE id = $1`, [paymentId]);
 
-      void AuditService.log({
-        tenantId: tenant.id,
-        eventType: 'payment.upgrade',
-        eventData: { username, amount, trxId: transfer.trxId },
+        console.log('[PaymentListener] Upgraded', username, 'to Pro plan');
+        return { status: 'processed', tenantId: row.id };
       });
-
-      console.log('[PaymentListener] Upgraded', username, 'to Pro plan');
     } catch (error) {
-      // Same rule as processSubscription: a transient error (RPC/DB) must not record a
-      // 'failed' row, or the paid upgrade is stranded forever by the trx_id dedup. No
-      // 'processing' row is written here, so rethrowing simply lets the block retry.
+      // Transient error (RPC/DB): the whole transaction — claim included — rolled back, so no
+      // 'processing'/'failed' row persists and the block simply retries. Never record 'failed'
+      // here, or the trx_id dedup would strand a real paid upgrade forever.
       console.error(
         '[PaymentListener] Transient error, will retry upgrade for',
         username,
         (error as Error).message
       );
       throw error;
+    }
+
+    // Post-commit side effect (audit only). The upgrade + payment are ALREADY committed, so a
+    // failure here must not rethrow into the transient-retry path above.
+    if (outcome?.status === 'processed') {
+      void AuditService.log({
+        tenantId: outcome.tenantId,
+        eventType: 'payment.upgrade',
+        eventData: { username, amount, trxId: transfer.trxId },
+      });
     }
   }
 
