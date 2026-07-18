@@ -7,7 +7,7 @@
 
 import { Hono } from 'hono';
 import { db } from '../db/client';
-import { TenantService } from '../services/tenant-service';
+import { TenantService, ABANDONED_REREGISTER_QUARANTINE_HOURS } from '../services/tenant-service';
 import { DomainService } from '../services/domain-service';
 import { ConfigService } from '../services/config-service';
 import { mapTenantFromDb } from '../types';
@@ -328,7 +328,9 @@ internalRoutes.post('/claim-blog', async (c) => {
       // Try to create; ON CONFLICT means the tenant already exists. DO UPDATE revives a row the
       // sweep marked 'abandoned' (an unpaid reservation) so a returning Pro member still gets their
       // free blog activated below; a LIVE tenant (WHERE unsatisfied) returns 0 rows and is handed
-      // back unchanged (no re-activation, no extension).
+      // back unchanged (no re-activation, no extension). The revive is gated on the same
+      // re-registration quarantine as the public create/subscribe paths, so a claim can't overwrite
+      // a just-reclaimed row whose in-flight payment hasn't settled yet.
       const inserted = await client.query(
         `INSERT INTO tenants (username, config, subscription_status, subscription_plan)
          VALUES ($1, $2, 'inactive', 'standard')
@@ -337,8 +339,9 @@ internalRoutes.post('/claim-blog', async (c) => {
                subscription_status = 'inactive',
                updated_at = NOW()
            WHERE tenants.subscription_status = 'abandoned'
+             AND tenants.updated_at < NOW() - ($3 * INTERVAL '1 hour')
          RETURNING *`,
-        [username, JSON.stringify(config)]
+        [username, JSON.stringify(config), ABANDONED_REREGISTER_QUARANTINE_HOURS]
       );
 
       if (inserted.rowCount === 0) {
