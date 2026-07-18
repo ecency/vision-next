@@ -65,9 +65,24 @@ export function CustomDomainUpgrade({
     if (!quote || !quote.eligible) return;
     setError("");
     setBusy(true);
+    // Re-fetch the quote immediately before broadcasting: the tenant may have become Pro (or its
+    // term/price changed) since the panel opened. Broadcasting a stale upgrade against an already-
+    // Pro tenant would spend HBD the listener then rejects for no benefit. Pay the FRESH quote, or
+    // stop and show unavailable if it's no longer eligible.
+    let fresh: UpgradeQuote = quote;
+    try {
+      fresh = await hostingApi.upgradeQuote(tenant);
+    } catch {
+      // keep the last-known quote on a transient read error
+    }
+    if (!fresh.eligible) {
+      setQuote(fresh);
+      setBusy(false);
+      return;
+    }
     setPaying(true);
     try {
-      await transfer.mutateAsync({ to: quote.to, amount: quote.amount, memo: quote.memo });
+      await transfer.mutateAsync({ to: fresh.to, amount: fresh.amount, memo: fresh.memo });
       if (await pollUpgraded()) onUpgraded();
       // Broadcast landed but not yet confirmed: keep `paying` true (button stays locked so the
       // same transfer isn't re-sent) and funnel to the manual re-check.
@@ -79,7 +94,7 @@ export function CustomDomainUpgrade({
     } finally {
       setBusy(false);
     }
-  }, [quote, transfer, pollUpgraded, onUpgraded]);
+  }, [quote, transfer, pollUpgraded, onUpgraded, tenant]);
 
   const checkUpgraded = useCallback(async () => {
     setError("");

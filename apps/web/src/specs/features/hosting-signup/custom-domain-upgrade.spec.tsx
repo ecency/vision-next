@@ -63,6 +63,19 @@ describe("CustomDomainUpgrade", () => {
     await waitFor(() => expect(onUpgraded).toHaveBeenCalled());
   });
 
+  it("re-checks the quote before paying and doesn't broadcast if no longer eligible", async () => {
+    // Eligible when the panel opens, but the tenant becomes Pro before the click (e.g. a concurrent
+    // upgrade). The re-fetch inside payWithHive must stop the broadcast.
+    hostingApi.upgradeQuote
+      .mockResolvedValueOnce(QUOTE)
+      .mockResolvedValueOnce({ eligible: false, reason: "already_pro" });
+    render(<CustomDomainUpgrade tenant="alice" onUpgraded={vi.fn()} />);
+    const payBtn = await screen.findByRole("button", { name: "hosting.upgrade-domain-pay" });
+    fireEvent.click(payBtn);
+    await screen.findByText("hosting.upgrade-domain-unavailable");
+    expect(mutateAsync).not.toHaveBeenCalled();
+  });
+
   it("shows unavailable when the tenant isn't eligible (already Pro / not active)", async () => {
     hostingApi.upgradeQuote.mockResolvedValue({ eligible: false, reason: "already_pro" });
     render(<CustomDomainUpgrade tenant="alice" onUpgraded={vi.fn()} />);
