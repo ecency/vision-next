@@ -400,12 +400,32 @@ export const TenantService = {
    */
   async expireSubscriptions(): Promise<number> {
     const result = await db.query(
-      `UPDATE tenants 
+      `UPDATE tenants
        SET subscription_status = 'expired'
-       WHERE subscription_status = 'active' 
+       WHERE subscription_status = 'active'
          AND subscription_expires_at < NOW()`
     );
     return result.rowCount || 0;
+  },
+
+  /**
+   * Delete abandoned signups: tenants that were created but NEVER paid (status 'inactive',
+   * no payment rows) and have sat past the grace window. This frees their username, which an
+   * inactive record would otherwise reserve forever. Safe to run repeatedly — a tenant with
+   * any payment history (which would have activated it) is excluded, and a late HBD payment
+   * simply re-creates + activates the tenant. Returns the deleted usernames so the caller can
+   * remove any leftover served files.
+   */
+  async deleteAbandonedTenants(graceDays: number): Promise<string[]> {
+    const rows = await db.queryAll<{ username: string }>(
+      `DELETE FROM tenants
+         WHERE subscription_status = 'inactive'
+           AND created_at < NOW() - ($1 * INTERVAL '1 day')
+           AND id NOT IN (SELECT tenant_id FROM payments WHERE tenant_id IS NOT NULL)
+       RETURNING username`,
+      [graceDays]
+    );
+    return rows.map((r) => r.username);
   },
   
   /**

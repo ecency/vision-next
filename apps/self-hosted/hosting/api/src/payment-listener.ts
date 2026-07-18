@@ -19,6 +19,9 @@ const CONFIG = {
   PRO_UPGRADE_PRICE_HBD: parseFloat(process.env.PRO_UPGRADE_PRICE_HBD || '0.500'),
   HIVE_API_NODES: (process.env.HIVE_API_URL || 'https://api.hive.blog').split(','),
   POLL_INTERVAL_MS: 3000, // 3 seconds (1 block)
+  // Days an unpaid (inactive) tenant reserves its username before the sweep deletes it. Long
+  // enough to comfortably cover an in-flight HBD payment; a late payment re-creates the tenant.
+  ABANDONED_GRACE_DAYS: parseInt(process.env.ABANDONED_TENANT_GRACE_DAYS || '7', 10) || 7,
 };
 
 // Configure hive-tx nodes. setNodes() trims/validates entries and no-ops on an
@@ -455,6 +458,24 @@ class PaymentListener {
       const expired = await TenantService.expireSubscriptions();
       if (expired > 0) {
         console.log('[PaymentListener] Expired', expired, 'subscriptions');
+      }
+
+      // Sweep abandoned signups (created, never paid, past the grace window). This frees
+      // usernames an inactive record would otherwise hold forever. Remove any leftover served
+      // files too, though a never-activated tenant should have none.
+      const deleted = await TenantService.deleteAbandonedTenants(CONFIG.ABANDONED_GRACE_DAYS);
+      if (deleted.length > 0) {
+        console.log('[PaymentListener] Deleted', deleted.length, 'abandoned inactive tenants');
+        for (const username of deleted) {
+          try {
+            await ConfigService.deleteConfigFile(username);
+          } catch (err) {
+            console.error(
+              `[PaymentListener] Failed to remove files for abandoned tenant ${username}:`,
+              (err as Error).message
+            );
+          }
+        }
       }
     } catch (error) {
       // Never let a transient DB error escape an interval/void call as an unhandled rejection.
