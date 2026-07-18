@@ -14,13 +14,16 @@ hiveTxConfig.nodes = process.env.HIVE_API_URL?.split(',') || ['https://api.hive.
 const baseDomain = process.env.BASE_DOMAIN || 'blogs.ecency.com';
 
 // Quiet period after the sweep marks a username 'abandoned' before it can be reserved again. It is
-// a backstop, not the primary defence: a reservation that is actively being paid for is kept out
-// of the sweep entirely — create() refreshes its grace clock on every checkout re-entry, and the
-// sweep waits for block replay to catch up (payment-listener isCaughtUp) so a pending on-chain
-// payment has already activated its reservation before any reclaim. The quarantine only has to
-// cover the residual: a reservation reclaimed at the very moment its payment lands. One hour
-// dwarfs live HBD replay (seconds) and normal card settlement, so a payment in flight when the
-// sweep ran settles onto the ORIGINAL reservation before a different owner could re-register it.
+// a backstop; three enforced guarantees keep a paid-for reservation out of a re-registration:
+//   1. create() refreshes the grace clock on every checkout re-entry, so an actively-paid
+//      reservation is never a sweep target (covers card, whose ePoints activation may retry with
+//      backoff far longer than an hour, and any web re-entry).
+//   2. The sweep only reclaims while the listener is caught up (payment-listener isCaughtUp), so it
+//      never marks a row abandoned during a replay backlog with unprocessed on-chain payments.
+//   3. Re-registration itself is gated on a FRESH listener caught-up watermark (CAUGHT_UP_SQL), so
+//      a listener that stalls AFTER a reclaim — leaving a just-arrived on-chain payment unprocessed
+//      — blocks the name from being overwritten no matter how long the stall lasts.
+// The time-based quarantine then only has to cover the residual seconds of healthy live tailing.
 export const ABANDONED_REREGISTER_QUARANTINE_HOURS = 1;
 
 // Whether an existing row is an abandoned reservation that has cleared the re-registration
@@ -32,6 +35,22 @@ export function isReregisterableAbandoned(t: Pick<Tenant, 'subscriptionStatus' |
   const cutoff = Date.now() - ABANDONED_REREGISTER_QUARANTINE_HOURS * 60 * 60 * 1000;
   return t.updatedAt.getTime() < cutoff;
 }
+
+// How fresh the payment-listener's caught-up watermark must be for re-registration of a reclaimed
+// name to be allowed. The listener refreshes it every poll (~3s) while near head, so a value older
+// than this means it is stalled or replaying a backlog and may not have processed a pending payment
+// yet — in which case re-registration must be blocked regardless of the time-based quarantine. Used
+// both as the SQL guard on the reclaim branch and by isListenerCaughtUp for the pre-paywall check.
+export const LISTENER_CAUGHT_UP_MAX_AGE = "2 minutes";
+
+// Reclaim-branch guard: true only if the payment listener has reported itself caught up to head
+// recently. Fails safe to false (blocks re-registration) if the watermark is missing or stale.
+// Exported so the /subscribe and claim-blog upserts apply the identical guard.
+export const CAUGHT_UP_SQL = `EXISTS (
+  SELECT 1 FROM system_config
+  WHERE key = 'payment_listener.caught_up'
+    AND updated_at > NOW() - INTERVAL '${LISTENER_CAUGHT_UP_MAX_AGE}'
+)`;
 
 export const TenantService = {
   /**
@@ -114,7 +133,8 @@ export const TenantService = {
              created_at = NOW(),
              updated_at = NOW()
          WHERE (tenants.subscription_status = 'abandoned'
-                  AND tenants.updated_at < NOW() - ($4 * INTERVAL '1 hour'))
+                  AND tenants.updated_at < NOW() - ($4 * INTERVAL '1 hour')
+                  AND ${CAUGHT_UP_SQL})
             OR (tenants.subscription_status = 'inactive' AND tenants.owner = EXCLUDED.owner)
        RETURNING *`,
       [username.toLowerCase(), ownerName, JSON.stringify(config), ABANDONED_REREGISTER_QUARANTINE_HOURS]
@@ -486,6 +506,20 @@ export const TenantService = {
    * not active — logs a 'failed' row linked to the tenant, and if that counted here it would
    * permanently pin the (reusable) username against every future reclaim.
    */
+  /**
+   * Whether the payment listener has reported itself caught up to head recently. Mirrors the
+   * CAUGHT_UP_SQL guard for use as a pre-check on paths that must decide BEFORE a payment settles
+   * (e.g. /subscribe's pre-paywall availability check) whether a reclaimed name may be reused.
+   * Fails safe to false if the watermark is missing or stale.
+   */
+  async isListenerCaughtUp(): Promise<boolean> {
+    const row = await db.queryOne<{ fresh: boolean }>(
+      `SELECT (updated_at > NOW() - INTERVAL '${LISTENER_CAUGHT_UP_MAX_AGE}') AS fresh
+         FROM system_config WHERE key = 'payment_listener.caught_up'`
+    );
+    return row?.fresh === true;
+  },
+
   async reclaimAbandonedTenants(graceDays: number): Promise<string[]> {
     const rows = await db.queryAll<{ username: string }>(
       `UPDATE tenants

@@ -75,6 +75,9 @@ describe('TenantService.create (revives abandoned reservations)', () => {
     // Abandoned branch: reclaimable only past the re-registration quarantine.
     expect(sql).toMatch(/subscription_status = 'abandoned'/);
     expect(sql).toMatch(/tenants\.updated_at < NOW\(\) - \(\$4 \* INTERVAL '1 hour'\)/);
+    // Reclaim is additionally gated on a fresh payment-listener caught-up watermark, so a stalled
+    // or backlogged listener (whose pending payments may be unprocessed) can't have its name reused.
+    expect(sql).toMatch(/payment_listener\.caught_up/);
     // Resume branch: an existing same-owner inactive reservation refreshes its grace clock so an
     // active checkout is not swept mid-payment.
     expect(sql).toMatch(/tenants\.subscription_status = 'inactive' AND tenants\.owner = EXCLUDED\.owner/);
@@ -111,6 +114,25 @@ describe('isReregisterableAbandoned (re-registration quarantine)', () => {
   it('is true once an abandoned row has cleared the quarantine window', () => {
     const past = new Date(Date.now() - (ABANDONED_REREGISTER_QUARANTINE_HOURS + 1) * HOUR_MS);
     expect(isReregisterableAbandoned(mk('abandoned', past))).toBe(true);
+  });
+});
+
+describe('TenantService.isListenerCaughtUp', () => {
+  beforeEach(() => mocks.queryOne.mockReset());
+
+  it('reads the caught_up watermark freshness and returns true only when fresh', async () => {
+    mocks.queryOne.mockResolvedValueOnce({ fresh: true });
+    await expect(TenantService.isListenerCaughtUp()).resolves.toBe(true);
+    const [sql] = mocks.queryOne.mock.calls[0];
+    expect(sql).toMatch(/system_config WHERE key = 'payment_listener\.caught_up'/);
+    expect(sql).toMatch(/updated_at > NOW\(\) - INTERVAL/);
+  });
+
+  it('fails safe to false when the watermark is missing or stale', async () => {
+    mocks.queryOne.mockResolvedValueOnce(null);
+    await expect(TenantService.isListenerCaughtUp()).resolves.toBe(false);
+    mocks.queryOne.mockResolvedValueOnce({ fresh: false });
+    await expect(TenantService.isListenerCaughtUp()).resolves.toBe(false);
   });
 });
 

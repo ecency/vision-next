@@ -7,7 +7,11 @@
 
 import { Hono } from 'hono';
 import { db } from '../db/client';
-import { TenantService, ABANDONED_REREGISTER_QUARANTINE_HOURS } from '../services/tenant-service';
+import {
+  TenantService,
+  ABANDONED_REREGISTER_QUARANTINE_HOURS,
+  CAUGHT_UP_SQL,
+} from '../services/tenant-service';
 import { DomainService } from '../services/domain-service';
 import { ConfigService } from '../services/config-service';
 import { mapTenantFromDb } from '../types';
@@ -346,6 +350,7 @@ internalRoutes.post('/claim-blog', async (c) => {
                updated_at = NOW()
            WHERE tenants.subscription_status = 'abandoned'
              AND tenants.updated_at < NOW() - ($3 * INTERVAL '1 hour')
+             AND ${CAUGHT_UP_SQL}
          RETURNING *`,
         [username, JSON.stringify(config), ABANDONED_REREGISTER_QUARANTINE_HOURS]
       );

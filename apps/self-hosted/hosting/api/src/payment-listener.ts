@@ -118,6 +118,29 @@ class PaymentListener {
         break; // Stop and retry this block next iteration
       }
     }
+
+    // Publish a caught-up watermark for the hosting-api. Re-registration of a reclaimed username
+    // is gated on this being fresh (see TenantService.create), so that even after the time-based
+    // quarantine expires, a listener that is stalled or replaying a backlog — and therefore may not
+    // have processed a pending on-chain payment yet — blocks the name from being overwritten. It is
+    // written only while genuinely near head; a backlog or a stall leaves it stale.
+    if (headBlock - this.lastProcessedBlock <= CAUGHT_UP_BLOCK_THRESHOLD) {
+      await this.markCaughtUp();
+    }
+  }
+
+  private async markCaughtUp(): Promise<void> {
+    try {
+      await db.query(
+        `INSERT INTO system_config (key, value, updated_at)
+         VALUES ('payment_listener.caught_up', '1', NOW())
+         ON CONFLICT (key) DO UPDATE SET value = '1', updated_at = NOW()`
+      );
+    } catch (error) {
+      // Best-effort heartbeat: a write failure must not break block processing. A stale watermark
+      // fails safe (re-registration is blocked), so skipping one write is harmless.
+      console.error('[PaymentListener] Error writing caught-up watermark:', (error as Error).message);
+    }
   }
 
   private async processBlock(blockNum: number) {

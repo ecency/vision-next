@@ -10,6 +10,7 @@ import {
   TenantService,
   isReregisterableAbandoned,
   ABANDONED_REREGISTER_QUARANTINE_HOURS,
+  CAUGHT_UP_SQL,
 } from '../services/tenant-service';
 import { mapTenantFromDb } from '../types';
 import { ConfigService } from '../services/config-service';
@@ -179,10 +180,11 @@ tenantRoutes.post(
 
     // Check if username already exists. An 'abandoned' row (an unpaid reservation the sweep
     // reclaimed) reads as available once it has cleared the re-registration quarantine — create()
-    // revives it below. Within the quarantine it is still treated as taken so an in-flight
-    // payment for it isn't overwritten.
+    // revives it below. Within the quarantine — or while the payment listener isn't confirmed
+    // caught up to head (so a pending on-chain payment for it may be unprocessed) — it is still
+    // treated as taken so an in-flight payment for it isn't overwritten.
     const existing = await TenantService.getByUsername(body.username);
-    if (existing && !isReregisterableAbandoned(existing)) {
+    if (existing && !(isReregisterableAbandoned(existing) && (await TenantService.isListenerCaughtUp()))) {
       return c.json({ error: 'Username already registered' }, 409);
     }
 
@@ -247,10 +249,11 @@ tenantRoutes.post('/subscribe',
   async (c, next) => {
     const body = c.req.valid('json');
     // An 'abandoned' row past the re-registration quarantine reads as available; the DB
-    // transaction below revives it on settlement. Checked BEFORE the paywall so a payment is
-    // never settled for a name that is still quarantined (and would fail the upsert's guard).
+    // transaction below revives it on settlement. Checked BEFORE the paywall so a payment is never
+    // settled for a name that is still quarantined, or whose listener isn't confirmed caught up
+    // (either of which would fail the upsert's guard and strand the settlement).
     const existing = await TenantService.getByUsername(body.username);
-    if (existing && !isReregisterableAbandoned(existing)) {
+    if (existing && !(isReregisterableAbandoned(existing) && (await TenantService.isListenerCaughtUp()))) {
       return c.json({ error: 'Username already registered' }, 409);
     }
     // Same account + community + ownership validation as POST /, BEFORE the paywall so a payment is
@@ -311,6 +314,7 @@ tenantRoutes.post('/subscribe',
                updated_at = NOW()
            WHERE tenants.subscription_status = 'abandoned'
              AND tenants.updated_at < NOW() - ($4 * INTERVAL '1 hour')
+             AND ${CAUGHT_UP_SQL}
          RETURNING *`,
         [body.username.toLowerCase(), owner, JSON.stringify(tenantConfig), ABANDONED_REREGISTER_QUARANTINE_HOURS]
       );
