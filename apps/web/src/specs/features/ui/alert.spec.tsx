@@ -80,8 +80,10 @@ describe("Alert", () => {
     it("applies danger appearance", () => {
       const { container } = render(<Alert appearance="danger">Danger</Alert>);
       const alert = container.firstChild as HTMLElement;
-      expect(alert.className).toContain("bg-red-040");
-      expect(alert.className).toContain("text-red");
+      // Light red tint background with dark-red text for readable contrast (not vivid
+      // bg-red-040 with muted text-red, which was low-contrast red-on-red).
+      expect(alert.className).toContain("bg-red-040/10");
+      expect(alert.className).toContain("text-red-030");
       expect(alert.className).toContain("border-red-030");
     });
   });
@@ -146,11 +148,11 @@ describe("Alert", () => {
       expect(alert.className).toContain("dark:text-warning-default");
     });
 
-    it("applies dark mode opacity for danger appearance", () => {
+    it("applies dark mode tint and readable text for danger appearance", () => {
       const { container } = render(<Alert appearance="danger">Dark</Alert>);
       const alert = container.firstChild as HTMLElement;
-      expect(alert.className).toContain("dark:bg-opacity-[20%]");
-      expect(alert.className).toContain("dark:border-opacity-[20%]");
+      expect(alert.className).toContain("dark:bg-red-040/20");
+      expect(alert.className).toContain("dark:text-red-light-020");
     });
   });
 
