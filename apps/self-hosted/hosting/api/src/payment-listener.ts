@@ -31,6 +31,16 @@ setNodes(CONFIG.HIVE_API_NODES);
 // How close to head the listener must be for the abandoned-tenant sweep to run. A payment in
 // an unreplayed block has no `payments` row yet, so sweeping while behind could delete a tenant
 // whose payment is about to activate it; requiring near-head replay avoids that.
+//
+// A small tolerance (not exact head) is deliberate: checkExpirations samples head on its own
+// hourly timer, and by the time it reads head the live-tailing loop has almost always fallen one
+// block behind (a block is produced during each POLL_INTERVAL_MS sleep), so an exact `>= head`
+// gate would seldom be satisfied and the sweep would rarely run. The residual 1-3 block window is
+// harmless: an abandoned tenant is 'inactive', so its config can never have been edited (both the
+// config read and update routes reject inactive tenants) and no served file exists; if a valid
+// payment does land in that window, replay recreates the tenant from the same default config and
+// activates it. The sweep is therefore self-healing, never lossy — it only reclaims the username
+// slightly early.
 const CAUGHT_UP_BLOCK_THRESHOLD = 3;
 
 class PaymentListener {
