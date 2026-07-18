@@ -13,15 +13,14 @@ export type { Tenant } from '../types';
 hiveTxConfig.nodes = process.env.HIVE_API_URL?.split(',') || ['https://api.hive.blog'];
 const baseDomain = process.env.BASE_DOMAIN || 'blogs.ecency.com';
 
-// Quiet period after the sweep marks a username 'abandoned' before it can be reserved again.
-// A payment that was already in flight when the sweep ran (an on-chain HBD transfer awaiting
-// block replay, or a card order awaiting settlement) has no payments row yet, so nothing else
-// pins the row; this window lets that payment settle and activate the ORIGINAL reservation
-// (owner + config intact) before a different owner could overwrite it via re-registration.
-// One hour comfortably covers HBD replay — including catch-up after a listener restart — and
-// settlement latency; the web also creates/refreshes the reservation immediately before card or
-// HBD checkout, so a row is not sweepable mid-flow and this mainly defends a direct on-chain
-// transfer against an old reservation.
+// Quiet period after the sweep marks a username 'abandoned' before it can be reserved again. It is
+// a backstop, not the primary defence: a reservation that is actively being paid for is kept out
+// of the sweep entirely — create() refreshes its grace clock on every checkout re-entry, and the
+// sweep waits for block replay to catch up (payment-listener isCaughtUp) so a pending on-chain
+// payment has already activated its reservation before any reclaim. The quarantine only has to
+// cover the residual: a reservation reclaimed at the very moment its payment lands. One hour
+// dwarfs live HBD replay (seconds) and normal card settlement, so a payment in flight when the
+// sweep ran settles onto the ORIGINAL reservation before a different owner could re-register it.
 export const ABANDONED_REREGISTER_QUARANTINE_HOURS = 1;
 
 // Whether an existing row is an abandoned reservation that has cleared the re-registration
@@ -88,25 +87,35 @@ export const TenantService = {
     // were silently dropped (and any community override too). Route both paths through buildConfig.
     const config = await this.buildConfig(username, configOverrides, ownerName);
 
-    // Upsert so a username the sweep marked 'abandoned' can be reserved again: the row still
-    // exists (we soft-delete, never hard-delete, so an in-flight payment can revive it), and a
-    // fresh reservation reclaims it. DO UPDATE is gated on `status = 'abandoned'` AND the
-    // re-registration quarantine (updated_at older than the window) — a live row, or one
-    // reclaimed too recently to be sure no payment is still in flight for it, makes the WHERE
-    // fail so nothing is updated and no row is returned, which we surface as a conflict. A
-    // brand-new username inserts normally.
+    // Upsert with two conflict outcomes, distinguished by the existing row's status:
+    //
+    //  - 'abandoned' (past the re-registration quarantine): a fresh reservation RECLAIMS the name —
+    //    overwrite owner + config. The quarantine (updated_at older than the window) protects a row
+    //    whose earlier payment may still be in flight.
+    //  - 'inactive' owned by the SAME owner: this is a re-entry into checkout for an existing
+    //    reservation. REFRESH its grace clock (created_at = NOW) so the abandoned sweep can't
+    //    reclaim it while it is actively being paid for — closing the window where an old reservation
+    //    is swept mid-checkout and then overwritten before a slow payment (e.g. a card order ePoints
+    //    retries with backoff for far longer than the quarantine) is finally recorded. Keep owner +
+    //    config unchanged here (via CASE) so re-entry never overwrites an unpaid reservation's config.
+    //
+    // Any other row (live tenant, or a different owner's inactive reservation) leaves the WHERE
+    // unsatisfied, returns no row, and is surfaced as a conflict. A brand-new username inserts.
     const row = await db.queryOne<TenantRow>(
       `INSERT INTO tenants (username, owner, config, subscription_status, subscription_plan)
        VALUES ($1, $2, $3, 'inactive', 'standard')
        ON CONFLICT (username) DO UPDATE
-         SET owner = EXCLUDED.owner,
-             config = EXCLUDED.config,
+         SET owner = CASE WHEN tenants.subscription_status = 'abandoned'
+                          THEN EXCLUDED.owner ELSE tenants.owner END,
+             config = CASE WHEN tenants.subscription_status = 'abandoned'
+                           THEN EXCLUDED.config ELSE tenants.config END,
              subscription_plan = 'standard',
              subscription_status = 'inactive',
              created_at = NOW(),
              updated_at = NOW()
-         WHERE tenants.subscription_status = 'abandoned'
-           AND tenants.updated_at < NOW() - ($4 * INTERVAL '1 hour')
+         WHERE (tenants.subscription_status = 'abandoned'
+                  AND tenants.updated_at < NOW() - ($4 * INTERVAL '1 hour'))
+            OR (tenants.subscription_status = 'inactive' AND tenants.owner = EXCLUDED.owner)
        RETURNING *`,
       [username.toLowerCase(), ownerName, JSON.stringify(config), ABANDONED_REREGISTER_QUARANTINE_HOURS]
     );

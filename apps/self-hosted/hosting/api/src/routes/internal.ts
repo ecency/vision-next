@@ -331,11 +331,17 @@ internalRoutes.post('/claim-blog', async (c) => {
       // back unchanged (no re-activation, no extension). The revive is gated on the same
       // re-registration quarantine as the public create/subscribe paths, so a claim can't overwrite
       // a just-reclaimed row whose in-flight payment hasn't settled yet.
+      //
+      // owner is set to the claimant (= username; claim-blog is a personal Pro blog, owned by its
+      // own account) on BOTH insert and revive. Setting it on revive avoids leaving a reclaimed
+      // row's stale previous owner in place, and setting it on insert fixes the owner NOT NULL
+      // column, which this INSERT previously omitted.
       const inserted = await client.query(
-        `INSERT INTO tenants (username, config, subscription_status, subscription_plan)
-         VALUES ($1, $2, 'inactive', 'standard')
+        `INSERT INTO tenants (username, owner, config, subscription_status, subscription_plan)
+         VALUES ($1, $1, $2, 'inactive', 'standard')
          ON CONFLICT (username) DO UPDATE
-           SET config = EXCLUDED.config,
+           SET owner = EXCLUDED.owner,
+               config = EXCLUDED.config,
                subscription_status = 'inactive',
                updated_at = NOW()
            WHERE tenants.subscription_status = 'abandoned'

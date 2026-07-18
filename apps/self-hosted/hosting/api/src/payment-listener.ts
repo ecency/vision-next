@@ -40,6 +40,10 @@ const CONFIG = {
 // empty list, so a misconfigured HIVE_API_URL can't wipe the built-in fallbacks.
 setNodes(CONFIG.HIVE_API_NODES);
 
+// How near head replay must be for the abandoned sweep to run (see isCaughtUp). Small enough to
+// stay false during a real backlog, loose enough to hold during normal one-block-behind tailing.
+const CAUGHT_UP_BLOCK_THRESHOLD = 3;
+
 class PaymentListener {
   private lastProcessedBlock: number = 0;
   private isRunning: boolean = false;
@@ -498,14 +502,24 @@ class PaymentListener {
       }
 
       // Reclaim abandoned signups (created, never paid, past the grace window). This is a SOFT
-      // delete — it flips status to 'abandoned' and keeps the row — so it needs no "listener
-      // caught up to head" gate: a payment still sitting in an unreplayed block (or a card order
-      // mid-settlement) simply revives the surviving row in place on replay/activation, with its
-      // original owner + config intact. No served-file cleanup: an abandoned tenant was never
-      // activated, and files are only written on activation, so it has none.
-      const reclaimed = await TenantService.reclaimAbandonedTenants(CONFIG.ABANDONED_GRACE_DAYS);
-      if (reclaimed.length > 0) {
-        console.log('[PaymentListener] Reclaimed', reclaimed.length, 'abandoned inactive tenants');
+      // delete — it flips status to 'abandoned' and keeps the row — so a payment still in flight
+      // simply revives the surviving row in place on replay/activation, with its original owner +
+      // config intact. No served-file cleanup: an abandoned tenant was never activated, and files
+      // are only written on activation, so it has none.
+      //
+      // Gated on the listener being caught up to head, so the reclaim never runs concurrently with
+      // a replay backlog (e.g. at startup after downtime). While behind, an on-chain HBD payment
+      // for a reservation may sit in a not-yet-replayed block; reclaiming then, with catch-up
+      // taking longer than the re-registration quarantine, could free the name before the payment
+      // is processed. Waiting until caught up guarantees any such payment has already activated its
+      // reservation (so it is not a reclaim target), and the quarantine only ever has to cover the
+      // seconds of live tailing, not an unbounded backlog. (Card orders, which have no on-chain
+      // signal, are instead protected by the checkout grace-clock refresh in TenantService.create.)
+      if (await this.isCaughtUp()) {
+        const reclaimed = await TenantService.reclaimAbandonedTenants(CONFIG.ABANDONED_GRACE_DAYS);
+        if (reclaimed.length > 0) {
+          console.log('[PaymentListener] Reclaimed', reclaimed.length, 'abandoned inactive tenants');
+        }
       }
     } catch (error) {
       // Never let a transient DB error escape an interval/void call as an unhandled rejection.
@@ -516,6 +530,20 @@ class PaymentListener {
   private async getHeadBlockNumber(): Promise<number> {
     const props = await callRPC('condenser_api.get_dynamic_global_properties', []) as any;
     return props.head_block_number;
+  }
+
+  // Whether block replay has essentially caught up to head. A small tolerance (not exact head) is
+  // deliberate: during healthy live tailing the loop trails head by the one block produced each
+  // poll interval, so requiring exact equality would seldom hold. When genuinely behind (a startup
+  // backlog of thousands of blocks), this is false and the abandoned sweep is deferred. Fails safe
+  // to false if head can't be read.
+  private async isCaughtUp(): Promise<boolean> {
+    try {
+      const headBlock = await this.getHeadBlockNumber();
+      return headBlock - this.lastProcessedBlock <= CAUGHT_UP_BLOCK_THRESHOLD;
+    } catch {
+      return false;
+    }
   }
 
   private async getLastProcessedBlock(): Promise<number | null> {

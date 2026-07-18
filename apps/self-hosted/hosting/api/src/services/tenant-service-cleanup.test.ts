@@ -56,7 +56,7 @@ describe('TenantService.create (revives abandoned reservations)', () => {
     mocks.queryAll.mockReset();
   });
 
-  it('upserts with a DO UPDATE gated on the abandoned status (so a live row is never overwritten)', async () => {
+  it('upserts with a DO UPDATE that reclaims abandoned (quarantined) OR refreshes same-owner inactive', async () => {
     mocks.queryOne.mockResolvedValueOnce({
       id: '1',
       username: 'demo',
@@ -72,15 +72,20 @@ describe('TenantService.create (revives abandoned reservations)', () => {
     const [sql, params] = mocks.queryOne.mock.calls[mocks.queryOne.mock.calls.length - 1];
     expect(sql).toMatch(/INSERT INTO tenants/i);
     expect(sql).toMatch(/ON CONFLICT \(username\) DO UPDATE/i);
-    expect(sql).toMatch(/WHERE tenants\.subscription_status = 'abandoned'/);
-    // The overwrite is also gated on the re-registration quarantine so an in-flight payment's
-    // reservation can't be replaced before it settles.
+    // Abandoned branch: reclaimable only past the re-registration quarantine.
+    expect(sql).toMatch(/subscription_status = 'abandoned'/);
     expect(sql).toMatch(/tenants\.updated_at < NOW\(\) - \(\$4 \* INTERVAL '1 hour'\)/);
+    // Resume branch: an existing same-owner inactive reservation refreshes its grace clock so an
+    // active checkout is not swept mid-payment.
+    expect(sql).toMatch(/tenants\.subscription_status = 'inactive' AND tenants\.owner = EXCLUDED\.owner/);
+    expect(sql).toMatch(/created_at = NOW\(\)/);
+    // Config/owner are only overwritten for the abandoned (reclaim) branch, never on a resume.
+    expect(sql).toMatch(/config = CASE WHEN tenants\.subscription_status = 'abandoned'/);
     expect(params[3]).toBe(ABANDONED_REREGISTER_QUARANTINE_HOURS);
   });
 
-  it('throws a conflict when the upsert returns no row (a live tenant holds the name)', async () => {
-    mocks.queryOne.mockResolvedValueOnce(null); // DO UPDATE WHERE abandoned matched nothing
+  it('throws a conflict when the upsert returns no row (a live or other-owner tenant holds the name)', async () => {
+    mocks.queryOne.mockResolvedValueOnce(null); // DO UPDATE WHERE matched nothing
 
     await expect(TenantService.create('demo', 'demo', undefined)).rejects.toMatchObject({
       isConflict: true,
