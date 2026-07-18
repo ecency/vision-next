@@ -49,6 +49,7 @@ const INSTRUCTIONS = { to: "ecency.hosting", amount: "2.000 HBD", memo: "blog:al
 describe("HostingSignup one-click HBD pay", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    sessionStorage.clear();
     mocks.authLoginType = "keychain";
     // Card disabled so the payment step defaults to the HBD rail (where the one-click lives).
     hostingApi.paymentMethods.mockResolvedValue({
@@ -106,6 +107,44 @@ describe("HostingSignup one-click HBD pay", () => {
     fireEvent.click(await screen.findByText("g.continue"));
     await screen.findByText("hosting.pay-hbd-oneclick");
     expect(mutateAsync).not.toHaveBeenCalled();
+  });
+
+  it("resumes a pending payment left by a redirect and shows success once active", async () => {
+    // A redirecting signer (or reload) left a marker; on mount we poll and confirm activation.
+    sessionStorage.setItem(
+      "ecency:hosting:pending-hbd",
+      JSON.stringify({ tenant: "alice", blogUrl: "https://alice.blogs.ecency.com", baseline: null })
+    );
+    render(<HostingSignup />);
+    await screen.findByText("hosting.success-title");
+    // Marker is cleared after a successful resume.
+    expect(sessionStorage.getItem("ecency:hosting:pending-hbd")).toBeNull();
+  });
+
+  it("locks the one-click button after a broadcast whose activation times out (no duplicate send)", async () => {
+    hostingApi.tenant.mockResolvedValue({
+      username: "alice",
+      owner: "alice",
+      subscriptionStatus: "inactive",
+      subscriptionExpiresAt: null
+    });
+    render(<HostingSignup />);
+    fireEvent.click(screen.getByText("g.continue"));
+    fireEvent.click(await screen.findByText("g.continue"));
+    const payBtn = (await screen.findByRole("button", {
+      name: "hosting.pay-hbd-oneclick"
+    })) as HTMLButtonElement;
+    await waitFor(() => expect(payBtn.disabled).toBe(false));
+
+    vi.useFakeTimers();
+    fireEvent.click(payBtn);
+    // Broadcast resolves, then pollActivation loops 15×3s and times out.
+    await vi.advanceTimersByTimeAsync(15 * 3000 + 200);
+    vi.useRealTimers();
+
+    expect(mutateAsync).toHaveBeenCalledTimes(1);
+    // paying stays true -> button remains disabled so the same transfer can't be sent again.
+    expect(payBtn.disabled).toBe(true);
   });
 
   it("falls back to manual (no one-click) for a redirecting login like HiveSigner", async () => {

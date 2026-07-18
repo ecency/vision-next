@@ -26,6 +26,7 @@
     "pay-hbd-oneclick": "Pay {{amount}} HBD with Hive",
     "pay-hbd-manual": "Or send manually from any wallet",
     "pay-hbd-sending": "Confirm the transfer in your wallet, then we'll activate your blog.",
+    "pay-hbd-pending-recheck": "Payment sent. If your blog isn't active in a moment, use \"I've sent the payment\" below to re-check. Don't send again.",
     "pay-failed": "The payment could not be completed. You can try again, or send it manually.",
     "not-yet-active": "Payment not detected yet. It can take a few seconds after confirmation.",
     "manage-add-domain": "Add a custom domain",

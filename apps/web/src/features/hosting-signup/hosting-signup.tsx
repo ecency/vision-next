@@ -42,6 +42,17 @@ type InstanceType = "blog" | "community";
 
 const TERMS = [1, 3, 6, 12];
 
+// sessionStorage key for a one-click HBD payment that was broadcast but not yet confirmed. Lets a
+// redirecting signer (or a page reload) resume polling for activation on return. Session-scoped so
+// it never lingers past the tab.
+const PENDING_HBD_KEY = "ecency:hosting:pending-hbd";
+
+function clearPendingHbd() {
+  try {
+    sessionStorage.removeItem(PENDING_HBD_KEY);
+  } catch {}
+}
+
 interface Instructions {
   to: string;
   amount: string;
@@ -287,6 +298,16 @@ export function HostingSignup() {
     setError("");
     setBusy(true);
     setPaying(true);
+    // Persist a resume marker BEFORE broadcasting. If the signer redirects the whole page (e.g. a
+    // Keychain user who cancels and picks HiveSigner in the active-authority upgrade dialog), the
+    // page reloads on return with component state reset — the mount effect below reads this and
+    // resumes polling instead of losing the pending payment or offering the button again.
+    try {
+      sessionStorage.setItem(
+        PENDING_HBD_KEY,
+        JSON.stringify({ tenant: tenantUsername, blogUrl, baseline: renewBaselineExpiryRef.current })
+      );
+    } catch {}
     try {
       await transfer.mutateAsync({
         to: instructions.to,
@@ -294,20 +315,79 @@ export function HostingSignup() {
         memo: instructions.memo
       });
       if (await pollActivation()) {
+        clearPendingHbd();
         setStep("success");
       } else {
-        // Broadcast landed but activation hasn't been observed yet; let them re-check manually.
-        setError(i18next.t("hosting.not-yet-active"));
-        setPaying(false);
+        // Broadcast landed but activation hasn't been observed yet. Keep `paying` true so the
+        // one-click button stays disabled — the transfer may already be on-chain and re-clicking
+        // would send a DUPLICATE with the same memo. Funnel to the manual re-check instead, and
+        // keep the marker so a reload/redirect-return also resumes.
+        setError(i18next.t("hosting.pay-hbd-pending-recheck"));
       }
     } catch (e) {
-      // Wallet prompt cancelled or broadcast failed — keep them on the step to retry / pay manually.
-      setError((e as Error)?.message || i18next.t("hosting.pay-failed"));
+      // Wallet prompt cancelled or broadcast failed — no payment was sent, so drop the marker and
+      // re-enable the button for a retry / manual payment.
+      clearPendingHbd();
       setPaying(false);
+      setError((e as Error)?.message || i18next.t("hosting.pay-failed"));
     } finally {
       setBusy(false);
     }
-  }, [instructions, transfer, pollActivation]);
+  }, [instructions, transfer, pollActivation, tenantUsername, blogUrl]);
+
+  // Resume a one-click HBD payment that a redirecting signer (or a page reload) left pending: poll
+  // the tenant and jump to success once it activates. Runs once on mount and is non-destructive to
+  // a fresh signup — it only advances to success when the pending tenant is genuinely active.
+  useEffect(() => {
+    let raw: string | null = null;
+    try {
+      raw = sessionStorage.getItem(PENDING_HBD_KEY);
+    } catch {}
+    if (!raw) return;
+    let pending: { tenant?: string; blogUrl?: string; baseline?: string | null };
+    try {
+      pending = JSON.parse(raw);
+    } catch {
+      clearPendingHbd();
+      return;
+    }
+    if (!pending?.tenant) {
+      clearPendingHbd();
+      return;
+    }
+    const tenant = pending.tenant;
+    const baseline = pending.baseline ?? null;
+    let cancelled = false;
+    (async () => {
+      for (let i = 0; i < 15 && !cancelled; i++) {
+        try {
+          const t = await hostingApi.tenant(tenant);
+          const advanced =
+            !baseline ||
+            (!!t.subscriptionExpiresAt &&
+              new Date(t.subscriptionExpiresAt).getTime() > new Date(baseline).getTime());
+          if (t.subscriptionStatus === "active" && advanced) {
+            if (!cancelled) {
+              setBlogUrl(pending.blogUrl || `https://${tenant}.${baseDomain}`);
+              clearPendingHbd();
+              setStep("success");
+            }
+            return;
+          }
+        } catch {
+          // transient read error — keep polling
+        }
+        await new Promise((r) => setTimeout(r, 3000));
+      }
+      // Not confirmed within the window: stop auto-resuming. If the payment landed, the tenant will
+      // still activate and the "Your hosted sites" panel on this page surfaces it.
+      if (!cancelled) clearPendingHbd();
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const usdPerBase = (methods?.card.monthlyUsdCents ?? 200) / 100;
   const hbdPerBase = parseFloat(methods?.hbd.monthly ?? "2");
@@ -557,7 +637,7 @@ export function HostingSignup() {
                 <>
                   <Button
                     onClick={payWithHive}
-                    disabled={busy || !instructions}
+                    disabled={busy || !instructions || paying}
                     isLoading={busy}
                     full={true}
                   >
@@ -565,9 +645,15 @@ export function HostingSignup() {
                       amount: (hbdPer * months).toFixed(3)
                     })}
                   </Button>
-                  {paying && <p className="opacity-75">{i18next.t("hosting.pay-hbd-sending")}</p>}
-                  {/* Fallback: another wallet, or paying from a different account (e.g. a gift). */}
-                  <details className="rounded-lg border border-[--border-color] p-3">
+                  {/* While sending, reassure; once a transfer is out but not yet confirmed, `paying`
+                      stays true (button disabled to prevent a duplicate send) and we funnel to the
+                      manual re-check via the auto-opened section below. */}
+                  {busy && paying && (
+                    <p className="opacity-75">{i18next.t("hosting.pay-hbd-sending")}</p>
+                  )}
+                  {/* Fallback: another wallet, paying from a different account (e.g. a gift), or the
+                      manual re-check after a broadcast that hasn't been confirmed yet (auto-opened). */}
+                  <details open={paying} className="rounded-lg border border-[--border-color] p-3">
                     <summary className="cursor-pointer select-none">
                       {i18next.t("hosting.pay-hbd-manual")}
                     </summary>
