@@ -147,6 +147,7 @@ export function CustomDomainManager({ username, tenant }: Props) {
       {verification && (
         <div className="flex flex-col gap-2 text-sm">
           <p>{i18next.t("custom-domain.cname-instructions")}</p>
+          <Alert appearance="primary">{i18next.t("custom-domain.proxy-note")}</Alert>
           <div className="flex flex-col gap-2">
             <label className="text-xs font-semibold opacity-75">
               {i18next.t("custom-domain.record-type")}: {verification.type}
