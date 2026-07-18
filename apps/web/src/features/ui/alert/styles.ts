@@ -9,6 +9,9 @@ export const ALERT_STYLES: Record<Appearance, string> = {
     "bg-green-040 border border-green-030 text-green dark:bg-opacity-[20%] dark:border-opacity-[20%]",
   warning:
     "bg-warning-040 border border-warning-030 text-orange dark:bg-opacity-[20%] dark:border-opacity-[20%] dark:text-warning-default",
+  // red-040 (#ec3323) is a vivid red used elsewhere as a solid badge with white text; pairing
+  // it as a background with the muted `text-red` gave low-contrast red-on-red (unreadable).
+  // Use a light red TINT background with dark-red text, matching the other alerts' pattern.
   danger:
-    "bg-red-040 border border-red-030 text-red dark:bg-opacity-[20%] dark:border-opacity-[20%]"
+    "bg-red-040/10 border border-red-030 text-red-030 dark:bg-red-040/20 dark:border-red-030 dark:text-red-light-020"
 };
