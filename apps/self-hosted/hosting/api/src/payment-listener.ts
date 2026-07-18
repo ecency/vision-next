@@ -273,27 +273,17 @@ class PaymentListener {
     let updatedTenant: any = null;
 
     try {
-      // Pre-transaction (no DB mutation): if the tenant doesn't exist yet, confirm the Hive
-      // account is real. accountExistsStrict THROWS on an RPC outage (transient -> retry the
-      // block) rather than reporting the account absent, so a real payment isn't stranded when
-      // a node is down. Kept out of the transaction so no RPC holds a DB tx open.
-      const preexisting = await TenantService.getByUsername(username);
-      if (!preexisting && !(await TenantService.accountExistsStrict(username))) {
-        throw Object.assign(new Error('Hive account not found'), { permanent: true });
-      }
-      // Default config for a possible create (pure for a blog tenant, no RPC).
-      const defaultConfig = await TenantService.buildConfig(username);
-
       // Everything that mutates state runs on the SAME transaction client so the payment
       // dedup row and the subscription extension commit or roll back together. This is what
       // makes a retry safe: a transient failure after activation rolls the extension back
       // WITH the dedup row, so reprocessing extends exactly once (no double-credit).
       updatedTenant = await db.transaction(async (client) => {
-        // 1. Lock the target tenant row FIRST (before claiming the payment). The abandoned
-        // sweep's DELETE must lock the same row, so it blocks here and then re-evaluates its
-        // 'inactive' predicate against the now-active row -> it skips the tenant instead of
-        // deleting one whose payment we're mid-recording. (The payment row is inserted with
-        // tenant_id NULL, so a guard keyed on tenant_id alone can't protect this window.)
+        // 1. Lock the target tenant row FIRST — before any other await — so the lock covers
+        // the WHOLE processing window that can overlap the abandoned sweep. The sweep's DELETE
+        // must lock the same row, so it blocks here and then re-evaluates its 'inactive'
+        // predicate against the now-active row -> it skips the tenant instead of deleting one
+        // whose payment we're mid-recording. (An existing tenant is the only sweep target; a
+        // payment row keyed on tenant_id NULL can't protect this window on its own.)
         let row = (
           await client.query(`SELECT * FROM tenants WHERE username = $1 FOR UPDATE`, [username])
         ).rows[0];
@@ -313,9 +303,18 @@ class PaymentListener {
         }
         const paymentId = insertResult.rows[0].id;
 
-        // 3. Create the tenant if it didn't exist. ON CONFLICT + re-select handles a concurrent
-        // create (e.g. the web signup racing us) without failing.
+        // 3. Create the tenant if it didn't exist. The account check + config build happen
+        // HERE, inside the transaction, but only for a brand-new tenant — which is never a
+        // sweep target (the sweep only deletes existing 'inactive' rows), so no lock is held
+        // across the RPC for a tenant that could be swept. accountExistsStrict THROWS on an
+        // RPC outage (transient -> retry) rather than reporting the account absent, so a real
+        // payment isn't stranded when a node is down. ON CONFLICT + re-select handles a
+        // concurrent create (e.g. the web signup racing us) without failing.
         if (!row) {
+          if (!(await TenantService.accountExistsStrict(username))) {
+            throw Object.assign(new Error('Hive account not found'), { permanent: true });
+          }
+          const defaultConfig = await TenantService.buildConfig(username);
           const inserted = await client.query(
             `INSERT INTO tenants (username, owner, config, subscription_status, subscription_plan)
              VALUES ($1, $1, $2, 'inactive', 'standard')
@@ -493,22 +492,11 @@ class PaymentListener {
       if (await this.isCaughtUp()) {
         const deleted = await TenantService.deleteAbandonedTenants(CONFIG.ABANDONED_GRACE_DAYS);
         if (deleted.length > 0) {
+          // No served-file cleanup here: an abandoned tenant is 'inactive' with no payments,
+          // i.e. NEVER activated, and config files are only written on activation — so it has
+          // none. Deleting files by the (now reusable) username would only risk removing a
+          // freshly-recreated tenant's config.
           console.log('[PaymentListener] Deleted', deleted.length, 'abandoned inactive tenants');
-          for (const username of deleted) {
-            try {
-              // Re-check: if the name was claimed again between the DELETE and now (a paid
-              // /subscribe or HBD activation racing this sweep), leave the new tenant's freshly
-              // generated files alone. A never-activated tenant has no files anyway.
-              const current = await TenantService.getByUsername(username);
-              if (current) continue;
-              await ConfigService.deleteConfigFile(username);
-            } catch (err) {
-              console.error(
-                `[PaymentListener] Failed to remove files for abandoned tenant ${username}:`,
-                (err as Error).message
-              );
-            }
-          }
         }
       }
     } catch (error) {
