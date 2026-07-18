@@ -272,19 +272,10 @@ class PaymentListener {
       const months = monthsFromAmount;
       await this.processSubscription(transfer, parsed.username, months, amount, parsed.customDomain);
     } else if (parsed.action === 'upgrade') {
-      // For upgrades: validate against pro upgrade price, not monthly price
-      if (amount < CONFIG.PRO_UPGRADE_PRICE_HBD) {
-        console.log('[PaymentListener] Insufficient amount for upgrade:', amount, 'HBD');
-        await this.logPayment(
-          transfer,
-          amount,
-          'failed',
-          0,
-          null,
-          `Insufficient amount for Pro upgrade (need ${CONFIG.PRO_UPGRADE_PRICE_HBD} HBD)`
-        );
-        return;
-      }
+      // The amount is validated inside processUpgrade against the PRORATED custom-domain cost
+      // (which depends on the tenant's remaining term). No flat pre-gate here: a flat
+      // PRO_UPGRADE_PRICE_HBD floor could reject a correctly-quoted prorated transfer whenever the
+      // per-month premium is below that floor.
       await this.processUpgrade(transfer, parsed.username, amount);
     }
   }
@@ -467,6 +458,16 @@ class PaymentListener {
           tenant.subscriptionStatus
         );
         await this.logPayment(transfer, amount, 'failed', 0, null, 'Tenant not active for upgrade');
+        return;
+      }
+
+      // Already on the custom-domain (Pro) tier: a repeated or manually-sent upgrade memo would
+      // otherwise be recorded as processed for a no-op upgradeToPro, consuming the payment for no
+      // benefit (no term extension, already Pro). Reject it instead. The quote route likewise
+      // reports already-Pro tenants as ineligible, so the UI never offers this.
+      if (tenant.subscriptionPlan === 'pro') {
+        console.log('[PaymentListener] Tenant already on Pro plan, skipping upgrade:', username);
+        await this.logPayment(transfer, amount, 'failed', 0, null, 'Tenant already on Pro plan');
         return;
       }
 
