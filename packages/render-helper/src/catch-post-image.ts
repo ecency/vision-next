@@ -26,10 +26,18 @@ const INLINE_CODE_RE = /`[^`\n]*`/g
 const INDENTED_CODE_RE = /^(?: {4}|\t).+$/gm
 // Requires a closing `)` so broken syntax like `![](url` (no close) doesn't
 // match. Also tolerates the optional title form `![](url "title")`. The alt-text
-// and href classes exclude `[` (as well as `]`/`)`) so a `![a](` repetition can't
-// be re-scanned to end at every position — keeping the match linear on untrusted
-// input (see MD_LINK_RE below).
-const MD_IMAGE_RE = /!\[[^[\]]*\]\(\s*([^)\s[]+)(?:\s+["'][^"']*["'])?\s*\)/
+// class excludes `[` (so a `![a](`/`![[[…` run can't be re-scanned at every start),
+// while the href quantifier is LENGTH-BOUNDED rather than `[`-excluding so it still
+// matches image URLs that legitimately contain a literal `[` (e.g. array query params
+// like `?w[]=600`) — the per-position scan stays capped, so it's sub-quadratic on
+// untrusted input.
+const MD_IMAGE_RE = /!\[[^[\]]*\]\(\s*([^)\s]{1,2048})(?:\s+["'][^"']*["'])?\s*\)/
+// A markdown image whose URL exceeds MD_IMAGE_RE's length bound (or whose syntax is broken)
+// isn't captured by it — leaving `mdMatch` null, or (MD_IMAGE_RE is unanchored) matching a
+// *later* image instead. This linear detector (label excludes `[`; no closing `)` required)
+// still spots the uncaptured image so findFirstImageUrl can bail to the full parser rather
+// than promoting a later HTML/bare/markdown candidate over it.
+const MD_IMAGE_PRESENT_RE = /!\[[^[\]]*\]\(\s*[^\s)]/
 const HTML_IMAGE_RE = /<img\b[^>]*?\bsrc\s*=\s*["']([^"']+)["']/i
 // A standalone (auto-linkified) image URL the renderer turns into an <img> via
 // text.method / linkify (IMG_REGEX). Required to sit at a line start or after
@@ -43,12 +51,11 @@ const BARE_IMAGE_RE = /(^|\s)(https?:\/\/[^\s<>"'()[\]]+\.(?:tiff?|jpe?g|gif|png
 // caller). The renderer (a.method) promotes such a link to an image only when
 // the href is an image URL AND the label text equals the href. Used to find the
 // `[url](url)` image-link cover form. Global, capture label + href.
-// Both the label and href classes exclude `[` (as well as `]`/`)` respectively) so a run of
-// `[`, `[a](`, or `![a](` can never be spanned — a failed match then bails in O(1) per start
-// position instead of re-scanning to the end of the body. Otherwise this is quadratic on
-// untrusted post content: regexp/no-super-linear-move caught only the label, but the
-// unbounded href stayed O(n^2). Behavior is unchanged for real markdown — link/image labels
-// and image URLs never contain a literal `[`.
+// Both the label and href classes exclude `[` so a run of `[`, `[a](`, or `![a](` can't be
+// re-scanned to the end of the body at every start position — linear on untrusted content.
+// Unlike the image href above, a `[`-containing URL is irrelevant here: this cover form
+// requires the label to equal the href, and an unescaped `[`/`]` in a URL breaks the label
+// match regardless — so excluding `[` loses nothing and keeps this O(1) per failed start.
 const MD_LINK_RE = /\[([^[\]]*)\]\(\s*([^)\s[]+)(?:\s+["'][^"']*["'])?\s*\)/g
 // Mirrors a.method's `href.match(IMG_REGEX)` — an image URL by extension
 // (anywhere after the dot, matching the renderer). Eligibility for an avif
@@ -95,6 +102,15 @@ function findFirstImageUrl(body: string, includeBareUrls = false): string | null
     if (!url || !SAFE_URL_RE.test(url) || url.includes('(')) {
       return null
     }
+  }
+  // MD_IMAGE_RE is unanchored, so a markdown image can go uncaptured (URL over the length
+  // bound, or broken syntax) while `mdMatch` is null OR is a *later* image. If any such
+  // uncaptured image sits before what we captured (or nothing was captured), bail to the full
+  // parser so it resolves the true first image rather than promoting a later HTML/bare/markdown
+  // candidate.
+  const priorRegion = mdMatch ? cleaned.slice(0, mdMatch.index ?? 0) : cleaned
+  if (MD_IMAGE_PRESENT_RE.test(priorRegion)) {
+    return null
   }
 
   // Collect valid candidates with their source position; the rendered document

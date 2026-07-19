@@ -423,26 +423,52 @@ describe('catchPostImage', () => {
 })
 
 describe('markdown image/link scan is linear (ReDoS regression)', () => {
-  // `X.repeat(n)` with no closing `)` is the attack: unless both the label and href classes
-  // exclude `[`, matchAll/match re-scan to the end of the body at every `[`, making these
-  // O(n^2) on untrusted post content. getEntryImageRawUrl runs MD_IMAGE_RE + MD_LINK_RE and
-  // never falls back to the full parser, so it isolates the regex cost. (Pre-fix these ran
-  // in seconds; post-fix they are sub-millisecond.)
-  const N = 50_000
+  // `X.repeat(n)` with no closing `)` is the attack: with unbounded label/href quantifiers,
+  // matchAll/match re-scan to the end of the body at every `[`, making these O(n^2) on
+  // untrusted post content (seconds at this size). The length-bounded quantifiers cap the
+  // per-position scan, so it stays sub-quadratic. getEntryImageRawUrl runs MD_IMAGE_RE +
+  // MD_LINK_RE and never falls back to the full parser, so it isolates the regex cost.
+  const N = 16_000
   it.each([
     ['unclosed [ run', '['.repeat(N) + 'x'],
     ['[a]( repetition (MD_LINK href)', '[a]('.repeat(N)],
     ['![a]( repetition (MD_IMAGE href)', '![a]('.repeat(N)]
-  ])('handles pathological %s in linear time', (_label, body) => {
+  ])('handles pathological %s without quadratic blowup', (_label, body) => {
     const start = Date.now()
     const result = getEntryImageRawUrl(body)
     const elapsed = Date.now() - start
     expect(result).toBeNull()
-    expect(elapsed).toBeLessThan(2000)
+    // N-scaled cap so the linearity claim stays falsifiable as N changes (the enforcing
+    // guard is the regexp/no-super-linear-move eslint rule); quadratic here is ~7s at 16k.
+    expect(elapsed).toBeLessThan(N * 0.15)
   })
 
   it('still detects a real [url](url) cover after unclosed-bracket noise', () => {
     const u = 'https://files.peakd.com/x/cover.png'
     expect(getEntryImageRawUrl(`[[[ noise\n\n[${u}](${u})`)).toBe(u)
+  })
+
+  it('keeps the first image whose URL contains a bracketed query param', () => {
+    // A literal `[` in the URL (e.g. an array-style query) must not skip the first image in
+    // favour of a later one — the earlier bracket-excluding fix regressed exactly this.
+    const first = 'https://files.peakd.com/x/a.png?w[]=600'
+    const body = `![first](${first})\n\n![second](https://files.peakd.com/x/b.png)`
+    expect(getEntryImageRawUrl(body)).toBe(first)
+  })
+
+  it('bails (not a later image) when the first markdown image URL exceeds the length bound', () => {
+    // A > 2048-char first image URL leaves it uncaptured by MD_IMAGE_RE; because that regex is
+    // unanchored it may instead capture a later markdown image, so verify neither a later <img>
+    // NOR a later markdown image wins. getEntryImageRawUrl (no fallback) returns null so the
+    // caller falls back; catchPostImage falls back and resolves the real first image.
+    const longUrl = 'https://files.peakd.com/x/' + 'a'.repeat(2100) + '.png'
+    const body =
+      `![first](${longUrl})\n\n` +
+      `<img src="https://files.peakd.com/x/later-html.png">\n\n` +
+      `![later-md](https://files.peakd.com/x/later-md.png)`
+    expect(getEntryImageRawUrl(body)).toBeNull()
+    const cp = catchPostImage(body) ?? ''
+    expect(cp).not.toContain('later-html.png')
+    expect(cp).not.toContain('later-md.png')
   })
 })
