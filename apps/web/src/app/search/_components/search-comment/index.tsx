@@ -125,7 +125,7 @@ export function SearchComment({ disableResults }: Props) {
           if (results.length > 0 && !disableResults) {
             return (
               <div className="search-list">
-                {results.map((res) => (
+                {results.map((res: SearchResult) => (
                   <Fragment key={`${res.author}-${res.permlink}`}>
                     <SearchListItem res={res} />
                   </Fragment>

@@ -35,7 +35,7 @@ export function ProfileEntriesInfiniteList({
     const relevantPages = dropFirstPage ? pages.slice(1) : pages;
     return (
       relevantPages
-        ?.reduce<Entry[]>((acc, page) => [...acc, ...(page as Entry[])], [])
+        ?.reduce<Entry[]>((acc: Entry[], page: Entry[]) => [...acc, ...page], [])
         ?.filter((item: Entry) => item.permlink !== account.profile?.pinned) ?? []
     );
   }, [account.profile?.pinned, data?.pages, dropFirstPage]);

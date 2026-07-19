@@ -3,7 +3,7 @@ import i18next from "i18next";
 import "./_index.scss";
 import { LoginRequired } from "@/features/shared";
 import { useProposalVoteMutation } from "@/api/sdk-mutations";
-import { getProposalVotesInfiniteQueryOptions } from "@ecency/sdk";
+import { getProposalVotesInfiniteQueryOptions, ProposalVoteRow } from "@ecency/sdk";
 import { UilArrowUp } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
@@ -20,7 +20,11 @@ export function ProposalVoteBtn({ proposal }: Props) {
     getProposalVotesInfiniteQueryOptions(proposal, activeUser?.username ?? "", 1)
   );
   const votes = useMemo(
-    () => data?.pages?.reduce((acc, page) => [...acc, ...page], []),
+    () =>
+      data?.pages?.reduce(
+        (acc: ProposalVoteRow[], page: ProposalVoteRow[]) => [...acc, ...page],
+        []
+      ),
     [data?.pages]
   );
   const voted = useMemo(

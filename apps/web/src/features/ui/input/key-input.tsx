@@ -36,7 +36,7 @@ export interface KeyInputImperativeHandle {
   } | null>;
 }
 
-function capitalizeFirstLetter(str) {
+function capitalizeFirstLetter(str: string | undefined) {
     if (typeof str !== 'string' || str.length === 0) return '';
     return str[0].toUpperCase() + str.slice(1);
 }

@@ -1,7 +1,11 @@
 import { useMemo, useState } from "react";
 import clsx from "clsx";
 import "./_index.scss";
-import { getFriendsInfiniteQueryOptions, getSearchFriendsQueryOptions } from "@ecency/sdk";
+import {
+  FriendsRow,
+  getFriendsInfiniteQueryOptions,
+  getSearchFriendsQueryOptions
+} from "@ecency/sdk";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { Account } from "@/entities";
 import { Button } from "@ui/button";
@@ -61,7 +65,7 @@ export const FriendsList = ({ account, mode, variant = "modal" }: Props) => {
       ? searchData ?? []
       : data?.pages?.flat() ?? [];
 
-    const filtered = rawItems.filter((item) => {
+    const filtered = rawItems.filter((item: FriendsRow) => {
       if (!type) return true;
 
       const lastSeenTime = dayjs(item.active).toDate();
@@ -83,7 +87,7 @@ export const FriendsList = ({ account, mode, variant = "modal" }: Props) => {
       );
     });
 
-    return filtered.map((item) => ({
+    return filtered.map((item: FriendsRow) => ({
       name: item.name,
       reputation: item.reputation,
       lastSeen: dayjs(item.active).fromNow()
