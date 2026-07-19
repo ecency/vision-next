@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.5.19
+
+### Patch Changes
+
+- fix(render-helper): preserve first-image URLs containing a literal [ (#1178)
+
 ## 2.5.18
 
 ### Patch Changes

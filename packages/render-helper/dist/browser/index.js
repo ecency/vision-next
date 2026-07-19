@@ -2088,7 +2088,8 @@ var BACKTICK_FENCE_RE = /```[\s\S]*?```/g;
 var TILDE_FENCE_RE = /~~~[\s\S]*?~~~/g;
 var INLINE_CODE_RE = /`[^`\n]*`/g;
 var INDENTED_CODE_RE = /^(?: {4}|\t).+$/gm;
-var MD_IMAGE_RE = /!\[[^[\]]*\]\(\s*([^)\s[]+)(?:\s+["'][^"']*["'])?\s*\)/;
+var MD_IMAGE_RE = /!\[[^[\]]*\]\(\s*([^)\s]{1,2048})(?:\s+["'][^"']*["'])?\s*\)/;
+var MD_IMAGE_PRESENT_RE = /!\[[^[\]]*\]\(\s*[^\s)]/;
 var HTML_IMAGE_RE = /<img\b[^>]*?\bsrc\s*=\s*["']([^"']+)["']/i;
 var BARE_IMAGE_RE = /(^|\s)(https?:\/\/[^\s<>"'()[\]]+\.(?:tiff?|jpe?g|gif|png|svg|ico|heic|webp|arw)(?:[?#][^\s<>"'()[\]]*)?)/im;
 var MD_LINK_RE = /\[([^[\]]*)\]\(\s*([^)\s[]+)(?:\s+["'][^"']*["'])?\s*\)/g;
@@ -2104,6 +2105,10 @@ function findFirstImageUrl(body, includeBareUrls = false) {
     if (!url || !SAFE_URL_RE.test(url) || url.includes("(")) {
       return null;
     }
+  }
+  const priorRegion = mdMatch ? cleaned.slice(0, mdMatch.index ?? 0) : cleaned;
+  if (MD_IMAGE_PRESENT_RE.test(priorRegion)) {
+    return null;
   }
   const candidates = [];
   if (mdMatch) candidates.push({ url: mdMatch[1], pos: mdMatch.index ?? 0 });
