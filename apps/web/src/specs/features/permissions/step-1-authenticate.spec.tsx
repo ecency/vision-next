@@ -11,11 +11,13 @@ const h = vi.hoisted(() => ({
 // to, and Button so the "Next" click is a real DOM button.
 vi.mock("@/features/ui", async () => {
   const React = await import("react");
+  const KeyInput = React.forwardRef((_props: any, ref: any) => {
+    React.useImperativeHandle(ref, () => ({ handleSign: () => h.handleSign() }));
+    return null;
+  });
+  KeyInput.displayName = "KeyInput";
   return {
-    KeyInput: React.forwardRef((_props: any, ref: any) => {
-      React.useImperativeHandle(ref, () => ({ handleSign: () => h.handleSign() }));
-      return null;
-    }),
+    KeyInput,
     Button: ({ children, onClick, disabled }: any) =>
       React.createElement("button", { onClick, disabled }, children)
   };

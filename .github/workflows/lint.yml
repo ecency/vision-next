@@ -1,0 +1,31 @@
+name: Lint
+# pull_request (not a branch-filtered push) so a required check still reports on PRs whose
+# head branch doesn't match a naming convention — Dependabot/Renovate/hotfix/bot branches —
+# which would otherwise be permanently blocked once this is a required status check.
+on:
+  pull_request:
+# Lint only — no writes back to GitHub.
+permissions:
+  contents: read
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [24.x]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 11.5.0
+          run_install: false
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Lint
+        run: pnpm -r lint

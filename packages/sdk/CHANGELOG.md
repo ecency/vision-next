@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.54
+
+### Patch Changes
+
+- ci: add workspace lint gate (pnpm -r lint) + clear last lint errors (#1177)
+
 ## 2.3.53
 
 ### Patch Changes
