@@ -17,6 +17,9 @@ export interface AiGenerationRequest {
   prompt: string;
   aspect_ratio?: string;
   power?: number;
+  // Reused across retries so the backend recovers a paid-but-undelivered generation
+  // instead of creating (and billing) a second prediction.
+  idempotency_key?: string;
 }
 
 export interface AiGenerationResponse {
@@ -26,6 +29,9 @@ export interface AiGenerationResponse {
   power: number;
   cost: number;
   generation_id: string;
+  // True when the backend replayed a previously-generated image for this idempotency_key
+  // (no new charge, no new vendor call).
+  idempotent_replay?: boolean;
 }
 
 export interface AiAssistPrice {

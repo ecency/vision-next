@@ -19,6 +19,7 @@ interface AiGenerationRequest {
     prompt: string;
     aspect_ratio?: string;
     power?: number;
+    idempotency_key?: string;
 }
 interface AiGenerationResponse {
     url: string;
@@ -27,6 +28,7 @@ interface AiGenerationResponse {
     power: number;
     cost: number;
     generation_id: string;
+    idempotent_replay?: boolean;
 }
 interface AiAssistPrice {
     action: string;
@@ -65,6 +67,7 @@ interface GenerateImageParams {
     prompt: string;
     aspect_ratio?: string;
     power?: number;
+    idempotency_key?: string;
 }
 declare function useGenerateImage(username: string | undefined, accessToken: string | undefined): _tanstack_react_query.UseMutationResult<AiGenerationResponse, Error, GenerateImageParams, unknown>;
 

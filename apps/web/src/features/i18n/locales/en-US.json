@@ -3948,7 +3948,9 @@
     "save-to-gallery-success": "Image saved to your gallery!",
     "save-to-gallery-error": "Failed to save image to gallery. Please try again.",
     "use-suggestion": "Use: {{suggestion}}",
-    "select-power": "Quality boost"
+    "select-power": "Quality boost",
+    "finishing": "Your image is generated and finishing upload. Tap below to fetch it — you won't be charged again.",
+    "finishing-retry": "Fetch image"
   },
   "ai-assist": {
     "title": "AI Writing Assistant",

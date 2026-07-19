@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.52
+
+### Patch Changes
+
+- feat(ai-image): recover delivery-pending generations via reused idempotency key (#1173)
+
 ## 2.3.51
 
 ### Patch Changes

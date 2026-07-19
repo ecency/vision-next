@@ -17,7 +17,7 @@ import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
 import i18next from "i18next";
 import Image from "next/image";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 interface Props {
   onInsert?: (url: string) => void;
@@ -41,6 +41,15 @@ const POWER_LABELS: Record<number, string> = {
   4: "4x",
   6: "6x",
 };
+
+// A key matching the backend validator [A-Za-z0-9_-]{8,64}. Reused across retries of the
+// same attempt so a delivery-pending image is recovered instead of re-generated (re-billed).
+function makeIdempotencyKey(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `k${Date.now().toString(36)}${Math.random().toString(36).slice(2, 12)}`;
+}
 
 export function AiImageGenerator({ onInsert, showInsertAction = true, suggestedPrompt }: Props) {
   const { activeUser } = useActiveAccount();
@@ -73,6 +82,14 @@ export function AiImageGenerator({ onInsert, showInsertAction = true, suggestedP
   const [selectedRatio, setSelectedRatio] = useState<string | null>(null);
   const [selectedPower, setSelectedPower] = useState<AiImagePowerTier | null>(null);
   const [generatedUrl, setGeneratedUrl] = useState<string | null>(null);
+  // Set when the backend returns 202: the image is paid for and finishing upload; the next
+  // Generate click retries with the same key to fetch it (no new charge).
+  const [deliveryPending, setDeliveryPending] = useState(false);
+
+  // Idempotency key for the current attempt. Kept stable across a delivery-pending retry so
+  // the backend recovers the paid generation; reset whenever the inputs change (below) so a
+  // genuinely new request gets a fresh key.
+  const idempotencyKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (prices && prices.length > 0 && !selectedRatio) {
@@ -86,6 +103,12 @@ export function AiImageGenerator({ onInsert, showInsertAction = true, suggestedP
       setSelectedPower(powerTiers[0]);
     }
   }, [powerTiers, selectedPower]);
+
+  // Changing any request input starts a fresh attempt: drop the reused key + pending state.
+  useEffect(() => {
+    idempotencyKeyRef.current = null;
+    setDeliveryPending(false);
+  }, [prompt, selectedRatio, selectedPower]);
 
   const charsRemaining = 1000 - prompt.length;
 
@@ -106,7 +129,12 @@ export function AiImageGenerator({ onInsert, showInsertAction = true, suggestedP
   }, [activeUserPoints, cost]);
 
   const canGenerate =
-    prompt.trim().length > 0 && selectedRatio && !isInsufficientBalance && !isGenerating;
+    prompt.trim().length > 0 &&
+    selectedRatio &&
+    // A delivery-pending retry replays the already-paid generation (same idempotency key),
+    // so it must not be blocked by the balance gate even if the last points were just spent.
+    (deliveryPending || !isInsufficientBalance) &&
+    !isGenerating;
 
   const handleGenerate = useCallback(async () => {
     if (!selectedRatio || !prompt.trim()) return;
@@ -118,12 +146,21 @@ export function AiImageGenerator({ onInsert, showInsertAction = true, suggestedP
         return;
       }
 
+      // Reuse the key across a delivery-pending retry so the backend recovers the paid
+      // generation; otherwise this is a fresh attempt and gets a fresh key.
+      if (!idempotencyKeyRef.current) {
+        idempotencyKeyRef.current = makeIdempotencyKey();
+      }
+
       const result = await generateImage({
         prompt: prompt.trim(),
         aspect_ratio: selectedRatio,
         power: selectedPower?.power ?? 1,
+        idempotency_key: idempotencyKeyRef.current,
       });
 
+      setDeliveryPending(false);
+      idempotencyKeyRef.current = null;
       setGeneratedUrl(result.url);
       success(i18next.t("ai-image-generator.success"));
 
@@ -132,6 +169,16 @@ export function AiImageGenerator({ onInsert, showInsertAction = true, suggestedP
     } catch (err: any) {
       const status = err?.status;
       const data = err?.data;
+
+      if (status === 202) {
+        // Image is paid for and finishing upload — keep the key so the next click fetches it.
+        setDeliveryPending(true);
+        return;
+      }
+
+      // Any hard failure ends this attempt: drop the key so a retry is a fresh request.
+      idempotencyKeyRef.current = null;
+      setDeliveryPending(false);
 
       if (status === 402) {
         error(
@@ -148,7 +195,7 @@ export function AiImageGenerator({ onInsert, showInsertAction = true, suggestedP
         error(i18next.t("ai-image-generator.error-generic"));
       }
     }
-  }, [selectedRatio, selectedPower, prompt, username, generateImage, cost]);
+  }, [selectedRatio, selectedPower, prompt, username, generateImage, addToGallery, cost]);
 
   const handleGenerateAgain = useCallback(() => {
     setGeneratedUrl(null);
@@ -291,7 +338,7 @@ export function AiImageGenerator({ onInsert, showInsertAction = true, suggestedP
         </div>
       )}
 
-      {isInsufficientBalance && (
+      {isInsufficientBalance && !deliveryPending && (
         <div className="flex items-center flex-wrap gap-3">
           <small className="text-red block">
             {i18next.t("market.more-than-balance")}
@@ -303,6 +350,12 @@ export function AiImageGenerator({ onInsert, showInsertAction = true, suggestedP
         </div>
       )}
 
+      {deliveryPending && !isGenerating && (
+        <div className="text-sm rounded-lg border border-blue-dark-sky/30 bg-blue-dark-sky/5 text-blue-dark-sky px-3 py-2">
+          {i18next.t("ai-image-generator.finishing")}
+        </div>
+      )}
+
       <div className="flex justify-end">
         <Button
           disabled={!canGenerate}
@@ -311,7 +364,9 @@ export function AiImageGenerator({ onInsert, showInsertAction = true, suggestedP
         >
           {isGenerating
             ? i18next.t("ai-image-generator.generating")
-            : i18next.t("ai-image-generator.generate-button")}
+            : deliveryPending
+              ? i18next.t("ai-image-generator.finishing-retry")
+              : i18next.t("ai-image-generator.generate-button")}
         </Button>
       </div>
     </div>
