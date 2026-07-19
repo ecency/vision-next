@@ -2,7 +2,9 @@ import tseslint from "typescript-eslint";
 
 export default tseslint.config(
   {
-    ignores: ["dist", "node_modules", "tsup.config.ts"],
+    // `scripts` holds CommonJS build/validation scripts (.cjs) that legitimately use
+    // require(); linting them with the TS recommended rules is a false positive.
+    ignores: ["dist", "node_modules", "tsup.config.ts", "scripts"],
   },
   ...tseslint.configs.recommended,
   {
