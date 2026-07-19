@@ -28,7 +28,8 @@ export function useScheduleApi() {
     isReblogToCommunity,
     poll,
     postLinks,
-    location
+    location,
+    aiTools
   } = usePublishState();
 
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
@@ -111,6 +112,7 @@ export function useScheduleApi() {
         .withPoll(poll)
         .withPostLinks(postLinks)
         .withLocation(location)
+        .withAiTools(aiTools)
         .withSelectedThumbnail(selectedThumbnail);
       const jsonMeta = jsonMetaBuilder.build();
       let options: CommentOptions | null = makeCommentOptions(

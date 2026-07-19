@@ -166,8 +166,9 @@ export class EntryMetadataBuilder {
     });
   }
 
-  // Optional AI-usage disclosure (PeakD-compatible `ai_tools`). Only writes truthy flags,
-  // and omits the object entirely when nothing was disclosed, so a normal post is untouched.
+  // Optional AI-usage disclosure (`ai_tools`, interoperable with other Hive frontends). Only
+  // writes truthy flags, and omits the object entirely when nothing was disclosed, so a
+  // normal post is untouched.
   public withAiTools(aiTools?: AiToolsMeta): this {
     if (!aiTools) {
       return this;

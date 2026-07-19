@@ -6,7 +6,7 @@ import i18next from "i18next";
 import React from "react";
 
 interface Props {
-  /** The post's `json_metadata.ai_tools` (PeakD-compatible AI-usage disclosure). */
+  /** The post's `json_metadata.ai_tools` (interoperable AI-usage disclosure). */
   aiTools: AiToolsMeta | null | undefined;
   /** Rendered icon size in px (square). Defaults to 14. */
   size?: number;
@@ -15,7 +15,7 @@ interface Props {
 
 /**
  * Small robot badge shown next to content whose author disclosed AI usage via the
- * PeakD-compatible `ai_tools` json_metadata. The tooltip lists what was disclosed.
+ * interoperable `ai_tools` json_metadata. The tooltip lists what was disclosed.
  * Renders nothing when no AI usage is disclosed.
  */
 export function AiUsageBadge({ aiTools, size = 14, className }: Props) {

@@ -12,9 +12,9 @@ interface Props {
   setShow: (show: boolean) => void;
 }
 
-// Optional, author-controlled AI-usage disclosure. Writes PeakD's `ai_tools` json_metadata
-// so the disclosure shows consistently across Hive frontends. Ecency pre-checks these when
-// its own AI tools are used, but the author can toggle them freely here before publishing.
+// Optional, author-controlled AI-usage disclosure. Writes the `ai_tools` json_metadata used
+// by other Hive frontends so the disclosure shows consistently across them. Ecency pre-checks
+// these when its own AI tools are used, but the author can toggle them freely before publishing.
 export function PublishAiToolsDialog({ show, setShow }: Props) {
   const { aiTools, setAiTools } = usePublishState();
 

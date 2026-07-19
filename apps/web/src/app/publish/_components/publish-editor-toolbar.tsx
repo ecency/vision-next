@@ -768,12 +768,11 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
             setShow={setShowAiAssist}
             initialText={editor?.getText()?.trim() || ""}
             onApply={(output, action) => {
-              // AI writing assistance touched the post text -> pre-mark the disclosure
-              // (editable in the AI usage dialog). Tag suggestions don't alter content.
-              if (action !== "suggest_tags") {
-                publishState.setAiTools((prev) => ({ ...prev, writing_edit: true }));
-              }
               if (action === "improve" || action === "check_grammar" || action === "summarize") {
+                // Only body-editing actions set writing_edit. Title generation and tag
+                // suggestions aren't grammar/formatting edits, so they leave it unset
+                // (still editable in the AI usage dialog).
+                publishState.setAiTools((prev) => ({ ...prev, writing_edit: true }));
                 const sanitized = simpleMarkdownToHTML(output);
                 const doc = parseAllExtensionsToDoc(sanitized);
                 editor?.commands.setContent(doc);
