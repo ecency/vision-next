@@ -43,6 +43,7 @@ export default function PublishPage() {
     setEntryImages,
     setPoll,
     setDecentMemes,
+    setAiTools,
     clearAll
   } = usePublishState();
 
@@ -63,6 +64,7 @@ export default function PublishPage() {
       setEntryImages(draft.meta?.image ?? []);
       setPoll(normalizePollSnapshot(draft.meta?.poll));
       setDecentMemes(draft.meta?.decentMemes ?? []);
+      setAiTools(draft.meta?.ai_tools ?? {});
     },
     () => setStep("no-draft")
   );

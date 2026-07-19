@@ -21,6 +21,7 @@ export * from "./image-upload-button";
 export * from "./list-style-toggle";
 export * from "./detect-bottom";
 export * from "./ecency-source-badge";
+export * from "./ai-usage-badge";
 export * from "./search-list-item";
 export * from "./formatted-currency";
 export * from "./entry-list-loading-item";

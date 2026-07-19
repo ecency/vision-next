@@ -2,6 +2,7 @@ import "./_index.scss";
 import { accountReputation, parseDate } from "@/utils";
 import { Entry } from "@/entities";
 import {
+  AiUsageBadge,
   BookmarkBtn,
   EcencySourceBadge,
   EntryMenu,
@@ -54,6 +55,10 @@ export const EntryInfo = ({ entry }: Props) => {
           <EcencySourceBadge
             app={entry.json_metadata?.app}
             className="inline-block align-text-bottom ml-1.5"
+          />
+          <AiUsageBadge
+            aiTools={entry.json_metadata?.ai_tools}
+            className="align-text-bottom ml-1.5"
           />
         </div>
       </div>

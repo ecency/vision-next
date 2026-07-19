@@ -1,3 +1,5 @@
+import { AiToolsMeta } from "./operations/metadata";
+
 export interface EntryBeneficiaryRoute {
   account: string;
   weight: number;
@@ -27,6 +29,7 @@ export interface JsonMetadata {
   image?: string[];
   pinned_reply?: string; // author/permlink
   location?: { coordinates: { lat: number; lng: number }; address?: string };
+  ai_tools?: AiToolsMeta;
 }
 
 export interface JsonPollMetadata {

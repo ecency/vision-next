@@ -38,7 +38,8 @@ export function useSaveDraftApi(draftId?: string) {
     poll,
     postLinks,
     location,
-    decentMemes
+    decentMemes,
+    aiTools
   } = usePublishState();
 
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
@@ -66,6 +67,7 @@ export function useSaveDraftApi(draftId?: string) {
         .withSummary(metaDescription! || postBodySummary(content!, SUBMIT_DESCRIPTION_MAX_LENGTH))
         .withPostLinks(postLinks)
         .withLocation(location)
+        .withAiTools(aiTools)
         .withSelectedThumbnail(selectedThumbnail);
 
       const meta = metaBuilder.build();

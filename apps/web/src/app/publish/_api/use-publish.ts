@@ -48,7 +48,8 @@ export function usePublishApi() {
     poll,
     postLinks,
     location,
-    decentMemes
+    decentMemes,
+    aiTools
   } = usePublishState();
 
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
@@ -149,6 +150,7 @@ export function usePublishApi() {
             ? { templateIds: memeAttribution.templateIds, frontend: DECENTMEMES_FRONTEND }
             : undefined
         )
+        .withAiTools(aiTools)
         .build();
 
       let finalBeneficiaries = enforceThreeSpeakBeneficiary(beneficiaries, cleanBody);
