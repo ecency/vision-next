@@ -39,6 +39,11 @@ export function useEditFragment(
           },
         }
       );
+      // Raw fetch resolves on 4xx/5xx, so a JSON error response would otherwise run
+      // onSuccess and overwrite the cached fragment with bogus data. Throw instead.
+      if (!response.ok) {
+        throw new Error(`[SDK][Posts] Failed to update fragment: ${response.status}`);
+      }
       return response.json() as Promise<Fragment>;
     },
     onSuccess(response, variables) {

@@ -1,5 +1,14 @@
 # @ecency/wallets
 
+## 5.0.52
+
+### Patch Changes
+
+- fix: address code-review findings (security, correctness, deps) (#1175)
+
+- Updated dependencies []:
+  - @ecency/sdk@2.3.53
+
 ## 5.0.51
 
 ### Patch Changes

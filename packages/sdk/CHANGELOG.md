@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.53
+
+### Patch Changes
+
+- fix: address code-review findings (security, correctness, deps) (#1175)
+
 ## 2.3.52
 
 ### Patch Changes

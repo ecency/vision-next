@@ -8,8 +8,9 @@ import {
 
 export async function POST(
   req: Request,
-  { params }: { params: { username: string } }
+  { params }: { params: Promise<{ username: string }> }
 ): Promise<NextResponse<{ bannedUntil: number | null } | { error: string }>> {
+  const { username } = await params;
   const token = await getMattermostTokenFromCookies();
   if (!token) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
@@ -24,7 +25,7 @@ export async function POST(
       return guard.response;
     }
 
-    const { bannedUntil } = await banMattermostUserForHoursAsAdmin(params.username, hours);
+    const { bannedUntil } = await banMattermostUserForHoursAsAdmin(username, hours);
 
     return NextResponse.json({ bannedUntil });
   } catch (error) {

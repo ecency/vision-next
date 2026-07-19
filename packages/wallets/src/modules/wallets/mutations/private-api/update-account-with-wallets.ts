@@ -35,7 +35,7 @@ export function useUpdateAccountWithWallets(
         );
       }
 
-      return fetchApi(`${ConfigManager.getValidatedBaseUrl()}/private-api/wallets-add`, {
+      const response = await fetchApi(`${ConfigManager.getValidatedBaseUrl()}/private-api/wallets-add`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -55,6 +55,16 @@ export function useUpdateAccountWithWallets(
           },
         }),
       });
+
+      // Raw fetch resolves on 4xx/5xx; guard so a failed wallet-add doesn't run
+      // onSuccess as if the account had been updated.
+      if (!response.ok) {
+        throw new Error(
+          `[SDK][Wallets][PrivateApi][WalletsAdd] – request failed: ${response.status}`
+        );
+      }
+
+      return response;
     },
   });
 }

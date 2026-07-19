@@ -8,8 +8,9 @@ import {
 
 export async function DELETE(
   _req: Request,
-  { params }: { params: { username: string } }
+  { params }: { params: Promise<{ username: string }> }
 ): Promise<NextResponse<{ deleted: boolean; username: string } | { error: string }>> {
+  const { username } = await params;
   const token = await getMattermostTokenFromCookies();
   if (!token) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
@@ -21,7 +22,7 @@ export async function DELETE(
       return guard.response;
     }
 
-    const result = await deleteMattermostUserAccountAsAdmin(params.username);
+    const result = await deleteMattermostUserAccountAsAdmin(username);
 
     return NextResponse.json({
       deleted: result.deleted,

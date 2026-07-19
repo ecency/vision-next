@@ -12,12 +12,15 @@ import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { JsonLd, buildCommunityJsonLd } from "@/features/structured-data";
 
 interface Props {
-  params: Promise<{ tag: string; community: string }>;
+  params: Promise<{ community: string }>;
 }
 
 export default async function CommunityPageLayout({ children, params }: PropsWithChildren<Props>) {
-  const { community, tag } = await params;
-  const metaUrl = `/${tag}/${community}`;
+  const { community } = await params;
+  // `tag` is a child segment ([community]/[tag]) and is never in this layout's
+  // param scope, so it resolved to `undefined` here (JSON-LD url `/undefined/hive-…`).
+  // Use the canonical community path used elsewhere (breadcrumbs, next.config redirect).
+  const metaUrl = `/created/${community}`;
   const [communityData, account, base] = await Promise.all([
     prefetchQuery(getCommunityCache(community)),
     prefetchQuery(getAccountFullQueryOptions(community)),

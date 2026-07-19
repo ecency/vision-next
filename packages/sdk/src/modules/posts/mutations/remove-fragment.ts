@@ -16,7 +16,7 @@ export function useRemoveFragment(
       }
       const fetchApi = getBoundFetch();
 
-      return fetchApi(CONFIG.privateApiHost + "/private-api/fragments-delete", {
+      const response = await fetchApi(CONFIG.privateApiHost + "/private-api/fragments-delete", {
         method: "POST",
         body: JSON.stringify({
           code,
@@ -26,6 +26,15 @@ export function useRemoveFragment(
           "Content-Type": "application/json",
         },
       });
+
+      // getBoundFetch returns the raw fetch, so a 401/403/500 resolves rather than
+      // rejects. Without this guard onSuccess would run and strip the fragment from
+      // cache on a failed delete (false success). Throw so onError fires instead.
+      if (!response.ok) {
+        throw new Error(`[SDK][Posts] Failed to delete fragment: ${response.status}`);
+      }
+
+      return response;
     },
     onSuccess(_data, variables) {
       const queryClient = getQueryClient();

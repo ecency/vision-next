@@ -27,6 +27,11 @@ export function useAddFragment(username: string, code: string | undefined) {
           },
         }
       );
+      // Raw fetch resolves on 4xx/5xx, so a JSON error response would otherwise run
+      // onSuccess and insert a bogus fragment into the cache. Throw instead.
+      if (!response.ok) {
+        throw new Error(`[SDK][Posts] Failed to add fragment: ${response.status}`);
+      }
       return response.json() as Promise<Fragment>;
     },
     onSuccess(response, variables) {

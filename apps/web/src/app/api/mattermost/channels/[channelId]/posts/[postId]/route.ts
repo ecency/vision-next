@@ -9,15 +9,16 @@ import {
 
 const SPECIAL_MENTION_REGEX = /(^|\s)@(here|everyone)\b/i;
 
-export async function DELETE(_req: Request, { params }: { params: { channelId: string; postId: string } }) {
+export async function DELETE(_req: Request, { params }: { params: Promise<{ channelId: string; postId: string }> }) {
+  const { channelId, postId } = await params;
   const token = await getMattermostTokenFromCookies();
   if (!token) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
   try {
-    const moderation = await getMattermostCommunityModerationContext(token, params.channelId);
-    const post = await mmUserFetch<{ user_id: string }>(`/posts/${encodeURIComponent(params.postId)}`, token);
+    const moderation = await getMattermostCommunityModerationContext(token, channelId);
+    const post = await mmUserFetch<{ user_id: string }>(`/posts/${encodeURIComponent(postId)}`, token);
 
     const isAuthor = post.user_id === moderation.currentUser.id;
 
@@ -26,9 +27,9 @@ export async function DELETE(_req: Request, { params }: { params: { channelId: s
     }
 
     if (isAuthor) {
-      await mmUserFetch(`/posts/${encodeURIComponent(params.postId)}`, token, { method: "DELETE" });
+      await mmUserFetch(`/posts/${encodeURIComponent(postId)}`, token, { method: "DELETE" });
     } else {
-      await deleteMattermostPostAsAdmin(params.postId);
+      await deleteMattermostPostAsAdmin(postId);
     }
 
     return NextResponse.json({ ok: true });
@@ -37,7 +38,8 @@ export async function DELETE(_req: Request, { params }: { params: { channelId: s
   }
 }
 
-export async function PATCH(req: Request, { params }: { params: { channelId: string; postId: string } }) {
+export async function PATCH(req: Request, { params }: { params: Promise<{ channelId: string; postId: string }> }) {
+  const { channelId, postId } = await params;
   const token = await getMattermostTokenFromCookies();
   if (!token) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
@@ -52,7 +54,7 @@ export async function PATCH(req: Request, { params }: { params: { channelId: str
     }
 
     if (SPECIAL_MENTION_REGEX.test(message)) {
-      const moderation = await getMattermostCommunityModerationContext(token, params.channelId);
+      const moderation = await getMattermostCommunityModerationContext(token, channelId);
 
       if (!moderation.canModerate) {
         return NextResponse.json(
@@ -62,7 +64,7 @@ export async function PATCH(req: Request, { params }: { params: { channelId: str
       }
     }
 
-    const post = await mmUserFetch(`/posts/${encodeURIComponent(params.postId)}/patch`, token, {
+    const post = await mmUserFetch(`/posts/${encodeURIComponent(postId)}/patch`, token, {
       method: "PUT",
       body: JSON.stringify({ message })
     });
