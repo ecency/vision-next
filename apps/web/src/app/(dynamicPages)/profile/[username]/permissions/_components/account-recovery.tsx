@@ -22,6 +22,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { getAccessToken, getSdkAuthContext, getUser } from "@/utils";
+import { computeRecoverySubmitState } from "./account-recovery-utils";
 
 const ECENCY = "ecency";
 
@@ -65,6 +66,13 @@ export function AccountRecovery() {
     mode: "onChange"
   });
   const newRecoveryAccount = methods.watch("newRecoveryAccount");
+  // Gating logic lives in a pure helper (account-recovery-utils) so it can be unit-tested.
+  const { isSelfRecovery, showUpdate, canSubmit } = computeRecoverySubmitState({
+    newRecoveryAccount,
+    currentRecoveryAccount: data?.recovery_account,
+    activeUsername: activeUser?.username,
+    formInitiated
+  });
 
   const { mutateAsync: updateRecovery, isPending } = useAccountUpdateRecovery(
     activeUser?.username,
@@ -77,7 +85,14 @@ export function AccountRecovery() {
     getSdkAuthContext(getUser(activeUser?.username ?? ""))
   );
 
-  const update = useCallback(() => setKeyDialog(true), []);
+  const update = useCallback(() => {
+    // Enforce the same gate as the Update button so an Enter-key form submit can't bypass it:
+    // no submit when the recovery account is unchanged (showUpdate=false) or is self-recovery.
+    if (!canSubmit) {
+      return;
+    }
+    setKeyDialog(true);
+  }, [canSubmit]);
   const handleSign = useCallback(
     async (type: Parameters<typeof updateRecovery>[0]["type"], key?: PrivateKey) => {
       const { isEcency, newRecoveryAccount } = methods.getValues();
@@ -159,12 +174,12 @@ export function AccountRecovery() {
                 }
             >
               <FormControl
-                  {...methods.register("newRecoveryAccount")}
+                  {...methods.register("recoveryEmail")}
                   disabled={!formInitiated}
-                  type="text"
+                  type="email"
                   autoFocus={true}
                   autoComplete="off"
-                  aria-invalid={!!methods.formState.errors.newRecoveryAccount}
+                  aria-invalid={!!methods.formState.errors.recoveryEmail}
               />
             </InputGroup>
             <div className="text-sm px-2 text-red">
@@ -174,8 +189,8 @@ export function AccountRecovery() {
         )}
 
         <div className="w-full flex flex-end">
-          {formInitiated && (
-              <Button size="sm" type="submit">
+          {showUpdate && (
+              <Button size="sm" type="submit" disabled={isSelfRecovery}>
                 {i18next.t("g.update")}
               </Button>
           )}

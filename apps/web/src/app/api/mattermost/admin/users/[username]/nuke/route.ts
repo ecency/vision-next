@@ -12,7 +12,7 @@ import {
  */
 export async function DELETE(
   _req: Request,
-  { params }: { params: { username: string } }
+  { params }: { params: Promise<{ username: string }> }
 ): Promise<
   NextResponse<
     | {
@@ -24,6 +24,7 @@ export async function DELETE(
     | { error: string }
   >
 > {
+  const { username } = await params;
   const token = await getMattermostTokenFromCookies();
   if (!token) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
@@ -35,7 +36,7 @@ export async function DELETE(
       return guard.response;
     }
 
-    const result = await nukeUserCompletelyAsAdmin(params.username);
+    const result = await nukeUserCompletelyAsAdmin(username);
 
     return NextResponse.json({
       username: result.username,

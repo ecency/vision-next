@@ -11,7 +11,8 @@ interface MattermostChannelMember {
   notify_props?: Record<string, string>;
 }
 
-export async function GET(request: NextRequest, { params }: { params: { channelId: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ channelId: string }> }) {
+  const { channelId } = await params;
   const token = await getMattermostTokenFromCookies();
 
   if (!token) {
@@ -21,7 +22,7 @@ export async function GET(request: NextRequest, { params }: { params: { channelI
   try {
     const search = request.nextUrl.search || "";
     const members = await mmUserFetch<MattermostChannelMember[]>(
-      `/channels/${encodeURIComponent(params.channelId)}/members${search}`,
+      `/channels/${encodeURIComponent(channelId)}/members${search}`,
       token
     );
 

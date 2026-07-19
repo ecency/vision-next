@@ -6,7 +6,8 @@ import {
   mmUserFetch
 } from "@/server/mattermost";
 
-export async function POST(req: NextRequest, { params }: { params: { channelId: string; postId: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ channelId: string; postId: string }> }) {
+  const { channelId, postId } = await params;
   const token = await getMattermostTokenFromCookies();
   if (!token) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
@@ -22,14 +23,14 @@ export async function POST(req: NextRequest, { params }: { params: { channelId: 
 
     const user = await mmUserFetch<{ id: string }>(`/users/me`, token);
 
-    await ensureUserInChannel(user.id, params.channelId);
+    await ensureUserInChannel(user.id, channelId);
 
     const reaction = await mmUserFetch<{ user_id: string; post_id: string; emoji_name: string }>(
       `/reactions`,
       token,
       {
         method: "POST",
-        body: JSON.stringify({ user_id: user.id, post_id: params.postId, emoji_name: emoji })
+        body: JSON.stringify({ user_id: user.id, post_id: postId, emoji_name: emoji })
       }
     );
 
@@ -39,7 +40,8 @@ export async function POST(req: NextRequest, { params }: { params: { channelId: 
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { channelId: string; postId: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ channelId: string; postId: string }> }) {
+  const { channelId, postId } = await params;
   const token = await getMattermostTokenFromCookies();
   if (!token) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
@@ -55,10 +57,10 @@ export async function DELETE(req: NextRequest, { params }: { params: { channelId
 
     const user = await mmUserFetch<{ id: string }>(`/users/me`, token);
 
-    await ensureUserInChannel(user.id, params.channelId);
+    await ensureUserInChannel(user.id, channelId);
 
     await mmUserFetch(
-      `/users/${user.id}/posts/${encodeURIComponent(params.postId)}/reactions/${encodeURIComponent(emoji)}`,
+      `/users/${user.id}/posts/${encodeURIComponent(postId)}/reactions/${encodeURIComponent(emoji)}`,
       token,
       {
         method: "DELETE"

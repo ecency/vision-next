@@ -2,9 +2,11 @@ import { MouseEvent } from "react";
 import i18next from "i18next";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { Button } from "@/features/ui";
+import { PopoverConfirm } from "@ui/popover-confirm";
 import { Fragment, useRemoveFragment } from "@ecency/sdk";
 import { UilEditAlt, UilTrash } from "@tooni/iconscout-unicons-react";
 import { getAccessToken } from "@/utils";
+import { error } from "../feedback";
 
 interface Props {
   item: Fragment;
@@ -47,17 +49,26 @@ export function FragmentsListItem({ item, onPick, onEdit, index }: Props) {
             }}
             aria-label={i18next.t("g.edit", { defaultValue: "Edit" })}
           />
-          <Button
-            appearance="gray-link"
-            noPadding={true}
-            size="xs"
-            icon={<UilTrash />}
-            onClick={(e: MouseEvent) => {
-              e.stopPropagation();
-              deleteFragment({ fragmentId: item.id });
+          <PopoverConfirm
+            okVariant="danger"
+            onConfirm={() => {
+              // remove-fragment now throws on a failed HTTP response, so catch it
+              // here (fire-and-forget mutateAsync would otherwise reject unhandled).
+              deleteFragment({ fragmentId: item.id }).catch(() =>
+                error(i18next.t("g.server-error"))
+              );
             }}
-            aria-label={i18next.t("g.delete", { defaultValue: "Delete" })}
-          />
+          >
+            <Button
+              appearance="gray-link"
+              noPadding={true}
+              size="xs"
+              disabled={isDeleteLoading}
+              icon={<UilTrash />}
+              onClick={(e: MouseEvent) => e.stopPropagation()}
+              aria-label={i18next.t("g.delete", { defaultValue: "Delete" })}
+            />
+          </PopoverConfirm>
         </div>
       </div>
       <div

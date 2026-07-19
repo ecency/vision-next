@@ -11,6 +11,20 @@ overrides:
   "@sentry/core": "^8.55.0"
   "@sentry/types": "^8.55.0"
   "@sentry/utils": "^8.55.0"
+  # Security advisories (pnpm audit --prod). In-major bumps of transitive deps only —
+  # low regression risk. Runtime-relevant ones first (markdown/linkify process user
+  # content in the TipTap editor; form-data rides axios), then build-chain patches.
+  # Each override is scoped to the vulnerable major so it can't downgrade an unrelated
+  # major — e.g. rollup@3 is the vulnerable Sentry path; tsup stays on its rollup 4.x.
+  "linkify-it@5": "^5.0.1"
+  "markdown-it@14": "^14.1.2"
+  "form-data@4": "^4.0.6"
+  "tmp@0.2": "^0.2.6"
+  "rollup@3": "^3.30.0"
+  "postcss@8": "^8.5.10"
+  "brace-expansion@1": "^1.1.13"
+  "brace-expansion@2": "^2.0.3"
+  "@babel/core@7": "^7.29.1"
 
 # pnpm 11 removed onlyBuiltDependencies / ignoredBuiltDependencies in favour of
 # allowBuilds (a per-package true/false map), enforced by strictDepBuilds.

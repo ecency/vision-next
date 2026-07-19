@@ -3,7 +3,8 @@ import { getMattermostTokenFromCookies } from "@/server/mattermost";
 
 export const runtime = "nodejs";
 
-export async function GET(_req: NextRequest, { params }: { params: { userId: string } }) {
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ userId: string }> }) {
+  const { userId } = await params;
   const token = await getMattermostTokenFromCookies();
   if (!token) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
@@ -19,7 +20,7 @@ export async function GET(_req: NextRequest, { params }: { params: { userId: str
     // contribute to the same kind of pile-up we saw on the Plausible
     // proxy path. 8s matches the CF Worker primary timeout — anything
     // slower has already been cut off at the edge.
-    const res = await fetch(`${baseUrl}/users/${encodeURIComponent(params.userId)}/image`, {
+    const res = await fetch(`${baseUrl}/users/${encodeURIComponent(userId)}/image`, {
       headers: { Authorization: `Bearer ${token}` },
       signal: AbortSignal.timeout(8000)
     });

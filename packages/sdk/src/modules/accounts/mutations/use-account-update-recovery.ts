@@ -55,8 +55,11 @@ export function useAccountUpdateRecovery(
         }
         const fetchApi = getBoundFetch();
 
-        return fetchApi(CONFIG.privateApiHost + "/private-api/recoveries-add", {
+        const response = await fetchApi(CONFIG.privateApiHost + "/private-api/recoveries-add", {
           method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify({
             code,
             email,
@@ -68,6 +71,15 @@ export function useAccountUpdateRecovery(
             ],
           }),
         });
+
+        // Raw fetch resolves on 4xx/5xx, so guard explicitly — otherwise the
+        // caller's onSuccess shows a "recovery updated" toast on a failed request.
+        // (The missing Content-Type header also made the backend skip JSON parsing.)
+        if (!response.ok) {
+          throw new Error(`[SDK][Accounts] Failed to add recovery: ${response.status}`);
+        }
+
+        return response;
       } else if (type === "key" && key) {
         return broadcastOperations(
           [["change_recovery_account", operationBody]],

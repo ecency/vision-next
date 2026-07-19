@@ -23,9 +23,12 @@ export const getUser = (
   try {
     return decodeObj(raw) as User;
   } catch (e) {
+    // A corrupted record can't be recovered by decoding the plain username (that
+    // is not an encoded object and throws again, escaping getUser). Treat it as a
+    // missing user instead.
     logMissingUser();
     setActiveUser?.(null);
-    return decodeObj(username) as User;
+    return undefined;
   }
 };
 

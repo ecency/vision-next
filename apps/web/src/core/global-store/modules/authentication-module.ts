@@ -30,7 +30,9 @@ export function createAuthenticationState() {
 export type AuthenticationState = ReturnType<typeof createAuthenticationState>;
 
 export const createAuthenticationActions = (
-  set: (state: Partial<AuthenticationState>) => void,
+  // `set` merges into the combined global store, so this action can also clear
+  // cross-module state (the in-memory signing key) on every active-user change.
+  set: (state: Partial<AuthenticationState & { signingKey: string | null }>) => void,
   getState: () => AuthenticationState
 ) => ({
   setActiveUser: (name: string | null) => {
@@ -45,7 +47,10 @@ export const createAuthenticationActions = (
     if (name) {
       ls.set("active_user", name);
       Cookies.set(ACTIVE_USER_COOKIE_NAME, name, { expires: 365 });
-      set({ activeUser: nextActiveUser });
+      // Clear any previous account's signing key so it can never pre-fill or be
+      // reused under the newly activated account. Login sets the key AFTER
+      // activating the user, so this does not wipe a fresh login's key.
+      set({ activeUser: nextActiveUser, signingKey: null });
 
       sentry.setUser({
         username: name
@@ -53,7 +58,8 @@ export const createAuthenticationActions = (
     } else {
       ls.remove("active_user");
       Cookies.remove(ACTIVE_USER_COOKIE_NAME);
-      set({ activeUser: nextActiveUser });
+      // Logout: drop the in-memory signing key alongside the active user.
+      set({ activeUser: nextActiveUser, signingKey: null });
       sentry.setUser(null);
     }
   }
