@@ -151,7 +151,7 @@ function useUpdateAccountWithWallets(username, accessToken) {
           "[SDK][Wallets][PrivateApi][WalletsAdd] \u2013 access token wasn`t found"
         );
       }
-      return fetchApi(`${ConfigManager.getValidatedBaseUrl()}/private-api/wallets-add`, {
+      const response = await fetchApi(`${ConfigManager.getValidatedBaseUrl()}/private-api/wallets-add`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -171,6 +171,12 @@ function useUpdateAccountWithWallets(username, accessToken) {
           }
         })
       });
+      if (!response.ok) {
+        throw new Error(
+          `[SDK][Wallets][PrivateApi][WalletsAdd] \u2013 request failed: ${response.status}`
+        );
+      }
+      return response;
     }
   });
 }
