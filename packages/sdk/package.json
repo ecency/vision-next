@@ -1,7 +1,7 @@
 {
   "name": "@ecency/sdk",
   "private": false,
-  "version": "2.3.54",
+  "version": "2.3.55",
   "description": "Ecency SDK",
   "repository": {
     "type": "git",
@@ -44,7 +44,8 @@
   "scripts": {
     "build": "tsup",
     "lint": "eslint .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
     "@tanstack/react-query": ">=5",

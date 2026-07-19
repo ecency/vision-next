@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.55
+
+### Patch Changes
+
+- fix(types): make render-helper + wallets typecheck-clean (#1180)
+
 ## 2.3.54
 
 ### Patch Changes

@@ -1,7 +1,7 @@
 {
   "name": "@ecency/render-helper",
   "private": false,
-  "version": "2.5.19",
+  "version": "2.5.20",
   "description": "Markdown+Html Render helper",
   "repository": {
     "type": "git",
@@ -38,7 +38,8 @@
   "scripts": {
     "build": "tsup",
     "lint": "eslint .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
   },
   "author": "Ecency <hello@ecency.com>",
   "devDependencies": {

@@ -1,7 +1,7 @@
 {
   "name": "@ecency/wallets",
   "private": false,
-  "version": "5.0.53",
+  "version": "5.0.54",
   "description": "Ecency wallets",
   "repository": {
     "type": "git",
@@ -37,7 +37,8 @@
   "scripts": {
     "build": "tsup",
     "lint": "eslint .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
     "@ecency/sdk": "workspace:*",

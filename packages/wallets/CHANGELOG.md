@@ -1,5 +1,14 @@
 # @ecency/wallets
 
+## 5.0.54
+
+### Patch Changes
+
+- fix(types): make render-helper + wallets typecheck-clean (#1180)
+
+- Updated dependencies []:
+  - @ecency/sdk@2.3.55
+
 ## 5.0.53
 
 ### Patch Changes

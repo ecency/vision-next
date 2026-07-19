@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.5.20
+
+### Patch Changes
+
+- fix(types): make render-helper + wallets typecheck-clean (#1180)
+
 ## 2.5.19
 
 ### Patch Changes
