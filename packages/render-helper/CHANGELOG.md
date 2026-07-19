@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.5.18
+
+### Patch Changes
+
+- fix(render-helper): make markdown-link image scan linear (no ReDoS) (#1176)
+
 ## 2.5.17
 
 ### Patch Changes

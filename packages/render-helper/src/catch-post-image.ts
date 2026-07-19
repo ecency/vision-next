@@ -25,8 +25,11 @@ const TILDE_FENCE_RE = /~~~[\s\S]*?~~~/g
 const INLINE_CODE_RE = /`[^`\n]*`/g
 const INDENTED_CODE_RE = /^(?: {4}|\t).+$/gm
 // Requires a closing `)` so broken syntax like `![](url` (no close) doesn't
-// match. Also tolerates the optional title form `![](url "title")`.
-const MD_IMAGE_RE = /!\[[^\]]*\]\(\s*([^)\s]+)(?:\s+["'][^"']*["'])?\s*\)/
+// match. Also tolerates the optional title form `![](url "title")`. The alt-text
+// and href classes exclude `[` (as well as `]`/`)`) so a `![a](` repetition can't
+// be re-scanned to end at every position — keeping the match linear on untrusted
+// input (see MD_LINK_RE below).
+const MD_IMAGE_RE = /!\[[^[\]]*\]\(\s*([^)\s[]+)(?:\s+["'][^"']*["'])?\s*\)/
 const HTML_IMAGE_RE = /<img\b[^>]*?\bsrc\s*=\s*["']([^"']+)["']/i
 // A standalone (auto-linkified) image URL the renderer turns into an <img> via
 // text.method / linkify (IMG_REGEX). Required to sit at a line start or after
@@ -40,7 +43,13 @@ const BARE_IMAGE_RE = /(^|\s)(https?:\/\/[^\s<>"'()[\]]+\.(?:tiff?|jpe?g|gif|png
 // caller). The renderer (a.method) promotes such a link to an image only when
 // the href is an image URL AND the label text equals the href. Used to find the
 // `[url](url)` image-link cover form. Global, capture label + href.
-const MD_LINK_RE = /\[([^\]]*)\]\(\s*([^)\s]+)(?:\s+["'][^"']*["'])?\s*\)/g
+// Both the label and href classes exclude `[` (as well as `]`/`)` respectively) so a run of
+// `[`, `[a](`, or `![a](` can never be spanned — a failed match then bails in O(1) per start
+// position instead of re-scanning to the end of the body. Otherwise this is quadratic on
+// untrusted post content: regexp/no-super-linear-move caught only the label, but the
+// unbounded href stayed O(n^2). Behavior is unchanged for real markdown — link/image labels
+// and image URLs never contain a literal `[`.
+const MD_LINK_RE = /\[([^[\]]*)\]\(\s*([^)\s[]+)(?:\s+["'][^"']*["'])?\s*\)/g
 // Mirrors a.method's `href.match(IMG_REGEX)` — an image URL by extension
 // (anywhere after the dot, matching the renderer). Eligibility for an avif
 // <source> is then decided separately by isPictureEligibleRawUrl.

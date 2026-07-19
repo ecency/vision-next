@@ -421,3 +421,28 @@ describe('catchPostImage', () => {
     })
   })
 })
+
+describe('markdown image/link scan is linear (ReDoS regression)', () => {
+  // `X.repeat(n)` with no closing `)` is the attack: unless both the label and href classes
+  // exclude `[`, matchAll/match re-scan to the end of the body at every `[`, making these
+  // O(n^2) on untrusted post content. getEntryImageRawUrl runs MD_IMAGE_RE + MD_LINK_RE and
+  // never falls back to the full parser, so it isolates the regex cost. (Pre-fix these ran
+  // in seconds; post-fix they are sub-millisecond.)
+  const N = 50_000
+  it.each([
+    ['unclosed [ run', '['.repeat(N) + 'x'],
+    ['[a]( repetition (MD_LINK href)', '[a]('.repeat(N)],
+    ['![a]( repetition (MD_IMAGE href)', '![a]('.repeat(N)]
+  ])('handles pathological %s in linear time', (_label, body) => {
+    const start = Date.now()
+    const result = getEntryImageRawUrl(body)
+    const elapsed = Date.now() - start
+    expect(result).toBeNull()
+    expect(elapsed).toBeLessThan(2000)
+  })
+
+  it('still detects a real [url](url) cover after unclosed-bracket noise', () => {
+    const u = 'https://files.peakd.com/x/cover.png'
+    expect(getEntryImageRawUrl(`[[[ noise\n\n[${u}](${u})`)).toBe(u)
+  })
+})
