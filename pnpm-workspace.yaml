@@ -25,6 +25,15 @@ overrides:
   "brace-expansion@1": "^1.1.13"
   "brace-expansion@2": "^2.0.3"
   "@babel/core@7": "^7.29.1"
+  # Previously-deferred advisories that need a cross-major bump of the vulnerable dep.
+  # Validated via install + build:packages + typecheck + CI's full web build.
+  serialize-javascript: "^7.0.5"
+  js-cookie: "^3.0.6"
+  uuid: "^11.1.1"
+  esbuild: "^0.28.1"
+  # NOTE: @opentelemetry/core is intentionally NOT overridden — forcing 2.8.x breaks
+  # @sentry/nextjs' pinned OpenTelemetry graph (undefined `AlwaysOn`). Its advisory stays
+  # until @sentry/nextjs is bumped.
 
 # pnpm 11 removed onlyBuiltDependencies / ignoredBuiltDependencies in favour of
 # allowBuilds (a per-package true/false map), enforced by strictDepBuilds.
