@@ -129,7 +129,12 @@ export function AiImageGenerator({ onInsert, showInsertAction = true, suggestedP
   }, [activeUserPoints, cost]);
 
   const canGenerate =
-    prompt.trim().length > 0 && selectedRatio && !isInsufficientBalance && !isGenerating;
+    prompt.trim().length > 0 &&
+    selectedRatio &&
+    // A delivery-pending retry replays the already-paid generation (same idempotency key),
+    // so it must not be blocked by the balance gate even if the last points were just spent.
+    (deliveryPending || !isInsufficientBalance) &&
+    !isGenerating;
 
   const handleGenerate = useCallback(async () => {
     if (!selectedRatio || !prompt.trim()) return;

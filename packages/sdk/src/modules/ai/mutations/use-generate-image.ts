@@ -82,17 +82,24 @@ export function useGenerateImage(
         throw err;
       }
 
-      const data = (await response.json()) as AiGenerationResponse & { error?: string };
-
       // 202 = the prediction is paid for and captured but not yet delivered to our image
-      // host. It carries no `url`. Surface it as a typed error so the caller can retry
-      // with the SAME idempotency_key to fetch it — no second prediction, no second charge.
-      if (response.status === 202 || !data.url) {
+      // host. Detect it by HTTP status BEFORE parsing (the body may be present or empty)
+      // and surface it as a typed error so the caller can retry with the SAME
+      // idempotency_key to fetch it — no second prediction, no second charge.
+      if (response.status === 202) {
+        let pendingData: Record<string, unknown> = {};
+        try {
+          pendingData = await response.json();
+        } catch {
+          // empty / non-JSON 202 body is fine — the status alone drives recovery
+        }
         const err = new Error("[SDK][AI][GenerateImage] – delivery pending");
         (err as any).status = 202;
-        (err as any).data = data;
+        (err as any).data = pendingData;
         throw err;
       }
+
+      const data = (await response.json()) as AiGenerationResponse;
 
       return data;
     },
