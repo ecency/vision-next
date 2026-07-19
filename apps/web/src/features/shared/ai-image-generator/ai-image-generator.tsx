@@ -338,7 +338,7 @@ export function AiImageGenerator({ onInsert, showInsertAction = true, suggestedP
         </div>
       )}
 
-      {isInsufficientBalance && (
+      {isInsufficientBalance && !deliveryPending && (
         <div className="flex items-center flex-wrap gap-3">
           <small className="text-red block">
             {i18next.t("market.more-than-balance")}
