@@ -4,7 +4,7 @@ import appPackage from "../../../../package.json";
 import { getDimensionsFromDataUrl } from "./get-dimensions-from-data-url";
 import { extractMetaData, makeApp } from "@/utils/posting";
 import { makeEntryPath } from "@/utils/make-path";
-import { Entry, MetaData } from "@/entities";
+import { AiToolsMeta, Entry, MetaData } from "@/entities";
 import { DECENTMEMES_METADATA_VERSION } from "@/api/decentmemes";
 
 const DEFAULT_TAGS = ["ecency"];
@@ -164,6 +164,19 @@ export class EntryMetadataBuilder {
       templateIds: data.templateIds,
       ...(data.frontend ? { frontend: data.frontend } : {})
     });
+  }
+
+  // Optional AI-usage disclosure (PeakD-compatible `ai_tools`). Only writes truthy flags,
+  // and omits the object entirely when nothing was disclosed, so a normal post is untouched.
+  public withAiTools(aiTools?: AiToolsMeta): this {
+    if (!aiTools) {
+      return this;
+    }
+    const cleaned = Object.fromEntries(Object.entries(aiTools).filter(([, v]) => v === true));
+    if (Object.keys(cleaned).length === 0) {
+      return this;
+    }
+    return this.withField("ai_tools", cleaned);
   }
 
   public build(): MetaData {

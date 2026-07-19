@@ -45,6 +45,13 @@ const PostTemplatesDialog = dynamic(
   })),
   { ssr: false }
 );
+
+const PublishAiToolsDialog = dynamic(
+  () => import("@/app/publish/_components/publish-ai-tools-dialog").then((m) => ({
+    default: m.PublishAiToolsDialog
+  })),
+  { ssr: false }
+);
 import { StyledTooltip } from "@/features/ui";
 import { useSynchronizedLocalStorage } from "@/utils";
 import { PREFIX } from "@/utils/local-storage";
@@ -56,6 +63,7 @@ import {
   UilFileImport,
   UilMoneybag,
   UilQuestionCircle,
+  UilRobot,
   UilTrash,
   UilUsersAlt
 } from "@tooni/iconscout-unicons-react";
@@ -93,11 +101,13 @@ export function PublishActionBar({
   setEditorContent,
   draftId
 }: PropsWithChildren<Props>) {
-  const { schedule: scheduleDate, clearAll, title, content } = usePublishState();
+  const { schedule: scheduleDate, clearAll, title, content, aiTools } = usePublishState();
+  const hasAiDisclosure = !!aiTools.media_generation || !!aiTools.writing_edit;
 
   const [showReward, setShowReward] = useState(false);
   const [showBeneficiaries, setShowBeneficiaries] = useState(false);
   const [showMetaInfo, setShowMetaInfo] = useState(false);
+  const [showAiTools, setShowAiTools] = useState(false);
   const [schedule, setSchedule] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
@@ -196,6 +206,12 @@ export function PublishActionBar({
               icon={<UilDocumentInfo />}
               label={i18next.t("publish.meta-information")}
             />
+            <DropdownItemWithIcon
+              selected={hasAiDisclosure}
+              onClick={() => setShowAiTools(true)}
+              icon={<UilRobot />}
+              label={i18next.t("ai-usage.menu")}
+            />
             <EcencyConfigManager.Conditional
               condition={({ visionFeatures }) => visionFeatures.postTemplates.enabled}
             >
@@ -249,6 +265,7 @@ export function PublishActionBar({
       <PublishRewardsDialog show={showReward} setShow={setShowReward} />
       <PublishBeneficiariesDialog show={showBeneficiaries} setShow={setShowBeneficiaries} />
       <PublishMetaInfoDialog show={showMetaInfo} setShow={setShowMetaInfo} />
+      <PublishAiToolsDialog show={showAiTools} setShow={setShowAiTools} />
       <PublishScheduleDialog show={schedule} setShow={setSchedule} />
       {onImport && (
         <PublishImportDialog show={showImport} setShow={setShowImport} onImport={onImport} />

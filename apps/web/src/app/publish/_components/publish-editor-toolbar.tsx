@@ -2,7 +2,7 @@
 
 import { isThreeSpeakBeneficiary } from "@/api/threespeak-embed";
 import { EcencyConfigManager } from "@/config";
-import { LoginRequired } from "@/features/shared";
+import { error, LoginRequired } from "@/features/shared";
 import dynamic from "next/dynamic";
 
 const PublishGifPickerDialog = dynamic(
@@ -755,6 +755,9 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
                   { type: "paragraph" },
                 ])
                 .run();
+              // We generated this image, so pre-mark the AI-usage disclosure (editable in
+              // the AI usage dialog before publishing).
+              publishState.setAiTools((prev) => ({ ...prev, media_generation: true }));
               setShowAiGenerator(false);
             }}
           />
@@ -765,6 +768,11 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
             setShow={setShowAiAssist}
             initialText={editor?.getText()?.trim() || ""}
             onApply={(output, action) => {
+              // AI writing assistance touched the post text -> pre-mark the disclosure
+              // (editable in the AI usage dialog). Tag suggestions don't alter content.
+              if (action !== "suggest_tags") {
+                publishState.setAiTools((prev) => ({ ...prev, writing_edit: true }));
+              }
               if (action === "improve" || action === "check_grammar" || action === "summarize") {
                 const sanitized = simpleMarkdownToHTML(output);
                 const doc = parseAllExtensionsToDoc(sanitized);

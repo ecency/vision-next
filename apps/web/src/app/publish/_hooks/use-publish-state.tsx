@@ -5,7 +5,7 @@ import {
 } from "@/app/submit/_consts";
 import { hasThreeSpeakEmbed } from "@/api/threespeak-embed";
 import { DecentMemesEntry } from "@/api/decentmemes";
-import { BeneficiaryRoute, Entry } from "@/entities";
+import { AiToolsMeta, BeneficiaryRoute, Entry } from "@/entities";
 import { extractMetaData } from "@/utils";
 import dayjs from "@/utils/dayjs";
 import { postBodySummary } from "@ecency/render-helper";
@@ -73,6 +73,9 @@ interface PublishStateContextValue {
   addDecentMemesResult: (entry: DecentMemesEntry) => void;
   setDecentMemes: (entries: DecentMemesEntry[]) => void;
   clearDecentMemes: () => void;
+  aiTools: AiToolsMeta;
+  setAiTools: Dispatch<SetStateAction<AiToolsMeta>>;
+  clearAiTools: () => void;
   appliedTemplateBody: string | null;
   setAppliedTemplateBody: (value: string | null) => void;
 }
@@ -102,9 +105,11 @@ export function PublishStateProvider({ children }: { children: React.ReactNode }
   const hasThreeSpeakVideo = useMemo(() => hasThreeSpeakEmbed(content), [content]);
   const [poll, setPoll] = usePublishPollState(false);
   const [decentMemes, setDecentMemes] = useState<DecentMemesEntry[]>([]);
+  const [aiTools, setAiTools] = useState<AiToolsMeta>({});
   const [appliedTemplateBody, setAppliedTemplateBody] = useState<string | null>(null);
 
   const clearDecentMemes = useCallback(() => setDecentMemes([]), []);
+  const clearAiTools = useCallback(() => setAiTools({}), []);
 
   // Track each meme added to the post, keyed by its hosted image URL. Dropping
   // memes whose image was removed, and capping against Hive limits, both happen
@@ -231,6 +236,7 @@ export function PublishStateProvider({ children }: { children: React.ReactNode }
     clearEntryImages();
     clearLocation();
     clearDecentMemes();
+    clearAiTools();
     setAppliedTemplateBody(null);
     setIsReblogToCommunity(false);
   }, [
@@ -248,6 +254,7 @@ export function PublishStateProvider({ children }: { children: React.ReactNode }
     clearEntryImages,
     clearLocation,
     clearDecentMemes,
+    clearAiTools,
     setAppliedTemplateBody,
     setIsReblogToCommunity
   ]);
@@ -292,6 +299,9 @@ export function PublishStateProvider({ children }: { children: React.ReactNode }
         addDecentMemesResult,
         setDecentMemes,
         clearDecentMemes,
+        aiTools,
+        setAiTools,
+        clearAiTools,
         appliedTemplateBody,
         setAppliedTemplateBody
       }}

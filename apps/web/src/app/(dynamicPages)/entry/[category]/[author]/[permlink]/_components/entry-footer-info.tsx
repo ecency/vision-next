@@ -1,4 +1,4 @@
-import { EcencySourceBadge, ProfileLink, TimeLabel } from "@/features/shared";
+import { AiUsageBadge, EcencySourceBadge, ProfileLink, TimeLabel } from "@/features/shared";
 import i18next from "i18next";
 import { Tsx } from "@/features/i18n/helper";
 import { Entry } from "@/entities";
@@ -39,6 +39,16 @@ export function EntryFooterInfo({ entry }: Props) {
               className="inline-block align-text-bottom ml-1"
             />
           </div>
+        </>
+      )}
+      {(entry.json_metadata?.ai_tools?.media_generation ||
+        entry.json_metadata?.ai_tools?.writing_edit) && (
+        <>
+          <span className="separator circle-separator" />
+          <AiUsageBadge
+            aiTools={entry.json_metadata?.ai_tools}
+            className="align-text-bottom"
+          />
         </>
       )}
         {app && !isEcency && (

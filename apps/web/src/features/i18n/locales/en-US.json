@@ -3950,6 +3950,14 @@
     "use-suggestion": "Use: {{suggestion}}",
     "select-power": "Quality boost"
   },
+  "ai-usage": {
+    "menu": "AI usage",
+    "dialog-title": "AI usage",
+    "dialog-hint": "Optionally let readers know how AI helped with this post. It shows as a small badge and uses a shared format so other Hive apps display it too. This is completely optional.",
+    "media-generation": "AI-generated media",
+    "writing-edit": "AI writing assistance",
+    "badge-label": "AI usage disclosed by author"
+  },
   "ai-assist": {
     "title": "AI Writing Assistant",
     "toolbar-button": "AI Assist",
