@@ -12,8 +12,9 @@ const domSerializer = (domSerializerModule as any).default || domSerializerModul
 
 // Conditionally load lolight for syntax highlighting (Node.js only)
 // Browser builds will gracefully handle missing lolight by using fallback
-let lolightPromise: Promise<any> | null = null
-let lolightModule: any = null
+type Lolight = typeof import('lolight').default
+let lolightPromise: Promise<Lolight | null> | null = null
+let lolightModule: Lolight | null = null
 
 async function loadLolight() {
   if (typeof window !== 'undefined') {
@@ -183,7 +184,7 @@ export function markdownToHTML(input: string, forApp: boolean, parentDomain: str
 
     const doc = DOMParser.parseFromString(`<body id="root">${removeDuplicateAttributes(output)}</body>`, 'text/html')
 
-    traverse(doc, forApp, 0, { firstImageFound: false }, parentDomain, seoContext, renderOptions)
+    traverse(doc as any, forApp, 0, { firstImageFound: false }, parentDomain, seoContext, renderOptions)
 
     output = serializer.serializeToString(doc)
   } catch (error) {
@@ -214,7 +215,7 @@ export function markdownToHTML(input: string, forApp: boolean, parentDomain: str
       // Now parse the well-formed HTML with @xmldom/xmldom
       const doc = DOMParser.parseFromString(`<body id="root">${removeDuplicateAttributes(repairedHtml)}</body>`, 'text/html')
 
-      traverse(doc, forApp, 0, { firstImageFound: false }, parentDomain, seoContext, renderOptions)
+      traverse(doc as any, forApp, 0, { firstImageFound: false }, parentDomain, seoContext, renderOptions)
 
       output = serializer.serializeToString(doc)
     } catch (fallbackError) {

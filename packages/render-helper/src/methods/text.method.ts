@@ -33,7 +33,7 @@ export function text(node: HTMLElement | null, forApp: boolean, renderOptions?: 
       `<span class="wr">${linkified}</span>`,
       'text/html'
     )
-    const replaceNode = doc.body?.firstChild || doc.firstChild
+    const replaceNode = (doc as any).body?.firstChild || doc.firstChild
 
     if (replaceNode) {
       node.parentNode.insertBefore(replaceNode, node)
@@ -46,7 +46,7 @@ export function text(node: HTMLElement | null, forApp: boolean, renderOptions?: 
     const isLCP = false; // Traverse handles LCP; no need to double-count
     const imageHTML = createImageHTML(nodeValue, isLCP, forApp);
     const doc = DOMParser.parseFromString(imageHTML, 'text/html');
-    const replaceNode = doc.body?.firstChild || doc.firstChild
+    const replaceNode = (doc as any).body?.firstChild || doc.firstChild
     if (replaceNode) {
       node.parentNode.replaceChild(replaceNode, node);
     }
@@ -108,7 +108,7 @@ export function text(node: HTMLElement | null, forApp: boolean, renderOptions?: 
         `<a ${attrs}>/@${author}/${permlink}</a>`,
         'text/html'
       )
-      const replaceNode = doc.body?.firstChild || doc.firstChild
+      const replaceNode = (doc as any).body?.firstChild || doc.firstChild
       if (replaceNode) {
         node.parentNode.replaceChild(replaceNode, node)
       }

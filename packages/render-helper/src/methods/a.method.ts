@@ -181,7 +181,7 @@ export function a(el: HTMLElement | null, forApp: boolean, parentDomain: string 
     const isLCP = false; // LCP handled elsewhere
     const imgHTML = createImageHTML(href, isLCP, forApp);
     const doc = DOMParser.parseFromString(imgHTML, 'text/html');
-    const replaceNode = doc.body?.firstChild || doc.firstChild
+    const replaceNode = (doc as any).body?.firstChild || doc.firstChild
 
     if (replaceNode && el.parentNode) {
       const importedNode = el.ownerDocument.importNode(replaceNode, true)
@@ -291,14 +291,17 @@ export function a(el: HTMLElement | null, forApp: boolean, parentDomain: string 
     }
   }
 
+  // isValidDomain is only ever set true inside the `tpostMatch && length === 4` block above,
+  // so tpostMatch is non-null here — asserted with `!` (type-only, erased at emit) at each use
+  // to keep the emitted JS byte-identical.
   if (isValidDomain) {
     // check if permlink is section or section with params ?q=xyz
     // Split on '?' first to get path segment
-    const pathSegment = tpostMatch[3].split('?')[0]
+    const pathSegment = tpostMatch![3].split('?')[0]
     if (SECTION_LIST.some(v => pathSegment === v || pathSegment.startsWith(v + '/'))) {
       el.setAttribute('class', 'markdown-profile-link')
-      const author = tpostMatch[2].replace('@', '').toLowerCase()
-      const section = tpostMatch[3]
+      const author = tpostMatch![2].replace('@', '').toLowerCase()
+      const section = tpostMatch![3]
 
       if (!isValidPermlink(section)) return;
       if (el.textContent === href) {
@@ -316,14 +319,14 @@ export function a(el: HTMLElement | null, forApp: boolean, parentDomain: string 
       // Domain already validated in outer if condition
       let tag = 'post'
       // check if tag does exist and doesn't include dot likely word/tag
-      if (tpostMatch[1] && !tpostMatch[1].includes('.')) {
-        [, tag] = tpostMatch
+      if (tpostMatch![1] && !tpostMatch![1].includes('.')) {
+        [, tag] = tpostMatch!
         tag = tag.replace('/', '')
       }
 
       el.setAttribute('class', 'markdown-post-link')
-      const author = tpostMatch[2].replace('@', '')
-      const permlink = sanitizePermlink(tpostMatch[3])
+      const author = tpostMatch![2].replace('@', '')
+      const permlink = sanitizePermlink(tpostMatch![3])
 
       if (!isValidPermlink(permlink)) return;
 

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseAsset, Symbol, NaiMap, type Asset } from '.'
+import { parseAsset, Symbol, NaiMap } from '.'
 
 describe('parseAsset', () => {
   describe('string input', () => {
@@ -45,7 +45,7 @@ describe('parseAsset', () => {
   describe('SMTAsset input', () => {
     it('should parse HIVE SMTAsset correctly', () => {
       const smtAsset = {
-        amount: 123456,
+        amount: '123456',
         precision: 3,
         nai: '@@000000021' as keyof typeof NaiMap,
       }
@@ -59,7 +59,7 @@ describe('parseAsset', () => {
 
     it('should parse HBD SMTAsset correctly', () => {
       const smtAsset = {
-        amount: 50123,
+        amount: '50123',
         precision: 3,
         nai: '@@000000013' as keyof typeof NaiMap,
       }
@@ -73,7 +73,7 @@ describe('parseAsset', () => {
 
     it('should parse VESTS SMTAsset correctly', () => {
       const smtAsset = {
-        amount: 1000000000000,
+        amount: '1000000000000',
         precision: 6,
         nai: '@@000000037' as keyof typeof NaiMap,
       }
@@ -86,9 +86,9 @@ describe('parseAsset', () => {
     })
 
     it.each([
-      [{ amount: 1, precision: 3, nai: '@@000000021' }, 0.001, Symbol.HIVE],
-      [{ amount: 1000123, precision: 3, nai: '@@000000013' }, 1000.123, Symbol.HBD],
-      [{ amount: 500000000, precision: 6, nai: '@@000000037' }, 500.0, Symbol.VESTS],
+      [{ amount: '1', precision: 3, nai: '@@000000021' }, 0.001, Symbol.HIVE],
+      [{ amount: '1000123', precision: 3, nai: '@@000000013' }, 1000.123, Symbol.HBD],
+      [{ amount: '500000000', precision: 6, nai: '@@000000037' }, 500.0, Symbol.VESTS],
     ] as const)('should parse SMTAsset with amount %i correctly', (input, expectedAmount, expectedSymbol) => {
       const result = parseAsset(input)
       expect(result.amount).toBe(expectedAmount)
@@ -112,7 +112,7 @@ describe('parseAsset', () => {
 
     it('should handle SMTAsset with zero precision', () => {
       const smtAsset = {
-        amount: 123,
+        amount: '123',
         precision: 0,
         nai: '@@000000021' as keyof typeof NaiMap,
       }
