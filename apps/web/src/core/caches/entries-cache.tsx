@@ -35,13 +35,17 @@ export namespace EcencyEntriesCacheManagement {
       // Spreading getPostQueryOptions pulls in its `Entry | null` result, which
       // otherwise overrides this helper's own generic: callers lost the entry
       // subtype they passed in (ThreadItemEntry's host/container, for example)
-      // and had to cope with a null they never expect. Normalise the null to
-      // undefined and hand back the caller's type.
+      // and had to cope with a null they never expect.
       //
-      // The assertion covers the refetch case: initialData carries the subtype,
-      // but a background refetch resolves a plain Entry, so the extra fields are
-      // only guaranteed for as long as the cached entry supplies them.
-      select: (data: Entry | null | undefined) => (data ?? undefined) as T | undefined
+      // initialData carries the subtype, but a background refetch resolves a
+      // plain Entry, so the subtype-only fields would drop out from under
+      // callers that read them. Layering the refetched entry over the initial
+      // one keeps those fields while every field the server does return still
+      // wins, which makes the subtype the result actually has. react-query
+      // applies structural sharing to select output, so an unchanged entry
+      // keeps its previous reference rather than re-rendering consumers.
+      select: (data: Entry | null | undefined) =>
+        data ? ({ ...initialEntry, ...data } as T) : undefined
     };
   }
 
