@@ -52,7 +52,7 @@ export function WitnessesList() {
   const { data: witnessesUserAccounts } = useQuery(getAccountsQueryOptions(witnessesUserNames));
 
   const originalWitnesses = useMemo(
-    () => makeUnique(convertToOriginalWitnesses(transformedWitnesses, witnessesUserAccounts)),
+    () => makeUnique(convertToOriginalWitnesses(transformedWitnesses, witnessesUserAccounts ?? [])),
     [transformedWitnesses, witnessesUserAccounts]
   );
   const witnesses = useMemo(
