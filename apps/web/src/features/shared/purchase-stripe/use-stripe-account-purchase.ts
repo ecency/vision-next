@@ -1,6 +1,7 @@
 import { appAxios } from "@/api/axios";
 import { apiBase } from "@/api/helper";
 import { useMutation } from "@tanstack/react-query";
+import { CreateIntentResult, StripeOrderStatusValue } from "./stripe-types";
 
 // Premium Hive account, bought with a card. Mirrors ePoints STRIPE_PRODUCT_MAP
 // ('299accounts' => $2.99, no Points). The price/SKU are authoritative server-side; the
@@ -14,11 +15,6 @@ export interface AccountPurchaseMeta {
   referral?: string;
 }
 
-export interface CreateIntentResult {
-  client_secret: string;
-}
-
-export type StripeOrderStatusValue = "pending" | "processing" | "success" | "failed";
 
 export interface StripeAccountStatus {
   status: StripeOrderStatusValue | null;

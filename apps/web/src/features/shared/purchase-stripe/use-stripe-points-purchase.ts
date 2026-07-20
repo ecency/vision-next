@@ -2,12 +2,7 @@ import { appAxios } from "@/api/axios";
 import { apiBase } from "@/api/helper";
 import { ensureValidToken } from "@/utils";
 import { useMutation } from "@tanstack/react-query";
-
-export interface CreateIntentResult {
-  client_secret: string;
-}
-
-export type StripeOrderStatusValue = "pending" | "processing" | "success" | "failed";
+import { CreateIntentResult, StripeOrderStatusValue } from "./stripe-types";
 
 export interface StripeOrderStatus {
   status: StripeOrderStatusValue | null;

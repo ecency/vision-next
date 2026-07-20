@@ -54,7 +54,7 @@ const ForwardedButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Button
       "flex-row-reverse": props.iconPlacement === "left",
 
       // Styles
-      [BUTTON_STYLES[props.appearance ?? "primary"]]: !props.outline ?? true,
+      [BUTTON_STYLES[props.appearance ?? "primary"]]: !props.outline,
       [BUTTON_OUTLINE_STYLES[props.appearance ?? "primary"]]: props.outline ?? false,
       [BUTTON_SIZES[props.size ?? "md"]]: true,
 

@@ -34,7 +34,7 @@ export const DecksSettings = ({ show, setShow, deck }: Props) => {
   useEffect(() => {
     setName(deck?.title ?? name);
     setIcon(deck?.icon ?? icon);
-    setIsLocalStorage(deck?.storageType === "local" ?? false);
+    setIsLocalStorage(deck?.storageType === "local");
   }, [deck, icon, name]);
 
   const submit = () => {

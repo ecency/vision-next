@@ -14,7 +14,7 @@ export function List(props: HTMLProps<HTMLDivElement> & Props) {
     <div
       {...nativeProps}
       className={classNameObject({
-        "flex overflow-hidden": !props.grid ?? true,
+        "flex overflow-hidden": !props.grid,
         "grid grid-cols-2": props.grid ?? false,
         "gap-3": props.defer ?? false,
         "flex-row flex-wrap": props.inline ?? false,
