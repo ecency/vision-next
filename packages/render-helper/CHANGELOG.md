@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.5.21
+
+### Patch Changes
+
+- fix(hosting): dotted Hive account names + Buffer crash in image proxy (#1184)
+
 ## 2.5.20
 
 ### Patch Changes
