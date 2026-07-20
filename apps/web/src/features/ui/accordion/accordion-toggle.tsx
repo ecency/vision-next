@@ -23,7 +23,7 @@ export function AccordionToggle(props: Props) {
       onClick: () =>
         setShow({
           ...show,
-          [props.eventKey]: !show[props.eventKey] ?? false
+          [props.eventKey]: !show[props.eventKey]
         })
     },
     props.children

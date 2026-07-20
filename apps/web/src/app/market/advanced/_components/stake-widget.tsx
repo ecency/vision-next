@@ -49,7 +49,7 @@ export const StakeWidget = ({
   const [maxBuy, setMaxBuy] = useState(0);
   const [fraction, setFraction] = useState(storedFraction ?? 0.00001);
   const [viewType, setViewType] = useState(storedViewType ?? StakeWidgetViewType.All);
-  const [unlimited, setUnlimited] = useState(storedViewType !== StakeWidgetViewType.All ?? false);
+  const [unlimited, setUnlimited] = useState(storedViewType !== StakeWidgetViewType.All);
 
   const rowsCount = isMobile ? 5 : 20;
 

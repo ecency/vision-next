@@ -47,7 +47,7 @@ export const DeckGrid = () => {
   useOldDeckMigration();
 
   const onDragEnd = (result: DropResult) => {
-    const originalIndex = +result.source?.index ?? -1;
+    const originalIndex = result.source?.index ?? -1;
     const newIndex = result.destination?.index ?? -1;
 
     if (newIndex > -1 && originalIndex > -1) {

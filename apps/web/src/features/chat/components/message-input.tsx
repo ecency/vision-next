@@ -539,7 +539,6 @@ export function MessageInput({
         </div>
       </form>
       {showEmojiPicker && (
-        // @ts-expect-error next/dynamic loses component type
         <EmojiPicker
           show={showEmojiPicker}
           changeState={(state) => setShowEmojiPicker(state)}
