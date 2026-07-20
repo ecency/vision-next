@@ -120,7 +120,7 @@ export function PublishEditorPollEditor() {
           <div className="flex flex-col items-start gap-4 mt-4">
             <div>{i18next.t("polls.choices")}</div>
 
-            {poll.choices.map((choice, index) => (
+            {poll.choices.map((choice: string, index: number) => (
               <div key={index} className="animate-fade-in-up flex w-full items-center gap-2">
                 <FormControl
                   type="text"
@@ -143,7 +143,7 @@ export function PublishEditorPollEditor() {
                     onClick={() =>
                       setPoll({
                         ...poll,
-                        choices: poll.choices.filter((_, i) => i !== index)
+                        choices: poll.choices.filter((_: string, i: number) => i !== index)
                       })
                     }
                     aria-label={i18next.t("polls.remove-choice", { defaultValue: "Remove choice" })}

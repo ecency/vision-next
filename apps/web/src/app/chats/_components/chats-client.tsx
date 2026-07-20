@@ -25,7 +25,7 @@ import { FormControl } from "@ui/input";
 import { Button } from "@ui/button";
 import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
 import { checkSvg, dotsHorizontal, settingsSvg, volumeOffSvg } from "@ui/svg";
-import { MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ChangeEvent, MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import clsx from "clsx";
 import { useChatAdminStore } from "@/features/chat/chat-admin-store";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
@@ -437,7 +437,7 @@ export function ChatsClient() {
             type="search"
             placeholder={i18next.t("chat.search-channels")}
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
             className="w-full"
           />
           {searchTerm && (

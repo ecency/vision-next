@@ -12,12 +12,24 @@ import { Entry, Proposal } from "@/entities";
 import { LinearProgress, ProfileLink, ProfilePopover, UserAvatar } from "@/features/shared";
 import { accountReputation, parseAsset } from "@/utils";
 import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
-import { getDynamicPropsQueryOptions, getProposalVotesInfiniteQueryOptions } from "@ecency/sdk";
+import {
+  getDynamicPropsQueryOptions,
+  getProposalVotesInfiniteQueryOptions,
+  ProposalVoteRow
+} from "@ecency/sdk";
 import { Spinner } from "@ui/spinner";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { Pagination } from "@/features/ui";
 
 type SortOption = "reputation" | "hp";
+
+type VoterRow = {
+  name: string;
+  reputation: string | number;
+  hp: number;
+  proxyHp: number;
+  totalHp: number;
+};
 
 interface ProposalVotesProps {
   proposal: Proposal;
@@ -39,7 +51,11 @@ export function ProposalVotes({ proposal, onHide }: ProposalVotesProps) {
   } = useInfiniteQuery(getProposalVotesInfiniteQueryOptions(proposal.proposal_id, "", 1000));
 
   const votes = useMemo(
-    () => votesPages?.pages?.reduce((acc, page) => [...acc, ...page], []),
+    () =>
+      votesPages?.pages?.reduce(
+        (acc: ProposalVoteRow[], page: ProposalVoteRow[]) => [...acc, ...page],
+        []
+      ),
     [votesPages?.pages]
   );
 
@@ -67,9 +83,10 @@ export function ProposalVotes({ proposal, onHide }: ProposalVotesProps) {
           };
         })
         .filter(
-          (item) => !searchText || item.name.toLowerCase().includes(searchText.toLocaleLowerCase())
+          (item: VoterRow) =>
+            !searchText || item.name.toLowerCase().includes(searchText.toLocaleLowerCase())
         )
-        .sort((a, b) => {
+        .sort((a: VoterRow, b: VoterRow) => {
           if (sort === "reputation") {
             return b.reputation > a.reputation ? 1 : -1;
           }
@@ -138,7 +155,7 @@ export function ProposalVotes({ proposal, onHide }: ProposalVotesProps) {
         <div className="voters-list mb-4">
           <List grid={true} inline={true} defer={true}>
             {(voters?.length ?? 0) > 0 ? (
-              paginatedVoters?.map((x, index) => {
+              paginatedVoters?.map((x: VoterRow, index: number) => {
                 const strHp = numeral(x.hp).format("0.00,");
                 const strProxyHp = numeral(x.proxyHp).format("0.00,");
 

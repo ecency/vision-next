@@ -6,6 +6,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { arrowLeftSvg } from "@ui/svg";
 import { useMounted } from "@/utils/use-mounted";
 import { makeEntryPath } from "@/utils";
+import { Entry } from "@/entities";
 
 interface Props {
   topic: string;
@@ -17,7 +18,7 @@ export const DeckTopicsContentViewer = ({ onClose, backTitle, topic }: Props) =>
   const { data } = useInfiniteQuery(getPostsRankedInfiniteQueryOptions("trending", "", 20, topic));
 
   const dataFlow = useMemo(
-    () => data?.pages?.reduce((acc, item) => [...acc, ...item], []) ?? [],
+    () => data?.pages?.reduce((acc: Entry[], item: Entry[]) => [...acc, ...item], []) ?? [],
     [data]
   );
   const isMounted = useMounted();
@@ -46,7 +47,7 @@ export const DeckTopicsContentViewer = ({ onClose, backTitle, topic }: Props) =>
         </div>
       </div>
       <div>
-        {dataFlow?.map((item: any, index) => (
+        {dataFlow?.map((item: any, index: number) => (
           <div className="virtual-list-item" key={item.post_id}>
             <SearchListItem
               index={index + 1}
