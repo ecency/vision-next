@@ -1,4 +1,4 @@
-import { UilArrowUp, UilAt, UilBalanceScale, UilBell, UilBookmark, UilChartBar, UilChartLine, UilClock, UilCommentDots, UilComments, UilExchange, UilFileAlt, UilFileBlank, UilFire, UilLayerGroup, UilNewspaper, UilPercentage, UilPlus, UilQuestionCircle, UilRepeat, UilRss, UilSetting, UilShareAlt, UilStar, UilTag, UilTrophy, UilUsdCircle, UilUser, UilUserPlus, UilUsersAlt, UilVolumeMute, UilWallet } from "@tooni/iconscout-unicons-react";
+import { UilArrowUp, UilAt, UilBalanceScale, UilBell, UilBookmark, UilCalendarAlt, UilChartBar, UilChartLine, UilCommentDots, UilComments, UilExchange, UilFileAlt, UilFileBlank, UilFire, UilHeart, UilLayerGroup, UilNewspaper, UilPercentage, UilPlus, UilPlusCircle, UilQuestionCircle, UilRepeat, UilSetting, UilShareAlt, UilStar, UilTag, UilTrophy, UilUsdCircle, UilUser, UilUserPlus, UilUsersAlt, UilVolumeMute, UilWallet } from "@tooni/iconscout-unicons-react";
 
 // Column and action icons for the decks UI. These render from
 // @tooni/iconscout-unicons-react so the column picker stays visually consistent
@@ -25,7 +25,7 @@ export const hotIconSvg = <UilFire />;
 
 export const payoutsIconSvg = <UilUsdCircle />;
 
-export const newIconSvg = <UilClock />;
+export const newIconSvg = <UilPlusCircle />;
 
 export const mutedIconSvg = <UilVolumeMute />;
 
@@ -59,7 +59,7 @@ export const addIconSvg = <UilPlus />;
 
 export const settingsIconSvg = <UilSetting />;
 
-export const voteSvg = <UilArrowUp />;
+export const voteSvg = <UilHeart />;
 
 export const threadSvg = <UilComments />;
 
@@ -71,4 +71,4 @@ export const noContentSvg = <UilFileBlank />;
 
 export const balanceIconSvg = <UilBalanceScale />;
 
-export const whatsNewIconSvg = <UilRss />;
+export const whatsNewIconSvg = <UilCalendarAlt />;
