@@ -22,7 +22,7 @@ import clsx from "clsx";
 interface Props {
   isLoading?: boolean;
   onSign?: (key: PrivateKey) => void;
-  keyType?: "owner" | "active" | "memo";
+  keyType?: "owner" | "active" | "posting" | "memo";
 }
 
 export interface KeyInputImperativeHandle {
@@ -84,15 +84,21 @@ export const KeyInput = forwardRef<
             key,
             // detectHiveKeyDerivation only classifies the input format
             // (bip44 seed vs master password) against an owner/active
-            // authority. Memo keys are derived in the keyType === "memo"
-            // branches below, so classify against "active" here.
-            keyType === "memo" ? "active" : keyType
+            // authority. Posting and memo keys are derived from that same
+            // input in the branches below, so classify against "active" here.
+            keyType === "memo" || keyType === "posting" ? "active" : keyType
           );
 
           if (derivation === "bip44") {
             const keys = deriveHiveKeys(key);
+            // Every authority is mapped explicitly. "posting" used to fall
+            // through to keys.owner, so a posting-authority upgrade derived
+            // and signed with the owner key. The trailing keys.owner now
+            // covers only keyType "owner" and the callers that omit keyType
+            // and authenticate against the owner authority.
             const derivedKey =
               keyType === "active" ? keys.active :
+              keyType === "posting" ? keys.posting :
               keyType === "memo" ? keys.memo :
               keys.owner;
             privateKey = PrivateKey.fromString(derivedKey);
