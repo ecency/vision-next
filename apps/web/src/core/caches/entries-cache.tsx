@@ -18,7 +18,11 @@ export namespace EcencyEntriesCacheManagement {
     return {
       ...getPostQueryOptions(author ?? "", permlink),
       queryKey: entryKey(author ?? "", permlink ?? ""),
-      enabled: typeof author === "string" && typeof permlink === "string" && !!author && !!permlink
+      enabled: typeof author === "string" && typeof permlink === "string" && !!author && !!permlink,
+      // getPostQueryOptions resolves to `Entry | null`. Callers treat a missing
+      // post the same way they treat "not loaded yet", so normalise the null
+      // away here instead of making every call site handle both.
+      select: (data: Entry | null | undefined) => data ?? undefined
     };
   }
 
@@ -27,7 +31,21 @@ export namespace EcencyEntriesCacheManagement {
       ...getPostQueryOptions(initialEntry?.author ?? "", initialEntry?.permlink),
       queryKey: entryKey(initialEntry?.author ?? "", initialEntry?.permlink ?? ""),
       initialData: initialEntry,
-      enabled: !!initialEntry
+      enabled: !!initialEntry,
+      // Spreading getPostQueryOptions pulls in its `Entry | null` result, which
+      // otherwise overrides this helper's own generic: callers lost the entry
+      // subtype they passed in (ThreadItemEntry's host/container, for example)
+      // and had to cope with a null they never expect.
+      //
+      // initialData carries the subtype, but a background refetch resolves a
+      // plain Entry, so the subtype-only fields would drop out from under
+      // callers that read them. Layering the refetched entry over the initial
+      // one keeps those fields while every field the server does return still
+      // wins, which makes the subtype the result actually has. react-query
+      // applies structural sharing to select output, so an unchanged entry
+      // keeps its previous reference rather than re-rendering consumers.
+      select: (data: Entry | null | undefined) =>
+        data ? ({ ...initialEntry, ...data } as T) : undefined
     };
   }
 
