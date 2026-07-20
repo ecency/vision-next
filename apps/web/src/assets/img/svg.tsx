@@ -1,4 +1,5 @@
 import React from "react";
+import { UilArrowLeft, UilArrowRight, UilBell, UilBrightness, UilChat, UilCheck, UilCircle, UilComment, UilCreditCard, UilDesktop, UilExchange, UilEye, UilGrid, UilHeart, UilHistory, UilImage, UilLink, UilPlus, UilPlusCircle, UilPound, UilRefresh, UilRepeat, UilRocket, UilSort, UilSync, UilTag, UilTicket, UilUpload, UilVideo } from "@tooni/iconscout-unicons-react";
 
 export const appleSvg = (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 15 18">
@@ -22,14 +23,7 @@ export const googleSvg = (
   </svg>
 );
 
-export const desktopSvg = (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16">
-    <path
-      fill="#fff"
-      d="M14 1.333H2c-.733 0-1.333.6-1.333 1.334v8C.667 11.4 1.267 12 2 12h4.667v1.333H5.333v1.334h5.334v-1.334H9.333V12H14c.733 0 1.333-.6 1.333-1.333v-8c0-.734-.6-1.334-1.333-1.334zm0 9.334H2v-8h12v8z"
-    />
-  </svg>
-);
+export const desktopSvg = <UilDesktop />;
 
 export const blogSvg = (
   <svg viewBox="0 0 13 15">
@@ -134,14 +128,7 @@ export const earthSvg = (
   </svg>
 );
 
-export const brightnessSvg = (
-  <svg viewBox="0 0 24 24">
-    <path
-      fill="currentColor"
-      d="M12,18V6A6,6 0 0,1 18,12A6,6 0 0,1 12,18M20,15.31L23.31,12L20,8.69V4H15.31L12,0.69L8.69,4H4V8.69L0.69,12L4,15.31V20H8.69L12,23.31L15.31,20H20V15.31Z"
-    />
-  </svg>
-);
+export const brightnessSvg = <UilBrightness />;
 
 export const closeSvg = (
   <svg viewBox="0 0 24 24">
@@ -169,14 +156,7 @@ export const articleSvg = (
   </svg>
 );
 
-export const repeatSvg = (
-  <svg viewBox="0 0 24 24">
-    <path
-      fill="currentColor"
-      d="M17,17H7V14L3,18L7,22V19H19V13H17M7,7H17V10L21,6L17,2V5H5V11H7V7Z"
-    />
-  </svg>
-);
+export const repeatSvg = <UilRepeat />;
 
 export const chevronUpSvg = (
   <svg viewBox="0 0 24 24">
@@ -212,20 +192,7 @@ export const peopleSvg = (
   </svg>
 );
 
-export const heartSvg = (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="16"
-    height="16"
-    fill="currentColor"
-    viewBox="0 0 16 16"
-  >
-    <path
-      fillRule="evenodd"
-      d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"
-    />
-  </svg>
-);
+export const heartSvg = <UilHeart size={16} />;
 
 export const personFavoriteSvg = (
   <svg width="24" height="24" viewBox="0 0 24 24">
@@ -245,14 +212,7 @@ export const personFavoriteOutlineSvg = (
   </svg>
 );
 
-export const commentSvg = (
-  <svg viewBox="0 0 24 24">
-    <path
-      fill="currentColor"
-      d="M18,8H6V6H18V8M18,11H6V9H18V11M18,14H6V12H18V14M22,4A2,2 0 0,0 20,2H4A2,2 0 0,0 2,4V16A2,2 0 0,0 4,18H18L22,22V4Z"
-    />
-  </svg>
-);
+export const commentSvg = <UilComment />;
 
 export const menuDownSvg = (
   <svg viewBox="0 0 24 24">
@@ -302,14 +262,7 @@ export const rssSvg = (
   </svg>
 );
 
-export const ticketSvg = (
-  <svg viewBox="0 0 24 24">
-    <path
-      fill="currentColor"
-      d="M15.58,16.8L12,14.5L8.42,16.8L9.5,12.68L6.21,10L10.46,9.74L12,5.8L13.54,9.74L17.79,10L14.5,12.68M20,12C20,10.89 20.9,10 22,10V6C22,4.89 21.1,4 20,4H4A2,2 0 0,0 2,6V10C3.11,10 4,10.9 4,12A2,2 0 0,1 2,14V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V14A2,2 0 0,1 20,12Z"
-    />
-  </svg>
-);
+export const ticketSvg = <UilTicket />;
 
 export const reOrderHorizontalSvg = (
   <svg viewBox="0 0 24 24">
@@ -430,32 +383,11 @@ export const formatListBulletedSvg = (
   </svg>
 );
 
-export const linkSvg = (
-  <svg viewBox="0 0 24 24">
-    <path
-      fill="currentColor"
-      d="M3.9,12C3.9,10.29 5.29,8.9 7,8.9H11V7H7A5,5 0 0,0 2,12A5,5 0 0,0 7,17H11V15.1H7C5.29,15.1 3.9,13.71 3.9,12M8,13H16V11H8V13M17,7H13V8.9H17C18.71,8.9 20.1,10.29 20.1,12C20.1,13.71 18.71,15.1 17,15.1H13V17H17A5,5 0 0,0 22,12A5,5 0 0,0 17,7Z"
-    />
-  </svg>
-);
+export const linkSvg = <UilLink />;
 
-export const imageSvg = (
-  <svg viewBox="0 0 24 24">
-    <path
-      fill="currentColor"
-      d="M8.5,13.5L11,16.5L14.5,12L19,18H5M21,19V5C21,3.89 20.1,3 19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19Z"
-    />
-  </svg>
-);
+export const imageSvg = <UilImage />;
 
-export const gridSvg = (
-  <svg viewBox="0 0 24 24">
-    <path
-      fill="currentColor"
-      d="M10,4V8H14V4H10M16,4V8H20V4H16M16,10V14H20V10H16M16,16V20H20V16H16M14,20V16H10V20H14M8,20V16H4V20H8M8,14V10H4V14H8M8,8V4H4V8H8M10,14H14V10H10V14M4,2H20A2,2 0 0,1 22,4V20A2,2 0 0,1 20,22H4C2.92,22 2,21.1 2,20V4A2,2 0 0,1 4,2Z"
-    />
-  </svg>
-);
+export const gridSvg = <UilGrid />;
 
 export const emoticonHappyOutlineSvg = (
   <svg viewBox="0 0 24 24" fill="currentColor">
@@ -463,23 +395,9 @@ export const emoticonHappyOutlineSvg = (
   </svg>
 );
 
-export const poundSvg = (
-  <svg width={16} height={16} viewBox="0 0 24 24">
-    <path
-      fill="currentColor"
-      d="M5.41,21L6.12,17H2.12L2.47,15H6.47L7.53,9H3.53L3.88,7H7.88L8.59,3H10.59L9.88,7H15.88L16.59,3H18.59L17.88,7H21.88L21.53,9H17.53L16.47,15H20.47L20.12,17H16.12L15.41,21H13.41L14.12,17H8.12L7.41,21H5.41M9.53,9L8.47,15H14.47L15.53,9H9.53Z"
-    />
-  </svg>
-);
+export const poundSvg = <UilPound />;
 
-export const creditCardSvg = (
-  <svg viewBox="0 0 24 24">
-    <path
-      fill="currentColor"
-      d="M20,8H4V6H20M20,18H4V12H20M20,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6C22,4.89 21.1,4 20,4Z"
-    />
-  </svg>
-);
+export const creditCardSvg = <UilCreditCard />;
 
 export const deleteForeverSvg = (
   <svg viewBox="0 0 24 24">
@@ -490,11 +408,7 @@ export const deleteForeverSvg = (
   </svg>
 );
 
-export const checkSvg = (
-  <svg viewBox="0 0 24 24">
-    <path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z" />
-  </svg>
-);
+export const checkSvg = <UilCheck />;
 
 export const alertCircleSvg = (
   <svg viewBox="0 0 24 24">
@@ -505,41 +419,13 @@ export const alertCircleSvg = (
   </svg>
 );
 
-export const plusCircle = (
-  <svg viewBox="0 0 24 24">
-    <path
-      fill="currentColor"
-      d="M17,13H13V17H11V13H7V11H11V7H13V11H17M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"
-    />
-  </svg>
-);
+export const plusCircle = <UilPlusCircle />;
 
-export const arrowLeftSvg = (
-  <svg viewBox="0 0 24 24">
-    <path
-      fill="currentColor"
-      d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z"
-    />
-  </svg>
-);
+export const arrowLeftSvg = <UilArrowLeft />;
 
-export const arrowRightSvg = (
-  <svg viewBox="0 0 24 24">
-    <path
-      fill="currentColor"
-      d="M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z"
-    />
-  </svg>
-);
+export const arrowRightSvg = <UilArrowRight />;
 
-export const refreshSvg = (
-  <svg viewBox="0 0 24 24">
-    <path
-      fill="currentColor"
-      d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z"
-    />
-  </svg>
-);
+export const refreshSvg = <UilRefresh />;
 
 export const keySvg = (
   <svg width="18" height="18" viewBox="0 0 24 24">
@@ -550,12 +436,7 @@ export const keySvg = (
   </svg>
 );
 
-export const bellSvg = (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M0 0h24v24H0V0z" fill="none" />
-    <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z" />
-  </svg>
-);
+export const bellSvg = <UilBell />;
 
 export const bellOffSvg = (
   <svg viewBox="0 0 24 24">
@@ -566,14 +447,7 @@ export const bellOffSvg = (
   </svg>
 );
 
-export const syncSvg = (
-  <svg viewBox="0 0 24 24">
-    <path
-      fill="currentColor"
-      d="M12,18A6,6 0 0,1 6,12C6,11 6.25,10.03 6.7,9.2L5.24,7.74C4.46,8.97 4,10.43 4,12A8,8 0 0,0 12,20V23L16,19L12,15M12,4V1L8,5L12,9V6A6,6 0 0,1 18,12C18,13 17.75,13.97 17.3,14.8L18.76,16.26C19.54,15.03 20,13.57 20,12A8,8 0 0,0 12,4Z"
-    />
-  </svg>
-);
+export const syncSvg = <UilSync />;
 
 export const contentSaveSvg = (
   <svg viewBox="0 0 24 24">
@@ -626,42 +500,13 @@ export const checkAllSvg = (
   </svg>
 );
 
-export const rocketSvg = (
-  <svg width="16px" height="16px" viewBox="0 0 512 512" version="1.1">
-    <path
-      fill="currentColor"
-      d="M494.41,0.783 C490.167,0.972 412.085,4.973 340.075,42.863 L469.135,171.923 C507.025,99.913 511.026,21.831 511.215,17.588 L511.999,0 L494.41,0.783 Z"
-    />
-    <path
-      fill="currentColor"
-      d="M452.007,200.344 L311.654,59.992 C300.094,67.958 289.001,76.981 278.762,87.221 L222.827,143.156 L95.071,121.623 L2.84217094e-14,216.694 L127.757,238.227 L120.544,245.44 C104.756,261.227 97.327,282.83 99.624,306.271 C101.563,326.056 110.338,345.785 125.187,364.038 L244.128,245.097 L266.903,267.872 L147.961,386.812 C166.213,401.661 185.943,410.436 205.728,412.375 C208.52,412.649 211.284,412.785 214.017,412.785 C234.229,412.785 252.652,405.362 266.558,391.455 L273.77,384.243 L295.303,512 L390.374,416.929 L368.842,289.171 L424.777,233.236 C435.018,222.997 444.042,211.905 452.007,200.344 Z M351.08,202.692 C345.322,208.451 337.757,211.33 330.194,211.33 C322.63,211.33 315.065,208.45 309.308,202.692 C297.79,191.175 297.79,172.436 309.308,160.918 C320.825,149.4 339.565,149.4 351.082,160.918 C362.598,172.436 362.598,191.175 351.08,202.692 Z"
-    />
-  </svg>
-);
+export const rocketSvg = <UilRocket />;
 
-export const uploadSvg = (
-  <svg viewBox="0 0 24 24">
-    <path fill="currentColor" d="M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z" />
-  </svg>
-);
+export const uploadSvg = <UilUpload />;
 
-export const historySvg = (
-  <svg viewBox="0 0 24 24">
-    <path
-      fill="currentColor"
-      d="M13.5,8H12V13L16.28,15.54L17,14.33L13.5,12.25V8M13,3A9,9 0 0,0 4,12H1L4.96,16.03L9,12H6A7,7 0 0,1 13,5A7,7 0 0,1 20,12A7,7 0 0,1 13,19C11.07,19 9.32,18.21 8.06,16.94L6.64,18.36C8.27,20 10.5,21 13,21A9,9 0 0,0 22,12A9,9 0 0,0 13,3"
-    />
-  </svg>
-);
+export const historySvg = <UilHistory />;
 
-export const tagSvg = (
-  <svg viewBox="0 0 24 24">
-    <path
-      fill="currentColor"
-      d="M5.5,7A1.5,1.5 0 0,1 4,5.5A1.5,1.5 0 0,1 5.5,4A1.5,1.5 0 0,1 7,5.5A1.5,1.5 0 0,1 5.5,7M21.41,11.58L12.41,2.58C12.05,2.22 11.55,2 11,2H4C2.89,2 2,2.89 2,4V11C2,11.55 2.22,12.05 2.59,12.41L11.58,21.41C11.95,21.77 12.45,22 13,22C13.55,22 14.05,21.77 14.41,21.41L21.41,14.41C21.78,14.05 22,13.55 22,13C22,12.44 21.77,11.94 21.41,11.58Z"
-    />
-  </svg>
-);
+export const tagSvg = <UilTag />;
 
 export const scriptTextOutlineSvg = (
   <svg viewBox="0 0 24 24">
@@ -717,11 +562,7 @@ export const hiveEngineSvg = (
   </svg>
 );
 
-export const plusSvg = (
-  <svg viewBox="0 0 24 24">
-    <path fill="currentColor" d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
-  </svg>
-);
+export const plusSvg = <UilPlus />;
 
 export const textBoxOutline = (
   <svg viewBox="0 0 24 24">
@@ -813,12 +654,7 @@ export const copyContent = (
   </svg>
 );
 
-export const eyeSvg = (
-  <svg fill="currentColor" viewBox="0 0 16 16">
-    <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z" />
-    <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z" />
-  </svg>
-);
+export const eyeSvg = <UilEye />;
 export const eyeBoldSvg = (
   <svg width="19" height="13" viewBox="0 0 19 13" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path
@@ -832,17 +668,7 @@ export const eyeBoldSvg = (
   </svg>
 );
 
-export const exchangeSvg = (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="16"
-    height="16"
-    fill="currentColor"
-    viewBox="0 0 16 16"
-  >
-    <path d="M0 5a5.002 5.002 0 0 0 4.027 4.905 6.46 6.46 0 0 1 .544-2.073C3.695 7.536 3.132 6.864 3 5.91h-.5v-.426h.466V5.05c0-.046 0-.093.004-.135H2.5v-.427h.511C3.236 3.24 4.213 2.5 5.681 2.5c.316 0 .59.031.819.085v.733a3.46 3.46 0 0 0-.815-.082c-.919 0-1.538.466-1.734 1.252h1.917v.427h-1.98c-.003.046-.003.097-.003.147v.422h1.983v.427H3.93c.118.602.468 1.03 1.005 1.229a6.5 6.5 0 0 1 4.97-3.113A5.002 5.002 0 0 0 0 5zm16 5.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0zm-7.75 1.322c.069.835.746 1.485 1.964 1.562V14h.54v-.62c1.259-.086 1.996-.74 1.996-1.69 0-.865-.563-1.31-1.57-1.54l-.426-.1V8.374c.54.06.884.347.966.745h.948c-.07-.804-.779-1.433-1.914-1.502V7h-.54v.629c-1.076.103-1.808.732-1.808 1.622 0 .787.544 1.288 1.45 1.493l.358.085v1.78c-.554-.08-.92-.376-1.003-.787H8.25zm1.96-1.895c-.532-.12-.82-.364-.82-.732 0-.41.311-.719.824-.809v1.54h-.005zm.622 1.044c.645.145.943.38.943.796 0 .474-.37.8-1.02.86v-1.674l.077.018z" />
-  </svg>
-);
+export const exchangeSvg = <UilExchange size={16} />;
 
 export const cashCoinSvg = (
   <svg
@@ -1072,19 +898,7 @@ export const externalLink = (
   </svg>
 );
 
-export const sortSvg = (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="20"
-    height="20"
-    color="#357ce6"
-    fill="currentColor"
-    className="bi bi-sort-down-alt"
-    viewBox="0 0 16 16"
-  >
-    <path d="M3.5 3.5a.5.5 0 0 0-1 0v8.793l-1.146-1.147a.5.5 0 0 0-.708.708l2 1.999.007.007a.497.497 0 0 0 .7-.006l2-2a.5.5 0 0 0-.707-.708L3.5 12.293V3.5zm4 .5a.5.5 0 0 1 0-1h1a.5.5 0 0 1 0 1h-1zm0 3a.5.5 0 0 1 0-1h3a.5.5 0 0 1 0 1h-3zm0 3a.5.5 0 0 1 0-1h5a.5.5 0 0 1 0 1h-5zM7 12.5a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 0-1h-7a.5.5 0 0 0-.5.5z" />
-  </svg>
-);
+export const sortSvg = <UilSort size={20} />;
 
 export const swapSvg = (
   <svg
@@ -1334,17 +1148,7 @@ export const messageSendSvg = (
   </svg>
 );
 
-export const videoSvg = (
-  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path
-      d="M16 10L18.5768 8.45392C19.3699 7.97803 19.7665 7.74009 20.0928 7.77051C20.3773 7.79703 20.6369 7.944 20.806 8.17433C21 8.43848 21 8.90095 21 9.8259V14.1741C21 15.099 21 15.5615 20.806 15.8257C20.6369 16.056 20.3773 16.203 20.0928 16.2295C19.7665 16.2599 19.3699 16.022 18.5768 15.5461L16 14M6.2 18H12.8C13.9201 18 14.4802 18 14.908 17.782C15.2843 17.5903 15.5903 17.2843 15.782 16.908C16 16.4802 16 15.9201 16 14.8V9.2C16 8.0799 16 7.51984 15.782 7.09202C15.5903 6.71569 15.2843 6.40973 14.908 6.21799C14.4802 6 13.9201 6 12.8 6H6.2C5.0799 6 4.51984 6 4.09202 6.21799C3.71569 6.40973 3.40973 6.71569 3.21799 7.09202C3 7.51984 3 8.07989 3 9.2V14.8C3 15.9201 3 16.4802 3.21799 16.908C3.40973 17.2843 3.71569 17.5903 4.09202 17.782C4.51984 18 5.07989 18 6.2 18Z"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
+export const videoSvg = <UilVideo />;
 
 export const uploadSvgV = (
   <svg
@@ -1385,11 +1189,7 @@ export const recordVideoSvg = (
   </svg>
 );
 
-export const circleSvg = (
-  <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <circle r="12" cx="12" cy="12" fill="currentColor" />
-  </svg>
-);
+export const circleSvg = <UilCircle />;
 
 export const rectSvg = (
   <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -1416,18 +1216,4 @@ export const switchCameraSvg = (
   </svg>
 );
 
-export const chatSvg = (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="21"
-    height="21"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="square"
-    strokeLinejoin="round"
-  >
-    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-  </svg>
-);
+export const chatSvg = <UilChat size={21} />;

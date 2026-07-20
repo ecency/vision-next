@@ -19,7 +19,10 @@ vi.mock("@tanstack/react-query", () => ({
 
 // Spread props so the transient animation className/onAnimationEnd wiring on
 // the icon stays observable.
-vi.mock("@tooni/iconscout-unicons-react", () => ({
+// Spread the real module so unrelated icons pulled in transitively keep resolving;
+// only the two this spec asserts on are stubbed.
+vi.mock("@tooni/iconscout-unicons-react", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@tooni/iconscout-unicons-react")>()),
   UilBookmark: (props: any) => <svg data-testid="bookmark-icon" {...props} />,
   UilBell: () => <svg data-testid="bell-icon" />
 }));
