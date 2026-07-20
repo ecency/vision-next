@@ -132,10 +132,13 @@ jobs:
             ecency/hosting-api:${{ steps.tag.outputs.channel }}
 
   deploy-staging:
-    # Both deploy jobs share one group with NO ref: they SSH to the same host and run
-    # docker compose up -d against the same ~/hosting project, so develop and main are one
-    # deployment target. Queuing serialises them; cancelling would interrupt a live
-    # compose run and could strand the host if the superseding run failed before deploying.
+    # The only deploy job. There used to be a second one gated on main, but the two were
+    # identical apart from the step label — same host, same ~/hosting compose project,
+    # same script — so develop and main were deploying the same stack to the same place
+    # and whichever ran last won. main still builds and publishes the :latest images
+    # below; it just no longer redeploys this host.
+    # Queues rather than cancels: an interrupted SSH/compose run can leave the host
+    # partially updated, and nothing is guaranteed to re-apply it.
     concurrency:
       group: ${{ github.workflow }}-deploy
       cancel-in-progress: false
@@ -159,54 +162,8 @@ jobs:
           strip_components: 3
           overwrite: true
 
-      - name: Deploy to staging
-        uses: appleboy/ssh-action@v1
-        env:
-          DEPLOY_SHA: ${{ github.sha }}
-          POSTGRES_PASSWORD: ${{ secrets.HOSTING_POSTGRES_PASSWORD }}
-          JWT_SECRET: ${{ secrets.HOSTING_JWT_SECRET }}
-          PAYMENT_ACCOUNT: ${{ secrets.HOSTING_PAYMENT_ACCOUNT }}
-        with:
-          host: ${{ secrets.SSH_HOST_EU }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          envs: DEPLOY_SHA,POSTGRES_PASSWORD,JWT_SECRET,PAYMENT_ACCOUNT
-          script: |
-            IMAGE_TAG="sha-${DEPLOY_SHA::7}"
-            export POSTGRES_PASSWORD=$POSTGRES_PASSWORD
-            export JWT_SECRET=$JWT_SECRET
-            export PAYMENT_ACCOUNT=$PAYMENT_ACCOUNT
-            cd ~/hosting
-            docker pull ecency/self-hosted:$IMAGE_TAG
-            docker pull ecency/hosting-api:$IMAGE_TAG
-            TAG=$IMAGE_TAG docker compose up -d
-
-  deploy:
-    concurrency:
-      group: ${{ github.workflow }}-deploy
-      cancel-in-progress: false
-    needs: [build-blog, build-api]
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          sparse-checkout: apps/self-hosted/hosting
-
-      - name: Sync hosting config to server
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SSH_HOST_EU }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          source: "apps/self-hosted/hosting/docker-compose.yml,apps/self-hosted/hosting/nginx-multi-tenant.conf,apps/self-hosted/hosting/default-config.json,apps/self-hosted/hosting/db/*"
-          target: ~/hosting
-          strip_components: 3
-          overwrite: true
-
-      - name: Deploy to production
+      # Named 'staging' historically; this host serves the live managed blogs.
+      - name: Deploy hosting stack
         uses: appleboy/ssh-action@v1
         env:
           DEPLOY_SHA: ${{ github.sha }}
