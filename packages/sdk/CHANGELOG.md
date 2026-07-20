@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.58
+
+### Patch Changes
+
+- refactor(types): remove the last draft and market-asset casts (#1205)
+
 ## 2.3.57
 
 ### Patch Changes
