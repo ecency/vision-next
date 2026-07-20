@@ -9,7 +9,7 @@ import i18next from "i18next";
 import { LinearProgress } from "@/features/shared";
 import { OperationGroup } from "@/consts";
 import { getTransactionsInfiniteQueryOptions } from "@ecency/sdk";
-import { Account, Transaction } from "@/entities";
+import { Account } from "@/entities";
 import useMount from "react-use/lib/useMount";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
@@ -31,13 +31,13 @@ export const TransactionsList = ({ account }: Props) => {
   } = useInfiniteQuery(getTransactionsInfiniteQueryOptions(account.name, 20, group));
   const transactionsFlow = useMemo(
     () =>
-      transactionsList?.pages?.flatMap((page: { entries: Transaction[] }) => page.entries) ?? [],
+      transactionsList?.pages?.flatMap((page) => page.entries) ?? [],
     [transactionsList?.pages]
   );
   const uniqueTransactionsList = useMemo(
     () =>
       Array.from(
-        new Map(transactionsFlow.map((item: Transaction) => [item["num"], item])).values()
+        new Map(transactionsFlow.map((item) => [item["num"], item])).values()
       ),
     [transactionsFlow]
   );

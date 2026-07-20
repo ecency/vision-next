@@ -5,7 +5,7 @@ import React, { useMemo } from "react";
 import { useBottomPagination } from "@/core/hooks";
 import { usePostsFeedQuery } from "@/api/queries";
 import { Community, Entry, SearchResponse } from "@/entities";
-import type { UseInfiniteQueryResult, InfiniteData } from "@tanstack/react-query";
+import type { InfiniteData } from "@tanstack/react-query";
 
 interface Props {
     community: Community;
@@ -16,7 +16,7 @@ type FeedPage = Entry[] | SearchResponse;
 
 export function CommunityContentInfiniteList({ section, community }: Props) {
     // ⚠️ Don't destructure the cast; assign first, then read props.
-    const result = usePostsFeedQuery(section, community.name) as UseInfiniteQueryResult<FeedPage, Error>;
+    const result = usePostsFeedQuery(section, community.name);
 
     const fetchNextPage = result.fetchNextPage;
     const isFetching = result.isFetching;

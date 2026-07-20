@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.56
+
+### Patch Changes
+
+- fix(types): type infinite queries as InfiniteData in SDK factories (#1183)
+
 ## 2.3.55
 
 ### Patch Changes

@@ -5,7 +5,6 @@ import { TransferFormText } from "@/features/shared/transfer/transfer-form-text"
 import React, { useContext, useMemo } from "react";
 import { TransferSharedStateContext } from "@/features/shared/transfer/transfer-shared-state";
 import { getTransactionsInfiniteQueryOptions } from "@ecency/sdk";
-import { Transaction } from "@/entities";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
@@ -21,7 +20,7 @@ export function TransferStep1To({ toWarning, toError }: Props) {
 
   const { data: transactions } = useInfiniteQuery(getTransactionsInfiniteQueryOptions(activeUser?.username));
   const transactionsFlow = useMemo(
-    () => transactions?.pages?.flatMap((page: { entries: Transaction[] }) => page.entries) ?? [],
+    () => transactions?.pages?.flatMap((page) => page.entries) ?? [],
     [transactions]
   );
 
@@ -31,11 +30,11 @@ export function TransferStep1To({ toWarning, toError }: Props) {
         new Set(
           transactionsFlow
             .filter(
-              (x: Transaction) =>
+              (x) =>
                 (x.type === "transfer" && x.from === activeUser?.username) ||
                 (x.type === "delegate_vesting_shares" && x.delegator === activeUser?.username)
             )
-            .map((x: Transaction) =>
+            .map((x) =>
               x.type === "transfer" ? x.to : x.type === "delegate_vesting_shares" ? x.delegatee : ""
             )
             .filter((x: string) => {

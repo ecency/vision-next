@@ -10,7 +10,7 @@ import { LinearProgress } from "@/features/shared/linear-progress";
 import { UserAvatar } from "@/features/shared/user-avatar";
 import { getPostsRankedQueryOptions, QueryKeys } from "@ecency/sdk";
 import { getQueryClient } from "@/core/react-query";
-import type { UseInfiniteQueryResult, InfiniteData } from "@tanstack/react-query";
+import type { InfiniteData } from "@tanstack/react-query";
 
 const MAX_PENDING = 20;
 const MAX_AVATARS = 5;
@@ -28,7 +28,7 @@ export function FeedLayout(props: PropsWithChildren<Props>) {
   const listStyle = useGlobalStore((s) => s.listStyle);
 
   // 👇 Make the hook result explicitly an infinite query over Page
-  const result = usePostsFeedQuery(props.filter, props.tag, props.observer) as UseInfiniteQueryResult<Page, Error>;
+  const result = usePostsFeedQuery(props.filter, props.tag, props.observer);
   const isFetching = result.isFetching;
   const data = result.data as InfiniteData<Page, unknown> | undefined;
 

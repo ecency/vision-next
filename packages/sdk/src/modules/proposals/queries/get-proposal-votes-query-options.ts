@@ -1,4 +1,4 @@
-import { infiniteQueryOptions } from "@tanstack/react-query";
+import { InfiniteData, infiniteQueryOptions } from "@tanstack/react-query";
 import { ProposalVote } from "../types";
 import { FullAccount } from "@/modules/accounts";
 import { parseAccounts } from "@/modules/accounts/utils";
@@ -25,7 +25,13 @@ export function getProposalVotesInfiniteQueryOptions(
   voter: string,
   limit: number
 ) {
-  return infiniteQueryOptions<ProposalVoteRow[], Error, ProposalVoteRow[], (string | number)[], Cursor>({
+  return infiniteQueryOptions<
+    ProposalVoteRow[],
+    Error,
+    InfiniteData<ProposalVoteRow[], Cursor>,
+    (string | number)[],
+    Cursor
+  >({
     queryKey: ["proposals", "votes", proposalId, voter, limit],
     initialPageParam: voter as Cursor,
     refetchOnMount: true,

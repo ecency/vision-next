@@ -1,4 +1,4 @@
-import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
+import { InfiniteData, infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { CONFIG, INTERNAL_API_TIMEOUT_MS, withTimeoutSignal, QueryKeys } from "@/modules/core";
 import { SearchResponse } from "../types/search-response";
 
@@ -55,7 +55,13 @@ export function getControversialRisingInfiniteQueryOptions(
   tag: string,
   enabled = true
 ) {
-  return infiniteQueryOptions<SearchResponse, Error, SearchResponse, (string | number)[], PageParam>({
+  return infiniteQueryOptions<
+    SearchResponse,
+    Error,
+    InfiniteData<SearchResponse, PageParam>,
+    (string | number)[],
+    PageParam
+  >({
     queryKey: QueryKeys.search.controversialRising(what, tag),
     initialPageParam: { sid: undefined, hasNextPage: true } as PageParam,
 

@@ -1,5 +1,5 @@
 import { QueryKeys } from "@/modules/core";
-import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
+import { InfiniteData, infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { Entry } from "../types";
 import { filterDmcaEntry } from "../utils/filter-dmca-entries";
 import { getAccountPosts } from "@/modules/bridge";
@@ -18,7 +18,13 @@ export function getAccountPostsInfiniteQueryOptions(
   observer = "",
   enabled = true
 ) {
-  return infiniteQueryOptions<Page, Error, Page, (string | number)[], PageParam>({
+  return infiniteQueryOptions<
+    Page,
+    Error,
+    InfiniteData<Page, PageParam>,
+    (string | number)[],
+    PageParam
+  >({
     queryKey: QueryKeys.posts.accountPosts(username ?? "", filter, limit, observer),
     enabled: !!username && enabled,
     initialPageParam: {

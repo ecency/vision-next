@@ -1,4 +1,4 @@
-import { infiniteQueryOptions } from "@tanstack/react-query";
+import { InfiniteData, infiniteQueryOptions } from "@tanstack/react-query";
 import { QueryKeys } from "@/modules/core";
 import { Entry, WaveEntry } from "../types";
 import {
@@ -116,7 +116,13 @@ type WavesPage = WaveEntry[];
 type WavesCursor = WaveEntry | undefined;
 
 export function getWavesByHostQueryOptions(host: string) {
-  return infiniteQueryOptions<WavesPage, Error, WavesPage, string[], WavesCursor>({
+  return infiniteQueryOptions<
+    WavesPage,
+    Error,
+    InfiniteData<WavesPage, WavesCursor>,
+    string[],
+    WavesCursor
+  >({
     queryKey: QueryKeys.posts.wavesByHost(host),
     initialPageParam: undefined as WavesCursor,
 

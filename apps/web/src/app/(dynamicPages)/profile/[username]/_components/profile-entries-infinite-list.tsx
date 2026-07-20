@@ -31,7 +31,7 @@ export function ProfileEntriesInfiniteList({
   const dropFirstPage = initialPageEntriesCount > 0;
 
   const entryList = useMemo(() => {
-    const pages = data?.pages ?? [];
+    const pages = (data?.pages ?? []) as Entry[][];
     const relevantPages = dropFirstPage ? pages.slice(1) : pages;
     return (
       relevantPages

@@ -3,7 +3,7 @@
 import React, { useMemo } from "react";
 import { usePostsFeedQuery } from "@/api/queries";
 import { Entry, SearchResponse } from "@/entities";
-import type { UseInfiniteQueryResult, InfiniteData } from "@tanstack/react-query";
+import type { InfiniteData } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { DetectBottom } from "@/features/shared/detect-bottom";
 import { EntryListContent, EntryListContentLoading, EntryListContentNoData } from "@/features/shared/entry-list-content";
@@ -32,7 +32,7 @@ export function FeedList({ filter, tag, observer }: Props) {
 
   // Single source of truth - one query call
   const { data, fetchNextPage, isLoading, isFetching, isFetchingNextPage } =
-    usePostsFeedQuery(filter, tag, observer) as UseInfiniteQueryResult<Page, Error>;
+    usePostsFeedQuery(filter, tag, observer);
 
   // Extract entries from all pages (no skipping - simpler and works with client-side navigation)
   const entries = useMemo(() => {
