@@ -18,7 +18,11 @@ export namespace EcencyEntriesCacheManagement {
     return {
       ...getPostQueryOptions(author ?? "", permlink),
       queryKey: entryKey(author ?? "", permlink ?? ""),
-      enabled: typeof author === "string" && typeof permlink === "string" && !!author && !!permlink
+      enabled: typeof author === "string" && typeof permlink === "string" && !!author && !!permlink,
+      // getPostQueryOptions resolves to `Entry | null`. Callers treat a missing
+      // post the same way they treat "not loaded yet", so normalise the null
+      // away here instead of making every call site handle both.
+      select: (data: Entry | null | undefined) => data ?? undefined
     };
   }
 
@@ -27,7 +31,17 @@ export namespace EcencyEntriesCacheManagement {
       ...getPostQueryOptions(initialEntry?.author ?? "", initialEntry?.permlink),
       queryKey: entryKey(initialEntry?.author ?? "", initialEntry?.permlink ?? ""),
       initialData: initialEntry,
-      enabled: !!initialEntry
+      enabled: !!initialEntry,
+      // Spreading getPostQueryOptions pulls in its `Entry | null` result, which
+      // otherwise overrides this helper's own generic: callers lost the entry
+      // subtype they passed in (ThreadItemEntry's host/container, for example)
+      // and had to cope with a null they never expect. Normalise the null to
+      // undefined and hand back the caller's type.
+      //
+      // The assertion covers the refetch case: initialData carries the subtype,
+      // but a background refetch resolves a plain Entry, so the extra fields are
+      // only guaranteed for as long as the cached entry supplies them.
+      select: (data: Entry | null | undefined) => (data ?? undefined) as T | undefined
     };
   }
 
