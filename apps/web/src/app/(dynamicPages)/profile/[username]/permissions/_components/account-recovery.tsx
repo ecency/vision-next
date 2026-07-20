@@ -120,8 +120,16 @@ export function AccountRecovery() {
   }, [recoveries]);
 
   useEffect(() => {
-    methods.setValue("newRecoveryAccount", data?.recovery_account ?? "");
-    methods.setValue("isEcency", data?.recovery_account === ECENCY);
+    // Only seed the field once the account has actually loaded. `data` going
+    // back to undefined (remount, cache eviction) would otherwise blank a
+    // recovery account that was already loaded, or overwrite what the user is
+    // in the middle of typing. defaultValues already supplies the empty state.
+    if (!data) {
+      return;
+    }
+
+    methods.setValue("newRecoveryAccount", data.recovery_account ?? "");
+    methods.setValue("isEcency", data.recovery_account === ECENCY);
   }, [data]);
 
   useEffect(() => {
