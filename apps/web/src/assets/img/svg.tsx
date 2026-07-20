@@ -171,7 +171,7 @@ export const cashMultiple = (
   </svg>
 );
 
-export const exchangeSvg = <UilExchange size={16} />;
+export const exchangeSvg = <UilExchange />;
 
 export const cashCoinSvg = (
   <svg
