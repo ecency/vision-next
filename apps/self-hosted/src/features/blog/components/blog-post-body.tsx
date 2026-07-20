@@ -13,7 +13,13 @@ export function BlogPostBody({ entry, isRawContent }: Props) {
   const entryData = entry.original_entry || entry;
 
   const renderedBody = useMemo(
-    () => renderPostBody(entryData.body, false),
+    // embedVideosDirectly: emit ready-to-play iframes for YouTube/3Speak instead
+    // of click-to-play thumbnails. The self-hosted SPA does not run the web app's
+    // client-side video enhancers, so without this videos render as inert placeholders.
+    () =>
+      renderPostBody(entryData.body, false, false, 'ecency.com', undefined, {
+        embedVideosDirectly: true,
+      }),
     [entryData.body],
   );
 
