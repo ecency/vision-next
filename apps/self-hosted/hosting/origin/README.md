@@ -54,7 +54,11 @@ every DNS check and never issuing a certificate again.
 ## Notes
 
 - Domains under `ecency.com` are refused regardless of what the DB says.
-- A domain that stops resolving here simply stops being renewed and served; nothing else
-  breaks.
+- Removal is driven by the domain leaving the DB, never by a failed DNS lookup. A lookup
+  failure only holds back a first issuance. This matters because `getaddrinfo` errors are
+  indistinguishable from "points somewhere else", so treating them as removal meant a
+  resolver blip could delete a live vhost and its certificate.
+- A domain that stops resolving here keeps its vhost, which is harmless once traffic no
+  longer arrives, and simply fails to renew until it lapses.
 - Renewals run from `certbot.timer`; the deploy hook reloads nginx, which also closes a
   pre-existing gap where the wildcard renewed but nginx kept serving the old certificate.

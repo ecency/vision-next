@@ -12,7 +12,9 @@ Two kinds of host need a per-host certificate:
     with SSL_ERROR / "no alternative certificate subject name matches".
 
 For each such host this script:
-  1. checks the domain's DNS actually resolves to this origin (protects LE rate limits),
+  1. before a FIRST issuance only, checks the domain resolves to this origin (protects LE
+     rate limits). A failed lookup never removes anything: removal is driven solely by the
+     domain leaving the DB, so a resolver blip cannot delete a live vhost/certificate,
   2. issues a Let's Encrypt certificate via HTTP-01 webroot if none exists
      (the default_server on :80 serves /var/www/html, which answers the challenge),
   3. generates an nginx vhost that terminates TLS and proxies to the blog container
@@ -104,11 +106,16 @@ def save_state(state: dict) -> None:
 
 def fetch_domains() -> list[tuple[str, str]]:
     """(domain, tenant_username) for verified custom domains of active pro tenants."""
+    # 'expired' is included alongside 'active' for the same reason as the dotted
+    # subdomains below: an expired tenant keeps serving through the grace period, so
+    # pulling its certificate would break the domain outright instead of letting it
+    # lapse gracefully — and re-issuing later costs a Let's Encrypt round trip.
     sql = (
         "SELECT custom_domain, username FROM tenants "
         "WHERE custom_domain IS NOT NULL AND custom_domain <> '' "
         "AND custom_domain_verified = true "
-        "AND subscription_status = 'active' AND subscription_plan = 'pro';"
+        "AND subscription_status IN ('active', 'expired') "
+        "AND subscription_plan = 'pro';"
     )
     out = subprocess.run(
         ["docker", "exec", "ecency-hosting-postgres",
@@ -317,13 +324,22 @@ def reload_nginx(new_files: list[str]) -> None:
     test = subprocess.run(["nginx", "-t"], capture_output=True, text=True, timeout=30)
     if test.returncode != 0:
         # Quarantine the vhosts written this run so a bad file can't wedge nginx reloads.
+        quarantined = []
         for domain in new_files:
             path = os.path.join(VHOST_DIR, f"{domain}.conf")
             if os.path.exists(path):
                 os.rename(path, path + ".broken")
-                log(f"CRITICAL nginx -t failed; quarantined {path}.broken")
+                quarantined.append(path)
+                log(f"nginx -t failed; quarantined {path}.broken")
         retest = subprocess.run(["nginx", "-t"], capture_output=True, text=True, timeout=30)
         if retest.returncode != 0:
+            # The failure was already there and none of this run's files caused it, so
+            # putting them back is right: leaving them quarantined would take working
+            # domains down for a problem they had nothing to do with.
+            for path in quarantined:
+                os.rename(path + ".broken", path)
+            if quarantined:
+                log(f"restored {len(quarantined)} vhost(s): pre-existing nginx config error, not ours")
             log(f"CRITICAL nginx -t still failing, NOT reloading: {retest.stderr.strip()[-300:]}")
             return
     subprocess.run(["systemctl", "reload", "nginx"], timeout=30)
@@ -345,16 +361,29 @@ def main() -> None:
     changed: list[str] = []
 
     for domain, username in domains:
-        if not resolves_to_us(domain):
-            log(f"SKIP {domain}: DNS does not resolve to this origin yet")
-            continue
+        # Membership of `desired` follows the DB and nothing else. It used to depend on
+        # the DNS check below, which meant one failed lookup — a resolver blip is enough,
+        # since getaddrinfo errors resolve to "not ours" — dropped a live domain from the
+        # set and the sweep then deleted its vhost AND its certificate. Removal is now
+        # driven only by the domain leaving the DB, which is the one signal that actually
+        # means the customer is done with it.
+        desired.add(domain)
+
         if not cert_exists(domain):
+            # The DNS gate belongs here: its purpose is to avoid burning Let's Encrypt
+            # failure limits on domains that do not point at us yet, which is an
+            # issuance concern, not a reason to tear down something already serving.
+            if not resolves_to_us(domain):
+                log(f"SKIP {domain}: DNS does not resolve to this origin yet")
+                continue
             if not issuance_allowed(state, domain):
                 log(f"SKIP {domain}: issuance backoff active")
                 continue
             if not issue_cert(state, domain):
                 continue
-        desired.add(domain)
+
+        # Only reached with a certificate on disk; the vhost references its paths, so
+        # writing one without it would fail nginx -t.
         if write_vhost(domain, username):
             changed.append(domain)
 
