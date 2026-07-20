@@ -257,6 +257,12 @@ The monorepo follows a **layered architecture** with clear separation of concern
   - Reason: Packages should be reusable
 - Use hardcoded query key arrays — use `QueryKeys` from `@ecency/sdk`
   - Reason: Single source of truth for cache invalidation
+- Rely on Node globals (`Buffer`, `process`, `__dirname`) in package code that runs in a browser
+  - Reason: Next.js shims `Buffer`, the self-hosted SPA's bundler (Rsbuild/rspack) does not.
+    A `Buffer.from()` in `@ecency/render-helper` shipped a `ReferenceError: Buffer is not
+    defined` to every hosted blog while ecency.com stayed green. Use `TextEncoder`/
+    `Uint8Array`, or guard on `typeof X !== "undefined"` when a Node fallback is genuinely
+    needed. A package change is only proven by building `apps/self-hosted`, not by the web app
 
 **✅ DO**:
 - Put all Hive blockchain mutations in `@ecency/sdk`
@@ -693,6 +699,14 @@ The production build:
 - `apps/web/docker-compose.yml` (staging) and `apps/web/docker-compose.production.yml` (prod) define the **whole `vision` swarm stack** — including the `vapi` service (the separate [vision-api](https://github.com/ecency/vision-api) C#/.NET proxy, image `ecency/api`), `web`, and supporting services.
 - CI deploys: push to `develop` → staging stack deploy; push to `main` → production stack deploy. vision-api's own CI independently updates the running `vision_vapi` service by image digest.
 - **A stack deploy from this repo resets the full service spec of every service in the stack** (including `vapi`: image back to `:latest`, env, logging options) to what these compose files declare. Anything applied out-of-band with `docker service update` is overwritten — durable service settings belong in these files.
+
+### Managed blog hosting (`apps/self-hosted/hosting`)
+
+- `self-hosted.yml` runs on pushes to `develop` and `main`, but **only `develop` deploys**. `main` builds and publishes the `:latest` blog and hosting-api images for external self-hosters. Both branches previously deployed, with identical jobs pointing at the same host and the same compose project, so whichever ran last won.
+- The deploy copies a **fixed list** of files to the host: `docker-compose.yml`, `nginx-multi-tenant.conf`, `default-config.json` and `db/*`. Adding a file next to them does not deploy it.
+- **This means an edit made directly on the host to any of those files is reverted by the next deploy.** A fix to `nginx-multi-tenant.conf` applied on the box was silently undone this way; changes to those files belong in the repo.
+- `hosting/origin/` holds the config that lives on the host itself (edge nginx vhost, certificate automation). It is tracked for review and restore only — **not deployed by CI**, applied by hand via its `install.sh`, so the host stays the source of truth and on-box changes must be copied back. See its README.
+- There is **no staging tier**: a merge to `develop` deploys straight to the host serving live blogs.
 
 ## Key Files for Understanding
 
