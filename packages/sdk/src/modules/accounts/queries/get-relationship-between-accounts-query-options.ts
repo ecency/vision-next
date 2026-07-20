@@ -4,8 +4,8 @@ import { AccountRelationship } from "../types";
 import { callRPC } from "@/modules/core/hive-tx";
 
 export function getRelationshipBetweenAccountsQueryOptions(
-  reference: string,
-  target: string
+  reference: string | undefined,
+  target: string | undefined
 ) {
   return queryOptions({
     queryKey: QueryKeys.accounts.relations(reference, target),

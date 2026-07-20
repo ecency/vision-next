@@ -135,6 +135,8 @@ export interface ReturnVestingDelegation extends BaseTransaction {
 export interface ProposalPay extends BaseTransaction {
   type: "proposal_pay";
   payment: string;
+  receiver: string;
+  proposal_id: number;
 }
 
 export interface UpdateProposalVotes extends BaseTransaction {
