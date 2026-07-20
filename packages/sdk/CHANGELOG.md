@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.57
+
+### Patch Changes
+
+- fix(types): correct SDK declarations that understate their payloads (#1189)
+
 ## 2.3.56
 
 ### Patch Changes
