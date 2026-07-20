@@ -5,6 +5,15 @@ on:
     branches:
       - develop
 
+# The one workflow here that queues rather than cancels. Deploys are idempotent — a
+# cancelled one is re-applied in full by the run that superseded it — but publishing is
+# not: interrupting a multi-package publish leaves the set half-released, and npm will
+# not accept the same version twice, so there is no way to re-run into a clean state.
+# Queuing also keeps two pushes from racing to publish the same version.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 permissions:
   id-token: write
   contents: read

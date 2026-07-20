@@ -14,11 +14,20 @@ on:
 
 # Default to read-only GITHUB_TOKEN. Build pushes to Docker Hub (external);
 # deploy jobs SCP/SSH to servers — neither path needs GitHub write access.
+# Concurrency is declared PER JOB below, not here: a workflow-level group would cancel
+# the whole run, deploy included. Splitting it lets the expensive test/build phase be
+# cancelled when a newer commit supersedes it, while an in-flight deploy is allowed to
+# finish and the next one queues behind it.
 permissions:
   contents: read
 
 jobs:
   tests:
+    # Build phase cancels, keyed on the ref: develop and main build different images, so
+    # they must not cancel each other.
+    concurrency:
+      group: ${{ github.workflow }}-build-${{ github.ref }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -47,6 +56,11 @@ jobs:
         run: cd apps/self-hosted/hosting/api && npm install && npm test
 
   build-blog:
+    # Its own group: build-blog and build-api run in parallel and would otherwise cancel
+    # each other.
+    concurrency:
+      group: ${{ github.workflow }}-build-blog-${{ github.ref }}
+      cancel-in-progress: true
     needs: tests
     runs-on: ubuntu-latest
     steps:
@@ -81,6 +95,9 @@ jobs:
             ecency/self-hosted:${{ steps.tag.outputs.channel }}
 
   build-api:
+    concurrency:
+      group: ${{ github.workflow }}-build-api-${{ github.ref }}
+      cancel-in-progress: true
     needs: tests
     runs-on: ubuntu-latest
     steps:
@@ -115,6 +132,13 @@ jobs:
             ecency/hosting-api:${{ steps.tag.outputs.channel }}
 
   deploy-staging:
+    # Both deploy jobs share one group with NO ref: they SSH to the same host and run
+    # docker compose up -d against the same ~/hosting project, so develop and main are one
+    # deployment target. Queuing serialises them; cancelling would interrupt a live
+    # compose run and could strand the host if the superseding run failed before deploying.
+    concurrency:
+      group: ${{ github.workflow }}-deploy
+      cancel-in-progress: false
     needs: [build-blog, build-api]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/develop'
@@ -159,6 +183,9 @@ jobs:
             TAG=$IMAGE_TAG docker compose up -d
 
   deploy:
+    concurrency:
+      group: ${{ github.workflow }}-deploy
+      cancel-in-progress: false
     needs: [build-blog, build-api]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'

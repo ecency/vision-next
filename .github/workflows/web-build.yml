@@ -4,6 +4,11 @@ on:
     branches:
       - 'develop'
 # Build-only smoke test — no writes back to GitHub.
+# Superseded runs are cancelled: this only proves the tip of develop builds, so an
+# older run tells us nothing once a newer commit has landed.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:

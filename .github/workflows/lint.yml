@@ -5,6 +5,11 @@ name: Lint
 on:
   pull_request:
 # Lint only — no writes back to GitHub.
+# Superseded runs are cancelled: pushing again to a PR makes the previous lint result
+# irrelevant, so letting it finish only burns runner minutes.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
