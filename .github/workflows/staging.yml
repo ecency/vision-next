@@ -8,19 +8,20 @@ on:
       - '.github/workflows/self-hosted.yml'
 # Default to read-only GITHUB_TOKEN. Build pushes to Docker Hub (external);
 # deploy uses SSH; neither needs write access to the GitHub repo.
-# Superseded runs are cancelled. Queuing them instead just replays intermediate states:
-# with rapid merges every push would build and deploy in turn, and only the last one
-# describes what the branch actually contains. A cancellation is always followed by the
-# run that superseded it, so a deploy interrupted part-way is re-applied in full moments
-# later — unless that newer run fails its tests, in which case the partial state stands
-# until the next green push.
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+# Concurrency is declared PER JOB below, not here: a workflow-level group would cancel
+# the whole run, deploy included. Splitting it lets the expensive test/build phase be
+# cancelled when a newer commit supersedes it, while an in-flight deploy is allowed to
+# finish and the next one queues behind it.
 permissions:
   contents: read
 jobs:
   tests:
+    # Build phase cancels: superseded test/build work is wasted spend, and only the newest
+    # commit on the branch is worth building. Shares one group with the build job below —
+    # they are sequential, so they never contend within a run.
+    concurrency:
+      group: ${{ github.workflow }}-build-${{ github.ref }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     env:
       NEXT_PUBLIC_GMAPS_API_KEY: ${{ secrets.GMAPS_API_KEY }}
@@ -54,6 +55,9 @@ jobs:
       env:
         CI: true
   build:
+    concurrency:
+      group: ${{ github.workflow }}-build-${{ github.ref }}
+      cancel-in-progress: true
     needs: tests
     runs-on: ubuntu-latest
     steps:
@@ -96,6 +100,13 @@ jobs:
         run: echo ${{ steps.docker_build.outputs.digest }}
 
   deploy:
+    # Deploy queues rather than cancels. Concurrency is declared per job so the expensive
+    # build phase can still be cancelled: an in-flight SSH/compose run is never interrupted
+    # part-way, which would leave the host partially updated with nothing guaranteed to
+    # re-apply it. Only the short deploy step can repeat, not a full rebuild.
+    concurrency:
+      group: ${{ github.workflow }}-deploy-${{ github.ref }}
+      cancel-in-progress: false
     needs: build
     runs-on: ubuntu-latest
     steps:

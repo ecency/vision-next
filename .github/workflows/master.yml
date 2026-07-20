@@ -7,17 +7,18 @@ on:
 # don't need any GitHub API access; the build job pushes only to Docker
 # Hub (external). Per-job overrides can be added if a step ever needs
 # write access on GitHub itself.
-# Superseded runs are cancelled, as on staging: queuing would deploy each intermediate
-# promotion in turn when several land together, and only the newest is wanted. The run
-# that superseded a cancelled deploy re-applies it in full, so a partial deploy is
-# transient — unless that newer run fails its tests and never reaches its deploy step.
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+# Concurrency is declared PER JOB below, not here: a workflow-level group would cancel
+# the whole run, deploy included. Splitting it lets the expensive test/build phase be
+# cancelled when a newer commit supersedes it, while an in-flight deploy is allowed to
+# finish and the next one queues behind it.
 permissions:
   contents: read
 jobs:
   tests:
+    # Build phase cancels; see the deploy jobs below for why deploys do not.
+    concurrency:
+      group: ${{ github.workflow }}-build-${{ github.ref }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     env:
       NEXT_PUBLIC_GMAPS_API_KEY: ${{ secrets.GMAPS_API_KEY }}
@@ -51,6 +52,9 @@ jobs:
       env:
         CI: true
   build:
+    concurrency:
+      group: ${{ github.workflow }}-build-${{ github.ref }}
+      cancel-in-progress: true
     needs: tests
     runs-on: ubuntu-latest
     steps:
@@ -96,6 +100,12 @@ jobs:
         run: echo ${{ steps.docker_build.outputs.digest }}
 
   deploy-EU:
+    # Production deploy queues rather than cancels: interrupting an SSH/compose run leaves
+    # the host partially updated, and if the superseding run fails before its own deploy,
+    # nothing re-applies it. Keyed per region so EU and US do not block each other.
+    concurrency:
+      group: ${{ github.workflow }}-deploy-EU-${{ github.ref }}
+      cancel-in-progress: false
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -186,6 +196,9 @@ jobs:
           docker system prune -f
 
   deploy-US:
+    concurrency:
+      group: ${{ github.workflow }}-deploy-US-${{ github.ref }}
+      cancel-in-progress: false
     needs: build
     runs-on: ubuntu-latest
     steps:
