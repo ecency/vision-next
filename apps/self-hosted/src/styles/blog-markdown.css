@@ -1408,20 +1408,20 @@
 
 /* ============================================
    Video & iframe embeds
-   render-helper emits these as direct iframes (embedVideosDirectly).
-   YouTube/3Speak/Vimeo/Twitch/Loom/DTube etc. get a responsive 16:9
-   frame so the player fills the content column instead of the browser
-   default 300x150 box. Audio players keep their natural height.
-   ============================================ */
+   render-helper emits real iframes for these providers: YouTube + 3Speak via
+   the embedVideosDirectly option, Vimeo/Twitch/Loom unconditionally. Each is
+   wrapped in a .markdown-video-link-<provider> anchor. Give that wrapper a
+   responsive 16:9 frame so the player fills the content column instead of the
+   browser default 300x150 box.
+   Note: bitchute/rumble/brighteon/dtube emit only the generic
+   .markdown-video-link class as click-to-play placeholders (no iframe, no
+   embedVideosDirectly branch), so they are not styled here and remain
+   non-playable on the self-hosted SPA. Audio embeds are handled separately below. */
 .markdown-body .markdown-video-link-youtube,
 .markdown-body .markdown-video-link-speak,
 .markdown-body .markdown-video-link-vimeo,
 .markdown-body .markdown-video-link-twitch,
-.markdown-body .markdown-video-link-loom,
-.markdown-body .markdown-video-link-bitchute,
-.markdown-body .markdown-video-link-rumble,
-.markdown-body .markdown-video-link-brighteon,
-.markdown-body .markdown-video-link-dtube {
+.markdown-body .markdown-video-link-loom {
   position: relative;
   display: block;
   width: 100%;
@@ -1441,11 +1441,7 @@
 .markdown-body .markdown-video-link-speak iframe,
 .markdown-body .markdown-video-link-vimeo iframe,
 .markdown-body .markdown-video-link-twitch iframe,
-.markdown-body .markdown-video-link-loom iframe,
-.markdown-body .markdown-video-link-bitchute iframe,
-.markdown-body .markdown-video-link-rumble iframe,
-.markdown-body .markdown-video-link-brighteon iframe,
-.markdown-body .markdown-video-link-dtube iframe {
+.markdown-body .markdown-video-link-loom iframe {
   position: absolute;
   top: 0;
   left: 0;
@@ -1457,10 +1453,20 @@
   display: block;
 }
 
-/* Standalone iframe embeds (raw author <iframe>, spotify/loom via iframe, etc.)
-   stay responsive 16:9. The higher-specificity container rules above override
-   this for iframes inside a .markdown-video-link-* wrapper. */
-.markdown-body iframe:not(.markdown-audio-link *) {
+/* Standalone iframe embeds (raw author-pasted <iframe> — the sanitizer strips
+   width/height, so without this they render at the 300x150 default). Kept
+   responsive 16:9. :where() holds this at zero added specificity so the
+   provider container rules above (and the audio overrides below) always win;
+   audio hosts are excluded so they are not stretched into video boxes. */
+.markdown-body
+  iframe:where(
+    :not(
+        .markdown-audio-link *,
+        .speak-audio-iframe,
+        [src*="open.spotify.com"],
+        [src*="soundcloud.com"]
+      )
+  ) {
   max-width: 100%;
   width: 100%;
   aspect-ratio: 16 / 9;
@@ -1470,8 +1476,14 @@
   margin: 1rem auto 0.5rem;
 }
 
-/* Audio players (3Speak audio, Spotify, Liketu) keep their natural height. */
-.markdown-body .markdown-audio-link iframe {
+/* Audio players (3Speak audio, Spotify, SoundCloud, Liketu): full width, natural
+   (short) height. width/height are stripped by the sanitizer, so the default
+   iframe height applies. */
+.markdown-body .markdown-audio-link iframe,
+.markdown-body iframe.speak-audio-iframe,
+.markdown-body iframe[src*="open.spotify.com"],
+.markdown-body iframe[src*="soundcloud.com"] {
   width: 100%;
+  max-width: 100%;
   border: none;
 }
