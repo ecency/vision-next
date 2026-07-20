@@ -125,7 +125,7 @@ export function usePostsFeedQuery(
     tag: string,
     observer?: string,
     limit = 20
-): UseInfiniteQueryResult<Page, Error> {
+): UseInfiniteQueryResult<InfiniteData<Page, unknown>, Error> {
   const isUser = tag.startsWith("@") || tag.startsWith("%40");
   const isPromotedSection = what === "promoted";
 
@@ -150,5 +150,8 @@ export function usePostsFeedQuery(
                 );
 
   // unify result type for callers
-  return useInfiniteQuery(queryOptions) as unknown as UseInfiniteQueryResult<Page, Error>;
+  return useInfiniteQuery(queryOptions) as unknown as UseInfiniteQueryResult<
+    InfiniteData<Page, unknown>,
+    Error
+  >;
 }

@@ -1,5 +1,5 @@
 import { CONFIG, QueryKeys } from "@/modules/core";
-import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
+import { InfiniteData, infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { Entry } from "../types";
 import { filterDmcaEntry } from "../utils/filter-dmca-entries";
 import { getPostsRanked } from "@/modules/bridge";
@@ -23,7 +23,13 @@ export function getPostsRankedInfiniteQueryOptions(
   enabled = true,
   _options: GetPostsRankedOptions = {}
 ) {
-  return infiniteQueryOptions<Entry[], Error, Entry[], (string | number)[], PageParam>({
+  return infiniteQueryOptions<
+    Entry[],
+    Error,
+    InfiniteData<Entry[], PageParam>,
+    (string | number)[],
+    PageParam
+  >({
     queryKey: QueryKeys.posts.postsRanked(sort, tag, limit, observer),
     queryFn: async ({ pageParam, signal }: { pageParam: PageParam; signal: AbortSignal }) => {
       if (!pageParam.hasNextPage) {

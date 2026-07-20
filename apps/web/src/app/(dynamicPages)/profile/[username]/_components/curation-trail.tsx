@@ -12,7 +12,7 @@ import { getAccountVoteHistoryInfiniteQueryOptions } from "@ecency/sdk";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { hiveTxUtils } from "@ecency/sdk";
 import { Account, Entry } from "@/entities";
-import type { UseInfiniteQueryResult, InfiniteData } from "@tanstack/react-query";
+import type { InfiniteData } from "@tanstack/react-query";
 
 interface Props {
     section: string;
@@ -51,7 +51,7 @@ export function CurationTrail({ account, section }: Props) {
             filters,
             dayLimit: days
         })
-    ) as UseInfiniteQueryResult<VoteHistoryPage, Error>;
+    );
 
     const { isLoading, fetchNextPage } = result;
     const data = result.data as InfiniteData<VoteHistoryPage, unknown> | undefined;

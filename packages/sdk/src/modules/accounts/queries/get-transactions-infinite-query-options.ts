@@ -1,4 +1,4 @@
-import { infiniteQueryOptions } from "@tanstack/react-query";
+import { InfiniteData, infiniteQueryOptions } from "@tanstack/react-query";
 import { utils } from "../../../hive-tx";
 import { QueryKeys } from "@/modules/core";
 import { Transaction, OperationGroup } from "../types/transaction";
@@ -154,7 +154,13 @@ export function getTransactionsInfiniteQueryOptions(
     ? ACCOUNT_OPERATION_GROUPS[group]
     : ALL_ACCOUNT_OPERATIONS;
 
-  return infiniteQueryOptions<TxPageRaw, Error, TxPageRaw, (string | number)[], TxCursor>({
+  return infiniteQueryOptions<
+    TxPageRaw,
+    Error,
+    InfiniteData<TxPageRaw, TxCursor>,
+    (string | number)[],
+    TxCursor
+  >({
     queryKey: QueryKeys.accounts.transactions(username ?? "", group, limit),
     initialPageParam: null as TxCursor,
 

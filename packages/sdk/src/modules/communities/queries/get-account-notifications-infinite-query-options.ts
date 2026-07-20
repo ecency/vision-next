@@ -1,4 +1,4 @@
-import { infiniteQueryOptions } from "@tanstack/react-query";
+import { InfiniteData, infiniteQueryOptions } from "@tanstack/react-query";
 import { QueryKeys } from "@/modules/core";
 import { AccountNotification } from "../types";
 import { callRPC } from "@/modules/core/hive-tx";
@@ -16,7 +16,13 @@ export function getAccountNotificationsInfiniteQueryOptions(
   account: string,
   limit: number
 ) {
-  return infiniteQueryOptions<NotifPage, Error, NotifPage, (string | number)[], NotifCursor>({
+  return infiniteQueryOptions<
+    NotifPage,
+    Error,
+    InfiniteData<NotifPage, NotifCursor>,
+    (string | number)[],
+    NotifCursor
+  >({
     queryKey: QueryKeys.communities.accountNotifications(account, limit),
     initialPageParam: null as NotifCursor,
 

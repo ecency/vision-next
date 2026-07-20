@@ -1,4 +1,4 @@
-import { infiniteQueryOptions } from "@tanstack/react-query";
+import { InfiniteData, infiniteQueryOptions } from "@tanstack/react-query";
 import { QueryKeys } from "@/modules/core";
 import { callREST } from "@/modules/core/hive-tx";
 import type {
@@ -39,7 +39,7 @@ export function getBalanceHistoryInfiniteQueryOptions(
   return infiniteQueryOptions<
     BalanceHistoryPage,
     Error,
-    BalanceHistoryPage,
+    InfiniteData<BalanceHistoryPage, BalanceHistoryCursor>,
     (string | number)[],
     BalanceHistoryCursor
   >({

@@ -31,7 +31,7 @@ export const DeckWalletColumn = ({ id, settings, draggable }: Props) => {
   const [isFirstLoaded, setIsFirstLoaded] = useState(false);
 
   const dataFlow = useMemo(
-    () => data?.pages?.flatMap((page: { entries: Transaction[] }) => page.entries) ?? [],
+    () => data?.pages?.flatMap((page) => page.entries) ?? [],
     [data]
   ) as IdentifiableTransaction[];
 

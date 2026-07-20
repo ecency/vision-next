@@ -1,4 +1,4 @@
-import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
+import { InfiniteData, infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { Witness, WitnessVotersResponse } from "../types";
 import { callREST } from "@/modules/core/hive-tx";
 import { QueryKeys } from "@/modules/core";
@@ -72,7 +72,13 @@ function mapRestWitness(w: HafbeWitness): Witness {
  * @param limit - Number of witnesses per page
  */
 export function getWitnessesInfiniteQueryOptions(limit: number) {
-  return infiniteQueryOptions<WitnessPage, Error, WitnessPage, (string | number)[], WitnessCursor>({
+  return infiniteQueryOptions<
+    WitnessPage,
+    Error,
+    InfiniteData<WitnessPage, WitnessCursor>,
+    (string | number)[],
+    WitnessCursor
+  >({
     queryKey: QueryKeys.witnesses.list(limit),
     initialPageParam: 1 as WitnessCursor,
 

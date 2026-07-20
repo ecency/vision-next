@@ -1,4 +1,4 @@
-import { infiniteQueryOptions } from "@tanstack/react-query";
+import { InfiniteData, infiniteQueryOptions } from "@tanstack/react-query";
 import { callRPC } from "@/modules/core/hive-tx";
 import { RcDirectDelegation, RcDirectDelegationsResponse } from "../types/rc-direct-delegation";
 
@@ -12,7 +12,13 @@ type RcCursor = string | null;
  * @param limit - Number of delegations per page
  */
 export function getOutgoingRcDelegationsInfiniteQueryOptions(username: string, limit = 100) {
-  return infiniteQueryOptions<RcPage, Error, RcPage, (string | number)[], RcCursor>({
+  return infiniteQueryOptions<
+    RcPage,
+    Error,
+    InfiniteData<RcPage, RcCursor>,
+    (string | number)[],
+    RcCursor
+  >({
     queryKey: ["wallet", "outgoing-rc-delegations", username, limit],
     initialPageParam: null as RcCursor,
 

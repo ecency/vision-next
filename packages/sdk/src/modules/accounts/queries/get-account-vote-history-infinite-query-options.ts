@@ -1,4 +1,4 @@
-import { infiniteQueryOptions } from "@tanstack/react-query";
+import { InfiniteData, infiniteQueryOptions } from "@tanstack/react-query";
 import { CONFIG } from "@/modules/core/config";
 import { QueryKeys } from "@/modules/core";
 import { Entry } from "@/modules/posts/types";
@@ -75,7 +75,7 @@ export function getAccountVoteHistoryInfiniteQueryOptions<F>(
   return infiniteQueryOptions<
     VoteHistoryPage,
     Error,
-    VoteHistoryPage,
+    InfiniteData<VoteHistoryPage, VoteHistoryPageParam>,
     (string | number)[],
     VoteHistoryPageParam
   >({
