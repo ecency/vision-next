@@ -45,7 +45,7 @@ export function useApiDraftDetector(
     const draftFromRegularQuery = draftsQuery.data!.find((draft) => draft._id === draftId);
     if (draftFromRegularQuery) {
       // The SDK query returns the SDK's Draft; the app keeps its own stricter local copy.
-      return draftFromRegularQuery as Draft;
+      return draftFromRegularQuery;
     }
 
     // If not found, check the infinite query cache (for paginated drafts)

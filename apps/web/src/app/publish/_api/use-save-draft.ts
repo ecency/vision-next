@@ -111,7 +111,7 @@ export function useSaveDraftApi(draftId?: string) {
         }
 
         const { drafts } = resp;
-        const draft = getCreatedDraft(previousDrafts, drafts as Draft[]);
+        const draft = getCreatedDraft(previousDrafts, drafts);
 
         queryClient.setQueryData(QueryKeys.posts.drafts(username), drafts);
         queryClient.invalidateQueries({ queryKey: QueryKeys.posts.draftsInfinite(username) });

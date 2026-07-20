@@ -1,4 +1,4 @@
-import { MarketAsset } from "@/api/market-pair";
+import { HiveMarketAsset, MarketAsset } from "@/features/market/market-swap-form/market-pair";
 import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
 import { useQuery } from "@tanstack/react-query";
 import { getDynamicPropsQueryOptions } from "@ecency/sdk";
@@ -20,7 +20,7 @@ export function BuyWithHiveForm({ onSubmit, isPending }: Props) {
   const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
 
   const [amount, setAmount] = useState("0");
-  const [asset, setAsset] = useState(MarketAsset.HIVE);
+  const [asset, setAsset] = useState<MarketAsset>(HiveMarketAsset.HIVE);
 
   const w = useMemo(
     () =>
@@ -30,18 +30,18 @@ export function BuyWithHiveForm({ onSubmit, isPending }: Props) {
     [account, dynamicProps]
   );
   const usdRate = useMemo(() => {
-    if (asset === MarketAsset.HIVE) {
+    if (asset === HiveMarketAsset.HIVE) {
       return dynamicProps ? dynamicProps.base / dynamicProps.quote : 0;
-    } else if (asset === MarketAsset.HBD) {
+    } else if (asset === HiveMarketAsset.HBD) {
       return 1;
     }
 
     return 0;
   }, [asset, w, dynamicProps]);
   const balance = useMemo(() => {
-    if (asset === MarketAsset.HIVE) {
+    if (asset === HiveMarketAsset.HIVE) {
       return w.balance.toFixed(2) + " HIVE";
-    } else if (asset === MarketAsset.HBD) {
+    } else if (asset === HiveMarketAsset.HBD) {
       return w.hbdBalance.toFixed(2) + " HBD";
     }
 
@@ -58,8 +58,8 @@ export function BuyWithHiveForm({ onSubmit, isPending }: Props) {
           setValue={(e) => setAmount(e)}
           labelKey={"market.from"}
           asset={asset}
-          availableAssets={[MarketAsset.HBD, MarketAsset.HIVE]}
-          setAsset={(nextAsset) => setAsset(nextAsset as MarketAsset)}
+          availableAssets={[HiveMarketAsset.HBD, HiveMarketAsset.HIVE]}
+          setAsset={setAsset}
           usdRate={usdRate}
           disabled={false}
           balance={balance}
@@ -74,8 +74,8 @@ export function BuyWithHiveForm({ onSubmit, isPending }: Props) {
           value={pointsAmount}
           setValue={(e) => {}}
           labelKey={"market.to"}
-          asset={"POINTS" as MarketAsset}
-          availableAssets={["POINTS" as MarketAsset]}
+          asset="POINTS"
+          availableAssets={["POINTS"]}
           setAsset={() => {}}
           usdRate={0.002}
           disabled={true}

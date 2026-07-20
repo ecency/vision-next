@@ -46,7 +46,7 @@ export function DraftsList({ onHide, onPick }: Props) {
 
   const allDrafts = useMemo(
     () =>
-      ((data?.pages.flatMap((page) => page.data) ?? []) as Draft[]).filter(
+      (data?.pages.flatMap((page) => page.data) ?? []).filter(
         (d) => !d.meta?.postTemplate
       ),
     [data]
