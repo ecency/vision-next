@@ -11,7 +11,14 @@
 const MANAGED_BASE_SUFFIX = ".blogs.ecency.com";
 
 export function parseClaimTarget(host: string): { name: string; isCommunity: boolean } {
-  const normalized = (host || "").toLowerCase().replace(/:\d+$/, "");
+  // Strip a port and a trailing DNS root dot: a rooted host ("…ecency.com.") is a valid
+  // FQDN a browser can hand us in location.hostname, and it would otherwise miss the
+  // suffix check and fall back to the first label. nginx does this normalisation itself
+  // server-side, so only this client-side parse needs it.
+  const normalized = (host || "")
+    .toLowerCase()
+    .replace(/:\d+$/, "")
+    .replace(/\.$/, "");
   const name = normalized.endsWith(MANAGED_BASE_SUFFIX)
     ? normalized.slice(0, -MANAGED_BASE_SUFFIX.length)
     : // Custom domains and local development have no managed suffix to strip; fall back to the

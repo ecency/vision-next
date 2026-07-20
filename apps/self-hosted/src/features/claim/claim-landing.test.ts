@@ -36,6 +36,19 @@ describe("parseClaimTarget", () => {
     });
   });
 
+  it("ignores a trailing DNS root dot", () => {
+    // A rooted FQDN is valid and a browser can surface it in location.hostname; without
+    // trimming it the suffix check misses and a dotted name degrades to its first label.
+    expect(parseClaimTarget("alice.dev.blogs.ecency.com.")).toEqual({
+      name: "alice.dev",
+      isCommunity: false,
+    });
+    expect(parseClaimTarget("hive-125126.blogs.ecency.com.")).toEqual({
+      name: "hive-125126",
+      isCommunity: true,
+    });
+  });
+
   it("ignores a port and host casing", () => {
     expect(parseClaimTarget("Alice.Blogs.Ecency.Com:8080")).toEqual({
       name: "alice",
