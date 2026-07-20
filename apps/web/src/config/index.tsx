@@ -60,9 +60,9 @@ export namespace EcencyConfigManager {
     useMutation(
       {
         ...options,
-        mutationFn: (args) => {
+        mutationFn: (args, context) => {
           if (condition(CONFIG) && options.mutationFn) {
-            return options.mutationFn(args);
+            return options.mutationFn(args, context);
           }
 
           if (!options.mutationFn) {

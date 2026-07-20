@@ -37,7 +37,7 @@ export function LoginUserByKey({ username }: Props) {
   );
 
   const handleLogin = () => {
-    loginByKey().catch(() => {
+    loginByKey(undefined).catch(() => {
       /* Already handled in onError of the mutation */
     });
   };

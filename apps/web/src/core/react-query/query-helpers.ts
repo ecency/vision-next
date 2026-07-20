@@ -82,9 +82,11 @@ export async function prefetchQuery<
  * // Server Component
  * const posts = await prefetchInfiniteQuery(getAccountPostsInfiniteQueryOptions(username));
  */
-export async function prefetchInfiniteQuery<TPage, TCursor>(
-  options: FetchInfiniteQueryOptions<TPage, Error, TPage, QueryKey, TCursor>
-) {
+export async function prefetchInfiniteQuery<
+  TPage,
+  TCursor,
+  TKey extends QueryKey = QueryKey
+>(options: FetchInfiniteQueryOptions<TPage, Error, TPage, TKey, TCursor>) {
   const qc = getQueryClient();
   await withSsrTimeout(qc.prefetchInfiniteQuery(options), options.queryKey);
   return qc.getQueryData<InfiniteData<TPage, TCursor>>(options.queryKey);
