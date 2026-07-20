@@ -119,7 +119,9 @@ function SetupExternalMetamaskInner({ username, onBack }: Props & { username: st
     setIsConnecting(true);
     try {
       // 1. Connect MetaMask (EVM)
-      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+      const accounts = (await window.ethereum.request({
+        method: "eth_requestAccounts"
+      })) as string[];
       if (!accounts?.[0]) throw new Error("No accounts returned");
       setEvmAddress(accounts[0]);
 

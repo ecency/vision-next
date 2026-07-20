@@ -637,6 +637,9 @@ importers:
       '@types/highcharts':
         specifier: ^7.0.0
         version: 7.0.0
+      '@types/js-cookie':
+        specifier: ^3.0.6
+        version: 3.0.6
       '@types/js-md5':
         specifier: ^0.7.0
         version: 0.7.2
@@ -3955,6 +3958,9 @@ packages:
 
   '@types/js-cookie@2.2.7':
     resolution: {integrity: sha512-aLkWa0C0vO5b4Sr798E26QgOkss68Un0bLjs7u9qxzPT5CG+8DuNTffWES58YzJs3hrVAOs1wonycqEBqNJubA==}
+
+  '@types/js-cookie@3.0.6':
+    resolution: {integrity: sha512-wkw9yd1kEXOPnvEeEV1Go1MmxtBJL0RR79aOTAApecWFVu7w0NNXNqhcWgvw2YgZDYadliXkl14pa3WXw5jlCQ==}
 
   '@types/js-md5@0.7.2':
     resolution: {integrity: sha512-IwcFIov1JbiEToo3DgrVEwkMUR1BVlVyLjk245AzGHyyOlyddDFIeSIZO+WlhTortOa4P1PdCS8cDrTl7RW1HA==}
@@ -11951,6 +11957,8 @@ snapshots:
 
   '@types/js-cookie@2.2.7': {}
 
+  '@types/js-cookie@3.0.6': {}
+
   '@types/js-md5@0.7.2': {}
 
   '@types/jsdom@28.0.0':
@@ -12318,7 +12326,7 @@ snapshots:
       obug: 2.1.1
       std-env: 4.1.0
       tinyrainbow: 3.1.0
-      vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.18.8)(@vitest/coverage-v8@4.1.8)(@vitest/ui@4.1.8)(jsdom@26.1.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(vite@8.0.16(@types/node@22.18.8)(esbuild@0.28.1)(jiti@2.6.1)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.47.1)(tsx@4.21.0))
+      vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.18.8)(@vitest/coverage-v8@4.1.8)(@vitest/ui@4.1.8)(jsdom@26.1.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(vite@8.0.16(@types/node@22.18.8)(esbuild@0.28.1)(jiti@1.21.7)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.47.1)(tsx@4.21.0))
 
   '@vitest/expect@4.1.8':
     dependencies:
@@ -12380,7 +12388,7 @@ snapshots:
       sirv: 3.0.2
       tinyglobby: 0.2.17
       tinyrainbow: 3.1.0
-      vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.18.8)(@vitest/coverage-v8@4.1.8)(@vitest/ui@4.1.8)(jsdom@26.1.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(vite@8.0.16(@types/node@22.18.8)(esbuild@0.28.1)(jiti@2.6.1)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.47.1)(tsx@4.21.0))
+      vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.18.8)(@vitest/coverage-v8@4.1.8)(@vitest/ui@4.1.8)(jsdom@26.1.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(vite@8.0.16(@types/node@22.18.8)(esbuild@0.28.1)(jiti@1.21.7)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.47.1)(tsx@4.21.0))
 
   '@vitest/utils@4.1.8':
     dependencies:

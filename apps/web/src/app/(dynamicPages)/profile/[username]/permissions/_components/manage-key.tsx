@@ -32,7 +32,7 @@ export function ManageKey({ keyName, onRevoke }: Props) {
             active: resp.active.key_auths,
             weight: resp.active.weight_threshold,
             memo: [[resp.memo_key, 1]]
-          }) as Keys)
+          }) as unknown as Keys)
         : null
   });
   const keys = useRevealedKeysStore((state) => state[activeUser?.username ?? ""] ?? {});

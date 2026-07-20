@@ -110,7 +110,7 @@ export function ProfileCard({ account }: Props) {
             @{account.name}
             <Badge className="!px-1 !py-0">{accountReputation(data?.reputation ?? 0)}</Badge>
           </span>
-          {data?.profile.about && <div className="text-sm">{data?.profile.about}</div>}
+          {data?.profile?.about && <div className="text-sm">{data?.profile.about}</div>}
         </div>
 
         <div className="grid grid-cols-2 pb-4">
