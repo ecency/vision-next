@@ -6,7 +6,8 @@ import { createRef } from "react";
 const h = vi.hoisted(() => ({
   activeUser: { username: "testuser" } as { username: string } | null,
   errorSpy: vi.fn(),
-  setSigningKey: vi.fn()
+  setSigningKey: vi.fn(),
+  detectSpy: vi.fn(async () => "bip44")
 }));
 
 // KeyInput imports only `error` from the shared barrel; stub it to a spy so we
@@ -24,15 +25,34 @@ vi.mock("@/core/hooks/use-active-account", () => ({
   useActiveAccount: () => ({ activeUser: h.activeUser })
 }));
 
+// KeyInput lazy-imports these; distinct sentinel values per authority let the
+// derivation assertions below tell exactly which key was picked.
+const DERIVED = {
+  owner: "OWNER_WIF",
+  active: "ACTIVE_WIF",
+  posting: "POSTING_WIF",
+  memo: "MEMO_WIF"
+};
+
+vi.mock("@ecency/wallets", () => ({
+  deriveHiveKeys: () => DERIVED,
+  detectHiveKeyDerivation: (...args: unknown[]) => h.detectSpy(...args)
+}));
+
 import { KeyInput, KeyInputImperativeHandle } from "@ui/input";
 import { isWif, PrivateKey } from "@ecency/sdk";
 
 const mockIsWif = vi.mocked(isWif);
 const mockFromString = vi.mocked(PrivateKey.fromString);
 
-function setup(value?: string) {
+const SEED = "some twelve word mnemonic phrase used only for this test";
+
+function setup(
+  value?: string,
+  keyType: "owner" | "active" | "posting" | "memo" = "active"
+) {
   const ref = createRef<KeyInputImperativeHandle>();
-  const { container } = render(<KeyInput ref={ref} keyType="active" />);
+  const { container } = render(<KeyInput ref={ref} keyType={keyType} />);
   const input = container.querySelector('input[type="password"]') as HTMLInputElement;
   if (value !== undefined) {
     fireEvent.change(input, { target: { value } });
@@ -127,5 +147,59 @@ describe("KeyInput.handleSign contract", () => {
     });
 
     expect(h.errorSpy).not.toHaveBeenCalled();
+  });
+});
+
+describe("KeyInput bip44 derivation picks the requested authority", () => {
+  beforeEach(() => {
+    h.activeUser = { username: "testuser" };
+    h.errorSpy.mockClear();
+    h.setSigningKey.mockClear();
+    h.detectSpy.mockClear();
+    mockIsWif.mockReset().mockReturnValue(false);
+    mockFromString.mockReset().mockReturnValue({} as unknown as PrivateKey);
+  });
+
+  afterEach(cleanup);
+
+  it.each([
+    ["owner", DERIVED.owner],
+    ["active", DERIVED.active],
+    ["posting", DERIVED.posting],
+    ["memo", DERIVED.memo]
+  ] as const)("derives the %s key from a bip44 seed", async (keyType, expected) => {
+    const { ref } = setup(SEED, keyType);
+
+    await act(async () => {
+      await ref.current!.handleSign();
+    });
+
+    expect(mockFromString).toHaveBeenCalledWith(expected);
+  });
+
+  // Regression guard: "posting" was missing from the keyType union and fell
+  // through to keys.owner, so a posting-authority upgrade derived and signed
+  // with the account's owner key.
+  it("never derives the owner key for a posting-authority request", async () => {
+    const { ref } = setup(SEED, "posting");
+
+    await act(async () => {
+      await ref.current!.handleSign();
+    });
+
+    expect(mockFromString).toHaveBeenCalledWith(DERIVED.posting);
+    expect(mockFromString).not.toHaveBeenCalledWith(DERIVED.owner);
+  });
+
+  // detectHiveKeyDerivation only accepts owner/active, so posting (like memo)
+  // has to be classified against "active" rather than passed straight through.
+  it("classifies a posting request against the active authority", async () => {
+    const { ref } = setup(SEED, "posting");
+
+    await act(async () => {
+      await ref.current!.handleSign();
+    });
+
+    expect(h.detectSpy).toHaveBeenCalledWith("testuser", SEED, "active");
   });
 });
