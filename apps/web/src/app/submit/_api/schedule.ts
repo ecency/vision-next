@@ -108,8 +108,8 @@ export function useScheduleApi(onClear: () => void) {
           permlink,
           title,
           body,
-          jsonMeta as unknown as Record<string, unknown>,
-          options as unknown as Record<string, unknown>,
+          jsonMeta,
+          options,
           schedule,
           reblog
         );

@@ -6,7 +6,11 @@ export interface AiToolsMeta {
   writing_edit?: boolean; // AI grammar/formatting/editing assistance
 }
 
-export interface MetaData {
+// A type alias, not an interface, on purpose: only aliases get TypeScript's
+// implicit index signature, which is what lets this be passed to the SDK
+// helpers that take Record<string, unknown>. As an interface every call site
+// needs an `as unknown as Record<string, unknown>` cast.
+export type MetaData = {
   image?: string[];
   image_ratios?: any;
   thumbnails?: string[];

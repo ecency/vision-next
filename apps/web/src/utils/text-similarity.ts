@@ -1,9 +1,7 @@
-// Built via the constructor because the es5 compile target rejects the
-// literal's unicode-property escapes; every supported runtime handles them.
-const WORD_TOKEN_PATTERN = "[\\p{L}\\p{N}]+";
+const WORD_TOKEN_PATTERN = /[\p{L}\p{N}]+/gu;
 
 function tokenize(text: string): string[] {
-  return text.toLowerCase().match(new RegExp(WORD_TOKEN_PATTERN, "gu")) ?? [];
+  return text.toLowerCase().match(WORD_TOKEN_PATTERN) ?? [];
 }
 
 function buildFrequencyMap(tokens: string[]): Map<string, number> {

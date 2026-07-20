@@ -2,8 +2,12 @@ import { BeneficiaryRoute, DecentMemesEntry, MetaData, RewardType } from "../ope
 import { PollSnapshot } from "@/features/polls";
 
 export interface DraftMetadata extends MetaData {
-  beneficiaries: BeneficiaryRoute[];
-  rewardType: RewardType;
+  // Optional because the drafts API genuinely omits them, which is how
+  // @ecency/sdk declares them too. Declaring them required here made this type
+  // incompatible with the SDK's identical Draft and forced a cast at every
+  // boundary; every consumer already reads them as `?? []` / `?? "default"`.
+  beneficiaries?: BeneficiaryRoute[];
+  rewardType?: RewardType;
   poll?: PollSnapshot;
   decentMemes?: DecentMemesEntry[];
   postTemplate?: boolean;
