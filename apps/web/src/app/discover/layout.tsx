@@ -9,11 +9,13 @@ import { DiscoverRenderBoundary } from "./_components/discover-render-boundary";
 
 export default function Layout(
   props: PropsWithChildren<{
+    // One prop per parallel-route slot folder in this directory: @communities,
+    // @leaderboard, @curation, @contributors. There is no @communitiesDialog
+    // folder, so a prop for it was never populated.
     communities: ReactNode;
     leaderboard: ReactNode;
     curation: ReactNode;
     contributors: ReactNode;
-    communitiesDialog: ReactNode;
   }>
 ) {
   return (
@@ -58,7 +60,6 @@ export default function Layout(
             <DiscoverRenderBoundary>{props.contributors}</DiscoverRenderBoundary>
           </div>
           <div className="relative">{props.children}</div>
-          {props.communitiesDialog}
         </div>
       </div>
     </>

@@ -3,7 +3,7 @@
 import { Feedback } from "@/features/shared/feedback";
 import { Navbar } from "@/features/shared/navbar";
 import { ScrollToTop } from "@/features/shared/scroll-to-top";
-import { PropsWithChildren, ReactNode, useMemo } from "react";
+import { PropsWithChildren, useMemo } from "react";
 import {
   WaveAuthorCard,
   WaveFollowsCard,
@@ -18,11 +18,7 @@ import "./common.scss";
 import { WavesTagFilterProvider } from "@/app/waves/_context";
 import { usePathname } from "next/navigation";
 
-interface Props {
-  view: ReactNode;
-}
-
-export default function WavesLayout(props: PropsWithChildren<Props>) {
+export default function WavesLayout(props: PropsWithChildren) {
   const pathname = usePathname();
   const { width } = useWindowSize();
 
