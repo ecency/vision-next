@@ -120,7 +120,7 @@ export function AccountRecovery() {
   }, [recoveries]);
 
   useEffect(() => {
-    methods.setValue("newRecoveryAccount", data?.recovery_account);
+    methods.setValue("newRecoveryAccount", data?.recovery_account ?? "");
     methods.setValue("isEcency", data?.recovery_account === ECENCY);
   }, [data]);
 

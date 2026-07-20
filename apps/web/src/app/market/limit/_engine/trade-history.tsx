@@ -32,7 +32,7 @@ export const EngineTradeHistory = ({ trades, loading, symbol }: Props) => {
         </thead>
         <tbody>
           {trades.slice(0, 30).map((trade) => {
-            const timestamp = new Date(trade.timestamp * 1000);
+            const timestamp = new Date(trade.timestamp * 1000).toISOString();
             const total = new Decimal(trade.price || 0).mul(new Decimal(trade.quantity || 0)).toFixed(8);
             return (
               <Tr key={trade._id}>

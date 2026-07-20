@@ -26,7 +26,7 @@ export function FeedList({ filter, tag, observer }: Props) {
 
   // Fetch promoted posts if feature is enabled and get the data
   const { data: promotedPosts } = useQuery({
-    ...getPromotedPostsQuery(),
+    ...getPromotedPostsQuery<Entry>(),
     enabled: visionFeatures.promotions.enabled
   });
 
@@ -38,7 +38,7 @@ export function FeedList({ filter, tag, observer }: Props) {
   const entries = useMemo(() => {
     const pages = (data as InfiniteData<Page, unknown> | undefined)?.pages ?? [];
 
-    const extracted = pages.flatMap((page) =>
+    const extracted: Entry[] = pages.flatMap((page) =>
       Array.isArray(page) ? page : ((page as any).items ?? (page as any).results ?? [])
     );
 

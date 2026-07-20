@@ -9,7 +9,7 @@ import { EcencyEntriesCacheManagement } from "@/core/caches";
 import i18next from "i18next";
 import { arrowLeftSvg } from "@ui/svg";
 import { useMounted } from "@/utils/use-mounted";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { WaveEntry, Entry } from "@/entities";
 import { useWaveDiscussionsList } from "@/features/waves";
 import { makeEntryPath } from "@/utils";

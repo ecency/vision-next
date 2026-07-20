@@ -58,6 +58,9 @@ export default async function ProposalDetailsPage({ params }: Props) {
   }
 
   const renderedBody = { __html: renderPostBody(entry?.body ?? "", false, false) };
+  // catchPostImage returns null for a body with no usable image; skip the tag
+  // entirely in that case instead of emitting a contentless og:image.
+  const ogImage = entry ? catchPostImage(entry.body, 600, 500, "match") : null;
 
   return (
     <>
@@ -69,9 +72,7 @@ export default async function ProposalDetailsPage({ params }: Props) {
           content={`${i18next.t("proposals.page-title")} | ${proposal?.subject}`}
         />
         <meta property="og:description" content={`${proposal?.subject} by @${proposal?.creator}`} />
-        {entry && (
-          <meta property="og:image" content={catchPostImage(entry.body, 600, 500, "match")} />
-        )}
+        {ogImage && <meta property="og:image" content={ogImage} />}
         <meta property="og:url" content={`/proposals/${proposal?.id}`} />
         {entry && (
           <>

@@ -21,7 +21,7 @@ export function useUpdateApi(onClear: () => void) {
   const { mutateAsync: validatePostUpdating } = useValidatePostUpdating();
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
-    username,
+    username ?? undefined,
     "legacy-post-updated"
   );
   const { mutateAsync: commentMutation } = useCommentMutation();

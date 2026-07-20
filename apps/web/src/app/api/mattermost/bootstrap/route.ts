@@ -197,7 +197,10 @@ async function handleBootstrap(req: Request, signal: AbortSignal): Promise<NextR
     const subscriptions = await subscriptionsPromise;
 
     const communityIds = subscriptions
-        .map((sub: Subscription) => ({ id: sub?.[0], title: sub?.[1] }))
+        .map((sub: Subscription) => ({
+          id: sub?.[0] as string | undefined,
+          title: sub?.[1] as string | undefined
+        }))
         .filter(
           (value): value is { id: string; title: string | undefined } =>
             Boolean(value.id)

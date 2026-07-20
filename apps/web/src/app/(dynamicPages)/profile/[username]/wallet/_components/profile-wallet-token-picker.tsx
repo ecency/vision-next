@@ -357,13 +357,13 @@ export function ProfileWalletTokenPicker() {
       return true;
     }
 
-    for (const token of selectedTokens) {
+    for (const token of Array.from(selectedTokens)) {
       if (!currentSet.has(token)) {
         return true;
       }
     }
 
-    for (const token of currentSet) {
+    for (const token of Array.from(currentSet)) {
       if (!selectedTokens.has(token)) {
         return true;
       }
@@ -395,9 +395,7 @@ export function ProfileWalletTokenPicker() {
         })),
         ...R.pipe(
           allTokens?.layer2 ?? [],
-          R.filter((token): token is { symbol: string } =>
-            Boolean((token as any)?.symbol && nextListSet.has((token as any)?.symbol))
-          ),
+          R.filter((token) => Boolean(token?.symbol && nextListSet.has(token.symbol))),
           R.map(({ symbol: currency }) => ({
             currency,
             type: "ENGINE",

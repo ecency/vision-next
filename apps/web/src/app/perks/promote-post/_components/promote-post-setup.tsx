@@ -28,7 +28,7 @@ export function PromotePostSetup({ onSuccess, isPending }: Props) {
 
   const [author, permlink] = useMemo(() => path.split("/"), [path]);
 
-  const accessToken = activeUser ? getAccessToken(activeUser.username) : "";
+  const accessToken = activeUser ? (getAccessToken(activeUser.username) ?? "") : "";
 
   const { data: activeUserPoints, isPending: isPointsPending } = useQuery(
     withFeatureFlag(
@@ -71,7 +71,7 @@ export function PromotePostSetup({ onSuccess, isPending }: Props) {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
         <div>
-          <SuggestionList items={paths} renderer={(i) => i} onSelect={(v) => setPath(v)}>
+          <SuggestionList items={paths ?? []} renderer={(i) => i} onSelect={(v) => setPath(v)}>
             <FormControl
               type="text"
               value={pathQuery}

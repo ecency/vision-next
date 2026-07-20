@@ -62,7 +62,7 @@ export const WaveLinkRender = ({ link }: Props) => {
       setDescription(description);
       setIsLoading(false);
 
-      const isSuccess = !!description ?? !!image ?? !!title ?? false;
+      const isSuccess = !!description || !!image || !!title;
       setLoadedSuccess(isSuccess);
 
       if (isSuccess) {

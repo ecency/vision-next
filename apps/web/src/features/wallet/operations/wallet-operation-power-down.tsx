@@ -9,7 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { UilArrowRight } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, Resolver, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { WalletOperationCard } from "./wallet-opearation-card";
 import { WalletOperationAmountForm } from "./wallet-operation-amount-form";
@@ -75,8 +75,8 @@ export function WalletOperationPowerDown({ username, asset, onSubmit, showSubmit
     maxAccountBalanceRef.current = availableForPowerDown;
   }, [availableForPowerDown]);
 
-  const resolver = useCallback(
-    (...args: Parameters<ReturnType<typeof yupResolver>>) =>
+  const resolver = useCallback<Resolver<{ amount: number }, unknown, { amount: number }>>(
+    (...args) =>
       yupResolver(
         yup.object({
           amount: yup

@@ -40,7 +40,7 @@ export const EngineOpenOrders = ({ orders, loading, symbol, onCancel }: Props) =
       </thead>
       <tbody>
         {orders.map((order) => {
-          const timestamp = new Date(order.timestamp * 1000);
+          const timestamp = new Date(order.timestamp * 1000).toISOString();
           return (
             <Tr key={`${order.id}-${order.type}`}>
               <Td>{dateToFullRelative(timestamp)}</Td>
@@ -53,7 +53,7 @@ export const EngineOpenOrders = ({ orders, loading, symbol, onCancel }: Props) =
               </Td>
               <Td>{formattedNumber(order.total)} SWAP.HIVE</Td>
               <Td>
-                <Button size="sm" variant="secondary" onClick={() => onCancel(order)}>
+                <Button size="sm" appearance="secondary" onClick={() => onCancel(order)}>
                   {i18next.t("g.cancel")}
                 </Button>
               </Td>

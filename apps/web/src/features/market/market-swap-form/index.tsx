@@ -214,14 +214,16 @@ export const MarketSwapForm = ({ padding = "p-4" }: Props) => {
   const engineTokenPrecisionMap = useMemo(() => {
     const precisionMap = new Map<string, number>();
 
-    engineTokens.forEach((token) => {
+    // Precision comes from the token definitions; the market rows in `engineTokens` carry
+    // price/volume metrics only and never a precision.
+    ((engineTokenDefinitionQuery.data as Token[] | undefined) ?? []).forEach((token) => {
       if (token.symbol && typeof token.precision === "number") {
         precisionMap.set(token.symbol, token.precision);
       }
     });
 
     return precisionMap;
-  }, [engineTokens]);
+  }, [engineTokenDefinitionQuery.data]);
 
   const getAssetPrecision = useCallback(
     (asset: MarketAsset) => {

@@ -38,9 +38,10 @@ export const flushPromises = () => new Promise(process.nextTick);
 export const activeUserMaker = (name: string): ActiveUser => {
   return {
     username: name,
+    // Fixture keeps only the fields the tests read; the rest of FullAccount is irrelevant here.
     data: {
       name: name
-    },
+    } as FullAccount,
     // @ts-ignore
     points: {
       points: "1.000",

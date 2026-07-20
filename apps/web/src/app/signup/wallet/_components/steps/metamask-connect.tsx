@@ -19,15 +19,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useInterval } from "react-use";
 import { CURRENCIES_META_DATA } from "../../consts/currencies-meta-data";
 
-declare global {
-  interface Window {
-    ethereum?: {
-      isMetaMask?: boolean;
-      request: (args: { method: string; params?: any[] | Record<string, any> }) => Promise<any>;
-    };
-  }
-}
-
 /** Chains supported by both MetaMask AND our backend balance API */
 const SUPPORTED_CHAINS: {
   currency: EcencyWalletCurrency;
