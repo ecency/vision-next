@@ -163,9 +163,9 @@ export function MetamaskConnect({ username, onVerified, onBack }: Props) {
       setChainAddresses({});
       setAddressAlreadyUsed(false);
 
-      const accounts = await window.ethereum.request({
+      const accounts = (await window.ethereum.request({
         method: "eth_requestAccounts"
-      });
+      })) as string[];
       if (accounts?.[0]) {
         setEvmAddress(accounts[0]);
         setSelectedCurrency(EcencyWalletCurrency.ETH);

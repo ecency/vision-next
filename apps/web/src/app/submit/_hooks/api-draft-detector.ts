@@ -42,7 +42,7 @@ export function useApiDraftDetector(
 
   const existingDraft = useMemo(() => {
     // First, try to find the draft in the regular query
-    const draftFromRegularQuery = draftsQuery.data.find((draft) => draft._id === draftId);
+    const draftFromRegularQuery = draftsQuery.data!.find((draft) => draft._id === draftId);
     if (draftFromRegularQuery) {
       return draftFromRegularQuery;
     }
@@ -82,10 +82,10 @@ export function useApiDraftDetector(
     // This prevents stale cache updates (from concurrent auto-save responses or
     // server refetch with replication lag) from incorrectly triggering "no draft found".
     if (hasLoadedRef.current) return;
-    if (draftId && draftsQuery.data.length > 0 && !existingDraft) {
+    if (draftId && draftsQuery.data!.length > 0 && !existingDraft) {
       onInvalidDraftRef.current();
     }
-  }, [draftId, draftsQuery.data.length, existingDraft]);
+  }, [draftId, draftsQuery.data!.length, existingDraft]);
 
   useEffect(() => {
     // location change. only occurs once a draft picked on drafts dialog

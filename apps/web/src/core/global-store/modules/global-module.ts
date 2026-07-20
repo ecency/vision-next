@@ -33,7 +33,7 @@ export function createGlobalState() {
       : defaults.imageServer;
 
   return {
-    theme: Cookies.get("theme") || Theme.day,
+    theme: (Cookies.get("theme") as Theme) || Theme.day,
     listStyle: ListStyle.row,
     intro: true,
     currency: initialCurrency,
@@ -158,7 +158,7 @@ export function createGlobalActions(set: (state: Partial<State>) => void, getSta
           return true;
         }
 
-        const w = window as AppWindow;
+        const w = window as unknown as AppWindow;
 
         // Check for Peak Vault (promise-based, no handshake needed)
         if ((w as any).peakvault) {
