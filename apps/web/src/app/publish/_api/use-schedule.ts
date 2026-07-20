@@ -143,8 +143,8 @@ export function useScheduleApi() {
           title!,
           //   buildBody(body),
           cleanBody,
-          jsonMeta,
-          options,
+          jsonMeta as unknown as Record<string, unknown>,
+          options as unknown as Record<string, unknown> | null,
           schedule.toISOString(),
           reblog
         );

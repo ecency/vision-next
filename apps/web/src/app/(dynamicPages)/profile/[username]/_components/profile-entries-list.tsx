@@ -31,7 +31,9 @@ function shouldShowPinnedEntry(account: FullAccount, section: string) {
 
 export async function ProfileEntriesList({ section, account, initialFeed, currentUser }: Props) {
   const pinnedEntry = shouldShowPinnedEntry(account, section)
-    ? getQueryData(EcencyEntriesCacheManagement.getEntryQueryByPath(account.name, account.profile?.pinned))
+    ? getQueryData<Entry | null>(
+        EcencyEntriesCacheManagement.getEntryQueryByPath(account.name, account.profile?.pinned)
+      )
     : undefined;
 
   const prefetchedFeed =

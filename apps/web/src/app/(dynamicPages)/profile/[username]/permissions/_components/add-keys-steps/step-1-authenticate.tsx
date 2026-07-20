@@ -51,28 +51,33 @@ export function Step1Authenticate({ username, onNext }: Props) {
 
       // Now detect what type of credential was provided for marking existing keys
       const detectedMethod = await detectHiveKeyDerivation(username, credential, "owner");
-      let derivedKeys: any = null;
+
+      // Only the two derivable methods can be recorded against a key. Anything
+      // else ("unknown", i.e. a raw WIF) can't derive the other keys, so we
+      // skip marking altogether.
+      const derivation =
+        detectedMethod === "bip44" || detectedMethod === "master-password"
+          ? detectedMethod
+          : null;
 
       // Derive all keys from the credential to mark matching ones
-      if (detectedMethod === "bip44") {
-        derivedKeys = deriveHiveKeys(credential);
-      } else if (detectedMethod === "master-password") {
-        derivedKeys = deriveHiveMasterPasswordKeys(username, credential);
-      } else {
-        // If it's a WIF key, we can't derive other keys, so skip marking
-        derivedKeys = null;
-      }
+      const derivedKeys: any =
+        derivation === "bip44"
+          ? deriveHiveKeys(credential)
+          : derivation === "master-password"
+            ? deriveHiveMasterPasswordKeys(username, credential)
+            : null;
 
       // Mark existing keys that match this credential
-      if (derivedKeys && accountData) {
+      if (derivedKeys && derivation && accountData) {
         const derivationMap: Record<string, "bip44" | "master-password"> = {};
 
         // Check each key type
         const checkKey = (pubkey: string) => {
-          if (pubkey === derivedKeys.ownerPubkey) derivationMap[pubkey] = detectedMethod;
-          if (pubkey === derivedKeys.activePubkey) derivationMap[pubkey] = detectedMethod;
-          if (pubkey === derivedKeys.postingPubkey) derivationMap[pubkey] = detectedMethod;
-          if (pubkey === derivedKeys.memoPubkey) derivationMap[pubkey] = detectedMethod;
+          if (pubkey === derivedKeys.ownerPubkey) derivationMap[pubkey] = derivation;
+          if (pubkey === derivedKeys.activePubkey) derivationMap[pubkey] = derivation;
+          if (pubkey === derivedKeys.postingPubkey) derivationMap[pubkey] = derivation;
+          if (pubkey === derivedKeys.memoPubkey) derivationMap[pubkey] = derivation;
         };
 
         accountData.owner.key_auths.forEach(([key]) => checkKey(key.toString()));

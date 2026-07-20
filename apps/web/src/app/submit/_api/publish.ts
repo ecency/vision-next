@@ -31,7 +31,7 @@ export function usePublishApi(onClear: () => void) {
   const { clearAll } = usePollsCreationManagement();
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
-    username,
+    username ?? undefined,
     "legacy-post-created"
   );
   const { mutateAsync: commentMutation } = useCommentMutation();

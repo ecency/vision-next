@@ -26,7 +26,7 @@ interface Props {
 export function BoostDialog({ onHide }: Props) {
   const { activeUser } = useActiveAccount();
 
-  const accessToken = activeUser ? getAccessToken(activeUser.username) : "";
+  const accessToken = (activeUser ? getAccessToken(activeUser.username) : "") ?? "";
 
   const { data: prices } = useQuery({
     ...getBoostPlusPricesQueryOptions(accessToken),

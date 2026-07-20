@@ -31,7 +31,7 @@ type VoteHistoryPage = {
 
 export function CurationTrail({ account, section }: Props) {
     // Create filters with BigInt polyfill fallback for older browsers
-    const filters = useMemo(() => {
+    const filters = useMemo<(string | null)[]>(() => {
         try {
             // Try to create the bitmask filter (requires BigInt support)
             return hiveTxUtils.makeBitMaskFilter([hiveTxUtils.operations.vote]);

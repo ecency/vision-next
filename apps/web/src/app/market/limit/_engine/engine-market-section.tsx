@@ -13,7 +13,12 @@ import {
   getHiveEngineOrderBook,
   getHiveEngineTradeHistory
 } from "@ecency/sdk";
-import { HiveEngineOpenOrder, HiveEngineTokenInfo } from "@/entities";
+import {
+  HiveEngineOpenOrder,
+  HiveEngineOrderBookEntry,
+  HiveEngineTokenInfo,
+  HiveEngineTradeHistoryEntry
+} from "@/entities";
 import { success, error } from "@/features/shared";
 import { WalletOperationsDialog } from "@/features/wallet";
 import i18next from "i18next";
@@ -65,14 +70,14 @@ export function EngineMarketSection({ symbol, tokenInfo, tokensLoading, classNam
 
   const orderBookQuery = useQuery({
     queryKey: ["hive-engine-order-book", symbol],
-    queryFn: () => getHiveEngineOrderBook(symbol),
+    queryFn: () => getHiveEngineOrderBook<HiveEngineOrderBookEntry>(symbol),
     enabled: !!symbol,
     refetchInterval: 10000
   });
 
   const tradeHistoryQuery = useQuery({
     queryKey: ["hive-engine-trades", symbol],
-    queryFn: () => getHiveEngineTradeHistory(symbol),
+    queryFn: () => getHiveEngineTradeHistory<HiveEngineTradeHistoryEntry>(symbol),
     enabled: !!symbol,
     refetchInterval: 15000
   });

@@ -16,7 +16,7 @@ export function EntryPageMightContainsMutedCommentsWarning({ entry }: Props) {
   const { activeUser } = useActiveAccount();
 
   const { data: followingsRaw } = useQuery(getFollowingQueryOptions(
-      activeUser?.username,
+      activeUser?.username ?? "",
       "",
       "ignore",
       100

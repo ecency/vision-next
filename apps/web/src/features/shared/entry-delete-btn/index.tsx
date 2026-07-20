@@ -5,8 +5,15 @@ import { Entry } from "@/entities";
 import { PopoverConfirm } from "@/features/ui";
 import { useDeleteComment } from "@/api/mutations";
 
+// PopoverConfirm clones the child to attach its own onClick, so the child has
+// to be typed with the props we (and PopoverConfirm) actually read off it.
+type DeleteBtnChild = ReactElement<{
+  className?: string;
+  onClick?: (e: React.MouseEvent) => void;
+}>;
+
 interface Props {
-  children: ReactElement & { className?: string };
+  children: DeleteBtnChild;
   entry: Entry;
   parent?: Entry;
   onSuccess?: () => void;
@@ -35,11 +42,10 @@ export function EntryDeleteBtn({
     return () => setDeleteInProgress?.(false);
   }, [isPending, setDeleteInProgress]);
 
-  // Read the caller's class from children.props (ReactElement.props is typed
-  // `unknown` under React 19, hence the cast). The previous code read
+  // Read the caller's class from children.props. The previous code read
   // `children.className` — a field that is always undefined on a React
   // element — which silently dropped the caller's class.
-  const childClassName = (children.props as { className?: string }).className;
+  const childClassName = children.props.className;
   // Strip the exact "in-progress" token (not a raw substring, which would
   // corrupt class names like "in-progress-pill") before re-adding it.
   const baseClassName = (childClassName ?? "")

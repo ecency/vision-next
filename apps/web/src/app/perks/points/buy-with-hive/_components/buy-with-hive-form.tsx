@@ -59,7 +59,7 @@ export function BuyWithHiveForm({ onSubmit, isPending }: Props) {
           labelKey={"market.from"}
           asset={asset}
           availableAssets={[MarketAsset.HBD, MarketAsset.HIVE]}
-          setAsset={setAsset}
+          setAsset={(nextAsset) => setAsset(nextAsset as MarketAsset)}
           usdRate={usdRate}
           disabled={false}
           balance={balance}

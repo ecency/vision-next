@@ -11,6 +11,7 @@ import { usePathname, useRouter } from "next/navigation";
 import useMount from "react-use/lib/useMount";
 import { getAccessToken } from "@/utils";
 import { Button } from "@ui/button";
+import type { Draft } from "@/entities";
 
 // Bounds the automatic page waterfall that skips template-only pages.
 const AUTO_FETCH_PAGE_BUDGET = 5;
@@ -45,7 +46,9 @@ export function DraftsList({ onHide, onPick }: Props) {
 
   const allDrafts = useMemo(
     () =>
-      (data?.pages.flatMap((page) => page.data) ?? []).filter((d) => !d.meta?.postTemplate),
+      ((data?.pages.flatMap((page) => page.data) ?? []) as Draft[]).filter(
+        (d) => !d.meta?.postTemplate
+      ),
     [data]
   );
 

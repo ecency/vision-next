@@ -22,7 +22,7 @@ export function useSaveDraftApi(onDraftCreated?: (draft: Draft) => void) {
   const queryClient = useQueryClient();
 
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
-    username,
+    username ?? undefined,
     "legacy-draft-created"
   );
 
@@ -117,7 +117,7 @@ export function useSaveDraftApi(onDraftCreated?: (draft: Draft) => void) {
           recordActivity();
 
           const { drafts } = resp;
-          const draft = getCreatedDraft(previousDrafts, drafts);
+          const draft = getCreatedDraft(previousDrafts, drafts as Draft[]);
 
           // Update regular query cache and invalidate infinite query
           queryClient.setQueryData(QueryKeys.posts.drafts(username), drafts);

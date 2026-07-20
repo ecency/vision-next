@@ -135,7 +135,7 @@ export function useLoginByMetaMask(username: string) {
 
       // 4. Verify posting key matches on-chain account
       const matchesPosting = accountData.posting.key_auths.some(
-        ([pub]: [string, number]) => pub === postingPubKey
+        ([pub]) => pub.toString() === postingPubKey
       );
 
       if (!matchesPosting) {

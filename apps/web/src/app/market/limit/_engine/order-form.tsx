@@ -156,10 +156,10 @@ export const EngineOrderForm = ({
       </div>
 
       <div className="flex gap-2">
-        <Button type="button" variant="secondary" size="sm" onClick={handleUseBest} disabled={!bestPrice}>
+        <Button type="button" appearance="secondary" size="sm" onClick={handleUseBest} disabled={!bestPrice}>
           {i18next.t("market.engine.use-best")}
         </Button>
-        <Button type="button" variant="secondary" size="sm" onClick={handleUseMax}>
+        <Button type="button" appearance="secondary" size="sm" onClick={handleUseMax}>
           {i18next.t("market.engine.use-max")}
         </Button>
       </div>

@@ -1,0 +1,38 @@
+name: Typecheck
+# Mirrors lint.yml: pull_request (not a branch-filtered push) so a required check still
+# reports on PRs whose head branch doesn't match a naming convention — Dependabot/Renovate/
+# hotfix/bot branches — which would otherwise be permanently blocked once this is required.
+on:
+  pull_request:
+# Typecheck only — no writes back to GitHub.
+# Superseded runs are cancelled: pushing again to a PR makes the previous result irrelevant,
+# so letting it finish only burns runner minutes.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  typecheck:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [24.x]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 11.5.0
+          run_install: false
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      # Each package typechecks its own source; the apps resolve packages through the
+      # committed dist/*.d.ts, which the release bot keeps in step on version bumps.
+      - name: Typecheck
+        run: pnpm -r --if-present typecheck

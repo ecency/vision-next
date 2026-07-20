@@ -47,11 +47,6 @@ export function createTestQueryClient(): QueryClient {
       mutations: {
         retry: false
       }
-    },
-    logger: {
-      log: () => {},
-      warn: () => {},
-      error: () => {} // Silence QueryClient logs in tests
     }
   });
 }

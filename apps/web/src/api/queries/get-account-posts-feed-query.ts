@@ -1,6 +1,6 @@
 import { getAccountPostsInfiniteQueryOptions, getPostsRankedInfiniteQueryOptions } from "@ecency/sdk";
 import { prefetchInfiniteQuery, getInfiniteQueryData, QueryIdentifiers } from "@/core/react-query";
-import { InfiniteData, UseInfiniteQueryResult, useInfiniteQuery, infiniteQueryOptions } from "@tanstack/react-query";
+import { InfiniteData, UndefinedInitialDataInfiniteOptions, UseInfiniteQueryResult, useInfiniteQuery, infiniteQueryOptions } from "@tanstack/react-query";
 import { Entry, SearchResponse } from "@/entities";
 import { appAxios } from "@/api/axios";
 import { apiBase } from "@/api/helper";
@@ -16,7 +16,9 @@ type PromotedCursor = "empty" | "fetched";
 
 function getPromotedEntriesInfiniteQuery() {
   return infiniteQueryOptions({
-    queryKey: [QueryIdentifiers.PROMOTED_ENTRIES, "infinite"],
+    // Widened to match the SDK feed queries' key type so the three branches in
+    // usePostsFeedQuery form a single assignable options union.
+    queryKey: [QueryIdentifiers.PROMOTED_ENTRIES, "infinite"] as (string | number)[],
     initialPageParam: "empty" as PromotedCursor,
     queryFn: async ({ pageParam }: { pageParam: PromotedCursor }) => {
       if (pageParam === "fetched") return [];
@@ -149,9 +151,16 @@ export function usePostsFeedQuery(
                     what === "feed" ? { resolvePosts: false } : undefined
                 );
 
-  // unify result type for callers
-  return useInfiniteQuery(queryOptions) as unknown as UseInfiniteQueryResult<
-    InfiniteData<Page, unknown>,
-    Error
-  >;
+  // Each branch above is individually a valid infinite query, but they use
+  // different page-param and page types, so their union matches no single
+  // useInfiniteQuery overload. Unify at this boundary only.
+  return useInfiniteQuery(
+    queryOptions as unknown as UndefinedInitialDataInfiniteOptions<
+      Page,
+      Error,
+      FeedInfinite,
+      (string | number)[],
+      unknown
+    >
+  ) as unknown as UseInfiniteQueryResult<InfiniteData<Page, unknown>, Error>;
 }

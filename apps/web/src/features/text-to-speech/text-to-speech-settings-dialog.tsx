@@ -9,7 +9,7 @@ import { TextToSpeechSettingsItem } from "./text-to-speech-settings-item";
 import i18next from "i18next";
 
 interface Props {
-  children: ReactElement;
+  children: ReactElement<{ onClick?: (e: React.MouseEvent) => void }>;
 }
 
 export function TextToSpeechSettingsDialog({ children }: Props) {

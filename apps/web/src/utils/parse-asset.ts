@@ -26,7 +26,7 @@ export function parseAsset(sval?: string | number | SMTAsset | null): Asset {
     const sp = sval.toString().trim().split(" ");
 
     const amount = parseFloat(sp[0] ?? "0");
-    const symbol = sp[1] && Symbol[sp[1] as keyof typeof Symbol];
+    const symbol = sp[1] ? Symbol[sp[1] as keyof typeof Symbol] : undefined;
 
     return {
       amount: Number.isFinite(amount) ? amount : 0,
@@ -36,7 +36,11 @@ export function parseAsset(sval?: string | number | SMTAsset | null): Asset {
 
   const precision = sval.precision ?? 0;
   const amount = parseFloat(sval.amount?.toString() ?? "0") / Math.pow(10, precision);
-  const symbol = sval.nai && NaiMap[sval.nai as keyof typeof NaiMap];
+  // NaiMap members mirror the Symbol members by value, but TS keeps the two enums
+  // unrelated, so the lookup result has to be re-typed. An unknown nai yields undefined.
+  const symbol = sval.nai
+    ? (NaiMap[sval.nai as keyof typeof NaiMap] as unknown as Symbol | undefined)
+    : undefined;
 
   return {
     amount: Number.isFinite(amount) ? amount : 0,

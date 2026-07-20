@@ -193,7 +193,7 @@ export function WalletOperationsDialog({
         {operation === AssetOperation.WithdrawRoutes && step === "form" && (
           <WalletOperationWithdrawRoutesForm
             onSubmit={(formData) => {
-              setData(formData);
+              setData({ ...formData });
               setStep("sign");
             }}
           />

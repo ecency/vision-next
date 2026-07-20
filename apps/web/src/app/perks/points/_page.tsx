@@ -173,7 +173,7 @@ export function PointsPage() {
               {canClaim && i18next.t("perks.claim-points-button")}
               {canClaim && (
                 <span className="font-bold ml-1">
-                  {`(+${parseInt(activeUserPoints?.uPoints).toFixed(0)})`}
+                  {`(+${parseInt(activeUserPoints?.uPoints ?? "0").toFixed(0)})`}
                 </span>
               )}
             </>

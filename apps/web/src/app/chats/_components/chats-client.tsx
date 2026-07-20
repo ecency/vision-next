@@ -13,6 +13,7 @@ import {
   useMattermostMessageSearch,
   useMattermostUnread,
   useMattermostMarkChannelViewed,
+  type MattermostPost,
   type MattermostUser
 } from "@/features/chat/mattermost-api";
 import { LoginRequired } from "@/features/shared";
@@ -31,6 +32,11 @@ import { useChatAdminStore } from "@/features/chat/chat-admin-store";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 const TOWN_HALL_CHANNEL_NAME = "town-hall";
+
+// Mattermost returns `channel_id` on every post, but the shared MattermostPost
+// type omits it because the channel-scoped fetches never need it. Message
+// search spans channels, so the results are widened here.
+type MattermostSearchPost = MattermostPost & { channel_id: string };
 
 // Per-channel kebab trigger: keep the gray-link appearance but give it real
 // affordance — a clearly visible icon in dark mode (gray-link alone is a faint
@@ -306,7 +312,9 @@ export function ChatsClient() {
   );
 
   const subscribedMessageResults = useMemo(() => {
-    return (messageSearchResults?.posts || []).filter((post) => channelsById.has(post.channel_id));
+    return ((messageSearchResults?.posts || []) as MattermostSearchPost[]).filter((post) =>
+      channelsById.has(post.channel_id)
+    );
   }, [channelsById, messageSearchResults?.posts]);
 
   const buildChannelUrl = useCallback(
@@ -434,7 +442,10 @@ export function ChatsClient() {
         </div>
         <form className="flex gap-2" onSubmit={(e) => e.preventDefault()}>
           <FormControl
-            type="search"
+            // Native search input: the channel-view keyboard shortcut focuses it
+            // via a `[type="search"]` selector, so keep the DOM type and narrow
+            // it for the FormControl props union (InputProps has no "search").
+            type={"search" as "text"}
             placeholder={i18next.t("chat.search-channels")}
             value={searchTerm}
             onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}

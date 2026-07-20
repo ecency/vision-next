@@ -136,9 +136,10 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
   ]);
 
   useMount(() => {
-    const computedTags = Array.from(
-      content ? content.matchAll(/#([\p{L}\p{N}\p{M}_-]+)/gu) : []
-    )
+    // Built through `new RegExp` because a unicode-flagged regex literal is not allowed
+    // by this project's ES5 compilation target. The pattern itself is unchanged.
+    const hashtagRegex = new RegExp("#([\\p{L}\\p{N}\\p{M}_-]+)", "gu");
+    const computedTags = Array.from(content ? content.matchAll(hashtagRegex) : [])
       .map(([, tag]) => sanitizeTagInput(tag).slice(0, SUBMIT_TAG_MAX_LENGTH).trim())
       .filter((tag) => !!tag);
 

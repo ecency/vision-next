@@ -31,6 +31,13 @@ export const DeckThreadsFormControl = ({
 }: Props) => {
   const { activePoll } = useContext(PollsContext);
 
+  // The video markup may not match, in which case there is no thumbnail to show.
+  const videoThumbnail = (
+    video?.matchAll(/<center>\[!\[](.*)].*<\/center>/g).next().value?.[1] ?? ""
+  )
+    .replace("(", "")
+    .replace(")", "");
+
   return (
     <>
       <div className="comment-body">
@@ -68,16 +75,7 @@ export const DeckThreadsFormControl = ({
         {video && (
           <div className="deck-threads-form-selected-image border border-[--border-color] my-3">
             <div className="type">video</div>
-            <Image
-              width={1000}
-              height={1000}
-              src={video
-                .matchAll(/<center>\[!\[](.*)].*<\/center>/g)
-                .next()
-                .value[1].replace("(", "")
-                .replace(")", "")}
-              alt=""
-            />
+            {videoThumbnail && <Image width={1000} height={1000} src={videoThumbnail} alt="" />}
             <div
               className="remove"
               role="button"

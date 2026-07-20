@@ -43,7 +43,7 @@ export function Promote({ onHide, entry }: Props) {
     [pathQuery]
   );
 
-  const accessToken = activeUser ? getAccessToken(activeUser.username) : "";
+  const accessToken = activeUser ? (getAccessToken(activeUser.username) ?? "") : "";
 
   const { data: activeUserPoints, isPending: isPointsPending } = useQuery(
     withFeatureFlag(
@@ -181,7 +181,7 @@ export function Promote({ onHide, entry }: Props) {
                     <label>{i18next.t("redeem-common.post")}</label>
                   </div>
                   <div className="col-span-12 sm:col-span-10">
-                    <SuggestionList items={paths} renderer={(i) => i} onSelect={(v) => setPath(v)}>
+                    <SuggestionList items={paths ?? []} renderer={(i) => i} onSelect={(v) => setPath(v)}>
                       <FormControl
                         className={postError ? "is-invalid" : ""}
                         type="text"

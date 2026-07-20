@@ -89,20 +89,26 @@ export function HiveTransactionRow({ entry, transaction: tr }: Props) {
       </>
     );
 
-    details = (
-      <EntryLink
-        entry={{
-          category: "history",
-          author: tr.comment_author,
-          permlink: tr.comment_permlink
-        }}
-      >
-        <span>
-          {"@"}
-          {tr.comment_author}/{tr.comment_permlink}
-        </span>
-      </EntryLink>
-    );
+    // Depending on the history source the curated post is reported either as
+    // comment_author/comment_permlink or as author/permlink.
+    const curatedAuthor = tr.comment_author ?? tr.author;
+    const curatedPermlink = tr.comment_permlink ?? tr.permlink;
+
+    details =
+      curatedAuthor && curatedPermlink ? (
+        <EntryLink
+          entry={{
+            category: "history",
+            author: curatedAuthor,
+            permlink: curatedPermlink
+          }}
+        >
+          <span>
+            {"@"}
+            {curatedAuthor}/{curatedPermlink}
+          </span>
+        </EntryLink>
+      ) : null;
   } else if (
     tr.type === "transfer" ||
     tr.type === "transfer_to_vesting" ||
