@@ -111,7 +111,9 @@ export function WavesReelItem({ item, onReply }: Props) {
           <ProfileLink username={item.author}>
             <span className="font-semibold text-white">@{item.author}</span>
           </ProfileLink>
-          <ProBadge username={item.author} />
+          {/* Sits over arbitrary video frames; a drop shadow keeps the blue disc
+              legible on bright content, like the white author text beside it. */}
+          <ProBadge username={item.author} className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)]" />
         </div>
         {caption && <div className="mt-2 line-clamp-2 text-sm text-white/90">{caption}</div>}
       </div>

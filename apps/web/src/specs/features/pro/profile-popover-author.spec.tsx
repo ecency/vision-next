@@ -3,8 +3,12 @@ import React from "react";
 import { render } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-// ProBadge reads the Pro roster through useQuery; stub it so the label can be
-// rendered against a known roster without a QueryClient or a network call.
+// setup-any-spec globally stubs ProBadge to a no-op so provider-free container
+// specs don't crash on its useQuery. This spec is specifically about the badge
+// wiring, so restore the real component here and instead stub useQuery, letting
+// us render it against a known roster without a QueryClient or a network call.
+vi.mock("@/features/pro/pro-badge", async (importOriginal) => await importOriginal());
+
 const useQueryMock = vi.fn();
 vi.mock("@tanstack/react-query", async () => ({
   ...(await vi.importActual("@tanstack/react-query")),
