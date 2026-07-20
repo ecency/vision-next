@@ -1,3 +1,4 @@
+import multihash from 'multihashes'
 import { proxifyImageSrc, buildSrcSet, setProxyBase, getLatestUrl, extractPHash, buildSrcSetForFormat, buildPictureSources, isPictureEligibleRawUrl } from './proxify-image-src'
 
 describe('getLatestUrl', () => {
@@ -357,5 +358,50 @@ describe('picture / per-format helpers (cache-safe content negotiation)', () => 
       // format param — the origin would return the original bytes mislabeled.
       expect(buildPictureSources('https://images.hive.blog/0x0/a.png')).toBeNull()
     })
+  })
+})
+
+describe('base58 URL hashing', () => {
+  // The hash is the image proxy's cache key and is embedded in every proxified image
+  // URL, so replacing the Buffer-based multihashes call must not shift a single byte.
+  // multihashes' toB58String was `bs58.encode` behind a Buffer type-check, so the old
+  // implementation is reproduced here and used as the oracle.
+  const oracle = (url: string): string => multihash.toB58String(Buffer.from(url))
+
+  const hashOf = (url: string): string => {
+    const proxified = proxifyImageSrc(url, 0, 0, 'match')
+    const m = proxified.match(/\/p\/([^?]+)/)
+    if (!m) throw new Error(`no /p/ hash in ${proxified}`)
+    return m[1]
+  }
+
+  it('matches the previous implementation on representative URLs', () => {
+    const urls = [
+      'https://files.peakd.com/file/peakd-hive/user/abc.png',
+      'https://images.hive.blog/DQmSomeHash/photo.jpeg?a=1&b=2',
+      'https://example.com/a.png',
+      'https://example.com/ünïcode-ünd-emoji-😀/ъ.png',
+      'https://example.com/' + 'x'.repeat(500) + '.png',
+      'https://example.com/path with spaces/%20encoded.png'
+    ]
+    for (const url of urls) {
+      expect(hashOf(url)).toBe(oracle(url))
+    }
+  })
+
+  it('matches the previous implementation across randomised inputs', () => {
+    for (let i = 0; i < 400; i++) {
+      let s = ''
+      const len = 1 + Math.floor(Math.random() * 60)
+      for (let j = 0; j < len; j++) {
+        // Span ASCII, Latin-1, CJK and astral-plane (surrogate pair) code points,
+        // skipping the lone-surrogate range which is not a valid scalar value.
+        let cp = Math.floor(Math.random() * 0x2ffff) + 1
+        if (cp >= 0xd800 && cp <= 0xdfff) cp += 0x800
+        s += String.fromCodePoint(cp)
+      }
+      const url = `https://example.com/${encodeURIComponent(s)}.png`
+      expect(hashOf(url)).toBe(oracle(url))
+    }
   })
 })

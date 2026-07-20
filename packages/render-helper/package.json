@@ -1,7 +1,7 @@
 {
   "name": "@ecency/render-helper",
   "private": false,
-  "version": "2.5.20",
+  "version": "2.5.21",
   "description": "Markdown+Html Render helper",
   "repository": {
     "type": "git",
@@ -49,6 +49,7 @@
     "@types/xmldom": "^0.1.30",
     "eslint": "^9.21.0",
     "eslint-plugin-regexp": "^2.10.0",
+    "multihashes": "0.4.13",
     "prettier": "^3.5.2",
     "tsup": "^8",
     "typescript": "^5.6",
@@ -62,7 +63,6 @@
     "htmlparser2": "^10.0.0",
     "lolight": "^1.4.0",
     "lru-cache": "^11.0.2",
-    "multihashes": "0.4.13",
     "path": "^0.12.7",
     "querystring": "^0.2.0",
     "react-native-crypto-js": "^1.0.0",

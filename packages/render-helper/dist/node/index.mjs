@@ -1,7 +1,6 @@
 import { DOMParser as DOMParser$1, XMLSerializer } from '@xmldom/xmldom';
 import he2 from 'he';
 import xss from 'xss';
-import multihash from 'multihashes';
 import querystring from 'querystring';
 import { LRUCache } from 'lru-cache';
 import { Remarkable } from 'remarkable';
@@ -542,10 +541,35 @@ function removeChildNodes(node) {
 }
 var proxyBase = "https://i.ecency.com";
 var urlHashCache = new LRUCache({ max: 500 });
+var BASE58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+function base58Encode(bytes) {
+  if (bytes.length === 0) return "";
+  const digits = [0];
+  for (let i = 0; i < bytes.length; i++) {
+    let carry = bytes[i];
+    for (let j = 0; j < digits.length; j++) {
+      carry += digits[j] << 8;
+      digits[j] = carry % 58;
+      carry = carry / 58 | 0;
+    }
+    while (carry > 0) {
+      digits.push(carry % 58);
+      carry = carry / 58 | 0;
+    }
+  }
+  let out = "";
+  for (let k = 0; k < bytes.length && bytes[k] === 0; k++) out += BASE58_ALPHABET[0];
+  for (let q = digits.length - 1; q >= 0; q--) out += BASE58_ALPHABET[digits[q]];
+  return out;
+}
+function utf8Bytes(url) {
+  if (typeof TextEncoder !== "undefined") return new TextEncoder().encode(url);
+  return Uint8Array.from(Buffer.from(url, "utf8"));
+}
 function getUrlHash(url) {
   const cached = urlHashCache.get(url);
   if (cached) return cached;
-  const hash = multihash.toB58String(Buffer.from(url));
+  const hash = base58Encode(utf8Bytes(url));
   urlHashCache.set(url, hash);
   return hash;
 }

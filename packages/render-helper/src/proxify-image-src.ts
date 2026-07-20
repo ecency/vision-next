@@ -1,4 +1,3 @@
-import multihash from 'multihashes'
 import querystring from 'querystring'
 import { LRUCache } from 'lru-cache'
 
@@ -10,10 +9,47 @@ let proxyBase = 'https://i.ecency.com'
 // repeat). Caching by URL collapses all of those to a single encode.
 const urlHashCache = new LRUCache<string, string>({ max: 500 })
 
+const BASE58_ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
+
+// base58btc, byte-for-byte what multihashes' toB58String produced (that function was
+// `bs58.encode` behind a Buffer type-check — no multihash prefix). Inlined because the
+// Buffer it demanded is a Node global: bundlers that do not shim it (the self-hosted
+// blog SPA's, for one) shipped a `Buffer is not defined` crash into the browser on any
+// post carrying an image. The output is the image proxy's cache key and appears in
+// every image URL, so it must not change; proxify-image-src.spec.ts pins it.
+function base58Encode(bytes: Uint8Array): string {
+  if (bytes.length === 0) return ''
+  const digits: number[] = [0]
+  for (let i = 0; i < bytes.length; i++) {
+    let carry = bytes[i]
+    for (let j = 0; j < digits.length; j++) {
+      carry += digits[j] << 8
+      digits[j] = carry % 58
+      carry = (carry / 58) | 0
+    }
+    while (carry > 0) {
+      digits.push(carry % 58)
+      carry = (carry / 58) | 0
+    }
+  }
+  let out = ''
+  // Each leading zero byte encodes as a literal '1' rather than as a digit.
+  for (let k = 0; k < bytes.length && bytes[k] === 0; k++) out += BASE58_ALPHABET[0]
+  for (let q = digits.length - 1; q >= 0; q--) out += BASE58_ALPHABET[digits[q]]
+  return out
+}
+
+function utf8Bytes(url: string): Uint8Array {
+  // TextEncoder is standard in browsers and Node >= 11; Buffer stays as the fallback so
+  // any runtime without it (older React Native) keeps the behaviour it has today.
+  if (typeof TextEncoder !== 'undefined') return new TextEncoder().encode(url)
+  return Uint8Array.from(Buffer.from(url, 'utf8'))
+}
+
 function getUrlHash(url: string): string {
   const cached = urlHashCache.get(url)
   if (cached) return cached
-  const hash = multihash.toB58String(Buffer.from(url))
+  const hash = base58Encode(utf8Bytes(url))
   urlHashCache.set(url, hash)
   return hash
 }
