@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import i18next from "i18next";
 import { ShortsFeedEntry } from "@ecency/sdk";
 import { EntryTipBtn, UserAvatar, ProfileLink } from "@/features/shared";
+import { ProBadge } from "@/features/pro";
 import { UilComment, UilPlay } from "@tooni/iconscout-unicons-react";
 import { ReelVideo } from "@/app/waves/_components/reel-video";
 import { ReelVoteButton } from "@/app/waves/_components/reel-vote-button";
@@ -110,6 +111,9 @@ export function WavesReelItem({ item, onReply }: Props) {
           <ProfileLink username={item.author}>
             <span className="font-semibold text-white">@{item.author}</span>
           </ProfileLink>
+          {/* Sits over arbitrary video frames; a drop shadow keeps the blue disc
+              legible on bright content, like the white author text beside it. */}
+          <ProBadge username={item.author} className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)]" />
         </div>
         {caption && <div className="mt-2 line-clamp-2 text-sm text-white/90">{caption}</div>}
       </div>

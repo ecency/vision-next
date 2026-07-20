@@ -170,6 +170,16 @@ vi.mock("@/features/post-renderer", () => ({
   setupPostEnhancements: vi.fn()
 }));
 
+// ProBadge fetches the Pro roster with useQuery. It's now embedded in shared
+// author labels (ProfilePopover, WavesListItemHeader, NotificationListItem, ...),
+// so every container spec that renders those with a plain render() — no
+// QueryClientProvider — would otherwise throw "No QueryClient set". Stub it to a
+// provider-free no-op here; the badge's real membership behavior is covered by
+// its own specs (pro-config + profile-popover-author), which override this mock.
+vi.mock("@/features/pro/pro-badge", () => ({
+  ProBadge: () => null
+}));
+
 vi.mock("@ecency/wallets", () => ({
   validateKey: vi.fn(),
   validateWif: vi.fn(),

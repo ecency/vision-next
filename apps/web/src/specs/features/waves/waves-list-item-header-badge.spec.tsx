@@ -40,8 +40,9 @@ const baseProps = {
   interactable: true
 } as const;
 
-// i18next is globally mocked to echo keys, so the badge alt is the raw key.
-const BADGE = 'img[alt="waves.source-ecency"]';
+// i18next is globally mocked to echo keys, so the badge label is the raw key.
+// The source badge is now an inline <svg role="img"> rather than an <img>.
+const BADGE = '[role="img"][aria-label="waves.source-ecency"]';
 
 describe("WavesListItemHeader Ecency badge", () => {
   it("renders the Ecency badge for waves published from Ecency web", () => {

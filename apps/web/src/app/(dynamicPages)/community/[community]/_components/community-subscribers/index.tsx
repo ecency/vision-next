@@ -6,6 +6,7 @@ import { getCommunitySubscribersQueryOptions, getAccountsQueryOptions } from "@e
 import { useQuery } from "@tanstack/react-query";
 import { Community, roleMap, Subscription } from "@/entities";
 import { LinearProgress, ProfileLink, UserAvatar } from "@/features/shared";
+import { ProBadge } from "@/features/pro";
 import { accountReputation } from "@/utils";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { pencilOutlineSvg } from "@ui/svg";
@@ -76,6 +77,7 @@ export function CommunitySubscribers({ community }: Props) {
                             <ProfileLink username={username}>
                               <span className="item-name notranslate">{username}</span>
                             </ProfileLink>
+                            <ProBadge username={username} className="ml-1" />
                             {account?.reputation !== undefined && (
                                 <span className="item-reputation">
                           {accountReputation(account.reputation)}

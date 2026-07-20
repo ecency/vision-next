@@ -3,7 +3,7 @@
 import React from "react";
 import { Popover } from "@ui/popover";
 import { ProfilePreview } from "@/features/shared/profile-popover/profile-preview";
-import { PROFILE_POPOVER_AUTHOR_CLASS } from "@/features/shared/profile-popover/consts";
+import { ProfilePopoverAuthor } from "@/features/shared/profile-popover/profile-popover-author";
 
 // The heavy half of ProfilePopover: floating-ui (useFloating), a window-resize
 // listener (useWindowSize), a click-away listener and two React portals, plus
@@ -22,7 +22,7 @@ export default function ProfilePopoverCard({ author }: { author: string }) {
       useMobileSheet={true}
       placement="bottom-start"
       defaultShow={true}
-      directContent={<div className={PROFILE_POPOVER_AUTHOR_CLASS}>{author}</div>}
+      directContent={<ProfilePopoverAuthor author={author} />}
       customClassName="rounded-2xl overflow-hidden bg-white dark:bg-gray-900 shadow-xl w-[320px]"
     >
       <ProfilePreview username={author} />

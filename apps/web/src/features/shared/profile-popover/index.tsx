@@ -4,7 +4,7 @@ import React, { useCallback, useState } from "react";
 import "./index.scss";
 import { Entry } from "@/entities";
 import ProfilePopoverCard from "@/features/shared/profile-popover/profile-popover-card";
-import { PROFILE_POPOVER_AUTHOR_CLASS } from "@/features/shared/profile-popover/consts";
+import { ProfilePopoverAuthor } from "@/features/shared/profile-popover/profile-popover-author";
 
 // The author label must stay in the server HTML (SEO + zero layout shift), but
 // the hover card around it (floating-ui, a resize listener, a click-away
@@ -28,7 +28,7 @@ export const ProfilePopover = ({ entry }: { entry: Entry }) => {
     // the popover.
     return (
       <div role="presentation" onMouseEnter={arm} onFocus={arm} onClick={arm}>
-        <div className={PROFILE_POPOVER_AUTHOR_CLASS}>{author}</div>
+        <ProfilePopoverAuthor author={author} />
       </div>
     );
   }

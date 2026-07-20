@@ -13,8 +13,10 @@ vi.mock("@/utils", async () => ({
 
 import { EcencySourceBadge } from "@/features/shared/ecency-source-badge";
 
-// i18next is globally mocked to echo keys, so the badge alt is the raw key.
-const BADGE = 'img[alt="waves.source-ecency"]';
+// i18next is globally mocked to echo keys, so the badge label is the raw key.
+// The badge is an inline <svg role="img"> (not next/image) so the mark can
+// inherit currentColor and render in muted gray.
+const BADGE = '[role="img"][aria-label="waves.source-ecency"]';
 
 describe("EcencySourceBadge", () => {
   it("renders for the Ecency web client (ecency/x.y-vision)", () => {
