@@ -81,8 +81,14 @@ export function BlogPostItem({ entry }: Props) {
       : typeof imageMetadata === 'string'
         ? imageMetadata
         : null;
-    if (firstImage) {
-      return catchPostImage(firstImage, 800, 600) || firstImage;
+    if (typeof firstImage === 'string') {
+      // json_metadata is authored on-chain, so the raw value is untrusted: it can be a
+      // non-http scheme or a non-string that stringifies into src. Fall back to it only
+      // when catchPostImage declines a plain http(s) URL, never unconditionally —
+      // otherwise the image proxy is bypassed and an arbitrary host gets a beacon.
+      const proxified = catchPostImage(firstImage, 800, 600);
+      if (proxified) return proxified;
+      return /^https?:\/\//i.test(firstImage.trim()) ? firstImage : null;
     }
     return null;
   }, [entryData]);
