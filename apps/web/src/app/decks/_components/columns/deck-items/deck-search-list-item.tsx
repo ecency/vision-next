@@ -1,7 +1,7 @@
 import React, { Fragment, JSX, useEffect, useRef, useState } from "react";
 import { catchPostImage, postBodySummary, proxifyImageSrc } from "@ecency/render-helper";
 import { useInViewport } from "react-in-viewport";
-import { commentSvg, voteSvg } from "../../icons";
+import { voteSvg } from "../../icons";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { dateToRelative, transformMarkedContent, makeEntryPath } from "@/utils";
 import {
@@ -19,7 +19,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import i18next from "i18next";
 import { Tooltip } from "@ui/tooltip";
-import { pinSvg } from "@ui/svg";
+import { commentSvg, pinSvg } from "@ui/svg";
 import useMount from "react-use/lib/useMount";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";

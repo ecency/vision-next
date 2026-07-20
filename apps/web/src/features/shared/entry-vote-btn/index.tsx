@@ -5,7 +5,7 @@ import "./_index.scss";
 import * as ss from "@/utils/session-storage";
 import { LoginRequired } from "@/features/shared";
 import useClickAway from "react-use/lib/useClickAway";
-import { chevronUpSvgForVote } from "@ui/svg";
+
 import dynamic from "next/dynamic";
 import { useEntryVote } from "@/api/mutations";
 import { Account, Entry, EntryVote } from "@/entities";
@@ -18,6 +18,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { error } from "@/features/shared/feedback";
 import { formatError } from "@/api/format-error";
 import i18next from "i18next";
+import { chevronUpSvgForVote } from "@/assets/img/svg";
 
 // The vote slider dialog only mounts on interaction (dialog && entry &&
 // activeUser, below) — never SSR-meaningful. Lazy-load it so it doesn't ship

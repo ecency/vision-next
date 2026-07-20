@@ -6,22 +6,11 @@ import { DeckAddColumnTypeSettings } from "./deck-add-column-type-settings";
 import { DraggableProvidedDragHandleProps } from "@hello-pangea/dnd";
 import { DeckGridContext } from "../../deck-manager";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
-import {
-  communityIconSvg,
-  faqIconSvg,
-  notificationsIconSvg,
-  searchIconSvg,
-  swapFormSvg,
-  threadSvg,
-  topicsIconSvg,
-  trendingIconSvg,
-  userIconSvg,
-  walletIconSvg,
-  whatsNewIconSvg
-} from "../../icons";
+import { communityIconSvg, faqIconSvg, notificationsIconSvg, swapFormSvg, threadSvg, topicsIconSvg, trendingIconSvg, userIconSvg, whatsNewIconSvg } from "../../icons";
 import { Button } from "@ui/button";
 import i18next from "i18next";
 import { arrowLeftSvg } from "@ui/svg";
+import { searchIconSvg, walletIconSvg } from "@ui/icons";
 
 interface Props {
   id: string;

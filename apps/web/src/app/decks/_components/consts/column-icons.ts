@@ -1,34 +1,5 @@
-import {
-  balanceIconSvg,
-  blogIconSvg,
-  bookmarksIconSvg,
-  commentsIconSvg,
-  delegationsIconSvg,
-  faqIconSvg,
-  favouritesIconSvg,
-  followsIconSvg,
-  hotIconSvg,
-  interestsIconSvg,
-  marketOrdersIconSvg,
-  mentionsIconSvg,
-  mutedIconSvg,
-  newIconSvg,
-  payoutsIconSvg,
-  postsIconSvg,
-  reblogsIconSvg,
-  repliesIconSvg,
-  rewardIconSvg,
-  searchIconSvg,
-  stakeOperationsIconSvg,
-  swapFormSvg,
-  threadSvg,
-  topicsIconSvg,
-  transfersIconSvg,
-  trendingIconSvg,
-  voteIconSvg,
-  walletAllIconSvg,
-  whatsNewIconSvg
-} from "../icons";
+import { balanceIconSvg, blogIconSvg, bookmarksIconSvg, commentsIconSvg, delegationsIconSvg, faqIconSvg, favouritesIconSvg, followsIconSvg, hotIconSvg, interestsIconSvg, marketOrdersIconSvg, mentionsIconSvg, mutedIconSvg, newIconSvg, payoutsIconSvg, postsIconSvg, reblogsIconSvg, repliesIconSvg, rewardIconSvg, stakeOperationsIconSvg, swapFormSvg, threadSvg, topicsIconSvg, transfersIconSvg, trendingIconSvg, voteIconSvg, walletAllIconSvg, whatsNewIconSvg } from "../icons";
+import { searchIconSvg } from "@ui/icons";
 
 export const ICONS: Record<string, any> = {
   co: {

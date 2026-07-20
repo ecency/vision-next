@@ -3,22 +3,7 @@
 import React, { useMemo, useRef, useState, useEffect } from "react";
 import { useMountedState } from "react-use";
 import { v4 } from "uuid";
-import {
-  codeTagsSvg,
-  emoticonHappyOutlineSvg,
-  formatBoldSvg,
-  formatItalicSvg,
-  formatListBulletedSvg,
-  formatListNumberedSvg,
-  formatQuoteCloseSvg,
-  formatTitleSvg,
-  gifIcon,
-  gridSvg,
-  imageSvg,
-  linkSvg,
-  textShortSvg,
-  videoSvg
-} from "@/assets/img/svg";
+import { codeTagsSvg, emoticonHappyOutlineSvg, formatBoldSvg, formatItalicSvg, formatListBulletedSvg, formatListNumberedSvg, formatQuoteCloseSvg, formatTitleSvg, gifIcon, gridSvg, imageSvg, textShortSvg, videoSvg } from "@/assets/img/svg";
 import "./_index.scss";
 import { UilPanelAdd } from "@tooni/iconscout-unicons-react";
 import { PollsCreation, PollSnapshot } from "@/features/polls";
@@ -46,6 +31,7 @@ import { EcencyConfigManager } from "@/config";
 // every editor-toolbar consumer — including the read-only entry page. The
 // tracker itself only depends on React.
 import { useOptionalUploadTracker } from "@/app/publish/_hooks/use-upload-tracker";
+import { linkSvg } from "@ui/svg";
 
 interface Props {
   sm?: boolean;

@@ -1,11 +1,12 @@
 import i18next from "i18next";
 import { Button } from "@ui/button";
 import { classNameObject } from "@ui/util";
-import { closeSvg } from "@/assets/img/svg";
+
 import React, { PropsWithChildren } from "react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useMountTransition } from "@/core/hooks";
+import { closeSvg } from "@ui/svg";
 
 interface Props {
   show: boolean;

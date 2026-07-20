@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import "./_deck-post-viewer.scss";
 import useMount from "react-use/lib/useMount";
 import { DeckPostViewerCommentBox } from "./deck-post-viewer-comment-box";
-import { commentSvg, voteSvg } from "../../icons";
+import { voteSvg } from "../../icons";
 import { Button } from "@ui/button";
 import { Entry } from "@/entities";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
-import { arrowLeftSvg } from "@ui/svg";
+import { arrowLeftSvg, commentSvg } from "@ui/svg";
 import i18next from "i18next";
 import {
   EntryInfo,

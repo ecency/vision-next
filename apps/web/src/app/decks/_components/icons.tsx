@@ -1,26 +1,8 @@
 import React from "react";
+import { UilComments, UilUser } from "@tooni/iconscout-unicons-react";
 
 // https://www.svgrepo.com/collection/iconsax-duotone-line-icons
-export const userIconSvg = (
-  <svg viewBox="0 0 24 24" fill="transparent" xmlns="http://www.w3.org/2000/svg">
-    <path
-      fill="currentColor"
-      opacity="0.2"
-      d="M17 8C17 10.7614 14.7614 13 12 13C9.23858 13 7 10.7614 7 8C7 5.23858 9.23858 3 12 3C14.7614 3 17 5.23858 17 8Z"
-    />
-    <path
-      stroke="currentColor"
-      d="M17 8C17 10.7614 14.7614 13 12 13C9.23858 13 7 10.7614 7 8C7 5.23858 9.23858 3 12 3C14.7614 3 17 5.23858 17 8Z"
-      strokeWidth="2"
-    />
-    <path
-      stroke="currentColor"
-      d="M3 21C3.95728 17.9237 6.41998 17 12 17C17.58 17 20.0427 17.9237 21 21"
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-  </svg>
-);
+export const userIconSvg = <UilUser />;
 
 export const communityIconSvg = (
   <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -42,48 +24,6 @@ export const communityIconSvg = (
     <path
       opacity="0.4"
       d="M22.0002 8.67008V15.3301C22.0002 18.0001 21.3302 18.6701 18.6702 18.6701H18.3302C18.1802 18.6701 18.0502 18.6701 17.9102 18.6601C17.9802 18.1701 18.0002 17.6201 18.0002 17.0001V7.00008C18.0002 6.38008 17.9802 5.83008 17.9102 5.34008C18.0502 5.33008 18.1802 5.33008 18.3302 5.33008H18.6702C21.3302 5.33008 22.0002 6.00008 22.0002 8.67008Z"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
-export const walletIconSvg = (
-  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <g opacity="0.4">
-      <path
-        d="M10.7496 16.8599V18.8899C10.7496 20.6099 9.14963 21.9999 7.17963 21.9999C5.20963 21.9999 3.59961 20.6099 3.59961 18.8899V16.8599C3.59961 18.5799 5.19963 19.7999 7.17963 19.7999C9.14963 19.7999 10.7496 18.5699 10.7496 16.8599Z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M10.7498 14.1097C10.7498 14.6097 10.6098 15.0697 10.3698 15.4697C9.77981 16.4397 8.5698 17.0497 7.1698 17.0497C5.7698 17.0497 4.55979 16.4297 3.96979 15.4697C3.72979 15.0697 3.58984 14.6097 3.58984 14.1097C3.58984 13.2497 3.98982 12.4797 4.62982 11.9197C5.27982 11.3497 6.16979 11.0098 7.15979 11.0098C8.14979 11.0098 9.03982 11.3597 9.68982 11.9197C10.3498 12.4697 10.7498 13.2497 10.7498 14.1097Z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M10.7496 14.11V16.86C10.7496 18.58 9.14963 19.8 7.17963 19.8C5.20963 19.8 3.59961 18.57 3.59961 16.86V14.11C3.59961 12.39 5.19963 11 7.17963 11C8.16963 11 9.05966 11.35 9.70966 11.91C10.3497 12.47 10.7496 13.25 10.7496 14.11Z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </g>
-    <path
-      d="M22.0002 10.9702V13.0302C22.0002 13.5802 21.5602 14.0302 21.0002 14.0502H19.0402C17.9602 14.0502 16.9702 13.2602 16.8802 12.1802C16.8202 11.5502 17.0602 10.9602 17.4802 10.5502C17.8502 10.1702 18.3602 9.9502 18.9202 9.9502H21.0002C21.5602 9.9702 22.0002 10.4202 22.0002 10.9702Z"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M2 10.5V8.5C2 5.78 3.64 3.88 6.19 3.56C6.45 3.52 6.72 3.5 7 3.5H16C16.26 3.5 16.51 3.50999 16.75 3.54999C19.33 3.84999 21 5.76 21 8.5V9.95001H18.92C18.36 9.95001 17.85 10.17 17.48 10.55C17.06 10.96 16.82 11.55 16.88 12.18C16.97 13.26 17.96 14.05 19.04 14.05H21V15.5C21 18.5 19 20.5 16 20.5H13.5"
       stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"
@@ -194,42 +134,6 @@ export const topicsIconSvg = (
   </svg>
 );
 
-export const searchIconSvg = (
-  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path
-      opacity="0.4"
-      d="M14 5H20"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      opacity="0.4"
-      d="M14 8H17"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M21 11.5C21 16.75 16.75 21 11.5 21C6.25 21 2 16.75 2 11.5C2 6.25 6.25 2 11.5 2"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      opacity="0.4"
-      d="M22 22L20 20"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
 export const blogIconSvg = (
   <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path
@@ -265,33 +169,7 @@ export const blogIconSvg = (
   </svg>
 );
 
-export const commentsIconSvg = (
-  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <g opacity="0.4">
-      <path
-        d="M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </g>
-    <path
-      d="M7 8.89039C10.15 7.32039 13.85 7.32039 17 8.89039"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M12 16.2997V7.92969"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
+export const commentsIconSvg = <UilComments />;
 
 export const postsIconSvg = (
   <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1019,23 +897,6 @@ export const addIconSvg = (
   </svg>
 );
 
-export const dotsMenuIconSvg = (
-  <svg fill="currentColor" viewBox="0 0 342.382 342.382">
-    <path
-      d="M45.225,125.972C20.284,125.972,0,146.256,0,171.191c0,24.94,20.284,45.219,45.225,45.219
-				c24.926,0,45.219-20.278,45.219-45.219C90.444,146.256,70.151,125.972,45.225,125.972z"
-    />
-    <path
-      d="M173.409,125.972c-24.938,0-45.225,20.284-45.225,45.219c0,24.94,20.287,45.219,45.225,45.219
-				c24.936,0,45.226-20.278,45.226-45.219C218.635,146.256,198.345,125.972,173.409,125.972z"
-    />
-    <path
-      d="M297.165,125.972c-24.932,0-45.222,20.284-45.222,45.219c0,24.94,20.29,45.219,45.222,45.219
-				c24.926,0,45.217-20.278,45.217-45.219C342.382,146.256,322.091,125.972,297.165,125.972z"
-    />
-  </svg>
-);
-
 export const settingsIconSvg = (
   <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none">
     <path
@@ -1044,12 +905,6 @@ export const settingsIconSvg = (
       strokeWidth="2"
     />
     <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2" />
-  </svg>
-);
-
-export const commentSvg = (
-  <svg fill="currentColor" viewBox="0 0 32 32" version="1.1">
-    <path d="M16.5 1.853c-8.133 0-14.75 5.663-14.75 12.624 0.045 2.863 1.132 5.465 2.896 7.45l-0.010-0.012c-0.608 2.418-1.844 4.491-3.525 6.104l-0.004 0.004c-0.22 0.225-0.355 0.534-0.355 0.873 0 0.691 0.56 1.252 1.252 1.252 0.089 0 0.175-0.009 0.259-0.027l-0.008 0.001c3.458-0.576 6.524-1.93 9.121-3.877l-0.054 0.039c1.547 0.517 3.328 0.816 5.179 0.817h0c8.133 0 14.75-5.664 14.75-12.625s-6.617-12.624-14.75-12.624zM16.5 24.602c-0.015 0-0.034 0-0.052 0-1.77 0-3.465-0.321-5.030-0.908l0.099 0.032c-0.045-0.011-0.1-0.020-0.155-0.025l-0.005-0c-0.085-0.025-0.182-0.041-0.283-0.045l-0.002-0c-0.074 0.005-0.142 0.016-0.207 0.033l0.008-0.002c-0.1 0.013-0.19 0.035-0.275 0.068l0.008-0.003c-0.079 0.039-0.146 0.081-0.209 0.129l0.003-0.002c-0.064 0.033-0.118 0.067-0.169 0.105l0.003-0.002c-1.371 1.186-3 2.115-4.789 2.69l-0.098 0.027c0.896-1.391 1.555-3.025 1.872-4.778l0.012-0.082c0.005-0.031-0.005-0.060-0.002-0.092 0.002-0.028 0.003-0.060 0.003-0.093 0-0.311-0.107-0.597-0.286-0.824l0.002 0.003c-0.019-0.023-0.025-0.051-0.046-0.073-1.617-1.608-2.626-3.826-2.652-6.28l-0-0.005c0-5.582 5.495-10.124 12.25-10.124s12.25 4.542 12.25 10.124-5.496 10.125-12.25 10.125zM25 10.75h-16c-0.69 0-1.25 0.56-1.25 1.25s0.56 1.25 1.25 1.25v0h16c0.69 0 1.25-0.56 1.25-1.25s-0.56-1.25-1.25-1.25v0zM16 16.75h-7c-0.69 0-1.25 0.56-1.25 1.25s0.56 1.25 1.25 1.25v0h7c0.69 0 1.25-0.56 1.25-1.25s-0.56-1.25-1.25-1.25v0z" />
   </svg>
 );
 
@@ -1369,17 +1224,6 @@ export const whatsNewIconSvg = (
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
-    />
-  </svg>
-);
-
-export const emojiIconSvg = (
-  <svg width={16} height={16} viewBox="0 0 668 668" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path
-      fillRule="evenodd"
-      clipRule="evenodd"
-      d="M667.357 334C667.357 518.093 518.12 667.333 334.023 667.333C149.929 667.333 0.690002 518.093 0.690002 334C0.690002 149.905 149.929 0.666687 334.023 0.666687C518.12 0.666687 667.357 149.905 667.357 334ZM195.89 425.061C188.008 413.725 172.428 410.925 161.092 418.808C149.756 426.69 146.957 442.27 154.839 453.606C194.34 510.412 260.547 547.667 335.03 547.667C409.579 547.667 475.381 510.361 515.158 453.697C523.091 442.396 520.361 426.805 509.06 418.872C497.76 410.939 482.168 413.669 474.235 424.969C443.346 468.972 392.481 497.667 335.03 497.667C277.513 497.667 226.389 468.922 195.89 425.061ZM282 231C282 264.137 255.137 291 222 291C188.863 291 162 264.137 162 231C162 197.863 188.863 171 222 171C255.137 171 282 197.863 282 231ZM449 291C482.137 291 509 264.137 509 231C509 197.863 482.137 171 449 171C415.863 171 389 197.863 389 231C389 264.137 415.863 291 449 291Z"
-      fill="currentColor"
     />
   </svg>
 );
