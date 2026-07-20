@@ -1323,7 +1323,7 @@ declare const QueryKeys: {
         readonly favorites: (activeUsername?: string) => (string | undefined)[];
         readonly favoritesInfinite: (activeUsername?: string, limit?: number) => unknown[];
         readonly checkFavorite: (activeUsername: string, targetUsername: string) => string[];
-        readonly relations: (reference: string, target: string) => string[];
+        readonly relations: (reference: string | undefined, target: string | undefined) => (string | undefined)[];
         readonly bots: () => string[];
         readonly voteHistory: (username: string, limit: number) => (string | number)[];
         readonly reputations: (query: string, limit: number) => (string | number)[];
@@ -1741,6 +1741,8 @@ interface ReturnVestingDelegation extends BaseTransaction {
 interface ProposalPay extends BaseTransaction {
     type: "proposal_pay";
     payment: string;
+    receiver: string;
+    proposal_id: number;
 }
 interface UpdateProposalVotes extends BaseTransaction {
     type: "update_proposal_votes";
@@ -3220,10 +3222,10 @@ declare function checkUsernameWalletsPendingQueryOptions(username: string, code:
     };
 };
 
-declare function getRelationshipBetweenAccountsQueryOptions(reference: string, target: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<AccountRelationship, Error, AccountRelationship, string[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<AccountRelationship, string[], never> | undefined;
+declare function getRelationshipBetweenAccountsQueryOptions(reference: string | undefined, target: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<AccountRelationship, Error, AccountRelationship, (string | undefined)[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<AccountRelationship, (string | undefined)[], never> | undefined;
 } & {
-    queryKey: string[] & {
+    queryKey: (string | undefined)[] & {
         [dataTagSymbol]: AccountRelationship;
         [dataTagErrorSymbol]: Error;
     };
@@ -8139,12 +8141,17 @@ declare function useClaimPoints(username: string | undefined, accessToken: strin
 interface SearchResult {
     id: number;
     title: string;
+    title_marked?: string | null;
     body: string;
+    body_marked?: string | null;
     category: string;
     author: string;
     permlink: string;
     author_rep: number;
     total_payout: number;
+    payout: number;
+    total_votes: number;
+    up_votes: number;
     img_url: string;
     created_at: string;
     children: number;

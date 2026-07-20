@@ -264,7 +264,7 @@ export const QueryKeys = {
         activeUsername,
         targetUsername,
       ],
-    relations: (reference: string, target: string) =>
+    relations: (reference: string | undefined, target: string | undefined) =>
       ["accounts", "relations", reference, target],
     bots: () => ["accounts", "bots"],
     voteHistory: (username: string, limit: number) =>
