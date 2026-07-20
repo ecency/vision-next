@@ -1,9 +1,12 @@
 export interface SearchResult {
   id: number;
   title: string;
-  title_marked: string | null;
+  // Highlight fields are only present when the query produced a match, and the
+  // search response is cast from JSON without validation, so an omitted
+  // highlight is `undefined` rather than `null`.
+  title_marked?: string | null;
   body: string;
-  body_marked: string | null;
+  body_marked?: string | null;
   category: string;
   author: string;
   permlink: string;

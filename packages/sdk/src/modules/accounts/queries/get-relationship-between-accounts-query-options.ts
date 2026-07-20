@@ -13,7 +13,6 @@ export function getRelationshipBetweenAccountsQueryOptions(
     refetchOnMount: false,
     refetchInterval: 3_600_000,
     queryFn: async () => {
-      const result = await callRPC("bridge.get_relationship_between_accounts", [reference, target]);
       const fallback: AccountRelationship = {
         follows: false,
         ignores: false,
@@ -21,6 +20,15 @@ export function getRelationshipBetweenAccountsQueryOptions(
         follows_muted: false,
         follows_blacklists: false,
       };
+
+      // `enabled` only gates the automatic useQuery run. fetchQuery and
+      // prefetchQuery invoke queryFn regardless, so guard here as well rather
+      // than sending a missing account name to the RPC and caching the result.
+      if (!reference || !target) {
+        return fallback;
+      }
+
+      const result = await callRPC("bridge.get_relationship_between_accounts", [reference, target]);
       return (result ?? fallback) as AccountRelationship;
     },
   });

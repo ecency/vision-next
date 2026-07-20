@@ -3,7 +3,9 @@ import { EntryVote } from "@/entities/entries";
 export interface SearchResult {
   id: number;
   title: string;
-  title_marked: string | null;
+  // Optional to match @ecency/sdk's SearchResult: highlights are only present
+  // when the query matched, and the response is cast from JSON unvalidated.
+  title_marked?: string | null;
   category: string;
   author: string;
   permlink: string;
@@ -11,7 +13,7 @@ export interface SearchResult {
   author_reputation?: number | string;
   children: number;
   body: string;
-  body_marked: string | null;
+  body_marked?: string | null;
   img_url: string;
   created_at: string;
   created?: string;
