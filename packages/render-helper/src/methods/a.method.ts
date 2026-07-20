@@ -26,7 +26,6 @@ import {
   BRIGHTEON_REGEX,
   DOMParser,
   LOOM_REGEX,
-  SECTION_REGEX,
   SECTION_LIST
 } from '../consts'
 import { getSerializedInnerHTML } from './get-inner-html.method'
@@ -143,23 +142,15 @@ export function a(el: HTMLElement | null, forApp: boolean, parentDomain: string 
     return
   }
 
-  const className = el.getAttribute('class')
-
-  // Don't touch user and hashtag links (original or enhanced)
-  if (className && (
-    ['markdown-author-link', 'markdown-tag-link'].includes(className) ||
-    className.includes('er-author') ||
-    className.includes('er-tag')
-  )) {
-    return
-  }
-
   // Positive scheme whitelist. Anything that isn't http(s)/mailto/hive/
   // tel/web+ext or a same-document/relative reference is stripped — this
   // rejects javascript:, data:, vbscript:, file: and also less-common
   // exploit vectors like ms-its:, mk:, res:, intent:. Case-insensitive
   // and tolerant of whitespace/control chars browsers ignore inside the
   // scheme (\t \n \r \f \v \0).
+  // Runs before the author/tag short-circuit below: that short-circuit keys off
+  // `class`, which an author can set on raw HTML, so it must not be reachable with
+  // an unvalidated href.
   const trimmed = href.trim().replace(/[\t\n\r\f\v\0]/g, '').toLowerCase()
   const isSafeScheme = /^(https?|mailto|hive|tel|web\+[a-z0-9.+-]+):/i.test(trimmed)
   // `\/[^/]?` matches both bare `/` (site-root link) and `/path…`;
@@ -168,6 +159,24 @@ export function a(el: HTMLElement | null, forApp: boolean, parentDomain: string 
   const isRelative = /^(\/\/|\/[^/]?|#|\?|[a-z0-9._\-]+(\/|$))/i.test(trimmed)
   if (!isSafeScheme && !isRelative) {
     el.removeAttribute('href')
+    return
+  }
+
+  const className = el.getAttribute('class')
+
+  // Don't re-process user and hashtag links (original or enhanced). The marker is an
+  // attacker-writable attribute rather than proof the renderer built this link, so a
+  // crafted `<a class="er-author" target="_blank" rel="opener">` would otherwise keep
+  // its own rel and re-enable window.opener on the landing page. Skipping the rewrite
+  // is fine; skipping the link policy is not, so re-assert it here.
+  if (className && (
+    ['markdown-author-link', 'markdown-tag-link'].includes(className) ||
+    className.includes('er-author') ||
+    className.includes('er-tag')
+  )) {
+    if (el.getAttribute('target')) {
+      el.setAttribute('rel', getExternalLinkRel(seoContext))
+    }
     return
   }
 
@@ -981,7 +990,11 @@ export function a(el: HTMLElement | null, forApp: boolean, parentDomain: string 
     }
     el.removeAttribute('href')
   } else {
-    const matchS = href.match(SECTION_REGEX)
+    // Same-document links only. This used to match a `#` anywhere in the URL, so any
+    // external link ending in `/#anything` was treated as internal: it lost
+    // `rel="nofollow ugc noopener"` and opened in the same tab, turning every rendered
+    // page into a dofollow link farm for anyone appending a fragment.
+    const matchS = href.trim().startsWith('#')
     if(matchS) {
       el.setAttribute('class', 'markdown-internal-link');
     } else {

@@ -74,17 +74,14 @@ export function BlogPostItem({ entry }: Props) {
   }, [entryData]);
 
   const imageUrl = useMemo(() => {
-    const imageMetadata = entryData.json_metadata?.image;
-    // Handle both string and array formats
-    const firstImage = Array.isArray(imageMetadata)
-      ? imageMetadata[0]
-      : typeof imageMetadata === 'string'
-        ? imageMetadata
-        : null;
-    if (firstImage) {
-      return catchPostImage(firstImage, 800, 600) || firstImage;
-    }
-    return null;
+    // json_metadata is authored on-chain, so its image value is untrusted — it can carry
+    // a non-http scheme, or a non-string that stringifies into src. The entry overload
+    // resolves the metadata image (falling back to the body's first image) and always
+    // returns a proxy URL or null, so there is no path where a raw author-controlled host
+    // reaches the card and collects a beacon from every visitor.
+    // `|| null` rather than `?? null`: a non-string metadata value resolves to an empty
+    // string, and an empty src is re-requested as the page URL by browsers.
+    return catchPostImage(entryData, 800, 600) || null;
   }, [entryData]);
 
   const contentSection = (

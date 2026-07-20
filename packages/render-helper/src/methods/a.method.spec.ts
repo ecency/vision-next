@@ -1,5 +1,6 @@
 import { a } from './a.method'
 import { DOMParser } from '../consts'
+import { renderPostBody } from '../index'
 
 describe('a() method - Link Processing', () => {
   let doc: Document
@@ -1756,3 +1757,42 @@ describe('a() method - Link Processing', () => {
     })
   })
 })
+
+describe('link and embed hardening', () => {
+  let n = 0;
+  const render = (body: string) =>
+    renderPostBody({ author: `a${++n}`, permlink: `p${n}`, body, json_metadata: {} } as any, false);
+
+  it('does not embed look-alike hosts whose dots were regex metacharacters', () => {
+    // The host patterns used literal dots, so 'emb-d.tube' and 'embed-truvvl.com' —
+    // both registrable, .tube is a real gTLD — matched and were framed.
+    expect(render('<iframe src="https://embxd.tube/#!/a/b"></iframe>')).not.toContain('<iframe');
+    expect(render('<iframe src="https://embedxtruvvl.com/@a/b"></iframe>')).not.toContain('<iframe');
+    expect(render('<iframe src="https://emb-d.tube/#!/a/b"></iframe>')).not.toContain('<iframe');
+  });
+
+  it('still embeds the genuine hosts', () => {
+    expect(render('<iframe src="https://emb.d.tube/#!/a/b"></iframe>')).toContain('<iframe');
+    expect(render('<iframe src="https://embed.truvvl.com/@a/b"></iframe>')).toContain('<iframe');
+  });
+
+  it('does not let an author-supplied class opt a link out of the rel policy', () => {
+    // 'class' is writable on raw HTML, so it cannot be treated as proof the renderer
+    // built the link; rel="opener" would otherwise re-enable window.opener.
+    const out = render('<a class="er-author" href="https://evil.com/" target="_blank" rel="opener">x</a>');
+    expect(out).not.toContain('rel="opener"');
+    expect(out).toContain('noopener');
+  });
+
+  it('keeps an external link external when it ends in a fragment', () => {
+    // A '#' anywhere used to mark the link internal, dropping nofollow/ugc and target.
+    const out = render('[x](https://evil.com/#promo)');
+    expect(out).toContain('rel="nofollow ugc noopener"');
+    expect(out).toContain('target="_blank"');
+    expect(out).not.toContain('markdown-internal-link');
+  });
+
+  it('still treats a same-document fragment as an internal link', () => {
+    expect(render('[x](#section-one)')).toContain('markdown-internal-link');
+  });
+});
