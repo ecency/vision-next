@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.5.22
+
+### Patch Changes
+
+- fix(render-helper): close embed host spoofing and link policy bypasses (#1186)
+
 ## 2.5.21
 
 ### Patch Changes
