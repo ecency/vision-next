@@ -38,6 +38,8 @@ COPY packages/sdk/package.json ./packages/sdk/
 COPY packages/render-helper/package.json ./packages/render-helper/
 COPY packages/ui/package.json ./packages/ui/
 COPY packages/wallets/package.json ./packages/wallets/
+# patchedDependencies resolves these at install time, before the source COPY below
+COPY patches ./patches
 
 # Install dependencies
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
