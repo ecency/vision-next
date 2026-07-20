@@ -10,9 +10,9 @@ import {
   parseRange,
   isValidAuthor,
   isValidPermlink,
-  buildAudioResponse,
-  GET
-} from "@/app/api/speak-audio/route";
+  buildAudioResponse
+} from "@/app/api/speak-audio/_utils";
+import { GET } from "@/app/api/speak-audio/route";
 import { callRPC } from "@ecency/sdk/hive";
 
 const LIKETU =
