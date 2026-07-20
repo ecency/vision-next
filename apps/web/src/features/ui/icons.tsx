@@ -1,26 +1,8 @@
 import React from "react";
+import { UilComments, UilEmoji, UilSearch, UilUser } from "@tooni/iconscout-unicons-react";
 
 // https://www.svgrepo.com/collection/iconsax-duotone-line-icons
-export const userIconSvg = (
-  <svg viewBox="0 0 24 24" fill="transparent" xmlns="http://www.w3.org/2000/svg">
-    <path
-      fill="currentColor"
-      opacity="0.2"
-      d="M17 8C17 10.7614 14.7614 13 12 13C9.23858 13 7 10.7614 7 8C7 5.23858 9.23858 3 12 3C14.7614 3 17 5.23858 17 8Z"
-    />
-    <path
-      stroke="currentColor"
-      d="M17 8C17 10.7614 14.7614 13 12 13C9.23858 13 7 10.7614 7 8C7 5.23858 9.23858 3 12 3C14.7614 3 17 5.23858 17 8Z"
-      strokeWidth="2"
-    />
-    <path
-      stroke="currentColor"
-      d="M3 21C3.95728 17.9237 6.41998 17 12 17C17.58 17 20.0427 17.9237 21 21"
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-  </svg>
-);
+export const userIconSvg = <UilUser />;
 
 export const communityIconSvg = (
   <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -194,41 +176,7 @@ export const topicsIconSvg = (
   </svg>
 );
 
-export const searchIconSvg = (
-  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path
-      opacity="0.4"
-      d="M14 5H20"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      opacity="0.4"
-      d="M14 8H17"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M21 11.5C21 16.75 16.75 21 11.5 21C6.25 21 2 16.75 2 11.5C2 6.25 6.25 2 11.5 2"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      opacity="0.4"
-      d="M22 22L20 20"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
+export const searchIconSvg = <UilSearch />;
 
 export const blogIconSvg = (
   <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -265,33 +213,7 @@ export const blogIconSvg = (
   </svg>
 );
 
-export const commentsIconSvg = (
-  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <g opacity="0.4">
-      <path
-        d="M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </g>
-    <path
-      d="M7 8.89039C10.15 7.32039 13.85 7.32039 17 8.89039"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M12 16.2997V7.92969"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
+export const commentsIconSvg = <UilComments />;
 
 export const postsIconSvg = (
   <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1373,13 +1295,4 @@ export const whatsNewIconSvg = (
   </svg>
 );
 
-export const emojiIconSvg = (
-  <svg width={16} height={16} viewBox="0 0 668 668" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path
-      fillRule="evenodd"
-      clipRule="evenodd"
-      d="M667.357 334C667.357 518.093 518.12 667.333 334.023 667.333C149.929 667.333 0.690002 518.093 0.690002 334C0.690002 149.905 149.929 0.666687 334.023 0.666687C518.12 0.666687 667.357 149.905 667.357 334ZM195.89 425.061C188.008 413.725 172.428 410.925 161.092 418.808C149.756 426.69 146.957 442.27 154.839 453.606C194.34 510.412 260.547 547.667 335.03 547.667C409.579 547.667 475.381 510.361 515.158 453.697C523.091 442.396 520.361 426.805 509.06 418.872C497.76 410.939 482.168 413.669 474.235 424.969C443.346 468.972 392.481 497.667 335.03 497.667C277.513 497.667 226.389 468.922 195.89 425.061ZM282 231C282 264.137 255.137 291 222 291C188.863 291 162 264.137 162 231C162 197.863 188.863 171 222 171C255.137 171 282 197.863 282 231ZM449 291C482.137 291 509 264.137 509 231C509 197.863 482.137 171 449 171C415.863 171 389 197.863 389 231C389 264.137 415.863 291 449 291Z"
-      fill="currentColor"
-    />
-  </svg>
-);
+export const emojiIconSvg = <UilEmoji />;
