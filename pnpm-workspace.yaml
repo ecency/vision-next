@@ -65,3 +65,6 @@ allowBuilds:
 # for ~24h after a same-day dependency bump lands in the lockfile — re-run CI
 # once the version has aged, or add the package to minimumReleaseAgeExclude.
 minimumReleaseAge: 1440
+
+patchedDependencies:
+  '@tooni/iconscout-unicons-react@1.0.1': patches/@tooni__iconscout-unicons-react@1.0.1.patch
