@@ -1,0 +1,7 @@
+# Origin addresses live only on the box: these are the hosts behind Cloudflare, and
+# committing them to a public repo would publish a ready-made origin-bypass list.
+origin-ips
+
+# Runtime state written next to the script on the origin.
+state.json
+*.log
