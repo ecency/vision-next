@@ -3337,11 +3337,11 @@ type TxCursor = number | null;
  * @param limit - Number of transactions per page
  * @param group - Filter by operation group (transfers, market-orders, etc.)
  */
-declare function getTransactionsInfiniteQueryOptions(username?: string, limit?: number, group?: OperationGroup | ""): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<TxPageRaw, Error, TxPageRaw, (string | number)[], TxCursor>, "queryFn"> & {
+declare function getTransactionsInfiniteQueryOptions(username?: string, limit?: number, group?: OperationGroup | ""): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<TxPageRaw, Error, InfiniteData<TxPageRaw, TxCursor>, (string | number)[], TxCursor>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<TxPageRaw, (string | number)[], TxCursor> | undefined;
 } & {
     queryKey: (string | number)[] & {
-        [dataTagSymbol]: _tanstack_react_query.InfiniteData<TxPageRaw, unknown>;
+        [dataTagSymbol]: InfiniteData<TxPageRaw, unknown>;
         [dataTagErrorSymbol]: Error;
     };
 };
@@ -3393,11 +3393,11 @@ declare function getFriendsInfiniteQueryOptions(following: string, mode: "follow
     followType?: string;
     limit?: number;
     enabled?: boolean;
-}): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<FriendsPage, Error, FriendsPage, (string | number)[], FriendsPageParam>, "queryFn"> & {
+}): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<FriendsPage, Error, InfiniteData<FriendsPage, FriendsPageParam>, (string | number)[], FriendsPageParam>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<FriendsPage, (string | number)[], FriendsPageParam> | undefined;
 } & {
     queryKey: (string | number)[] & {
-        [dataTagSymbol]: _tanstack_react_query.InfiniteData<FriendsPage, unknown>;
+        [dataTagSymbol]: InfiniteData<FriendsPage, unknown>;
         [dataTagErrorSymbol]: Error;
     };
 };
@@ -3642,11 +3642,11 @@ declare function getAccountVoteHistoryInfiniteQueryOptions<F>(username: string, 
     limit?: number;
     filters?: F[];
     dayLimit?: number;
-}): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<VoteHistoryPage, Error, VoteHistoryPage, (string | number)[], VoteHistoryPageParam>, "queryFn"> & {
+}): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<VoteHistoryPage, Error, InfiniteData<VoteHistoryPage, VoteHistoryPageParam>, (string | number)[], VoteHistoryPageParam>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<VoteHistoryPage, (string | number)[], VoteHistoryPageParam> | undefined;
 } & {
     queryKey: (string | number)[] & {
-        [dataTagSymbol]: _tanstack_react_query.InfiniteData<VoteHistoryPage, unknown>;
+        [dataTagSymbol]: InfiniteData<VoteHistoryPage, unknown>;
         [dataTagErrorSymbol]: Error;
     };
 };
@@ -3682,11 +3682,11 @@ type BalanceHistoryCursor = number | null;
  * @param coinType - HIVE, HBD, or VESTS
  * @param pageSize - Number of entries per page
  */
-declare function getBalanceHistoryInfiniteQueryOptions(username?: string, coinType?: BalanceCoinType, pageSize?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<BalanceHistoryPage, Error, BalanceHistoryPage, (string | number)[], BalanceHistoryCursor>, "queryFn"> & {
+declare function getBalanceHistoryInfiniteQueryOptions(username?: string, coinType?: BalanceCoinType, pageSize?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<BalanceHistoryPage, Error, InfiniteData<BalanceHistoryPage, BalanceHistoryCursor>, (string | number)[], BalanceHistoryCursor>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<BalanceHistoryPage, (string | number)[], BalanceHistoryCursor> | undefined;
 } & {
     queryKey: (string | number)[] & {
-        [dataTagSymbol]: _tanstack_react_query.InfiniteData<BalanceHistoryPage, unknown>;
+        [dataTagSymbol]: InfiniteData<BalanceHistoryPage, unknown>;
         [dataTagErrorSymbol]: Error;
     };
 };
@@ -3930,11 +3930,11 @@ type PageParam$2 = {
     hasNextPage: boolean;
 };
 type Page = Entry$1[];
-declare function getAccountPostsInfiniteQueryOptions(username: string | undefined, filter?: string, limit?: number, observer?: string, enabled?: boolean): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<Page, Error, Page, (string | number)[], PageParam$2>, "queryFn"> & {
+declare function getAccountPostsInfiniteQueryOptions(username: string | undefined, filter?: string, limit?: number, observer?: string, enabled?: boolean): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<Page, Error, InfiniteData<Page, PageParam$2>, (string | number)[], PageParam$2>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<Page, (string | number)[], PageParam$2> | undefined;
 } & {
     queryKey: (string | number)[] & {
-        [dataTagSymbol]: _tanstack_react_query.InfiniteData<Page, unknown>;
+        [dataTagSymbol]: InfiniteData<Page, unknown>;
         [dataTagErrorSymbol]: Error;
     };
 };
@@ -3955,11 +3955,11 @@ type PageParam$1 = {
 interface GetPostsRankedOptions {
     resolvePosts?: boolean;
 }
-declare function getPostsRankedInfiniteQueryOptions(sort: string, tag: string, limit?: number, observer?: string, enabled?: boolean, _options?: GetPostsRankedOptions): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<Entry$1[], Error, Entry$1[], (string | number)[], PageParam$1>, "queryFn"> & {
+declare function getPostsRankedInfiniteQueryOptions(sort: string, tag: string, limit?: number, observer?: string, enabled?: boolean, _options?: GetPostsRankedOptions): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<Entry$1[], Error, InfiniteData<Entry$1[], PageParam$1>, (string | number)[], PageParam$1>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<Entry$1[], (string | number)[], PageParam$1> | undefined;
 } & {
     queryKey: (string | number)[] & {
-        [dataTagSymbol]: _tanstack_react_query.InfiniteData<Entry$1[], unknown>;
+        [dataTagSymbol]: InfiniteData<Entry$1[], unknown>;
         [dataTagErrorSymbol]: Error;
     };
 };
@@ -4203,11 +4203,11 @@ declare function getShortsFeedQueryOptions(params?: ShortsFeedParams): _tanstack
 
 type WavesPage = WaveEntry[];
 type WavesCursor = WaveEntry | undefined;
-declare function getWavesByHostQueryOptions(host: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<WavesPage, Error, WavesPage, string[], WavesCursor>, "queryFn"> & {
+declare function getWavesByHostQueryOptions(host: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<WavesPage, Error, InfiniteData<WavesPage, WavesCursor>, string[], WavesCursor>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<WavesPage, string[], WavesCursor> | undefined;
 } & {
     queryKey: string[] & {
-        [dataTagSymbol]: _tanstack_react_query.InfiniteData<WavesPage, unknown>;
+        [dataTagSymbol]: InfiniteData<WavesPage, unknown>;
         [dataTagErrorSymbol]: Error;
     };
 };
@@ -5958,11 +5958,11 @@ type NotifCursor = number | null;
  * @param account - The account/community name
  * @param limit - Number of notifications per page
  */
-declare function getAccountNotificationsInfiniteQueryOptions(account: string, limit: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<NotifPage, Error, NotifPage, (string | number)[], NotifCursor>, "queryFn"> & {
+declare function getAccountNotificationsInfiniteQueryOptions(account: string, limit: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<NotifPage, Error, InfiniteData<NotifPage, NotifCursor>, (string | number)[], NotifCursor>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<NotifPage, (string | number)[], NotifCursor> | undefined;
 } & {
     queryKey: (string | number)[] & {
-        [dataTagSymbol]: _tanstack_react_query.InfiniteData<NotifPage, unknown>;
+        [dataTagSymbol]: InfiniteData<NotifPage, unknown>;
         [dataTagErrorSymbol]: Error;
     };
 };
@@ -6424,11 +6424,11 @@ type ProposalVoteRow = {
  * @param voter - Starting voter for pagination
  * @param limit - Number of votes per page
  */
-declare function getProposalVotesInfiniteQueryOptions(proposalId: number, voter: string, limit: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<ProposalVoteRow[], Error, ProposalVoteRow[], (string | number)[], string>, "queryFn"> & {
+declare function getProposalVotesInfiniteQueryOptions(proposalId: number, voter: string, limit: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<ProposalVoteRow[], Error, InfiniteData<ProposalVoteRow[], string>, (string | number)[], string>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<ProposalVoteRow[], (string | number)[], string> | undefined;
 } & {
     queryKey: (string | number)[] & {
-        [dataTagSymbol]: _tanstack_react_query.InfiniteData<ProposalVoteRow[], unknown>;
+        [dataTagSymbol]: InfiniteData<ProposalVoteRow[], unknown>;
         [dataTagErrorSymbol]: Error;
     };
 };
@@ -6857,11 +6857,11 @@ type RcCursor = string | null;
  * @param username - Account name to get delegations for
  * @param limit - Number of delegations per page
  */
-declare function getOutgoingRcDelegationsInfiniteQueryOptions(username: string, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<RcPage, Error, RcPage, (string | number)[], RcCursor>, "queryFn"> & {
+declare function getOutgoingRcDelegationsInfiniteQueryOptions(username: string, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<RcPage, Error, InfiniteData<RcPage, RcCursor>, (string | number)[], RcCursor>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<RcPage, (string | number)[], RcCursor> | undefined;
 } & {
     queryKey: (string | number)[] & {
-        [dataTagSymbol]: _tanstack_react_query.InfiniteData<RcPage, unknown>;
+        [dataTagSymbol]: InfiniteData<RcPage, unknown>;
         [dataTagErrorSymbol]: Error;
     };
 };
@@ -7702,11 +7702,11 @@ type WitnessPage = Witness[];
  *
  * @param limit - Number of witnesses per page
  */
-declare function getWitnessesInfiniteQueryOptions(limit: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<WitnessPage, Error, WitnessPage, (string | number)[], number>, "queryFn"> & {
+declare function getWitnessesInfiniteQueryOptions(limit: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<WitnessPage, Error, InfiniteData<WitnessPage, number>, (string | number)[], number>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<WitnessPage, (string | number)[], number> | undefined;
 } & {
     queryKey: (string | number)[] & {
-        [dataTagSymbol]: _tanstack_react_query.InfiniteData<WitnessPage, unknown>;
+        [dataTagSymbol]: InfiniteData<WitnessPage, unknown>;
         [dataTagErrorSymbol]: Error;
     };
 };
@@ -8171,11 +8171,11 @@ type PageParam = {
     sid: string | undefined;
     hasNextPage: boolean;
 };
-declare function getControversialRisingInfiniteQueryOptions(what: string, tag: string, enabled?: boolean): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<SearchResponse, Error, SearchResponse, (string | number)[], PageParam>, "queryFn"> & {
+declare function getControversialRisingInfiniteQueryOptions(what: string, tag: string, enabled?: boolean): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<SearchResponse, Error, InfiniteData<SearchResponse, PageParam>, (string | number)[], PageParam>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<SearchResponse, (string | number)[], PageParam> | undefined;
 } & {
     queryKey: (string | number)[] & {
-        [dataTagSymbol]: _tanstack_react_query.InfiniteData<SearchResponse, unknown>;
+        [dataTagSymbol]: InfiniteData<SearchResponse, unknown>;
         [dataTagErrorSymbol]: Error;
     };
 };

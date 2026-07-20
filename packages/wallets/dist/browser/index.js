@@ -303,7 +303,7 @@ var options = {
   updateAgeOnHas: false
 };
 var cache = new LRUCache(options);
-var undefinedValue = Symbol("undefined");
+var undefinedValue = /* @__PURE__ */ Symbol("undefined");
 var cacheSet = (key, value) => cache.set(key, value === void 0 ? undefinedValue : value);
 var cacheGet = (key) => {
   const v = cache.get(key);
