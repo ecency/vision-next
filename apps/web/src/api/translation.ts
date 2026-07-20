@@ -35,9 +35,10 @@ export interface Language {
 }
 
 // Matches emoji, pictographic symbols and their joiners/modifiers. Built from
-// \uXXXX escapes and UTF-16 surrogate ranges (not the `u` flag or
-// \p{Extended_Pictographic}) so it type-checks under an es5 target and behaves
-// identically across engines. The variation selector, keycap combiner and
+// \uXXXX escapes and UTF-16 surrogate ranges rather than
+// \p{Extended_Pictographic} so it behaves identically across engines: the
+// property escape's membership changes with each engine's Unicode version.
+// The variation selector, keycap combiner and
 // zero-width joiner are only matched together with a base character, so a
 // combiner is never stripped on its own and left orphaned.
 const EMOJI_REGEX = new RegExp(

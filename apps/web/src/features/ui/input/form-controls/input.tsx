@@ -3,7 +3,7 @@ import { INPUT_DARK_STYLES, INPUT_SIZES, INPUT_STYLES, INVALID_INPUT_STYLES } fr
 import { classNameObject, useFilteredProps } from "@/features/ui/util";
 
 export interface InputProps extends Omit<HTMLProps<HTMLInputElement>, "size"> {
-  type: "text" | "password" | "number" | "email" | "range" | "date";
+  type: "text" | "password" | "number" | "email" | "range" | "date" | "search";
   noStyles?: boolean;
   // TODO: styles for that
   plaintext?: boolean;

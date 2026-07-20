@@ -854,6 +854,10 @@ export interface MattermostPostProps {
 export interface MattermostPost {
   id: string;
   user_id: string;
+  // Mattermost returns this on every post. Channel-scoped fetches already know
+  // the channel so they ignore it, but message search spans channels and needs
+  // it to attribute each result.
+  channel_id: string;
   message: string;
   create_at: number;
   edit_at?: number;
