@@ -11,6 +11,7 @@ import {
   UserAvatar
 } from "@/features/shared";
 import { TagLink } from "../tag";
+import { ProBadge } from "@/features/pro";
 import { commentSvg, peopleSvg } from "@ui/svg";
 import { accountReputation, dateToFormatted, dateToRelative, transformMarkedContent } from "@/utils";
 import Image from "next/image";
@@ -56,6 +57,7 @@ export function SearchListItem({ res }: Props) {
               <div className="author">
                 {res.author}
                 <span className="author-reputation">({reputation})</span>
+                <ProBadge username={res.author} className="ml-1" />
               </div>
             </ProfileLink>
           </div>

@@ -1,5 +1,6 @@
 import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 import { ApiNotification } from "@/entities";
+import { ProBadge } from "@/features/pro";
 import { NotificationReferralType } from "@/features/shared/notifications/notification-types/notification-referral-type";
 import { NotificationInactiveType } from "@/features/shared/notifications/notification-types/notification-inactive-type";
 import { NotificationSpinType } from "@/features/shared/notifications/notification-types/notification-spin-type";
@@ -116,6 +117,7 @@ export const NotificationListItem = memo(function NotificationListItem({
       target={openLinksInNewTab ? "_blank" : undefined}
     >
       <span className="source-name">@{notification.source}</span>
+      <ProBadge username={notification.source} className="ml-1" />
     </ProfileLink>
   );
 

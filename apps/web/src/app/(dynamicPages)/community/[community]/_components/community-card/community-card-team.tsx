@@ -6,6 +6,7 @@ import React, { useMemo } from "react";
 import { Community } from "@/entities";
 import { DialogInfo } from "../../_types";
 import { ProfileLink } from "@/features/shared";
+import { ProBadge } from "@/features/pro";
 
 interface Props {
   community: Community;
@@ -25,6 +26,7 @@ export function CommunityCardTeam({ community, toggleInfo }: Props) {
             <ProfileLink username={m[0]}>
               <span className="username">{`@${m[0]}`}</span>
             </ProfileLink>
+            <ProBadge username={m[0]} className="ml-1" />
             <span className="role">{m[1]}</span>
             {m[2] !== "" && <span className="extra">{m[2]}</span>}
           </div>

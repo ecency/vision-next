@@ -10,6 +10,7 @@ import { UilArrowRight, UilMultiply } from "@tooni/iconscout-unicons-react";
 import { TimeLabel } from "@/features/shared";
 import clsx from "clsx";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { ProBadge } from "@/features/pro";
 
 interface Props {
   entry: WaveEntry;
@@ -57,6 +58,7 @@ export function WavesListItemHeader({
             <Link className="font-semibold text-sm" href={`/@${entry.author}`}>
               {entry.author}
             </Link>
+            <ProBadge username={entry.author} />
             {activeUser?.username === entry.author && (
               <Badge className="!py-0 !text-[0.675rem]">{i18next.t("g.you")}</Badge>
             )}

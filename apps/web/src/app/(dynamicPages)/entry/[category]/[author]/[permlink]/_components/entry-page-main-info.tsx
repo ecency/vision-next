@@ -9,6 +9,7 @@ import {
   TimeLabel,
   UserAvatar
 } from "@/features/shared";
+import { ProBadge } from "@/features/pro";
 import { accountReputation } from "@/utils";
 import i18next from "i18next";
 import { EntryPageListen } from "./entry-page-listen";
@@ -41,6 +42,7 @@ export function EntryPageMainInfo({ entry }: Props) {
                 <span className="author-reputation" title={i18next.t("entry.author-reputation")}>
                   ({reputation})
                 </span>
+                <ProBadge username={entry.author} className="ml-1" />
               </div>
             </ProfileLink>
 

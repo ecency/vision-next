@@ -1,4 +1,5 @@
 import { ProfileLink, UserAvatar } from "@/features/shared";
+import { ProBadge } from "@/features/pro";
 import { accountReputation } from "@/utils";
 import i18next from "i18next";
 import { Friend } from "@/app/(dynamicPages)/profile/[username]/_components/friends/types";
@@ -18,6 +19,7 @@ export function FriendListItem({ item }: Props) {
           <ProfileLink username={item.name}>
             <span className="item-name notranslate">{item.name}</span>
           </ProfileLink>
+          <ProBadge username={item.name} className="ml-1" />
           {item?.reputation !== undefined && (
             <span className="item-reputation">{accountReputation(item.reputation)}</span>
           )}

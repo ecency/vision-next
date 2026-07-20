@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { getSearchAccountQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { SearchQuery } from "@/utils/search-query";
+import { ProBadge } from "@/features/pro";
 import { truncate } from "@/utils";
 
 export function SearchPeople() {
@@ -53,6 +54,7 @@ export function SearchPeople() {
                           <span className="item-sub-title">
                             {"@"}
                             {username}
+                            <ProBadge username={username} className="ml-1" />
                           </span>
                         </div>
                       </div>

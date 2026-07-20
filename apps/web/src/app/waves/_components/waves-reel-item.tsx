@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import i18next from "i18next";
 import { ShortsFeedEntry } from "@ecency/sdk";
 import { EntryTipBtn, UserAvatar, ProfileLink } from "@/features/shared";
+import { ProBadge } from "@/features/pro";
 import { UilComment, UilPlay } from "@tooni/iconscout-unicons-react";
 import { ReelVideo } from "@/app/waves/_components/reel-video";
 import { ReelVoteButton } from "@/app/waves/_components/reel-vote-button";
@@ -110,6 +111,7 @@ export function WavesReelItem({ item, onReply }: Props) {
           <ProfileLink username={item.author}>
             <span className="font-semibold text-white">@{item.author}</span>
           </ProfileLink>
+          <ProBadge username={item.author} />
         </div>
         {caption && <div className="mt-2 line-clamp-2 text-sm text-white/90">{caption}</div>}
       </div>
