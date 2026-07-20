@@ -760,9 +760,6 @@ importers:
       lru-cache:
         specifier: ^11.0.2
         version: 11.2.2
-      multihashes:
-        specifier: 0.4.13
-        version: 0.4.13
       path:
         specifier: ^0.12.7
         version: 0.12.7
@@ -800,6 +797,9 @@ importers:
       eslint-plugin-regexp:
         specifier: ^2.10.0
         version: 2.10.0(eslint@9.37.0(jiti@2.6.1))
+      multihashes:
+        specifier: 0.4.13
+        version: 0.4.13
       prettier:
         specifier: ^3.5.2
         version: 3.6.2
