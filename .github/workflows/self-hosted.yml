@@ -14,6 +14,13 @@ on:
 
 # Default to read-only GITHUB_TOKEN. Build pushes to Docker Hub (external);
 # deploy jobs SCP/SSH to servers — neither path needs GitHub write access.
+# Serialised, NOT cancelled: this deploys the hosting stack. The group is keyed on the
+# ref so a develop deploy and a main deploy never block each other, while two deploys to
+# the same environment queue instead of running concurrently — which has previously
+# collided over container names.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
 permissions:
   contents: read
 

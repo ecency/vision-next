@@ -5,6 +5,13 @@ on:
     branches:
       - develop
 
+# Serialised, NOT cancelled: this publishes to npm. Interrupting a run part-way through a
+# multi-package publish would leave the set half-released, and a version cannot be
+# republished. Queuing also keeps two pushes from racing to publish the same version.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 permissions:
   id-token: write
   contents: read
