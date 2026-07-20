@@ -8,7 +8,7 @@ import {
   UserAvatar
 } from "@/features/shared";
 import { TranslateChip } from "@/features/shared/entry-translate/translate-chip";
-import { commentSvg, voteSvg } from "@/app/decks/_components/icons";
+import { voteSvg } from "@/app/decks/_components/icons";
 import { Button } from "@ui/button";
 import i18next from "i18next";
 import React, { ReactNode } from "react";
@@ -16,6 +16,7 @@ import { WaveEntry } from "@/entities";
 import "./wave-actions.scss";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { PostTipsResponse } from "@ecency/sdk";
+import { commentSvg } from "@ui/svg";
 
 interface Props {
   status: string;

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { FormControl } from "@ui/input";
 import { faqKeysGeneral } from "@/consts";
 import i18next from "i18next";
-import { articleSvg } from "@ui/svg";
+import { articleSvg } from "@/assets/img/svg";
 
 interface Props {
   id: string;

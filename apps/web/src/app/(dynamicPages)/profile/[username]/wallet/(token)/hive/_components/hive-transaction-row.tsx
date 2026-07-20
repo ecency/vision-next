@@ -1,13 +1,4 @@
-import {
-  cashCoinSvg,
-  cashMultiple,
-  chevronDownSvgForSlider,
-  chevronUpSvgForVote,
-  closeSvg,
-  exchangeSvg,
-  reOrderHorizontalSvg,
-  ticketSvg
-} from "@/assets/img/svg";
+import { cashCoinSvg, cashMultiple, chevronUpSvgForVote, exchangeSvg, reOrderHorizontalSvg, ticketSvg } from "@/assets/img/svg";
 import { Transaction } from "@/entities";
 import { Tsx } from "@/features/i18n/helper";
 import { EntryLink, ProfileLink, UserAvatar } from "@/features/shared";
@@ -17,6 +8,7 @@ import { UilArrowRight, UilRefresh } from "@tooni/iconscout-unicons-react";
 import { ProfileWalletTokenHistoryHiveItem } from "../../_components";
 import { Badge } from "@/features/ui";
 import { MemoDisplay } from "@/features/shared/memo-display";
+import { chevronDownSvgForSlider, closeSvg } from "@ui/svg";
 
 interface Props {
   transaction: Transaction;

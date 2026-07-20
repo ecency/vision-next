@@ -1,17 +1,4 @@
-import {
-  cashCoinSvg,
-  cashMultiple,
-  chevronDownSvgForSlider,
-  chevronUpSvgForVote,
-  closeSvg,
-  exchangeSvg,
-  pickAxeSvg,
-  powerDownSvg,
-  powerUpSvg,
-  reOrderHorizontalSvg,
-  starsSvg,
-  ticketSvg
-} from "@/assets/img/svg";
+import { cashCoinSvg, cashMultiple, chevronUpSvgForVote, exchangeSvg, pickAxeSvg, powerDownSvg, powerUpSvg, reOrderHorizontalSvg, starsSvg, ticketSvg } from "@/assets/img/svg";
 import { Tsx } from "@/features/i18n/helper";
 import { dateToFullRelative, formattedNumber, parseAsset, vestsToHp } from "@/utils";
 import i18next from "i18next";
@@ -22,6 +9,7 @@ import { getDynamicPropsQueryOptions } from "@ecency/sdk";
 import { Transaction } from "@/entities";
 import { useQuery } from "@tanstack/react-query";
 import { MemoDisplay } from "@/features/shared/memo-display";
+import { chevronDownSvgForSlider, closeSvg } from "@ui/svg";
 
 interface Props {
   transaction: Transaction;

@@ -8,9 +8,10 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@ui/button";
 import { bellSvg, rocketSvg } from "@ui/svg";
 import { useState } from "react";
-import { dotsMenuIconSvg, walletIconSvg } from "../icons";
+
 import { getAccessToken } from "@/utils";
 import i18next from "i18next";
+import { dotsMenuIconSvg, walletIconSvg } from "@ui/icons";
 
 interface Props {
   setShowPurchaseDialog: (v: boolean) => void;

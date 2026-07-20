@@ -1,5 +1,5 @@
 import React, { JSX, useState } from "react";
-import { chevronDownSvgForSlider, deleteForeverSvg, dragSvg } from "@/assets/img/svg";
+import { dragSvg } from "@/assets/img/svg";
 import { DeckHeaderSettings } from "./deck-header-settings";
 import { DeckHeaderReloading } from "./deck-header-reloading";
 import { DraggableProvidedDragHandleProps } from "@hello-pangea/dnd";
@@ -8,6 +8,7 @@ import { Accordion, AccordionCollapse, AccordionToggle } from "@ui/accordion";
 import { classNameObject } from "@ui/util";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
+import { chevronDownSvgForSlider, deleteForeverSvg } from "@ui/svg";
 
 export interface Props {
   title: string;

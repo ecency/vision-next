@@ -17,7 +17,7 @@ import {
 import { postBodySummary, proxifyImageSrc } from "@ecency/render-helper";
 import useLocalStorage from "react-use/lib/useLocalStorage";
 import usePrevious from "react-use/lib/usePrevious";
-import { checkSvg, informationSvg } from "@/assets/img/svg";
+import { informationSvg } from "@/assets/img/svg";
 import dayjs from "@/utils/dayjs";
 import isEqual from "react-fast-compare";
 import { handleShortcuts } from "./_functions";
@@ -56,6 +56,7 @@ import {
   SUBMIT_TITLE_MAX_LENGTH,
   SUBMIT_TOUR_ITEMS
 } from "@/app/submit/_consts";
+import { checkSvg } from "@ui/svg";
 
 interface Props {
   path: string;

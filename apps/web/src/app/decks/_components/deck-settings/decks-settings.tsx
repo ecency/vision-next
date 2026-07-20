@@ -9,10 +9,11 @@ import { FormControl, InputGroup } from "@ui/input";
 import { Button } from "@ui/button";
 import { Form } from "@ui/form";
 import { Alert } from "@ui/alert";
-import { deleteForeverSvg, emoticonHappyOutlineSvg } from "@ui/svg";
+import { deleteForeverSvg } from "@ui/svg";
 import { EmojiPicker } from "@ui/emoji-picker/lazy-emoji-picker";
 import i18next from "i18next";
 import { ClickAwayListener } from "@/features/shared";
+import { emoticonHappyOutlineSvg } from "@/assets/img/svg";
 
 interface Props {
   deck?: DeckGrid;
