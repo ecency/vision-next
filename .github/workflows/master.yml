@@ -7,11 +7,13 @@ on:
 # don't need any GitHub API access; the build job pushes only to Docker
 # Hub (external). Per-job overrides can be added if a step ever needs
 # write access on GitHub itself.
-# Serialised, NOT cancelled: this deploys production. A cancelled deploy does not roll
-# back, so queuing is the safe behaviour when two pushes land close together.
+# Superseded runs are cancelled, as on staging: queuing would deploy each intermediate
+# promotion in turn when several land together, and only the newest is wanted. The run
+# that superseded a cancelled deploy re-applies it in full, so a partial deploy is
+# transient — unless that newer run fails its tests and never reaches its deploy step.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:

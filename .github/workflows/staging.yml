@@ -8,12 +8,15 @@ on:
       - '.github/workflows/self-hosted.yml'
 # Default to read-only GITHUB_TOKEN. Build pushes to Docker Hub (external);
 # deploy uses SSH; neither needs write access to the GitHub repo.
-# Serialised, NOT cancelled: this workflow deploys. Killing it mid-run can leave a
-# half-updated stack, and a cancelled run does not roll back. Queuing instead means two
-# pushes in quick succession deploy in order rather than racing each other.
+# Superseded runs are cancelled. Queuing them instead just replays intermediate states:
+# with rapid merges every push would build and deploy in turn, and only the last one
+# describes what the branch actually contains. A cancellation is always followed by the
+# run that superseded it, so a deploy interrupted part-way is re-applied in full moments
+# later — unless that newer run fails its tests, in which case the partial state stands
+# until the next green push.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:

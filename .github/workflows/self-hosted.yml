@@ -14,13 +14,14 @@ on:
 
 # Default to read-only GITHUB_TOKEN. Build pushes to Docker Hub (external);
 # deploy jobs SCP/SSH to servers — neither path needs GitHub write access.
-# Serialised, NOT cancelled: this deploys the hosting stack. The group is keyed on the
-# ref so a develop deploy and a main deploy never block each other, while two deploys to
-# the same environment queue instead of running concurrently — which has previously
-# collided over container names.
+# Superseded runs are cancelled so rapid merges do not replay intermediate deploys.
+# Deliberately NOT keyed on the ref: both deploy jobs here target the same host and the
+# same ~/hosting compose project, so develop and main are one deployment target, not two.
+# Keying on the ref would put them in separate queues that reconcile the same containers
+# at the same time — the container-name collision this is meant to prevent.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
 permissions:
   contents: read
 
