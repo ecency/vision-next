@@ -1405,3 +1405,73 @@
 .markdown-body .highlight pre:has(+ .zeroclipboard-container) {
   min-height: 52px;
 }
+
+/* ============================================
+   Video & iframe embeds
+   render-helper emits these as direct iframes (embedVideosDirectly).
+   YouTube/3Speak/Vimeo/Twitch/Loom/DTube etc. get a responsive 16:9
+   frame so the player fills the content column instead of the browser
+   default 300x150 box. Audio players keep their natural height.
+   ============================================ */
+.markdown-body .markdown-video-link-youtube,
+.markdown-body .markdown-video-link-speak,
+.markdown-body .markdown-video-link-vimeo,
+.markdown-body .markdown-video-link-twitch,
+.markdown-body .markdown-video-link-loom,
+.markdown-body .markdown-video-link-bitchute,
+.markdown-body .markdown-video-link-rumble,
+.markdown-body .markdown-video-link-brighteon,
+.markdown-body .markdown-video-link-dtube {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  height: 0;
+  overflow: hidden;
+  margin: 1rem auto 0.5rem;
+  background-color: #000;
+  line-height: 0;
+  font-size: 0;
+  vertical-align: top;
+}
+
+.markdown-body .markdown-video-link-youtube .er-youtube-frame,
+.markdown-body .markdown-video-link-speak .er-speak-frame,
+.markdown-body .markdown-video-link-youtube iframe,
+.markdown-body .markdown-video-link-speak iframe,
+.markdown-body .markdown-video-link-vimeo iframe,
+.markdown-body .markdown-video-link-twitch iframe,
+.markdown-body .markdown-video-link-loom iframe,
+.markdown-body .markdown-video-link-bitchute iframe,
+.markdown-body .markdown-video-link-rumble iframe,
+.markdown-body .markdown-video-link-brighteon iframe,
+.markdown-body .markdown-video-link-dtube iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  margin: 0;
+  padding: 0;
+  display: block;
+}
+
+/* Standalone iframe embeds (raw author <iframe>, spotify/loom via iframe, etc.)
+   stay responsive 16:9. The higher-specificity container rules above override
+   this for iframes inside a .markdown-video-link-* wrapper. */
+.markdown-body iframe:not(.markdown-audio-link *) {
+  max-width: 100%;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  border: none;
+  display: block;
+  margin: 1rem auto 0.5rem;
+}
+
+/* Audio players (3Speak audio, Spotify, Liketu) keep their natural height. */
+.markdown-body .markdown-audio-link iframe {
+  width: 100%;
+  border: none;
+}
