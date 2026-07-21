@@ -274,20 +274,22 @@ export const SearchListItem = ({
         <div className="item-controls mt-3 flex items-center">
           <EntryVoteBtn entry={entry} isPostSlider={false} />
           <EntryPayout entry={entry} />
-          <EntryVotes entry={entry} icon={voteSvg} />
+          <EntryVotes entry={entry} icon={voteSvg} iconSizeClass="[&>svg]:size-4" />
           <Link
             href={safeUrl === "#" ? "#" : `${safeUrl}#discussion`}
             className="text-gray-600 dark:text-gray-400"
           >
             <div className="flex items-center comments">
-              <div style={{ paddingRight: 4 }}>{commentSvg}</div>
+              <div className="inline-flex shrink-0 size-4 [&>svg]:size-full mr-1">
+                {commentSvg}
+              </div>
               <div>{entry.children}</div>
             </div>
           </Link>
 
           <EntryReblogBtn entry={entry} />
           <EntryTipBtn entry={entry} />
-          <EntryMenu alignBottom={false} entry={entry} />
+          <EntryMenu alignBottom={false} entry={entry} compact={true} />
         </div>
       </div>
     </div>

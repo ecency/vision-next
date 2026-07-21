@@ -103,13 +103,13 @@ export function SearchListItem({ res }: Props) {
             </a>
           </EntryLink>
           <EntryLink entry={entry}>
-            <a className="result-votes">
+            <a className="result-votes [&>svg]:size-3.5">
               {" "}
               {peopleSvg} {res.total_votes}
             </a>
           </EntryLink>
           <EntryLink entry={entry}>
-            <a className="result-replies">
+            <a className="result-replies [&>svg]:size-3.5">
               {commentSvg} {res.children}
             </a>
           </EntryLink>

@@ -54,6 +54,9 @@ interface Props {
   separatedSharing?: boolean;
   alignBottom?: boolean;
   pinEntry?: (entry: Entry | null) => void;
+  // Dense action rows (waves, deck columns) render the menu icons at 16px
+  // instead of the Button slot's 20px. Feed/entry-page menus stay at 20.
+  compact?: boolean;
 }
 
 export const EntryMenu = ({
@@ -61,7 +64,8 @@ export const EntryMenu = ({
   separatedSharing = false,
   alignBottom,
   extraMenuItems,
-  pinEntry
+  pinEntry,
+  compact = false
 }: Props) => {
   const { activeUser } = useActiveAccount();
   const router = useRouter();
@@ -126,13 +130,24 @@ export const EntryMenu = ({
 
   return (
     <div className="entry-menu" ref={menuRef}>
-      <Button icon={<UilShareAlt />} appearance="gray-link" onClick={() => setShare(true)} aria-label={i18next.t("entry-menu.share")} />
+      <Button
+        icon={<UilShareAlt className={compact ? "!size-4" : undefined} />}
+        appearance="gray-link"
+        onClick={() => setShare(true)}
+        aria-label={i18next.t("entry-menu.share")}
+      />
       <Dropdown show={dropdownOpen} setShow={setDropdownOpen}>
         <DropdownToggle>
           <Button
             appearance="gray-link"
             size="sm"
-            icon={dotsHorizontal}
+            icon={
+              compact ? (
+                <span className="inline-flex !size-4 [&>svg]:size-full">{dotsHorizontal}</span>
+              ) : (
+                dotsHorizontal
+              )
+            }
             aria-label={i18next.t("g.menu", { defaultValue: "Menu" })}
             aria-haspopup="menu"
             aria-expanded={dropdownOpen}

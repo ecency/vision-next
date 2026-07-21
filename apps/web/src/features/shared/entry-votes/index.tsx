@@ -31,7 +31,12 @@ interface Props {
   hideCount?: boolean;
 }
 
-export function EntryVotes({ entry: initialEntry, icon, hideCount = false, iconSizeClass }: Props) {
+export function EntryVotes({
+  entry: initialEntry,
+  icon,
+  hideCount = false,
+  iconSizeClass = "[&>svg]:size-3.5"
+}: Props) {
   const { data: entry } = useQuery(EcencyEntriesCacheManagement.getEntryQuery(initialEntry));
   const previousEntry = usePrevious(entry);
 

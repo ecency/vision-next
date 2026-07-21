@@ -137,10 +137,10 @@ export function InputVote({ value, setValue, mode = "positive" }: Props) {
 
       <div className="absolute z-[11] right-10 top-0 bottom-0 flex flex-col justify-center items-center">
         <ArrowButton onClick={() => setValue(value + 0.1)}>
-          <UilArrowUp className="!size-3.5" />
+          <UilArrowUp className="size-3.5" />
         </ArrowButton>
         <ArrowButton onClick={() => setValue(value - 0.1)}>
-          <UilArrowDown className="!size-3.5" />
+          <UilArrowDown className="size-3.5" />
         </ArrowButton>
       </div>
     </div>

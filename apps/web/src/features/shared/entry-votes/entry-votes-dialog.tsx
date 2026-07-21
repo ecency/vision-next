@@ -31,7 +31,7 @@ interface Props {
 export function EntryVotesDialog({
   entry: initialEntry,
   icon,
-  iconSizeClass,
+  iconSizeClass = "[&>svg]:size-3.5",
   onHide,
   totalVotes,
   hasDifferentVotes

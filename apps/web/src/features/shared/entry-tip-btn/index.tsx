@@ -128,7 +128,7 @@ export function EntryTipBtn({
       <Tooltip
         content={tippedByViewer ? i18next.t("entry-tip.you-tipped") : i18next.t("entry-tip.title")}
       >
-        <span className={`inner-btn${tippedByViewer ? " tipped" : ""}`}>
+        <span className={`inner-btn [&>svg]:size-4${tippedByViewer ? " tipped" : ""}`}>
           {giftOutlineSvg}
           <span className="tip-count">{showTipNumber ? tipCount : ""}</span>
         </span>
