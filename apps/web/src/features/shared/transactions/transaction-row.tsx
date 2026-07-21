@@ -1,4 +1,4 @@
-import { cashCoinSvg, cashMultiple, chevronUpSvgForVote, exchangeSvg, pickAxeSvg, powerDownSvg, powerUpSvg, reOrderHorizontalSvg, starsSvg, ticketSvg } from "@/assets/img/svg";
+import { cashCoinSvg, cashMultiple, exchangeSvg, pickAxeSvg, powerDownSvg, powerUpSvg, reOrderHorizontalSvg, starsSvg, ticketSvg } from "@/assets/img/svg";
 import { Tsx } from "@/features/i18n/helper";
 import { dateToFullRelative, formattedNumber, parseAsset, vestsToHp } from "@/utils";
 import i18next from "i18next";
@@ -9,8 +9,10 @@ import { getDynamicPropsQueryOptions } from "@ecency/sdk";
 import { Transaction } from "@/entities";
 import { useQuery } from "@tanstack/react-query";
 import { MemoDisplay } from "@/features/shared/memo-display";
-import { chevronDownSvgForSlider, closeSvg } from "@ui/svg";
+import { closeSvg } from "@ui/svg";
 
+import { VoteChevron } from "@/features/shared/vote-chevron";
+import { SliderChevron } from "@/features/shared/slider-chevron";
 interface Props {
   transaction: Transaction;
   entry?: Transaction;
@@ -384,7 +386,7 @@ export function TransactionRow({ entry, transaction: item }: Props) {
 
   if (tr.type === "update_proposal_votes") {
     flag = true;
-    icon = tr.approve ? chevronUpSvgForVote : chevronDownSvgForSlider;
+    icon = tr.approve ? <VoteChevron /> : <SliderChevron direction="down" />;
 
     details = (
       <Tsx k="transactions.type-update_proposal_vote-detail" args={{ pid: tr.proposal_ids }}>

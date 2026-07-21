@@ -27,12 +27,6 @@ export const articleSvg = (
   </svg>
 );
 
-export const chevronUpSvgForVote = (
-  <svg viewBox="6 8 12 7.41" className="vote-svg">
-    <path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" />
-  </svg>
-);
-
 export const ticketSvg = <UilTicket />;
 
 export const reOrderHorizontalSvg = (
@@ -316,4 +310,4 @@ export const switchCameraSvg = (
   </svg>
 );
 
-export const chatSvg = <UilChat size={21} />;
+export const chatSvg = <UilChat />;

@@ -180,7 +180,7 @@ export function ExtensionLogin({ onSuccess, onError }: ExtensionLoginProps) {
                   <img
                     src={ext.icon}
                     alt={ext.name}
-                    className="w-6 h-6 rounded"
+                    className="size-6 rounded"
                   />
                   <span className="flex-1 text-sm font-medium text-theme-primary">
                     {ext.name}
@@ -197,7 +197,7 @@ export function ExtensionLogin({ onSuccess, onError }: ExtensionLoginProps) {
             <img
               src={extensions[0].icon}
               alt={extensions[0].name}
-              className="w-5 h-5 rounded"
+              className="size-5 rounded"
             />
             via {extensions[0].name}
           </div>

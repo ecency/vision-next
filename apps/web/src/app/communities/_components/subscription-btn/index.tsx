@@ -82,7 +82,7 @@ export function SubscriptionBtn({ buttonProps, community }: Props) {
     <>
       {subscribed && (
         <Button
-          icon={isPending && <Spinner className="w-3.5 h-3.5" />}
+          icon={isPending && <Spinner className="size-3.5" />}
           disabled={isPending}
           onMouseEnter={() => setHover(true)}
           onMouseLeave={() => setHover(false)}
@@ -97,7 +97,7 @@ export function SubscriptionBtn({ buttonProps, community }: Props) {
       {!subscribed && (
         <LoginRequired>
           <Button
-            icon={isPending && <Spinner className="w-3.5 h-3.5" />}
+            icon={isPending && <Spinner className="size-3.5" />}
             disabled={isPending}
             onClick={() => performAction(subscribeMutation)}
             {...buttonProps}

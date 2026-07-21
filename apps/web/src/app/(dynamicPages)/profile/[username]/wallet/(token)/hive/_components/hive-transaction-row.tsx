@@ -1,4 +1,4 @@
-import { cashCoinSvg, cashMultiple, chevronUpSvgForVote, exchangeSvg, reOrderHorizontalSvg, ticketSvg } from "@/assets/img/svg";
+import { cashCoinSvg, cashMultiple, exchangeSvg, reOrderHorizontalSvg, ticketSvg } from "@/assets/img/svg";
 import { Transaction } from "@/entities";
 import { Tsx } from "@/features/i18n/helper";
 import { EntryLink, ProfileLink, UserAvatar } from "@/features/shared";
@@ -8,8 +8,10 @@ import { UilArrowRight, UilRefresh } from "@tooni/iconscout-unicons-react";
 import { ProfileWalletTokenHistoryHiveItem } from "../../_components";
 import { Badge } from "@/features/ui";
 import { MemoDisplay } from "@/features/shared/memo-display";
-import { chevronDownSvgForSlider, closeSvg } from "@ui/svg";
+import { closeSvg } from "@ui/svg";
 
+import { VoteChevron } from "@/features/shared/vote-chevron";
+import { SliderChevron } from "@/features/shared/slider-chevron";
 interface Props {
   transaction: Transaction;
   entry?: Transaction;
@@ -116,7 +118,7 @@ export function HiveTransactionRow({ entry, transaction: tr }: Props) {
     tr.type === "transfer_from_savings"
   ) {
     flag = true;
-    icon = <UilArrowRight className="w-4 h-4" />;
+    icon = <UilArrowRight className="size-4" />;
 
     details = (
       <div className="space-y-2">
@@ -134,7 +136,7 @@ export function HiveTransactionRow({ entry, transaction: tr }: Props) {
     numbers = <span className="number">{tr.amount}</span>;
   } else if (tr.type === "recurrent_transfer" || tr.type === "fill_recurrent_transfer") {
     flag = true;
-    icon = <UilRefresh className="w-4 h-4" />;
+    icon = <UilRefresh className="size-4" />;
 
     const recurrentDescription =
       tr.type === "recurrent_transfer" ? (
@@ -241,7 +243,7 @@ export function HiveTransactionRow({ entry, transaction: tr }: Props) {
 
     numbers = <span className="number">{tr.payment}</span>;
   } else if (tr.type === "update_proposal_votes") {
-    icon = tr.approve ? chevronUpSvgForVote : chevronDownSvgForSlider;
+    icon = tr.approve ? <VoteChevron /> : <SliderChevron direction="down" />;
 
     details = (
       <Tsx k="transactions.type-update_proposal_vote-detail" args={{ pid: tr.proposal_ids }}>

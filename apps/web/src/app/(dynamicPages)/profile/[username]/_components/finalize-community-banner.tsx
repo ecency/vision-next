@@ -145,7 +145,7 @@ export function FinalizeCommunityBanner({ username }: Props) {
             disabled={submitting || !adminUsername.trim() || (!communityExists && !title.trim())}
             onClick={handleSubmit}
           >
-            {submitting && <UilSpinner className="animate-spin w-4 h-4 mr-2" />}
+            {submitting && <UilSpinner className="animate-spin size-4 mr-2" />}
             {i18next.t("communities-create.finalize-title")}
           </Button>
         </div>

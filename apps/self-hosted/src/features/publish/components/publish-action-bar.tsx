@@ -47,7 +47,7 @@ export function PublishActionBar({ onSuccess }: Props) {
         className="text-sm flex items-center gap-2 whitespace-nowrap"
         to="/blog"
       >
-        <UilArrowLeft />
+        <UilArrowLeft className="size-6" />
         Back to blog
       </Link>
       <div className="px-2 md:px-4 py-4 flex justify-end">
@@ -69,7 +69,7 @@ export function PublishActionBar({ onSuccess }: Props) {
           >
             {isPublishing ? (
               <span className="flex items-center gap-2">
-                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span className="size-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 Publishing...
               </span>
             ) : (

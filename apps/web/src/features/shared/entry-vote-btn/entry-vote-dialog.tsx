@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import * as ls from "@/utils/local-storage";
 import { Button } from "@ui/button";
 import i18next from "i18next";
-import { chevronDownSvgForSlider, chevronUpSvgForSlider } from "@ui/svg";
 import { EntryTipBtn, FormattedCurrency } from "@/features/shared";
 import { getVoteValue, setVoteValue } from "@/features/shared/entry-vote-btn/utils";
 import { InputVote } from "@ui/input";
@@ -13,6 +12,7 @@ import { useActiveAccount } from "@/core/hooks";
 import { useQuery } from "@tanstack/react-query";
 import { RcPrecheckBanner } from "@/features/shared/rc-precheck";
 
+import { SliderChevron } from "@/features/shared/slider-chevron";
 type Mode = "up" | "down";
 
 interface VoteDialogProps {
@@ -226,7 +226,7 @@ export function EntryVoteDialog({
                 noPadding={true}
                 className="w-8"
                 size="xs"
-                icon={chevronUpSvgForSlider}
+                icon={<SliderChevron direction="up" />}
                 onClick={upVoteClicked}
                 outline={true}
                 aria-label={i18next.t("entry-list-item.upvote", { defaultValue: "Upvote" })}
@@ -252,7 +252,7 @@ export function EntryVoteDialog({
                 appearance="danger"
                 outline={true}
                 size="xs"
-                icon={chevronDownSvgForSlider}
+                icon={<SliderChevron direction="down" />}
                 onClick={() => setMode("down")}
                 aria-label={i18next.t("entry-list-item.switch-to-downvote", { defaultValue: "Switch to downvote" })}
               />
@@ -284,7 +284,7 @@ export function EntryVoteDialog({
                 noPadding={true}
                 className="w-8"
                 size="xs"
-                icon={chevronUpSvgForSlider}
+                icon={<SliderChevron direction="up" />}
                 onClick={() => setMode("up")}
                 outline={true}
                 aria-label={i18next.t("entry-list-item.switch-to-upvote", { defaultValue: "Switch to upvote" })}
@@ -314,7 +314,7 @@ export function EntryVoteDialog({
                 size="xs"
                 appearance="danger"
                 outline={true}
-                icon={chevronDownSvgForSlider}
+                icon={<SliderChevron direction="down" />}
                 onClick={downVoteClicked}
                 aria-label={i18next.t("entry-list-item.downvote", { defaultValue: "Downvote" })}
               />

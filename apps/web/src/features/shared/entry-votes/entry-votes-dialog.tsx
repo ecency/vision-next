@@ -19,6 +19,8 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 type SortOption = "reward" | "timestamp" | "voter" | "percent";
 
 interface Props {
+  /** See EntryVotes: size-N sink class for the vote icon; undefined = legacy CSS. */
+  iconSizeClass?: string;
   entry?: Entry;
   icon?: ReactNode;
   onHide: () => void;
@@ -29,6 +31,7 @@ interface Props {
 export function EntryVotesDialog({
   entry: initialEntry,
   icon,
+  iconSizeClass,
   onHide,
   totalVotes,
   hasDifferentVotes
@@ -96,7 +99,7 @@ export function EntryVotesDialog({
       <div
         className={`heart-icon ${isVoted ? "voted" : ""} ${
           hasDifferentVotes && hasCurrentUserVote ? "vote-done" : ""
-        } `}
+        } ${iconSizeClass ?? ""}`}
       >
         {icon ?? heartSvg}
       </div>
@@ -130,7 +133,7 @@ export function EntryVotesDialog({
       </ModalHeader>
       {areVotesLoading ? (
         <div className="dialog-loading">
-          <Spinner className="w-4 h-4" />
+          <Spinner className="size-4" />
         </div>
       ) : (
         <>

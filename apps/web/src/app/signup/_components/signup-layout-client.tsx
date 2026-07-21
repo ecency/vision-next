@@ -57,7 +57,7 @@ export function SignupLayoutClient({ children }: PropsWithChildren) {
         )}
         {isSubPage && (
           <Link href="/signup" className="inline-flex items-center gap-1 text-sm text-blue-dark-sky hover:underline mb-4">
-            <UilArrowLeft className="w-4 h-4" />
+            <UilArrowLeft className="size-4" />
             {i18next.t("sign-up.all-options", { defaultValue: "All signup options" })}
           </Link>
         )}

@@ -14,7 +14,7 @@ export function NoLocalStorageBanner() {
         <Button
           onClick={() => setShow(false)}
           appearance="white-link"
-          icon={<UilMultiply className="w-4 h-4" />}
+          icon={<UilMultiply className="size-4" />}
           aria-label={i18next.t("g.dismiss", { defaultValue: "Dismiss" })}
         />
       </div>

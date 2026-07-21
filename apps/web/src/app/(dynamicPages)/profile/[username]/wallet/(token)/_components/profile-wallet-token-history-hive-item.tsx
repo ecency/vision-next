@@ -128,7 +128,7 @@ export function ProfileWalletTokenHistoryHiveItem({
         }`}
       >
         <div className="flex items-start gap-3 md:col-span-2 md:col-start-1 md:row-start-1 md:gap-4">
-          <div className="text-blue-dark-sky bg-blue-duck-egg dark:bg-blue-dark-grey flex h-10 w-10 shrink-0 items-center justify-center rounded-lg">
+          <div className="text-blue-dark-sky bg-blue-duck-egg dark:bg-blue-dark-grey flex size-10 shrink-0 items-center justify-center rounded-lg">
             {icon}
           </div>
           <div className="min-w-0 flex-1">

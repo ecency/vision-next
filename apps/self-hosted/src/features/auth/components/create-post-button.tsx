@@ -35,7 +35,7 @@ export function CreatePostButton() {
   if (isCommunityMode) {
     return (
       <Link to="/publish" className={BUTTON_CLASS}>
-        <UilPen className="w-4 h-4" />
+        <UilPen className="size-4" />
         <span className="hidden sm:block">{t("create_post")}</span>
       </Link>
     );
@@ -48,7 +48,7 @@ export function CreatePostButton() {
       rel="noopener noreferrer"
       className={BUTTON_CLASS}
     >
-      <UilPen className="w-4 h-4" />
+      <UilPen className="size-4" />
       <span className="hidden sm:block">{t("create_post")}</span>
     </a>
   );

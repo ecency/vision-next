@@ -292,7 +292,7 @@ export function ProfileWalletTokenActions() {
                   )}
                   {!qrError && isQrLoading && (
                     <div className="flex flex-col items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                      <UilSpinner className="h-6 w-6 animate-spin text-blue-dark-sky" />
+                      <UilSpinner className="size-6 animate-spin text-blue-dark-sky" />
                       {i18next.t("profile-wallet.external.receive-loading")}
                     </div>
                   )}
@@ -302,7 +302,7 @@ export function ProfileWalletTokenActions() {
                       alt={i18next.t("profile-wallet.external.receive-qr-alt", {
                         token: tokenSymbol
                       })}
-                      className="h-48 w-48 max-w-full rounded-xl border border-[--border-color] bg-white p-3"
+                      className="size-48 max-w-full rounded-xl border border-[--border-color] bg-white p-3"
                     />
                   )}
                 </div>

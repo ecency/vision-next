@@ -60,7 +60,7 @@ export function ColumnChart({
           {series.map((s, si) => (
             <span key={s.name} className="flex items-center gap-1.5">
               <span
-                className="inline-block w-2 h-2 rounded-full"
+                className="inline-block size-2 rounded-full"
                 style={{ background: seriesColor(si) }}
               />
               {s.name}
@@ -180,7 +180,7 @@ export function LineChart({
           {series.map((s, si) => (
             <span key={s.name} className="flex items-center gap-1.5">
               <span
-                className="inline-block w-2 h-2 rounded-full"
+                className="inline-block size-2 rounded-full"
                 style={{ background: seriesColor(si) }}
               />
               {s.name}

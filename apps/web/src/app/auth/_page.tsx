@@ -78,7 +78,7 @@ export function AuthPage() {
       <Alert>
         <p className="md:text-lg lg:text-xl p-2">{i18next.t("hs-login.message")}</p>
       </Alert>
-      <UilSpinner className="animate-spin w-6 h-6 lg:w-8 lg:h-8" />
+      <UilSpinner className="animate-spin size-6 lg:size-8" />
     </div>
   );
 }

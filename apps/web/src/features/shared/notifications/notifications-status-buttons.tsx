@@ -68,9 +68,9 @@ export function NotificationsStatusButtons({
             aria-pressed={select}
             icon={
               select ? (
-                <UilMinusSquare className="w-4 h-4" />
+                <UilMinusSquare className="size-4" />
               ) : (
-                <UilCheckSquare className="w-4 h-4" />
+                <UilCheckSquare className="size-4" />
               )
             }
           />

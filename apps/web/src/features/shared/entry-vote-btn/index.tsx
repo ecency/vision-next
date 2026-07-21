@@ -18,8 +18,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { error } from "@/features/shared/feedback";
 import { formatError } from "@/api/format-error";
 import i18next from "i18next";
-import { chevronUpSvgForVote } from "@/assets/img/svg";
 
+import { VoteChevron } from "@/features/shared/vote-chevron";
 // The vote slider dialog only mounts on interaction (dialog && entry &&
 // activeUser, below) — never SSR-meaningful. Lazy-load it so it doesn't ship
 // in the post page's first client chunk. Mirrors entry-votes/index.tsx.
@@ -225,7 +225,7 @@ export function EntryVoteBtn({ entry: originalEntry, isPostSlider, account }: Pr
                 } ${voteDone ? "animate-success-pulse" : ""}`}
                 onAnimationEnd={() => setVoteDone(false)}
               >
-                {chevronUpSvgForVote}
+                {<VoteChevron />}
               </span>
               {dialog && entry && activeUser && (
                 <div

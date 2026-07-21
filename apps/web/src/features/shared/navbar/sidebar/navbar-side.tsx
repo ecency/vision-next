@@ -35,7 +35,7 @@ export function NavbarSide({ show, setShow, placement = "right" }: Props) {
         <Button
           href="/publish"
           appearance="gray-link"
-          icon={<UilEditAlt width={20} height={20} />}
+          icon={<UilEditAlt />}
           aria-label={i18next.t("navbar.post")}
         />
         <NavbarPerksButton />

@@ -48,7 +48,7 @@ export function WitnessesProxy({ onDone }: Props) {
             username ? (
               <Button
                 disabled={isPending}
-                icon={isPending && <Spinner className="mr-[6px] w-3.5 h-3.5" />}
+                icon={isPending && <Spinner className="mr-[6px] size-3.5" />}
                 iconPlacement="left"
                 onClick={setProxy}
               >
@@ -61,7 +61,7 @@ export function WitnessesProxy({ onDone }: Props) {
             <LoginRequired>
               <Button
                 disabled={isPending}
-                icon={isPending && <Spinner className="mr-[6px] w-3.5 h-3.5" />}
+                icon={isPending && <Spinner className="mr-[6px] size-3.5" />}
                 iconPlacement="left"
               >
                 {i18next.t("witnesses.proxy-btn-label")}

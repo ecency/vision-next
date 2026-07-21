@@ -538,7 +538,7 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
                     <span className="relative flex items-center justify-center">
                     <UilPalette />
                     <span
-                        className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border border-white shadow"
+                        className="absolute -bottom-0.5 -right-0.5 size-2.5 rounded-full border border-white shadow"
                         style={{ backgroundColor: activeTextColor ?? "transparent" }}
                     />
                   </span>

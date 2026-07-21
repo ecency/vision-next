@@ -102,7 +102,7 @@ export function WalletOperationCardUsernameForm({ onUsernameSubmit }: Props) {
           <div className="animate-scale-in origin-top absolute left-0 right-0 z-20 mt-1 max-h-60 overflow-y-auto rounded-md border border-[--border-color] bg-white text-sm shadow-lg dark:bg-gray-900">
             {isFetching ? (
               <div className="flex items-center gap-2 px-3 py-2 text-gray-500 dark:text-gray-300">
-                <Spinner className="h-4 w-4" />
+                <Spinner className="size-4" />
                 {i18next.t("g.loading")}
               </div>
             ) : suggestions.length === 0 ? (

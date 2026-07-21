@@ -196,7 +196,7 @@ export function MemeMakerDialog({ show, setShow, onMemeCreated }: Props) {
             />
             {(status === "loading" || status === "uploading") && (
               <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-white/70 dark:bg-black/70">
-                <Spinner className="w-6 h-6" />
+                <Spinner className="size-6" />
               </div>
             )}
             <div className="mt-2 text-xs opacity-60">

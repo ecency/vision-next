@@ -29,7 +29,7 @@ export function InputGroupCopyClipboard(props: Props & HTMLAttributes<HTMLElemen
         copied ? (
           <Button
             appearance="gray-link"
-            icon={<UilCheck className="w-4 h-4 text-green animate-pop-in" />}
+            icon={<UilCheck className="size-4 text-green animate-pop-in" />}
             aria-label={i18next.t("g.copied", { defaultValue: "Copied" })}
           />
         ) : (
@@ -37,7 +37,7 @@ export function InputGroupCopyClipboard(props: Props & HTMLAttributes<HTMLElemen
             appearance="gray-link"
             className="copy-to-clipboard"
             onClick={() => copy(props.value)}
-            icon={<UilCopy className="w-4 h-4" />}
+            icon={<UilCopy className="size-4" />}
             aria-label={i18next.t("g.copy", { defaultValue: "Copy to clipboard" })}
           />
         )

@@ -22,12 +22,16 @@ const EntryVotesDialog = dynamic(
 type SortOption = "reward" | "timestamp" | "voter" | "percent";
 
 interface Props {
+  /** Icon sizing convention (docs/icons.md): a size-N sink class for the vote
+   *  icon, e.g. "size-4 [&>svg]:size-full". Undefined renders no class, leaving
+   *  the legacy .entry-votes svg CSS in charge (unchanged behaviour). */
+  iconSizeClass?: string;
   entry: Entry;
   icon?: ReactNode;
   hideCount?: boolean;
 }
 
-export function EntryVotes({ entry: initialEntry, icon, hideCount = false }: Props) {
+export function EntryVotes({ entry: initialEntry, icon, hideCount = false, iconSizeClass }: Props) {
   const { data: entry } = useQuery(EcencyEntriesCacheManagement.getEntryQuery(initialEntry));
   const previousEntry = usePrevious(entry);
 
@@ -86,7 +90,7 @@ export function EntryVotes({ entry: initialEntry, icon, hideCount = false }: Pro
       <div
         className={`heart-icon ${isVoted ? "voted" : ""} ${
           hasDifferentVotes && hasCurrentUserVote ? "vote-done" : ""
-        } `}
+        } ${iconSizeClass ?? ""}`}
       >
         {icon ?? heartSvg}
       </div>

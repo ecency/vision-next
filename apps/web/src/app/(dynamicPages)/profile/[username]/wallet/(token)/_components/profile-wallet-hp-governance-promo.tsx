@@ -48,7 +48,7 @@ export function ProfileWalletHpGovernancePromo({ onDismiss, onProxySet }: Props)
           <Button
             onClick={() => setShowConfirm(true)}
             disabled={isPending}
-            icon={isPending && <Spinner className="mr-[6px] w-3.5 h-3.5" />}
+            icon={isPending && <Spinner className="mr-[6px] size-3.5" />}
             iconPlacement="left"
             className="w-full sm:w-auto"
           >

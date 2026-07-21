@@ -73,7 +73,7 @@ export function NavbarPerksButton() {
       {button}
       <span
         aria-hidden
-        className="perks-badge-dot pointer-events-none absolute top-0.5 right-0.5 h-1.5 w-1.5 rounded-full bg-red-500"
+        className="perks-badge-dot pointer-events-none absolute top-0.5 right-0.5 size-1.5 rounded-full bg-red-500"
       />
     </span>
   );

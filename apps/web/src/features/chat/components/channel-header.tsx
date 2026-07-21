@@ -93,7 +93,7 @@ export function ChannelHeader({
                         if (!user.username) {
                           return (
                             <div key={user.id} className="flex items-center gap-2 rounded px-2 py-1 hover:bg-[--background-color]">
-                              <div className="h-7 w-7 rounded-full bg-[--background-color]" />
+                              <div className="size-7 rounded-full bg-[--background-color]" />
                               <div className="min-w-0"><div className="truncate text-sm">{displayName}</div></div>
                             </div>
                           );

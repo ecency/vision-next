@@ -95,7 +95,7 @@ export function GalleryList({ onPick }: Props) {
                   <div className="item-controls">
                     <PopoverConfirm onConfirm={() => deleteImage({ id: item._id })}>
                       <Button
-                        icon={<UilTrash className="w-3 h-3" />}
+                        icon={<UilTrash className="size-3" />}
                         size="xs"
                         appearance="danger"
                         aria-label={i18next.t("g.delete", { defaultValue: "Delete" })}

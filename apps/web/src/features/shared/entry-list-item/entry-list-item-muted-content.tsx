@@ -107,7 +107,7 @@ export function EntryListItemMutedContent({ entry: entryProp, isThumbLcp }: Prop
     <>
       {shouldShowMutedOverlay && (
         <div className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400 mb-1.5">
-          <span className="inline-block w-3.5 h-3.5 rounded-full bg-orange-400/20 text-orange-500 dark:bg-orange-500/20 dark:text-orange-400 text-center leading-[14px] font-bold text-[10px]">
+          <span className="inline-block size-3.5 rounded-full bg-orange-400/20 text-orange-500 dark:bg-orange-500/20 dark:text-orange-400 text-center leading-[14px] font-bold text-[10px]">
             !
           </span>
           <a href="#" className="hover:underline" onClick={handleReveal}>
@@ -136,7 +136,7 @@ export function EntryListItemMutedContent({ entry: entryProp, isThumbLcp }: Prop
               rel="noopener"
               className="text-sm"
             >
-              <UilMapPinAlt className="w-4 h-4 mr-1" />
+              <UilMapPinAlt className="size-4 mr-1" />
               {location.address}
             </Link>
           )}

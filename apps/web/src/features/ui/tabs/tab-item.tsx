@@ -24,7 +24,7 @@ export function TabItem({ isSelected = false, name, onSelect, title }: Props) {
     >
       {title}
       {isSelected && (
-        <span className="rounded-full absolute w-1 h-1 bottom-2 bg-blue-dark-sky animate-pop-in" />
+        <span className="rounded-full absolute size-1 bottom-2 bg-blue-dark-sky animate-pop-in" />
       )}
     </div>
   );

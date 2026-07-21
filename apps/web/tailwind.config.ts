@@ -910,6 +910,14 @@ const config: Config = {
       0: "0",
       DEFAULT: "100%"
     },
+    // Icon sizing convention (docs/icons.md): glyphs use a single size-N utility.
+    // presets: [] drops Tailwind's default theme, so without this key size-*
+    // generates nothing; adding it emits zero CSS until a class appears in src.
+    size: ({ theme }: { theme: (path: string) => Record<string, string> }) => ({
+      ...theme("spacing"),
+      auto: "auto",
+      full: "100%"
+    }),
     skew: {
       0: "0deg",
       1: "1deg",

@@ -96,7 +96,7 @@ export function MessageTranslate({ messageText, onHide }: Props) {
           </div>
         ) : loading ? (
           <div className="flex justify-center p-3">
-            <Spinner className="w-4 h-4" />
+            <Spinner className="size-4" />
           </div>
         ) : (
           <p className="whitespace-pre-line text-sm">{translated}</p>

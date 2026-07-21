@@ -400,12 +400,12 @@ export function FloatingMenuWindow({
         aria-label="Exit preview mode"
       >
         <span
-          className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"
+          className="size-2 rounded-full bg-emerald-400 animate-pulse"
           aria-hidden="true"
         />
         <span>Preview Mode</span>
         <svg
-          className="w-4 h-4 opacity-60 group-hover:opacity-100 transition-opacity"
+          className="size-4 opacity-60 group-hover:opacity-100 transition-opacity"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -487,7 +487,7 @@ export function FloatingMenuWindow({
                 aria-pressed={isPreviewMode}
               >
                 <svg
-                  className="w-4 h-4"
+                  className="size-4"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -547,7 +547,7 @@ export function FloatingMenuWindow({
                 type="button"
               >
                 <svg
-                  className="w-5 h-5"
+                  className="size-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"

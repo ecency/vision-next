@@ -21,7 +21,7 @@ export function ErrorMessage({ message, onRetry, className }: Props) {
       onRetry={onRetry}
       className={className}
       retryText={t('retry')}
-      icon={<ErrorIcon className="w-12 h-12 text-red-500 mb-4" />}
+      icon={<ErrorIcon className="size-12 text-red-500 mb-4" />}
     />
   );
 }

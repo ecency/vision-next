@@ -279,11 +279,11 @@ export const DiscussionItem = memo(function DiscussionItem({
                   {dateToFullRelative(entry.created)}
                 </span>
               </EntryLink>
-              {isPinned && <div className="w-3.5 h-3.5 ml-3 flex">{pinSvg}</div>}
+              {isPinned && <div className="size-3.5 ml-3 flex">{pinSvg}</div>}
               {isHidden && (
                 <StyledTooltip content={i18next.t("entry.hidden-warning")}>
                   <span
-                    className="w-3.5 h-3.5 ml-3 flex text-warning cursor-help"
+                    className="size-3.5 ml-3 flex text-warning cursor-help"
                     role="img"
                     aria-label={i18next.t("entry.hidden-warning")}
                   >

@@ -41,7 +41,7 @@ export default function CurationPage() {
             <span className="text-sm opacity-50">{i18next.t("leaderboard.header-reward")}</span>
             <Tooltip content={i18next.t("leaderboard.header-votes-tip")}>
               <div className="text-sm opacity-50 flex items-center gap-1">
-                <UilInfoCircle className="w-4 h-4" />
+                <UilInfoCircle className="size-4" />
                 <span className="score">{i18next.t("leaderboard.header-votes")}</span>
               </div>
             </Tooltip>

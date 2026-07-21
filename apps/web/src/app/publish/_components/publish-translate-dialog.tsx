@@ -214,7 +214,7 @@ export function PublishTranslateDialog({ show, setShow, editor }: Props) {
             )}
             {translating && (
               <div className="flex items-center justify-center gap-3 p-4">
-                <Spinner className="w-4 h-4" />
+                <Spinner className="size-4" />
                 {progress[1] > 0 && (
                   <span className="text-sm">
                     {i18next.t("publish.translate.progress", {

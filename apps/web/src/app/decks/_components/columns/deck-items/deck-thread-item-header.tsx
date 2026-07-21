@@ -49,7 +49,7 @@ export const DeckThreadItemHeader = ({ entry, hasParent, pure, status }: Props) 
             {`${dateToRelative(entry.created)}`}
           </Link>
         )}
-        {status === "pending" && <Spinner className="w-4 h-4" />}
+        {status === "pending" && <Spinner className="size-4" />}
       </div>
     </div>
   );

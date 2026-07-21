@@ -103,7 +103,7 @@ export function ProposalVotes({ proposal, onHide }: ProposalVotesProps) {
         <ModalTitle>
           <span className="text-blue-dark-sky mr-2">
             {isFetching ? (
-              <Spinner className="inline-flex w-3.5 h-3.5" />
+              <Spinner className="inline-flex size-3.5" />
             ) : voters && voters.length >= 1000 ? (
               "1000+"
             ) : (

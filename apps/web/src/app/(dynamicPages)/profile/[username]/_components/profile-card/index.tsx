@@ -143,11 +143,11 @@ export function ProfileCard({ account }: Props) {
           {activeUsername && (
             <Link
               href={`/chats?dm=${encodeURIComponent(account?.name ?? "")}`}
-              className="flex items-center justify-center w-9 h-9 rounded-full border border-[--border-color] hover:border-blue-dark-sky hover:text-blue-dark-sky transition-colors"
+              className="flex items-center justify-center size-9 rounded-full border border-[--border-color] hover:border-blue-dark-sky hover:text-blue-dark-sky transition-colors"
               title={i18next.t("profile.message", { defaultValue: "Message" })}
               aria-label={i18next.t("profile.message", { defaultValue: "Message" })}
             >
-              <UilCommentDots className="w-4 h-4" />
+              <UilCommentDots className="size-4" />
             </Link>
           )}
         </div>
@@ -161,7 +161,7 @@ export function ProfileCard({ account }: Props) {
       <div className="grid grid-cols-2 lg:grid-cols-1 w-full gap-4 py-4">
         {data?.profile?.location && (
           <ProfileCardExtraProperty
-            icon={<UilLocationPoint className="w-5 h-5" />}
+            icon={<UilLocationPoint className="size-5" />}
             label={i18next.t("profile-edit.location")}
           >
             {data.profile.location}
@@ -170,7 +170,7 @@ export function ProfileCard({ account }: Props) {
 
         {data?.profile?.website && (
           <ProfileCardExtraProperty
-            icon={<UilGlobe className="w-5 h-5" />}
+            icon={<UilGlobe className="size-5" />}
             label={i18next.t("profile-edit.website")}
           >
             {websiteHref ? (
@@ -190,14 +190,14 @@ export function ProfileCard({ account }: Props) {
 
         {data?.created && (
           <ProfileCardExtraProperty
-            icon={<UilCalendarAlt className="w-5 h-5" />}
+            icon={<UilCalendarAlt className="size-5" />}
             label={i18next.t("referral.created")}
           >
             <TimeLabel created={data?.created} mode="absolute" format="LL" />
           </ProfileCardExtraProperty>
         )}
 
-        <ProfileCardExtraProperty icon={<UilRss className="w-5 h-5" />} label="RSS Feed">
+        <ProfileCardExtraProperty icon={<UilRss className="size-5" />} label="RSS Feed">
           <Link target="_external" href={`${defaults.base}/@${account?.name}/rss`}>
             {i18next.t("profile-info.subscribe")}
           </Link>

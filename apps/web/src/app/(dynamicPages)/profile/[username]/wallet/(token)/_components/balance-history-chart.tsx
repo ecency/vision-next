@@ -239,7 +239,7 @@ export function BalanceHistoryChart({ username, coinType }: Props) {
           {i18next.t("profile-wallet.balance-history")}
         </div>
         <div className="flex justify-center py-16">
-          <Spinner className="w-6 h-6" />
+          <Spinner className="size-6" />
         </div>
       </div>
     );

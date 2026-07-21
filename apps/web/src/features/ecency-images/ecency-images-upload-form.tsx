@@ -83,9 +83,9 @@ export function EcencyImagesUploadForm({ onFilesPick }: Props) {
         onDragOver={onDragOver}
       >
         {isDragging ? (
-          <UilFileDownload className="w-10 h-10 opacity-50" />
+          <UilFileDownload className="size-10 opacity-50" />
         ) : (
-          <UilFileUpload className="w-10 h-10 opacity-50" />
+          <UilFileUpload className="size-10 opacity-50" />
         )}
         <div className="font-semibold">
           {i18next.t(

@@ -49,9 +49,9 @@ export function InputGroup({
             "ecency-input-group-part ecency-input-group-prepend flex items-center justify-center border-r-0 rounded-tl-xl rounded-bl-xl bg-gray-200 dark:border-dark-600-005-light dark:hover:border-dark-600-010-light dark:bg-dark-default":
               true,
             "px-2.5": typeof prepend === "string" || (prepend as ReactElement)?.type === Spinner,
-            "[&>.ecency-spinner]:w-3.5 [&>.ecency-spinner]:h-3.5":
+            "[&>.ecency-spinner]:size-3.5":
               (prepend as ReactElement)?.type === Spinner,
-            "[&>svg]:w-4 [&>svg]:h-4 px-2": true,
+            "[&>svg]:size-4 px-2": true,
             "border-2": !isButtonLike(prepend)
           })}
           {...(onPrependClick
@@ -81,7 +81,7 @@ export function InputGroup({
               true,
             "flex items-center justify-center px-2.5":
               typeof append === "string" || (prepend as ReactElement)?.type === Spinner,
-            "[&>.ecency-spinner]:w-3.5 [&>.ecency-spinner]:h-3.5":
+            "[&>.ecency-spinner]:size-3.5":
               (prepend as ReactElement)?.type === Spinner,
             "border-2": !isButtonLike(append)
           })}

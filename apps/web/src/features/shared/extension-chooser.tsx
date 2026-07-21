@@ -38,10 +38,10 @@ export function ExtensionChooser({ extensions, onSelect }: Props) {
               height={32}
               src={ext.icon}
               alt={ext.name}
-              className="w-8 h-8 rounded"
+              className="size-8 rounded"
             />
             <div className="flex-1 font-semibold text-sm">{ext.name}</div>
-            <UilArrowRight className="w-4 h-4 opacity-50" />
+            <UilArrowRight className="size-4 opacity-50" />
           </button>
         ))}
       </div>

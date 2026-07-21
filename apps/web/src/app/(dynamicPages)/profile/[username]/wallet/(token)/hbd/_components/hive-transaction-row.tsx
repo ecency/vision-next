@@ -73,7 +73,7 @@ export function HiveTransactionRow({ entry, transaction: tr }: Props) {
     tr.type === "transfer_to_vesting" ||
     tr.type === "transfer_to_savings"
   ) {
-    icon = <UilArrowRight className="w-4 h-4" />;
+    icon = <UilArrowRight className="size-4" />;
 
     details = (
       <div className="space-y-2">
@@ -90,7 +90,7 @@ export function HiveTransactionRow({ entry, transaction: tr }: Props) {
 
     numbers = <span className="number">{tr.amount}</span>;
   } else if (tr.type === "recurrent_transfer" || tr.type === "fill_recurrent_transfer") {
-    icon = <UilRefresh className="w-4 h-4" />;
+    icon = <UilRefresh className="size-4" />;
 
     const recurrentDescription =
       tr.type === "recurrent_transfer" ? (
@@ -149,7 +149,7 @@ export function HiveTransactionRow({ entry, transaction: tr }: Props) {
       </div>
     );
   } else if (tr.type === "transfer_from_savings") {
-    icon = <UilArrowRight className="w-4 h-4" />;
+    icon = <UilArrowRight className="size-4" />;
     details = (
       <div className="space-y-2">
         <TransferParticipants from={tr.from} to={tr.to} />

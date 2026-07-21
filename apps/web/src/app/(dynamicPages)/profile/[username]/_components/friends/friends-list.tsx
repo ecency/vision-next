@@ -115,7 +115,7 @@ export const FriendsList = ({ account, mode, variant = "modal" }: Props) => {
 
       <div className="friends-list">
         <div className="friend-search-box">
-          <InputGroup prepend={isFetching ? <Spinner className="w-3.5 h-3.5" /> : "@"}>
+          <InputGroup prepend={isFetching ? <Spinner className="size-3.5" /> : "@"}>
             <FormControl
               type="text"
               value={query}

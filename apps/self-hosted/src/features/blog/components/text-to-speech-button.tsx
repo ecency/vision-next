@@ -115,7 +115,7 @@ export function TextToSpeechButton({ text, title, className }: Props) {
           className="flex items-center gap-1 px-2 py-1 text-xs text-theme-muted hover:text-theme-primary transition-colors rounded hover:bg-theme-hover"
           title={t('listen')}
         >
-          <UilPlay className="w-4 h-4" />
+          <UilPlay className="size-4" />
           <span>{t('listen')}</span>
         </button>
       )}
@@ -128,7 +128,7 @@ export function TextToSpeechButton({ text, title, className }: Props) {
             className="flex items-center gap-1 px-2 py-1 text-xs text-blue-500 hover:text-blue-600 transition-colors rounded hover:bg-theme-hover"
             title={t('pause')}
           >
-            <UilPause className="w-4 h-4" />
+            <UilPause className="size-4" />
             <span>{t('pause')}</span>
           </button>
           <button
@@ -138,7 +138,7 @@ export function TextToSpeechButton({ text, title, className }: Props) {
             title={t('stop')}
             aria-label={t('stop')}
           >
-            <UilStopCircle className="w-4 h-4" />
+            <UilStopCircle className="size-4" />
           </button>
         </>
       )}
@@ -151,7 +151,7 @@ export function TextToSpeechButton({ text, title, className }: Props) {
             className="flex items-center gap-1 px-2 py-1 text-xs text-theme-muted hover:text-theme-primary transition-colors rounded hover:bg-theme-hover"
             title={t('resume')}
           >
-            <UilPlay className="w-4 h-4" />
+            <UilPlay className="size-4" />
             <span>{t('resume')}</span>
           </button>
           <button
@@ -161,7 +161,7 @@ export function TextToSpeechButton({ text, title, className }: Props) {
             title={t('stop')}
             aria-label={t('stop')}
           >
-            <UilStopCircle className="w-4 h-4" />
+            <UilStopCircle className="size-4" />
           </button>
         </>
       )}

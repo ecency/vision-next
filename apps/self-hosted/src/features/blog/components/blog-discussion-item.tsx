@@ -104,7 +104,7 @@ export function BlogDiscussionItem({
           <div className="flex items-center gap-3 sm:gap-4 mt-2 sm:mt-3 text-xs text-theme-muted font-theme-ui">
             {showLikes && (
               <div className="flex items-center gap-1">
-                <UilHeart className="w-3 h-3" />
+                <UilHeart className="size-3" />
                 <span>{likesCount}</span>
               </div>
             )}
@@ -114,7 +114,7 @@ export function BlogDiscussionItem({
                 onClick={() => setShowReplies(!showReplies)}
                 className="flex items-center gap-1 transition-theme hover:opacity-70"
               >
-                <UilComment className="w-3 h-3" />
+                <UilComment className="size-3" />
                 <span>
                   {repliesCount} {repliesCount === 1 ? 'reply' : 'replies'}
                 </span>

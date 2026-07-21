@@ -334,7 +334,7 @@ export const SelectionPopover = ({ children, postUrl }: any) => {
             </div>
             {translating ? (
               <div className="flex justify-center p-3">
-                <Spinner className="w-4 h-4" />
+                <Spinner className="size-4" />
               </div>
             ) : (
               <p className="whitespace-pre-line text-sm">{translation}</p>

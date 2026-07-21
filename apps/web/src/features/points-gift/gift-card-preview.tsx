@@ -21,7 +21,7 @@ export function GiftCardPreview({ points, recipient, message }: Props) {
     <div className="rounded-2xl border border-blue-dark-sky/40 bg-gradient-to-br from-blue-dark-sky/10 to-blue-duck-egg dark:from-blue-dark-sky/20 dark:to-gray-900 p-6 shadow-sm">
       <div className="flex items-center justify-between">
         <span className="inline-flex items-center gap-2 text-blue-dark-sky font-semibold">
-          <UilGift className="w-6 h-6" />
+          <UilGift className="size-6" />
           {i18next.t("points-gift.card-label")}
         </span>
         <span className="text-xs uppercase tracking-wide opacity-60">

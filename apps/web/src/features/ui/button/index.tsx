@@ -70,11 +70,11 @@ const ForwardedButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Button
           className={classNameObject({
             "flex justify-center items-center": true,
             [props.iconClassName ?? ""]: true,
-            "w-4 h-4 [&>svg]:w-4 [&>svg]:h-4": props.size === "xs",
-            "w-5 h-5 [&>svg]:w-5 [&>svg]:h-5": props.size !== "xs"
+            "size-4 [&>svg]:size-4": props.size === "xs",
+            "size-5 [&>svg]:size-5": props.size !== "xs"
           })}
         >
-          {props.isLoading ? <UilSpinner className="w-5 h-5 animate-spin" /> : props.icon}
+          {props.isLoading ? <UilSpinner className="size-5 animate-spin" /> : props.icon}
         </div>
       ) : (
         <></>

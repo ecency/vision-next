@@ -58,7 +58,7 @@ function ShareBar({ entryInfo }: { entryInfo: EntryInfo }) {
               target="_blank"
               rel="noopener noreferrer"
               title={label}
-              className="text-blue-dark-sky hover:opacity-70 transition-opacity [&_svg]:w-7 [&_svg]:h-7"
+              className="text-blue-dark-sky hover:opacity-70 transition-opacity [&_svg]:size-7"
             >
               {icon}
             </a>
@@ -104,8 +104,8 @@ export function PublishSuccessState({ step, setEditStep, entryInfo }: Props) {
     <div className="animate-fade-in-up container mx-auto max-w-[800px] py-4 sm:py-6 md:py-8 lg:py-10 xl:py-16">
       <div className="px-2 py-4 sm:px-4 md:p-6 lg:p-12 bg-white rounded-2xl flex flex-col gap-4 md:gap-8 lg:gap-12 xl:gap-16 items-center">
         <div className="flex flex-col items-center justify-center gap-2">
-          {step === "published" && <UilCheckCircle className="text-green w-12 h-12" />}
-          {step === "scheduled" && <UilClock className="text-blue-dark-sky w-12 h-12" />}
+          {step === "published" && <UilCheckCircle className="text-green size-12" />}
+          {step === "scheduled" && <UilClock className="text-blue-dark-sky size-12" />}
           <div className="text-xl font-bold">
             {step === "published" && i18next.t("publish.published-title")}
             {step === "scheduled" && i18next.t("publish.scheduled-title")}

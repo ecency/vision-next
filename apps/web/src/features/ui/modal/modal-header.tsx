@@ -35,7 +35,7 @@ export function ModalHeader(props: HTMLProps<HTMLDivElement> & Props) {
           size="sm"
           className="absolute top-3 right-3 w-8"
           onClick={() => context.setShow(false)}
-          icon={<UilMultiply className="!w-4 !h-4" />}
+          icon={<UilMultiply className="!size-4" />}
         />
       )}
     </div>

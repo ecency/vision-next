@@ -149,7 +149,7 @@ export function PublishActionBar({
 
         {uploadTracker?.hasPendingUploads && (
           <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
-            <Spinner className="w-3 h-3" />
+            <Spinner className="size-3" />
             <span>{i18next.t("publish.uploading-images", { defaultValue: "Uploading..." })}</span>
           </div>
         )}

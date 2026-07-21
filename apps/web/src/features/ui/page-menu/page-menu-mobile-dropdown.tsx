@@ -1,8 +1,8 @@
 import { Dropdown, DropdownMenu, DropdownToggle } from "@ui/dropdown";
 import React, { PropsWithChildren } from "react";
 import { classNameObject } from "@ui/util";
-import { chevronDownSvgForSlider } from "@ui/svg";
 
+import { SliderChevron } from "@/features/shared/slider-chevron";
 interface Props {
   label: string;
   isSelected: boolean;
@@ -20,7 +20,7 @@ export function PageMenuMobileDropdown({ children, label, isSelected }: PropsWit
         <Dropdown>
           <DropdownToggle className="text-sm flex items-center gap-2">
             {label}
-            {chevronDownSvgForSlider}
+            {<SliderChevron direction="down" />}
           </DropdownToggle>
           <DropdownMenu align="left">{children}</DropdownMenu>
         </Dropdown>

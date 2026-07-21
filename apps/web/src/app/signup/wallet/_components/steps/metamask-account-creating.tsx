@@ -147,7 +147,7 @@ export function MetamaskAccountCreating({ username, verifiedWallet }: Props) {
       <div className="max-w-[440px] w-full my-4 md:my-8 xl:my-12 mx-auto flex flex-col gap-4">
         {status !== "success" && status !== "logging-in" && status !== "error" && (
           <div key={status} className="flex items-center flex-col animate-fade-in-up">
-            <UilSpinner className="animate-spin duration-500 opacity-50 w-16 h-16" />
+            <UilSpinner className="animate-spin duration-500 opacity-50 size-16" />
             <div className="text-xl font-semibold mt-4">
               {statusMessages[status]}
             </div>
@@ -156,7 +156,7 @@ export function MetamaskAccountCreating({ username, verifiedWallet }: Props) {
 
         {status === "success" && (
           <div key="success" className="flex items-center flex-col animate-fade-in-up">
-            <UilCheckCircle className="w-16 h-16 text-green" />
+            <UilCheckCircle className="size-16 text-green" />
             <div className="text-xl text-center font-semibold my-4">
               {statusMessages.success}
             </div>
@@ -181,7 +181,7 @@ export function MetamaskAccountCreating({ username, verifiedWallet }: Props) {
 
         {status === "logging-in" && (
           <div key="logging-in" className="flex items-center flex-col animate-fade-in-up">
-            <UilSpinner className="animate-spin duration-500 opacity-50 w-16 h-16" />
+            <UilSpinner className="animate-spin duration-500 opacity-50 size-16" />
             <div className="text-xl font-semibold mt-4">
               {i18next.t("signup-wallets.metamask.logging-in")}
             </div>

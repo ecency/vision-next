@@ -8,8 +8,9 @@ import { Accordion, AccordionCollapse, AccordionToggle } from "@ui/accordion";
 import { classNameObject } from "@ui/util";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
-import { chevronDownSvgForSlider, deleteForeverSvg } from "@ui/svg";
+import { deleteForeverSvg } from "@ui/svg";
 
+import { SliderChevron } from "@/features/shared/slider-chevron";
 export interface Props {
   title: string;
   subtitle?: string;
@@ -77,7 +78,7 @@ export const DeckHeader = (props: Props | WithIntervalProps | WithDeletionProps 
               onClick={() => {
                 setExpanded(!expanded);
               }}
-              icon={chevronDownSvgForSlider}
+              icon={<SliderChevron direction="down" />}
             />
           </Tooltip>
         </div>

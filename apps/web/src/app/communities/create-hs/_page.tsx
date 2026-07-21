@@ -149,7 +149,7 @@ export function CommunityCreateHsPage() {
         {step === CommunityStepperSteps.CREATING && (
           <CommunityCreateCardLayout hideTitle={true}>
             <div className="md:py-16 flex flex-col items-center gap-4">
-              <UilSpinner className="animate-spin w-12 h-12 text-blue-dark-sky" />
+              <UilSpinner className="animate-spin size-12 text-blue-dark-sky" />
               <div className="text-xl text-blue-dark-sky">{progress}</div>
             </div>
           </CommunityCreateCardLayout>

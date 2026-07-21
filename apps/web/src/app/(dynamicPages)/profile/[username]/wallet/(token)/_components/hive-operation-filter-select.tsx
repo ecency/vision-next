@@ -228,7 +228,7 @@ function FilterOptionItem({ option, selected, onToggle }: FilterOptionItemProps)
         )}
       >
         {selected && (
-          <span className="[&>svg]:h-3.5 [&>svg]:w-3.5 text-white">
+          <span className="[&>svg]:size-3.5 text-white">
             {closeSvg}
           </span>
         )}

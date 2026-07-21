@@ -57,7 +57,7 @@ export function OnboardingFrame({ step }: Props) {
             className="bg-gray-200 dark:bg-dark-default rounded-xl flex items-center justify-center"
             style={isSettings ? { width: 32, height: 32 } : { width: 16, height: 16 }}
           >
-            {isSettings && <UilEllipsisV className="w-4 h-4" />}
+            {isSettings && <UilEllipsisV className="size-4" />}
           </div>
         </div>
       </div>
@@ -112,7 +112,7 @@ export function OnboardingFrame({ step }: Props) {
           >
             {step === "finish" && (
               <div className="animate-pop-in">
-                <UilCheckCircle className="text-green w-16 h-16" />
+                <UilCheckCircle className="text-green size-16" />
               </div>
             )}
             {step === "posting" && (

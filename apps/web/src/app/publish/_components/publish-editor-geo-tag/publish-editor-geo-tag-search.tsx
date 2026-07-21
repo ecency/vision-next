@@ -195,7 +195,7 @@ export function PublishEditorGeoTagSearch({
     <div ref={rootRef} className="relative z-[1000] mb-3">
       <div className="flex flex-col sm:flex-row gap-2">
         <div className="relative grow">
-          <UilSearch className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500 dark:text-gray-400" />
+          <UilSearch className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-500 dark:text-gray-400" />
           <input
             ref={inputRef}
             type="text"
@@ -224,7 +224,7 @@ export function PublishEditorGeoTagSearch({
             onKeyUp={onKeyUp}
           />
           {busy && (
-            <UilSpinner className="absolute right-9 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-blue-dark-sky" />
+            <UilSpinner className="absolute right-9 top-1/2 size-4 -translate-y-1/2 animate-spin text-blue-dark-sky" />
           )}
           {query.length > 0 && (
             <button
@@ -238,7 +238,7 @@ export function PublishEditorGeoTagSearch({
                 inputRef.current?.focus();
               }}
             >
-              <UilTimesCircle className="h-4 w-4" />
+              <UilTimesCircle className="size-4" />
             </button>
           )}
         </div>
@@ -247,7 +247,7 @@ export function PublishEditorGeoTagSearch({
           type="button"
           appearance="gray"
           outline={true}
-          icon={<UilLocationPoint className="h-4 w-4" />}
+          icon={<UilLocationPoint className="size-4" />}
           iconPlacement="left"
           isLoading={detecting}
           aria-busy={detecting}
@@ -291,7 +291,7 @@ export function PublishEditorGeoTagSearch({
                     handleSelect(s);
                   }}
                 >
-                  <UilLocationPoint className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
+                  <UilLocationPoint className="mt-0.5 size-4 shrink-0 text-gray-400" />
                   <span className="min-w-0">
                     <span className="block truncate text-sm font-medium text-gray-900 dark:text-white">
                       {s.label}

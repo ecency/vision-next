@@ -59,7 +59,7 @@ export function CommunitySelector({ tags, onSelect }: Props) {
       >
         {community && community.title}
         {!community && i18next.t("community-selector.my-blog")}
-        <UilAngleDown className="w-4 h-4" />
+        <UilAngleDown className="size-4" />
       </Button>
       <Modal
         onHide={() => setVisible(false)}

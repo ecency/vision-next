@@ -222,7 +222,7 @@ export default function Login() {
                   width={100}
                   height={100}
                   src="/assets/hive-signer.svg"
-                  className="w-4 h-4"
+                  className="size-4"
                   alt="hivesigner"
                 />
               }
@@ -248,7 +248,7 @@ export default function Login() {
                         height={20}
                         src={ext.icon}
                         alt={ext.name}
-                        className="w-4 h-4 rounded-sm"
+                        className="size-4 rounded-sm"
                       />
                     ))
                   ) : (
@@ -257,7 +257,7 @@ export default function Login() {
                       height={20}
                       src="/assets/keeper.svg"
                       alt="extensions"
-                      className="w-4 h-4"
+                      className="size-4"
                     />
                   )}
                 </div>
@@ -282,7 +282,7 @@ export default function Login() {
                     height={100}
                     src="/assets/metamask-fox.svg"
                     alt="metamask"
-                    className="w-4 h-4"
+                    className="size-4"
                   />
                 }
               >

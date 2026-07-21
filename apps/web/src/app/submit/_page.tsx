@@ -17,7 +17,6 @@ import {
 import { postBodySummary, proxifyImageSrc } from "@ecency/render-helper";
 import useLocalStorage from "react-use/lib/useLocalStorage";
 import usePrevious from "react-use/lib/usePrevious";
-import { informationSvg } from "@/assets/img/svg";
 import dayjs from "@/utils/dayjs";
 import isEqual from "react-fast-compare";
 import { handleShortcuts } from "./_functions";

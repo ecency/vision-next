@@ -95,7 +95,7 @@ export function WavesReelItem({ item, onReply }: Props) {
             )}
             <span className="absolute inset-0 flex items-center justify-center">
               <span className="rounded-full bg-black/50 p-4 text-white transition-transform group-hover:scale-110">
-                <UilPlay className="h-8 w-8" />
+                <UilPlay className="size-8" />
               </span>
             </span>
           </button>
@@ -131,7 +131,7 @@ export function WavesReelItem({ item, onReply }: Props) {
           className="waves-reel-rail__item"
           aria-label={i18next.t("g.comment", { defaultValue: "Comment" })}
         >
-          <UilComment className="h-6 w-6" />
+          <UilComment className="size-6" />
           <span>{item.children ?? 0}</span>
         </button>
         {/* Tip + tip count */}

@@ -81,7 +81,7 @@ export function VoteButton({
         likes: t("likes"),
         login: t("login_to_vote"),
       }}
-      icon={<HeartIcon className="w-4 h-4" />}
+      icon={<HeartIcon className="size-4" />}
     />
   );
 }

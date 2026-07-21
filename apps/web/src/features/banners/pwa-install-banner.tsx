@@ -75,7 +75,7 @@ export function PwaInstallBanner() {
   return (
     <BannerLayout>
       <div className="flex items-start gap-3">
-        <UilDownloadAlt className="w-5 h-5 mt-0.5 flex-shrink-0" />
+        <UilDownloadAlt className="size-5 mt-0.5 flex-shrink-0" />
         <div className="flex-1">
           <div className="font-bold">{i18next.t("banners.install-title")}</div>
           <div className="text-sm opacity-75">
@@ -93,7 +93,7 @@ export function PwaInstallBanner() {
           <Button
             onClick={handleDismiss}
             appearance="white-link"
-            icon={<UilMultiply className="w-4 h-4" />}
+            icon={<UilMultiply className="size-4" />}
             aria-label={i18next.t("g.dismiss", { defaultValue: "Dismiss" })}
           />
         </div>

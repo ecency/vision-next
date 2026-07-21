@@ -113,15 +113,15 @@ export function BlogPostHeader({ entry }: Props) {
 
       <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm mb-4 sm:mb-6 text-theme-muted font-theme-ui">
         <div className="flex items-center gap-1">
-          <UilHeart className="w-4 h-4" />
+          <UilHeart className="size-4" />
           <span>{likesCount}</span>
         </div>
         <div className="flex items-center gap-1">
-          <UilComment className="w-4 h-4" />
+          <UilComment className="size-4" />
           <span>{commentsCount}</span>
         </div>
         <div className="flex items-center gap-1">
-          <UilRedo className="w-4 h-4" />
+          <UilRedo className="size-4" />
           <span>{reblogsCount}</span>
         </div>
         <span>•</span>
@@ -139,7 +139,7 @@ export function BlogPostHeader({ entry }: Props) {
               params={{ author: entryData.author, permlink: entryData.permlink }}
               className="flex items-center gap-1 px-2 py-1 rounded hover:bg-theme-secondary transition-colors text-theme-muted hover:text-theme-primary"
             >
-              <UilEdit className="w-4 h-4" />
+              <UilEdit className="size-4" />
               <span className="text-xs sm:text-sm">{t('edit_post')}</span>
             </Link>
           )}

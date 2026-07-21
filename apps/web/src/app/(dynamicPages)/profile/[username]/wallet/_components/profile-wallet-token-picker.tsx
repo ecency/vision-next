@@ -545,7 +545,7 @@ export function ProfileWalletTokenPicker() {
             externalTokens.length === 0 &&
             filteredLayer2Tokens.length === 0 && (
               <div className="flex flex-col gap-2 items-center justify-center p-4 text-sm opacity-50">
-                <UilTimesCircle className="w-8 h-8" />
+                <UilTimesCircle className="size-8" />
                 <span>No tokens found</span>
               </div>
             )}

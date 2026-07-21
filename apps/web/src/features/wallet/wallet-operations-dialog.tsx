@@ -173,7 +173,7 @@ export function WalletOperationsDialog({
               href={to ? `/gift?to=${encodeURIComponent(to.replace(/^@/, ""))}` : "/gift"}
               className="inline-flex items-center gap-2 text-sm text-blue-dark-sky hover:underline"
             >
-              <UilGift className="w-4 h-4" />
+              <UilGift className="size-4" />
               {i18next.t("points-gift.buy-to-gift")}
             </Link>
           </div>

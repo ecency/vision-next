@@ -93,7 +93,7 @@ export function EntryTranslate({ entry, onHide, initialTarget, initialSource }: 
         </div>
         {loading ? (
           <div className="flex justify-center p-3">
-            <Spinner className="w-4 h-4" />
+            <Spinner className="size-4" />
           </div>
         ) : error ? (
           <p className="text-sm text-red-500">{i18next.t("entry-translate.error")}</p>

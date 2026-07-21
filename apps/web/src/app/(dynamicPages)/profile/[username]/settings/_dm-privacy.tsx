@@ -28,7 +28,7 @@ export function DmPrivacySettings() {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl p-3 flex flex-col gap-4">
       <div className="text-gray-600 dark:text-gray-400 text-sm flex items-center gap-2">
-        <UilShield className="w-4 h-4" />
+        <UilShield className="size-4" />
         {i18next.t("settings.dm-privacy.title")}
       </div>
 

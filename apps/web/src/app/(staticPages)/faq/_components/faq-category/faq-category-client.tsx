@@ -5,8 +5,8 @@ import { Accordion, AccordionCollapse, AccordionToggle } from "@ui/accordion";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
 import { Button } from "@ui/button";
-import { chevronDownSvgForSlider } from "@ui/svg";
 
+import { SliderChevron } from "@/features/shared/slider-chevron";
 interface Props {
   categoryTitle: string;
   contentList: string[];
@@ -47,7 +47,7 @@ export function FaqCategoryClient({ contentList, categoryTitle }: Props) {
                   onClick={() => {
                     setExpanded?.(!expanded);
                   }}
-                  icon={chevronDownSvgForSlider}
+                  icon={<SliderChevron direction="down" />}
                   iconClassName="transition-transform duration-200 [[data-open=true]_&]:rotate-180"
                 />
               </Tooltip>

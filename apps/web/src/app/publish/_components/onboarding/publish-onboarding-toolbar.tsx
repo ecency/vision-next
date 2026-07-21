@@ -29,11 +29,11 @@ export function PublishOnboardingToolbar() {
         <div className="grid grid-cols-3 pb-2 border-b border-[--border-color] text-sm">
           <div>{i18next.t("publish.get-started.shortcut")}</div>
           <div className="flex items-center gap-2">
-            <UilApple className="w-4 h-4" />
+            <UilApple className="size-4" />
             Mac
           </div>
           <div className="flex items-center gap-2">
-            <UilMicrosoft className="w-4 h-4" />
+            <UilMicrosoft className="size-4" />
             Windows
           </div>
         </div>

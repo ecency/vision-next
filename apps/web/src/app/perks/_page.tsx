@@ -137,7 +137,7 @@ export function PerksPage() {
                     : i18next.t("pro.perk-card-description")}
                 </div>
               </div>
-              <UilStar className="absolute -bottom-5 -right-3 w-28 h-28 text-blue-dark-sky opacity-10 pointer-events-none" />
+              <UilStar className="absolute -bottom-5 -right-3 size-28 text-blue-dark-sky opacity-10 pointer-events-none" />
             </PerksBasicCard>
           </LoginRequired>
         </div>
@@ -157,7 +157,7 @@ export function PerksPage() {
                       {i18next.t("ai-image-generator.perk-card-description")}
                     </div>
                   </div>
-                  <UilImages className="absolute -bottom-5 -right-3 w-28 h-28 text-blue-dark-sky opacity-10 pointer-events-none" />
+                  <UilImages className="absolute -bottom-5 -right-3 size-28 text-blue-dark-sky opacity-10 pointer-events-none" />
                 </PerksBasicCard>
               </Link>
             </LoginRequired>
@@ -176,7 +176,7 @@ export function PerksPage() {
                     {i18next.t("hosting.perk-card-description")}
                   </div>
                 </div>
-                <UilGlobe className="absolute -bottom-5 -right-3 w-28 h-28 text-blue-dark-sky opacity-10 pointer-events-none" />
+                <UilGlobe className="absolute -bottom-5 -right-3 size-28 text-blue-dark-sky opacity-10 pointer-events-none" />
               </PerksBasicCard>
             </Link>
           </div>
@@ -194,7 +194,7 @@ export function PerksPage() {
                     {i18next.t("points-gift.perk-card-description")}
                   </div>
                 </div>
-                <UilGift className="absolute -bottom-5 -right-3 w-28 h-28 text-blue-dark-sky opacity-10 pointer-events-none" />
+                <UilGift className="absolute -bottom-5 -right-3 size-28 text-blue-dark-sky opacity-10 pointer-events-none" />
               </PerksBasicCard>
             </Link>
           </div>
@@ -212,7 +212,7 @@ export function PerksPage() {
                     {i18next.t("support-ecency.perk-card-description")}
                   </div>
                 </div>
-                <UilHeart className="absolute -bottom-5 -right-3 w-28 h-28 text-blue-dark-sky opacity-10 pointer-events-none" />
+                <UilHeart className="absolute -bottom-5 -right-3 size-28 text-blue-dark-sky opacity-10 pointer-events-none" />
               </PerksBasicCard>
             </Link>
           </LoginRequired>

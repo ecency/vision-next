@@ -157,7 +157,7 @@ function SetupExternalImportInner({ username, onBack }: Props & { username: stri
                       alt={meta.title}
                       width={32}
                       height={32}
-                      className="w-8 h-8 flex-shrink-0"
+                      className="size-8 flex-shrink-0"
                     />
                     <div className="flex-1">
                       <label className="text-sm font-medium mb-1 block">{meta.title}</label>
@@ -197,7 +197,7 @@ function SetupExternalImportInner({ username, onBack }: Props & { username: stri
 
         {step === "saving" && (
           <div className="animate-fade-in-up w-full flex items-center flex-col justify-center min-h-[400px]">
-            <UilSpinner className="animate-spin duration-500 opacity-50 w-16 h-16" />
+            <UilSpinner className="animate-spin duration-500 opacity-50 size-16" />
             <div className="text-xl text-center font-semibold mt-4">
               {i18next.t("wallet.watch-wallet.saving", { defaultValue: "Saving addresses..." })}
             </div>
@@ -206,7 +206,7 @@ function SetupExternalImportInner({ username, onBack }: Props & { username: stri
 
         {step === "success" && (
           <div className="animate-fade-in-up w-full flex items-center flex-col justify-center min-h-[400px]">
-            <UilCheckCircle className="text-green w-16 h-16" />
+            <UilCheckCircle className="text-green size-16" />
             <div className="text-xl text-center font-semibold mt-4">
               {i18next.t("wallet.watch-wallet.success-title", {
                 defaultValue: "Addresses saved successfully"

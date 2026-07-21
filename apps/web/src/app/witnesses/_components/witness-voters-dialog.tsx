@@ -67,7 +67,7 @@ export function WitnessVotersDialog({ witness, onHide }: Props) {
       </ModalHeader>
       {isLoading && !data ? (
         <div className="flex justify-center py-8">
-          <Spinner className="w-4 h-4" />
+          <Spinner className="size-4" />
         </div>
       ) : (
         <>

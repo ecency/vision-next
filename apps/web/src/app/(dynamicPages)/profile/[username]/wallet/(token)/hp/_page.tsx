@@ -101,7 +101,7 @@ export function HpPage() {
       >
         {showSpinner ? (
           <div className="flex justify-center py-12">
-            <Spinner className="w-6 h-6" />
+            <Spinner className="size-6" />
           </div>
         ) : (
           sortedTransactions.map((item, i) => (

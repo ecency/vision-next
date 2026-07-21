@@ -21,7 +21,7 @@ export function MetaMaskSignButton({ onClick, className = "w-full", size = "lg" 
           width={100}
           height={100}
           src="/assets/metamask-fox.svg"
-          className="w-4 h-4"
+          className="size-4"
           alt="metamask"
         />
       }

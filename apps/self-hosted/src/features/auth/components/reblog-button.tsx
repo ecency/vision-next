@@ -57,7 +57,7 @@ export function ReblogButton({
         rebloggedTitle: t("already_reblogged"),
         reblogTitle: t("reblog_to_followers"),
       }}
-      icon={<ReblogIcon className="w-4 h-4" />}
+      icon={<ReblogIcon className="size-4" />}
     />
   );
 }

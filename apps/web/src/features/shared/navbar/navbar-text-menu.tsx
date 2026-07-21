@@ -67,7 +67,7 @@ export function NavbarTextMenu() {
           {i !== visibleItems.length - 1 && (
             <i
               key={"circle" + item.label}
-              className="w-2 h-2 bg-gray-200 dark:bg-dark-default rounded-full"
+              className="size-2 bg-gray-200 dark:bg-dark-default rounded-full"
             />
           )}
         </Fragment>

@@ -1,0 +1,553 @@
+{
+ "comment": "Ledger of every SCSS/CSS svg-sizing rule block. CI (icon-scss-audit) fails on rules absent here or deleted entries reappearing. Owners reference delivery bundles of docs/icons.md migration; allowlist = permanent exemption.",
+ "rules": [
+  {
+   "key": "apps/web/src/app/(dynamicPages)/community/[community]/_components/community-card/_index.scss | svg | height: 16px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/(dynamicPages)/community/[community]/_components/community-card/_index.scss | svg | height: 16px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/(dynamicPages)/community/[community]/_components/community-card/_index.scss | svg | height: 14px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/(dynamicPages)/community/[community]/_components/community-cover/_index.scss | svg | height: 16px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/(dynamicPages)/community/[community]/_components/community-subscribers/_index.scss | svg | height: 12px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/comment-engagement/_index.scss | svg | height: 24px",
+   "status": "B3"
+  },
+  {
+   "key": "apps/web/src/app/(dynamicPages)/entry/[category]/[author]/[permlink]/entry.scss | svg | height: 17px",
+   "status": "B4"
+  },
+  {
+   "key": "apps/web/src/app/(dynamicPages)/feed/[...sections]/entry-index.scss | svg | height: 14px",
+   "status": "allowlist:app-badges"
+  },
+  {
+   "key": "apps/web/src/app/(dynamicPages)/feed/[...sections]/entry-index.scss | svg | height: 12px",
+   "status": "allowlist:app-badges"
+  },
+  {
+   "key": "apps/web/src/app/(dynamicPages)/feed/[...sections]/entry-index.scss | svg | height: 12px",
+   "status": "allowlist:app-badges"
+  },
+  {
+   "key": "apps/web/src/app/(dynamicPages)/profile/[username]/_components/claim-account-credit/index.scss | svg | width: 1rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/(dynamicPages)/profile/[username]/_components/claim-account-credit/index.scss | svg | height: 1rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/(dynamicPages)/profile/[username]/_components/claim-account-credit/index.scss | svg | width: 1rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/(dynamicPages)/profile/[username]/_components/claim-account-credit/index.scss | svg | height: 1rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/(dynamicPages)/profile/[username]/_components/profile-card/_index.scss | svg | height: 16px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/(dynamicPages)/profile/[username]/_components/profile-card/_index.scss | svg | height: 16px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/(dynamicPages)/profile/[username]/_components/profile-info/_index.scss | svg | height: 12px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/(dynamicPages)/profile/[username]/_components/rc-info/_index.scss | svg | width: 160px",
+   "status": "allowlist:rc-gauge"
+  },
+  {
+   "key": "apps/web/src/app/(dynamicPages)/profile/[username]/_components/rc-info/_index.scss | svg | height: 160px",
+   "status": "allowlist:rc-gauge"
+  },
+  {
+   "key": "apps/web/src/app/_components/entry-index-menu/_index.scss | svg | width: 20px",
+   "status": "allowlist:app-badges"
+  },
+  {
+   "key": "apps/web/src/app/_components/entry-index-menu/_index.scss | svg | height: 100%",
+   "status": "allowlist:app-badges"
+  },
+  {
+   "key": "apps/web/src/app/_components/entry-index-menu/_index.scss | svg | height: 100%",
+   "status": "allowlist:app-badges"
+  },
+  {
+   "key": "apps/web/src/app/_components/entry-index-menu/_index.scss | svg | height: 100%",
+   "status": "allowlist:app-badges"
+  },
+  {
+   "key": "apps/web/src/app/_components/entry-index-menu/_index.scss | svg | height: 100%",
+   "status": "allowlist:app-badges"
+  },
+  {
+   "key": "apps/web/src/app/_components/market-data/_index.scss | svg | width: 20px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/_deck-floating-manager.scss | svg | min-width: 1.5rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/_deck-floating-manager.scss | svg | min-height: 1.5rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/_deck-floating-manager.scss | svg | max-width: 1.5rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/_deck-floating-manager.scss | svg | max-height: 1.5rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/_deck-toolbar.scss | svg | width: 1.5rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/_deck-toolbar.scss | svg | height: 1.5rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/_deck-toolbar.scss | svg | width: 24px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/_deck.scss | .icon svg | width: 100%",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/_deck.scss | .icon svg | height: 100%",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/_deck.scss | .footer-icons svg | width: 18px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/_deck.scss | .footer-icons svg | height: 18px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/_deck.scss | svg | width: 1rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/_deck.scss | svg | height: 1rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/_deck.scss | svg | width: 14px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/_deck.scss | svg | width: 4rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/_deck.scss | svg | height: 4rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/columns/add-column/_deck-add-column.scss | svg | width: 1.5rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/columns/add-column/_deck-add-column.scss | svg | width: 2rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/columns/content-viewer/_deck-post-viewer.scss | svg | width: 1rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/columns/content-viewer/_deck-post-viewer.scss | svg | height: 1rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/columns/content-viewer/_deck-post-viewer.scss | svg | width: 4rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/columns/content-viewer/_deck-post-viewer.scss | svg | height: 4rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/deck-settings/_decks-settings.scss | svg | width: 1rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/deck-threads-form/_index.scss | svg | width: 1rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/deck-threads-form/_index.scss | svg | height: 1rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/deck-toolbar/_deck-toolbar-manager.scss | svg | width: 1.5rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/deck-toolbar/_deck-toolbar-manager.scss | svg | height: 1.5rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/market/index.scss | .icon svg | width: 100%",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/market/index.scss | .icon svg | height: 100%",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/market/index.scss | .footer-icons svg | width: 18px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/market/index.scss | .footer-icons svg | height: 18px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/market/index.scss | svg | width: 16px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/market/index.scss | svg | width: 14px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/proposals/_components/proposal-list-item/_index.scss | svg | height: 16px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/submit/_components/community-selector/_index.scss | svg | height: 22px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/submit/_components/post-scheduler/_index.scss | svg | height: 16px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/submit/_components/tag-selector/_index.scss | svg | height: 16px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/submit/_components/tag-selector/_index.scss | svg | height: 14px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/submit/_index.scss | svg | width: 1rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/submit/_index.scss | svg | height: 1rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/submit/_index.scss | svg | width: 25px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/waves/_components/waves-reel-item.scss | svg | height: 26px",
+   "status": "allowlist:over-video-tip"
+  },
+  {
+   "key": "apps/web/src/app/waves/_components/waves-reel-item.scss | svg | width: 26px",
+   "status": "allowlist:over-video-tip"
+  },
+  {
+   "key": "apps/web/src/app/witnesses/page.scss | svg | height: 16px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/market/market-swap-form/index.scss | .loading-market-svg | width: 24px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/market/market-swap-form/index.scss | .loading-market-svg | height: 24px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/market/market-swap-form/index.scss | > div, > div > svg | width: auto",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/market/market-swap-form/index.scss | > div, > div > svg | height: auto",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/shared/bookmark-btn/_index.scss | svg | height: 20px",
+   "status": "B4"
+  },
+  {
+   "key": "apps/web/src/features/shared/discussion/_index.scss | svg | height: 24px",
+   "status": "B3"
+  },
+  {
+   "key": "apps/web/src/features/shared/discussion/_index.scss | svg | height: 16px",
+   "status": "B3"
+  },
+  {
+   "key": "apps/web/src/features/shared/discussion/_index.scss | svg | height: 14px",
+   "status": "B3"
+  },
+  {
+   "key": "apps/web/src/features/shared/edit-history/index.scss | svg | height: 20px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/shared/edit-history/index.scss | svg | height: 16px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/shared/editor-toolbar/_index.scss | svg | height: 22px",
+   "status": "B3"
+  },
+  {
+   "key": "apps/web/src/features/shared/editor-toolbar/_index.scss | svg | height: 18px",
+   "status": "B3"
+  },
+  {
+   "key": "apps/web/src/features/shared/entry-menu/_index.scss | svg | height: 18px",
+   "status": "B3"
+  },
+  {
+   "key": "apps/web/src/features/shared/entry-menu/_index.scss | svg | width: 18px",
+   "status": "B3"
+  },
+  {
+   "key": "apps/web/src/features/shared/entry-menu/_index.scss | svg | height: 17px",
+   "status": "B3"
+  },
+  {
+   "key": "apps/web/src/features/shared/entry-menu/_index.scss | svg | width: 17px",
+   "status": "B3"
+  },
+  {
+   "key": "apps/web/src/features/shared/entry-reblog-btn/_index.scss | svg | height: 16px",
+   "status": "B4"
+  },
+  {
+   "key": "apps/web/src/features/shared/entry-share/_index.scss | svg | width: 28px",
+   "status": "allowlist:brand-circles"
+  },
+  {
+   "key": "apps/web/src/features/shared/entry-share/_index.scss | svg | height: 28px",
+   "status": "allowlist:brand-circles"
+  },
+  {
+   "key": "apps/web/src/features/shared/entry-tip-btn/_index.scss | svg | height: 16px",
+   "status": "B4"
+  },
+  {
+   "key": "apps/web/src/features/shared/entry-votes/_index.scss | svg | height: 14px",
+   "status": "B4"
+  },
+  {
+   "key": "apps/web/src/features/shared/entry-votes/_index.scss | svg | width: 14px",
+   "status": "B4"
+  },
+  {
+   "key": "apps/web/src/features/shared/gallery/_index.scss | svg | height: 16px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/shared/list-style-toggle/_index.scss | svg | width: 24px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/shared/list-style-toggle/_index.scss | svg | height: 24px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/shared/navbar/_navbar-notifications-button.scss | svg | height: 1.5rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/shared/navbar/_navbar-notifications-button.scss | svg | width: 1.5rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/shared/navbar/sidebar/_navbar-side-theme-switcher.scss | svg | width: 1.25rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/shared/navbar/sidebar/_navbar-side-theme-switcher.scss | svg | height: 1.25rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/shared/notifications/_index.scss | svg | height: 18px",
+   "status": "B3"
+  },
+  {
+   "key": "apps/web/src/features/shared/notifications/_index.scss | .select-svg | height: 14px",
+   "status": "B3"
+  },
+  {
+   "key": "apps/web/src/features/shared/notifications/_index.scss | svg | height: 14px",
+   "status": "B3"
+  },
+  {
+   "key": "apps/web/src/features/shared/notifications/_index.scss | .mark-svg | height: 22px",
+   "status": "B3"
+  },
+  {
+   "key": "apps/web/src/features/shared/notifications/_index.scss | svg | height: 22px",
+   "status": "B3"
+  },
+  {
+   "key": "apps/web/src/features/shared/scroll-to-top/_index.scss | svg | width: 20px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/shared/scroll-to-top/_index.scss | svg | height: 20px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/shared/search-box/_index.scss | svg | width: 22px",
+   "status": "B3"
+  },
+  {
+   "key": "apps/web/src/features/shared/search-list-item/_index.scss | svg | height: 14px",
+   "status": "B4"
+  },
+  {
+   "key": "apps/web/src/features/shared/transactions/_index.scss | svg | width: 16px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/shared/transactions/_index.scss | svg | height: 16px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/shared/transfer/_index.scss | svg | height: 60px",
+   "status": "allowlist:transfer-arrow"
+  },
+  {
+   "key": "apps/web/src/features/shared/transfer/_index.scss | svg | width: 60px",
+   "status": "allowlist:transfer-arrow"
+  },
+  {
+   "key": "apps/web/src/features/ui/input/_input-vote.scss | .entry-list-item .item-body .item-controls .ecency-vote-input svg | max-width: 16px",
+   "status": "B4"
+  },
+  {
+   "key": "apps/web/src/features/ui/input/_input-vote.scss | .entry-list-item .item-body .item-controls .ecency-vote-input svg | width: 16px",
+   "status": "B4"
+  },
+  {
+   "key": "apps/web/src/features/ui/input/_input-vote.scss | .entry-list-item .item-body .item-controls .ecency-vote-input svg | height: 16px",
+   "status": "B4"
+  },
+  {
+   "key": "apps/web/src/features/ui/input/_input-vote.scss | .entry-list-item .item-body .item-controls .ecency-vote-input svg | max-height: 16px",
+   "status": "B4"
+  },
+  {
+   "key": "apps/web/src/features/ui/pagination/index.css | .pagination svg | width: 1rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/ui/pagination/index.css | .pagination svg | height: 1rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/waves/components/wave-actions.scss | svg | @apply w-4 h-4",
+   "status": "B4"
+  },
+  {
+   "key": "apps/web/src/features/waves/components/wave-form/_index.scss | svg | width: 1rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/waves/components/wave-form/_index.scss | svg | height: 1rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/styles/_base.scss | .btn svg | width: 20px",
+   "status": "B3"
+  },
+  {
+   "key": "apps/web/src/styles/_base.scss | .svg-icon | height: 16px",
+   "status": "B3"
+  },
+  {
+   "key": "apps/web/src/styles/_base.scss | svg | height: 16px",
+   "status": "B3"
+  },
+  {
+   "key": "apps/web/src/styles/_components.scss | .vote-svg | width: 8px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/styles/_components.scss | .vote-svg | max-height: 6px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/styles/_components.scss | .slider-svg-up | width: 12px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/styles/_components.scss | .slider-svg-up | max-height: 7px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/styles/_components.scss | .slider-svg-down | width: 12px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/styles/_components.scss | .slider-svg-down | max-height: 7px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/styles/_mixins.scss | svg | height: 16px",
+   "status": "B4"
+  },
+  {
+   "key": "apps/web/src/styles/_mixins.scss | svg | height: 16px",
+   "status": "B4"
+  },
+  {
+   "key": "apps/web/src/styles/_mixins.scss | svg | height: 14px",
+   "status": "B4"
+  },
+  {
+   "key": "apps/web/src/styles/_mixins.scss | svg | width: 14px",
+   "status": "B4"
+  },
+  {
+   "key": "apps/web/src/styles/_mixins.scss | svg | height: 14px",
+   "status": "B4"
+  },
+  {
+   "key": "apps/web/src/styles/_mixins.scss | svg | width: 20px",
+   "status": "B4"
+  },
+  {
+   "key": "apps/web/src/styles/_mixins.scss | svg | height: 20px",
+   "status": "B4"
+  },
+  {
+   "key": "apps/web/src/styles/static-pages.scss | svg | height: 12px",
+   "status": "B2"
+  }
+ ]
+}

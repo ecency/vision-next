@@ -33,7 +33,7 @@ export default async function CommunitiesList() {
               className="hover:border-blue-dark-sky w-full h-full border border-[--border-color] rounded-2xl flex flex-col items-center justify-center p-6 md:p-8 text-center gap-4"
             >
               {i18next.t("discover.view-more-communities")}
-              <UilArrowRight className="w-6 h-6" />
+              <UilArrowRight className="size-6" />
             </Link>
           </CommunityCardAnimated>
         </div>

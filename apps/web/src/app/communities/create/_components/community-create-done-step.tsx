@@ -13,7 +13,7 @@ export function CommunityCreateDoneStep({ username }: Props) {
     <CommunityCreateCardLayout hideTitle={true}>
       <div className="md:py-16 flex flex-col gap-4 md:gap-8">
         <div className="flex flex-col items-center justify-center gap-2">
-          <UilCheckCircle className="text-green w-12 h-12" />
+          <UilCheckCircle className="text-green size-12" />
           <div className="text-xl font-bold">{i18next.t("communities-create.done")}</div>
           <div className="text-gray-600 dark:text-gray-400 text-center max-w-[500px]">
             {i18next.t("communities-create.done-hint")}

@@ -136,12 +136,12 @@ export function EcencyImagesUploadDialog({ show, setShow, onPick }: Props) {
                   <img className="w-full" src={item.preview} alt={item.file.name} />
                   {item.status === "uploading" && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                      <Spinner className="w-6 h-6" />
+                      <Spinner className="size-6" />
                     </div>
                   )}
                   {item.status === "done" && (
                     <div className="absolute top-1 right-1 text-green-500">
-                      <UilCheck className="w-5 h-5" />
+                      <UilCheck className="size-5" />
                     </div>
                   )}
                 </div>

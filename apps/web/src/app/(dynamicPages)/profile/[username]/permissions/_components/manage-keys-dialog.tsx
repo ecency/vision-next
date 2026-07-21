@@ -208,7 +208,7 @@ function ActionChooser({ canRevoke, onAdd, onRevoke }: { canRevoke: boolean; onA
         className="flex items-start gap-4 p-4 rounded-lg border border-[--border-color] hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-colors text-left"
         onClick={onAdd}
       >
-        <UilKeySkeleton className="w-8 h-8 text-blue-500 shrink-0 mt-0.5" />
+        <UilKeySkeleton className="size-8 text-blue-500 shrink-0 mt-0.5" />
         <div>
           <div className="font-semibold text-gray-900 dark:text-white">
             {i18next.t("permissions.manage-keys.add-title")}
@@ -224,7 +224,7 @@ function ActionChooser({ canRevoke, onAdd, onRevoke }: { canRevoke: boolean; onA
           className="flex items-start gap-4 p-4 rounded-lg border border-[--border-color] hover:border-red-400 dark:hover:border-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors text-left"
           onClick={onRevoke}
         >
-          <UilTrash className="w-8 h-8 text-red-500 shrink-0 mt-0.5" />
+          <UilTrash className="size-8 text-red-500 shrink-0 mt-0.5" />
           <div>
             <div className="font-semibold text-gray-900 dark:text-white">
               {i18next.t("permissions.manage-keys.revoke-title")}
@@ -437,7 +437,7 @@ function RevokeConfirmStep({
   if (isComplete) {
     return (
       <div className="flex flex-col items-center gap-4 py-8">
-        <UilCheckCircle className="w-16 h-16 text-green-500" />
+        <UilCheckCircle className="size-16 text-green-500" />
         <h3 className="text-xl font-semibold">
           {i18next.t("permissions.manage-keys.revoke-success")}
         </h3>
@@ -448,7 +448,7 @@ function RevokeConfirmStep({
   if (isRevoking) {
     return (
       <div className="flex flex-col items-center gap-4 py-8">
-        <UilSpinner className="w-16 h-16 animate-spin opacity-50" />
+        <UilSpinner className="size-16 animate-spin opacity-50" />
         <h3 className="text-xl font-semibold">
           {i18next.t("permissions.add-keys.step4.applying")}
         </h3>

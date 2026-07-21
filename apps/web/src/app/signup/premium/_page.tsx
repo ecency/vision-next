@@ -350,14 +350,14 @@ export function PremiumSignUp() {
             </a>
             <div className="flex flex-col my-4 gap-4 sm:flex-row">
               <a href="https://ios.ecency.com" className="flex items-center gap-2 bg-gray-100 dark:bg-dark-default hover:bg-gray-200 dark:hover:bg-black rounded-lg px-3 py-2" target="_blank" rel="noopener noreferrer">
-                <span className="w-8 h-8">{appleSvg}</span>
+                <span className="size-8">{appleSvg}</span>
                 <span>
                   <span className="text-xs block opacity-75">Download on the</span>
                   <span className="font-semibold">AppStore</span>
                 </span>
               </a>
               <a href="https://android.ecency.com" className="flex items-center gap-2 bg-gray-100 dark:bg-dark-default hover:bg-gray-200 dark:hover:bg-black rounded-lg px-3 py-2" target="_blank" rel="noopener noreferrer">
-                <span className="w-8 h-8">{googleSvg}</span>
+                <span className="size-8">{googleSvg}</span>
                 <span>
                   <span className="text-xs block opacity-75">Get it on</span>
                   <span className="font-semibold">GooglePlay</span>

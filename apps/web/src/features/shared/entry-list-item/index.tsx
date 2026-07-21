@@ -185,7 +185,7 @@ export function EntryListItemComponent({
               className="flex items-center gap-1 text-gray-steel hover:text-blue-dark-sky"
               href={makeEntryPath(entry.category, entry.author, entry.permlink)}
             >
-              <UilComment className="w-3.5 h-3.5" /> {entry.children}
+              <UilComment className="size-3.5" /> {entry.children}
             </a>
           )}
           <EntryReblogBtn entry={entry} />

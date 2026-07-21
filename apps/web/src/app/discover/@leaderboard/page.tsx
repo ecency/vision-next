@@ -46,7 +46,7 @@ export default function LeaderboardPage({ searchParams }: Props) {
             <span className="text-sm opacity-50">{i18next.t("leaderboard.header-reward")}</span>
             <Tooltip content={i18next.t("leaderboard.header-score-tip")}>
               <div className="text-sm opacity-50 flex items-center gap-1">
-                <UilInfoCircle className="w-4 h-4" />
+                <UilInfoCircle className="size-4" />
                 <span className="score">{i18next.t("leaderboard.header-score")}</span>
               </div>
             </Tooltip>
@@ -78,7 +78,7 @@ export default function LeaderboardPage({ searchParams }: Props) {
                 >
                   {period === "day" && r.quests_done && (
                     <Tooltip content={i18next.t("leaderboard.quests-done")}>
-                      <UilCheckCircle className="w-4 h-4 text-green-600" />
+                      <UilCheckCircle className="size-4 text-green-600" />
                     </Tooltip>
                   )}
                   <div className="text-blue-dark-sky text-sm font-semibold">

@@ -103,7 +103,7 @@ export function CommentForm({
   return (
     <div className={clsx("space-y-3", className)}>
       <div className="flex items-start gap-3">
-        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-theme-hover flex items-center justify-center text-sm font-medium text-theme-primary">
+        <div className="flex-shrink-0 size-8 rounded-full bg-theme-hover flex items-center justify-center text-sm font-medium text-theme-primary">
           {user?.username?.charAt(0).toUpperCase()}
         </div>
         <div className="flex-1">

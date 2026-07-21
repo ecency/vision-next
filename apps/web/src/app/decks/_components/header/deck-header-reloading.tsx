@@ -27,7 +27,7 @@ export const DeckHeaderReloading = ({ isReloading, onReload, updateDataInterval 
       size="sm"
       onClick={onReload}
       disabled={isReloading}
-      icon={isReloading ? <Spinner className="w-4 h-4" /> : refreshSvg}
+      icon={isReloading ? <Spinner className="size-4" /> : refreshSvg}
       iconPlacement="left"
     >
       {i18next.t("decks.reload")}

@@ -347,9 +347,9 @@ export function TransferStep1({ titleLngKey }: Props) {
                       </div>
                       <div className="text-gray-500 dark:text-gray-400">
                         {isExternalWalletsExpanded ? (
-                          <UilAngleUp className="w-4 h-4" />
+                          <UilAngleUp className="size-4" />
                         ) : (
-                          <UilAngleDown className="w-4 h-4" />
+                          <UilAngleDown className="size-4" />
                         )}
                       </div>
                     </div>

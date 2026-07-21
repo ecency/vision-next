@@ -54,7 +54,7 @@ export function EntryPageContentSSR({ entry, isRawContent }: Props) {
             rel="nofollow noopener"
             className="text-sm block border-b border-[--border-color] p-2 md:p-3"
           >
-            <UilMapPinAlt className="w-4 h-4 mr-1" />
+            <UilMapPinAlt className="size-4 mr-1" />
             {location.address}
           </Link>
         )}

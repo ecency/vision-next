@@ -92,7 +92,7 @@ function InsightsRange({ username, dateRange, label }: InsightsRangeProps) {
     <div className="glass-box rounded-xl p-4 flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
         <div className="font-semibold text-lg">{label}</div>
-        {statsQuery.isLoading && <Spinner className="w-5 h-5" />}
+        {statsQuery.isLoading && <Spinner className="size-5" />}
       </div>
 
       {statsQuery.isError && (

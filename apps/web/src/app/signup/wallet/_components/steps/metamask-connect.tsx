@@ -285,7 +285,7 @@ export function MetamaskConnect({ username, onVerified, onBack }: Props) {
             size="lg"
             onClick={connectMetaMask}
             disabled={isConnecting}
-            icon={isConnecting ? <Spinner className="w-4 h-4" /> : undefined}
+            icon={isConnecting ? <Spinner className="size-4" /> : undefined}
           >
             {i18next.t("signup-wallets.metamask.connect-button")}
           </Button>
@@ -299,7 +299,7 @@ export function MetamaskConnect({ username, onVerified, onBack }: Props) {
       {evmAddress && (
         <>
           <div className="bg-green-050 dark:bg-green-900/20 rounded-xl p-4 flex items-center gap-3">
-            <UilCheckCircle className="text-green w-5 h-5 flex-shrink-0" />
+            <UilCheckCircle className="text-green size-5 flex-shrink-0" />
             <div>
               <div className="text-sm font-medium">
                 {i18next.t("signup-wallets.metamask.connected")}
@@ -334,7 +334,7 @@ export function MetamaskConnect({ username, onVerified, onBack }: Props) {
                     alt={meta.title}
                     width={32}
                     height={32}
-                    className="w-8 h-8"
+                    className="size-8"
                   />
                   <div className="text-left">
                     <div className="font-semibold text-sm">{meta.title}</div>
@@ -361,7 +361,7 @@ export function MetamaskConnect({ username, onVerified, onBack }: Props) {
           )}
           {selectedCurrency && !isEvmChain && isLoadingChainAddresses && (
             <div className="bg-gray-50 dark:bg-dark-default rounded-xl p-3 text-sm flex items-center gap-2">
-              <Spinner className="w-4 h-4" />
+              <Spinner className="size-4" />
               <span className="opacity-75">{i18next.t("signup-wallets.metamask.checking-multichain", { defaultValue: "Checking MetaMask multichain addresses..." })}</span>
             </div>
           )}
@@ -379,7 +379,7 @@ export function MetamaskConnect({ username, onVerified, onBack }: Props) {
             <div className="bg-gray-50 dark:bg-dark-default rounded-xl p-4 space-y-2">
               {(isBalanceLoading || isPriceLoading) && (
                 <div className="flex items-center gap-2 text-sm opacity-75">
-                  <Spinner className="w-4 h-4" />
+                  <Spinner className="size-4" />
                   {i18next.t("signup-wallets.validate-funds.checking-balance")}
                 </div>
               )}
@@ -419,7 +419,7 @@ export function MetamaskConnect({ username, onVerified, onBack }: Props) {
 
               {hasValidBalance && (
                 <div className="flex items-center gap-2 text-green text-sm font-medium">
-                  <UilCheckCircle className="w-4 h-4" />
+                  <UilCheckCircle className="size-4" />
                   {i18next.t("signup-wallets.validate-funds.validation-success")}
                 </div>
               )}
@@ -440,7 +440,7 @@ export function MetamaskConnect({ username, onVerified, onBack }: Props) {
             <Button
               onClick={signAndVerify}
               disabled={!hasValidBalance || addressAlreadyUsed || isSigning}
-              icon={isSigning ? <Spinner className="w-4 h-4" /> : undefined}
+              icon={isSigning ? <Spinner className="size-4" /> : undefined}
             >
               {i18next.t("signup-wallets.metamask.sign-and-continue")}
             </Button>

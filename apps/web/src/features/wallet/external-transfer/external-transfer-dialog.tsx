@@ -240,7 +240,7 @@ export function ExternalTransferDialog({ currency, username, show, onHide }: Pro
         <div className="flex items-center gap-2">
           {step === "confirm" && (
             <button onClick={() => setStep("form")} className="p-1 hover:bg-gray-100 dark:hover:bg-dark-200 rounded">
-              <UilArrowLeft className="w-5 h-5" />
+              <UilArrowLeft className="size-5" />
             </button>
           )}
           <div className="font-semibold">
@@ -378,7 +378,7 @@ export function ExternalTransferDialog({ currency, username, show, onHide }: Pro
               onClick={handleConfirm}
               icon={
                 meta?.icon ? (
-                  <Image width={20} height={20} src={meta.icon.src} alt="" className="w-5 h-5" />
+                  <Image width={20} height={20} src={meta.icon.src} alt="" className="size-5" />
                 ) : undefined
               }
             >
@@ -389,7 +389,7 @@ export function ExternalTransferDialog({ currency, username, show, onHide }: Pro
 
         {step === "signing" && (
           <div className="flex flex-col items-center gap-4 py-8">
-            <UilSpinner className="w-8 h-8 animate-spin text-blue-dark-sky" />
+            <UilSpinner className="size-8 animate-spin text-blue-dark-sky" />
             <div className="text-sm text-gray-600 dark:text-gray-400">
               {i18next.t("external-transfer.signing", { defaultValue: "Waiting for MetaMask confirmation..." })}
             </div>
@@ -398,8 +398,8 @@ export function ExternalTransferDialog({ currency, username, show, onHide }: Pro
 
         {step === "success" && (
           <div className="flex flex-col items-center gap-4 py-6">
-            <div className="w-12 h-12 rounded-full bg-green/10 flex items-center justify-center">
-              <UilCheck className="w-6 h-6 text-green" />
+            <div className="size-12 rounded-full bg-green/10 flex items-center justify-center">
+              <UilCheck className="size-6 text-green" />
             </div>
             <div className="font-semibold">
               {i18next.t("external-transfer.success", { defaultValue: "Transfer submitted!" })}
@@ -425,8 +425,8 @@ export function ExternalTransferDialog({ currency, username, show, onHide }: Pro
 
         {step === "error" && (
           <div className="flex flex-col items-center gap-4 py-6">
-            <div className="w-12 h-12 rounded-full bg-red/10 flex items-center justify-center">
-              <UilExclamationTriangle className="w-6 h-6 text-red" />
+            <div className="size-12 rounded-full bg-red/10 flex items-center justify-center">
+              <UilExclamationTriangle className="size-6 text-red" />
             </div>
             <div className="font-semibold">
               {i18next.t("external-transfer.failed", { defaultValue: "Transfer failed" })}

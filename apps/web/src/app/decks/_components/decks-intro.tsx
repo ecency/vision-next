@@ -22,7 +22,7 @@ export function DecksIntro() {
   return (
     <div className="flex items-center justify-center min-h-[80vh] px-4 py-12">
       <div className="w-full max-w-[640px] flex flex-col items-center gap-8 text-center">
-        <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-duck-egg text-blue-dark-sky dark:bg-dark-default">
+        <div className="flex items-center justify-center size-16 rounded-2xl bg-blue-duck-egg text-blue-dark-sky dark:bg-dark-default">
           <UilColumns size={32} />
         </div>
         <div className="flex flex-col gap-3">

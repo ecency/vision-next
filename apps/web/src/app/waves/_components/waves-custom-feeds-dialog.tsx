@@ -105,9 +105,9 @@ export function WavesCustomFeedsDialog({ show, onHide, onSelectTag, onSelectSour
                     >
                       <span>{WAVE_HOST_LABELS[host]}</span>
                       {pinned ? (
-                        <UilMultiply className="w-3.5 h-3.5" />
+                        <UilMultiply className="size-3.5" />
                       ) : (
-                        <UilPlus className="w-3.5 h-3.5" />
+                        <UilPlus className="size-3.5" />
                       )}
                     </button>
                   );
@@ -162,7 +162,7 @@ export function WavesCustomFeedsDialog({ show, onHide, onSelectTag, onSelectSour
                     className="inline-flex items-center gap-1 rounded-full bg-blue-dark-sky text-white text-sm px-3 py-1 hover:opacity-80 transition-opacity cursor-pointer"
                   >
                     <span>#{tag}</span>
-                    <UilMultiply className="w-3.5 h-3.5" />
+                    <UilMultiply className="size-3.5" />
                   </button>
                 ))}
               </div>
@@ -188,7 +188,7 @@ export function WavesCustomFeedsDialog({ show, onHide, onSelectTag, onSelectSour
                     aria-label={`#${tag}`}
                     className="inline-flex items-center gap-1 rounded-full bg-gray-200 dark:bg-dark-300 text-sm px-3 py-1 hover:opacity-80 transition-opacity cursor-pointer"
                   >
-                    <UilPlus className="w-3.5 h-3.5" />
+                    <UilPlus className="size-3.5" />
                     <span>#{tag}</span>
                   </button>
                 ))}
