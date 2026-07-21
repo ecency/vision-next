@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.59
+
+### Patch Changes
+
+- fix(sdk): price engine tokens by held symbol instead of scanning a capped page (#1218)
+
 ## 2.3.58
 
 ### Patch Changes

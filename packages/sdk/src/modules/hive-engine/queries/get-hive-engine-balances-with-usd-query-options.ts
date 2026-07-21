@@ -1,4 +1,8 @@
-import { getHiveEngineTokensBalances, getHiveEngineTokensMetadata } from "../requests";
+import {
+  getHiveEngineTokensBalances,
+  getHiveEngineTokensMarket,
+  getHiveEngineTokensMetadata,
+} from "../requests";
 import { queryOptions } from "@tanstack/react-query";
 import type {
   HiveEngineTokenBalance,
@@ -41,11 +45,32 @@ export function getHiveEngineBalancesWithUsdQueryOptions(
       const pricePerHive = dynamicProps
         ? dynamicProps.base / dynamicProps.quote
         : 0;
-      const metrics: ReadonlyArray<HiveEngineTokenInfo> = Array.isArray(
+      const providedMetrics: ReadonlyArray<HiveEngineTokenInfo> = Array.isArray(
         allTokens
       )
         ? allTokens
         : [];
+
+      // Whatever the caller passed comes from an unfiltered metrics call, which the node
+      // caps at 1000 rows – held tokens outside that page have no price and used to be
+      // valued at zero, understating the wallet. Ask for the missing ones by symbol.
+      const unpricedSymbols = balances
+        .map((balance) => balance.symbol)
+        .filter(
+          (symbol) =>
+            symbol !== "SWAP.HIVE" &&
+            !providedMetrics.some((metric) => metric.symbol === symbol)
+        );
+
+      const metrics: ReadonlyArray<HiveEngineTokenInfo> = [
+        ...providedMetrics,
+        ...(unpricedSymbols.length
+          ? await getHiveEngineTokensMarket<HiveEngineTokenInfo>(
+              undefined,
+              unpricedSymbols
+            )
+          : []),
+      ];
 
       return balances.map((balance) => {
         const token = tokens.find((t) => t.symbol === balance.symbol);

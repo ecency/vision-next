@@ -4,7 +4,7 @@ import type { HiveEngineTokenInfo } from "../types";
 
 export function getAllHiveEngineTokensQueryOptions(
   account?: string,
-  symbol?: string
+  symbol?: string | string[]
 ) {
   return queryOptions({
     queryKey: ["assets", "hive-engine", "all-tokens", account, symbol] as const,
