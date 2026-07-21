@@ -19,7 +19,7 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 type SortOption = "reward" | "timestamp" | "voter" | "percent";
 
 interface Props {
-  /** See EntryVotes: size-N sink class for the vote icon; undefined = legacy CSS. */
+  /** See EntryVotes: size-N sink class for the vote icon; defaults to "[&>svg]:size-3.5". */
   iconSizeClass?: string;
   entry?: Entry;
   icon?: ReactNode;
