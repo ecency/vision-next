@@ -7,6 +7,8 @@ import { Spinner } from "@ui/spinner";
 import { useUploadImageMutation } from "@/api/sdk-mutations";
 import { useOptionalUploadTracker } from "@/app/publish/_hooks";
 import { convertHeicToJpeg } from "@/utils/convert-heic";
+import { isAcceptedImageFile } from "@/utils/image-upload-formats";
+import { error } from "@/features/shared";
 
 interface Props {
   show: boolean;
@@ -118,7 +120,15 @@ export function EcencyImagesUploadDialog({ show, setShow, onPick, initialFiles }
 
   const onFilesPick = useCallback(
     async (files: File[]) => {
-      const converted = await Promise.all(files.map((f) => convertHeicToJpeg(f)));
+      // The input `accept` attribute is a hint only - files can still arrive
+      // through "All files" in the picker or through a drop
+      const accepted = files.filter((file) => isAcceptedImageFile(file));
+      if (accepted.length === 0) {
+        error(i18next.t("publish.no-image-found"));
+        return;
+      }
+
+      const converted = await Promise.all(accepted.map((f) => convertHeicToJpeg(f)));
       const picked = converted.map((file) => ({
         file,
         preview: URL.createObjectURL(file),
@@ -143,6 +153,9 @@ export function EcencyImagesUploadDialog({ show, setShow, onPick, initialFiles }
   useEffect(() => {
     if (!show) {
       seededFilesRef.current = undefined;
+      // Closing the dialog stops the batch, so nothing gets inserted into the
+      // editor after the user dismissed it
+      cancelRef.current = true;
       if (itemsRef.current.length) {
         itemsRef.current.forEach((item) => URL.revokeObjectURL(item.preview));
         setItems([]);

@@ -2,7 +2,7 @@ import { UilFileDownload, UilFileUpload } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
 import i18next from "i18next";
 import { useCallback, useRef, useState } from "react";
-import { IMAGE_UPLOAD_ACCEPT, isAcceptedImageFilename } from "@/utils/image-upload-formats";
+import { IMAGE_UPLOAD_ACCEPT, isAcceptedImageFile } from "@/utils/image-upload-formats";
 
 interface Props {
   onFilesPick: (files: File[]) => void;
@@ -20,7 +20,7 @@ export function EcencyImagesUploadForm({ onFilesPick }: Props) {
         Array.from(e.dataTransfer.items).forEach((item) => {
           if (item.kind === "file") {
             const file = item.getAsFile();
-            if (file && isAcceptedImageFilename(file.name)) {
+            if (file && isAcceptedImageFile(file)) {
               files.push(file);
             }
           }

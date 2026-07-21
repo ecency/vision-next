@@ -118,7 +118,6 @@ export function PublishActionBar({
   useDefaultBeneficiary();
   useSupportEcencyBeneficiary();
 
-  const canContinue = !!title?.trim() && hasPublishContent(content);
   const hasEditorContent = !!title?.trim() || hasPublishContent(content);
 
   const { mutateAsync: saveToDraft, isPending: isDraftPending } = useSaveDraftApi(draftId);
@@ -126,6 +125,12 @@ export function PublishActionBar({
   const applyTemplate = useApplyTemplate(setEditorContent);
   const uploadTracker = useOptionalUploadTracker();
   const [_, setShowGuide] = useSynchronizedLocalStorage(PREFIX + "_pub_onboarding_passed", true);
+
+  // Images upload in the background (toolbar pick, drag and drop) and their
+  // markdown only lands in the body once the upload resolves - continuing
+  // before then would publish the post without them.
+  const canContinue =
+    !!title?.trim() && hasPublishContent(content) && !uploadTracker?.hasPendingUploads;
 
   return (
     <div className="container relative z-[11] justify-between gap-4 px-2 md:px-4 flex flex-col-reverse sm:flex-row sm:items-center max-w-[1024px] py-4 mx-auto publish-action-bar">

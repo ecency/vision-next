@@ -24,6 +24,9 @@ function pickFiles(container: HTMLElement, files: File[]) {
 
 const jpeg = (name: string) => new File(["x"], name, { type: "image/jpeg" });
 
+const originalCreateObjectURL = URL.createObjectURL;
+const originalRevokeObjectURL = URL.revokeObjectURL;
+
 describe("EcencyImagesUploadDialog", () => {
   beforeEach(() => {
     setupModalContainers();
@@ -34,6 +37,8 @@ describe("EcencyImagesUploadDialog", () => {
 
   afterEach(() => {
     cleanupModalContainers();
+    URL.createObjectURL = originalCreateObjectURL;
+    URL.revokeObjectURL = originalRevokeObjectURL;
   });
 
   it("uploads a single picked image without a review step", async () => {
@@ -50,6 +55,17 @@ describe("EcencyImagesUploadDialog", () => {
     // The dialog closes itself once the only image is in
     await waitFor(() => expect(setShow).toHaveBeenCalledWith(false));
     expect(screen.queryByText("editor-toolbar.upload")).toBeNull();
+  });
+
+  it("does not upload files that are not accepted images", async () => {
+    const { container } = render(
+      <EcencyImagesUploadDialog show={true} setShow={vi.fn()} onPick={vi.fn()} />
+    );
+
+    pickFiles(container, [new File(["x"], "notes.txt", { type: "text/plain" })]);
+
+    await waitFor(() => expect(URL.createObjectURL).not.toHaveBeenCalled());
+    expect(uploadMock).not.toHaveBeenCalled();
   });
 
   it("shows the preview step for several images and waits for confirmation", async () => {
