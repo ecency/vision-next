@@ -80,7 +80,7 @@ export const PostSchedulerDialog = (props: Props) => {
             {props.date.format("YYYY-MM-DD HH:mm")}
           </span>
           <span
-            className="reset-date"
+            className="reset-date [&>svg]:size-4"
             role="button"
             tabIndex={0}
             aria-label={i18next.t("g.delete", { defaultValue: "Reset" })}

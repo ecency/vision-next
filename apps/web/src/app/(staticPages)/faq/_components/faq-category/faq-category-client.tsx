@@ -47,7 +47,7 @@ export function FaqCategoryClient({ contentList, categoryTitle }: Props) {
                   onClick={() => {
                     setExpanded?.(!expanded);
                   }}
-                  icon={<SliderChevron direction="down" />}
+                  icon=<SliderChevron direction="down" />
                   iconClassName="transition-transform duration-200 [[data-open=true]_&]:rotate-180"
                 />
               </Tooltip>

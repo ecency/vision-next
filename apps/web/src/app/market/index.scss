@@ -544,22 +544,8 @@ thead, .pagination {
         }
     }
 
-    .cog-icon {
-        width: 16px;
-    }
-
     .deck-header {
         padding: 0.69rem !important;
-    }
-
-    .icon {
-        width: 20px;
-        height: 20px;
-    }
-
-    .icon svg {
-        width: 100%;
-        height: 100%;
     }
 
     .icon path {
@@ -662,24 +648,11 @@ thead, .pagination {
         }
 
         font-size: 12px !important;
-
-        svg {
-            width: 16px !important;
-        }
-
-        .menu-down {
-            height: auto !important;
-            width: auto !important;
-        }
     }
 
     .deck-pinned {
         @apply text-red-040;
         transform: rotate(45deg);
-
-        svg {
-            width: 14px !important;
-        }
     }
 
     .deck-header-settings-item {

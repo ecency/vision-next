@@ -55,7 +55,7 @@ export const DeckHeader = (props: Props | WithIntervalProps | WithDeletionProps 
           <div className="deck-index" {...props.draggable}>
             {props.draggable ? dragSvg : <></>}
           </div>
-          {props.icon ? <div className="icon mr-2">{props.icon}</div> : <></>}
+          {props.icon ? <div className="icon mr-2 size-5 [&>svg]:size-full">{props.icon}</div> : <></>}
 
           <div className="header-title flex flex-col items-start">
             {"subtitle" in props ? (
@@ -78,7 +78,7 @@ export const DeckHeader = (props: Props | WithIntervalProps | WithDeletionProps 
               onClick={() => {
                 setExpanded(!expanded);
               }}
-              icon={<SliderChevron direction="down" />}
+              icon=<SliderChevron direction="down" />
             />
           </Tooltip>
         </div>

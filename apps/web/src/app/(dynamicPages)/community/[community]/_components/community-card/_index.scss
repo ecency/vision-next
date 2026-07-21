@@ -34,10 +34,6 @@
       &:hover {
         box-shadow: $box-shadow;
       }
-
-      svg {
-        height: 16px;
-      }
     }
 
     .user-avatar {
@@ -116,7 +112,6 @@
         }
 
         svg {
-          height: 16px;
           margin-right: 10px;
         }
 
@@ -126,7 +121,6 @@
           padding: 6px;
 
           svg {
-            height: 14px;
             margin-right: 6px;
           }
         }

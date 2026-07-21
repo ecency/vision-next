@@ -279,7 +279,7 @@ export function TagSelector({ tags, onChange, onValid, maxItem }: Props) {
                     <span>{x}</span>
                   </div>
                   <span
-                    className="item-delete"
+                    className="item-delete [&>svg]:size-4"
                     role="button"
                     tabIndex={0}
                     aria-label={i18next.t("g.delete", { defaultValue: "Delete" })}

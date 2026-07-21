@@ -141,7 +141,7 @@ export const DeckAddColumn = ({ id, draggable, deckKey }: Props) => {
             {availableColumns.map(({ icon, title, type, description }) => (
               <div
                 key={type}
-                className="item"
+                className="item [&>svg]:size-6"
                 role="button"
                 tabIndex={0}
                 onClick={() => {

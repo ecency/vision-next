@@ -56,7 +56,7 @@ export const DeckThreadsFormControl = ({
             <div className="type">image</div>
             <Image width={1000} height={1000} src={selectedImage} alt="" />
             <div
-              className="remove"
+              className="remove [&>svg]:size-4"
               role="button"
               tabIndex={0}
               aria-label={i18next.t("g.delete", { defaultValue: "Remove" })}
@@ -77,7 +77,7 @@ export const DeckThreadsFormControl = ({
             <div className="type">video</div>
             {videoThumbnail && <Image width={1000} height={1000} src={videoThumbnail} alt="" />}
             <div
-              className="remove"
+              className="remove [&>svg]:size-4"
               role="button"
               tabIndex={0}
               aria-label={i18next.t("g.delete", { defaultValue: "Remove" })}

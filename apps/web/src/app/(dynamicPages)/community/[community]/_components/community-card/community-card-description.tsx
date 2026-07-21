@@ -26,7 +26,7 @@ export function CommunityCardDescription({ community, toggleInfo }: Props) {
   return description ? (
     <div className="community-section">
       <div
-        className="section-header"
+        className="section-header [&>svg]:size-3.5 md:[&>svg]:size-4"
         role="button"
         tabIndex={0}
         onClick={() => {

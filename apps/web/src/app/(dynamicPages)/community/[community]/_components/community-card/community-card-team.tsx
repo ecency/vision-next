@@ -38,7 +38,7 @@ export function CommunityCardTeam({ community, toggleInfo }: Props) {
   return (
     <div className="community-section section-team">
       <div
-        className="section-header"
+        className="section-header [&>svg]:size-3.5 md:[&>svg]:size-4"
         role="button"
         tabIndex={0}
         onClick={() => toggleInfo({ title: i18next.t("community-card.team"), content: team })}

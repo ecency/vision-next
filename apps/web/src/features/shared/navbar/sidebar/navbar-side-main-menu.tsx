@@ -87,13 +87,13 @@ export function NavbarSideMainMenu({ onHide }: Props) {
         {
           label: i18next.t("user-nav.profile"),
           to: `/@${activeUser?.username}`,
-          icon: <UilUser size={16} />,
+          icon: <UilUser className="size-4" />,
           onClick: () => onHide()
         },
         {
           label: i18next.t("user-nav.wallet"),
           to: `/@${activeUser?.username}/wallet`,
-          icon: <UilWallet size={16} />,
+          icon: <UilWallet className="size-4" />,
           onClick: () => onHide()
         },
         ...EcencyConfigManager.composeConditionals(
@@ -102,7 +102,7 @@ export function NavbarSideMainMenu({ onHide }: Props) {
             () => ({
               label: i18next.t("user-nav.drafts"),
               onClick: () => setDrafts(!drafts),
-              icon: <UilDocumentInfo size={16} />
+              icon: <UilDocumentInfo className="size-4" />
             })
           ),
           EcencyConfigManager.withConditional(
@@ -110,7 +110,7 @@ export function NavbarSideMainMenu({ onHide }: Props) {
             () => ({
               label: i18next.t("user-nav.gallery"),
               onClick: () => setGallery(!gallery),
-              icon: <UilImages size={16} />
+              icon: <UilImages className="size-4" />
             })
           ),
           EcencyConfigManager.withConditional(
@@ -118,7 +118,7 @@ export function NavbarSideMainMenu({ onHide }: Props) {
             () => ({
               label: i18next.t("user-nav.bookmarks"),
               onClick: () => setBookmarks(!bookmarks),
-              icon: <UilFavorite size={16} />
+              icon: <UilFavorite className="size-4" />
             })
           ),
           EcencyConfigManager.withConditional(
@@ -126,7 +126,7 @@ export function NavbarSideMainMenu({ onHide }: Props) {
             () => ({
               label: i18next.t("user-nav.schedules"),
               onClick: () => setSchedules(!schedules),
-              icon: <UilClock size={16} />
+              icon: <UilClock className="size-4" />
             })
           ),
           EcencyConfigManager.withConditional(
@@ -134,7 +134,7 @@ export function NavbarSideMainMenu({ onHide }: Props) {
             () => ({
               label: i18next.t("user-nav.fragments"),
               onClick: () => setFragments(!fragments),
-              icon: <UilArchive size={16} />
+              icon: <UilArchive className="size-4" />
             })
           )
         ),
@@ -142,12 +142,12 @@ export function NavbarSideMainMenu({ onHide }: Props) {
           label: i18next.t("user-nav.settings"),
           to: `/@${activeUser?.username}/settings`,
           onClick: () => onHide(),
-          icon: <UilSetting size={16} />
+          icon: <UilSetting className="size-4" />
         },
         {
           label: i18next.t("user-nav.mobile-login", { defaultValue: "Login to Mobile" }),
           onClick: () => setMobileLogin(true),
-          icon: <UilQrcodeScan size={16} />
+          icon: <UilQrcodeScan className="size-4" />
         }
       ] as MenuItem[],
     [activeUser?.username, bookmarks, drafts, fragments, gallery, onHide, schedules]
@@ -164,13 +164,13 @@ export function NavbarSideMainMenu({ onHide }: Props) {
           label={i18next.t("market.swap-title")}
           to="/market/swap"
           onClick={onHide}
-          icon={<UilMoneyWithdraw size={16} />}
+          icon={<UilMoneyWithdraw className="size-4" />}
         />
         <NavbarSideMainMenuItem
           label={i18next.t("market.advanced-title")}
           to="/market/advanced"
           onClick={onHide}
-          icon={<UilDashboard size={16} />}
+          icon={<UilDashboard className="size-4" />}
         />
         <hr className="my-2 border-[--border-color]" />
         <NavbarSideMainMenuItem
@@ -182,7 +182,7 @@ export function NavbarSideMainMenu({ onHide }: Props) {
           onPointerEnter={preloadLoginDialog}
           onPointerDown={preloadLoginDialog}
           onFocus={preloadLoginDialog}
-          icon={<UilSignin size={16} />}
+          icon={<UilSignin className="size-4" />}
         />
         <NavbarSideMainLogout />
       </div>

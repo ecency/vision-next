@@ -57,7 +57,7 @@ export function CommunityCardEditPic({ account, onUpdate }: EditPicProps) {
     <>
       <Tooltip content={i18next.t("community-card.profile-image-edit")}>
         <div
-          className="edit-button"
+          className="edit-button [&>svg]:size-4"
           role="button"
           tabIndex={0}
           aria-label={i18next.t("community-card.profile-image-edit")}

@@ -32,11 +32,11 @@ export function NavbarSideUserInfo() {
         <div className="font-semibold">{username}</div>
         <div className="flex flex-col text-xs">
           <div className="flex items-center">
-            <div className="[&>svg]:w-4 text-blue-dark-sky">
+            <div className="[&>svg]:size-4 text-blue-dark-sky">
               {chevronUpSvg}
               {upPower === null ? "--" : upPower.toFixed(2)}%
             </div>
-            <div className="[&>svg]:w-4 [&>svg]:rotate-180 text-red">
+            <div className="[&>svg]:size-4 [&>svg]:rotate-180 text-red">
               {chevronUpSvg}
               {downPower === null ? "--" : downPower.toFixed(2)}%
             </div>

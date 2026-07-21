@@ -25,7 +25,7 @@ export function DiscoverPeriodDropdown() {
     <Dropdown>
       <DropdownToggle>
         <Button
-          icon={<SliderChevron direction="down" />}
+          icon=<SliderChevron direction="down" />
           iconPlacement="right"
           size="sm"
           appearance="gray-link"

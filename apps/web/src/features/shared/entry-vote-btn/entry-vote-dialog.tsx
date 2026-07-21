@@ -215,18 +215,20 @@ export function EntryVoteDialog({
 
   return (
     <>
+      {/* The [&_svg] sink replaces the deleted btn-vote mixin svg rule that
+          sized the banner's alert icon to 14px inside this dialog. */}
       {!isPaidOut && (
-        <RcPrecheckBanner operation="vote_operation" compact className="mb-2" />
+        <RcPrecheckBanner operation="vote_operation" compact className="mb-2 [&_svg]:size-3.5" />
       )}
       {!isPaidOut && mode === "up" && (
         <>
           <div className="voting-controls voting-controls-up">
-            {isVotingLoading ? <Spinner /> : (
+            {isVotingLoading ? <Spinner className="!size-3.5" /> : (
               <Button
                 noPadding={true}
                 className="w-8"
                 size="xs"
-                icon={<SliderChevron direction="up" />}
+                icon=<SliderChevron direction="up" />
                 onClick={upVoteClicked}
                 outline={true}
                 aria-label={i18next.t("entry-list-item.upvote", { defaultValue: "Upvote" })}
@@ -252,7 +254,7 @@ export function EntryVoteDialog({
                 appearance="danger"
                 outline={true}
                 size="xs"
-                icon={<SliderChevron direction="down" />}
+                icon=<SliderChevron direction="down" />
                 onClick={() => setMode("down")}
                 aria-label={i18next.t("entry-list-item.switch-to-downvote", { defaultValue: "Switch to downvote" })}
               />
@@ -284,7 +286,7 @@ export function EntryVoteDialog({
                 noPadding={true}
                 className="w-8"
                 size="xs"
-                icon={<SliderChevron direction="up" />}
+                icon=<SliderChevron direction="up" />
                 onClick={() => setMode("up")}
                 outline={true}
                 aria-label={i18next.t("entry-list-item.switch-to-upvote", { defaultValue: "Switch to upvote" })}
@@ -307,14 +309,14 @@ export function EntryVoteDialog({
             </div>
             <div className="space" />
             <div className="percentage" />
-            {isVotingLoading ? <Spinner /> : (
+            {isVotingLoading ? <Spinner className="!size-3.5" /> : (
               <Button
                 noPadding={true}
                 className="w-8"
                 size="xs"
                 appearance="danger"
                 outline={true}
-                icon={<SliderChevron direction="down" />}
+                icon=<SliderChevron direction="down" />
                 onClick={downVoteClicked}
                 aria-label={i18next.t("entry-list-item.downvote", { defaultValue: "Downvote" })}
               />

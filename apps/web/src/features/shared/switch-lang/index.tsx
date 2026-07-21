@@ -26,7 +26,7 @@ export function SwitchLang({ label, onSelect }: Props) {
       <div className="hidden">{trigger}</div>
       <Dropdown>
         <DropdownToggle>
-          <Button size="sm" className="uppercase" appearance="link" icon={<SliderChevron direction="down" />}>
+          <Button size="sm" className="uppercase" appearance="link" icon=<SliderChevron direction="down" />>
             {label ?? lang.split("-")[0]}
           </Button>
         </DropdownToggle>

@@ -96,7 +96,7 @@ export function EntryTipBtn({
       className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-dark-sky text-white text-sm font-medium hover:opacity-80 transition-opacity cursor-pointer"
       onClick={openTransferDialog}
     >
-      {giftOutlineSvg}
+      <span className="inline-flex shrink-0 size-3.5 [&>svg]:size-full">{giftOutlineSvg}</span>
       {i18next.t("entry-tip.tip")}
     </button>
   );

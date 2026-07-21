@@ -512,7 +512,7 @@ export function TransactionRow({ entry, transaction: item }: Props) {
   if (flag) {
     return (
       <div className="transaction-list-item">
-        <div className="transaction-icon">{icon}</div>
+        <div className="transaction-icon [&>svg]:size-4">{icon}</div>
         <div className="transaction-title">
           <div className="transaction-name">{i18next.t(`transactions.type-${tr.type}`)}</div>
           <div className="transaction-date">{dateToFullRelative(tr.timestamp)}</div>

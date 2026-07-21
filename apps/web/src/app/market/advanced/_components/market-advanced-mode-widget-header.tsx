@@ -31,7 +31,7 @@ export const MarketAdvancedModeWidgetHeader = ({
               <div className="flex items-center ml-3">
                 {typeof title === "string" ? (
                   <>
-                    {icon ? <div className="icon mr-2">{icon}</div> : <></>}
+                    {icon ? <div className="icon mr-2 size-5 [&>svg]:size-full">{icon}</div> : <></>}
                     <div className="header-title">{title}</div>
                   </>
                 ) : (
@@ -49,7 +49,7 @@ export const MarketAdvancedModeWidgetHeader = ({
               eventKey="0"
               noPadding={true}
               onClick={() => setExpandedHeader(!expandedHeader)}
-              icon={<SliderChevron direction="down" />}
+              icon=<SliderChevron direction="down" />
               iconClassName="transition-transform duration-200 [[data-open=true]_&]:rotate-180"
             />
           ) : (

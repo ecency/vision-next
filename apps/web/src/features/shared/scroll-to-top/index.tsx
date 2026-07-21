@@ -45,7 +45,7 @@ export function ScrollToTop() {
   return (
     <Tooltip content={i18next.t("scroll-to-top.title")}>
       <div
-        className={clsx("scroll-to-top", visible && "visible", hidden && "navbar-hidden")}
+        className={clsx("scroll-to-top [&>svg]:size-5", visible && "visible", hidden && "navbar-hidden")}
         role="button"
         tabIndex={0}
         aria-label={i18next.t("scroll-to-top.title")}
