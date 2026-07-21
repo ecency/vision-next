@@ -61,8 +61,12 @@ export async function POST(req: Request) {
     // there, so surfacing them here would let a user open a channel that then
     // disappears from their sidebar. Their display names can also collide with
     // a real community channel, making the two results indistinguishable.
+    // A non-array body is an upstream anomaly, not an empty result set. Pass it
+    // through unchanged so callers can still tell the two apart.
     return NextResponse.json({
-      channels: (channels || []).filter((channel) => !isMattermostDefaultChannel(channel))
+      channels: Array.isArray(channels)
+        ? channels.filter((channel) => !isMattermostDefaultChannel(channel))
+        : channels
     });
   } catch (error) {
     if (isMattermostUnauthorizedError(error)) {
