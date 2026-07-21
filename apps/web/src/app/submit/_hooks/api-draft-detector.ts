@@ -87,14 +87,16 @@ export function useApiDraftDetector(
     // This prevents stale cache updates (from concurrent auto-save responses or
     // server refetch with replication lag) from incorrectly triggering "no draft found".
     if (hasLoadedRef.current) return;
-    // Only a successfully fetched list proves a draft is gone. While the query is
-    // pending, or when it failed (private API 5xx, expired token), the absence of the
-    // draft says nothing, so the editor is left alone rather than rejecting the draft.
-    if (!draftsQuery.isSuccess) return;
-    if (draftId && drafts.length > 0 && !existingDraft) {
+    // Only a settled, successful list proves a draft is gone. While the query is pending
+    // or refetching, and when it failed (private API 5xx, expired token — `status` becomes
+    // "error" even if stale data is retained), the absence of the draft says nothing, so
+    // the editor is left alone rather than rejecting the draft. A successful *empty* list
+    // is still proof: it belongs to a user who simply has no drafts.
+    if (!draftsQuery.isSuccess || draftsQuery.isFetching) return;
+    if (draftId && !existingDraft) {
       onInvalidDraftRef.current();
     }
-  }, [draftId, draftsQuery.isSuccess, drafts.length, existingDraft]);
+  }, [draftId, draftsQuery.isSuccess, draftsQuery.isFetching, existingDraft]);
 
   useEffect(() => {
     // location change. only occurs once a draft picked on drafts dialog

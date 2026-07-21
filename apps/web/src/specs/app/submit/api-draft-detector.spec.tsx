@@ -110,4 +110,26 @@ describe("useApiDraftDetector", () => {
     await waitFor(() => expect(onInvalidDraft).toHaveBeenCalledTimes(1));
     expect(onDraftLoaded).not.toHaveBeenCalled();
   });
+
+  // A user with no drafts opening a stale draft URL still has to reach the no-draft
+  // state: a successful empty list proves the draft is absent just as a populated one does.
+  it("reports an invalid draft when the list loads empty", async () => {
+    draftsQueryFn.mockResolvedValue([]);
+
+    const { onDraftLoaded, onInvalidDraft } = setup("draft-1");
+
+    await waitFor(() => expect(onInvalidDraft).toHaveBeenCalledTimes(1));
+    expect(onDraftLoaded).not.toHaveBeenCalled();
+  });
+
+  it("does not report an invalid draft when no draft is being edited", async () => {
+    draftsQueryFn.mockResolvedValue([]);
+
+    const { onInvalidDraft, queryClient } = setup(undefined);
+
+    await waitFor(() =>
+      expect(queryClient.getQueryState(["posts", "drafts", undefined])?.status).toBe("success")
+    );
+    expect(onInvalidDraft).not.toHaveBeenCalled();
+  });
 });
