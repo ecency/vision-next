@@ -183,6 +183,10 @@ export function beforeSend(event: SentryErrorEvent): SentryErrorEvent | null {
   //   Chrome ≤116  "Cannot read property 'parentNode' of null"
   //   Chrome 117+  "Cannot read properties of null (reading 'parentNode')"
   //   Firefox      `can't access property "parentNode", a is null`
+  //                (Firefox uses typographic/curly double-quotes \u201c\u201d in
+  //                 its error messages, not ASCII straight quotes)
+  //   Firefox mix. `can't access property \u201cparentNode\u201d, b is null`
+  //                (property name unminified, resume variable minified to one letter)
   //   Firefox min. "b is null"  (the resume var is minified to a single letter)
   //   Safari       "null is not an object (evaluating 'a.parentNode')"
   // RECLASSIFY (not drop) to ONE low-severity, fingerprinted issue. Sentry groups
@@ -196,6 +200,11 @@ export function beforeSend(event: SentryErrorEvent): SentryErrorEvent | null {
     message.includes("reading 'parentNode'") ||
     message.includes("property 'parentNode'") ||
     message.includes('"parentNode"') ||
+    // Firefox uses typographic curly quotes (\u201c / \u201d) in error messages.
+    // Covers both the fully-unminified form `can't access property \u201cparentNode\u201d, a is null`
+    // and the mixed form where the variable is minified but the property name is not
+    // (e.g. ECENCY-NEXT-1C6V: `can't access property \u201cparentNode\u201d, b is null`).
+    /can't access property [\u201c"]parentNode[\u201d"], [a-z] is null/.test(message) ||
     /null is not an object \(evaluating '[a-z]\.parentNode'\)/.test(message);
   const isMinifiedNull =
     /^[a-z] is null$/i.test(message) || // Firefox minified "b is null"
