@@ -8624,8 +8624,16 @@ declare function getHiveEngineOrderBook<T = EngineOrderBookEntry>(symbol: string
 }>;
 declare function getHiveEngineTradeHistory<T = Record<string, unknown>>(symbol: string, limit?: number): Promise<T[]>;
 declare function getHiveEngineOpenOrders<T = HiveEngineOpenOrder>(account: string, symbol: string, limit?: number): Promise<T[]>;
-declare function getHiveEngineMetrics<T = Record<string, unknown>>(symbol?: string, account?: string): Promise<T[]>;
-declare function getHiveEngineTokensMarket<T = Record<string, unknown>>(account?: string, symbol?: string): Promise<T[]>;
+/**
+ * Market metrics, optionally narrowed to one symbol or to a list of them.
+ *
+ * An unfiltered call is served from a single page – the node caps `find` at 1000 rows
+ * while Hive engine has far more traded tokens than that – so callers that only care
+ * about specific symbols must pass them. Scanning the unfiltered page for a symbol
+ * silently reports "no market" for everything outside it.
+ */
+declare function getHiveEngineMetrics<T = Record<string, unknown>>(symbol?: string | string[], account?: string): Promise<T[]>;
+declare function getHiveEngineTokensMarket<T = Record<string, unknown>>(account?: string, symbol?: string | string[]): Promise<T[]>;
 declare function getHiveEngineTokensBalances<T = Record<string, unknown>>(username: string): Promise<T[]>;
 declare function getHiveEngineTokensMetadata<T = Record<string, unknown>>(tokens: string[]): Promise<T[]>;
 declare function getHiveEngineTokenTransactions<T = Record<string, unknown>>(username: string, symbol: string, limit: number, offset: number): Promise<T[]>;
@@ -8726,10 +8734,10 @@ declare function getHiveEngineUnclaimedRewardsQueryOptions(username: string | un
     };
 };
 
-declare function getAllHiveEngineTokensQueryOptions(account?: string, symbol?: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<HiveEngineTokenInfo[], Error, HiveEngineTokenInfo[], readonly ["assets", "hive-engine", "all-tokens", string | undefined, string | undefined]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<HiveEngineTokenInfo[], readonly ["assets", "hive-engine", "all-tokens", string | undefined, string | undefined], never> | undefined;
+declare function getAllHiveEngineTokensQueryOptions(account?: string, symbol?: string | string[]): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<HiveEngineTokenInfo[], Error, HiveEngineTokenInfo[], readonly ["assets", "hive-engine", "all-tokens", string | undefined, string | string[] | undefined]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<HiveEngineTokenInfo[], readonly ["assets", "hive-engine", "all-tokens", string | undefined, string | string[] | undefined], never> | undefined;
 } & {
-    queryKey: readonly ["assets", "hive-engine", "all-tokens", string | undefined, string | undefined] & {
+    queryKey: readonly ["assets", "hive-engine", "all-tokens", string | undefined, string | string[] | undefined] & {
         [dataTagSymbol]: HiveEngineTokenInfo[];
         [dataTagErrorSymbol]: Error;
     };
