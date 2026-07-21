@@ -3,7 +3,7 @@
  "rules": [
   {
    "key": "apps/web/src/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/comment-engagement/_index.scss | svg | height: 24px",
-   "status": "B3"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/app/(dynamicPages)/entry/[category]/[author]/[permlink]/entry.scss | svg | height: 17px",
@@ -51,23 +51,23 @@
   },
   {
    "key": "apps/web/src/app/_components/market-data/_index.scss | svg | width: 20px",
-   "status": "B3"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/app/decks/_components/_deck-toolbar.scss | svg | width: 1.5rem",
-   "status": "B2"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/app/decks/_components/_deck-toolbar.scss | svg | height: 1.5rem",
-   "status": "B2"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/app/decks/_components/_deck.scss | .footer-icons svg | width: 18px",
-   "status": "B3"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/app/decks/_components/_deck.scss | .footer-icons svg | height: 18px",
-   "status": "B3"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/app/decks/_components/_deck.scss | svg | width: 1rem",
@@ -79,7 +79,7 @@
   },
   {
    "key": "apps/web/src/app/decks/_components/columns/add-column/_deck-add-column.scss | svg | width: 2rem",
-   "status": "B3"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/app/decks/_components/columns/content-viewer/_deck-post-viewer.scss | svg | width: 1rem",
@@ -91,35 +91,35 @@
   },
   {
    "key": "apps/web/src/app/decks/_components/deck-settings/_decks-settings.scss | svg | width: 1rem",
-   "status": "B2"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/app/decks/_components/deck-toolbar/_deck-toolbar-manager.scss | svg | width: 1.5rem",
-   "status": "B2"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/app/decks/_components/deck-toolbar/_deck-toolbar-manager.scss | svg | height: 1.5rem",
-   "status": "B2"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/app/market/index.scss | .footer-icons svg | width: 18px",
-   "status": "B3"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/app/market/index.scss | .footer-icons svg | height: 18px",
-   "status": "B3"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/app/proposals/_components/proposal-list-item/_index.scss | svg | height: 16px",
-   "status": "B3"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/app/submit/_components/community-selector/_index.scss | svg | height: 22px",
-   "status": "B3"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/app/submit/_index.scss | svg | width: 25px",
-   "status": "B3"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/app/waves/_components/waves-reel-item.scss | svg | height: 26px",
@@ -131,7 +131,7 @@
   },
   {
    "key": "apps/web/src/app/witnesses/page.scss | svg | height: 16px",
-   "status": "B3"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/features/market/market-swap-form/index.scss | > div, > div > svg | width: auto !important",
@@ -147,47 +147,47 @@
   },
   {
    "key": "apps/web/src/features/shared/discussion/_index.scss | svg | height: 24px",
-   "status": "B3"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/features/shared/discussion/_index.scss | svg | height: 16px",
-   "status": "B3"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/features/shared/discussion/_index.scss | svg | height: 14px",
-   "status": "B3"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/features/shared/edit-history/index.scss | svg | height: 20px",
-   "status": "B2"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/features/shared/edit-history/index.scss | svg | height: 16px",
-   "status": "B2"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/features/shared/editor-toolbar/_index.scss | svg | height: 22px",
-   "status": "B3"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/features/shared/editor-toolbar/_index.scss | svg | height: 18px",
-   "status": "B3"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/features/shared/entry-menu/_index.scss | svg | height: 18px",
-   "status": "B3"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/features/shared/entry-menu/_index.scss | svg | width: 18px",
-   "status": "B3"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/features/shared/entry-menu/_index.scss | svg | height: 17px",
-   "status": "B3"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/features/shared/entry-menu/_index.scss | svg | width: 17px",
-   "status": "B3"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/features/shared/entry-reblog-btn/_index.scss | svg | height: 16px",
@@ -215,27 +215,27 @@
   },
   {
    "key": "apps/web/src/features/shared/notifications/_index.scss | svg | height: 18px",
-   "status": "B3"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/features/shared/notifications/_index.scss | .select-svg | height: 14px",
-   "status": "B3"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/features/shared/notifications/_index.scss | svg | height: 14px",
-   "status": "B3"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/features/shared/notifications/_index.scss | .mark-svg | height: 22px",
-   "status": "B3"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/features/shared/notifications/_index.scss | svg | height: 22px",
-   "status": "B3"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/features/shared/search-box/_index.scss | svg | width: 22px",
-   "status": "B3"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/features/shared/search-list-item/_index.scss | svg | height: 14px !important",
@@ -271,15 +271,15 @@
   },
   {
    "key": "apps/web/src/styles/_base.scss | .btn svg | width: 20px",
-   "status": "B3"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/styles/_base.scss | .svg-icon | height: 16px",
-   "status": "B3"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/styles/_base.scss | svg | height: 16px",
-   "status": "B3"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/styles/_mixins.scss | svg | height: 16px",
@@ -295,7 +295,7 @@
   },
   {
    "key": "apps/web/src/styles/static-pages.scss | svg | height: 12px",
-   "status": "B2"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/app/(dynamicPages)/community/[community]/_components/community-card/_index.scss | svg | height: 16px",

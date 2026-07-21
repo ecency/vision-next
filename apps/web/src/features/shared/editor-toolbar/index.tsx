@@ -293,7 +293,13 @@ export function EditorToolbar({
 
   return (
     <>
-      <div id="editor-toolbar" className={`editor-toolbar ${sm ? "toolbar-sm" : ""}`} ref={rootRef}>
+      <div
+        id="editor-toolbar"
+        className={
+          sm ? "editor-toolbar toolbar-sm [&_svg]:size-4" : "editor-toolbar [&_svg]:size-5"
+        }
+        ref={rootRef}
+      >
         <Tooltip content={i18next.t("editor-toolbar.bold")}>
           <div
             className="editor-tool"

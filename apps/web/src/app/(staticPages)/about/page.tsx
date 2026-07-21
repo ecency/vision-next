@@ -101,7 +101,7 @@ export default function About() {
           <h2 className="contacts-title">{i18next.t("static.about.contact-title")}</h2>
           <div className="contacts-links">
             <a
-              className="contacts-link"
+              className="contacts-link [&>svg]:size-3"
               target="_blank"
               href="https://ecency.com/@good-karma"
               rel="noopener noreferrer"
@@ -109,7 +109,7 @@ export default function About() {
               {blogSvg} {i18next.t("static.about.contact-blog")}
             </a>
             <a
-              className="contacts-link"
+              className="contacts-link [&>svg]:size-3"
               target="_blank"
               href="https://ecency.com/@ecency"
               rel="noopener noreferrer"
@@ -117,7 +117,7 @@ export default function About() {
               {newsSvg} {i18next.t("static.about.contact-news")}
             </a>
             <a
-              className="contacts-link"
+              className="contacts-link [&>svg]:size-3"
               target="_blank"
               href="mailto:hello@ecency.com?subject=Feedback"
               rel="noopener noreferrer"
@@ -125,7 +125,7 @@ export default function About() {
               {mailSvg} {i18next.t("static.about.contact-email")}
             </a>
             <a
-              className="contacts-link"
+              className="contacts-link [&>svg]:size-3"
               target="_blank"
               href="https://twitter.com/ecency_official"
               rel="noopener noreferrer"
@@ -133,7 +133,7 @@ export default function About() {
               {twitterSvg} Twitter
             </a>
             <a
-              className="contacts-link"
+              className="contacts-link [&>svg]:size-3"
               target="_blank"
               href="https://github.com/ecency"
               rel="noopener noreferrer"
@@ -141,7 +141,7 @@ export default function About() {
               {githubSvg} Github
             </a>
             <a
-              className="contacts-link"
+              className="contacts-link [&>svg]:size-3"
               target="_blank"
               href="https://t.me/ecency"
               rel="noopener noreferrer"
@@ -149,7 +149,7 @@ export default function About() {
               {telegramSvg} Telegram
             </a>
             <a
-              className="contacts-link"
+              className="contacts-link [&>svg]:size-3"
               target="_blank"
               href="https://discord.me/ecency"
               rel="noopener noreferrer"

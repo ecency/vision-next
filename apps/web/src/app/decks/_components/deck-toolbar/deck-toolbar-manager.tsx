@@ -25,7 +25,7 @@ export const DeckToolbarManager = ({ isExpanded }: Props) => {
           appearance="link"
           className="add-deck-btn"
           onClick={() => setShowDecksSettings(true)}
-          icon={addIconSvg}
+          icon={<span className="inline-flex !size-6 [&>svg]:size-full">{addIconSvg}</span>}
           aria-label={i18next.t("decks.add-deck", { defaultValue: "Add deck" })}
         />
       </div>

@@ -246,7 +246,7 @@ export function Promote({ onHide, entry }: Props) {
               {inProgress && <LinearProgress />}
               <div className="transaction-form-body">
                 <p className="flex justify-center align-content-center">
-                  <span className="svg-icon text-green">{checkAllSvg}</span>{" "}
+                  <span className="svg-icon text-green [&>svg]:size-4">{checkAllSvg}</span>{" "}
                   {i18next.t("redeem-common.success-message")}
                 </p>
                 <div className="flex justify-center">

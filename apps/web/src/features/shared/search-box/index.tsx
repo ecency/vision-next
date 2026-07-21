@@ -53,7 +53,11 @@ export function SearchBox({ showcopybutton, value, username, filter, ...other }:
           </InputGroup>
         </div>
       ) : (
-        <InputGroup prepend={searchIconSvg}>
+        <InputGroup
+          prepend={
+            <span className="inline-flex !size-5 [&>svg]:size-full">{searchIconSvg}</span>
+          }
+        >
           <FormControl type="text" {...{ ...other, value: searchValue, username, filter }} />
         </InputGroup>
       )}

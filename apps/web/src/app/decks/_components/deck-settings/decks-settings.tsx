@@ -120,6 +120,7 @@ export const DecksSettings = ({ show, setShow, deck }: Props) => {
                     <Button
                       ref={anchorRef}
                       appearance="link"
+                      className="[&_svg]:size-4"
                       onClick={() => {
                         setShowEmoji(!showEmoji);
                       }}

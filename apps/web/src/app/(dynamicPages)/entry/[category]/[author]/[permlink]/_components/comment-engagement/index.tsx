@@ -13,7 +13,7 @@ export function CommentEngagement() {
   };
   return (
     <div className="comment-engagement">
-      <div className="icon">{commentSvg}</div>
+      <div className="icon [&>svg]:size-6 [&>svg]:-mb-0.5">{commentSvg}</div>
       <div className="label">{i18next.t("discussion.no-conversation")}</div>
       <Button id="scroll-to-input" onClick={scrollToCommentInput}>
         {i18next.t("discussion.start-conversation")}

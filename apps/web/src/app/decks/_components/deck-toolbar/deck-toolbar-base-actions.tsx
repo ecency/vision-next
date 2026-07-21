@@ -31,7 +31,7 @@ export const DeckToolbarBaseActions = ({ setShowPurchaseDialog }: Props) => {
   const [showMainSide, setShowMainSide] = useState(false);
 
   return (
-    <div className="base-actions">
+    <div className="base-actions [&_svg]:size-6">
       {activeUser && (
         <>
           <EcencyConfigManager.Conditional

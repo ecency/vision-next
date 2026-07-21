@@ -70,7 +70,7 @@ export const WitnessCard = ({ row, witness, onVotersClick }: Props) => {
         <b>{i18next.t("witnesses.list-miss")}: </b>
         <div className="ml-2">{row.miss}</div>{" "}
         <div>
-          <a target="_external" rel="nofollow ugc noopener" href={row.url} className="witness-link ml-3">
+          <a target="_external" rel="nofollow ugc noopener" href={row.url} className="witness-link ml-3 [&>svg]:size-4">
             {openInNewSvg}
           </a>
         </div>

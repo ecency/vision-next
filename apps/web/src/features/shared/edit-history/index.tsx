@@ -104,7 +104,7 @@ export function EditHistory({ onHide, entry }: Props) {
                       }
                     }}
                   >
-                    <div className="item-icon">{historySvg}</div>
+                    <div className="item-icon [&>svg]:size-5">{historySvg}</div>
                     <div className="item-title">
                       {i18next.t("edit-history.version", { n: i.v })}
                     </div>
@@ -120,7 +120,7 @@ export function EditHistory({ onHide, entry }: Props) {
                   __html: showDiff ? selectedItem.titleDiff! : selectedItem.title
                 }}
               />
-              <div className="entry-tags">
+              <div className="entry-tags [&>svg]:size-4">
                 {tagSvg}{" "}
                 <span
                   dangerouslySetInnerHTML={{

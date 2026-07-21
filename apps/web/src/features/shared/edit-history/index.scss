@@ -116,10 +116,6 @@
             grid-row-end: 4;
             justify-content: center;
             @apply text-gray-steel-010;
-
-            svg {
-              height: 20px;
-            }
           }
 
           .item-title {
@@ -164,7 +160,6 @@
           align-items: center;
 
           svg {
-            height: 16px;
             margin-right: 6px;
           }
         }

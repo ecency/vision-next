@@ -34,7 +34,7 @@ export const WalletBadge = ({ icon }: { icon: ReactNode }) => {
             : i18next.t("user-nav.wallet")
         }
       >
-        <Link href={`/@${username}/wallet`} className="user-wallet">
+        <Link href={`/@${username}/wallet`} className="user-wallet inline-flex [&_svg]:size-6">
           {hasUnclaimedRewards && <span className="reward-badge" />}
           {icon ?? creditCardSvg}
         </Link>
