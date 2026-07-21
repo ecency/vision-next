@@ -12,7 +12,10 @@
     width: 100%;
     border-bottom: 1px solid $border-color;
     position: sticky;
-    top: 0;
+    // The column header is absolutely positioned over the first 67px of the column
+    // (.wb-container pads for it), so top: 0 parked the tabs behind it while scrolling.
+    top: 67px;
+    z-index: 8;
     backdrop-filter: blur(1rem);
 
     @include themify(day) {

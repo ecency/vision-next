@@ -206,7 +206,7 @@ export const DeckWalletBalanceColumn = ({
         updateIntervalMs: updateIntervalMs,
         setUpdateIntervalMs: (v) => updateColumnIntervalMs(id, v)
       }}
-      isReloading={false}
+      isReloading={pointsLoading || hiveLoading || engineLoading}
       onReload={() => fetch()}
     >
       <div className="wb-container">
@@ -226,7 +226,7 @@ export const DeckWalletBalanceColumn = ({
                 }
               }}
             >
-              {t}
+              {i18next.t(`decks.columns.balance-tab-${t}`)}
             </div>
           ))}
         </div>

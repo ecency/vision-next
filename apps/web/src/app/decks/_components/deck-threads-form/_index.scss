@@ -110,6 +110,10 @@
 
   &-bottom {
     bottom: 0;
+
+    @include themify(night) {
+      @apply bg-dark-200;
+    }
   }
 
   &-footer {

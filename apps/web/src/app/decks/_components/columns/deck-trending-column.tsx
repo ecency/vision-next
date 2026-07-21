@@ -82,7 +82,7 @@ export const DeckTrendingColumn = ({ id, settings, draggable }: Props) => {
           <DeckPostViewer
             entry={currentViewingEntry}
             onClose={() => setCurrentViewingEntry(null)}
-            backTitle="Trending"
+            backTitle={i18next.t("decks.columns.trending")}
           />
         ) : (
           <></>

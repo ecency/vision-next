@@ -152,7 +152,10 @@ export const DeckManager = ({ children }: Props) => {
     }
   };
 
-  const getNextKey = () => Math.max(...layout.columns.map((c: DeckGridItem) => c.key)) + 1;
+  // Math.max() of an empty list is -Infinity, which used to become the key of the first
+  // column added back after deleting every column – breaking the scroll-to-new-column.
+  const getNextKey = () =>
+    layout.columns.length ? Math.max(...layout.columns.map((c: DeckGridItem) => c.key)) + 1 : 1;
 
   const add = (column: Omit<DeckGridItem, "id">) => {
     const layoutSnapshot = { ...layout, columns: [...layout.columns] };
@@ -253,7 +256,7 @@ export const DeckManager = ({ children }: Props) => {
 
       setDecks({ decks: decksSnapshot });
     } catch (e) {
-      error("Deck creating/updating failed. Please, try again");
+      error(i18next.t("decks.deck-save-error"));
     }
   };
 
@@ -281,7 +284,7 @@ export const DeckManager = ({ children }: Props) => {
         }
       }
     } catch (e) {
-      error("Deck deletion failed. Please, try again");
+      error(i18next.t("decks.deck-delete-error"));
     }
   };
 

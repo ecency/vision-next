@@ -144,7 +144,7 @@ export const GenericDeckWithDataColumn = ({
         </Button>
       </div>
       {isFirstLoaded &&
-        data.length &&
+        data.length > 0 &&
         (isVirtualScroll ? virtualScrollContent : nativeScrollContent)}
       {isFirstLoaded && data.length === 0 && (
         <div className="no-content [&>svg]:size-16">

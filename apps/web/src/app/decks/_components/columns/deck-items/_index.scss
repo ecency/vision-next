@@ -15,15 +15,22 @@
     &-header, &-parent {
       display: grid;
       grid-template-areas:
-        "avatar username date"
-        "avatar host date";
+        "avatar username badge date"
+        "avatar host badge date";
       grid-gap: 0 1rem;
-      grid-template-columns: 35px 1fr min-content;
+      grid-template-columns: 35px 1fr min-content min-content;
 
       @include padding(1rem);
 
       .user-avatar {
         grid-area: avatar;
+      }
+
+      // Without an explicit area the badge is auto-placed on a new implicit row,
+      // pushing an empty line under the avatar of every Ecency-published wave.
+      .ecency-source-badge {
+        grid-area: badge;
+        align-self: center;
       }
 
       .host {
@@ -257,6 +264,11 @@
           width: 100%;
           background-size: cover;
           @apply bg-white;
+
+          @include themify(night) {
+            @apply bg-dark-default;
+          }
+
           background-image: url(../../../../../../public/assets/noimage.png);
           background-position: center;
 
