@@ -40,9 +40,13 @@ export function useApiDraftDetector(
     onInvalidDraftRef.current = onInvalidDraft;
   }, [onDraftLoaded, onInvalidDraft]);
 
+  // `placeholderData: []` only applies while the query is pending, so a failed drafts
+  // request leaves `data` undefined. Everything below reads the list through this fallback.
+  const drafts = useMemo(() => draftsQuery.data ?? [], [draftsQuery.data]);
+
   const existingDraft = useMemo(() => {
     // First, try to find the draft in the regular query
-    const draftFromRegularQuery = (draftsQuery.data ?? []).find((draft) => draft._id === draftId);
+    const draftFromRegularQuery = drafts.find((draft) => draft._id === draftId);
     if (draftFromRegularQuery) {
       // The SDK query returns the SDK's Draft; the app keeps its own stricter local copy.
       return draftFromRegularQuery;
@@ -56,7 +60,7 @@ export function useApiDraftDetector(
 
     if (infiniteQueryData?.pages) {
       for (const page of infiniteQueryData.pages) {
-        const draft = page.data.find((d) => d._id === draftId);
+        const draft = page.data?.find((d) => d._id === draftId);
         if (draft) {
           return draft;
         }
@@ -64,7 +68,7 @@ export function useApiDraftDetector(
     }
 
     return undefined;
-  }, [draftId, draftsQuery.data, activeUser?.username, queryClient]);
+  }, [draftId, drafts, activeUser?.username, queryClient]);
 
   useEffect(() => {
     hasLoadedRef.current = false;
@@ -83,10 +87,14 @@ export function useApiDraftDetector(
     // This prevents stale cache updates (from concurrent auto-save responses or
     // server refetch with replication lag) from incorrectly triggering "no draft found".
     if (hasLoadedRef.current) return;
-    if (draftId && (draftsQuery.data ?? []).length > 0 && !existingDraft) {
+    // Only a successfully fetched list proves a draft is gone. While the query is
+    // pending, or when it failed (private API 5xx, expired token), the absence of the
+    // draft says nothing, so the editor is left alone rather than rejecting the draft.
+    if (!draftsQuery.isSuccess) return;
+    if (draftId && drafts.length > 0 && !existingDraft) {
       onInvalidDraftRef.current();
     }
-  }, [draftId, (draftsQuery.data ?? []).length, existingDraft]);
+  }, [draftId, draftsQuery.isSuccess, drafts.length, existingDraft]);
 
   useEffect(() => {
     // location change. only occurs once a draft picked on drafts dialog
