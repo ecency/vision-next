@@ -7,12 +7,16 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 // (the global @ecency/sdk mock has no drafts query factory) with a queryFn the
 // test controls.
 const draftsQueryFn = vi.fn();
+// The real factory disables the query without a username and an access token; flip this
+// to reproduce a signed-out / token-less editor.
+const draftsQueryState = { enabled: true };
 
 vi.mock("@ecency/sdk", () => ({
   getDraftsQueryOptions: (username?: string) =>
     queryOptions({
       queryKey: ["posts", "drafts", username],
-      queryFn: () => draftsQueryFn()
+      queryFn: () => draftsQueryFn(),
+      enabled: draftsQueryState.enabled
     }),
   QueryKeys: {
     posts: {
@@ -72,6 +76,7 @@ function setup(draftId: string | undefined) {
 describe("useApiDraftDetector", () => {
   beforeEach(() => {
     draftsQueryFn.mockReset();
+    draftsQueryState.enabled = true;
   });
 
   // Regression (Sentry ECENCY-NEXT-1FPT): `placeholderData: []` is only applied
@@ -119,6 +124,22 @@ describe("useApiDraftDetector", () => {
     const { onDraftLoaded, onInvalidDraft } = setup("draft-1");
 
     await waitFor(() => expect(onInvalidDraft).toHaveBeenCalledTimes(1));
+    expect(onDraftLoaded).not.toHaveBeenCalled();
+  });
+
+  // A disabled query keeps `placeholderData: []` and query-core reports that placeholder
+  // as status "success" with `isPlaceholderData: true`, so "success and idle" alone would
+  // read a signed-out editor as a loaded, empty drafts list and throw the draft away.
+  it("does not report an invalid draft while the query is disabled", async () => {
+    draftsQueryState.enabled = false;
+
+    const { onDraftLoaded, onInvalidDraft, queryClient } = setup("draft-1");
+
+    await waitFor(() =>
+      expect(queryClient.getQueryState(["posts", "drafts", undefined])?.fetchStatus).toBe("idle")
+    );
+    expect(draftsQueryFn).not.toHaveBeenCalled();
+    expect(onInvalidDraft).not.toHaveBeenCalled();
     expect(onDraftLoaded).not.toHaveBeenCalled();
   });
 

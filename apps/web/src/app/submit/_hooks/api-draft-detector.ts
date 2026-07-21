@@ -87,16 +87,25 @@ export function useApiDraftDetector(
     // This prevents stale cache updates (from concurrent auto-save responses or
     // server refetch with replication lag) from incorrectly triggering "no draft found".
     if (hasLoadedRef.current) return;
-    // Only a settled, successful list proves a draft is gone. While the query is pending
-    // or refetching, and when it failed (private API 5xx, expired token — `status` becomes
-    // "error" even if stale data is retained), the absence of the draft says nothing, so
-    // the editor is left alone rather than rejecting the draft. A successful *empty* list
-    // is still proof: it belongs to a user who simply has no drafts.
-    if (!draftsQuery.isSuccess || draftsQuery.isFetching) return;
+    // Only a settled list that a request actually returned proves a draft is gone. A
+    // successful *empty* list is such proof (the user simply has no drafts); a pending,
+    // refetching or failed query is not, and neither is a disabled one — query-core
+    // reports `placeholderData` as status "success", so a signed-out or token-less editor
+    // looks identical to a loaded empty list unless `isPlaceholderData` is checked too.
+    // Rejecting the draft in any of those states would discard the user's work.
+    if (!draftsQuery.isSuccess || draftsQuery.isPlaceholderData || draftsQuery.isFetching) {
+      return;
+    }
     if (draftId && !existingDraft) {
       onInvalidDraftRef.current();
     }
-  }, [draftId, draftsQuery.isSuccess, draftsQuery.isFetching, existingDraft]);
+  }, [
+    draftId,
+    draftsQuery.isSuccess,
+    draftsQuery.isPlaceholderData,
+    draftsQuery.isFetching,
+    existingDraft
+  ]);
 
   useEffect(() => {
     // location change. only occurs once a draft picked on drafts dialog
