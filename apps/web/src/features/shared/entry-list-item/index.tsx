@@ -120,11 +120,11 @@ export function EntryListItemComponent({
         <div className="item-header-features">
           {((community && !!entry.stats?.is_pinned) || entry.permlink === pinned) && (
             <Tooltip content={i18next.t("entry-list-item.pinned")}>
-              <span className="pinned">{pinSvg}</span>
+              <span className="pinned [&>svg]:size-4">{pinSvg}</span>
             </Tooltip>
           )}
           {reBlogged && (
-            <span className="reblogged">
+            <span className="reblogged [&>svg]:size-4">
               {repeatSvg} {i18next.t("entry-list-item.reblogged", { n: reBlogged })}
             </span>
           )}

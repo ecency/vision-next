@@ -7,7 +7,7 @@
   },
   {
    "key": "apps/web/src/app/(dynamicPages)/entry/[category]/[author]/[permlink]/entry.scss | svg | height: 17px",
-   "status": "B4"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/app/(dynamicPages)/feed/[...sections]/entry-index.scss | svg | height: 14px",
@@ -71,11 +71,11 @@
   },
   {
    "key": "apps/web/src/app/decks/_components/_deck.scss | svg | width: 1rem",
-   "status": "B4"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/app/decks/_components/_deck.scss | svg | height: 1rem",
-   "status": "B4"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/app/decks/_components/columns/add-column/_deck-add-column.scss | svg | width: 2rem",
@@ -83,11 +83,11 @@
   },
   {
    "key": "apps/web/src/app/decks/_components/columns/content-viewer/_deck-post-viewer.scss | svg | width: 1rem",
-   "status": "B4"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/app/decks/_components/columns/content-viewer/_deck-post-viewer.scss | svg | height: 1rem",
-   "status": "B4"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/app/decks/_components/deck-settings/_decks-settings.scss | svg | width: 1rem",
@@ -143,7 +143,7 @@
   },
   {
    "key": "apps/web/src/features/shared/bookmark-btn/_index.scss | svg | height: 20px",
-   "status": "B4"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/features/shared/discussion/_index.scss | svg | height: 24px",
@@ -191,7 +191,7 @@
   },
   {
    "key": "apps/web/src/features/shared/entry-reblog-btn/_index.scss | svg | height: 16px",
-   "status": "B4"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/features/shared/entry-share/_index.scss | svg | width: 28px",
@@ -203,15 +203,15 @@
   },
   {
    "key": "apps/web/src/features/shared/entry-tip-btn/_index.scss | svg | height: 16px",
-   "status": "B4"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/features/shared/entry-votes/_index.scss | svg | height: 14px",
-   "status": "B4"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/features/shared/entry-votes/_index.scss | svg | width: 14px",
-   "status": "B4"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/features/shared/notifications/_index.scss | svg | height: 18px",
@@ -239,7 +239,7 @@
   },
   {
    "key": "apps/web/src/features/shared/search-list-item/_index.scss | svg | height: 14px !important",
-   "status": "B4"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/features/shared/transfer/_index.scss | svg | height: 60px",
@@ -251,23 +251,23 @@
   },
   {
    "key": "apps/web/src/features/ui/input/_input-vote.scss | .entry-list-item .item-body .item-controls .ecency-vote-input svg | max-width: 16px",
-   "status": "B4"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/features/ui/input/_input-vote.scss | .entry-list-item .item-body .item-controls .ecency-vote-input svg | width: 16px",
-   "status": "B4"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/features/ui/input/_input-vote.scss | .entry-list-item .item-body .item-controls .ecency-vote-input svg | height: 16px !important",
-   "status": "B4"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/features/ui/input/_input-vote.scss | .entry-list-item .item-body .item-controls .ecency-vote-input svg | max-height: 16px",
-   "status": "B4"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/features/waves/components/wave-actions.scss | svg | @apply w-4 h-4",
-   "status": "B4"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/styles/_base.scss | .btn svg | width: 20px",
@@ -283,15 +283,15 @@
   },
   {
    "key": "apps/web/src/styles/_mixins.scss | svg | height: 16px",
-   "status": "B4"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/styles/_mixins.scss | svg | height: 16px",
-   "status": "B4"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/styles/_mixins.scss | svg | height: 14px !important",
-   "status": "B4"
+   "status": "deleted"
   },
   {
    "key": "apps/web/src/styles/static-pages.scss | svg | height: 12px",

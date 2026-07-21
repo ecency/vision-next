@@ -205,7 +205,7 @@ export const peopleSvg = (
   </svg>
 );
 
-export const heartSvg = <UilHeart size={16} />;
+export const heartSvg = <UilHeart />;
 
 export const commentSvg = <UilComment />;
 

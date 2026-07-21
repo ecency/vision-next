@@ -23,15 +23,20 @@ type SortOption = "reward" | "timestamp" | "voter" | "percent";
 
 interface Props {
   /** Icon sizing convention (docs/icons.md): a size-N sink class for the vote
-   *  icon, e.g. "size-4 [&>svg]:size-full". Undefined renders no class, leaving
-   *  the legacy .entry-votes svg CSS in charge (unchanged behaviour). */
+   *  icon, e.g. "size-4 [&>svg]:size-full". Defaults to "[&>svg]:size-3.5"
+   *  (14px), the feed/discussion tier; waves and decks pass the 16px form. */
   iconSizeClass?: string;
   entry: Entry;
   icon?: ReactNode;
   hideCount?: boolean;
 }
 
-export function EntryVotes({ entry: initialEntry, icon, hideCount = false, iconSizeClass }: Props) {
+export function EntryVotes({
+  entry: initialEntry,
+  icon,
+  hideCount = false,
+  iconSizeClass = "[&>svg]:size-3.5"
+}: Props) {
   const { data: entry } = useQuery(EcencyEntriesCacheManagement.getEntryQuery(initialEntry));
   const previousEntry = usePrevious(entry);
 

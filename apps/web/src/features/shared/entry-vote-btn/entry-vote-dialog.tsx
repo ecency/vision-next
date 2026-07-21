@@ -223,7 +223,7 @@ export function EntryVoteDialog({
       {!isPaidOut && mode === "up" && (
         <>
           <div className="voting-controls voting-controls-up">
-            {isVotingLoading ? <Spinner className="!size-3.5" /> : (
+            {isVotingLoading ? <Spinner className="size-3.5" /> : (
               <Button
                 noPadding={true}
                 className="w-8"
@@ -309,7 +309,7 @@ export function EntryVoteDialog({
             </div>
             <div className="space" />
             <div className="percentage" />
-            {isVotingLoading ? <Spinner className="!size-3.5" /> : (
+            {isVotingLoading ? <Spinner className="size-3.5" /> : (
               <Button
                 noPadding={true}
                 className="w-8"

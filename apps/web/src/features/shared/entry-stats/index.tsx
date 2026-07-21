@@ -16,9 +16,13 @@ import { EntryPageStatsItem } from "./entry-page-stats-item";
 
 interface Props {
   entry: Entry;
+  // Dense action rows (waves detail) size the eye at 16px instead of the
+  // Button slot's 20px. `!` is required: the slot's [&>svg]:size-5 ties a
+  // plain utility on specificity and wins on order.
+  iconClassName?: string;
 }
 
-export function EntryStats({ entry }: Props) {
+export function EntryStats({ entry, iconClassName }: Props) {
   const { activeUser } = useActiveAccount();
   const [showStats, setShowStats] = useState(false);
 
@@ -84,7 +88,7 @@ export function EntryStats({ entry }: Props) {
     <>
       <Button
         noPadding={true}
-        icon={<UilEye />}
+        icon={<UilEye className={iconClassName} />}
         iconPlacement="left"
         size="sm"
         appearance="gray-link"

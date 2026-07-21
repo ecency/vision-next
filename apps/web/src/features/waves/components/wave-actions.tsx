@@ -58,13 +58,20 @@ export function WaveActions({
           <div>
             <EntryVoteBtn entry={entry!} isPostSlider={false} />
             {showPayout && <EntryPayout entry={entry!} />}
-            {showStats && <EntryStats entry={entry!} />}
-            <EntryVotes entry={entry!} icon={voteSvg} hideCount={!showVoteSummary} />
+            {showStats && <EntryStats entry={entry!} iconClassName="!size-4" />}
+            <EntryVotes
+              entry={entry!}
+              icon={voteSvg}
+              hideCount={!showVoteSummary}
+              iconSizeClass="[&>svg]:size-4"
+            />
             <Button
               iconPlacement="left"
               size="sm"
               appearance="gray-link"
-              icon={commentSvg}
+              icon={
+                <span className="inline-flex !size-4 [&>svg]:size-full">{commentSvg}</span>
+              }
               onClick={() => onEntryView()}
               aria-label={i18next.t("waves.reply")}
               title={i18next.t("waves.reply")}
@@ -85,7 +92,7 @@ export function WaveActions({
           </div>
           <div>
             <TranslateChip entry={entry!} />
-            <EntryMenu entry={entry!} />
+            <EntryMenu entry={entry!} compact={true} />
             {activeUser?.username === entry?.author && (
               <Button className="edit-btn" appearance="link" onClick={() => onEdit(entry!)}>
                 {i18next.t("decks.columns.edit-wave")}

@@ -69,9 +69,11 @@ export const DeckPostViewer = ({ entry: initialEntry, onClose, backTitle }: Prop
       </div>
       <div className="bottom-actions p-3">
         <EntryVoteBtn entry={entry} isPostSlider={false} />
-        <EntryVotes entry={entry} icon={voteSvg} />
+        <EntryVotes entry={entry} icon={voteSvg} iconSizeClass="[&>svg]:size-4" />
         <div className="flex items-center comments">
-          <div style={{ paddingRight: 4 }}>{commentSvg}</div>
+          <div aria-hidden="true" className="inline-flex shrink-0 size-4 [&>svg]:size-full mr-1">
+            {commentSvg}
+          </div>
           {entry.children}
         </div>
         <EntryTipBtn entry={entry} />

@@ -70,7 +70,7 @@ export function BookmarkBtn({ entry }: Props) {
   const bookmarkIcon = (
     <NotificationBadgeIcon>
       <UilBookmark
-        className={bookmarkDone ? "animate-success-pulse" : undefined}
+        className={`size-5${bookmarkDone ? " animate-success-pulse" : ""}`}
         onAnimationEnd={() => setBookmarkDone(false)}
       />
     </NotificationBadgeIcon>

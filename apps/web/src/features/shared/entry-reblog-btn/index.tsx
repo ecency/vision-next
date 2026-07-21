@@ -83,7 +83,7 @@ export function EntryReblogBtn({ entry }: Props) {
             }}
         >
             <Tooltip content={reblogLabel}>
-                <a className="inner-btn" aria-hidden={true}>
+                <a className="inner-btn [&>svg]:size-4" aria-hidden={true}>
                     {repeatSvg}
                     {/* key-remount so the tick replays on every count change */}
                     <span key={reblogsCount} className={countChanged ? "animate-tick" : undefined}>

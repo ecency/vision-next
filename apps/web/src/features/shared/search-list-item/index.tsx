@@ -105,12 +105,24 @@ export function SearchListItem({ res }: Props) {
           <EntryLink entry={entry}>
             <a className="result-votes">
               {" "}
-              {peopleSvg} {res.total_votes}
+              <span
+                aria-hidden="true"
+                className="inline-flex shrink-0 size-3.5 mr-1 [&>svg]:size-full [&>svg]:!m-0"
+              >
+                {peopleSvg}
+              </span>{" "}
+              {res.total_votes}
             </a>
           </EntryLink>
           <EntryLink entry={entry}>
             <a className="result-replies">
-              {commentSvg} {res.children}
+              <span
+                aria-hidden="true"
+                className="inline-flex shrink-0 size-3.5 mr-1 mt-0.5 [&>svg]:size-full [&>svg]:!m-0"
+              >
+                {commentSvg}
+              </span>{" "}
+              {res.children}
             </a>
           </EntryLink>
         </div>
