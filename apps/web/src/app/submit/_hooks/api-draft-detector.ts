@@ -40,9 +40,13 @@ export function useApiDraftDetector(
     onInvalidDraftRef.current = onInvalidDraft;
   }, [onDraftLoaded, onInvalidDraft]);
 
+  // `placeholderData: []` only applies while the query is pending, so a failed drafts
+  // request leaves `data` undefined. Everything below reads the list through this fallback.
+  const drafts = useMemo(() => draftsQuery.data ?? [], [draftsQuery.data]);
+
   const existingDraft = useMemo(() => {
     // First, try to find the draft in the regular query
-    const draftFromRegularQuery = draftsQuery.data!.find((draft) => draft._id === draftId);
+    const draftFromRegularQuery = drafts.find((draft) => draft._id === draftId);
     if (draftFromRegularQuery) {
       // The SDK query returns the SDK's Draft; the app keeps its own stricter local copy.
       return draftFromRegularQuery;
@@ -56,7 +60,7 @@ export function useApiDraftDetector(
 
     if (infiniteQueryData?.pages) {
       for (const page of infiniteQueryData.pages) {
-        const draft = page.data.find((d) => d._id === draftId);
+        const draft = page.data?.find((d) => d._id === draftId);
         if (draft) {
           return draft;
         }
@@ -64,7 +68,7 @@ export function useApiDraftDetector(
     }
 
     return undefined;
-  }, [draftId, draftsQuery.data, activeUser?.username, queryClient]);
+  }, [draftId, drafts, activeUser?.username, queryClient]);
 
   useEffect(() => {
     hasLoadedRef.current = false;
@@ -83,10 +87,25 @@ export function useApiDraftDetector(
     // This prevents stale cache updates (from concurrent auto-save responses or
     // server refetch with replication lag) from incorrectly triggering "no draft found".
     if (hasLoadedRef.current) return;
-    if (draftId && draftsQuery.data!.length > 0 && !existingDraft) {
+    // Only a settled list that a request actually returned proves a draft is gone. A
+    // successful *empty* list is such proof (the user simply has no drafts); a pending,
+    // refetching or failed query is not, and neither is a disabled one — query-core
+    // reports `placeholderData` as status "success", so a signed-out or token-less editor
+    // looks identical to a loaded empty list unless `isPlaceholderData` is checked too.
+    // Rejecting the draft in any of those states would discard the user's work.
+    if (!draftsQuery.isSuccess || draftsQuery.isPlaceholderData || draftsQuery.isFetching) {
+      return;
+    }
+    if (draftId && !existingDraft) {
       onInvalidDraftRef.current();
     }
-  }, [draftId, draftsQuery.data!.length, existingDraft]);
+  }, [
+    draftId,
+    draftsQuery.isSuccess,
+    draftsQuery.isPlaceholderData,
+    draftsQuery.isFetching,
+    existingDraft
+  ]);
 
   useEffect(() => {
     // location change. only occurs once a draft picked on drafts dialog
