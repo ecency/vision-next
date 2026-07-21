@@ -40,7 +40,7 @@ export function NotificationsContent({ openLinksInNewTab }: Props) {
   return (
     <div className="notification-list">
       <div className="list-header">
-        <div className="list-actions">
+        <div className="list-actions [&_svg]:size-5">
           <Dropdown>
             <DropdownToggle className="list-filter" withChevron={true}>
               {i18next.t(`notifications.type-${activeFilter ?? "all"}`)}

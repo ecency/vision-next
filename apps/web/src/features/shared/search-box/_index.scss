@@ -41,10 +41,6 @@
     @include themify(night) {
       @apply text-dark-600;
     }
-
-    svg {
-      width: 22px;
-    }
   }
 
   .form-control {

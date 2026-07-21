@@ -47,7 +47,6 @@
       }
 
       svg {
-        height: 18px;
         color: $primary;
       }
 
@@ -107,37 +106,6 @@
       justify-content: space-between;
       align-items: center;
 
-      .select-svg {
-        cursor: pointer;
-        border: 1px solid;
-        @apply border-blue-dark-sky;
-        padding: 1px;
-
-        svg {
-          display: block;
-          height: 14px;
-          color: $primary;
-        }
-
-        &.active {
-          @apply bg-blue-dark-sky;
-
-          svg {
-            @apply text-white;
-          }
-        }
-      }
-
-      .mark-svg {
-        cursor: pointer;
-        margin-right: 10px;
-
-        svg {
-          display: block;
-          height: 22px;
-          color: $primary;
-        }
-      }
     }
   }
 

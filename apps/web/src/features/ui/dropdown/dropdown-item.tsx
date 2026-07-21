@@ -119,7 +119,7 @@ export function DropdownItemWithIcon(
     <DropdownItem
       {...rest}
       className={clsx(
-        "flex items-center gap-3 text-gray-600 dark:text-gray-400 hover:text-blue-dark-sky [&>span>svg]:w-4",
+        "flex items-center gap-3 text-gray-600 dark:text-gray-400 hover:text-blue-dark-sky [&>span>svg]:size-4",
         className
       )}
     >

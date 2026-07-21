@@ -94,7 +94,7 @@ export function ProposalListItem({
               </span>
             </div>
           </div>
-          <div className="permlink">
+          <div className="permlink [&_svg]:size-4">
             <EntryLink
               entry={{
                 category: "proposal",

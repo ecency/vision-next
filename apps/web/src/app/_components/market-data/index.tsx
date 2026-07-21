@@ -30,7 +30,7 @@ export function MarketData() {
         <span className="title flex items-center">
           {i18next.t("market-data.title")}
           <div
-            className="pointer ml-2"
+            className="pointer ml-2 [&>svg]:size-5"
             role="button"
             tabIndex={0}
             aria-label={i18next.t("g.toggle", { defaultValue: "Toggle" })}

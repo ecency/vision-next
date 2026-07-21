@@ -193,7 +193,7 @@ export function Discussion({ parent, community, isRawContent, hideControls, onTo
         {topLevelComments.length > 0 && (
             <div className="discussion" id="discussion">
               <div className="discussion-header">
-                <div className="count mr-4">
+                <div className="count mr-4 [&>svg]:size-4">
                   {commentSvg} {strCount}
                 </div>
                 <DiscussionBots entries={botsData} />

@@ -53,7 +53,7 @@ export const DeckAddColumnNotificationsSettings = ({ deckKey }: SettingsProps) =
           <div className="content-type-list">
             {NOTIFICATION_CONTENT_TYPES.map(({ title, type }) => (
               <div
-                className={"content-type-item " + (contentType === type ? "selected" : "")}
+                className={"content-type-item [&>svg]:size-8 " + (contentType === type ? "selected" : "")}
                 key={title}
                 role="button"
                 tabIndex={0}

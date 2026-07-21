@@ -154,11 +154,6 @@
 
     @include padding(0);
 
-    svg {
-      width: 1.5rem;
-      height: 1.5rem;
-    }
-
     &:hover {
       @apply text-blue-dark-sky;
     }

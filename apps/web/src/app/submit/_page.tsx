@@ -619,7 +619,7 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
                               key={item}
                             />
                             {selectedItem === item && (
-                              <div className="text-green check absolute bg-white rounded-full p-1 flex justify-center items-center">
+                              <div className="text-green check absolute bg-white rounded-full p-1 flex justify-center items-center [&>svg]:size-6">
                                 {checkSvg}
                               </div>
                             )}

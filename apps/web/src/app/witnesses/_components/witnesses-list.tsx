@@ -173,10 +173,10 @@ export function WitnessesList() {
                 <Td className="border p-2">
                   {row.parsedUrl ? (
                     <EntryLink entry={row.parsedUrl}>
-                      <span className="witness-link">{linkSvg}</span>
+                      <span className="witness-link [&>svg]:size-4">{linkSvg}</span>
                     </EntryLink>
                   ) : (
-                    <a target="_external" rel="nofollow ugc noopener" href={row.url} className="witness-link">
+                    <a target="_external" rel="nofollow ugc noopener" href={row.url} className="witness-link [&>svg]:size-4">
                       {openInNewSvg}
                     </a>
                   )}

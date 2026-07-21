@@ -58,6 +58,7 @@ function ShareBar({ entryInfo }: { entryInfo: EntryInfo }) {
               target="_blank"
               rel="noopener noreferrer"
               title={label}
+              data-icon-exempt
               className="text-blue-dark-sky hover:opacity-70 transition-opacity [&_svg]:size-7"
             >
               {icon}

@@ -130,7 +130,7 @@ export function NotificationsActions({ filter }: Props) {
   const refreshDisabled = isDataLoading || isUnreadLoading;
 
   return (
-    <div className="list-actions">
+    <div className="list-actions [&_svg]:size-5">
       <Tooltip content={i18next.t("notifications.mark-all-read")}>
         <span
           className={classNameObject({

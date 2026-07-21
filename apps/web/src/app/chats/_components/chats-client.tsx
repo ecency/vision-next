@@ -560,7 +560,7 @@ export function ChatsClient() {
                                   )}
                                   {isMuted && (
                                     <span
-                                      className="text-[--text-muted] flex-shrink-0"
+                                      className="text-[--text-muted] inline-flex shrink-0 size-4 [&>svg]:size-full"
                                       aria-label={i18next.t("chat.channel-muted")}
                                       title={i18next.t("chat.channel-muted")}
                                     >
@@ -811,7 +811,7 @@ export function ChatsClient() {
                                   <span className="truncate">{getChannelTitle(channel)}</span>
                                   {isMuted && (
                                     <span
-                                      className="text-[--text-muted] flex-shrink-0"
+                                      className="text-[--text-muted] inline-flex shrink-0 size-4 [&>svg]:size-full"
                                       aria-label={i18next.t("chat.channel-muted")}
                                       title={i18next.t("chat.channel-muted")}
                                     >
@@ -939,7 +939,7 @@ export function ChatsClient() {
                             )}
                             {isMuted && (
                               <span
-                                className="text-[--text-muted] flex-shrink-0"
+                                className="text-[--text-muted] inline-flex shrink-0 size-4 [&>svg]:size-full"
                                 aria-label={i18next.t("chat.channel-muted")}
                                 title={i18next.t("chat.channel-muted")}
                               >
