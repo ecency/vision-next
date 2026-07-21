@@ -174,25 +174,25 @@ export const DeckWalletBalanceColumn = ({
       setEngineLoading(true);
 
       try {
+        const balancesOptions = getHiveEngineTokensBalancesQueryOptions(username);
         if (refresh) {
-          await queryClient.invalidateQueries({
-            queryKey: ["assets", "hive-engine"]
-          });
+          await queryClient.invalidateQueries({ queryKey: balancesOptions.queryKey });
         }
 
-        const userTokens = await queryClient.fetchQuery(
-          getHiveEngineTokensBalancesQueryOptions(username)
-        );
+        const userTokens = await queryClient.fetchQuery(balancesOptions);
 
         // Prices are asked for by held symbol – an unfiltered metrics call is capped at
         // 1000 rows, so anything outside that page came back unpriced and was dropped
         // from the total.
-        const tokens = await queryClient.fetchQuery(
-          getAllHiveEngineTokensQueryOptions(
-            undefined,
-            userTokens.map((token) => token.symbol)
-          )
+        const tokensOptions = getAllHiveEngineTokensQueryOptions(
+          undefined,
+          userTokens.map((token) => token.symbol)
         );
+        if (refresh) {
+          await queryClient.invalidateQueries({ queryKey: tokensOptions.queryKey });
+        }
+
+        const tokens = await queryClient.fetchQuery(tokensOptions);
 
         const { base, quote } = dynamicProps ?? DEFAULT_DYNAMIC_PROPS;
         const pricePerHive = quote > 0 ? base / quote : 0;
