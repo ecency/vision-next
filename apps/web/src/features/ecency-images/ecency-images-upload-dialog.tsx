@@ -42,6 +42,9 @@ export function EcencyImagesUploadDialog({ show, setShow, onPick, initialFiles }
   // A single image skips the review step, so it has no Upload button to press
   const [isAutoUploading, setIsAutoUploading] = useState(false);
   const itemsRef = useRef<UploadItem[]>([]);
+  // Read at resolution time, so a result cannot outrun the close it raced
+  const showRef = useRef(show);
+  showRef.current = show;
   const seededFilesRef = useRef<File[] | undefined>(undefined);
 
   // Keep track of current items for cleanup
@@ -67,6 +70,15 @@ export function EcencyImagesUploadDialog({ show, setShow, onPick, initialFiles }
       }
     });
   }, []);
+
+  // Closing has to cancel here, not in the effect that reacts to `show` turning
+  // false: that effect is a render behind, and an upload resolving in the gap
+  // would still insert its image into an editor the user had moved on from
+  const cancelAndClose = useCallback(() => {
+    cancelRef.current = true;
+    abortInFlight(itemsRef.current);
+    setShow(false);
+  }, [abortInFlight, setShow]);
 
   const startUpload = useCallback(
     async (list: UploadItem[]) => {
@@ -94,7 +106,7 @@ export function EcencyImagesUploadDialog({ show, setShow, onPick, initialFiles }
 
         try {
           const { url } = await upload({ file: list[i].file, signal: abortController.signal });
-          if (cancelRef.current) {
+          if (cancelRef.current || !showRef.current) {
             uploadTracker?.markFailed(uploadId);
             break;
           }
@@ -187,7 +199,7 @@ export function EcencyImagesUploadDialog({ show, setShow, onPick, initialFiles }
   return (
     <Modal
       show={show}
-      onHide={() => setShow(false)}
+      onHide={cancelAndClose}
       centered={true}
       size={items.length ? "lg" : "md"}
     >

@@ -58,6 +58,28 @@ describe("EcencyImagesUploadDialog", () => {
     expect(screen.queryByText("editor-toolbar.upload")).toBeNull();
   });
 
+  it("cancels as soon as the modal close button is pressed, not a render later", async () => {
+    let resolveUpload: (value: { url: string }) => void = () => {};
+    uploadMock.mockImplementationOnce(
+      () => new Promise<{ url: string }>((resolve) => (resolveUpload = resolve))
+    );
+
+    const onPick = vi.fn();
+    // `show` stays true, as it does in the gap before the parent reacts to onHide
+    const { container } = render(
+      <EcencyImagesUploadDialog show={true} setShow={vi.fn()} onPick={onPick} />
+    );
+
+    pickFiles(container, [jpeg("one.jpg")]);
+    await waitFor(() => expect(uploadMock).toHaveBeenCalledTimes(1));
+
+    fireEvent.click(screen.getByLabelText("g.close"));
+    resolveUpload({ url: "https://images.ecency.com/p/uploaded" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(onPick).not.toHaveBeenCalled();
+  });
+
   it("does not upload files that are not accepted images", async () => {
     const { container } = render(
       <EcencyImagesUploadDialog show={true} setShow={vi.fn()} onPick={vi.fn()} />
