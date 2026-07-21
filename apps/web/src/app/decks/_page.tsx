@@ -7,13 +7,14 @@ import dynamic from "next/dynamic";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useHydrated } from "@/api/queries";
 import { DecksIntro } from "@/app/decks/_components/decks-intro";
+import i18next from "i18next";
 
 function DecksLoader() {
   return (
     <div className="flex items-center justify-center min-h-screen">
       <div className="text-center">
         <div className="spinner mb-4" />
-        <p>Loading Decks...</p>
+        <p>{i18next.t("decks.loading")}</p>
       </div>
     </div>
   );

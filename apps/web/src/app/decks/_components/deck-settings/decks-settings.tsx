@@ -143,7 +143,7 @@ export const DecksSettings = ({ show, setShow, deck }: Props) => {
                 <FormControl
                   className="input-control"
                   type="text"
-                  placeholder="Name"
+                  placeholder={i18next.t("decks.deck-name-placeholder")}
                   value={name}
                   onChange={({ target }) => setName(target.value)}
                 />

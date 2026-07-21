@@ -129,7 +129,9 @@ export const DeckUserColumn = ({ id, settings, draggable }: Props) => {
           <DeckPostViewer
             entry={currentViewingEntry}
             onClose={() => setCurrentViewingEntry(null)}
-            backTitle={`@${settings.username}(${userTitles[settings.contentType]})`}
+            backTitle={`@${settings.username}(${
+              userTitles[settings.contentType] ?? i18next.t("decks.user")
+            })`}
           />
         ) : (
           <></>

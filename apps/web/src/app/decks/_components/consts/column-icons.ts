@@ -5,9 +5,10 @@ export const ICONS: Record<string, any> = {
   co: {
     trending: trendingIconSvg,
     hot: hotIconSvg,
-    new: newIconSvg,
     payout: payoutsIconSvg,
-    created: mutedIconSvg,
+    // The "New" community content type is typed "created" – it used to fall on the
+    // muted icon while the new icon sat under a key nothing looks up.
+    created: newIconSvg,
     muted: mutedIconSvg
   },
   n: {
@@ -21,7 +22,8 @@ export const ICONS: Record<string, any> = {
     reblogs: reblogsIconSvg,
     payouts: payoutsIconSvg,
     transfers: transfersIconSvg,
-    delegations: delegationsIconSvg
+    delegations: delegationsIconSvg,
+    scheduled_published: postsIconSvg
   },
   u: {
     feed: mentionsIconSvg,

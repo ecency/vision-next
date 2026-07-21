@@ -6,12 +6,16 @@
 
   .wb-tabs {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
     align-items: center;
     width: 100%;
     border-bottom: 1px solid $border-color;
     position: sticky;
-    top: 0;
+    // The column header is absolutely positioned over the first 67px of the column
+    // (.wb-container pads for it), so top: 0 parked the tabs behind it while scrolling.
+    top: 67px;
+    z-index: 8;
     backdrop-filter: blur(1rem);
 
     @include themify(day) {
@@ -80,6 +84,10 @@
     .title {
       grid-area: title;
       @apply text-dark-200;
+
+      @include themify(night) {
+        @apply text-white;
+      }
     }
 
     .description {

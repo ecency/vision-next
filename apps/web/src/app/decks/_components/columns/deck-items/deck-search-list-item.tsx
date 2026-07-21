@@ -71,7 +71,9 @@ export const SearchListItem = ({
   const router = useRouter();
 
   const [title, setTitle] = useState(entry.title);
-  const [body, setBody] = useState(entry.b);
+  const [body, setBody] = useState(
+    entry.body_marked ? transformMarkedContent(entry.body_marked) : postBodySummary(entry.body, 200)
+  );
   const [image, setImage] = useState(
     catchPostImage(entry.body, 600, 500)
   );

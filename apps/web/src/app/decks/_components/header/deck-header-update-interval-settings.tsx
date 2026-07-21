@@ -89,7 +89,7 @@ export const DeckHeaderUpdateIntervalSettings = ({
         <div className="flex w-full">
           <FormControl
             type="number"
-            placeholder={i18next.t("deck.update-custom-interval-in-minutes-placeholder")}
+            placeholder={i18next.t("decks.update-custom-interval-in-minutes-placeholder")}
             value={inputValue}
             onChange={(event) => setInputValue(+event.target.value)}
           />

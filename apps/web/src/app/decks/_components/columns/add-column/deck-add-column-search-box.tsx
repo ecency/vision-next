@@ -9,6 +9,7 @@ import { error, UserAvatar } from "@/features/shared";
 import { formatError } from "@/api/format-error";
 import { closeSvg } from "@ui/svg";
 import { useQueryClient } from "@tanstack/react-query";
+import i18next from "i18next";
 
 interface Props {
   isCommunity?: boolean;
@@ -115,7 +116,9 @@ export const DeckAddColumnSearchBox = ({
         />
       </InputGroup>
       <div className="users-list">
-        {isRecent && !!recentList?.length && <div className="recent-label">Recent</div>}
+        {isRecent && !!recentList?.length && (
+          <div className="recent-label">{i18next.t("decks.columns.recent")}</div>
+        )}
         {usernameData.map((i) => (
           <div
             className="users-list-item"

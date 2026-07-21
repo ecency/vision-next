@@ -24,6 +24,7 @@ export const notificationsTitles: Record<string, string> = {
 };
 
 export const userTitles: Record<string, string> = {
+  feed: i18next.t("decks.columns.feeds"),
   posts: i18next.t("decks.columns.posts"),
   blog: i18next.t("decks.columns.blogs"),
   comments: i18next.t("decks.columns.comments"),
@@ -53,14 +54,14 @@ export function getColumnTitle(
         communityTitles
       )}`;
     case "cu":
-      return "Custom";
+      return i18next.t("decks.columns.custom");
     case "n":
       return `${i18next.t("decks.columns.notifications")}${getSubtype(
         (settings as UserDeckGridItem["settings"]).contentType,
         notificationsTitles
       )}`;
     case "s":
-      return "Search";
+      return i18next.t("decks.columns.search");
     case "u":
       return `${i18next.t("decks.columns.user")}${getSubtype(
         (settings as UserDeckGridItem["settings"]).contentType,

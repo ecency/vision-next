@@ -51,6 +51,9 @@ export const DeckThreadItemViewer = ({
   const { updateRepliesCount } = EcencyEntriesCacheManagement.useUpdateRepliesCount(entry);
 
   const data = useWaveDiscussionsList(entry!);
+  // The skeletons used to be gated on an empty list, so a wave with no replies never
+  // stopped shimmering and its "no replies yet" state was unreachable.
+  const { isLoading: isRepliesLoading } = useQuery(getDiscussionsQueryOptions(entry!));
 
   return (
     <div
@@ -101,39 +104,34 @@ export const DeckThreadItemViewer = ({
         }}
       />
       <div className="deck-thread-item-viewer-replies">
-        {data.length > 0 && (
-          <>
-            {data.map((reply) => (
-              <DeckThreadItemViewerReply
-                isHighlighted={highlightedEntry === `${reply.author}/${reply.permlink}`}
-                key={reply.post_id}
-                entry={reply as IdentifiableEntry}
-                parentEntry={entry!}
-                incrementParentEntryCount={() => updateRepliesCount(entry!.children + 1)}
-              />
-            ))}
-            {data.length === 0 && (
-              <div className="no-replies-placeholder [&>svg]:size-16">
-                {repliesIconSvg}
-                <p>{i18next.t("decks.columns.no-replies")}</p>
-                <Button
-                  outline={true}
-                  size="sm"
-                  onClick={() =>
-                    (
-                      rootRef.current?.querySelector(".editor-control") as HTMLElement | null
-                    )?.focus()
-                  }
-                >
-                  {i18next.t("decks.columns.add-new-reply")}
-                </Button>
-              </div>
-            )}
-          </>
+        {data.map((reply) => (
+          <DeckThreadItemViewerReply
+            isHighlighted={highlightedEntry === `${reply.author}/${reply.permlink}`}
+            key={reply.post_id}
+            entry={reply as IdentifiableEntry}
+            parentEntry={entry!}
+            incrementParentEntryCount={() => updateRepliesCount(entry!.children + 1)}
+          />
+        ))}
+
+        {!isRepliesLoading && data.length === 0 && (
+          <div className="no-replies-placeholder [&>svg]:size-16">
+            {repliesIconSvg}
+            <p>{i18next.t("decks.columns.no-replies")}</p>
+            <Button
+              outline={true}
+              size="sm"
+              onClick={() =>
+                (rootRef.current?.querySelector(".editor-control") as HTMLElement | null)?.focus()
+              }
+            >
+              {i18next.t("decks.columns.add-new-reply")}
+            </Button>
+          </div>
         )}
 
         <div className="skeleton-list">
-          {data.length === 0 &&
+          {isRepliesLoading &&
             Array.from(new Array(20)).map((_, i) => <DeckThreadItemSkeleton key={i} />)}
         </div>
       </div>

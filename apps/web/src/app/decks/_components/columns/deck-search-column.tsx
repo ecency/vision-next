@@ -126,7 +126,7 @@ export const DeckSearchColumn = ({ id, settings, draggable }: Props) => {
           <DeckPostViewer
             entry={currentViewingEntry}
             onClose={() => setCurrentViewingEntry(null)}
-            backTitle={`Query: ${settings.query}`}
+            backTitle={i18next.t("decks.columns.search-query", { query: settings.query })}
           />
         ) : (
           <></>
