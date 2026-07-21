@@ -1577,6 +1577,8 @@
     "auto-power-up": "Automatically power up"
   },
   "points": {
+    "title": "Ecency points",
+    "points-unit": "POINTS",
     "get": "BUY POINTS",
     "get-more": "Get more Points",
     "unclaimed-points": "Unclaimed points",

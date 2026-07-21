@@ -1,6 +1,7 @@
 import { DraggableProvidedDragHandleProps } from "@hello-pangea/dnd";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { GenericDeckColumn } from "./generic-deck-column";
+import { calculateEngineTokensUsdValue } from "./helpers/engine-tokens-usd-value";
 import { UserDeckGridItem } from "../types";
 import "./_deck-wallet-balance-column.scss";
 import { DeckGridContext } from "../deck-manager";
@@ -22,7 +23,7 @@ import {
   parseAsset,
   vestsToHp
 } from "@/utils";
-import { getHiveEngineMetrics } from "@ecency/sdk";
+import { getAllHiveEngineTokensQueryOptions } from "@ecency/sdk";
 import { getHiveEngineTokensBalancesQueryOptions } from "@ecency/sdk";
 import i18next from "i18next";
 import { FormattedCurrency } from "@/features/shared";
@@ -69,7 +70,7 @@ export const DeckWalletBalanceColumn = ({
   // Ecency wallet
   const [pointsLoading, setPointsLoading] = useState(false);
   const [estimatedValue, setEstimatedValue] = useState(0);
-  const { data: points } = useQuery(
+  const { data: points, isLoading: isPointsLoading } = useQuery(
     withFeatureFlag(
       ({ visionFeatures }) => visionFeatures.points.enabled,
       getPointsQueryOptions(username)
@@ -111,7 +112,7 @@ export const DeckWalletBalanceColumn = ({
     try {
       const estimatedValue = await getCurrencyTokenRate("usd", "estm");
 
-      setEstimatedValue(estimatedValue);
+      setEstimatedValue(Number(estimatedValue) || 0);
     } catch (e) {
     } finally {
       setPointsLoading(false);
@@ -156,32 +157,16 @@ export const DeckWalletBalanceColumn = ({
     setEngineLoading(true);
 
     try {
-      const tokens = await getHiveEngineMetrics();
-      const userTokens = await queryClient.fetchQuery(
-        getHiveEngineTokensBalancesQueryOptions(username)
-      );
+      const [tokens, userTokens] = await Promise.all([
+        queryClient.fetchQuery(getAllHiveEngineTokensQueryOptions()),
+        queryClient.fetchQuery(getHiveEngineTokensBalancesQueryOptions(username))
+      ]);
 
-      const pricePerHive =
-        (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).base /
-        (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).quote;
+      const { base, quote } = dynamicProps ?? DEFAULT_DYNAMIC_PROPS;
+      const pricePerHive = quote > 0 ? base / quote : 0;
 
-      const mappedBalanceMetrics = userTokens.map((item: any) => ({
-        ...item,
-        ...tokens.find((m: any) => m.symbol === item.symbol)
-      }));
+      const totalWalletUsdValue = calculateEngineTokensUsdValue(userTokens, tokens, pricePerHive);
 
-      const tokensUsdPrices = mappedBalanceMetrics.map((w: any) => {
-        return w.symbol === "SWAP.HIVE"
-          ? Number(pricePerHive * w.balance)
-          : w.lastPrice === 0
-            ? 0
-            : Number(w.lastPrice * pricePerHive * w.balance);
-      });
-
-      const totalWalletUsdValue = tokensUsdPrices.reduce(
-        (x: any, y: any) => +(x + y).toFixed(3),
-        0
-      );
       const usdTotalValue = totalWalletUsdValue.toLocaleString("en-US", {
         style: "currency",
         currency: "USD"
@@ -249,21 +234,23 @@ export const DeckWalletBalanceColumn = ({
           {tab === "ecency" && (
             <>
               <Card
-                title="Ecency points"
+                title={i18next.t("points.title")}
                 description={i18next.t("points.main-description")}
-                value={`${points} POINTS`}
-                isLoading={pointsLoading}
+                value={formattedNumber(points?.points ?? 0, {
+                  suffix: i18next.t("points.points-unit")
+                })}
+                isLoading={isPointsLoading}
               />
               <Card
                 title={i18next.t("wallet.estimated-points")}
                 description={i18next.t("wallet.estimated-description-points")}
                 value={
                   <FormattedCurrency
-                    value={estimatedValue * parseFloat(points?.points ?? "0")}
+                    value={estimatedValue * (parseFloat(points?.points ?? "0") || 0)}
                     fixAt={3}
                   />
                 }
-                isLoading={pointsLoading}
+                isLoading={pointsLoading || isPointsLoading}
               />
             </>
           )}
