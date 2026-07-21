@@ -37,6 +37,18 @@ interface UploadTrackerContextValue {
 
 const UploadTrackerContext = createContext<UploadTrackerContextValue | undefined>(undefined);
 
+let uploadSequence = 0;
+
+/**
+ * Tracker id for one upload. Ids must be unique across batches - registering a
+ * reused id overwrites the earlier entry, dropping a still-running upload out
+ * of the pending set and releasing the publish gate too early.
+ */
+export function nextUploadId(source: string): string {
+  uploadSequence += 1;
+  return `${source}-${Date.now()}-${uploadSequence}`;
+}
+
 const UPLOAD_TIMEOUT_MS = 30000; // 30 seconds per upload
 const CHECK_INTERVAL_MS = 100; // Check every 100ms
 

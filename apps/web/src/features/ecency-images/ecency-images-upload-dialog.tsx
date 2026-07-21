@@ -5,7 +5,10 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { UilCheck } from "@tooni/iconscout-unicons-react";
 import { Spinner } from "@ui/spinner";
 import { useUploadImageMutation } from "@/api/sdk-mutations";
-import { useOptionalUploadTracker } from "@/app/publish/_hooks";
+// Import the tracker directly, not through the "@/app/publish/_hooks" barrel:
+// the barrel re-exports the whole TipTap editor graph, which this dialog does
+// not need
+import { nextUploadId, useOptionalUploadTracker } from "@/app/publish/_hooks/use-upload-tracker";
 import { convertHeicToJpeg } from "@/utils/convert-heic";
 import { isAcceptedImageFile } from "@/utils/image-upload-formats";
 import { error } from "@/features/shared";
@@ -55,6 +58,16 @@ export function EcencyImagesUploadDialog({ show, setShow, onPick, initialFiles }
     };
   }, []);
 
+  // Stop the request itself, not just the loop around it: a cancelled upload
+  // that keeps running holds the publish flow open until the network resolves
+  const abortInFlight = useCallback((list: UploadItem[]) => {
+    list.forEach((item) => {
+      if (item.status === "uploading") {
+        item.abortController?.abort();
+      }
+    });
+  }, []);
+
   const startUpload = useCallback(
     async (list: UploadItem[]) => {
       cancelRef.current = false;
@@ -64,7 +77,7 @@ export function EcencyImagesUploadDialog({ show, setShow, onPick, initialFiles }
         }
 
         // Register upload and create abort controller
-        const uploadId = `dialog-${Date.now()}-${i}`;
+        const uploadId = nextUploadId("dialog");
         const abortController = new AbortController();
         uploadTracker?.registerUpload(uploadId, abortController);
 
@@ -156,6 +169,7 @@ export function EcencyImagesUploadDialog({ show, setShow, onPick, initialFiles }
       // Closing the dialog stops the batch, so nothing gets inserted into the
       // editor after the user dismissed it
       cancelRef.current = true;
+      abortInFlight(itemsRef.current);
       if (itemsRef.current.length) {
         itemsRef.current.forEach((item) => URL.revokeObjectURL(item.preview));
         setItems([]);
@@ -207,6 +221,7 @@ export function EcencyImagesUploadDialog({ show, setShow, onPick, initialFiles }
                   if (items.some((it) => it.status === "uploading")) {
                     cancelRef.current = true;
                     setIsCancelling(true);
+                    abortInFlight(items);
                   }
                   // Clean up blob URLs before clearing items
                   items.forEach((item) => {

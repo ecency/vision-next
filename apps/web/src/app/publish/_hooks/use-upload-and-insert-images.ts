@@ -5,7 +5,7 @@ import { isAcceptedImageFile } from "@/utils/image-upload-formats";
 import { Editor } from "@tiptap/core";
 import i18next from "i18next";
 import { useCallback } from "react";
-import { useOptionalUploadTracker } from "./use-upload-tracker";
+import { nextUploadId, useOptionalUploadTracker } from "./use-upload-tracker";
 
 /**
  * Uploads images and inserts them into the editor as they land.
@@ -30,7 +30,7 @@ export function useUploadAndInsertImages(editor: Editor | null) {
       info(i18next.t("publish.upload-started"));
 
       for (let i = 0; i < images.length; i++) {
-        const uploadId = `${source}-${Date.now()}-${i}`;
+        const uploadId = nextUploadId(source);
         const abortController = new AbortController();
         uploadTracker?.registerUpload(uploadId, abortController);
 

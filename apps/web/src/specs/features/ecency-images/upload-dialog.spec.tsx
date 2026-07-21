@@ -8,8 +8,9 @@ vi.mock("@/api/sdk-mutations", () => ({
   useUploadImageMutation: () => ({ mutateAsync: uploadMock })
 }));
 
-vi.mock("@/app/publish/_hooks", () => ({
-  useOptionalUploadTracker: () => undefined
+vi.mock("@/app/publish/_hooks/use-upload-tracker", () => ({
+  useOptionalUploadTracker: () => undefined,
+  nextUploadId: (source: string) => `${source}-test`
 }));
 
 import { EcencyImagesUploadDialog } from "@/features/ecency-images";
@@ -68,10 +69,15 @@ describe("EcencyImagesUploadDialog", () => {
     expect(uploadMock).not.toHaveBeenCalled();
   });
 
-  it("does not insert an image when the dialog is closed mid-upload", async () => {
+  it("aborts and does not insert an image when the dialog is closed mid-upload", async () => {
     let resolveUpload: (value: { url: string }) => void = () => {};
+    let signal: AbortSignal | undefined;
     uploadMock.mockImplementationOnce(
-      () => new Promise<{ url: string }>((resolve) => (resolveUpload = resolve))
+      (args: { signal?: AbortSignal }) =>
+        new Promise<{ url: string }>((resolve) => {
+          signal = args.signal;
+          resolveUpload = resolve;
+        })
     );
 
     const onPick = vi.fn();
@@ -82,6 +88,8 @@ describe("EcencyImagesUploadDialog", () => {
     await waitFor(() => expect(uploadMock).toHaveBeenCalledTimes(1));
 
     rerender(<EcencyImagesUploadDialog show={false} {...props} />);
+    expect(signal?.aborted).toBe(true);
+
     resolveUpload({ url: "https://images.ecency.com/p/uploaded" });
     await new Promise((resolve) => setTimeout(resolve, 0));
 

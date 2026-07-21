@@ -94,6 +94,12 @@ export function useUploadImageMutation() {
       success(i18next.t("ecency-images.success-upload"));
     },
     onError: (e: Error) => {
+      // The caller aborted (dialog closed, upload cancelled) - it is not a failure
+      // to report back, and the toast would contradict what the user just did
+      if (e.name === "AbortError") {
+        return;
+      }
+
       // Web-specific error handling for upload
       if ("status" in e) {
         const status = (e as { status?: number }).status;
