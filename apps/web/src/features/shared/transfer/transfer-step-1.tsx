@@ -18,7 +18,7 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
 import { withFeatureFlag } from "@/core/react-query";
 import { getDynamicPropsQueryOptions, getPointsQueryOptions } from "@ecency/sdk";
-import { getHiveEngineBalancesWithUsdQueryOptions, getAllHiveEngineTokensQueryOptions } from "@ecency/sdk";
+import { getHiveEngineBalancesWithUsdQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { TransferFormText } from "@/features/shared/transfer/transfer-form-text";
 import { TransferAssetSwitch } from "@/features/shared/transfer/transfer-assets-switch";
@@ -64,9 +64,10 @@ export function TransferStep1({ titleLngKey }: Props) {
     )
   );
   const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
-  const { data: allTokens } = useQuery(getAllHiveEngineTokensQueryOptions());
+  // Prices are resolved per held symbol inside the query – passing an unfiltered token
+  // list here only fed it a page capped at 1000 rows (and a 1000-entry query key).
   const { data: engineBalances } = useQuery(
-    getHiveEngineBalancesWithUsdQueryOptions(activeUser?.username ?? "", dynamicProps, allTokens)
+    getHiveEngineBalancesWithUsdQueryOptions(activeUser?.username ?? "", dynamicProps)
   );
   const { toWarning, toData, delegatedAmount, toError, delegateAccount, externalWallets } =
     useDebounceTransferAccountData();

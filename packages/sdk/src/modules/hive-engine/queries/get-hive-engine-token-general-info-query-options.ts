@@ -3,7 +3,7 @@ import { getQueryClient } from "@/modules/core";
 import type { GeneralAssetInfo } from "@/modules/wallet/types";
 import { getHiveEngineTokensMetadataQueryOptions } from "./get-hive-engine-tokens-metadata-query-options";
 import { getHiveEngineTokensBalancesQueryOptions } from "./get-hive-engine-tokens-balances-query-options";
-import { getHiveEngineTokensMarketQueryOptions } from "./get-hive-engine-tokens-market-query-options";
+import { getAllHiveEngineTokensQueryOptions } from "./get-all-hive-engine-tokens-query-options";
 import { getHiveAssetGeneralInfoQueryOptions } from "@/modules/wallet/queries/get-hive-asset-general-info-query-options";
 
 export function getHiveEngineTokenGeneralInfoQueryOptions(
@@ -36,8 +36,10 @@ export function getHiveEngineTokenGeneralInfoQueryOptions(
         getHiveEngineTokensBalancesQueryOptions(username)
       );
 
+      // Scoped to this symbol: the unfiltered metrics call is capped at 1000 rows, so a
+      // token outside that page reported no market and rendered a zero price.
       const marketList = await queryClient.ensureQueryData(
-        getHiveEngineTokensMarketQueryOptions()
+        getAllHiveEngineTokensQueryOptions(undefined, symbol)
       );
 
       const metadata = metadataList?.find((i) => i.symbol === symbol);

@@ -195,10 +195,28 @@ export async function getHiveEngineOpenOrders<T = HiveEngineOpenOrder>(
   return [...buy, ...sell].sort((a, b) => b.timestamp - a.timestamp) as T[];
 }
 
+/**
+ * Market metrics, optionally narrowed to one symbol or to a list of them.
+ *
+ * An unfiltered call is served from a single page – the node caps `find` at 1000 rows
+ * while Hive engine has far more traded tokens than that – so callers that only care
+ * about specific symbols must pass them. Scanning the unfiltered page for a symbol
+ * silently reports "no market" for everything outside it.
+ */
 export async function getHiveEngineMetrics<T = Record<string, unknown>>(
-  symbol?: string,
+  symbol?: string | string[],
   account?: string
 ): Promise<T[]> {
+  if (Array.isArray(symbol) && symbol.length === 0) {
+    return [];
+  }
+
+  const symbolQuery = Array.isArray(symbol)
+    ? { symbol: { $in: symbol } }
+    : symbol
+      ? { symbol }
+      : {};
+
   return engineRpcSafe<T[]>(
     {
       jsonrpc: "2.0",
@@ -207,7 +225,7 @@ export async function getHiveEngineMetrics<T = Record<string, unknown>>(
         contract: "market",
         table: "metrics",
         query: {
-          ...(symbol ? { symbol } : {}),
+          ...symbolQuery,
           ...(account ? { account } : {}),
         },
       },
@@ -219,7 +237,7 @@ export async function getHiveEngineMetrics<T = Record<string, unknown>>(
 
 export async function getHiveEngineTokensMarket<T = Record<string, unknown>>(
   account?: string,
-  symbol?: string
+  symbol?: string | string[]
 ): Promise<T[]> {
   return getHiveEngineMetrics<T>(symbol, account);
 }
