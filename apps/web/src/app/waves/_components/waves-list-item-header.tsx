@@ -104,7 +104,7 @@ export function WavesListItemHeader({
             />
           )
         )}
-        {status === "pending" && <Spinner className="w-4 h-4" />}
+        {status === "pending" && <Spinner className="size-4" />}
       </div>
     </div>
   );

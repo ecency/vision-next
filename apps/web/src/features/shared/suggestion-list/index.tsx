@@ -208,7 +208,7 @@ export function SuggestionList({
                     onClick={moreResultsClick}
                   >
                     {i18next.t("g.more-results")}
-                    <UilArrowUpRight className="w-5 h-5" />
+                    <UilArrowUpRight className="size-5" />
                   </a>
                 </div>
               </div>

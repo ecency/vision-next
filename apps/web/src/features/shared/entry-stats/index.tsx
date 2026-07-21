@@ -99,7 +99,7 @@ export function EntryStats({ entry }: Props) {
             <span>
               {createdDate} – {i18next.t("g.today")}
             </span>
-            <span className="w-1 h-1 bg-gray-600 dark:bg-gray-400 inline-flex rounded-full" />
+            <span className="size-1 bg-gray-600 dark:bg-gray-400 inline-flex rounded-full" />
             <span>{i18next.t("entry.stats.update-info")}</span>
           </div>
           <div className="grid grid-cols-3">
@@ -137,7 +137,7 @@ export function EntryStats({ entry }: Props) {
           </div>
 
           <div className="flex items-center gap-2 text-sm opacity-50">
-            <UilInfoCircle className="w-5 h-5" />
+            <UilInfoCircle className="size-5" />
             <div>{i18next.t("entry.stats.warn")}</div>
           </div>
         </ModalBody>

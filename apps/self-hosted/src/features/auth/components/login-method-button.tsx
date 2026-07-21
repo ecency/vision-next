@@ -33,7 +33,7 @@ export function LoginMethodButton({
         'focus:outline-none focus:ring-2 focus:ring-blue-500'
       )}
     >
-      {icon && <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">{icon}</div>}
+      {icon && <div className="flex-shrink-0 size-8 flex items-center justify-center">{icon}</div>}
       <div className="flex-1 min-w-0">
         <div className="font-medium text-theme-primary">{label}</div>
         {description && <div className="text-sm text-theme-muted mt-0.5">{description}</div>}
@@ -41,7 +41,7 @@ export function LoginMethodButton({
       {loading && (
         <div className="flex-shrink-0">
           <svg
-            className="animate-spin h-5 w-5 text-theme-muted"
+            className="animate-spin size-5 text-theme-muted"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"

@@ -140,7 +140,7 @@ export function WavesFeedTabs({
           className="shrink-0 px-3 flex items-center text-gray-500 hover:text-blue-dark-sky transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
           onClick={onAdd}
         >
-          <UilPlus className="w-5 h-5" />
+          <UilPlus className="size-5" />
         </button>
       </div>
     </div>

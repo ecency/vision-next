@@ -82,7 +82,7 @@ export function ReelVoteButton({ entry: initialEntry }: { entry: Entry }) {
         aria-pressed={isVoted}
         aria-label={i18next.t("entry-vote-btn.vote", { defaultValue: "Vote" })}
       >
-        <UilHeart className="h-7 w-7" />
+        <UilHeart className="size-7" />
         <span>{count}</span>
       </button>
     </LoginRequired>

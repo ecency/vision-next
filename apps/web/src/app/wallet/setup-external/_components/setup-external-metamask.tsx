@@ -342,7 +342,7 @@ function SetupExternalMetamaskInner({ username, onBack }: Props & { username: st
               size="lg"
               onClick={connectAndFetch}
               disabled={isConnecting}
-              icon={isConnecting ? <Spinner className="w-4 h-4" /> : undefined}
+              icon={isConnecting ? <Spinner className="size-4" /> : undefined}
             >
               {isConnecting
                 ? i18next.t("wallet.link-metamask.connecting", { defaultValue: "Connecting..." })
@@ -397,7 +397,7 @@ function SetupExternalMetamaskInner({ username, onBack }: Props & { username: st
 
         {step === "linking" && (
           <div className="animate-fade-in-up w-full flex items-center flex-col justify-center min-h-[400px]">
-            <UilSpinner className="animate-spin duration-500 opacity-50 w-16 h-16" />
+            <UilSpinner className="animate-spin duration-500 opacity-50 size-16" />
             <div className="text-xl text-center font-semibold mt-4">
               {i18next.t("profile-wallet.external-wallets-signup.linking")}
             </div>
@@ -409,7 +409,7 @@ function SetupExternalMetamaskInner({ username, onBack }: Props & { username: st
 
         {step === "success" && (
           <div className="animate-fade-in-up w-full flex items-center flex-col justify-center min-h-[400px]">
-            <UilCheckCircle className="text-green w-16 h-16" />
+            <UilCheckCircle className="text-green size-16" />
             <div className="text-xl text-center font-semibold mt-4">
               {i18next.t("profile-wallet.external-wallets-signup.linking-success")}
             </div>

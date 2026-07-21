@@ -149,7 +149,7 @@ export function EntryTranslateInline({ entry }: Props) {
   return (
     <div className="entry-translate-inline mb-3">
       <div className="flex items-center flex-wrap gap-x-3 gap-y-1 rounded-lg border border-[--border-color] bg-blue-duck-egg dark:bg-dark-200 px-3 py-2 text-sm">
-        <UilLanguage className="w-4 h-4 text-blue-dark-sky shrink-0" />
+        <UilLanguage className="size-4 text-blue-dark-sky shrink-0" />
         {status === "done" ? (
           <span className="text-gray-600 dark:text-gray-400">
             {i18next.t("entry-translate.translated-from", {
@@ -178,7 +178,7 @@ export function EntryTranslateInline({ entry }: Props) {
         )}
         {status === "loading" && (
           <span className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
-            <Spinner className="w-3.5 h-3.5" /> {i18next.t("entry-translate.translating")}
+            <Spinner className="size-3.5" /> {i18next.t("entry-translate.translating")}
           </span>
         )}
         {status === "done" && (
@@ -207,7 +207,7 @@ export function EntryTranslateInline({ entry }: Props) {
             title={i18next.t("entry-translate.dismiss")}
             onClick={handleDismiss}
           >
-            <UilTimes className="w-4 h-4" />
+            <UilTimes className="size-4" />
           </button>
         )}
       </div>

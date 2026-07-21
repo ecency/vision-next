@@ -101,7 +101,7 @@ export function MobileLoginQrDialog({ show, onHide }: Props) {
             <>
               <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-4">
                 <div className="flex gap-3">
-                  <UilExclamationTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
+                  <UilExclamationTriangle className="size-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
                   <div className="flex flex-col gap-2 text-sm text-yellow-800 dark:text-yellow-200">
                     <p className="font-semibold">
                       {i18next.t("mobile-login-qr.warning-title", {
@@ -133,7 +133,7 @@ export function MobileLoginQrDialog({ show, onHide }: Props) {
                 full={true}
                 size="lg"
                 onClick={generateQr}
-                icon={<UilEye className="w-5 h-5" />}
+                icon={<UilEye className="size-5" />}
               >
                 {i18next.t("mobile-login-qr.reveal-button", {
                   defaultValue: "I understand, reveal QR code"
@@ -144,7 +144,7 @@ export function MobileLoginQrDialog({ show, onHide }: Props) {
 
           {isLoading && (
             <div className="flex flex-col items-center gap-3 py-8">
-              <UilSpinner className="w-8 h-8 animate-spin text-blue-dark-sky" />
+              <UilSpinner className="size-8 animate-spin text-blue-dark-sky" />
               <div className="text-sm text-gray-600 dark:text-gray-400">
                 {i18next.t("mobile-login-qr.generating", { defaultValue: "Generating secure QR code..." })}
               </div>

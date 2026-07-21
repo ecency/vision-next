@@ -19,7 +19,7 @@ export function PublishMultiTabWarning({ isActiveTab }: Props) {
   return (
     <div className="fixed top-16 md:top-24 left-0 right-0 z-40 mx-auto max-w-4xl px-4 animate-slide-down">
       <div className="bg-yellow-100 dark:bg-yellow-900/30 border-l-4 border-yellow-500 p-4 rounded-md shadow-lg flex items-start gap-3">
-        <UilExclamationTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
+        <UilExclamationTriangle className="size-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
         <div className="flex-1">
           <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
             {i18next.t("publish.multi-tab-warning-title", {
@@ -38,7 +38,7 @@ export function PublishMultiTabWarning({ isActiveTab }: Props) {
           className="flex-shrink-0 text-yellow-600 dark:text-yellow-400 hover:text-yellow-800 dark:hover:text-yellow-200"
           aria-label="Dismiss"
         >
-          <UilTimes className="w-5 h-5" />
+          <UilTimes className="size-5" />
         </button>
       </div>
     </div>

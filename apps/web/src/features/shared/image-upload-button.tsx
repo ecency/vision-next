@@ -62,7 +62,7 @@ export function ImageUploadButton({
         size={size}
         disabled={isPending || disabled}
         onClick={() => inputRef.current?.click()}
-        icon={isPending ? <Spinner className="w-3.5 h-3.5" /> : uploadSvg}
+        icon={isPending ? <Spinner className="size-3.5" /> : uploadSvg}
         className={className}
         appearance={appearance}
         aria-label={restProps["aria-label"]}

@@ -4,10 +4,10 @@ import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "@ui/dropdo
 import i18next from "i18next";
 import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { chevronDownSvgForSlider } from "@ui/svg";
 import { Button } from "@ui/button";
 import { UilSpinner } from "@tooni/iconscout-unicons-react";
 
+import { SliderChevron } from "@/features/shared/slider-chevron";
 export function DiscoverPeriodDropdown() {
   const router = useRouter();
 
@@ -25,12 +25,12 @@ export function DiscoverPeriodDropdown() {
     <Dropdown>
       <DropdownToggle>
         <Button
-          icon={chevronDownSvgForSlider}
+          icon={<SliderChevron direction="down" />}
           iconPlacement="right"
           size="sm"
           appearance="gray-link"
         >
-          {isLoading && <UilSpinner className="w-4 h-4 mr-4 text-blue-dark-sky animate-spin" />}
+          {isLoading && <UilSpinner className="size-4 mr-4 text-blue-dark-sky animate-spin" />}
           {i18next.t("leaderboard.title-stars")}
         </Button>
       </DropdownToggle>

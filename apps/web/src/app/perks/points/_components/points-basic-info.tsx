@@ -33,7 +33,7 @@ export function PointsBasicInfo() {
         <div className="opacity-50">{i18next.t("redeem-common.balance")}:</div>
         <div className="text-blue-dark-sky">
           {isPending ? (
-            <UilSpinner className="w-6 h-6 animate-spin" />
+            <UilSpinner className="size-6 animate-spin" />
           ) : (
             (+(activeUserPoints?.points ?? "0")).toFixed(0) + " POINTS"
           )}

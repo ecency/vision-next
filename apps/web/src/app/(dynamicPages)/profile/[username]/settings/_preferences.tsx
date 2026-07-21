@@ -84,7 +84,7 @@ export function Preferences() {
     <>
       <div className="bg-white rounded-xl p-3 flex flex-col gap-4">
         <div className="text-gray-600 dark:text-gray-400 text-sm flex items-center gap-2">
-          <UilCog className="w-4 h-4" />
+          <UilCog className="size-4" />
           {i18next.t("preferences.title")}
         </div>
 

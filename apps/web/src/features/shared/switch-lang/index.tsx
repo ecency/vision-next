@@ -8,8 +8,8 @@ import i18next from "i18next";
 import { langOptions } from "@/features/i18n";
 import { useGlobalStore } from "@/core/global-store";
 import { Button } from "@ui/button";
-import { chevronDownSvgForSlider } from "@ui/svg";
 
+import { SliderChevron } from "@/features/shared/slider-chevron";
 interface Props {
   label?: string;
   onSelect?: () => void;
@@ -26,7 +26,7 @@ export function SwitchLang({ label, onSelect }: Props) {
       <div className="hidden">{trigger}</div>
       <Dropdown>
         <DropdownToggle>
-          <Button size="sm" className="uppercase" appearance="link" icon={chevronDownSvgForSlider}>
+          <Button size="sm" className="uppercase" appearance="link" icon={<SliderChevron direction="down" />}>
             {label ?? lang.split("-")[0]}
           </Button>
         </DropdownToggle>

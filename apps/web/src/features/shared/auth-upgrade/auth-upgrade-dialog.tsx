@@ -172,7 +172,7 @@ export function AuthUpgradeDialog() {
                           width={100}
                           height={100}
                           src="/assets/hive-signer.svg"
-                          className="w-4 h-4"
+                          className="size-4"
                           alt="hivesigner"
                         />
                       }
@@ -197,7 +197,7 @@ export function AuthUpgradeDialog() {
                                   height={20}
                                   src={ext.icon}
                                   alt={ext.name}
-                                  className="w-4 h-4 rounded-sm"
+                                  className="size-4 rounded-sm"
                                 />
                               ))
                             ) : (
@@ -206,7 +206,7 @@ export function AuthUpgradeDialog() {
                                 height={20}
                                 src="/assets/keychain.png"
                                 alt="extensions"
-                                className="w-4 h-4"
+                                className="size-4"
                               />
                             )}
                           </div>

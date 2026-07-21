@@ -49,7 +49,7 @@ const Card = ({ title, description, isLoading, value }: CardProps) => (
     <div className="title">{title}</div>
     <div className="description">{description}</div>
     <div className={"value " + (isLoading ? "" : "loaded")}>
-      {isLoading ? <Spinner className="w-4 h-4" /> : value}
+      {isLoading ? <Spinner className="size-4" /> : value}
     </div>
   </div>
 );

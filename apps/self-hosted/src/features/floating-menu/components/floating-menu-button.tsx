@@ -21,7 +21,7 @@ export const FloatingMenuButton = memo<FloatingMenuButtonProps>(
       >
         {isOpen && (
           <svg
-            className="w-4 h-4 mr-2"
+            className="size-4 mr-2"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"

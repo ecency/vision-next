@@ -1,8 +1,8 @@
 import React, { JSX } from "react";
 import { Button } from "@ui/button";
 import { Accordion, AccordionCollapse, AccordionToggle } from "@ui/accordion";
-import { chevronDownSvgForSlider } from "@ui/svg";
 
+import { SliderChevron } from "@/features/shared/slider-chevron";
 interface Props {
   title?: string | JSX.Element;
   headerOptions?: JSX.Element;
@@ -49,7 +49,7 @@ export const MarketAdvancedModeWidgetHeader = ({
               eventKey="0"
               noPadding={true}
               onClick={() => setExpandedHeader(!expandedHeader)}
-              icon={chevronDownSvgForSlider}
+              icon={<SliderChevron direction="down" />}
               iconClassName="transition-transform duration-200 [[data-open=true]_&]:rotate-180"
             />
           ) : (

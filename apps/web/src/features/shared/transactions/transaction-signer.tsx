@@ -149,7 +149,7 @@ export default function TransactionSigner({ show, onHide, operation }: Props) {
         )}
         {step === "success" && (
           <div className="flex flex-col gap-2 items-center">
-            <UilCheckCircle className="text-green w-12 h-12" />
+            <UilCheckCircle className="text-green size-12" />
             <div className="font-bold text-green mb-2">{i18next.t("g.success")}</div>
             <div className="opacity-75 text-sm pb-6 text-center">
               {i18next.t("transactions.success-hint")}
@@ -158,7 +158,7 @@ export default function TransactionSigner({ show, onHide, operation }: Props) {
         )}
         {step === "failure" && (
           <div className="flex flex-col gap-2 items-center">
-            <UilTimesCircle className="text-red w-12 h-12" />
+            <UilTimesCircle className="text-red size-12" />
             <div className="font-bold text-red mb-2">{i18next.t("g.error")}</div>
             <div className="opacity-75 text-sm pb-6 text-center">
               {i18next.t("transactions.error-hint")}

@@ -39,7 +39,7 @@ export function NavbarSideMainMenuItem({
         </span>
       )}
       {!badgeContent && dot && (
-        <span className="ml-auto h-2.5 w-2.5 rounded-full bg-blue-500" aria-hidden="true" />
+        <span className="ml-auto size-2.5 rounded-full bg-blue-500" aria-hidden="true" />
       )}
       {isNew && <Badge className="text-xs">New 🔥</Badge>}
     </>

@@ -42,7 +42,7 @@ export function TipButton({
         aria-haspopup="dialog"
         aria-expanded={open}
       >
-        <UilDollarSign className="w-4 h-4" />
+        <UilDollarSign className="size-4" />
         <span>{buttonLabel}</span>
       </button>
       {open && (

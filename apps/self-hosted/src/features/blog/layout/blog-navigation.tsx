@@ -81,7 +81,7 @@ export function BlogNavigation() {
             <img
               src={displayLogo}
               alt={displayTitle}
-              className="h-8 w-8 sm:h-10 sm:w-10 object-contain rounded-full"
+              className="size-8 sm:size-10 object-contain rounded-full"
             />
           )}
           <div>
@@ -145,7 +145,7 @@ function RssFeedLink() {
       title="RSS Feed"
       aria-label="RSS Feed"
     >
-      <UilRss className="w-5 h-5" />
+      <UilRss className="size-5" />
     </a>
   );
 }

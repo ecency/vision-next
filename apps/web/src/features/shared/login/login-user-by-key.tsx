@@ -117,7 +117,7 @@ export function LoginUserByKey({ username }: Props) {
               }
             }}
           >
-            {seed ? <UilCheckCircle className="w-8 h-8" /> : <UilFileUpload className="w-8 h-8" />}
+            {seed ? <UilCheckCircle className="size-8" /> : <UilFileUpload className="size-8" />}
             {seed ? (
               <div className="border border-dashed border-green bg-green bg-opacity-10 rounded-lg p-2 flex items-center gap-2">
                 {seedFilename}
@@ -126,7 +126,7 @@ export function LoginUserByKey({ username }: Props) {
                     setSeed(undefined);
                     setSeedfilename(undefined);
                   }}
-                  className="cursor-pointer text-red hover:rotate-3 hover:scale-110 w-4 h-4 duration-300"
+                  className="cursor-pointer text-red hover:rotate-3 hover:scale-110 size-4 duration-300"
                 />
               </div>
             ) : (

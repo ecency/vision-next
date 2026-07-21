@@ -58,7 +58,7 @@ export function ProfileWalletTokensList() {
           <StyledTooltip size="md" content={i18next.t("profile-wallet.apr-hint")}>
             <div className="flex items-center gap-1">
               {i18next.t("profile-wallet.apr")}
-              <UilInfoCircle className="w-4 h-4" />
+              <UilInfoCircle className="size-4" />
             </div>
           </StyledTooltip>
         </div>

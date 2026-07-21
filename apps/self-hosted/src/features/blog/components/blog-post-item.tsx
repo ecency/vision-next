@@ -124,7 +124,7 @@ export function BlogPostItem({ entry }: Props) {
 
       {location && (
         <div className="mb-3 flex items-center text-xs text-theme-muted">
-          <UilMapPinAlt className="w-3 h-3 mr-1" />
+          <UilMapPinAlt className="size-3 mr-1" />
           <span>{location}</span>
         </div>
       )}
@@ -169,7 +169,7 @@ export function BlogPostItem({ entry }: Props) {
           <>
             <span>•</span>
             <div className="flex items-center gap-1">
-              <UilHeart className="w-3 h-3" />
+              <UilHeart className="size-3" />
               <span>{likesCount}</span>
             </div>
           </>
@@ -178,7 +178,7 @@ export function BlogPostItem({ entry }: Props) {
           <>
             <span>•</span>
             <div className="flex items-center gap-1">
-              <UilComment className="w-3 h-3" />
+              <UilComment className="size-3" />
               <span>{commentsCount}</span>
             </div>
           </>

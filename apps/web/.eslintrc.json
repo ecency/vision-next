@@ -14,9 +14,23 @@
     "jsx-a11y/control-has-associated-label": [
       "warn",
       {
-        "labelAttributes": ["aria-label", "aria-labelledby", "title"],
-        "controlComponents": ["Button"],
-        "ignoreElements": ["audio", "canvas", "embed", "input", "textarea", "tr", "video"],
+        "labelAttributes": [
+          "aria-label",
+          "aria-labelledby",
+          "title"
+        ],
+        "controlComponents": [
+          "Button"
+        ],
+        "ignoreElements": [
+          "audio",
+          "canvas",
+          "embed",
+          "input",
+          "textarea",
+          "tr",
+          "video"
+        ],
         "ignoreRoles": [
           "grid",
           "listbox",
@@ -33,6 +47,17 @@
       }
     ],
     "jsx-a11y/click-events-have-key-events": "warn",
-    "jsx-a11y/no-static-element-interactions": "warn"
+    "jsx-a11y/no-static-element-interactions": "warn",
+    "no-restricted-syntax": [
+      "warn",
+      {
+        "selector": "JSXOpeningElement[name.name=/^Uil/] > JSXAttribute[name.name=/^(size|width|height)$/]",
+        "message": "Icons are sized with className=\"size-3.5|4|5|6\" or a sanctioned slot; attributes lose to CSS. See docs/icons.md."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name=/^Uil/] > JSXAttribute[name.name='className'] Literal[value=/(^|\\s)([a-z-]+:)*!?[wh]-(3(\\.5)?|4|5|6)(\\s|$)/]",
+        "message": "Spell glyph sizes as size-N (or !size-N inside a sanctioned slot), one token. w-/h-/!w-/!h- glyph sizes are banned. See docs/icons.md."
+      }
+    ]
   }
 }

@@ -73,7 +73,7 @@ export default function PublishImportPage() {
           <Button size="sm" disabled={!url.trim() || loading} onClick={handleImport}>
             {loading ? (
               <span className="flex items-center gap-2">
-                <Spinner className="w-3 h-3" />
+                <Spinner className="size-3" />
                 {i18next.t("publish.importing")}
               </span>
             ) : (

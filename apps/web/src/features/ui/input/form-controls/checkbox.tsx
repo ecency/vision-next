@@ -37,7 +37,7 @@ export function Checkbox({ checked, onChange, label, disabled }: CheckboxProps) 
           "opacity-50": disabled
         })}
       >
-        {checked ? <UilCheck className="w-3.5 h-3.5 dark:text-gray-400" /> : <></>}
+        {checked ? <UilCheck className="size-3.5 dark:text-gray-400" /> : <></>}
       </div>
       {label && <div>{label}</div>}
     </div>

@@ -38,7 +38,7 @@ export function MyFavoritesWidget() {
         {isLoading &&
           new Array(MAX_VISIBLE).fill(0).map((_, i) => (
             <div key={i} className="flex items-center gap-2 animate-pulse">
-              <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700" />
+              <div className="size-6 rounded-full bg-gray-200 dark:bg-gray-700" />
               <div className="h-4 w-24 rounded bg-gray-200 dark:bg-gray-700" />
             </div>
           ))}

@@ -62,8 +62,8 @@ export function FeedbackMessage({ feedback, onClose }: Props) {
       onMouseLeave={() => initTimeout()}
     >
       <div className="flex items-start gap-2 px-2">
-        {feedback.type === "error" && <UilExclamationCircle className="w-6 h-6 text-red" />}
-        {feedback.type === "success" && <UilCheckCircle className="w-6 h-6 text-green" />}
+        {feedback.type === "error" && <UilExclamationCircle className="size-6 text-red" />}
+        {feedback.type === "success" && <UilCheckCircle className="size-6 text-green" />}
         <div className="w-full">
           <div className="flex justify-between items-center">
             <div
@@ -82,7 +82,7 @@ export function FeedbackMessage({ feedback, onClose }: Props) {
               {feedback.type === "info" && "Information"}
             </div>
             <Button
-              className="!w-6 !h-6"
+              className="!size-6"
               icon={<UilMultiply className="!w-3" />}
               appearance="gray"
               onClick={handleClose}

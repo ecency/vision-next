@@ -44,6 +44,12 @@ importers:
       eslint:
         specifier: ^8
         version: 8.57.1
+      postcss:
+        specifier: ^8.5.10
+        version: 8.5.15
+      postcss-scss:
+        specifier: ^4.0.9
+        version: 4.0.9(postcss@8.5.15)
       sass-embedded:
         specifier: 1.93.2
         version: 1.93.2
@@ -6945,6 +6951,12 @@ packages:
 
   postcss-nested@6.2.0:
     resolution: {integrity: sha512-HQbt28KulC5AJzG+cZtj9kvKB93CFCdLvog1WFLf1D+xmMvPGlBstkpTEZfK5+AN9hfJocyBFCNiqyS48bpgzQ==}
+    engines: {node: '>=12.0'}
+    peerDependencies:
+      postcss: ^8.5.10
+
+  postcss-scss@4.0.9:
+    resolution: {integrity: sha512-AjKOeiwAitL/MXxQW2DliT28EKukvvbEWx3LBmJIRN8KfBGZbRTxNYW0kSqi1COiTZ57nZ9NW06S6ux//N1c9A==}
     engines: {node: '>=12.0'}
     peerDependencies:
       postcss: ^8.5.10
@@ -15194,6 +15206,10 @@ snapshots:
     dependencies:
       postcss: 8.5.15
       postcss-selector-parser: 6.1.2
+
+  postcss-scss@4.0.9(postcss@8.5.15):
+    dependencies:
+      postcss: 8.5.15
 
   postcss-selector-parser@6.1.2:
     dependencies:

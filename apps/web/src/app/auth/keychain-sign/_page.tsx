@@ -77,7 +77,7 @@ export function KeychainSignPage() {
           <h1 className="text-xl md:text-3xl font-semibold text-blue-dark-sky">
             {i18next.t("login.keychain-sign-processing", { defaultValue: "Processing..." })}
           </h1>
-          <UilSpinner className="animate-spin w-6 h-6 lg:w-8 lg:h-8" />
+          <UilSpinner className="animate-spin size-6 lg:size-8" />
         </>
       )}
 
@@ -86,7 +86,7 @@ export function KeychainSignPage() {
           <h1 className="text-xl md:text-3xl font-semibold text-green">
             {i18next.t("login.keychain-sign-success", { defaultValue: "Transaction Signed" })}
           </h1>
-          <UilCheckCircle className="w-12 h-12 text-green" />
+          <UilCheckCircle className="size-12 text-green" />
           <Alert appearance="success">
             <p className="md:text-lg p-2">
               {i18next.t("login.keychain-sign-redirecting", { defaultValue: "Redirecting you back..." })}

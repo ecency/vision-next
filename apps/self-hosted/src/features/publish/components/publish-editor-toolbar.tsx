@@ -97,7 +97,7 @@ export function PublishEditorToolbar({ editor }: Props) {
         }`}
         title="Align left"
       >
-        <UilAlignLeft className="w-5 h-5" />
+        <UilAlignLeft className="size-5" />
       </button>
       <button
         type="button"
@@ -109,7 +109,7 @@ export function PublishEditorToolbar({ editor }: Props) {
         }`}
         title="Align center"
       >
-        <UilAlignCenter className="w-5 h-5" />
+        <UilAlignCenter className="size-5" />
       </button>
       <button
         type="button"
@@ -121,7 +121,7 @@ export function PublishEditorToolbar({ editor }: Props) {
         }`}
         title="Align right"
       >
-        <UilAlignRight className="w-5 h-5" />
+        <UilAlignRight className="size-5" />
       </button>
 
       <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
@@ -138,7 +138,7 @@ export function PublishEditorToolbar({ editor }: Props) {
           aria-expanded={showHeadingMenu}
           aria-haspopup="menu"
         >
-          <UilTextSize className="w-5 h-5" />
+          <UilTextSize className="size-5" />
         </button>
         {showHeadingMenu && (
           <div className="absolute top-full left-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg z-20">
@@ -154,7 +154,7 @@ export function PublishEditorToolbar({ editor }: Props) {
                   : ""
               }`}
             >
-              <UilParagraph className="w-4 h-4 inline mr-2" />
+              <UilParagraph className="size-4 inline mr-2" />
               Normal text
             </button>
             {headings.map((level) => (
@@ -189,7 +189,7 @@ export function PublishEditorToolbar({ editor }: Props) {
         }`}
         title="Bold"
       >
-        <UilBold className="w-5 h-5" />
+        <UilBold className="size-5" />
       </button>
       <button
         type="button"
@@ -199,7 +199,7 @@ export function PublishEditorToolbar({ editor }: Props) {
         }`}
         title="Italic"
       >
-        <UilItalic className="w-5 h-5" />
+        <UilItalic className="size-5" />
       </button>
       <button
         type="button"
@@ -209,7 +209,7 @@ export function PublishEditorToolbar({ editor }: Props) {
         }`}
         title="Strikethrough"
       >
-        <UilTextStrikeThrough className="w-5 h-5" />
+        <UilTextStrikeThrough className="size-5" />
       </button>
       <button
         type="button"
@@ -219,7 +219,7 @@ export function PublishEditorToolbar({ editor }: Props) {
         }`}
         title="Code"
       >
-        <UilBracketsCurly className="w-5 h-5" />
+        <UilBracketsCurly className="size-5" />
       </button>
 
       <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
@@ -233,7 +233,7 @@ export function PublishEditorToolbar({ editor }: Props) {
         }`}
         title="Bullet list"
       >
-        <UilListUl className="w-5 h-5" />
+        <UilListUl className="size-5" />
       </button>
       <button
         type="button"
@@ -243,7 +243,7 @@ export function PublishEditorToolbar({ editor }: Props) {
         }`}
         title="Ordered list"
       >
-        <UilListOl className="w-5 h-5" />
+        <UilListOl className="size-5" />
       </button>
 
       <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
@@ -255,7 +255,7 @@ export function PublishEditorToolbar({ editor }: Props) {
         className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
         title="Insert table"
       >
-        <UilTable className="w-5 h-5" />
+        <UilTable className="size-5" />
       </button>
     </div>
     {isFocusingTable && <PublishEditorTableToolbar editor={editor} />}

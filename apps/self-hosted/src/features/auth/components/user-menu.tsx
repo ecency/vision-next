@@ -66,7 +66,7 @@ export function UserMenu({ className }: UserMenuProps) {
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 px-3 py-1.5 rounded-md hover:bg-theme-hover transition-colors"
       >
-        <div className="w-7 h-7 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-medium">
+        <div className="size-7 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-medium">
           {user?.username?.charAt(0).toUpperCase()}
         </div>
         <span className="text-sm text-theme-primary font-medium hidden sm:inline">

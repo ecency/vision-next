@@ -532,13 +532,13 @@ export function ChatsClient() {
                           <div className="flex items-center gap-2 min-w-0">
                             <div className="relative flex-shrink-0">
                               {channel.type === "D" && channel.directUser ? (
-                                <UserAvatar username={channel.directUser.username} size="medium" className="h-10 w-10" />
+                                <UserAvatar username={channel.directUser.username} size="medium" className="size-10" />
                               ) : (
-                                <UserAvatar username={channel.name} size="medium" className="h-10 w-10" />
+                                <UserAvatar username={channel.name} size="medium" className="size-10" />
                               )}
                               {unread > 0 && (
                                 <span
-                                  className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-[--primary-color] ring-2 ring-[--surface-color]"
+                                  className="absolute -right-1 -top-1 size-2.5 rounded-full bg-[--primary-color] ring-2 ring-[--surface-color]"
                                   aria-hidden="true"
                                 />
                               )}
@@ -697,11 +697,11 @@ export function ChatsClient() {
                           <div className="flex items-center gap-2 min-w-0">
                             <div className="relative flex-shrink-0">
                               {channel.directUser && (
-                                <UserAvatar username={channel.directUser.username} size="medium" className="h-10 w-10" />
+                                <UserAvatar username={channel.directUser.username} size="medium" className="size-10" />
                               )}
                               {unread > 0 && (
                                 <span
-                                  className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-[--primary-color] ring-2 ring-[--surface-color]"
+                                  className="absolute -right-1 -top-1 size-2.5 rounded-full bg-[--primary-color] ring-2 ring-[--surface-color]"
                                   aria-hidden="true"
                                 />
                               )}
@@ -796,10 +796,10 @@ export function ChatsClient() {
                         >
                           <div className="flex items-center gap-2 min-w-0">
                             <div className="relative flex-shrink-0">
-                              <UserAvatar username={channel.name} size="medium" className="h-10 w-10" />
+                              <UserAvatar username={channel.name} size="medium" className="size-10" />
                               {unread > 0 && (
                                 <span
-                                  className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-[--primary-color] ring-2 ring-[--surface-color]"
+                                  className="absolute -right-1 -top-1 size-2.5 rounded-full bg-[--primary-color] ring-2 ring-[--surface-color]"
                                   aria-hidden="true"
                                 />
                               )}
@@ -916,13 +916,13 @@ export function ChatsClient() {
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="relative flex-shrink-0">
                         {channel.type === "D" && channel.directUser ? (
-                          <UserAvatar username={channel.directUser.username} size="medium" className="h-10 w-10" />
+                          <UserAvatar username={channel.directUser.username} size="medium" className="size-10" />
                         ) : (
-                          <UserAvatar username={channel.name} size="medium" className="h-10 w-10" />
+                          <UserAvatar username={channel.name} size="medium" className="size-10" />
                         )}
                         {unread > 0 && (
                           <span
-                            className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-[--primary-color] ring-2 ring-[--surface-color]"
+                            className="absolute -right-1 -top-1 size-2.5 rounded-full bg-[--primary-color] ring-2 ring-[--surface-color]"
                             aria-hidden="true"
                           />
                         )}
@@ -1068,7 +1068,7 @@ export function ChatsClient() {
                         className="flex items-center justify-between gap-3 rounded border border-[--border-color] bg-[--surface-color] p-2 text-left transition hover:border-blue-dark-sky"
                       >
                         <div className="flex items-center gap-3">
-                          <UserAvatar username={user.username} size="medium" className="h-9 w-9" />
+                          <UserAvatar username={user.username} size="medium" className="size-9" />
                           <div className="flex flex-col">
                             <span className="font-semibold">@{user.username}</span>
                             {secondary && <span className="text-xs text-[--text-muted]">{secondary}</span>}

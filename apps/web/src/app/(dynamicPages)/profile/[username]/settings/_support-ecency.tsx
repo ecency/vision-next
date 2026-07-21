@@ -54,7 +54,7 @@ export function SupportEcencySettings() {
     // straight to this card; scroll-mt keeps it clear of the fixed navbar.
     <div id="support-ecency" className="bg-white rounded-xl p-3 flex flex-col gap-4 scroll-mt-20">
       <div className="text-gray-600 dark:text-gray-400 text-sm flex items-center gap-2">
-        <UilHeart className="w-4 h-4" />
+        <UilHeart className="size-4" />
         {i18next.t("support-ecency.title")}
       </div>
 

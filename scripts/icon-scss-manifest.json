@@ -1,0 +1,669 @@
+{
+ "comment": "Ledger of every SCSS/CSS svg-sizing rule block. CI (icon-scss-audit) fails on rules absent here or deleted entries reappearing. Owners reference delivery bundles of docs/icons.md migration; allowlist = permanent exemption.",
+ "rules": [
+  {
+   "key": "apps/web/src/app/(dynamicPages)/community/[community]/_components/community-card/_index.scss | svg | height: 16px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/(dynamicPages)/community/[community]/_components/community-card/_index.scss | svg | height: 16px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/(dynamicPages)/community/[community]/_components/community-card/_index.scss | svg | height: 14px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/(dynamicPages)/community/[community]/_components/community-cover/_index.scss | svg | height: 16px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/(dynamicPages)/community/[community]/_components/community-subscribers/_index.scss | svg | height: 12px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/comment-engagement/_index.scss | svg | height: 24px",
+   "status": "B3"
+  },
+  {
+   "key": "apps/web/src/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/similar-entries/_index.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/simil",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/(dynamicPages)/entry/[category]/[author]/[permlink]/entry.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/app/(dynamicPages)/entry/[category]/[author]/[permlink]/entry.scss:306:50",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/app/(dynamicPages)/feed/[...sections]/entry-index.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/app/(dynamicPages)/feed/[...sections]/entry-index.scss:23:25: Unclosed st",
+   "status": "allowlist:app-badges"
+  },
+  {
+   "key": "apps/web/src/app/(dynamicPages)/profile/[username]/_components/claim-account-credit/index.scss | svg | width: 1rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/(dynamicPages)/profile/[username]/_components/claim-account-credit/index.scss | svg | height: 1rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/(dynamicPages)/profile/[username]/_components/claim-account-credit/index.scss | svg | width: 1rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/(dynamicPages)/profile/[username]/_components/claim-account-credit/index.scss | svg | height: 1rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/(dynamicPages)/profile/[username]/_components/profile-card/_index.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/app/(dynamicPages)/profile/[username]/_components/profile-card/_index.scs",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/(dynamicPages)/profile/[username]/_components/profile-info/_index.scss | svg | height: 12px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/(dynamicPages)/profile/[username]/_components/rc-info/_index.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/app/(dynamicPages)/profile/[username]/_components/rc-info/_index.scss:171",
+   "status": "allowlist:rc-gauge"
+  },
+  {
+   "key": "apps/web/src/app/_components/entry-index-menu/_index.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/app/_components/entry-index-menu/_index.scss:9:10: Unknown word margin-bo",
+   "status": "allowlist:app-badges"
+  },
+  {
+   "key": "apps/web/src/app/_components/market-data/_index.scss | svg | width: 20px",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/_deck-floating-manager.scss | svg | min-width: 1.5rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/_deck-floating-manager.scss | svg | min-height: 1.5rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/_deck-floating-manager.scss | svg | max-width: 1.5rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/_deck-floating-manager.scss | svg | max-height: 1.5rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/_deck-toolbar.scss | svg | width: 1.5rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/_deck-toolbar.scss | svg | height: 1.5rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/_deck-toolbar.scss | svg | width: 24px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/_deck.scss | .icon svg | width: 100%",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/_deck.scss | .icon svg | height: 100%",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/_deck.scss | .footer-icons svg | width: 18px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/_deck.scss | .footer-icons svg | height: 18px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/_deck.scss | svg | width: 1rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/_deck.scss | svg | height: 1rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/_deck.scss | svg | width: 14px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/_deck.scss | svg | width: 4rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/_deck.scss | svg | height: 4rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/columns/add-column/_deck-add-column.scss | svg | width: 1.5rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/columns/add-column/_deck-add-column.scss | svg | width: 2rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/columns/content-viewer/_deck-post-viewer.scss | svg | width: 1rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/columns/content-viewer/_deck-post-viewer.scss | svg | height: 1rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/columns/content-viewer/_deck-post-viewer.scss | svg | width: 4rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/columns/content-viewer/_deck-post-viewer.scss | svg | height: 4rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/columns/content-viewer/_deck-thread-item-viewer-reply.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/app/decks/_components/columns/content-viewer/_deck-thread-item-viewer-rep",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/columns/deck-items/_index.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/app/decks/_components/columns/deck-items/_index.scss:271:13: Unknown word",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/deck-settings/_decks-settings.scss | svg | width: 1rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/deck-threads-form/_index.scss | svg | width: 1rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/deck-threads-form/_index.scss | svg | height: 1rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/deck-toolbar/_deck-toolbar-manager.scss | svg | width: 1.5rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/decks/_components/deck-toolbar/_deck-toolbar-manager.scss | svg | height: 1.5rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/market/index.scss | .icon svg | width: 100%",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/market/index.scss | .icon svg | height: 100%",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/market/index.scss | .footer-icons svg | width: 18px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/market/index.scss | .footer-icons svg | height: 18px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/market/index.scss | svg | width: 16px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/market/index.scss | svg | width: 14px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/proposals/_components/proposal-list-item/_index.scss | svg | height: 16px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/submit/_components/community-selector/_index.scss | svg | height: 22px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/app/submit/_components/post-scheduler/_index.scss | svg | height: 16px",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/app/submit/_components/tag-selector/_index.scss | svg | height: 16px",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/app/submit/_components/tag-selector/_index.scss | svg | height: 14px",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/app/submit/_index.scss | svg | width: 1rem",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/app/submit/_index.scss | svg | height: 1rem",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/app/submit/_index.scss | svg | width: 25px",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/app/waves/_components/waves-reel-item.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/app/waves/_components/waves-reel-item.scss:1:1: Unknown word //\nYou tried",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/app/witnesses/page.scss | svg | height: 16px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/market/market-swap-form/index.scss | .loading-market-svg | width: 24px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/market/market-swap-form/index.scss | .loading-market-svg | height: 24px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/market/market-swap-form/index.scss | > div, > div > svg | width: auto",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/market/market-swap-form/index.scss | > div, > div > svg | height: auto",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/post-renderer/components/extensions/hive-operation-extension.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/features/post-renderer/components/extensions/hive-operation-extension.scs",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/features/post-renderer/ecency-renderer.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/features/post-renderer/ecency-renderer.scss:387:32: Unknown word 16\nYou t",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/features/shared/bookmark-btn/_index.scss | svg | height: 20px",
+   "status": "B4"
+  },
+  {
+   "key": "apps/web/src/features/shared/comment/_index.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/features/shared/comment/_index.scss:40:10: Unknown word height\nYou tried ",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/features/shared/discussion/_index.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/features/shared/discussion/_index.scss:299:16: Unknown word Add\nYou tried",
+   "status": "B3"
+  },
+  {
+   "key": "apps/web/src/features/shared/edit-history/index.scss | svg | height: 20px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/shared/edit-history/index.scss | svg | height: 16px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/shared/editor-toolbar/_index.scss | svg | height: 22px",
+   "status": "B3"
+  },
+  {
+   "key": "apps/web/src/features/shared/editor-toolbar/_index.scss | svg | height: 18px",
+   "status": "B3"
+  },
+  {
+   "key": "apps/web/src/features/shared/entry-list-item/_index.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/features/shared/entry-list-item/_index.scss:176:70: Unclosed string\nYou t",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/features/shared/entry-menu/_index.scss | svg | height: 18px",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/features/shared/entry-menu/_index.scss | svg | width: 18px",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/features/shared/entry-menu/_index.scss | svg | height: 17px",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/features/shared/entry-menu/_index.scss | svg | width: 17px",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/features/shared/entry-reblog-btn/_index.scss | svg | height: 16px",
+   "status": "B4"
+  },
+  {
+   "key": "apps/web/src/features/shared/entry-share/_index.scss | svg | width: 28px",
+   "status": "allowlist:brand-circles"
+  },
+  {
+   "key": "apps/web/src/features/shared/entry-share/_index.scss | svg | height: 28px",
+   "status": "allowlist:brand-circles"
+  },
+  {
+   "key": "apps/web/src/features/shared/entry-tip-btn/_index.scss | svg | height: 16px",
+   "status": "B4"
+  },
+  {
+   "key": "apps/web/src/features/shared/entry-vote-btn/_index.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/features/shared/entry-vote-btn/_index.scss:2:1: Unknown word //\nYou tried",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/features/shared/entry-votes/_index.scss | svg | height: 14px",
+   "status": "B4"
+  },
+  {
+   "key": "apps/web/src/features/shared/entry-votes/_index.scss | svg | width: 14px",
+   "status": "B4"
+  },
+  {
+   "key": "apps/web/src/features/shared/gallery/_index.scss | svg | height: 16px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/shared/list-style-toggle/_index.scss | svg | width: 24px",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/features/shared/list-style-toggle/_index.scss | svg | height: 24px",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/features/shared/navbar/_navbar-notifications-button.scss | svg | height: 1.5rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/shared/navbar/_navbar-notifications-button.scss | svg | width: 1.5rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/shared/navbar/sidebar/_navbar-side-theme-switcher.scss | svg | width: 1.25rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/shared/navbar/sidebar/_navbar-side-theme-switcher.scss | svg | height: 1.25rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/shared/notifications/_index.scss | svg | height: 18px",
+   "status": "B3"
+  },
+  {
+   "key": "apps/web/src/features/shared/notifications/_index.scss | .select-svg | height: 14px",
+   "status": "B3"
+  },
+  {
+   "key": "apps/web/src/features/shared/notifications/_index.scss | svg | height: 14px",
+   "status": "B3"
+  },
+  {
+   "key": "apps/web/src/features/shared/notifications/_index.scss | .mark-svg | height: 22px",
+   "status": "B3"
+  },
+  {
+   "key": "apps/web/src/features/shared/notifications/_index.scss | svg | height: 22px",
+   "status": "B3"
+  },
+  {
+   "key": "apps/web/src/features/shared/scroll-to-top/_index.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/features/shared/scroll-to-top/_index.scss:37:80: Unclosed string\nYou trie",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/features/shared/search-box/_index.scss | svg | width: 22px",
+   "status": "B3"
+  },
+  {
+   "key": "apps/web/src/features/shared/search-list-item/_index.scss | svg | height: 14px",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/features/shared/transactions/_index.scss | svg | width: 16px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/shared/transactions/_index.scss | svg | height: 16px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/shared/transfer/_index.scss | svg | height: 60px",
+   "status": "allowlist:transfer-arrow"
+  },
+  {
+   "key": "apps/web/src/features/shared/transfer/_index.scss | svg | width: 60px",
+   "status": "allowlist:transfer-arrow"
+  },
+  {
+   "key": "apps/web/src/features/shared/video-upload-threespeak/index.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/features/shared/video-upload-threespeak/index.scss:42:8: Unknown word bac",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/features/ui/gif-picker/_index.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/features/ui/gif-picker/_index.scss:5:6: Unknown word width\nYou tried to p",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/features/ui/input/_input-vote.scss | .entry-list-item .item-body .item-controls .ecency-vote-input svg | max-width: 16px",
+   "status": "B4"
+  },
+  {
+   "key": "apps/web/src/features/ui/input/_input-vote.scss | .entry-list-item .item-body .item-controls .ecency-vote-input svg | width: 16px",
+   "status": "B4"
+  },
+  {
+   "key": "apps/web/src/features/ui/input/_input-vote.scss | .entry-list-item .item-body .item-controls .ecency-vote-input svg | height: 16px",
+   "status": "B4"
+  },
+  {
+   "key": "apps/web/src/features/ui/input/_input-vote.scss | .entry-list-item .item-body .item-controls .ecency-vote-input svg | max-height: 16px",
+   "status": "B4"
+  },
+  {
+   "key": "apps/web/src/features/ui/pagination/index.css | .pagination svg | width: 1rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/ui/pagination/index.css | .pagination svg | height: 1rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/waves/components/wave-actions.scss | svg | @apply w-4 h-4",
+   "status": "B4"
+  },
+  {
+   "key": "apps/web/src/features/waves/components/wave-form/_index.scss | svg | width: 1rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/features/waves/components/wave-form/_index.scss | svg | height: 1rem",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/styles/_base.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/_base.scss:87:1: Unclosed block\nYou tried to parse SCSS with the s",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/_bootstrap_vars.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/_bootstrap_vars.scss:18:4: Unknown word Duplicated\nYou tried to pa",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/_components.scss | .vote-svg | width: 8px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/styles/_components.scss | .vote-svg | max-height: 6px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/styles/_components.scss | .slider-svg-up | width: 12px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/styles/_components.scss | .slider-svg-up | max-height: 7px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/styles/_components.scss | .slider-svg-down | width: 12px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/styles/_components.scss | .slider-svg-down | max-height: 7px",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/styles/_markdown.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/_markdown.scss:139:30: Unknown word //\nYou tried to parse SCSS wit",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/_mixins.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/_mixins.scss:363:15: Unknown word for\nYou tried to parse SCSS with",
+   "status": "B4"
+  },
+  {
+   "key": "apps/web/src/styles/_variables.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/_variables.scss:1:4: Unknown word Bootstrap\nYou tried to parse SCS",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/bootstrap/scss/_functions.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/bootstrap/scss/_functions.scss:12:7: Unknown word //\nYou tried to ",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/bootstrap/scss/_mixins.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/bootstrap/scss/_mixins.scss:1:1: Unknown word //\nYou tried to pars",
+   "status": "B4"
+  },
+  {
+   "key": "apps/web/src/styles/bootstrap/scss/_utilities.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/bootstrap/scss/_utilities.scss:3:1: Unknown word //\nYou tried to p",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/bootstrap/scss/_variables.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/bootstrap/scss/_variables.scss:1:4: Unknown word Variables\nYou tri",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/bootstrap/scss/mixins/_background-variant.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/bootstrap/scss/mixins/_background-variant.scss:6:5: Unknown word $",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/bootstrap/scss/mixins/_badge.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/bootstrap/scss/mixins/_badge.scss:5:15: Unknown word &\nYou tried t",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/bootstrap/scss/mixins/_box-shadow.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/bootstrap/scss/mixins/_box-shadow.scss:6:7: Unknown word //\nYou tr",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/bootstrap/scss/mixins/_breakpoints.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/bootstrap/scss/mixins/_breakpoints.scss:103:32: Unclosed string\nYo",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/bootstrap/scss/mixins/_buttons.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/bootstrap/scss/mixins/_buttons.scss:26:10: Unknown word Avoid\nYou ",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/bootstrap/scss/mixins/_forms.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/bootstrap/scss/mixins/_forms.scss:8:10: Unclosed string\nYou tried ",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/bootstrap/scss/mixins/_grid-framework.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/bootstrap/scss/mixins/_grid-framework.scss:21:15: Unknown word $in",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/bootstrap/scss/mixins/_grid.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/bootstrap/scss/mixins/_grid.scss:1:1: Unknown word ///\nYou tried t",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/bootstrap/scss/mixins/_hover.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/bootstrap/scss/mixins/_hover.scss:7:34: Unclosed string\nYou tried ",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/bootstrap/scss/mixins/_image.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/bootstrap/scss/mixins/_image.scss:11:6: Unknown word Part\nYou trie",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/bootstrap/scss/mixins/_list-group.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/bootstrap/scss/mixins/_list-group.scss:4:22: Unknown word $state\nY",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/bootstrap/scss/mixins/_reset-text.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/bootstrap/scss/mixins/_reset-text.scss:3:6: Unknown word We\nYou tr",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/bootstrap/scss/mixins/_resize.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/bootstrap/scss/mixins/_resize.scss:4:76: Unclosed string\nYou tried",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/bootstrap/scss/mixins/_screen-reader.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/bootstrap/scss/mixins/_screen-reader.scss:11:20: Unknown word Fix\n",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/bootstrap/scss/mixins/_table-row.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/bootstrap/scss/mixins/_table-row.scss:6:12: Unknown word $state\nYo",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/bootstrap/scss/mixins/_text-emphasis.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/bootstrap/scss/mixins/_text-emphasis.scss:6:5: Unknown word $paren",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/bootstrap/scss/mixins/_text-hide.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/bootstrap/scss/mixins/_text-hide.scss:3:6: Unknown word stylelint-",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/bootstrap/scss/utilities/_borders.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/bootstrap/scss/utilities/_borders.scss:20:13: Unknown word $color\n",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/bootstrap/scss/utilities/_display.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/bootstrap/scss/utilities/_display.scss:12:11: Unknown word $infix\n",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/bootstrap/scss/utilities/_embed.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/bootstrap/scss/utilities/_embed.scss:1:4: Unknown word Credit\nYou ",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/bootstrap/scss/utilities/_flex.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/bootstrap/scss/utilities/_flex.scss:11:12: Unknown word $infix\nYou",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/bootstrap/scss/utilities/_float.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/bootstrap/scss/utilities/_float.scss:7:13: Unknown word $infix\nYou",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/bootstrap/scss/utilities/_interactions.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/bootstrap/scss/utilities/_interactions.scss:4:18: Unknown word $va",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/bootstrap/scss/utilities/_overflow.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/bootstrap/scss/utilities/_overflow.scss:4:15: Unknown word $value\n",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/bootstrap/scss/utilities/_position.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/bootstrap/scss/utilities/_position.scss:5:15: Unknown word $positi",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/bootstrap/scss/utilities/_sizing.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/bootstrap/scss/utilities/_sizing.scss:7:8: Unknown word $abbrev\nYo",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/bootstrap/scss/utilities/_spacing.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/bootstrap/scss/utilities/_spacing.scss:11:12: Unknown word $abbrev",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/bootstrap/scss/utilities/_stretched-link.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/bootstrap/scss/utilities/_stretched-link.scss:13:8: Unknown word J",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/bootstrap/scss/utilities/_text.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/bootstrap/scss/utilities/_text.scss:22:12: Unknown word $infix\nYou",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/bootstrap/scss/vendor/_rfs.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/bootstrap/scss/vendor/_rfs.scss:1:4: Unknown word stylelint-disabl",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/static-pages.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/static-pages.scss:9:5: Unknown word //\nYou tried to parse SCSS wit",
+   "status": "B2"
+  },
+  {
+   "key": "apps/web/src/styles/theme-day.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/theme-day.scss:34:6: Unknown word Chat\nYou tried to parse SCSS wit",
+   "status": "owned:pending"
+  },
+  {
+   "key": "apps/web/src/styles/theme-night.scss | (parse error) | CssSyntaxError: /root/vn-icons-b1/apps/web/src/styles/theme-night.scss:34:6: Unknown word Chat\nYou tried to parse SCSS w",
+   "status": "owned:pending"
+  }
+ ]
+}

@@ -169,9 +169,9 @@ export function EntryPageListen({ entry }: Props) {
             }}
           >
             {hasPaused || !hasStarted ? (
-              <UilPlay className="w-3.5 h-3.5" />
+              <UilPlay className="size-3.5" />
             ) : (
-              <UilPause className="w-3.5 h-3.5" />
+              <UilPause className="size-3.5" />
             )}
             {hasPaused || !hasStarted ? i18next.t("g.play") : i18next.t("g.pause")}
           </div>
@@ -206,7 +206,7 @@ export function EntryPageListen({ entry }: Props) {
                     <>{i18next.t("ai-assist.submitting")}</>
                   ) : (
                     <>
-                      <UilPlay className="w-3.5 h-3.5" />
+                      <UilPlay className="size-3.5" />
                       {i18next.t("g.start")}
                     </>
                   )}
@@ -241,7 +241,7 @@ export function EntryPageListen({ entry }: Props) {
             {showTranslate && translatedSummary ? translatedSummary : summary}
             {showTranslate && translating && (
               <div className="flex justify-center py-2">
-                <Spinner className="w-4 h-4" />
+                <Spinner className="size-4" />
               </div>
             )}
           </div>

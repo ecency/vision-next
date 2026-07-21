@@ -50,7 +50,7 @@ export function TranslateChip({ entry, className = "" }: Props) {
         title={i18next.t("entry-translate.translate-to", { lang: targetName })}
         aria-label={i18next.t("entry-translate.translate-to", { lang: targetName })}
       >
-        <UilLanguage className="w-3.5 h-3.5" />
+        <UilLanguage className="size-3.5" />
         <span>{i18next.t("entry-menu.translate")}</span>
       </button>
       {open && (

@@ -175,7 +175,7 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
           title={i18next.t("g.actions")}
           aria-label={i18next.t("g.actions")}
         >
-          <UilEllipsisH className="h-4 w-4" />
+          <UilEllipsisH className="size-4" />
         </button>
       </DropdownToggle>
       <DropdownMenu align="right" size="small">

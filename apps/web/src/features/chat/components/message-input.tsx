@@ -167,9 +167,9 @@ export function MessageInput({
           <div className="px-4 py-2 text-xs italic border-b border-[--border-color] bg-[--surface-color]">
             <div className="flex items-center gap-2 max-w-4xl w-full mx-auto text-[--text-muted]">
               <span className="inline-flex gap-1" aria-label="typing">
-                <span className="h-1.5 w-1.5 rounded-full bg-[--text-muted] animate-bounce" style={{ animationDelay: '0ms' }} />
-                <span className="h-1.5 w-1.5 rounded-full bg-[--text-muted] animate-bounce" style={{ animationDelay: '150ms' }} />
-                <span className="h-1.5 w-1.5 rounded-full bg-[--text-muted] animate-bounce" style={{ animationDelay: '300ms' }} />
+                <span className="size-1.5 rounded-full bg-[--text-muted] animate-bounce" style={{ animationDelay: '0ms' }} />
+                <span className="size-1.5 rounded-full bg-[--text-muted] animate-bounce" style={{ animationDelay: '150ms' }} />
+                <span className="size-1.5 rounded-full bg-[--text-muted] animate-bounce" style={{ animationDelay: '300ms' }} />
               </span>
               <span>
                 {typingUsernames.length === 1 && `${typingUsernames[0]} is typing...`}
@@ -183,7 +183,7 @@ export function MessageInput({
         <div className="flex flex-col gap-2 max-w-4xl w-full mx-auto px-4 py-3">
           {isSubmitting && (
             <div className="flex items-center gap-2 text-xs text-[--text-muted]">
-              <span className="h-2.5 w-2.5 rounded-full bg-blue-500 animate-pulse" aria-hidden />
+              <span className="size-2.5 rounded-full bg-blue-500 animate-pulse" aria-hidden />
               <span>Sending…</span>
             </div>
           )}
@@ -246,12 +246,12 @@ export function MessageInput({
                   <img
                     src={url}
                     alt={`Upload ${index + 1}`}
-                    className="h-20 w-20 rounded-lg object-cover border border-[--border-color]"
+                    className="size-20 rounded-lg object-cover border border-[--border-color]"
                   />
                   <button
                     type="button"
                     onClick={() => removeImage(index)}
-                    className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:bg-red-600"
+                    className="absolute -top-2 -right-2 size-6 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:bg-red-600"
                     aria-label="Remove image"
                   >
                     ×
@@ -516,7 +516,7 @@ export function MessageInput({
                     className="w-full px-3 py-2 flex items-center gap-3 hover:bg-[--background-color]"
                     onClick={() => applyMention(user.username)}
                   >
-                    <UserAvatar username={user.username} size="medium" className="h-8 w-8" />
+                    <UserAvatar username={user.username} size="medium" className="size-8" />
                     <div className="flex flex-col text-left">
                       <span className="font-semibold">@{user.username}</span>
                       {(user.nickname || user.first_name || user.last_name) && (

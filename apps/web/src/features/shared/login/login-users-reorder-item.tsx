@@ -26,7 +26,7 @@ export function LoginUsersReorderItem({ u }: Props) {
       {...listeners}
       className="bg-gray-100 dark:bg-gray-900 !flex items-center gap-2"
     >
-      <UilDraggabledots className="w-4 h-4 cursor-grab" />
+      <UilDraggabledots className="size-4 cursor-grab" />
       <UserAvatar username={u.username} size="medium" />
       <span>{u.username}</span>
     </ListItem>

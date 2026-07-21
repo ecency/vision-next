@@ -89,7 +89,7 @@ export default async function ProposalDetailsPage({ params }: Props) {
       <div className="app-content proposals-page pt-16">
         <Link className="block my-4 lg:my-6 xl:my-8" href="/proposals">
           <Button
-            icon={<UilArrowLeft className="w-4 h-4" />}
+            icon={<UilArrowLeft className="size-4" />}
             iconPlacement="left"
             appearance="gray-link"
           >

@@ -36,3 +36,10 @@ jobs:
       # committed dist/*.d.ts, which the release bot keeps in step on version bumps.
       - name: Typecheck
         run: pnpm -r --if-present typecheck
+      # Icon sizing convention (docs/icons.md). The SCSS ledger is enforcing
+      # (unowned or resurrected rules fail); the TSX audit reports until the
+      # migration's lock bundle flips it to --fail.
+      - name: Icon convention audit (SCSS ledger)
+        run: node scripts/icon-scss-audit.mjs
+      - name: Icon convention audit (TSX report)
+        run: node scripts/icon-tsx-audit.mjs

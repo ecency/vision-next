@@ -122,7 +122,7 @@ export function KeychainMobileAuthPage() {
               {i18next.t("login.keychain-mobile-message", { defaultValue: "Verifying your signature and logging you in..." })}
             </p>
           </Alert>
-          <UilSpinner className="animate-spin w-6 h-6 lg:w-8 lg:h-8" />
+          <UilSpinner className="animate-spin size-6 lg:size-8" />
         </>
       )}
     </div>

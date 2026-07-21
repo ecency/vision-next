@@ -61,7 +61,7 @@ export function ImageUploadDialog({ defImage, title, inProgress, onDone, onHide 
           <Button
             onClick={done}
             disabled={inProgress || uploading}
-            icon={inProgress && <Spinner className="mr-[6px] w-3.5 h-3.5" />}
+            icon={inProgress && <Spinner className="mr-[6px] size-3.5" />}
             iconPlacement="left"
           >
             {i18next.t("g.save")}

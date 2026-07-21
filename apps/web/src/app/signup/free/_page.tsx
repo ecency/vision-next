@@ -222,7 +222,7 @@ export function FreeSignUp() {
 
         {done ? (
           <div className="text-center bg-blue-dark-sky-040 rounded-2xl p-6">
-            <div className="w-10 h-10 mx-auto mb-4 bg-blue-dark-sky rounded-full text-white flex items-center justify-center">
+            <div className="size-10 mx-auto mb-4 bg-blue-dark-sky rounded-full text-white flex items-center justify-center">
               {checkSvg}
             </div>
             <div className="text-blue-dark-sky">
@@ -298,7 +298,7 @@ export function FreeSignUp() {
                   !!emailError ||
                   !!referralError
                 }
-                icon={inProgress && <Spinner className="w-3.5 h-3.5" />}
+                icon={inProgress && <Spinner className="size-3.5" />}
                 iconPlacement="left"
               >
                 {i18next.t("sign-up.register-free")}

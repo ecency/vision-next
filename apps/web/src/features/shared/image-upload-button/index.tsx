@@ -70,7 +70,7 @@ export function ImageUploadButton({ onBegin, onEnd, size = "sm", appearance, cla
         appearance={appearance}
         disabled={inProgress || disabled}
         onClick={() => inputRef.current?.click()}
-        icon={inProgress ? <Spinner className="w-3.5 h-3.5" /> : uploadSvg}
+        icon={inProgress ? <Spinner className="size-3.5" /> : uploadSvg}
         className={className}
         aria-label={restProps["aria-label"]}
         title={restProps.title}

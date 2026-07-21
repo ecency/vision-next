@@ -63,7 +63,7 @@ export function ThreadPanel({
               )}
             >
               <div className="flex items-start gap-3">
-                <div className="h-8 w-8 flex-shrink-0">
+                <div className="size-8 flex-shrink-0">
                   {(() => {
                     const user = usersById[post.user_id];
                     const displayName = getDisplayName(post);
@@ -72,7 +72,7 @@ export function ThreadPanel({
 
                     if (username) {
                       return (
-                        <UserAvatar username={username} size="small" className="h-8 w-8" />
+                        <UserAvatar username={username} size="small" className="size-8" />
                       );
                     }
 
@@ -81,13 +81,13 @@ export function ThreadPanel({
                         <img
                           src={avatarUrl}
                           alt={`${displayName} avatar`}
-                          className="h-8 w-8 rounded-full object-cover"
+                          className="size-8 rounded-full object-cover"
                         />
                       );
                     }
 
                     return (
-                      <div className="h-8 w-8 rounded-full bg-[--surface-color] text-xs font-semibold text-[--text-muted] flex items-center justify-center">
+                      <div className="size-8 rounded-full bg-[--surface-color] text-xs font-semibold text-[--text-muted] flex items-center justify-center">
                         {displayName.charAt(0).toUpperCase()}
                       </div>
                     );

@@ -128,7 +128,7 @@ function ChecklistContent({ username }: { username: string }) {
         className="absolute top-3 right-3 p-1 rounded-full text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
         onClick={() => setDismissed(true)}
       >
-        <UilTimes className="w-4 h-4" />
+        <UilTimes className="size-4" />
       </button>
       {state.allComplete ? (
         <div className="flex flex-col gap-1 pr-8">
@@ -174,9 +174,9 @@ function ChecklistRow({ item }: { item: WavesOnboardingItem }) {
   const content = (
     <>
       {item.completed ? (
-        <UilCheckCircle className="w-5 h-5 shrink-0 text-green-500" />
+        <UilCheckCircle className="size-5 shrink-0 text-green-500" />
       ) : (
-        <span className="w-5 h-5 shrink-0 rounded-full border-2 border-gray-300 dark:border-gray-600" />
+        <span className="size-5 shrink-0 rounded-full border-2 border-gray-300 dark:border-gray-600" />
       )}
       <span className={clsx("text-sm", item.completed && "line-through opacity-50")}>{label}</span>
     </>

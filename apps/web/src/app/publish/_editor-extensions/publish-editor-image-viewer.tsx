@@ -102,7 +102,7 @@ export function PublishEditorImageViewer({
                   isBlob ? "flex" : "hidden"
               )}
             >
-              <UilSpinner className="w-12 h-12 text-white animate-spin" />
+              <UilSpinner className="size-12 text-white animate-spin" />
             </div>
             <Image
               className={clsx("w-auto max-w-full", isBlob && "grayscale blur-sm")}

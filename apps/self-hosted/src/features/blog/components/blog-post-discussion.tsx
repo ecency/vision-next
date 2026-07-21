@@ -140,7 +140,7 @@ export function BlogPostDiscussion({ entry, isRawContent }: Props) {
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 sm:mb-6 pb-4 sm:pb-6 border-b border-theme">
         <div className="flex items-center gap-2">
-          <UilComment className="w-4 h-4 sm:w-5 sm:h-5 text-theme-muted" />
+          <UilComment className="size-4 sm:size-5 text-theme-muted" />
           <h2 className="text-lg sm:text-xl font-semibold heading-theme">
             {topLevelComments.length}{' '}
             {topLevelComments.length === 1 ? 'Comment' : 'Comments'}

@@ -78,7 +78,7 @@ export function ProfileWalletHiveClaimRewardsButton({
   }
 
   const icon = showIcon ? (
-    <UilPlus className="w-3 h-3 text-current" />
+    <UilPlus className="size-3 text-current" />
   ) : undefined;
   const iconClassName = showIcon
     ? "!w-6 !h-6 rounded-full bg-white text-blue-dark-sky shrink-0"

@@ -56,12 +56,12 @@ export function GetPointsFrame() {
           </div>
           <div className="bg-blue-dark-sky inline-flex items-center rounded-lg p-2 text-xs font-semibold gap-2">
             <div className="text-white">+250 POINTS</div>
-            <div className="rounded-full bg-white w-6 h-6 flex items-center justify-center">
-              <UilPlus className="w-4 h-4" />
+            <div className="rounded-full bg-white size-6 flex items-center justify-center">
+              <UilPlus className="size-4" />
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-4 [&_svg]:w-5 [&_svg]:h-5 mt-4">
+          <div className="flex flex-wrap gap-4 [&_svg]:size-5 mt-4">
             <div className="bg-gray-200 dark:bg-gray-800 p-1 rounded-lg relative">
               {pencilOutlineSvg}
               <span className="absolute text-xs bg-blue-dark-sky px-1 rounded-xl -bottom-1 -right-1 text-white">

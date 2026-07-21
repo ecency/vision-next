@@ -113,7 +113,7 @@ export function PostTemplatesList({ onApply, onSave, confirmApply, canSave }: Pr
       )}
       {!isPending && templates.length === 0 && !hasNextPage && !isFetchingNextPage && (
         <div className="flex items-center flex-col gap-4 pt-16">
-          <UilMinusCircle className="w-10 h-10 text-gray-400 dark:text-gray-600" />
+          <UilMinusCircle className="size-10 text-gray-400 dark:text-gray-600" />
           <div className="text-gray-600 dark:text-gray-400 text-lg">
             {i18next.t("g.empty-list")}
           </div>

@@ -43,7 +43,7 @@ describe("Checkbox", () => {
 
     it("displays check mark when checked", () => {
       render(<Checkbox type="checkbox" checked={true} onChange={vi.fn()} />);
-      const checkIcon = document.querySelector(".w-3\\.5");
+      const checkIcon = document.querySelector(".size-3\\.5");
       expect(checkIcon).toBeInTheDocument();
     });
   });

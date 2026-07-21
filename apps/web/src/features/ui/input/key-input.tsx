@@ -149,7 +149,7 @@ export const KeyInput = forwardRef<
         {capitalizeFirstLetter(keyType)} {i18next.t("key-or-hot.key-placeholder")}
       </span>
       <div className="w-full grid gap-2 grid-cols-[max-content_1fr_max-content] items-center h-8">
-        <UilLock className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+        <UilLock className="size-5 text-gray-500 dark:text-gray-400" />
 
         <input
           ref={inputRef}

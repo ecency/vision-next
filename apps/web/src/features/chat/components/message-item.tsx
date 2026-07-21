@@ -237,7 +237,7 @@ function MessageItemInner({
 
                   if (username) {
                     return (
-                      <UserAvatar username={username} size="small" className="h-8 w-8" />
+                      <UserAvatar username={username} size="small" className="size-8" />
                     );
                   }
 
@@ -246,13 +246,13 @@ function MessageItemInner({
                       <img
                         src={avatarUrl}
                         alt={`${displayName} avatar`}
-                        className="h-8 w-8 rounded-full object-cover"
+                        className="size-8 rounded-full object-cover"
                       />
                     );
                   }
 
                   return (
-                    <div className="h-8 w-8 rounded-full bg-[--surface-color] text-xs font-semibold text-[--text-muted] flex items-center justify-center">
+                    <div className="size-8 rounded-full bg-[--surface-color] text-xs font-semibold text-[--text-muted] flex items-center justify-center">
                       {displayName.charAt(0).toUpperCase()}
                     </div>
                   );
@@ -460,7 +460,7 @@ function MessageItemInner({
                   icon={dotsHorizontal}
                   appearance="gray-link"
                   size="xs"
-                  className="h-7 w-7 !p-0"
+                  className="size-7 !p-0"
                   aria-label="Message actions"
                 />
               </DropdownToggle>

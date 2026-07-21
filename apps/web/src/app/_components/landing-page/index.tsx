@@ -158,7 +158,7 @@ export async function LandingPage() {
               href="/hosting"
               className="group flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5 rounded-2xl border border-[--border-color] bg-white dark:bg-dark-200 px-5 py-5 transition-shadow hover:shadow-md"
             >
-              <span className="inline-flex items-center justify-center h-11 w-11 shrink-0 rounded-lg bg-blue-dark-sky-040 dark:bg-dark-default text-blue-dark-sky">
+              <span className="inline-flex items-center justify-center size-11 shrink-0 rounded-lg bg-blue-dark-sky-040 dark:bg-dark-default text-blue-dark-sky">
                 <svg
                   width="24"
                   height="24"
@@ -195,7 +195,7 @@ export async function LandingPage() {
                 key={f.key}
                 className="rounded-xl border border-[--border-color] bg-white dark:bg-dark-200 p-5"
               >
-                <span className="inline-flex items-center justify-center h-11 w-11 rounded-lg bg-blue-dark-sky-040 dark:bg-dark-default text-blue-dark-sky">
+                <span className="inline-flex items-center justify-center size-11 rounded-lg bg-blue-dark-sky-040 dark:bg-dark-default text-blue-dark-sky">
                   <svg
                     width="24"
                     height="24"
@@ -222,7 +222,7 @@ export async function LandingPage() {
               {t("landing-page.download-our-application")}
             </h2>
             <p className="mt-2 opacity-70">{t("landing-page.download-our-application-desc-1")}</p>
-            <div className="mt-5 flex flex-wrap justify-center gap-3 [&_a]:inline-flex [&_a]:items-center [&_a]:gap-2 [&_a]:h-12 [&_a]:px-5 [&_a]:rounded-full [&_a]:border [&_a]:border-[--border-color] [&_a]:bg-white [&_a]:dark:bg-dark-default [&_a]:font-medium [&_a]:transition-shadow hover:[&_a]:shadow-md [&_img]:h-5 [&_img]:w-5 [&_svg]:h-5 [&_svg]:w-5">
+            <div className="mt-5 flex flex-wrap justify-center gap-3 [&_a]:inline-flex [&_a]:items-center [&_a]:gap-2 [&_a]:h-12 [&_a]:px-5 [&_a]:rounded-full [&_a]:border [&_a]:border-[--border-color] [&_a]:bg-white [&_a]:dark:bg-dark-default [&_a]:font-medium [&_a]:transition-shadow hover:[&_a]:shadow-md [&_img]:size-5 [&_svg]:size-5">
               <LandingDownloadLinks
                 iosIcon={`${defaults.base}/assets/icon-apple.svg`}
                 iosIconWhite={`${defaults.base}/assets/icon-apple-white.svg`}
@@ -314,7 +314,7 @@ export async function LandingPage() {
               alt={defaults.name}
               width={36}
               height={36}
-              className="h-9 w-9"
+              className="size-9"
             />
             <p className="m-0 text-sm opacity-60">
               {t("landing-page.copy-rights", { year: new Date().getFullYear() })}

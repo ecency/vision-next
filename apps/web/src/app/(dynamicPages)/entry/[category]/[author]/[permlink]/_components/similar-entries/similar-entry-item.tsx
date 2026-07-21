@@ -43,7 +43,7 @@ export function SimilarEntryItem({ entry, i }: Props) {
               alt={entry.title}
               width={1000}
               height={1000}
-              className="w-8 h-8"
+              className="size-8"
             />
           </div>
         )}

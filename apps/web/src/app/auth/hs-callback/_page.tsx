@@ -35,7 +35,7 @@ export function HsCallbackPage() {
       <div className="flex flex-col items-center gap-4 p-8 bg-white dark:bg-dark-200 rounded-2xl shadow-lg max-w-md w-full mx-4">
         {isSuccess ? (
           <>
-            <UilCheckCircle className="text-green w-16 h-16" />
+            <UilCheckCircle className="text-green size-16" />
             <h2 className="text-xl font-bold text-green">
               {i18next.t("g.success")}
             </h2>
@@ -48,7 +48,7 @@ export function HsCallbackPage() {
           </>
         ) : (
           <>
-            <UilTimesCircle className="text-red w-16 h-16" />
+            <UilTimesCircle className="text-red size-16" />
             <h2 className="text-xl font-bold text-red">
               {i18next.t("g.error")}
             </h2>

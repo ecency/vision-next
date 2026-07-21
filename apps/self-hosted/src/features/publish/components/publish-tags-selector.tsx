@@ -150,7 +150,7 @@ export function PublishTagsSelector({ tags, onChange }: Props) {
               className="p-0.5 rounded hover:bg-theme-secondary"
               aria-label={`Remove ${tag}`}
             >
-              <UilTimes className="w-4 h-4" />
+              <UilTimes className="size-4" />
             </button>
           </span>
         ))}

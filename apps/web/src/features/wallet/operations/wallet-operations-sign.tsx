@@ -242,7 +242,7 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
                     width={100}
                     height={100}
                     src="/assets/hive-signer.svg"
-                    className="w-4 h-4"
+                    className="size-4"
                     alt="hivesigner"
                   />
                 }
@@ -265,7 +265,7 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
                             width={20}
                             height={20}
                             src={ext.icon}
-                            className="w-4 h-4 rounded-sm"
+                            className="size-4 rounded-sm"
                             alt={ext.name}
                           />
                         ))
@@ -274,7 +274,7 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
                           width={100}
                           height={100}
                           src="/assets/keychain.png"
-                          className="w-4 h-4"
+                          className="size-4"
                           alt="extensions"
                         />
                       )}

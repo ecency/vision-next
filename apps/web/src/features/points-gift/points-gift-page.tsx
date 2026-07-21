@@ -171,7 +171,7 @@ export function PointsGiftPage() {
     <div className="max-w-xl mx-auto flex flex-col gap-6 py-6">
       <div className="flex flex-col gap-1">
         <h1 className="text-2xl font-bold flex items-center gap-2">
-          <UilGift className="w-7 h-7 text-blue-dark-sky" />
+          <UilGift className="size-7 text-blue-dark-sky" />
           {i18next.t("points-gift.title")}
         </h1>
         <p className="opacity-75">{i18next.t("points-gift.subtitle")}</p>

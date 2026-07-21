@@ -56,7 +56,7 @@ export function PerksQuestItem({
     >
       <div
         className={clsx(
-          "shrink-0 w-9 h-9 rounded-full flex items-center justify-center",
+          "shrink-0 size-9 rounded-full flex items-center justify-center [&>svg]:size-6",
           completed
             ? "bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400"
             : "bg-blue-duck-egg dark:bg-gray-800 text-blue-dark-sky"

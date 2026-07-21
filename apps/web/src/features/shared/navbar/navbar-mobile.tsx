@@ -127,7 +127,7 @@ export function NavbarMobile({
               <Button
                 appearance="gray-link"
                 noPadding={true}
-                icon={<UilBars width={22} height={22} />}
+                icon={<UilBars />}
                 onClick={() => setMainBarExpanded(true)}
                 aria-label={i18next.t("navbar.toggle-menu")}
                 aria-expanded={mainBarExpanded}
@@ -164,7 +164,7 @@ export function NavbarMobile({
         <Button
           href="/hot"
           appearance="gray-link"
-          icon={<UilHomeAlt width={20} height={20} />}
+          icon={<UilHomeAlt />}
           aria-label={i18next.t("navbar.home")}
           aria-current={homeActive ? "page" : undefined}
           className={activeClass(homeActive)}
@@ -181,7 +181,7 @@ export function NavbarMobile({
           <Button
             href="/chats"
             appearance="gray-link"
-            icon={<UilComment width={20} height={20} />}
+            icon={<UilComment />}
             aria-label={i18next.t("navbar.chats")}
             aria-current={isActive("/chats") ? "page" : undefined}
             className={activeClass(isActive("/chats"))}
@@ -226,7 +226,7 @@ export function NavbarMobile({
         href="/publish"
         appearance="primary"
         noPadding={true}
-        icon={<UilPen width={26} height={26} />}
+        icon={<UilPen />}
         aria-label={i18next.t("navbar.post")}
         aria-current={isActive("/publish") ? "page" : undefined}
         className={clsx(

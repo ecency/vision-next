@@ -179,7 +179,7 @@ export function ReelVideo({ video, caption }: Props) {
         }
         className="absolute right-2 top-2 rounded-full bg-black/40 p-2 text-white backdrop-blur-sm"
       >
-        {muted ? <UilVolumeMute className="h-5 w-5" /> : <UilVolume className="h-5 w-5" />}
+        {muted ? <UilVolumeMute className="size-5" /> : <UilVolume className="size-5" />}
       </button>
     </>
   );

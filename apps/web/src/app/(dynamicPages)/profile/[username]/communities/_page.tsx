@@ -87,7 +87,7 @@ export function ProfileCommunities() {
         <div className="py-4">
           <div className="px-2 py-4 sm:px-4 md:p-6 lg:p-12 bg-white rounded-2xl flex flex-col gap-4 md:gap-8 lg:gap-12 xl:gap-16 items-center">
             <div className="flex flex-col items-center justify-center gap-2">
-              <UilClock className="text-blue-dark-sky w-12 h-12" />
+              <UilClock className="text-blue-dark-sky size-12" />
               <div className="text-xl font-bold">{i18next.t("profile.empty-communities")}</div>
               {activeUser?.username === account?.name && (
                 <div className="text-gray-600 dark:text-gray-400 text-center max-w-[500px]">

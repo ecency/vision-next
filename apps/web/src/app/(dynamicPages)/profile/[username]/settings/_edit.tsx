@@ -82,7 +82,7 @@ export function ProfileEdit() {
   return (
     <div className="bg-white rounded-xl p-3 flex flex-col gap-4">
       <div className="text-gray-600 dark:text-gray-400 text-sm flex items-center gap-2">
-        <UilUser className="w-4 h-4" />
+        <UilUser className="size-4" />
         {i18next.t("profile-edit.title")}
       </div>
       <form

@@ -19,7 +19,7 @@ export function CenterButton(props: Props) {
       className="group hidden md:flex items-center justify-start bg-white dark:bg-neutral-800 border border-[--border-color] rounded-full cursor-pointer"
     >
       <div className="transition-transform duration-150 group-hover:rotate-[25deg] group-hover:scale-90">
-        <UilCommentDots className="w-12 h-12 text-gray-600 dark:text-gray-300 duration-300" />
+        <UilCommentDots className="size-12 text-gray-600 dark:text-gray-300 duration-300" />
       </div>
     </div>
   );

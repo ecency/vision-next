@@ -147,7 +147,7 @@ function CommunitySidebar() {
     return (
       <div className="lg:sticky lg:top-0 border-b lg:border-b-0 lg:border-l border-theme p-4 sm:p-6 lg:h-screen lg:overflow-y-auto">
         <div className="animate-pulse">
-          <div className="w-16 h-16 rounded-full bg-theme-tertiary mb-4" />
+          <div className="size-16 rounded-full bg-theme-tertiary mb-4" />
           <div className="h-4 w-32 bg-theme-tertiary rounded mb-2" />
           <div className="h-3 w-48 bg-theme-tertiary rounded" />
         </div>
@@ -172,10 +172,10 @@ function CommunitySidebar() {
           <img
             src={communityAvatarUrl}
             alt={community.title}
-            className="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover"
+            className="size-12 sm:size-16 rounded-full object-cover"
           />
         ) : (
-          <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-theme-tertiary flex items-center justify-center">
+          <div className="size-12 sm:size-16 rounded-full bg-theme-tertiary flex items-center justify-center">
             <span className="text-xl font-bold text-theme-muted">
               {community.title?.charAt(0) || "C"}
             </span>

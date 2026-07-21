@@ -35,7 +35,7 @@ export function WavesTrendingTagsCard() {
 
       {isLoading && (
         <div className="flex justify-center py-6">
-          <Spinner className="w-5 h-5" />
+          <Spinner className="size-5" />
         </div>
       )}
 

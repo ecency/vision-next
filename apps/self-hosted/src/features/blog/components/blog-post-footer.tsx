@@ -61,7 +61,7 @@ export function BlogPostFooter({ entry }: Props) {
         )}
         {showComments && (
           <div className="flex items-center gap-1">
-            <UilComment className="w-4 h-4" />
+            <UilComment className="size-4" />
             <span>
               {commentsCount} {t('comments')}
             </span>

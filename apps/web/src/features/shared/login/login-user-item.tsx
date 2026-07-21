@@ -53,7 +53,7 @@ export function LoginUserItem({ user, compact = false }: Props) {
         <LoginTypeBadge username={user.username} loginType={user.loginType} compact={compact} />
         {activeUser?.username === user.username && (
           <div className="rounded-full absolute left-0 bottom-0 p-0.5 bg-white dark:bg-dark-200">
-            <div className="bg-green w-2 h-2 rounded-full" />
+            <div className="bg-green size-2 rounded-full" />
           </div>
         )}
       </div>

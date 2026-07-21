@@ -127,7 +127,7 @@ export function ExtensionInstallList() {
               : "flex items-center gap-3 p-3 rounded-lg border border-[--border-color] hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           }
         >
-          <Image width={32} height={32} src={ext.icon} alt={ext.alt} className="w-8 h-8" />
+          <Image width={32} height={32} src={ext.icon} alt={ext.alt} className="size-8" />
           <div className="flex-1">
             <div className="font-semibold text-sm">{i18next.t(ext.nameKey)}</div>
             <div className="text-xs text-gray-500 dark:text-gray-400">{i18next.t(ext.descKey)}</div>

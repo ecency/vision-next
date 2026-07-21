@@ -37,7 +37,7 @@ export function TransferAssetSwitch({
             src={proxifyImageSrc(icon, 40, 40, "match")}
             width={20}
             height={20}
-            className="h-4 w-4 object-contain"
+            className="size-4 object-contain"
           />
         </span>
       );

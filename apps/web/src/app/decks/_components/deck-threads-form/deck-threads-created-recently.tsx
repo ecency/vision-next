@@ -44,7 +44,7 @@ export const DeckThreadsCreatedRecently = ({ lastEntry, setLastEntry }: Props) =
         <Alert appearance={!isLocal(lastEntry) ? "success" : "secondary"} key={lastEntry.post_id}>
           <div className="flex items-center">
             <div className="icon">
-              {!isLocal(lastEntry) ? checkSvg : <Spinner className="w-4 h-4" />}
+              {!isLocal(lastEntry) ? checkSvg : <Spinner className="size-4" />}
             </div>
             <div className="pl-3">
               {!isLocal(lastEntry)

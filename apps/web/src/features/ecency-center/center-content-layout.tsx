@@ -36,7 +36,7 @@ export function CenterContentLayout({ show, setShow, children }: PropsWithChildr
               alt="logo"
               width={48}
               height={48}
-              className="w-8 h-8 mb-4"
+              className="size-8 mb-4"
             />
             <h3 className="font-bold">{i18next.t("floating-faq.center")}</h3>
             <Button

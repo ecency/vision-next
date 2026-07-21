@@ -36,7 +36,7 @@ export const MarketSwapFormHeader = ({ step, loading, onBack, className }: Props
         <></>
       )}
       <div className="text-blue-dark-sky font-bold">{title}</div>
-      {loading ? <Spinner className="w-4 h-4 ml-3" /> : <></>}
+      {loading ? <Spinner className="size-4 ml-3" /> : <></>}
     </div>
   );
 };

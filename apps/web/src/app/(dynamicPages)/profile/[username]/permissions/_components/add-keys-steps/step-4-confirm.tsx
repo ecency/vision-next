@@ -140,7 +140,7 @@ export function Step4Confirm({ masterPassword, keysToRevokeByAuthority, onBack, 
   if (isComplete) {
     return (
       <div className="flex flex-col items-center gap-4 py-8">
-        <UilCheckCircle className="w-16 h-16 text-green-500" />
+        <UilCheckCircle className="size-16 text-green-500" />
         <h3 className="text-xl font-semibold">{i18next.t("permissions.add-keys.step4.success")}</h3>
         <p className="text-sm opacity-75 text-center">
           {i18next.t("permissions.add-keys.step4.success-description")}
@@ -152,7 +152,7 @@ export function Step4Confirm({ masterPassword, keysToRevokeByAuthority, onBack, 
   if (isApplying) {
     return (
       <div className="flex flex-col items-center gap-4 py-8">
-        <UilSpinner className="w-16 h-16 animate-spin opacity-50" />
+        <UilSpinner className="size-16 animate-spin opacity-50" />
         <h3 className="text-xl font-semibold">{i18next.t("permissions.add-keys.step4.applying")}</h3>
         <p className="text-sm opacity-75">{i18next.t("permissions.add-keys.step4.please-wait")}</p>
       </div>

@@ -156,7 +156,7 @@ export function OnboardCreating({ decodedInfo }: Props) {
           <label className="flex items-start gap-2 cursor-pointer">
             <input
               type="checkbox"
-              className="w-5 h-5 mt-0.5 flex-shrink-0"
+              className="size-5 mt-0.5 flex-shrink-0"
               checked={isChecked}
               onChange={() => setChecked(!isChecked)}
             />
@@ -228,7 +228,7 @@ export function OnboardCreating({ decodedInfo }: Props) {
               <div className="flex justify-center py-4">
                 <Button
                   disabled={isCreatePending}
-                  icon={isCreatePending ? <Spinner className="mr-1.5 w-3.5 h-3.5" /> : undefined}
+                  icon={isCreatePending ? <Spinner className="mr-1.5 size-3.5" /> : undefined}
                   iconPlacement="left"
                   onClick={() => onCreateAccount(createOption)}
                 >
