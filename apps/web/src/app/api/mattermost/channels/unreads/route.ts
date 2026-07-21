@@ -11,7 +11,8 @@ import {
   fetchAllChannelMemberPages,
   isChannelMuted,
   isChannelNeverViewed,
-  channelUnreadMessageCount
+  channelUnreadMessageCount,
+  isMattermostDefaultChannel
 } from "../helpers";
 
 interface MattermostChannel {
@@ -161,13 +162,9 @@ export async function GET() {
       }
     });
 
-    // Mattermost auto-joins users to these default channels when they join
-    // a team. The UI hides them, so exclude their unreads from the badge.
-    const MATTERMOST_DEFAULT_CHANNELS = new Set(["town-square", "off-topic"]);
-
     // Filter out excluded DM channels and hidden default channels
     const filteredChannels = allChannels.filter(
-      (ch) => !excludedDmChannelIds.has(ch.id) && !MATTERMOST_DEFAULT_CHANNELS.has(ch.name ?? "")
+      (ch) => !excludedDmChannelIds.has(ch.id) && !isMattermostDefaultChannel(ch)
     );
 
     const memberByChannelId = members.reduce<Record<string, MattermostChannelMember>>((acc, member) => {
