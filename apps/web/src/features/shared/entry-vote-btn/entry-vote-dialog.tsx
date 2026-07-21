@@ -228,7 +228,7 @@ export function EntryVoteDialog({
                 noPadding={true}
                 className="w-8"
                 size="xs"
-                icon=<SliderChevron direction="up" />
+                icon={<SliderChevron direction="up" />}
                 onClick={upVoteClicked}
                 outline={true}
                 aria-label={i18next.t("entry-list-item.upvote", { defaultValue: "Upvote" })}
@@ -254,7 +254,7 @@ export function EntryVoteDialog({
                 appearance="danger"
                 outline={true}
                 size="xs"
-                icon=<SliderChevron direction="down" />
+                icon={<SliderChevron direction="down" />}
                 onClick={() => setMode("down")}
                 aria-label={i18next.t("entry-list-item.switch-to-downvote", { defaultValue: "Switch to downvote" })}
               />
@@ -286,7 +286,7 @@ export function EntryVoteDialog({
                 noPadding={true}
                 className="w-8"
                 size="xs"
-                icon=<SliderChevron direction="up" />
+                icon={<SliderChevron direction="up" />}
                 onClick={() => setMode("up")}
                 outline={true}
                 aria-label={i18next.t("entry-list-item.switch-to-upvote", { defaultValue: "Switch to upvote" })}
@@ -316,7 +316,7 @@ export function EntryVoteDialog({
                 size="xs"
                 appearance="danger"
                 outline={true}
-                icon=<SliderChevron direction="down" />
+                icon={<SliderChevron direction="down" />}
                 onClick={downVoteClicked}
                 aria-label={i18next.t("entry-list-item.downvote", { defaultValue: "Downvote" })}
               />

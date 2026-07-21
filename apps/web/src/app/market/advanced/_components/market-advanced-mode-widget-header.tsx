@@ -49,7 +49,7 @@ export const MarketAdvancedModeWidgetHeader = ({
               eventKey="0"
               noPadding={true}
               onClick={() => setExpandedHeader(!expandedHeader)}
-              icon=<SliderChevron direction="down" />
+              icon={<SliderChevron direction="down" />}
               iconClassName="transition-transform duration-200 [[data-open=true]_&]:rotate-180"
             />
           ) : (

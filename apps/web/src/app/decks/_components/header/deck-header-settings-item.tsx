@@ -27,7 +27,7 @@ export const DeckHeaderSettingsItem = ({ title, children, hasBorderBottom, class
         appearance="link"
         className="justify-between w-full toggle"
         onClick={() => setExpanded(!expanded)}
-        icon=<SliderChevron direction="down" />
+        icon={<SliderChevron direction="down" />}
         iconClassName="transition-transform duration-200 [[data-open=true]_&]:rotate-180"
       >
         {title}

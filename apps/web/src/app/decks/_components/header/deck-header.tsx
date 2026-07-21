@@ -78,7 +78,7 @@ export const DeckHeader = (props: Props | WithIntervalProps | WithDeletionProps 
               onClick={() => {
                 setExpanded(!expanded);
               }}
-              icon=<SliderChevron direction="down" />
+              icon={<SliderChevron direction="down" />}
             />
           </Tooltip>
         </div>
