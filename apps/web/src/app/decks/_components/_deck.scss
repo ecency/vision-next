@@ -261,11 +261,20 @@
       white-space: nowrap;
     }
 
-    .entry-votes svg, .comments svg {
+    .entry-votes svg {
       opacity: 1;
 
       @include margin(0);
       @include margin-right(0.25rem);
+    }
+
+    // .comments svg sits inside a fixed size-4 sink wrapper now; a margin on the
+    // svg itself would flex-shrink the glyph inside that box. The gap lives on
+    // the wrapper (mr-1).
+    .comments svg {
+      opacity: 1;
+
+      @include margin(0);
     }
   }
 
