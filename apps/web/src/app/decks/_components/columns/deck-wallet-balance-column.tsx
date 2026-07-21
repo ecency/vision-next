@@ -1,5 +1,5 @@
 import { DraggableProvidedDragHandleProps } from "@hello-pangea/dnd";
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { GenericDeckColumn } from "./generic-deck-column";
 import { calculateEngineTokensUsdValue } from "./helpers/engine-tokens-usd-value";
 import { UserDeckGridItem } from "../types";
@@ -8,26 +8,20 @@ import { DeckGridContext } from "../deck-manager";
 import { Spinner } from "@ui/spinner";
 import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
 import { withFeatureFlag } from "@/core/react-query";
+import { EcencyConfigManager } from "@/config";
 import {
   getAccountFullQueryOptions,
   getConversionRequestsQueryOptions,
   getDynamicPropsQueryOptions,
   getPointsQueryOptions
 } from "@ecency/sdk";
-import { FullAccount } from "@/entities";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getCurrencyTokenRate } from "@ecency/sdk";
-import {
-  formattedNumber,
-  HiveWallet,
-  parseAsset,
-  vestsToHp
-} from "@/utils";
+import { formattedNumber, HiveWallet, parseAsset, vestsToHp } from "@/utils";
 import { getAllHiveEngineTokensQueryOptions } from "@ecency/sdk";
 import { getHiveEngineTokensBalancesQueryOptions } from "@ecency/sdk";
 import i18next from "i18next";
 import { FormattedCurrency } from "@/features/shared";
-import useMount from "react-use/lib/useMount";
 
 interface Props {
   id: string;
@@ -64,8 +58,17 @@ export const DeckWalletBalanceColumn = ({
   const queryClient = useQueryClient();
   const { updateColumnIntervalMs } = useContext(DeckGridContext);
 
-  const [tab, setTab] = useState<Tab>("ecency");
-  const [account, setAccount] = useState<FullAccount | null>(null);
+  // Without the points feature there is nothing to show on the Ecency tab – it would
+  // render an unavailable balance as a real zero – so the tab itself is dropped.
+  const isPointsEnabled = EcencyConfigManager.getConfigValue(
+    ({ visionFeatures }) => visionFeatures.points.enabled
+  );
+  const tabs = useMemo(
+    () => (isPointsEnabled ? TABS : TABS.filter((t) => t !== "ecency")),
+    [isPointsEnabled]
+  );
+
+  const [tab, setTab] = useState<Tab>(tabs[0]);
 
   // Ecency wallet
   const [pointsLoading, setPointsLoading] = useState(false);
@@ -89,107 +92,137 @@ export const DeckWalletBalanceColumn = ({
   const [engineEstimatedValue, setEngineEstimatedValue] = useState("0");
   const [engineLoading, setEngineLoading] = useState(false);
 
-  useMount(() => {
-    fetchAccount();
-  });
+  const fetchEcencyPoints = useCallback(
+    async (refresh: boolean) => {
+      setPointsLoading(true);
 
-  const fetchAccount = async () => {
-    try {
-      const response = await queryClient.fetchQuery(
-        getAccountFullQueryOptions(username)
-      );
-      if (response) {
-        setAccount(response);
+      try {
+        // The balance itself comes from the points query, so a reload has to invalidate
+        // it as well – refreshing only the rate left the balance on cached data.
+        const [estimatedValue] = await Promise.all([
+          getCurrencyTokenRate("usd", "estm"),
+          refresh
+            ? queryClient.invalidateQueries({
+                queryKey: getPointsQueryOptions(username).queryKey
+              })
+            : Promise.resolve()
+        ]);
+
+        setEstimatedValue(Number(estimatedValue) || 0);
+      } catch (e) {
+      } finally {
+        setPointsLoading(false);
       }
-    } catch (e) {
-    } finally {
-    }
-  };
+    },
+    [queryClient, username]
+  );
 
-  const fetchEcencyPoints = async () => {
-    setPointsLoading(true);
+  const fetchHive = useCallback(
+    async (refresh: boolean) => {
+      setHiveLoading(true);
 
-    try {
-      const estimatedValue = await getCurrencyTokenRate("usd", "estm");
+      try {
+        if (refresh) {
+          await Promise.all([
+            queryClient.invalidateQueries({
+              queryKey: getAccountFullQueryOptions(username).queryKey
+            }),
+            queryClient.invalidateQueries({
+              queryKey: getConversionRequestsQueryOptions(username).queryKey
+            })
+          ]);
+        }
 
-      setEstimatedValue(Number(estimatedValue) || 0);
-    } catch (e) {
-    } finally {
-      setPointsLoading(false);
-    }
-  };
+        const [account, crd] = await Promise.all([
+          queryClient.fetchQuery(getAccountFullQueryOptions(username)),
+          queryClient.fetchQuery(getConversionRequestsQueryOptions(username))
+        ]);
 
-  const fetchHive = useCallback(async () => {
-    setHiveLoading(true);
+        let converting = 0;
+        crd.forEach((x) => {
+          converting += parseAsset(x.amount).amount;
+        });
 
-    try {
-      const crd = await queryClient.fetchQuery(
-        getConversionRequestsQueryOptions(username)
-      );
-
-      let converting = 0;
-      crd.forEach((x) => {
-        converting += parseAsset(x.amount).amount;
-      });
-
-      if (account) {
-        const wallet = new HiveWallet(account, dynamicProps ?? DEFAULT_DYNAMIC_PROPS, converting);
-        setHive(formattedNumber(wallet.balance, { suffix: "HIVE" }));
-        setHp(
-          formattedNumber(
-            vestsToHp(wallet.vestingShares, (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).hivePerMVests),
-            {
-              suffix: "HP"
-            }
-          )
-        );
-        setHbd(formattedNumber(wallet.hbdBalance, { prefix: "$" }));
-        setSavings(formattedNumber(wallet.savingBalance, { suffix: "HIVE" }));
-        setHiveEstimatedValue(wallet.estimatedValue);
+        if (account) {
+          const wallet = new HiveWallet(account, dynamicProps ?? DEFAULT_DYNAMIC_PROPS, converting);
+          setHive(formattedNumber(wallet.balance, { suffix: "HIVE" }));
+          setHp(
+            formattedNumber(
+              vestsToHp(
+                wallet.vestingShares,
+                (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).hivePerMVests
+              ),
+              {
+                suffix: "HP"
+              }
+            )
+          );
+          setHbd(formattedNumber(wallet.hbdBalance, { prefix: "$" }));
+          setSavings(formattedNumber(wallet.savingBalance, { suffix: "HIVE" }));
+          setHiveEstimatedValue(wallet.estimatedValue);
+        }
+      } catch (e) {
+      } finally {
+        setHiveLoading(false);
       }
-    } catch (e) {
-    } finally {
-      setHiveLoading(false);
-    }
-  }, [account, dynamicProps, queryClient, username]);
+    },
+    [dynamicProps, queryClient, username]
+  );
 
-  const fetchEngine = useCallback(async () => {
-    setEngineLoading(true);
+  const fetchEngine = useCallback(
+    async (refresh: boolean) => {
+      setEngineLoading(true);
 
-    try {
-      const [tokens, userTokens] = await Promise.all([
-        queryClient.fetchQuery(getAllHiveEngineTokensQueryOptions()),
-        queryClient.fetchQuery(getHiveEngineTokensBalancesQueryOptions(username))
-      ]);
+      try {
+        if (refresh) {
+          await Promise.all([
+            queryClient.invalidateQueries({
+              queryKey: getAllHiveEngineTokensQueryOptions().queryKey
+            }),
+            queryClient.invalidateQueries({
+              queryKey: getHiveEngineTokensBalancesQueryOptions(username).queryKey
+            })
+          ]);
+        }
 
-      const { base, quote } = dynamicProps ?? DEFAULT_DYNAMIC_PROPS;
-      const pricePerHive = quote > 0 ? base / quote : 0;
+        const [tokens, userTokens] = await Promise.all([
+          queryClient.fetchQuery(getAllHiveEngineTokensQueryOptions()),
+          queryClient.fetchQuery(getHiveEngineTokensBalancesQueryOptions(username))
+        ]);
 
-      const totalWalletUsdValue = calculateEngineTokensUsdValue(userTokens, tokens, pricePerHive);
+        const { base, quote } = dynamicProps ?? DEFAULT_DYNAMIC_PROPS;
+        const pricePerHive = quote > 0 ? base / quote : 0;
 
-      const usdTotalValue = totalWalletUsdValue.toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD"
-      });
-      setEngineEstimatedValue(usdTotalValue);
-    } catch (e) {
-    } finally {
-      setEngineLoading(false);
-    }
-  }, [dynamicProps, queryClient, username]);
+        const totalWalletUsdValue = calculateEngineTokensUsdValue(userTokens, tokens, pricePerHive);
 
-  const fetch = useCallback(() => {
-    if (tab === "ecency") {
-      fetchEcencyPoints();
-    }
-    if (tab === "hive") {
-      fetchHive();
-    }
+        const usdTotalValue = totalWalletUsdValue.toLocaleString("en-US", {
+          style: "currency",
+          currency: "USD"
+        });
+        setEngineEstimatedValue(usdTotalValue);
+      } catch (e) {
+      } finally {
+        setEngineLoading(false);
+      }
+    },
+    [dynamicProps, queryClient, username]
+  );
 
-    if (tab === "engine") {
-      fetchEngine();
-    }
-  }, [fetchEngine, fetchHive, tab]);
+  const fetch = useCallback(
+    (refresh = false) => {
+      if (tab === "ecency") {
+        fetchEcencyPoints(refresh);
+      }
+      if (tab === "hive") {
+        fetchHive(refresh);
+      }
+
+      if (tab === "engine") {
+        fetchEngine(refresh);
+      }
+    },
+    [fetchEcencyPoints, fetchEngine, fetchHive, tab]
+  );
 
   useEffect(() => {
     fetch();
@@ -207,11 +240,11 @@ export const DeckWalletBalanceColumn = ({
         setUpdateIntervalMs: (v) => updateColumnIntervalMs(id, v)
       }}
       isReloading={pointsLoading || hiveLoading || engineLoading}
-      onReload={() => fetch()}
+      onReload={() => fetch(true)}
     >
       <div className="wb-container">
         <div className="wb-tabs">
-          {TABS.map((t) => (
+          {tabs.map((t) => (
             <div
               className={"wb-tab " + (tab === t ? "active" : "")}
               key={t}
