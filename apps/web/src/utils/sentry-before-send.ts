@@ -234,7 +234,8 @@ export function beforeSend(event: SentryErrorEvent): SentryErrorEvent | null {
   // TODO(hydration): investigate hydration drift — likely a locale/Date/Intl
   // mismatch or a value that differs between SSR and the first client render.
   const isIframeContentWindowNull =
-    (message.includes("can't access property \"document\"") &&
+    (message.includes("can't access property") &&
+      message.includes("document") &&
       message.includes("contentWindow is null")) ||
     /null is not an object \(evaluating '[a-z]\.contentWindow\.document'\)/.test(message);
   if (isIframeContentWindowNull) {
