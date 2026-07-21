@@ -68,6 +68,26 @@ describe("EcencyImagesUploadDialog", () => {
     expect(uploadMock).not.toHaveBeenCalled();
   });
 
+  it("does not insert an image when the dialog is closed mid-upload", async () => {
+    let resolveUpload: (value: { url: string }) => void = () => {};
+    uploadMock.mockImplementationOnce(
+      () => new Promise<{ url: string }>((resolve) => (resolveUpload = resolve))
+    );
+
+    const onPick = vi.fn();
+    const props = { setShow: vi.fn(), onPick };
+    const { container, rerender } = render(<EcencyImagesUploadDialog show={true} {...props} />);
+
+    pickFiles(container, [jpeg("one.jpg")]);
+    await waitFor(() => expect(uploadMock).toHaveBeenCalledTimes(1));
+
+    rerender(<EcencyImagesUploadDialog show={false} {...props} />);
+    resolveUpload({ url: "https://images.ecency.com/p/uploaded" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(onPick).not.toHaveBeenCalled();
+  });
+
   it("shows the preview step for several images and waits for confirmation", async () => {
     const onPick = vi.fn();
     const { container } = render(
