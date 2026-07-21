@@ -32,9 +32,9 @@ for (const file of files) {
   const rel = relative(ROOT, file);
   let root;
   try {
-    root = postcss.parse(readFileSync(file, "utf8"), { syntax: scssSyntax, from: file });
+    root = scssSyntax.parse(readFileSync(file, "utf8"), { from: file });
   } catch (err) {
-    findings.push({ file: rel, selector: "(parse error)", detail: String(err).slice(0, 120) });
+    findings.push({ file: rel, selector: "(parse error)", detail: "unparseable" });
     continue;
   }
   root.walkRules((rule) => {
