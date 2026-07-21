@@ -80,6 +80,31 @@ describe("EcencyImagesUploadDialog", () => {
     expect(onPick).not.toHaveBeenCalled();
   });
 
+  it("aborts the in-flight request when the Cancel button is pressed", async () => {
+    const signals: AbortSignal[] = [];
+    uploadMock.mockImplementation(
+      (args: { signal?: AbortSignal }) =>
+        new Promise<{ url: string }>(() => {
+          if (args.signal) {
+            signals.push(args.signal);
+          }
+        })
+    );
+
+    const { container } = render(
+      <EcencyImagesUploadDialog show={true} setShow={vi.fn()} onPick={vi.fn()} />
+    );
+
+    pickFiles(container, [jpeg("one.jpg"), jpeg("two.jpg")]);
+    fireEvent.click(await screen.findByText("editor-toolbar.upload"));
+    await waitFor(() => expect(signals.length).toBe(1));
+
+    fireEvent.click(screen.getByText("g.cancel"));
+    expect(signals[0].aborted).toBe(true);
+
+    uploadMock.mockImplementation(async () => ({ url: "https://images.ecency.com/p/uploaded" }));
+  });
+
   it("does not upload files that are not accepted images", async () => {
     const { container } = render(
       <EcencyImagesUploadDialog show={true} setShow={vi.fn()} onPick={vi.fn()} />

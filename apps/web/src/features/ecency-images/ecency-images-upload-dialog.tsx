@@ -61,14 +61,15 @@ export function EcencyImagesUploadDialog({ show, setShow, onPick, initialFiles }
     };
   }, []);
 
-  // Stop the request itself, not just the loop around it: a cancelled upload
-  // that keeps running holds the publish flow open until the network resolves
-  const abortInFlight = useCallback((list: UploadItem[]) => {
-    list.forEach((item) => {
-      if (item.status === "uploading") {
-        item.abortController?.abort();
-      }
-    });
+  // Controllers are tracked here rather than read back off `items`, which a
+  // cancel arriving in the same tick as the upload starting would still see
+  // without them. Stopping the request matters beyond the loop guard: an upload
+  // left running holds the publish flow open until the network resolves.
+  const activeControllersRef = useRef(new Set<AbortController>());
+
+  const abortInFlight = useCallback(() => {
+    activeControllersRef.current.forEach((controller) => controller.abort());
+    activeControllersRef.current.clear();
   }, []);
 
   // Closing has to cancel here, not in the effect that reacts to `show` turning
@@ -76,7 +77,7 @@ export function EcencyImagesUploadDialog({ show, setShow, onPick, initialFiles }
   // would still insert its image into an editor the user had moved on from
   const cancelAndClose = useCallback(() => {
     cancelRef.current = true;
-    abortInFlight(itemsRef.current);
+    abortInFlight();
     setShow(false);
   }, [abortInFlight, setShow]);
 
@@ -91,6 +92,7 @@ export function EcencyImagesUploadDialog({ show, setShow, onPick, initialFiles }
         // Register upload and create abort controller
         const uploadId = nextUploadId("dialog");
         const abortController = new AbortController();
+        activeControllersRef.current.add(abortController);
         uploadTracker?.registerUpload(uploadId, abortController);
 
         setItems((prev) => {
@@ -125,6 +127,8 @@ export function EcencyImagesUploadDialog({ show, setShow, onPick, initialFiles }
         } catch {
           uploadTracker?.markFailed(uploadId);
           /* handled in mutation */
+        } finally {
+          activeControllersRef.current.delete(abortController);
         }
       }
 
@@ -181,7 +185,7 @@ export function EcencyImagesUploadDialog({ show, setShow, onPick, initialFiles }
       // Closing the dialog stops the batch, so nothing gets inserted into the
       // editor after the user dismissed it
       cancelRef.current = true;
-      abortInFlight(itemsRef.current);
+      abortInFlight();
       if (itemsRef.current.length) {
         itemsRef.current.forEach((item) => URL.revokeObjectURL(item.preview));
         setItems([]);
@@ -233,7 +237,7 @@ export function EcencyImagesUploadDialog({ show, setShow, onPick, initialFiles }
                   if (items.some((it) => it.status === "uploading")) {
                     cancelRef.current = true;
                     setIsCancelling(true);
-                    abortInFlight(items);
+                    abortInFlight();
                   }
                   // Clean up blob URLs before clearing items
                   items.forEach((item) => {
