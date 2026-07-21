@@ -15,7 +15,7 @@ const ts = require("typescript");
 const ROOT = new URL("..", import.meta.url).pathname;
 const SLOT_PROPS = new Set(["icon", "prepend", "append"]);
 const GLYPH_AXIS = /(^|\s)([a-z-]+:)*!?[wh]-(3(\.5)?|4|5|6)(\s|$)/;
-const SINGLE_AXIS_SINK = /\[&[>_]\s*svg\]:!?[wh]-\d/;
+const SINGLE_AXIS_SINK = /\[&[^\]]*\bsvg\]:!?[wh]-\d/;
 const failing = process.argv.includes("--fail");
 
 const files = [];

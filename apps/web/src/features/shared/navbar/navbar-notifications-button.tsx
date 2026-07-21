@@ -58,7 +58,9 @@ export function NavbarNotificationsButton({ onClick }: { onClick?: () => void })
           )}
           <Button
             icon={globalNotifications ? bellSvg : bellOffSvg}
-            iconClassName={ringing ? "animate-bell-ring" : undefined}
+            // !size-6: this bell deliberately renders at 24px, diverging from the
+            // Button md slot tier (20px) - preserves the retired SCSS rule's size
+            iconClassName={`[&>svg]:!size-6${ringing ? " animate-bell-ring" : ""}`}
             onAnimationEnd={(e: AnimationEvent) => {
               if (e.animationName === "anim-bell-ring") {
                 setRinging(false);

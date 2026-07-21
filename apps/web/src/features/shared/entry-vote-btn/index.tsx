@@ -225,7 +225,7 @@ export function EntryVoteBtn({ entry: originalEntry, isPostSlider, account }: Pr
                 } ${voteDone ? "animate-success-pulse" : ""}`}
                 onAnimationEnd={() => setVoteDone(false)}
               >
-                {<VoteChevron />}
+                <VoteChevron />
               </span>
               {dialog && entry && activeUser && (
                 <div

@@ -62,7 +62,7 @@ export const DeckFloatingManager = () => {
         <div className="columns-list">
           {layout.columns.map(({ type, key, settings }) => (
             <div
-              className={"item " + type}
+              className={"item [&>svg]:size-6 " + type}
               role="button"
               tabIndex={0}
               onClick={() => {

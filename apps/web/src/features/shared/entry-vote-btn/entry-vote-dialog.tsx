@@ -215,13 +215,15 @@ export function EntryVoteDialog({
 
   return (
     <>
+      {/* The [&_svg] sink replaces the deleted btn-vote mixin svg rule that
+          sized the banner's alert icon to 14px inside this dialog. */}
       {!isPaidOut && (
-        <RcPrecheckBanner operation="vote_operation" compact className="mb-2" />
+        <RcPrecheckBanner operation="vote_operation" compact className="mb-2 [&_svg]:size-3.5" />
       )}
       {!isPaidOut && mode === "up" && (
         <>
           <div className="voting-controls voting-controls-up">
-            {isVotingLoading ? <Spinner /> : (
+            {isVotingLoading ? <Spinner className="!size-3.5" /> : (
               <Button
                 noPadding={true}
                 className="w-8"
@@ -307,7 +309,7 @@ export function EntryVoteDialog({
             </div>
             <div className="space" />
             <div className="percentage" />
-            {isVotingLoading ? <Spinner /> : (
+            {isVotingLoading ? <Spinner className="!size-3.5" /> : (
               <Button
                 noPadding={true}
                 className="w-8"

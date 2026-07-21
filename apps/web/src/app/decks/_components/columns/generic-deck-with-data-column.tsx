@@ -147,7 +147,7 @@ export const GenericDeckWithDataColumn = ({
         data.length &&
         (isVirtualScroll ? virtualScrollContent : nativeScrollContent)}
       {isFirstLoaded && data.length === 0 && (
-        <div className="no-content">
+        <div className="no-content [&>svg]:size-16">
           {noContentSvg}
           <p>{i18next.t("decks.columns.no-content")}</p>
         </div>

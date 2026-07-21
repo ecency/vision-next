@@ -44,7 +44,7 @@ export function NavbarSideMainLogout() {
         <NavbarSideMainMenuItem
           label={i18next.t("user-nav.logout")}
           onClick={() => setShowLogoutPopover(!showLogoutPopover)}
-          icon={<UilSignout size={16} />}
+          icon={<UilSignout className="size-4" />}
         />
       }
     >

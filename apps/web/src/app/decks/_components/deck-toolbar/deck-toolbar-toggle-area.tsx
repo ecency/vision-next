@@ -10,7 +10,7 @@ interface Props {
 export const DeckToolbarToggleArea = ({ isExpanded, setIsExpanded }: Props) => {
   return (
     <div
-      className="deck-toolbar-toggle"
+      className="deck-toolbar-toggle [&>svg]:size-6"
       role="button"
       tabIndex={0}
       aria-expanded={isExpanded}

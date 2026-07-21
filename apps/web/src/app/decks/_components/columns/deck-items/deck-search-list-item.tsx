@@ -230,7 +230,7 @@ export const SearchListItem = ({
             )}
             {isPinned && (
               <Tooltip content={i18next.t("entry-list-item.pinned")}>
-                <span className="deck-pinned">{pinSvg}</span>
+                <span className="deck-pinned [&>svg]:size-3.5">{pinSvg}</span>
               </Tooltip>
             )}
             <EcencySourceBadge app={json_metadata?.app ?? app} className="mr-2" />

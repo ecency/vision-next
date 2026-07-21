@@ -39,9 +39,6 @@
         cursor: pointer;
         opacity: 0.6;
 
-        svg {
-          height: 16px;
-        }
 
         &:hover {
           opacity: 1;
@@ -67,7 +64,6 @@
     width: 300px;
 
     svg {
-      height: 14px;
       margin-right: 6px;
       opacity: 0.6;
     }

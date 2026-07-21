@@ -355,11 +355,6 @@
     display: flex;
   }
 
-  svg {
-    width: 14px;
-    height: 14px;
-  }
-
   //animation for upvote in progress
   //from the file _animations.scss
   // example of rotation with fading:
@@ -416,11 +411,6 @@
   &.vote-btn-lg {
     height: 26px;
     width: 26px;
-
-    svg {
-      width: 20px;
-      height: 20px;
-    }
   }
 }
 

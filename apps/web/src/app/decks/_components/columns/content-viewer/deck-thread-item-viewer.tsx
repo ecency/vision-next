@@ -113,7 +113,7 @@ export const DeckThreadItemViewer = ({
               />
             ))}
             {data.length === 0 && (
-              <div className="no-replies-placeholder">
+              <div className="no-replies-placeholder [&>svg]:size-16">
                 {repliesIconSvg}
                 <p>{i18next.t("decks.columns.no-replies")}</p>
                 <Button

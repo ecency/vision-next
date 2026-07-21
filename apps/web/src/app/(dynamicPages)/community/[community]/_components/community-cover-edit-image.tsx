@@ -37,7 +37,7 @@ export function CommunityCoverEditImage({ account }: Props) {
     <>
       <Tooltip content={i18next.t("community-cover.cover-image-edit")}>
         <div
-          className="btn-edit-cover-image"
+          className="btn-edit-cover-image [&>svg]:size-4"
           role="button"
           tabIndex={0}
           aria-label={i18next.t("community-cover.cover-image-edit")}

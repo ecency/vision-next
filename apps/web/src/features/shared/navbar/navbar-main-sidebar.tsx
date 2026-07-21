@@ -96,7 +96,7 @@ export function NavbarMainSidebar({ show, setShow, setStepOne }: Props) {
             setShow(false);
           }}
           to="/publish"
-          icon={<UilEditAlt size={16} />}
+          icon={<UilEditAlt className="size-4" />}
         />
 
         <hr className="my-2 border-[--border-color]" />
@@ -107,7 +107,7 @@ export function NavbarMainSidebar({ show, setShow, setStepOne }: Props) {
             setShow(false);
             onLogoClick();
           }}
-          icon={<UilHome size={16} />}
+          icon={<UilHome className="size-4" />}
         />
 
         <EcencyConfigManager.Conditional
@@ -117,7 +117,7 @@ export function NavbarMainSidebar({ show, setShow, setStepOne }: Props) {
             label={i18next.t("navbar.waves")}
             to="/waves"
             onClick={() => setShow(false)}
-            icon={<WavyDashIcon size={16} />}
+            icon={<WavyDashIcon className="size-4" />}
           />
         </EcencyConfigManager.Conditional>
 
@@ -125,19 +125,19 @@ export function NavbarMainSidebar({ show, setShow, setStepOne }: Props) {
           label={i18next.t("navbar.discover")}
           to="/discover"
           onClick={() => setShow(false)}
-          icon={<UilUsersAlt size={16} />}
+          icon={<UilUsersAlt className="size-4" />}
         />
         <NavbarSideMainMenuItem
           label={i18next.t("navbar.communities")}
           to="/communities"
           onClick={() => setShow(false)}
-          icon={<UilUserSquare size={16} />}
+          icon={<UilUserSquare className="size-4" />}
         />
         <NavbarSideMainMenuItem
           label={i18next.t("trending-tags.title")}
           to="/tags"
           onClick={() => setShow(false)}
-          icon={<UilTag size={16} />}
+          icon={<UilTag className="size-4" />}
         />
         <EcencyConfigManager.Conditional
           condition={({ visionFeatures }) => visionFeatures.chats.enabled}
@@ -146,7 +146,7 @@ export function NavbarMainSidebar({ show, setShow, setStepOne }: Props) {
             label={i18next.t("navbar.chats")}
             to="/chats"
             onClick={() => setShow(false)}
-            icon={<UilCommentDots size={16} />}
+            icon={<UilCommentDots className="size-4" />}
             badgeContent={unread?.truncated ? undefined : unread?.totalUnread || undefined}
             dot={unread?.truncated ? false : Boolean(unread?.totalUnread)}
           />
@@ -161,7 +161,7 @@ export function NavbarMainSidebar({ show, setShow, setStepOne }: Props) {
               label={i18next.t("navbar.decks")}
               to="/decks"
               onClick={() => setShow(false)}
-              icon={<UilColumns size={16} />}
+              icon={<UilColumns className="size-4" />}
             />
           </EcencyConfigManager.Conditional>
         )}
@@ -170,19 +170,19 @@ export function NavbarMainSidebar({ show, setShow, setStepOne }: Props) {
           label={i18next.t("proposals.page-title")}
           to="/proposals"
           onClick={() => setShow(false)}
-          icon={<UilCommentPlus size={16} />}
+          icon={<UilCommentPlus className="size-4" />}
         />
         <NavbarSideMainMenuItem
           label={i18next.t("witnesses.page-title")}
           to="/witnesses"
           onClick={() => setShow(false)}
-          icon={<UilCloudComputing size={16} />}
+          icon={<UilCloudComputing className="size-4" />}
         />
         <NavbarSideMainMenuItem
           label={i18next.t("switch-lang.contributors")}
           to="/contributors"
           onClick={() => setShow(false)}
-          icon={<UilListUl size={16} />}
+          icon={<UilListUl className="size-4" />}
         />
 
         <hr className="my-2 border-[--border-color]" />

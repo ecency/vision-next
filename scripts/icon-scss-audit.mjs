@@ -40,11 +40,8 @@ for (const file of files) {
   root.walkRules((rule) => {
     if (!/(^|[\s>+~(,])svg\b|\bsvg\s*[{,]|&\s*svg/.test(rule.selector) && !/svg/.test(rule.selector)) return;
     rule.walkDecls((decl) => {
-      const sizing =
-      /^(width|height|min-width|min-height|max-width|max-height)$/.test(decl.prop) ||
-        (decl.prop === "@apply") ||
-        (decl.prop.startsWith("--") ? false : false);
-      if (sizing) findings.push({ file: rel, selector: rule.selector.replace(/\s+/g, " ").slice(0, 90), decl: `${decl.prop}: ${decl.value}` });
+      const sizing = /^(width|height|min-width|min-height|max-width|max-height)$/.test(decl.prop);
+      if (sizing) findings.push({ file: rel, selector: rule.selector.replace(/\s+/g, " ").slice(0, 90), decl: `${decl.prop}: ${decl.value}${decl.important ? " !important" : ""}` });
     });
     rule.walkAtRules("apply", (at) => {
       if (/\b(!?[wh]-|!?size-)/.test(at.params))
@@ -59,6 +56,10 @@ if (process.argv.includes("--write-manifest")) {
   // Regenerate the ledger from live findings, preserving existing statuses.
   const prev = new Map(manifest.rules.map((r) => [r.key ?? r.where, r.status]));
   const rules = findings.map((f) => ({ key: key(f), status: prev.get(key(f)) ?? "owned:pending" }));
+  // deleted entries are tombstones guarding against resurrection - keep them through regens
+  const live = new Set(rules.map((r) => r.key));
+  for (const r of manifest.rules)
+    if (r.status === "deleted" && !live.has(r.key ?? r.where)) rules.push({ key: r.key ?? r.where, status: "deleted" });
   const { writeFileSync } = await import("node:fs");
   writeFileSync(join(ROOT, "scripts/icon-scss-manifest.json"),
     JSON.stringify({ comment: manifest.comment, rules }, null, 1) + "\n");

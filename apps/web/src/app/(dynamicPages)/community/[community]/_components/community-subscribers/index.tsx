@@ -92,7 +92,7 @@ export function CommunitySubscribers({ community }: Props) {
                               {canEditRole && (
                                   <a
                                       href="#"
-                                      className="btn-edit-role"
+                                      className="btn-edit-role [&>svg]:size-3"
                                       onClick={(e) => {
                                         e.preventDefault();
                                         setEditingSubscriber(item);

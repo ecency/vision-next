@@ -1,7 +1,6 @@
 "use client";
 
 import { ButtonHTMLAttributes, DetailedHTMLProps, ReactNode, useEffect, useState } from "react";
-import "./index.css";
 import { useIsMobile } from "@/features/ui/util/use-is-mobile";
 import { classNameObject, useFilteredProps } from "@/features/ui/util";
 import i18next from "i18next";
@@ -19,7 +18,7 @@ function PageButton(
     <button
       {...filteredProps}
       className={classNameObject({
-        "pagination border-r dark:border-gray-700 border-t border-b first:border-l first:rounded-l-xl last:rounded-r-xl last:border-l-0 disabled:hover:bg-white p-2.5 disabled:text-gray-600":
+        "pagination [&>svg]:size-4 border-r dark:border-gray-700 border-t border-b first:border-l first:rounded-l-xl last:rounded-r-xl last:border-l-0 disabled:hover:bg-white p-2.5 disabled:text-gray-600":
           true,
         "text-blue-dark-sky bg-white hover:bg-gray-100 dark:hover:bg-gray-800": !props.active,
         "border-blue-dark-sky bg-blue-dark-sky text-white": props.active

@@ -20,7 +20,7 @@ export function PageMenuMobileDropdown({ children, label, isSelected }: PropsWit
         <Dropdown>
           <DropdownToggle className="text-sm flex items-center gap-2">
             {label}
-            {<SliderChevron direction="down" />}
+            <SliderChevron direction="down" />
           </DropdownToggle>
           <DropdownMenu align="left">{children}</DropdownMenu>
         </Dropdown>

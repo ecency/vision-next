@@ -28,6 +28,7 @@ export function NavbarSideThemeSwitcher({ floatRight }: Props) {
             type="button"
             className={classNameObject({
                 "switch-theme": true,
+                "[&>svg]:size-5": true,
                 "ml-[auto]": floatRight,
                 switched: isNight
             })}

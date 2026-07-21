@@ -74,7 +74,7 @@ function ProfileInfoContent({ account, rcAccount }: ContentProps) {
       <p>{i18next.t("profile-info.last-active", { n: lastActive.fromNow() })}</p>
       <p>
         {i18next.t("profile-info.vote-value", { n: vValue })}
-        {hiveSvg}
+        <span className="inline-flex shrink-0 size-3 ml-1 [&>svg]:size-full">{hiveSvg}</span>
         {vValue !== vValueFull && (
           <small>{i18next.t("profile-info.vote-value-max", { n: vValueFull })}</small>
         )}

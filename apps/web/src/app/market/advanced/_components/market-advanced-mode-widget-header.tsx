@@ -31,7 +31,7 @@ export const MarketAdvancedModeWidgetHeader = ({
               <div className="flex items-center ml-3">
                 {typeof title === "string" ? (
                   <>
-                    {icon ? <div className="icon mr-2">{icon}</div> : <></>}
+                    {icon ? <div className="icon mr-2 size-5 [&>svg]:size-full">{icon}</div> : <></>}
                     <div className="header-title">{title}</div>
                   </>
                 ) : (
