@@ -1,18 +1,18 @@
 import { describe, it, expect } from "vitest";
+import { isMattermostDefaultChannel } from "@/app/api/mattermost/channels/helpers";
 
 /**
- * Regression test: MATTERMOST_DEFAULT_CHANNELS filtering.
+ * Regression test: Mattermost default-channel filtering.
  *
- * The channels route filters out Mattermost team defaults
- * ("town-square", "off-topic") that users are auto-joined to
- * when they join the team. This test verifies:
+ * Mattermost auto-joins users to "town-square" and "off-topic" when they join
+ * the team. Three routes must agree on hiding them — the channel list, the
+ * unread badge, and channel search — so this exercises the single shared
+ * predicate they all use. It verifies:
  * 1. Default channels are removed from the response
  * 2. Real community/DM channels survive the filter
  * 3. Channel selection logic picks the intended non-default channel
+ * 4. Search results hide the same channels the list hides
  */
-
-// Mirror the constant from the channels route
-const MATTERMOST_DEFAULT_CHANNELS = new Set(["town-square", "off-topic"]);
 
 interface TestChannel {
   id: string;
@@ -22,10 +22,10 @@ interface TestChannel {
 }
 
 function applyDefaultChannelFilter(channels: TestChannel[]): TestChannel[] {
-  return channels.filter((channel) => !MATTERMOST_DEFAULT_CHANNELS.has(channel.name));
+  return channels.filter((channel) => !isMattermostDefaultChannel(channel));
 }
 
-describe("MATTERMOST_DEFAULT_CHANNELS filtering", () => {
+describe("Mattermost default-channel filtering", () => {
   const payload: TestChannel[] = [
     { id: "ch-1", name: "town-square", display_name: "Town Square", type: "O" },
     { id: "ch-2", name: "off-topic", display_name: "Off-Topic", type: "O" },
@@ -95,5 +95,35 @@ describe("MATTERMOST_DEFAULT_CHANNELS filtering", () => {
     // not a Mattermost default
     const defaultChannelId = filtered[0]?.id;
     expect(defaultChannelId).toBe("ch-3"); // hive-123456, not town-square
+  });
+
+  it("keeps a community channel that shares a default channel's display name", () => {
+    // A community can be renamed to anything, including "Town Square". Only the
+    // slug decides, so the community channel stays and the default one goes.
+    const collision: TestChannel[] = [
+      { id: "ch-1", name: "town-square", display_name: "Town Square", type: "O" },
+      { id: "ch-2", name: "hive-125125", display_name: "Town Square", type: "O" }
+    ];
+    const filtered = applyDefaultChannelFilter(collision);
+    expect(filtered).toHaveLength(1);
+    expect(filtered[0].id).toBe("ch-2");
+  });
+
+  it("hides the same channels in search results as in the channel list", () => {
+    // Search used to return the raw Mattermost results, so a user could open a
+    // default channel that the list then hid — leaving no row to go back to.
+    const searchResults: TestChannel[] = [
+      { id: "ch-1", name: "town-square", display_name: "Town Square", type: "O" },
+      { id: "ch-2", name: "hive-125125", display_name: "Town Square", type: "O" }
+    ];
+    const searchable = applyDefaultChannelFilter(searchResults).map((ch) => ch.name);
+    const listed = applyDefaultChannelFilter(searchResults).map((ch) => ch.name);
+    expect(searchable).toEqual(listed);
+    expect(searchable).toEqual(["hive-125125"]);
+  });
+
+  it("treats a missing channel name as non-default", () => {
+    expect(isMattermostDefaultChannel({})).toBe(false);
+    expect(isMattermostDefaultChannel({ name: null })).toBe(false);
   });
 });

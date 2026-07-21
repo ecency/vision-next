@@ -27,6 +27,23 @@ interface MattermostChannelMemberCounts {
   last_update_at?: number;
 }
 
+/**
+ * Mattermost auto-joins every user to these channels when they join a team.
+ * No Hive user intentionally joined them, so they are hidden from the channel
+ * list, excluded from the unread badge, and dropped from channel search. All
+ * three must agree: a default channel that is searchable but not listable puts
+ * the user in a channel that then vanishes from their sidebar.
+ *
+ * Matching is on the channel SLUG (`name`), never the display name — display
+ * names are editable and can collide with a real community channel.
+ */
+const MATTERMOST_DEFAULT_CHANNEL_NAMES = new Set(["town-square", "off-topic"]);
+
+/** Whether a channel is one of the Mattermost team defaults users never chose. */
+export function isMattermostDefaultChannel(channel: { name?: string | null }): boolean {
+  return MATTERMOST_DEFAULT_CHANNEL_NAMES.has(channel.name ?? "");
+}
+
 /** A channel is muted when the member opted out of unread marking (mobile parity). */
 export function isChannelMuted(member?: { notify_props?: { mark_unread?: string } }): boolean {
   return member?.notify_props?.mark_unread === "mention";
