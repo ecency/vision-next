@@ -12,6 +12,7 @@ import { useUploadImageMutation } from "@/api/sdk-mutations";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { insertOrReplace, replace } from "@/utils";
 import { convertHeicToJpeg } from "@/utils/convert-heic";
+import { isAcceptedImageFilename } from "@/utils/image-upload-formats";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
 import { EmojiPicker } from "@ui/emoji-picker/lazy-emoji-picker";
@@ -226,8 +227,7 @@ export function EditorToolbar({
       });
   };
 
-  const checkFile = (filename: string) =>
-    ["jpg", "jpeg", "gif", "png", "webp", "heic", "heif"].some((el) => filename.toLowerCase().endsWith(el));
+  const checkFile = (filename: string) => isAcceptedImageFilename(filename);
 
   const onDragOver = (e: DragEvent) => {
     e.preventDefault();

@@ -12,6 +12,7 @@ import { EcencyConfigManager } from "@/config";
 import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { convertHeicToJpeg } from "@/utils/convert-heic";
+import { isAcceptedImageFilename } from "@/utils/image-upload-formats";
 
 interface Props {
   onAddImage: (link: string, name: string) => void;
@@ -33,10 +34,7 @@ export const WaveFormToolbarImagePicker = ({ onAddImage, disabled }: Props) => {
     [onAddImage]
   );
 
-  const checkFile = useCallback((filename: string) => {
-    const filenameLow = filename.toLowerCase();
-    return ["jpg", "jpeg", "gif", "png", "webp", "heic", "heif"].some((el) => filenameLow.endsWith(el));
-  }, []);
+  const checkFile = useCallback((filename: string) => isAcceptedImageFilename(filename), []);
 
   const upload = useCallback(
     async (file: File) => {

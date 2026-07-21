@@ -71,7 +71,8 @@ import {
 import { DropdownContext } from "@ui/dropdown/dropdown-context";
 import i18next from "i18next";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { usePublishState } from "../_hooks";
+import { usePublishState, useUploadAndInsertImages } from "../_hooks";
+import { IMAGE_UPLOAD_ACCEPT } from "@/utils/image-upload-formats";
 import { PublishEditorTableToolbar } from "./publish-editor-table-toolbar";
 
 import { PublishEditorToolbarFragments } from "./publish-editor-toolbar-fragments";
@@ -214,6 +215,7 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showImageByLink, setShowImageByLink] = useState(false);
   const [showImageUpload, setShowImageUpload] = useState(false);
+  const [pickedImages, setPickedImages] = useState<File[]>([]);
   const [showVideoUpload, setShowVideoUpload] = useState(false);
   const [showVideoLink, setShowVideoLink] = useState(false);
   const [showGeoTag, setShowGeoTag] = useState(false);
@@ -222,6 +224,31 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
   const [showAiAssist, setShowAiAssist] = useState(false);
   const [showMemeMaker, setShowMemeMaker] = useState(false);
   const [isFocusingTable, setIsFocusingTable] = useState(false);
+
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const uploadAndInsertImages = useUploadAndInsertImages(editor);
+
+  const onImagesPicked = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = Array.from(e.target.files ?? []);
+      e.target.value = "";
+
+      if (files.length === 0) {
+        return;
+      }
+
+      // A single image has nothing to review - upload it straight away. Several
+      // images open the dialog so they can be previewed before uploading.
+      if (files.length === 1) {
+        uploadAndInsertImages(files, "toolbar");
+        return;
+      }
+
+      setPickedImages(files);
+      setShowImageUpload(true);
+    },
+    [uploadAndInsertImages]
+  );
 
   const activeTextColor = editor?.getAttributes("textStyle")?.color as string | undefined;
 
@@ -418,7 +445,7 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
                   <DropdownItemWithIcon
                     icon={<UilUpload />}
                     label={i18next.t("publish.upload")}
-                    onClick={() => setShowImageUpload(true)}
+                    onClick={() => imageInputRef.current?.click()}
                   />
                   <DropdownItemWithIcon
                     icon={<UilImages />}
@@ -671,9 +698,23 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
             setShowImageByLink(false);
           }}
         />
+        <input
+          ref={imageInputRef}
+          type="file"
+          multiple={true}
+          accept={IMAGE_UPLOAD_ACCEPT}
+          className="hidden"
+          onChange={onImagesPicked}
+        />
         <EcencyImagesUploadDialog
           show={showImageUpload}
-          setShow={setShowImageUpload}
+          setShow={(show) => {
+            setShowImageUpload(show);
+            if (!show) {
+              setPickedImages([]);
+            }
+          }}
+          initialFiles={pickedImages}
           onPick={(e) => {
             editor
               ?.chain()

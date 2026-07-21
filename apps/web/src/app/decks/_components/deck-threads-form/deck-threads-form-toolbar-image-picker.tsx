@@ -12,6 +12,8 @@ import { GalleryDialog } from "@/features/shared/gallery";
 import { EcencyConfigManager } from "@/config";
 import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { convertHeicToJpeg } from "@/utils/convert-heic";
+import { isAcceptedImageFilename } from "@/utils/image-upload-formats";
 
 interface Props {
   onAddImage: (link: string, name: string) => void;
@@ -29,10 +31,7 @@ export const DeckThreadsFormToolbarImagePicker = ({ onAddImage }: Props) => {
     onAddImage(url, text);
   };
 
-  const checkFile = (filename: string) => {
-    const filenameLow = filename.toLowerCase();
-    return ["jpg", "jpeg", "gif", "png", "webp"].some((el) => filenameLow.endsWith(el));
-  };
+  const checkFile = (filename: string) => isAcceptedImageFilename(filename);
 
   const fileInputChanged = (e: React.ChangeEvent<HTMLInputElement>): void => {
     let files = Array.from(e.target.files as FileList)
@@ -64,7 +63,7 @@ export const DeckThreadsFormToolbarImagePicker = ({ onAddImage }: Props) => {
     try {
       let token = await ensureValidToken(username);
       if (token) {
-        const resp = await uploadImage(file, token);
+        const resp = await uploadImage(await convertHeicToJpeg(file), token);
         imageUrl = resp.url;
         onAddImage(imageUrl, file.name);
       } else {
