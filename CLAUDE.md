@@ -403,6 +403,20 @@ The `EcencyConfigManager` (`src/config/`) provides:
 - `hive.ts` - Hive blockchain API
 - `hive-engine.ts` - Hive Engine token API
 - `private-api.ts` - Ecency private API
+
+**Debugging a `/private-api/*` 401:** do not assume the user's token. Requests
+go through a proxy that validates the signed code and then pipes the upstream
+response through unchanged, so a 401 raised by a backend service is
+indistinguishable here from a rejected token. Before touching auth code, check
+whether other private-API calls succeed for the same session - if notifications
+work while one endpoint 401s, the code validated fine and the cause is
+server-side on that route. An endpoint failing for *every* user points at a
+backend gate rather than anything the client sends.
+
+Also note that not every query surfaces this: a queryFn that reads
+`response.json()` without checking `response.ok` swallows a 401 silently, while
+one that throws will retry and produce several console errors per page load. A
+noisy endpoint and a quiet one can be failing in exactly the same way.
 - `format-error.ts` - Error formatting for user-facing error messages
 
 **Mutation Architecture**:
