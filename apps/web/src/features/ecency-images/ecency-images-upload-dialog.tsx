@@ -1,7 +1,7 @@
 import i18next from "i18next";
 import { Modal, ModalBody, ModalHeader, Button } from "../ui";
 import { EcencyImagesUploadForm } from "./ecency-images-upload-form";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { UilCheck } from "@tooni/iconscout-unicons-react";
 import { Spinner } from "@ui/spinner";
 import { useUploadImageMutation } from "@/api/sdk-mutations";
@@ -12,6 +12,12 @@ interface Props {
   show: boolean;
   setShow: (show: boolean) => void;
   onPick: (link: string) => void;
+  /**
+   * Files already picked outside the dialog (e.g. by the toolbar file input).
+   * They are seeded as previews when the dialog opens, so the user does not
+   * have to pick them twice.
+   */
+  initialFiles?: File[];
 }
 
 interface UploadItem {
@@ -22,13 +28,16 @@ interface UploadItem {
   abortController?: AbortController;
 }
 
-export function EcencyImagesUploadDialog({ show, setShow, onPick }: Props) {
+export function EcencyImagesUploadDialog({ show, setShow, onPick, initialFiles }: Props) {
   const [items, setItems] = useState<UploadItem[]>([]);
   const { mutateAsync: upload } = useUploadImageMutation();
   const uploadTracker = useOptionalUploadTracker();
   const cancelRef = useRef(false);
   const [isCancelling, setIsCancelling] = useState(false);
+  // A single image skips the review step, so it has no Upload button to press
+  const [isAutoUploading, setIsAutoUploading] = useState(false);
   const itemsRef = useRef<UploadItem[]>([]);
+  const seededFilesRef = useRef<File[] | undefined>(undefined);
 
   // Keep track of current items for cleanup
   useEffect(() => {
@@ -44,65 +53,109 @@ export function EcencyImagesUploadDialog({ show, setShow, onPick }: Props) {
     };
   }, []);
 
-  const startUpload = async () => {
-    cancelRef.current = false;
-    for (let i = 0; i < items.length; i++) {
-      if (cancelRef.current) {
-        break;
-      }
-
-      // Register upload and create abort controller
-      const uploadId = `dialog-${Date.now()}-${i}`;
-      const abortController = new AbortController();
-      uploadTracker?.registerUpload(uploadId, abortController);
-
-      setItems((prev) => {
-        if (cancelRef.current || !prev[i]) {
-          return prev;
-        }
-        const next = [...prev];
-        next[i].status = "uploading";
-        next[i].uploadId = uploadId;
-        next[i].abortController = abortController;
-        return next;
-      });
-
-      try {
-        const { url } = await upload({ file: items[i].file, signal: abortController.signal });
+  const startUpload = useCallback(
+    async (list: UploadItem[]) => {
+      cancelRef.current = false;
+      for (let i = 0; i < list.length; i++) {
         if (cancelRef.current) {
-          uploadTracker?.markFailed(uploadId);
           break;
         }
 
-        uploadTracker?.markComplete(uploadId);
-        onPick(url);
+        // Register upload and create abort controller
+        const uploadId = `dialog-${Date.now()}-${i}`;
+        const abortController = new AbortController();
+        uploadTracker?.registerUpload(uploadId, abortController);
 
         setItems((prev) => {
           if (cancelRef.current || !prev[i]) {
             return prev;
           }
           const next = [...prev];
-          next[i].status = "done";
+          next[i].status = "uploading";
+          next[i].uploadId = uploadId;
+          next[i].abortController = abortController;
           return next;
         });
-      } catch {
-        uploadTracker?.markFailed(uploadId);
-        /* handled in mutation */
+
+        try {
+          const { url } = await upload({ file: list[i].file, signal: abortController.signal });
+          if (cancelRef.current) {
+            uploadTracker?.markFailed(uploadId);
+            break;
+          }
+
+          uploadTracker?.markComplete(uploadId);
+          onPick(url);
+
+          setItems((prev) => {
+            if (cancelRef.current || !prev[i]) {
+              return prev;
+            }
+            const next = [...prev];
+            next[i].status = "done";
+            return next;
+          });
+        } catch {
+          uploadTracker?.markFailed(uploadId);
+          /* handled in mutation */
+        }
       }
+
+      if (!cancelRef.current) {
+        // Clean up blob URLs before clearing items
+        list.forEach((item) => {
+          URL.revokeObjectURL(item.preview);
+        });
+        setItems([]);
+        setShow(false);
+      }
+
+      setIsCancelling(false);
+      cancelRef.current = false;
+    },
+    [onPick, setShow, upload, uploadTracker]
+  );
+
+  const onFilesPick = useCallback(
+    async (files: File[]) => {
+      const converted = await Promise.all(files.map((f) => convertHeicToJpeg(f)));
+      const picked = converted.map((file) => ({
+        file,
+        preview: URL.createObjectURL(file),
+        status: "pending" as const
+      }));
+      setItems(picked);
+
+      // One image needs no review step - start uploading as soon as it is picked
+      if (picked.length === 1) {
+        setIsAutoUploading(true);
+        try {
+          await startUpload(picked);
+        } finally {
+          setIsAutoUploading(false);
+        }
+      }
+    },
+    [startUpload]
+  );
+
+  // Seed files picked outside of the dialog, and drop stale previews once closed
+  useEffect(() => {
+    if (!show) {
+      seededFilesRef.current = undefined;
+      if (itemsRef.current.length) {
+        itemsRef.current.forEach((item) => URL.revokeObjectURL(item.preview));
+        setItems([]);
+      }
+      return;
     }
 
-    if (!cancelRef.current) {
-      // Clean up blob URLs before clearing items
-      items.forEach((item) => {
-        URL.revokeObjectURL(item.preview);
-      });
-      setItems([]);
-      setShow(false);
+    if (!initialFiles?.length || seededFilesRef.current === initialFiles) {
+      return;
     }
-
-    setIsCancelling(false);
-    cancelRef.current = false;
-  };
+    seededFilesRef.current = initialFiles;
+    onFilesPick(initialFiles);
+  }, [show, initialFiles, onFilesPick]);
 
   return (
     <Modal
@@ -113,21 +166,7 @@ export function EcencyImagesUploadDialog({ show, setShow, onPick }: Props) {
     >
       <ModalHeader closeButton={true}>{i18next.t("ecency-images.upload-image")}</ModalHeader>
       <ModalBody>
-        {!items.length && (
-          <EcencyImagesUploadForm
-            onFilesPick={async (files) => {
-              const converted = await Promise.all(files.map((f) => convertHeicToJpeg(f)));
-              setItems((prev) => [
-                ...prev,
-                ...converted.map((file) => ({
-                  file,
-                  preview: URL.createObjectURL(file),
-                  status: "pending" as const
-                }))
-              ]);
-            }}
-          />
-        )}
+        {!items.length && <EcencyImagesUploadForm onFilesPick={onFilesPick} />}
         {items.length > 0 && (
           <div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -165,14 +204,16 @@ export function EcencyImagesUploadDialog({ show, setShow, onPick }: Props) {
               >
                 {i18next.t("g.cancel")}
               </Button>
-              <Button
-                size="sm"
-                isLoading={items.some((it) => it.status === "uploading")}
-                onClick={startUpload}
-                disabled={isCancelling}
-              >
-                {i18next.t("editor-toolbar.upload")}
-              </Button>
+              {!isAutoUploading && (
+                <Button
+                  size="sm"
+                  isLoading={items.some((it) => it.status === "uploading")}
+                  onClick={() => startUpload(items)}
+                  disabled={isCancelling}
+                >
+                  {i18next.t("editor-toolbar.upload")}
+                </Button>
+              )}
             </div>
           </div>
         )}

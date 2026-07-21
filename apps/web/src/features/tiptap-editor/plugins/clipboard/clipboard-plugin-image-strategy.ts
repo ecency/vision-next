@@ -12,7 +12,13 @@ export class ClipboardPluginImageStrategy implements ClipboardStrategy {
     const chain = this.editor?.chain();
 
     allFiles
-      .filter((file) => ["image/png", "image/jpeg", "image/jpg", "image/gif"].includes(file.type))
+      // Formats the browser can preview from a blob URL. HEIC is left out on
+      // purpose: it would show a broken preview until the upload TODO below lands.
+      .filter((file) =>
+        ["image/png", "image/jpeg", "image/jpg", "image/gif", "image/webp", "image/avif"].includes(
+          file.type
+        )
+      )
       .forEach((file) => {
         // TODO: Ideally, pasted images should be uploaded to the server immediately
         // and the blob URL should be replaced with the server URL to avoid memory leaks

@@ -7,4 +7,5 @@ export * from "./use-default-beneficiary";
 export * from "./use-support-ecency-beneficiary";
 export * from "./use-publish-autosave";
 export * from "./use-upload-tracker";
+export * from "./use-upload-and-insert-images";
 export * from "./use-draft-tab-coordinator";

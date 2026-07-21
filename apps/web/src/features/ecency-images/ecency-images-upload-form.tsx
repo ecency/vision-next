@@ -2,6 +2,7 @@ import { UilFileDownload, UilFileUpload } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
 import i18next from "i18next";
 import { useCallback, useRef, useState } from "react";
+import { IMAGE_UPLOAD_ACCEPT, isAcceptedImageFilename } from "@/utils/image-upload-formats";
 
 interface Props {
   onFilesPick: (files: File[]) => void;
@@ -19,8 +20,7 @@ export function EcencyImagesUploadForm({ onFilesPick }: Props) {
         Array.from(e.dataTransfer.items).forEach((item) => {
           if (item.kind === "file") {
             const file = item.getAsFile();
-            const fileExtension = file?.name.split(".").pop()?.toLowerCase();
-            if (file && fileExtension && ["png", "svg", "jpg", "jpeg", "webp", "gif", "heic", "heif"].includes(fileExtension)) {
+            if (file && isAcceptedImageFilename(file.name)) {
               files.push(file);
             }
           }
@@ -57,7 +57,7 @@ export function EcencyImagesUploadForm({ onFilesPick }: Props) {
   return (
     <div className="animate-fade-in-up">
       <input
-        accept="image/jpg, image/jpeg, image/webp, image/png, image/svg+xml, .svg, image/gif, image/heic, image/heif"
+        accept={IMAGE_UPLOAD_ACCEPT}
         type="file"
         multiple
         ref={fileInputRef}
