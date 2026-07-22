@@ -49,3 +49,41 @@ describe("NotificationsWebSocket.getNotificationType", () => {
     expect(ws.getNotificationType("inactive")).toBeNull();
   });
 });
+
+/**
+ * getBody() returning "" makes the delivery path drop the notification, so a
+ * toggle-able type without a body branch is silently undeliverable even when
+ * the user has it enabled. i18next is mocked to echo the key.
+ */
+describe("NotificationsWebSocket body for account_update", () => {
+  const getBody = (extra: unknown) =>
+    (NotificationsWebSocket as any).getBody({ type: "account_update", source: "alice", extra });
+
+  it("is never empty, even with no extra", () => {
+    expect(getBody(undefined)).toBe("notifications.account-update-str");
+  });
+
+  it("ranks a changed key above a granted authority", () => {
+    const body = getBody({
+      keys_changed: ["owner"],
+      accounts_granted: [{ authority: "posting", account: "bob" }]
+    });
+    expect(body).toBe("notifications.account-update-owner-key");
+  });
+
+  it.each([
+    ["owner", "notifications.account-update-owner-key"],
+    ["active", "notifications.account-update-active-key"],
+    ["posting", "notifications.account-update-posting-key"]
+  ])("maps a changed %s key to its own message", (key, expected) => {
+    expect(getBody({ keys_changed: [key] })).toBe(expected);
+  });
+
+  it.each([
+    ["owner", "notifications.account-update-owner-authority"],
+    ["active", "notifications.account-update-active-authority"],
+    ["posting", "notifications.account-update-posting-authority"]
+  ])("maps a granted %s authority to its own message", (authority, expected) => {
+    expect(getBody({ accounts_granted: [{ authority, account: "bob" }] })).toBe(expected);
+  });
+});

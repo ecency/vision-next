@@ -153,6 +153,14 @@ export interface WsWeeklyEarningsNotification extends BaseWsNotification {
   };
 }
 
+export interface WsAccountUpdateNotification extends BaseWsNotification {
+  type: "account_update";
+  extra?: {
+    keys_changed?: string[];
+    accounts_granted?: { authority: string; account: string }[];
+  };
+}
+
 export interface WsScheduledPublishedNotification extends BaseWsNotification {
   type: "scheduled_published";
   extra: {
@@ -181,6 +189,7 @@ export type WsNotification =
   | WsMonthlyPostsNotification
   | WsMonthlyPostsUnderscoreNotification
   | WsWeeklyEarningsNotification
+  | WsAccountUpdateNotification
   | WsScheduledPublishedNotification;
 
 // HTTP api notification _types

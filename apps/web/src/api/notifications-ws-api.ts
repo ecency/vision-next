@@ -98,6 +98,29 @@ export class NotificationsWebSocket {
           ? i18next.t("notification.scheduled-published-title", { title })
           : i18next.t("notification.scheduled-published");
       }
+      case "account_update": {
+        // Mirrors the severity ordering in NotificationAccountUpdateType: an
+        // owner-key change and a generic profile edit must not read the same in
+        // a live toast. Keys outrank granted authorities, owner outranks active
+        // outranks posting.
+        const keys = data.extra?.keys_changed ?? [];
+        const granted = data.extra?.accounts_granted ?? [];
+        if (keys.includes("owner")) return i18next.t("notifications.account-update-owner-key");
+        if (keys.includes("active")) return i18next.t("notifications.account-update-active-key");
+        if (keys.includes("posting")) return i18next.t("notifications.account-update-posting-key");
+        if (granted.length) {
+          const accounts = granted.map((g) => `@${g.account}`).join(", ");
+          const authorities = new Set(granted.map((g) => g.authority));
+          if (authorities.has("owner")) {
+            return i18next.t("notifications.account-update-owner-authority", { accounts });
+          }
+          if (authorities.has("active")) {
+            return i18next.t("notifications.account-update-active-authority", { accounts });
+          }
+          return i18next.t("notifications.account-update-posting-authority", { accounts });
+        }
+        return i18next.t("notifications.account-update-str");
+      }
       default:
         return "";
     }
