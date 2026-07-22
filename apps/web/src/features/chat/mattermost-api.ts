@@ -30,7 +30,13 @@ async function safeJson<T>(res: Response): Promise<T> {
  * bad payload is caught at the boundary instead of becoming a broken URL.
  */
 function asChannelId(value: unknown): string | null {
-  return typeof value === "string" && value.length > 0 ? value : null;
+  if (typeof value !== "string") {
+    return null;
+  }
+  // Trim before the emptiness test: a whitespace-only id is still truthy and
+  // would interpolate into a URL just as badly as a non-string one.
+  const channelId = value.trim();
+  return channelId.length > 0 ? channelId : null;
 }
 
 interface MattermostChannel {
