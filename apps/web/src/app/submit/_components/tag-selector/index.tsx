@@ -3,7 +3,7 @@ import { error, SuggestionList } from "@/features/shared";
 import { getTrendingTagsQueryOptions } from "@ecency/sdk";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { FormControl } from "@ui/input";
-import { closeSvg, poundSvg } from "@ui/svg";
+import { closeSvg } from "@ui/svg";
 import i18next from "i18next";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { ItemInterface, ReactSortable } from "react-sortablejs";
@@ -225,7 +225,13 @@ export function TagSelector({ tags, onChange, onValid, maxItem }: Props) {
           renderer={(x: string) => {
             return (
               <>
-                {poundSvg} {x}
+                <span
+                  aria-hidden={true}
+                  className="inline-flex shrink-0 items-center justify-center size-4 leading-none"
+                >
+                  #
+                </span>
+                {x}
               </>
             );
           }}
