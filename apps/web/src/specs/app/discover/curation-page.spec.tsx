@@ -67,7 +67,7 @@ describe("Curators leaderboard — HP display", () => {
   // someone re-introduces vestsToHp() here, 250 would become ~250/1e6 *
   // hivePerMVests and this exact-text assertion would fail.
   it("renders the curator reward straight through as HP, without a second conversion", async () => {
-    mocks.rows = [{ account: "alice", vests: 250, votes: 12, uniques: 8, efficiency: 1 }];
+    mocks.rows = [{ account: "alice", hp: 250, vests: 250, votes: 12, uniques: 8, efficiency: 1 }];
 
     render(
       <QueryClientProvider client={mocks.queryClient}>

@@ -51,9 +51,9 @@ export default function CurationPage() {
               {data.map((r, i) => (
                 <UsersTableListItem username={r.account} i={i} key={i}>
                   <div className="text-blue-dark-sky text-sm font-semibold">
-                    {/* `vests` already holds HP — esync converts VESTS→HP at ingest.
-                        Do not run vestsToHp() here or the value is double-converted. */}
-                    {formattedNumber(r.vests, { suffix: "HP" })}
+                    {/* `hp` is already Hive Power: esync normalises every row's unit
+                        before summing. Do not run vestsToHp() here or it double-converts. */}
+                    {formattedNumber(r.hp, { suffix: "HP" })}
                   </div>
                   <Badge>{r.votes}</Badge>
                 </UsersTableListItem>
