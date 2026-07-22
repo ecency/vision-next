@@ -25,19 +25,25 @@ function findDuplicateKeys(raw: string): string[] {
     const ch = raw[i];
 
     if (ch === '"') {
-      // Read the string literal, honouring backslash escapes.
-      let value = "";
+      // Read the literal, keeping escapes intact so the whole token can be
+      // decoded: "k" and "k" are the same JSON key, so comparing raw
+      // spellings would miss that pair as a duplicate.
+      let literal = "";
       i++;
       while (i < raw.length && raw[i] !== '"') {
         if (raw[i] === "\\") {
-          value += raw[i] + raw[i + 1];
+          literal += raw[i] + raw[i + 1];
           i += 2;
         } else {
-          value += raw[i];
+          literal += raw[i];
           i++;
         }
       }
-      pendingKey = value;
+      try {
+        pendingKey = JSON.parse(`"${literal}"`);
+      } catch {
+        pendingKey = literal;
+      }
     } else if (ch === ":" && pendingKey !== null) {
       const scope = scopes[scopes.length - 1];
       if (scope) {
@@ -83,5 +89,12 @@ describe("i18n locale files", () => {
 
   it("does not flag the same key used in sibling objects", () => {
     expect(findDuplicateKeys('{ "a": { "k": 1 }, "b": { "k": 2 } }')).toEqual([]);
+  });
+
+  it("decodes escaped member names before comparing", () => {
+    // "k" and "k" are the same JSON key, so this collapses too.
+    const sample = String.raw`{ "a": { "k": 1, "k": 2 } }`;
+    expect(Object.keys(JSON.parse(sample).a)).toEqual(["k"]);
+    expect(findDuplicateKeys(sample)).toEqual(["a.k"]);
   });
 });
