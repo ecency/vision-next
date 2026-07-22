@@ -1,5 +1,5 @@
 import React from "react";
-import { UilArrowLeft, UilArrowRight, UilBell, UilBrightness, UilCheck, UilComment, UilCreditCard, UilDesktop, UilEye, UilHeart, UilHistory, UilLink, UilMedal, UilPlus, UilPound, UilRefresh, UilRepeat, UilRocket, UilSync, UilTag, UilUpload } from "@tooni/iconscout-unicons-react";
+import { UilArrowLeft, UilArrowRight, UilBell, UilBrightness, UilCheck, UilComment, UilCreditCard, UilDesktop, UilEye, UilHeart, UilHistory, UilLink, UilMedal, UilPlus, UilRefresh, UilRepeat, UilRocket, UilSync, UilTag, UilUpload } from "@tooni/iconscout-unicons-react";
 
 export const appleSvg = (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 15 18">
@@ -276,8 +276,6 @@ export const pencilOutlineSvg = (
 );
 
 export const linkSvg = <UilLink className="size-6" />;
-
-export const poundSvg = <UilPound className="size-6" />;
 
 export const creditCardSvg = <UilCreditCard className="size-6" />;
 
