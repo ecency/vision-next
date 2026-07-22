@@ -32,8 +32,13 @@ export function isKnownShard(name: string): name is SitemapShard {
  * was permanently removed; the route returns 503 (transient) for these instead
  * so it's retried, then disappears from the index on the next cron run. Prune
  * an entry once every environment has regenerated past the rename.
+ *
+ * Currently empty, and it should stay that way outside a rename window: an
+ * entry left here past its cron cycle serves a permanent 503 + Retry-After to
+ * crawlers, which they retry indefinitely instead of dropping. "posts-1.xml"
+ * was pruned 2026-07-22 after ~3 weeks in that state.
  */
-const RETIRED_SHARDS: ReadonlySet<string> = new Set<string>(["posts-1.xml"]);
+const RETIRED_SHARDS: ReadonlySet<string> = new Set<string>();
 
 export function isRetiredShard(name: string): boolean {
   return RETIRED_SHARDS.has(name);
