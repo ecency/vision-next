@@ -46,7 +46,10 @@ export function getDiscoverCurationQueryOptions(duration: CurationDuration) {
           parseFloat(receivedVestingShares) -
           parseFloat(delegatedVestingShares) -
           parseFloat(vestingWithdrawRate);
-        curator.efficiency = curator.vests / effectiveVest;
+        // `hp` is the reward in Hive Power; the denominator stays in VESTS, which
+        // is what the ranking has always compared. Every curator is scaled the
+        // same way, so the ordering is unaffected by the unit mismatch.
+        curator.efficiency = curator.hp / effectiveVest;
       }
 
       // Sort by efficiency descending
