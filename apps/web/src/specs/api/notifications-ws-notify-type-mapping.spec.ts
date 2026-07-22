@@ -1,4 +1,5 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import i18next from "i18next";
 import { NotificationsWebSocket } from "@/api/notifications-ws-api";
 import { NotifyTypes } from "@/enums";
 
@@ -85,5 +86,21 @@ describe("NotificationsWebSocket body for account_update", () => {
     ["posting", "notifications.account-update-posting-authority"]
   ])("maps a granted %s authority to its own message", (authority, expected) => {
     expect(getBody({ accounts_granted: [{ authority, account: "bob" }] })).toBe(expected);
+  });
+
+  it("names only the accounts holding the reported authority", () => {
+    // i18next is mocked to echo the key, so assert on the interpolation values
+    // the call was made with rather than the rendered string.
+    const spy = vi.spyOn(i18next, "t");
+    getBody({
+      accounts_granted: [
+        { authority: "owner", account: "alice" },
+        { authority: "posting", account: "bob" }
+      ]
+    });
+    expect(spy).toHaveBeenCalledWith("notifications.account-update-owner-authority", {
+      accounts: "@alice"
+    });
+    spy.mockRestore();
   });
 });

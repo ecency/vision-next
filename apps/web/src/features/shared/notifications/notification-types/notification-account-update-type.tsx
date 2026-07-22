@@ -13,7 +13,14 @@ function pickKey(notification: ApiAccountUpdateNotification): {
 } {
   const keys = notification.keys_changed ?? [];
   const granted = notification.accounts_granted ?? [];
-  const accounts = granted.map((g) => `@${g.account}`).join(", ");
+  // Only the accounts holding the authority being reported — a mixed grant
+  // (owner to @alice, posting to @bob) must not name @bob in the owner
+  // message, which would read as @bob holding owner authority.
+  const named = (match: (authority: string) => boolean) =>
+    granted
+      .filter((g) => match(g.authority))
+      .map((g) => `@${g.account}`)
+      .join(", ");
 
   if (keys.includes("owner")) return { key: "notifications.account-update-owner-key", values: {} };
   if (keys.includes("active")) return { key: "notifications.account-update-active-key", values: {} };
@@ -21,12 +28,16 @@ function pickKey(notification: ApiAccountUpdateNotification): {
     return { key: "notifications.account-update-posting-key", values: {} };
 
   if (granted.length) {
-    const authorities = new Set(granted.map((g) => g.authority));
-    if (authorities.has("owner"))
-      return { key: "notifications.account-update-owner-authority", values: { accounts } };
-    if (authorities.has("active"))
-      return { key: "notifications.account-update-active-authority", values: { accounts } };
-    return { key: "notifications.account-update-posting-authority", values: { accounts } };
+    const owner = named((a) => a === "owner");
+    if (owner)
+      return { key: "notifications.account-update-owner-authority", values: { accounts: owner } };
+    const active = named((a) => a === "active");
+    if (active)
+      return { key: "notifications.account-update-active-authority", values: { accounts: active } };
+    return {
+      key: "notifications.account-update-posting-authority",
+      values: { accounts: named((a) => a !== "owner" && a !== "active") }
+    };
   }
 
   return { key: "notifications.account-update-str", values: {} };
