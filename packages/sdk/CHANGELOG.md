@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.61
+
+### Patch Changes
+
+- feat(notifications): sync filter tabs and push toggles across all types (#1229)
+
 ## 2.3.60
 
 ### Patch Changes

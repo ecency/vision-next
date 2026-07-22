@@ -6018,7 +6018,9 @@ declare enum NotificationFilter {
     TRANSFERS = "transfers",
     DELEGATIONS = "delegations",
     PAYOUTS = "payouts",
-    SCHEDULED_PUBLISHED = "scheduled_published"
+    SCHEDULED_PUBLISHED = "scheduled_published",
+    ACCOUNT_UPDATES = "account_updates",
+    WEEKLY_EARNINGS = "weekly_earnings"
 }
 
 declare enum NotifyTypes {
@@ -6028,12 +6030,16 @@ declare enum NotifyTypes {
     COMMENT = 4,
     RE_BLOG = 5,
     TRANSFERS = 6,
+    DELEGATIONS = 10,
     FAVORITES = 13,
     BOOKMARKS = 15,
+    PAYOUTS = 19,
+    ACCOUNT_UPDATE = 20,
+    WEEKLY_EARNINGS = 21,
     SCHEDULED_PUBLISHED = 22,
     ALLOW_NOTIFY = "ALLOW_NOTIFY"
 }
-declare const ALL_NOTIFY_TYPES: readonly [NotifyTypes.VOTE, NotifyTypes.MENTION, NotifyTypes.FOLLOW, NotifyTypes.COMMENT, NotifyTypes.RE_BLOG, NotifyTypes.TRANSFERS, NotifyTypes.FAVORITES, NotifyTypes.BOOKMARKS, NotifyTypes.SCHEDULED_PUBLISHED];
+declare const ALL_NOTIFY_TYPES: readonly [NotifyTypes.VOTE, NotifyTypes.MENTION, NotifyTypes.FOLLOW, NotifyTypes.COMMENT, NotifyTypes.RE_BLOG, NotifyTypes.TRANSFERS, NotifyTypes.DELEGATIONS, NotifyTypes.FAVORITES, NotifyTypes.BOOKMARKS, NotifyTypes.PAYOUTS, NotifyTypes.ACCOUNT_UPDATE, NotifyTypes.WEEKLY_EARNINGS, NotifyTypes.SCHEDULED_PUBLISHED];
 declare enum NotificationViewType {
     ALL = "All",
     UNREAD = "Unread",
