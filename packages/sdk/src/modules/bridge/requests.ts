@@ -69,11 +69,11 @@ export async function getPostsRanked(
     observer,
   }, signal);
 
-  if (resp) {
+  if (Array.isArray(resp)) {
     return resolvePosts(resp, observer, signal);
   }
 
-  return resp;
+  return null;
 }
 
 export async function getAccountPosts(
@@ -98,11 +98,11 @@ export async function getAccountPosts(
     observer,
   }, signal);
 
-  if (resp) {
+  if (Array.isArray(resp)) {
     return resolvePosts(resp, observer, signal);
   }
 
-  return resp;
+  return null;
 }
 
 /**
