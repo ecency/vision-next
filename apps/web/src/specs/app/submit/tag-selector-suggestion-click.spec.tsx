@@ -9,6 +9,7 @@ vi.mock("next/navigation", () => ({
   useParams: () => ({})
 }));
 
+import { getTrendingTagsQueryOptions } from "@ecency/sdk";
 import { TagSelector } from "@/app/submit/_components/tag-selector";
 import { createTestQueryClient, renderWithQueryClient } from "@/specs/test-utils";
 
@@ -34,8 +35,10 @@ function renderSelector() {
     );
   }
 
+  // Seed through the same factory the component calls, so the key can never drift
+  // apart from the mock's.
   const queryClient = createTestQueryClient();
-  queryClient.setQueryData(["tags", "trending", 250], {
+  queryClient.setQueryData(getTrendingTagsQueryOptions(250).queryKey, {
     pages: [TRENDING],
     pageParams: [""]
   });
