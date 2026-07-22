@@ -22,6 +22,23 @@ async function safeJson<T>(res: Response): Promise<T> {
   }
 }
 
+/**
+ * Chat API responses are cast rather than parsed, so a shape change upstream
+ * reaches the UI unchecked. A channel id that arrives as anything but a string
+ * still satisfies a truthiness check and then interpolates into a template
+ * literal, producing a request to `/chats/[object Object]`. Narrow it here so a
+ * bad payload is caught at the boundary instead of becoming a broken URL.
+ */
+function asChannelId(value: unknown): string | null {
+  if (typeof value !== "string") {
+    return null;
+  }
+  // Trim before the emptiness test: a whitespace-only id is still truthy and
+  // would interpolate into a URL just as badly as a non-string one.
+  const channelId = value.trim();
+  return channelId.length > 0 ? channelId : null;
+}
+
 interface MattermostChannel {
   id: string;
   name: string;
@@ -137,7 +154,18 @@ export function useMattermostBootstrap(community?: string) {
         throw new Error(data?.error || "Unable to initialize chat");
       }
 
-      return (await safeJson(res)) as { ok: boolean; userId: string; channelId?: string | null };
+      const bootstrap = (await safeJson(res)) as {
+        ok: boolean;
+        userId: string;
+        channelId?: unknown;
+      };
+      // A non-string channel id is treated as absent: the caller already has a
+      // branch that reports the channel could not be prepared, which is a far
+      // better outcome than navigating somewhere that cannot exist.
+      return {
+        ...bootstrap,
+        channelId: asChannelId(bootstrap.channelId)
+      } as { ok: boolean; userId: string; channelId: string | null };
     }
   });
 }
@@ -831,7 +859,12 @@ export function useMattermostDirectChannel() {
         throw new Error(data?.error || "Unable to start direct message");
       }
 
-      return (await safeJson(res)) as { channelId: string };
+      const direct = (await safeJson(res)) as { channelId?: unknown };
+      const channelId = asChannelId(direct.channelId);
+      if (!channelId) {
+        throw new Error("Unable to start direct message");
+      }
+      return { channelId };
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["mattermost-channels"], exact: false });
