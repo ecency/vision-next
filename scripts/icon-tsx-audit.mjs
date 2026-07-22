@@ -18,7 +18,10 @@ const ROOT = new URL("..", import.meta.url).pathname;
 // Sanctioned slots only (docs/icons.md). Matching on attribute name alone let
 // any component with an `icon=` prop silently exempt its glyphs from rule iii.
 const SLOT_COMPONENTS = new Set(["Button", "InputGroup", "DropdownItemWithIcon"]);
-const SLOT_PROPS = new Set(["icon", "prepend", "append"]);
+// `append` is deliberately absent: InputGroup's append wrapper has no
+// [&>svg]:size-4 sink (input-group.tsx - only prepend does), so an appended icon
+// has no implicit owner and must size itself.
+const SLOT_PROPS = new Set(["icon", "prepend"]);
 const GLYPH_AXIS = /(^|\s)([a-z-]+:)*!?[wh]-(3(\.5)?|4|5|6)(\s|$)/;
 const SINGLE_AXIS_SINK = /\[&[^\]]*svg\]:!?[wh]-\d/;
 // size-4, size-3.5, !size-3, lg:size-8, size-[17px], size-full — any spelling
@@ -26,7 +29,8 @@ const SINGLE_AXIS_SINK = /\[&[^\]]*svg\]:!?[wh]-\d/;
 const SIZE_TOKEN = /(^|[\s"'`{(:!])([a-z-]+:)*!?size-(\d|\[|full)/;
 // An ancestor sink ([&>svg]:size-N / [&_svg]:size-N) is a valid single owner for
 // the glyphs beneath it; rule iii must not demand a second one on the icon.
-const ANCESTOR_SINK = /\[&[^\]]*svg\]:!?size-(\d|\[|full)/;
+const CHILD_SINK = /\[&>\s*svg\]:!?size-(\d|\[|full)/;
+const DESCENDANT_SINK = /\[&_\s*svg\]:!?size-(\d|\[|full)/;
 const failing = process.argv.includes("--fail");
 
 const files = [];
@@ -47,16 +51,21 @@ const hasExemptAttr = (attrsOwner) =>
   attrsOwner.attributes.properties.some(
     (a) => ts.isJsxAttribute(a) && a.name.getText() === "data-icon-exempt"
   );
-// True when some ancestor element carries a both-axes svg sink.
+// True when an ancestor element carries a both-axes svg sink that can actually
+// reach this icon: a child sink ([&>svg]) only governs a direct child, while a
+// descendant sink ([&_svg]) reaches any depth.
 const ancestorSink = (node) => {
+  let depth = 0;
   for (let n = node.parent; n; n = n.parent) {
     const el = ts.isJsxElement(n) ? n.openingElement : n;
-    if (ts.isJsxSelfClosingElement(el) || ts.isJsxOpeningElement(el)) {
-      for (const a of el.attributes.properties) {
-        if (ts.isJsxAttribute(a) && a.initializer && ANCESTOR_SINK.test(a.initializer.getText()))
-          return true;
-      }
+    if (!ts.isJsxSelfClosingElement(el) && !ts.isJsxOpeningElement(el)) continue;
+    for (const a of el.attributes.properties) {
+      if (!ts.isJsxAttribute(a) || !a.initializer) continue;
+      const src = a.initializer.getText();
+      if (DESCENDANT_SINK.test(src)) return true;
+      if (depth === 0 && CHILD_SINK.test(src)) return true;
     }
+    depth += 1;
   }
   return false;
 };
