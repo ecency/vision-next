@@ -326,10 +326,20 @@ export class NotificationsWebSocket {
         return NotifyTypes.BOOKMARKS;
       case "scheduled_published":
         return NotifyTypes.SCHEDULED_PUBLISHED;
+      case "delegations":
+        return NotifyTypes.DELEGATIONS;
+      case "payouts":
+        return NotifyTypes.PAYOUTS;
+      case "account_update":
+        return NotifyTypes.ACCOUNT_UPDATE;
+      case "weekly_earnings":
+        return NotifyTypes.WEEKLY_EARNINGS;
       default:
-        // Types without a user-facing settings toggle (delegations, checkins,
-        // payouts, monthly-posts, weekly-earnings) have no per-type opt-out, so
-        // they're treated as always-allowed — still gated by the global toggle.
+        // Types without a user-facing settings toggle (checkins, monthly-posts,
+        // spin, inactive, referral) have no per-type opt-out, so they're treated
+        // as always-allowed — still gated by the global toggle. Every type that
+        // HAS a toggle must be mapped above, or disabling it would still let the
+        // notification through this gate.
         return null;
     }
   }
