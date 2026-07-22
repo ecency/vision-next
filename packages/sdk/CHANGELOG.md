@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.60
+
+### Patch Changes
+
+- Read the curation hp field instead of the vests alias (#1225)
+
 ## 2.3.59
 
 ### Patch Changes
