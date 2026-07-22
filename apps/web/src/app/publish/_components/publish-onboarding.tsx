@@ -19,17 +19,17 @@ const featuresList = [
   {
     title: i18next.t("publish.get-started.single-view-title"),
     description: i18next.t("publish.get-started.single-view-description"),
-    icon: <UilWindow className="opacity-50" />
+    icon: <UilWindow className="size-6 opacity-50" />
   },
   {
     title: i18next.t("publish.get-started.dynamic-editor-title"),
     description: i18next.t("publish.get-started.dynamic-editor-description"),
-    icon: <UilEdit className="opacity-50" />
+    icon: <UilEdit className="size-6 opacity-50" />
   },
   {
     title: i18next.t("publish.get-started.focus-title"),
     description: i18next.t("publish.get-started.focus-description"),
-    icon: <UilFocus className="opacity-50" />
+    icon: <UilFocus className="size-6 opacity-50" />
   }
 ];
 

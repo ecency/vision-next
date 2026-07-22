@@ -562,7 +562,7 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
                   appearance={activeTextColor ? "link" : "gray-link"}
                   size="sm"
                   icon={
-                    <span className="relative flex items-center justify-center">
+                    <span className="relative flex items-center justify-center [&>svg]:size-5">
                     <UilPalette />
                     <span
                         className="absolute -bottom-0.5 -right-0.5 size-2.5 rounded-full border border-white shadow"
@@ -610,7 +610,7 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
                 appearance="gray-link"
                 size="sm"
                 icon={
-                  <span className="relative inline-flex">
+                  <span className="relative inline-flex [&>svg]:size-5">
                     <UilEditAlt />
                     <span className="absolute -top-1.5 -right-2.5 text-[8px] font-bold leading-none bg-blue-dark-sky text-white rounded px-0.5 py-px">
                       AI

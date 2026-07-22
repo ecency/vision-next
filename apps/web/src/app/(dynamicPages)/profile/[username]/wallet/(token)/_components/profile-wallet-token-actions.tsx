@@ -183,7 +183,7 @@ export function ProfileWalletTokenActions() {
               )}
               onClick={() => setShowReceiveModal(true)}
             >
-              <UilQrcodeScan />
+              <UilQrcodeScan className="size-6" />
               <div className="w-full font-bold">
                 {i18next.t("profile-wallet.external.receive-button")}
               </div>
@@ -199,7 +199,7 @@ export function ProfileWalletTokenActions() {
               )}
               onClick={canTransfer ? () => setShowTransferModal(true) : undefined}
             >
-              <UilArrowRight />
+              <UilArrowRight className="size-6" />
               <div className="w-full font-bold">
                 {canTransfer
                   ? i18next.t("profile-wallet.external.transfer-button", { defaultValue: "Send" })

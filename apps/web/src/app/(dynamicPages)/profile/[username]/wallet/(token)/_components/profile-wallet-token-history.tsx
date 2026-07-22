@@ -53,7 +53,7 @@ export function ProfileWalletTokenHistory({ data, action }: Props) {
                 <div className="flex flex-wrap items-center gap-2 text-sm">
                   {fromUser}
                   {fromUser && toUser ? (
-                    <UilArrowRight className="text-gray-400 dark:text-gray-600" />
+                    <UilArrowRight className="size-6 text-gray-400 dark:text-gray-600" />
                   ) : null}
                   {toUser}
                 </div>

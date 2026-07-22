@@ -41,7 +41,7 @@ const steps = [
   {
     step: "addresses",
     title: i18next.t("wallet.watch-wallet.step-addresses", { defaultValue: "Addresses" }),
-    icon: <UilEye />,
+    icon: <UilEye className="size-6" />,
     description: i18next.t("wallet.watch-wallet.step-addresses-desc", {
       defaultValue: "Enter wallet addresses to watch"
     })
@@ -49,7 +49,7 @@ const steps = [
   {
     step: "saving",
     title: i18next.t("wallet.watch-wallet.step-save", { defaultValue: "Save" }),
-    icon: <UilTransaction />,
+    icon: <UilTransaction className="size-6" />,
     description: i18next.t("wallet.watch-wallet.step-save-desc", {
       defaultValue: "Save addresses to your profile"
     })

@@ -371,7 +371,7 @@ export const DiscussionItem = memo(function DiscussionItem({
                         <DropdownItemWithIcon
                           label={
                             <EntryDeleteBtn parent={root} entry={entry}>
-                              <div className="flex items-center [&>svg]:w-3.5 gap-3">
+                              <div className="flex items-center gap-3">
                                 {} {i18next.t("g.delete")}
                               </div>
                             </EntryDeleteBtn>

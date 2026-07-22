@@ -68,7 +68,7 @@ export function HiveEngineTokenHistory() {
                     {from}
                   </Badge>
                 </ProfileLink>
-                <UilArrowRight className="text-gray-400 dark:text-gray-600" />
+                <UilArrowRight className="size-6 text-gray-400 dark:text-gray-600" />
                 <ProfileLink username={to}>
                   <Badge className="flex gap-1 pl-0.5 items-center">
                     <UserAvatar username={to} size="small" />

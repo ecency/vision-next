@@ -42,7 +42,7 @@ const METAMASK_STEPS = [
   {
     step: "connect",
     title: i18next.t("wallet.link-metamask.step-connect", { defaultValue: "Connect" }),
-    icon: <UilWallet />,
+    icon: <UilWallet className="size-6" />,
     description: i18next.t("wallet.link-metamask.step-connect-desc", {
       defaultValue: "Connect MetaMask and install Hive Snap"
     })
@@ -50,7 +50,7 @@ const METAMASK_STEPS = [
   {
     step: "sign",
     title: i18next.t("wallet.link-metamask.step-sign", { defaultValue: "Authorize" }),
-    icon: <UilLock />,
+    icon: <UilLock className="size-6" />,
     description: i18next.t("wallet.link-metamask.step-sign-desc", {
       defaultValue: "Sign with owner key to add MetaMask keys"
     })
@@ -58,7 +58,7 @@ const METAMASK_STEPS = [
   {
     step: "linking",
     title: i18next.t("wallet.link-metamask.step-link", { defaultValue: "Link" }),
-    icon: <UilTransaction />,
+    icon: <UilTransaction className="size-6" />,
     description: i18next.t("wallet.link-metamask.step-link-desc", {
       defaultValue: "Save wallet addresses to your profile"
     })
@@ -70,7 +70,7 @@ const METAMASK_STEPS_SHORT = [
   {
     step: "linking",
     title: i18next.t("wallet.link-metamask.step-link", { defaultValue: "Link" }),
-    icon: <UilTransaction />,
+    icon: <UilTransaction className="size-6" />,
     description: i18next.t("wallet.link-metamask.step-link-desc", {
       defaultValue: "Save wallet addresses to your profile"
     })

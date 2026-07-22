@@ -14,9 +14,9 @@ import { PREFIX } from "@/utils/local-storage";
 import { DECKS_INTRO_FEATURES } from "./decks-intro-features";
 
 const TIPS = [
-  { icon: <UilPlusCircle className="opacity-50" />, key: "add" },
-  { icon: <UilDraggabledots className="opacity-50" />, key: "drag" },
-  { icon: <UilCloudComputing className="opacity-50" />, key: "save" }
+  { icon: <UilPlusCircle className="size-6 opacity-50" />, key: "add" },
+  { icon: <UilDraggabledots className="size-6 opacity-50" />, key: "drag" },
+  { icon: <UilCloudComputing className="size-6 opacity-50" />, key: "save" }
 ];
 
 /**

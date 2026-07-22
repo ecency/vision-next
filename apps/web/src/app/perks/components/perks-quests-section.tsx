@@ -29,12 +29,12 @@ import { PerksQuestItem } from "./perks-quest-item";
 
 // Map the SDK catalog's icon hints to confirmed-available Unicons.
 const ICONS: Record<string, ReactNode> = {
-  "check-circle": <UilCheckCircle />,
-  pencil: <UilPen />,
-  comment: <UilComment />,
-  "chevron-up-circle": <UilArrowUp />,
-  repeat: <UilRefresh />,
-  gift: <UilSpin />
+  "check-circle": <UilCheckCircle className="size-6" />,
+  pencil: <UilPen className="size-6" />,
+  comment: <UilComment className="size-6" />,
+  "chevron-up-circle": <UilArrowUp className="size-6" />,
+  repeat: <UilRefresh className="size-6" />,
+  gift: <UilSpin className="size-6" />
 };
 
 const TIERS: QuestTier[] = ["daily", "weekly", "monthly"];

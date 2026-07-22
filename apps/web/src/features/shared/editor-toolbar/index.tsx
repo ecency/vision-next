@@ -718,7 +718,7 @@ export function EditorToolbar({
                 }
               }}
             >
-              <UilPanelAdd />
+              <UilPanelAdd className="size-5" />
             </div>
           </Tooltip>
         )}

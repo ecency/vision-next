@@ -41,10 +41,10 @@ export default function IconGalleryPage() {
         {tiers.map(([cls, label]) => (
           <div key={cls} className="flex items-center gap-3 py-1 border-b border-[--border-color]">
             <code className="w-40 text-xs">{cls}</code>
-            <UilHeart className={cls} />
-            <UilComment className={cls} />
-            <UilCheck className={cls} />
-            <UilSearch className={cls} />
+            <UilHeart className={cls} data-icon-exempt="dev-gallery" />
+            <UilComment className={cls} data-icon-exempt="dev-gallery" />
+            <UilCheck className={cls} data-icon-exempt="dev-gallery" />
+            <UilSearch className={cls} data-icon-exempt="dev-gallery" />
             <span className="inline-flex shrink-0 [&>svg]:size-full" style={{ width: 0 }} />
             <span className="text-xs text-gray-steel">{label}</span>
           </div>
@@ -84,7 +84,7 @@ export default function IconGalleryPage() {
 
       <section>
         <h2 className="font-semibold mb-2">Exempt (cropped-viewBox chevrons, own sizing)</h2>
-        <div className="flex items-center gap-3 [&_svg]:w-3">
+        <div className="flex items-center gap-3">
           <VoteChevron />
           <SliderChevron direction="up" />
           <SliderChevron direction="down" />

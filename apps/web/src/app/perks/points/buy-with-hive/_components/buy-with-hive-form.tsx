@@ -67,7 +67,7 @@ export function BuyWithHiveForm({ onSubmit, isPending }: Props) {
         />
         <div className="flex justify-center items-center">
           <div className=" text-blue-dark-sky p-2">
-            <UilArrowRight />
+            <UilArrowRight className="size-6" />
           </div>
         </div>
         <SwapAmountControl

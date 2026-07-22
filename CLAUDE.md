@@ -664,8 +664,14 @@ test('displays data', () => {
   element exports always render inside a both-axes sink:
   `<span className="inline-flex shrink-0 size-4 [&>svg]:size-full">{fooSvg}</span>`.
   Exemptions carry `data-icon-exempt` and live in `scripts/icon-scss-manifest.json`.
-  Any PR changing an icon's size mechanism includes before/after staging screenshots —
-  tests cannot see pixels. Decorative icons take `aria-hidden`.
+  **Enforcement is active and will fail CI**: the ESLint icon rules are errors, and
+  `scripts/icon-tsx-audit.mjs --fail` plus `scripts/icon-scss-audit.mjs` run in the
+  typecheck workflow — the latter also fails if a retired SCSS rule reappears. The
+  absence check reads literal classNames only, so a dynamically built one
+  (`clsx(cond && "size-4")`, `className ?? "size-4"`) can slip past; see the gap
+  section in docs/icons.md. Any PR changing an icon's size mechanism includes
+  before/after staging screenshots — tests cannot see pixels. Decorative icons take
+  `aria-hidden`.
 
 ### Code Quality
 

@@ -19,19 +19,19 @@ const steps = [
   {
     step: MetamaskSignupStep.INTRO,
     title: "Username",
-    icon: <UilUser />,
+    icon: <UilUser className="size-6" />,
     description: "Select your Hive username"
   },
   {
     step: MetamaskSignupStep.CONNECT,
     title: "Connect & Verify",
-    icon: <UilWallet />,
+    icon: <UilWallet className="size-6" />,
     description: "Connect MetaMask and verify wallet balance"
   },
   {
     step: MetamaskSignupStep.CREATE_ACCOUNT,
     title: "Create Account",
-    icon: <UilCheckCircle />,
+    icon: <UilCheckCircle className="size-6" />,
     description: "Finalize your Hive account"
   }
 ];

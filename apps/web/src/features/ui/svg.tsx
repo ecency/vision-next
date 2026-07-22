@@ -23,7 +23,7 @@ export const googleSvg = (
   </svg>
 );
 
-export const desktopSvg = <UilDesktop />;
+export const desktopSvg = <UilDesktop className="size-6" />;
 
 export const blogSvg = (
   <svg viewBox="0 0 13 15">
@@ -177,7 +177,7 @@ export const earthSvg = (
   </svg>
 );
 
-export const brightnessSvg = <UilBrightness />;
+export const brightnessSvg = <UilBrightness className="size-6" />;
 
 export const closeSvg = (
   <svg viewBox="0 0 24 24">
@@ -188,7 +188,7 @@ export const closeSvg = (
   </svg>
 );
 
-export const repeatSvg = <UilRepeat />;
+export const repeatSvg = <UilRepeat className="size-6" />;
 
 export const chevronUpSvg = (
   <svg viewBox="0 0 24 24">
@@ -205,9 +205,9 @@ export const peopleSvg = (
   </svg>
 );
 
-export const heartSvg = <UilHeart />;
+export const heartSvg = <UilHeart className="size-6" />;
 
-export const commentSvg = <UilComment />;
+export const commentSvg = <UilComment className="size-6" />;
 
 export const menuDownSvg = (
   <svg viewBox="0 0 24 24" width={24} height={24}>
@@ -275,11 +275,11 @@ export const pencilOutlineSvg = (
   </svg>
 );
 
-export const linkSvg = <UilLink />;
+export const linkSvg = <UilLink className="size-6" />;
 
-export const poundSvg = <UilPound />;
+export const poundSvg = <UilPound className="size-6" />;
 
-export const creditCardSvg = <UilCreditCard />;
+export const creditCardSvg = <UilCreditCard className="size-6" />;
 
 export const deleteForeverSvg = (
   <svg viewBox="0 0 24 24">
@@ -290,7 +290,7 @@ export const deleteForeverSvg = (
   </svg>
 );
 
-export const checkSvg = <UilCheck />;
+export const checkSvg = <UilCheck className="size-6" />;
 
 export const alertCircleSvg = (
   <svg viewBox="0 0 24 24">
@@ -301,11 +301,11 @@ export const alertCircleSvg = (
   </svg>
 );
 
-export const arrowLeftSvg = <UilArrowLeft />;
+export const arrowLeftSvg = <UilArrowLeft className="size-6" />;
 
-export const arrowRightSvg = <UilArrowRight />;
+export const arrowRightSvg = <UilArrowRight className="size-6" />;
 
-export const refreshSvg = <UilRefresh />;
+export const refreshSvg = <UilRefresh className="size-6" />;
 
 export const keySvg = (
   <svg width="18" height="18" viewBox="0 0 24 24">
@@ -316,7 +316,7 @@ export const keySvg = (
   </svg>
 );
 
-export const bellSvg = <UilBell />;
+export const bellSvg = <UilBell className="size-6" />;
 
 export const bellOffSvg = (
   <svg viewBox="0 0 24 24">
@@ -327,7 +327,7 @@ export const bellOffSvg = (
   </svg>
 );
 
-export const syncSvg = <UilSync />;
+export const syncSvg = <UilSync className="size-6" />;
 
 export const checkAllSvg = (
   <svg viewBox="0 0 24 24">
@@ -338,13 +338,13 @@ export const checkAllSvg = (
   </svg>
 );
 
-export const rocketSvg = <UilRocket />;
+export const rocketSvg = <UilRocket className="size-6" />;
 
-export const uploadSvg = <UilUpload />;
+export const uploadSvg = <UilUpload className="size-6" />;
 
-export const historySvg = <UilHistory />;
+export const historySvg = <UilHistory className="size-6" />;
 
-export const tagSvg = <UilTag />;
+export const tagSvg = <UilTag className="size-6" />;
 
 export const scriptTextOutlineSvg = (
   <svg viewBox="0 0 24 24">
@@ -391,7 +391,7 @@ export const hiveSvg = (
   </svg>
 );
 
-export const plusSvg = <UilPlus />;
+export const plusSvg = <UilPlus className="size-6" />;
 
 export const textBoxOutline = (
   <svg viewBox="0 0 24 24">
@@ -441,7 +441,7 @@ export const copyContent = (
   </svg>
 );
 
-export const eyeSvg = <UilEye />;
+export const eyeSvg = <UilEye className="size-6" />;
 export const eyeBoldSvg = (
   <svg width="19" height="13" viewBox="0 0 19 13" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path
@@ -693,4 +693,4 @@ export const recordVideoSvg = (
   </svg>
 );
 
-export const medalSvg = <UilMedal size={32} />;
+export const medalSvg = <UilMedal className="size-8" />;

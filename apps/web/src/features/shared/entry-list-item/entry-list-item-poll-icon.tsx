@@ -13,7 +13,7 @@ interface Props {
 export function EntryListItemPollIcon({ entry }: Props) {
   return (entry.json_metadata as any)?.content_type === "poll" ? (
     <Tooltip content={i18next.t("polls.poll")}>
-      <UilPanelAdd className="text-gray-600 dark:text-gray-400" size={16} />
+      <UilPanelAdd className="size-4 text-gray-600 dark:text-gray-400" />
     </Tooltip>
   ) : null;
 }

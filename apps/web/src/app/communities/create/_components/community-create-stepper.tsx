@@ -17,25 +17,25 @@ const steps = [
   {
     step: CommunityStepperSteps.INTRO,
     title: "Community details",
-    icon: <UilUsersAlt />,
+    icon: <UilUsersAlt className="size-6" />,
     description: "Set community's title and description"
   },
   {
     step: CommunityStepperSteps.CREATE_ACCOUNT,
     title: "Credentials",
-    icon: <UilLock />,
+    icon: <UilLock className="size-6" />,
     description: "Generate and backup Hive credentials to manage community"
   },
   {
     step: CommunityStepperSteps.SIGN,
     title: "Sign operation",
-    icon: <UilUnlock />,
+    icon: <UilUnlock className="size-6" />,
     description: "Confirm community create operation with own key"
   },
   {
     step: CommunityStepperSteps.CREATING,
     title: "Updating community",
-    icon: <UilUserCheck />,
+    icon: <UilUserCheck className="size-6" />,
     description: "Updating community settings and roles"
   }
 ] as const;

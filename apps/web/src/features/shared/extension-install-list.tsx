@@ -133,7 +133,7 @@ export function ExtensionInstallList() {
             <div className="text-xs text-gray-500 dark:text-gray-400">{i18next.t(ext.descKey)}</div>
           </div>
           <UilArrowRight
-            className={ext.highlight ? "w-4 h-4 text-blue-500" : "w-4 h-4 opacity-50"}
+            className={ext.highlight ? "size-4 text-blue-500" : "size-4 opacity-50"}
           />
         </a>
       ))}

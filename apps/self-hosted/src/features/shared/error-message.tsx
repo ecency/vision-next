@@ -11,7 +11,7 @@ interface Props {
 }
 
 function ErrorIcon({ className }: { className?: string }) {
-  return <UilExclamationTriangle className={className} />;
+  return <UilExclamationTriangle className={className ?? "size-12"} />;
 }
 
 export function ErrorMessage({ message, onRetry, className }: Props) {

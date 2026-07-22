@@ -27,7 +27,7 @@ export const articleSvg = (
   </svg>
 );
 
-export const ticketSvg = <UilTicket />;
+export const ticketSvg = <UilTicket className="size-6" />;
 
 export const reOrderHorizontalSvg = (
   <svg viewBox="0 0 24 24">
@@ -89,9 +89,9 @@ export const formatListBulletedSvg = (
   </svg>
 );
 
-export const imageSvg = <UilImage />;
+export const imageSvg = <UilImage className="size-6" />;
 
-export const gridSvg = <UilGrid />;
+export const gridSvg = <UilGrid className="size-6" />;
 
 export const emoticonHappyOutlineSvg = (
   <svg viewBox="0 0 24 24" fill="currentColor">
@@ -165,7 +165,7 @@ export const cashMultiple = (
   </svg>
 );
 
-export const exchangeSvg = <UilExchange size={16} />;
+export const exchangeSvg = <UilExchange className="size-4" />;
 
 export const cashCoinSvg = (
   <svg
@@ -281,9 +281,9 @@ export const messageSendSvg = (
   </svg>
 );
 
-export const videoSvg = <UilVideo />;
+export const videoSvg = <UilVideo className="size-6" />;
 
-export const circleSvg = <UilCircle />;
+export const circleSvg = <UilCircle className="size-6" />;
 
 export const rectSvg = (
   <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -310,4 +310,4 @@ export const switchCameraSvg = (
   </svg>
 );
 
-export const chatSvg = <UilChat />;
+export const chatSvg = <UilChat className="size-6" />;

@@ -62,7 +62,7 @@ export function TrendingTagsCard() {
                         }
                       }}
                     >
-                      <UilMultiply size="14" />
+                      <UilMultiply className="size-3.5" />
                     </div>
                   )}
                 </>

@@ -5,7 +5,7 @@ import { classNameObject } from "@ui/util";
 export function PollCheck({ checked }: { checked: boolean }) {
   return (
     <div className="rounded-full relative min-w-[28px] min-h-[28px] max-w-[28px] max-h-[28px] flex items-center justify-center bg-gray-100 dark:bg-gray-800">
-      {checked && <UilCheck size={16} className="text-blue-dark-sky" />}
+      {checked && <UilCheck className="size-4 text-blue-dark-sky" />}
     </div>
   );
 }

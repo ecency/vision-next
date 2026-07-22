@@ -31,7 +31,7 @@ export function ProBadge({ username, className }: Props) {
       title={label}
       aria-label={label}
       className={clsx(
-        "inline-flex items-center justify-center align-middle rounded-full bg-blue-dark-sky text-white w-4 h-4 shrink-0 [&>svg]:w-3 [&>svg]:h-3",
+        "inline-flex items-center justify-center align-middle rounded-full bg-blue-dark-sky text-white size-4 shrink-0 [&>svg]:size-3",
         className
       )}
     >
