@@ -242,10 +242,7 @@ export function TagSelector({ tags, onChange, onValid, maxItem }: Props) {
           header={i18next.t("tag-selector.suggestion-header")}
           onSelect={(value: string) => {
             if (add(value)) {
-              setTimeout(() => {
-                // delay focus due to click out issue on suggestion list
-                focusInput();
-              }, 200);
+              focusInput();
             }
           }}
         >
