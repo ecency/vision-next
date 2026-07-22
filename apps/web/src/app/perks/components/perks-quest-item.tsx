@@ -62,7 +62,7 @@ export function PerksQuestItem({
             : "bg-blue-duck-egg dark:bg-gray-800 text-blue-dark-sky"
         )}
       >
-        {completed ? <UilCheckCircle /> : icon}
+        {completed ? <UilCheckCircle className="size-6" /> : icon}
       </div>
 
       <div className="flex flex-col gap-1 min-w-0 grow">

@@ -26,7 +26,7 @@ export function WaveViewDiscussion({ entry }: Props) {
         ))}
         {data?.length === 0 && (
           <div className="flex flex-col items-center justify-center gap-4 p-4 md:py-6 lg:py-8 text-gray-400 dark:text-gray-600">
-            <UilCommentAdd />
+            <UilCommentAdd className="size-6" />
             {i18next.t("waves.no-replies")}
           </div>
         )}

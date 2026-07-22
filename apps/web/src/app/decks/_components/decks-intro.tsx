@@ -23,7 +23,7 @@ export function DecksIntro() {
     <div className="flex items-center justify-center min-h-[80vh] px-4 py-12">
       <div className="w-full max-w-[640px] flex flex-col items-center gap-8 text-center">
         <div className="flex items-center justify-center size-16 rounded-2xl bg-blue-duck-egg text-blue-dark-sky dark:bg-dark-default">
-          <UilColumns size={32} />
+          <UilColumns className="size-8" />
         </div>
         <div className="flex flex-col gap-3">
           <h1 className="text-2xl lg:text-3xl font-bold">{i18next.t("decks.intro.title")}</h1>

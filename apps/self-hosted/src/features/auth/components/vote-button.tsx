@@ -25,7 +25,7 @@ function HeartIcon({
   filled?: boolean;
   className?: string;
 }) {
-  return <UilHeart className={clsx(className, filled && "fill-current")} />;
+  return <UilHeart className={clsx(className ?? "size-4", filled && "fill-current")} />;
 }
 
 export function VoteButton({

@@ -8,8 +8,6 @@ import React from "react";
 interface Props {
   /** The post's `json_metadata.ai_tools` (interoperable AI-usage disclosure). */
   aiTools: AiToolsMeta | null | undefined;
-  /** Rendered icon size in px (square). Defaults to 14. */
-  size?: number;
   className?: string;
 }
 
@@ -18,7 +16,7 @@ interface Props {
  * interoperable `ai_tools` json_metadata. The tooltip lists what was disclosed.
  * Renders nothing when no AI usage is disclosed.
  */
-export function AiUsageBadge({ aiTools, size = 14, className }: Props) {
+export function AiUsageBadge({ aiTools, className }: Props) {
   if (!aiTools) {
     return null;
   }
@@ -43,7 +41,7 @@ export function AiUsageBadge({ aiTools, size = 14, className }: Props) {
         role="img"
         aria-label={label}
       >
-        <UilRobot width={size} height={size} />
+        <UilRobot className="size-3.5" />
       </span>
     </StyledTooltip>
   );

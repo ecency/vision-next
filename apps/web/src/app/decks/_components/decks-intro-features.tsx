@@ -12,8 +12,8 @@ import {
  * i18n keys `decks.intro.features.<key>-title` / `-description`.
  */
 export const DECKS_INTRO_FEATURES = [
-  { icon: <UilColumns className="opacity-50" />, key: "columns" },
-  { icon: <UilUsersAlt className="opacity-50" />, key: "anything" },
-  { icon: <UilWindow className="opacity-50" />, key: "arrange" },
-  { icon: <UilCloudComputing className="opacity-50" />, key: "saved" }
+  { icon: <UilColumns className="size-6 opacity-50" />, key: "columns" },
+  { icon: <UilUsersAlt className="size-6 opacity-50" />, key: "anything" },
+  { icon: <UilWindow className="size-6 opacity-50" />, key: "arrange" },
+  { icon: <UilCloudComputing className="size-6 opacity-50" />, key: "saved" }
 ] as const;

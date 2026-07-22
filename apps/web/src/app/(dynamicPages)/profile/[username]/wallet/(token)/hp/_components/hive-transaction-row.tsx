@@ -34,7 +34,7 @@ function TransferParticipants({ from, to }: { from: string; to: string }) {
   return (
     <div className="flex min-w-0 flex-wrap items-center gap-2">
       <ParticipantBadge username={from} />
-      <UilArrowRight className="shrink-0 text-gray-400 dark:text-gray-600" />
+      <UilArrowRight className="size-6 shrink-0 text-gray-400 dark:text-gray-600" />
       <ParticipantBadge username={to} />
     </div>
   );

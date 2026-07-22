@@ -83,7 +83,7 @@ export function FeedbackMessage({ feedback, onClose }: Props) {
             </div>
             <Button
               className="!size-6"
-              icon={<UilMultiply className="!w-3" />}
+              icon={<UilMultiply className="!size-3" />}
               appearance="gray"
               onClick={handleClose}
               aria-label={i18next.t("g.close", { defaultValue: "Close" })}

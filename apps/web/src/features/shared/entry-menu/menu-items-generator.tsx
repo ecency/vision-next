@@ -145,7 +145,7 @@ export function useMenuItemsGenerator(
           onClick: isComment
             ? () => setIsEdit(true)
             : () => router.push(`/@${entry.author}/${entry.permlink}/edit`),
-          icon: <UilPen />
+          icon: <UilPen className="size-4" />
         })
       ),
       ...safeSpread(
@@ -155,7 +155,7 @@ export function useMenuItemsGenerator(
           onClick: isComment
             ? () => setIsEdit(true)
             : () => router.push(`/@${entry.author}/${entry.permlink}/edit-classic`),
-          icon: <UilPen />
+          icon: <UilPen className="size-4" />
         })
       ),
       ...safeSpread(
@@ -163,7 +163,7 @@ export function useMenuItemsGenerator(
         () => ({
           label: i18next.t("entry-menu.cross-post"),
           onClick: () => setCross(!cross),
-          icon: <UilHistory />
+          icon: <UilHistory className="size-4" />
         })
       ),
       ...safeSpread(
@@ -173,7 +173,7 @@ export function useMenuItemsGenerator(
             ? i18next.t("entry-menu.unmute")
             : i18next.t("entry-menu.mute"),
           onClick: () => setMute(!mute),
-          icon: !!entry.stats?.gray ? <UilVolumeOff /> : <UilVolume />
+          icon: !!entry.stats?.gray ? <UilVolumeOff className="size-4" /> : <UilVolume className="size-4" />
         })
       ),
       // Fallback translate entry: every top-level post AND waves (waves are
@@ -186,7 +186,7 @@ export function useMenuItemsGenerator(
         () => ({
           label: i18next.t("entry-menu.translate"),
           onClick: () => setTranslate(true),
-          icon: <UilLanguage />
+          icon: <UilLanguage className="size-4" />
         })
       ),
       ...(extraMenuItems ?? []),
@@ -196,7 +196,7 @@ export function useMenuItemsGenerator(
           () => ({
             label: i18next.t("entry-menu.edit-history"),
             onClick: toggleEditHistory,
-            icon: <UilHistoryAlt />
+            icon: <UilHistoryAlt className="size-4" />
           })
         ),
         EcencyConfigManager.withConditional(
@@ -212,7 +212,7 @@ export function useMenuItemsGenerator(
           () => ({
             label: i18next.t("entry.address-copy"),
             onClick: copyAddress,
-            icon: <UilLink />
+            icon: <UilLink className="size-4" />
           })
         )
       ),
@@ -221,7 +221,7 @@ export function useMenuItemsGenerator(
         () => ({
           label: i18next.t("entry-menu.share"),
           onClick: () => setShare(!share),
-          icon: <UilShare />
+          icon: <UilShare className="size-4" />
         })
       ),
       ...safeSpread(
@@ -229,7 +229,7 @@ export function useMenuItemsGenerator(
         () => ({
           label: i18next.t("entry-menu.unpin-from-community"),
           onClick: () => toggleUnpin("community"),
-          icon: <UilMapPin />
+          icon: <UilMapPin className="size-4" />
         })
       ),
       ...safeSpread(
@@ -237,7 +237,7 @@ export function useMenuItemsGenerator(
         () => ({
           label: i18next.t("entry-menu.unpin-from-blog"),
           onClick: () => toggleUnpin("blog"),
-          icon: <UilMapPin />
+          icon: <UilMapPin className="size-4" />
         })
       ),
       ...safeSpread(
@@ -245,7 +245,7 @@ export function useMenuItemsGenerator(
         () => ({
           label: i18next.t("entry-menu.pin-to-community"),
           onClick: () => togglePin("community"),
-          icon: <UilMapPin />
+          icon: <UilMapPin className="size-4" />
         })
       ),
       ...safeSpread(
@@ -253,7 +253,7 @@ export function useMenuItemsGenerator(
         () => ({
           label: i18next.t("entry-menu.pin-to-blog"),
           onClick: () => togglePin("blog"),
-          icon: <UilMapPin />
+          icon: <UilMapPin className="size-4" />
         })
       ),
       ...safeSpread(
@@ -261,7 +261,7 @@ export function useMenuItemsGenerator(
         () => ({
           label: i18next.t("g.delete"),
           onClick: () => setDelete_(!delete_),
-          icon: <UilTrash />
+          icon: <UilTrash className="size-4" />
         })
       )
     ]);

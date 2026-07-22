@@ -175,7 +175,7 @@ export function ProfileInfo({ account }: Props) {
                 ? "refetching-account"
                 : "missing-full-account"
         }
-        icon={<UilInfoCircle width={20} height={20} />}
+        icon={<UilInfoCircle />}
         size="xs"
         appearance="gray"
         aria-label={i18next.t("profile-info.show-info", { defaultValue: "Account info" })}

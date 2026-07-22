@@ -56,7 +56,7 @@ export function FavoriteBtn({ targetUsername }: Props) {
 
   const favoriteIcon = (
     <NotificationBadgeIcon>
-      <UilHeart />
+      <UilHeart className="size-6" />
     </NotificationBadgeIcon>
   );
 

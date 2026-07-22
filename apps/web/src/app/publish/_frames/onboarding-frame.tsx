@@ -118,7 +118,7 @@ export function OnboardingFrame({ step }: Props) {
             {step === "posting" && (
               <div className="flex flex-col gap-2">
                 <div className="bg-white w-full h-[100px] rounded-lg flex items-center justify-center animate-fade-in-up">
-                  <UilImage className="text-blue-dark-sky" />
+                  <UilImage className="size-6 text-blue-dark-sky" />
                 </div>
                 <div
                   className="bg-white w-full h-4 rounded-lg animate-fade-in-up"

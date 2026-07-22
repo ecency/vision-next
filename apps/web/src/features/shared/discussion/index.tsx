@@ -167,7 +167,7 @@ export function Discussion({ parent, community, isRawContent, hideControls, onTo
                 }}
             >
               <div className="text-white flex items-center flex-wrap gap-4">
-                <UilComment />
+                <UilComment className="size-6" />
                 <div
                     className="max-w-[300px]"
                     style={{

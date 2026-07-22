@@ -44,7 +44,7 @@ export const walletIconSvg = (
   </svg>
 );
 
-export const searchIconSvg = <UilSearch />;
+export const searchIconSvg = <UilSearch className="size-6" />;
 
 export const dotsMenuIconSvg = (
   <svg fill="currentColor" viewBox="0 0 342.382 342.382">
@@ -63,4 +63,4 @@ export const dotsMenuIconSvg = (
   </svg>
 );
 
-export const emojiIconSvg = <UilEmoji />;
+export const emojiIconSvg = <UilEmoji className="size-6" />;

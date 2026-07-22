@@ -16,7 +16,7 @@ interface ReblogButtonProps {
 }
 
 function ReblogIcon({ className }: { className?: string }) {
-  return <UilRedo className={className} />;
+  return <UilRedo className={className ?? "size-4"} />;
 }
 
 export function ReblogButton({
