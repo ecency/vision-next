@@ -40,6 +40,10 @@ export function NotificationsActions({ filter }: Props) {
     [NotifyTypes.VOTE]: false,
     [NotifyTypes.RE_BLOG]: false,
     [NotifyTypes.TRANSFERS]: false,
+    [NotifyTypes.DELEGATIONS]: false,
+    [NotifyTypes.PAYOUTS]: false,
+    [NotifyTypes.ACCOUNT_UPDATE]: false,
+    [NotifyTypes.WEEKLY_EARNINGS]: false,
     [NotifyTypes.SCHEDULED_PUBLISHED]: false,
     [NotifyTypes.ALLOW_NOTIFY]: false
   });
@@ -246,6 +250,30 @@ export function NotificationsActions({ filter }: Props) {
             {getNotificationSettingsItem(
               i18next.t(`notifications.type-transfers`),
               NotifyTypes.TRANSFERS
+            )}
+          </DropdownItem>
+          <DropdownItem>
+            {getNotificationSettingsItem(
+              i18next.t(`notifications.type-delegations`),
+              NotifyTypes.DELEGATIONS
+            )}
+          </DropdownItem>
+          <DropdownItem>
+            {getNotificationSettingsItem(
+              i18next.t(`notifications.type-payouts`),
+              NotifyTypes.PAYOUTS
+            )}
+          </DropdownItem>
+          <DropdownItem>
+            {getNotificationSettingsItem(
+              i18next.t(`notifications.type-account_updates`),
+              NotifyTypes.ACCOUNT_UPDATE
+            )}
+          </DropdownItem>
+          <DropdownItem>
+            {getNotificationSettingsItem(
+              i18next.t(`notifications.type-weekly_earnings`),
+              NotifyTypes.WEEKLY_EARNINGS
             )}
           </DropdownItem>
           <DropdownItem>
