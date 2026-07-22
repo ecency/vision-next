@@ -141,6 +141,17 @@ describe("beforeSend — $RS hydration-resume reclassification", () => {
     expect(out!.fingerprint).toEqual(["hydration-rs-autorecovered"]);
   });
 
+  it("reclassifies the Firefox parentNode phrasing inside $RS (ECENCY-NEXT-1C6V)", () => {
+    // The exact payload of ECENCY-NEXT-1C6V. SpiderMonkey quotes the property
+    // name with ASCII straight double-quotes, NOT typographic curly ones — this
+    // pins the `includes('"parentNode"')` branch against a refactor that assumes
+    // otherwise.
+    const out = beforeSend(makeEvent('can\'t access property "parentNode", b is null', [RS_FRAME]));
+    expect(out).not.toBeNull();
+    expect(out!.level).toBe("warning");
+    expect(out!.fingerprint).toEqual(["hydration-rs-autorecovered"]);
+  });
+
   it("does NOT over-match a multi-char null read even with a $RS frame", () => {
     // The narrowed single-char regex must leave a real "(reading 'document')"
     // bug as an error, even if a $RS frame happens to be on the stack.
@@ -490,6 +501,23 @@ describe("beforeSend — Firefox iframe contentWindow-null teardown is reclassif
       "https://ecency.com/hot/1am"
     );
     expect(beforeSend(ev)).toBe(ev);
+    expect(ev.fingerprint).toBeUndefined();
+  });
+
+  it("does NOT match Firefox phrasing for a DIFFERENT property on a null contentWindow", () => {
+    // Twin of the Safari different-property guard below, for the SpiderMonkey
+    // grammar. The accessed property must be `document` itself — a null-access on
+    // a property whose name merely CONTAINS "document" (documentElement,
+    // ownerDocument) is a different bug and must stay a real error.
+    // Regression guard for a proposed relaxation to
+    //   includes("can't access property") && includes("document")
+    // which reclassified this case into the hydration bucket and hid it.
+    const ev = makeClientEvent(
+      'can\'t access property "documentElement", a.contentWindow is null',
+      "https://ecency.com/hot/1am"
+    );
+    expect(beforeSend(ev)).toBe(ev);
+    expect(ev.level).toBeUndefined();
     expect(ev.fingerprint).toBeUndefined();
   });
 
