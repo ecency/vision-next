@@ -60,6 +60,9 @@ export function SuggestionList({
       }
 
       input.addEventListener("focus", watchInputFocus);
+      // Selecting an item closes the list without moving focus, so a focus event
+      // alone never comes back — reopen on typing too.
+      input.addEventListener("input", watchInputFocus);
     }
   });
 
@@ -70,6 +73,7 @@ export function SuggestionList({
     const input = getPossibleInput();
     if (input) {
       input.removeEventListener("focus", watchInputFocus);
+      input.removeEventListener("input", watchInputFocus);
     }
   });
 
@@ -187,6 +191,10 @@ export function SuggestionList({
                             href="#"
                             key={i}
                             className="flex pointer items-center px-4 py-3 text-gray-warm hover:bg-blue-dark-sky-040 dark:text-silver dark:hover:text-white dark:bg-dark-200 dark:hover:bg-dark-default duration-300 border-b border-[--border-color] last:border-0"
+                            // Keep focus on the input: a blur here can commit the
+                            // half-typed value and re-render this item away before
+                            // the click lands.
+                            onMouseDown={(e: React.MouseEvent) => e.preventDefault()}
                             onClick={(e: React.MouseEvent) => {
                               e.preventDefault();
                               modeItem.onSelect?.(x);
@@ -230,6 +238,10 @@ export function SuggestionList({
                     href="#"
                     key={i}
                     className="flex gap-2 pointer items-center px-4 py-3 text-gray-warm hover:bg-blue-dark-sky-040 dark:text-silver dark:hover:text-white dark:bg-dark-200 dark:hover:bg-dark-default duration-300 border-b border-[--border-color] last:border-0"
+                    // Keep focus on the input: a blur here can commit the
+                    // half-typed value and re-render this item away before the
+                    // click lands.
+                    onMouseDown={(e: React.MouseEvent) => e.preventDefault()}
                     onClick={(e: React.MouseEvent) => {
                       e.preventDefault();
                       onSelect?.(x);
