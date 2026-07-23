@@ -69,11 +69,17 @@ export async function getPostsRanked(
     observer,
   }, signal);
 
-  if (resp) {
+  if (Array.isArray(resp)) {
     return resolvePosts(resp, observer, signal);
   }
 
-  return resp;
+  if (resp != null) {
+    console.warn(
+      `[SDK] get_ranked_posts returned ${typeof resp} instead of an array for sort=${sort}; treating as no results.`
+    );
+  }
+
+  return null;
 }
 
 export async function getAccountPosts(
@@ -98,11 +104,17 @@ export async function getAccountPosts(
     observer,
   }, signal);
 
-  if (resp) {
+  if (Array.isArray(resp)) {
     return resolvePosts(resp, observer, signal);
   }
 
-  return resp;
+  if (resp != null) {
+    console.warn(
+      `[SDK] get_account_posts returned ${typeof resp} instead of an array for account=${account}, sort=${sort}; treating as no results.`
+    );
+  }
+
+  return null;
 }
 
 /**
