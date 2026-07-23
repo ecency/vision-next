@@ -950,7 +950,7 @@
       "updated": "Edited {{n}} ago",
       "balance": "Balance",
       "custom": "Custom",
-      "search-query": "Query: {{query}}",
+      "search-query-value": "Query: {{query}}",
       "recent": "Recent",
       "balance-tab-ecency": "Ecency",
       "balance-tab-hive": "Hive",
