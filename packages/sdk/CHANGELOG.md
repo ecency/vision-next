@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.62
+
+### Patch Changes
+
+- fix(bridge-requests): validate API response as array before resolving posts (#1233)
+
 ## 2.3.61
 
 ### Patch Changes
