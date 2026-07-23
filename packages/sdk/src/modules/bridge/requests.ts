@@ -73,6 +73,12 @@ export async function getPostsRanked(
     return resolvePosts(resp, observer, signal);
   }
 
+  if (resp != null) {
+    console.warn(
+      `[SDK] get_ranked_posts returned ${typeof resp} instead of an array for sort=${sort}; treating as no results.`
+    );
+  }
+
   return null;
 }
 
@@ -100,6 +106,12 @@ export async function getAccountPosts(
 
   if (Array.isArray(resp)) {
     return resolvePosts(resp, observer, signal);
+  }
+
+  if (resp != null) {
+    console.warn(
+      `[SDK] get_account_posts returned ${typeof resp} instead of an array for account=${account}, sort=${sort}; treating as no results.`
+    );
   }
 
   return null;
