@@ -34,8 +34,8 @@ describe("bridge requests — non-array API responses", () => {
 
       expect(result).toBeNull();
       expect(warnSpy).toHaveBeenCalledTimes(1);
-      expect(String(warnSpy.mock.calls[0][0])).toContain(
-        "get_ranked_posts returned object"
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining("get_ranked_posts returned object")
       );
     });
 
@@ -78,8 +78,8 @@ describe("bridge requests — non-array API responses", () => {
 
       expect(result).toBeNull();
       expect(warnSpy).toHaveBeenCalledTimes(1);
-      expect(String(warnSpy.mock.calls[0][0])).toContain(
-        "get_account_posts returned object"
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining("get_account_posts returned object")
       );
     });
 
