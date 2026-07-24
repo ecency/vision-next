@@ -26,7 +26,7 @@ export function useLocalDraftManager(
       return;
     }
 
-    const { title = '', tags = [], body = '' } = localDraft;
+    const { title = "", tags = [], body = "" } = localDraft;
     onDraftLoaded(title, tags, body);
 
     for (const key in localDraft) {
