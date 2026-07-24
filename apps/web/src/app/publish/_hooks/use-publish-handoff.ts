@@ -41,11 +41,16 @@ export function usePublishHandoff(onReceive: (body: string) => void) {
   useMount(() => {
     const body = handoff?.body;
 
+    // Dropped before anything else, so that an entry the composer cannot use,
+    // whether malformed or simply empty, is cleared rather than re-examined on
+    // every later visit, and content it chokes on fails once rather than on
+    // every one.
+    removeHandoff();
+
     if (!body) {
       return;
     }
 
-    removeHandoff();
     onReceive(body);
   });
 }

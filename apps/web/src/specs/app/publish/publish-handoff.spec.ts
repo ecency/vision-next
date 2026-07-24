@@ -61,13 +61,26 @@ describe("publish handoff", () => {
     expect(onReceive).not.toHaveBeenCalled();
   });
 
-  it("ignores a staged entry with an empty body", () => {
+  it("drops a staged entry with an empty body instead of leaving it behind", () => {
     localStorage.setItem(PUBLISH_HANDOFF_KEY, JSON.stringify({ body: "" }));
 
     const onReceive = vi.fn();
     renderHook(() => usePublishHandoff(onReceive));
 
     expect(onReceive).not.toHaveBeenCalled();
+    // Nothing to deliver is still something to clean up, otherwise the entry is
+    // re-examined on every later visit and never consumed.
+    expect(localStorage.getItem(PUBLISH_HANDOFF_KEY)).toBeNull();
+  });
+
+  it("drops a staged entry it cannot read a body from", () => {
+    localStorage.setItem(PUBLISH_HANDOFF_KEY, JSON.stringify({ note: "not a handoff" }));
+
+    const onReceive = vi.fn();
+    renderHook(() => usePublishHandoff(onReceive));
+
+    expect(onReceive).not.toHaveBeenCalled();
+    expect(localStorage.getItem(PUBLISH_HANDOFF_KEY)).toBeNull();
   });
 
   it("round-trips from writer to composer", () => {
