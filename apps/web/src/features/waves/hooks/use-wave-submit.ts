@@ -4,8 +4,7 @@ import { Entry, WaveEntry } from "@/entities";
 import { DecentMemesPayload } from "@/api/decentmemes";
 import { useWaveCreate } from "@/features/waves/components/wave-form/api";
 import { useWaveCreateReply } from "@/features/waves/components/wave-form/api/use-wave-create-reply";
-import { useLocalStorage } from "react-use";
-import { PREFIX } from "@/utils/local-storage";
+import { usePublishHandoffWriter } from "@/app/publish/_hooks";
 import { useGlobalStore } from "@/core/global-store";
 import { useMutation } from "@tanstack/react-query";
 import { error, success } from "@/features/shared";
@@ -37,10 +36,7 @@ export function useWaveSubmit(
   const { mutateAsync: create } = useWaveCreate();
   const { mutateAsync: createReply } = useWaveCreateReply();
 
-  const [localDraft, setLocalDraft] = useLocalStorage<Record<string, any>>(
-    PREFIX + "_local_draft",
-    {}
-  );
+  const stageForPublish = usePublishHandoffWriter();
 
   return useMutation({
     mutationKey: ["wave-form-submit", username, replySource, editingEntry],
@@ -87,12 +83,10 @@ export function useWaveSubmit(
         content = `${content}<br>${video}`;
       }
 
-      // Push to draft built content with attachments
+      // Too long for a wave, so hand the built content with its attachments to
+      // the publish composer instead.
       if (!isReply && textLength > characterLimit) {
-        setLocalDraft({
-          ...localDraft,
-          body: content
-        });
+        stageForPublish(content);
         window.open("/publish", "_blank");
         return;
       }

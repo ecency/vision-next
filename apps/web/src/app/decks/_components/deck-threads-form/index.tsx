@@ -12,6 +12,7 @@ import { Alert } from "@ui/alert";
 import { Entry } from "@/entities";
 import { useGlobalStore } from "@/core/global-store";
 import { PollsContext } from "@/features/polls";
+import { usePublishHandoffWriter } from "@/app/publish/_hooks";
 import { PREFIX } from "@/utils/local-storage";
 import i18next from "i18next";
 import { AvailableCredits, UserAvatar } from "@/features/shared";
@@ -50,10 +51,7 @@ export const DeckThreadsForm = ({
   const { setShow, create, createReply } = useContext(DeckThreadsFormContext);
   const { clearActivePoll } = useContext(PollsContext);
 
-  const [localDraft, setLocalDraft] = useLocalStorage<Record<string, any>>(
-    PREFIX + "_local_draft",
-    {}
-  );
+  const stageForPublish = usePublishHandoffWriter();
   const [threadHost, setThreadHost] = useLocalStorage(PREFIX + "_dtf_th", "ecency.waves");
   const [text, setText, clearText] = useLocalStorage(PREFIX + "_dtf_t", "");
   const [image, setImage, clearImage] = useLocalStorage<string>(PREFIX + "_dtf_i");
@@ -109,12 +107,10 @@ export const DeckThreadsForm = ({
         content = `${content}<br>${video}`;
       }
 
-      // Push to draft built content with attachments
+      // Too long for a thread, so hand the built content with its attachments
+      // to the publish composer instead.
       if (text!!.length > 250) {
-        setLocalDraft({
-          ...localDraft,
-          body: content
-        });
+        stageForPublish(content);
         window.open("/publish", "_blank");
         return;
       }

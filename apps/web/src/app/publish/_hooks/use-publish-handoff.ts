@@ -1,0 +1,51 @@
+import { PREFIX } from "@/utils/local-storage";
+import { useCallback } from "react";
+import useLocalStorage from "react-use/lib/useLocalStorage";
+import useMount from "react-use/lib/useMount";
+
+/**
+ * One-shot channel for handing content to the publish composer from another
+ * surface, currently a wave or a deck thread that outgrew its character limit
+ * and has to become a post instead.
+ *
+ * It deliberately does not reuse the submit page's local draft key. That key
+ * holds a full PostBase which the submit page rewrites on every keystroke, so
+ * writing a partial object into it both corrupted that draft's shape (a draft
+ * with no title crashed the submit page in applyTitle) and risked eating a
+ * post the user had in progress there.
+ */
+export interface PublishHandoff {
+  body: string;
+}
+
+export const PUBLISH_HANDOFF_KEY = PREFIX + "_pub_handoff";
+
+/**
+ * Stage content for the composer. The caller is expected to open /publish
+ * right after, in this tab or a new one.
+ */
+export function usePublishHandoffWriter() {
+  const [, setHandoff] = useLocalStorage<PublishHandoff>(PUBLISH_HANDOFF_KEY);
+
+  return useCallback((body: string) => setHandoff({ body }), [setHandoff]);
+}
+
+/**
+ * Consume anything staged for the composer, exactly once. The entry is dropped
+ * before it is handed over so that content which the editor cannot swallow
+ * fails a single time rather than on every subsequent visit.
+ */
+export function usePublishHandoff(onReceive: (body: string) => void) {
+  const [handoff, , removeHandoff] = useLocalStorage<PublishHandoff>(PUBLISH_HANDOFF_KEY);
+
+  useMount(() => {
+    const body = handoff?.body;
+
+    if (!body) {
+      return;
+    }
+
+    removeHandoff();
+    onReceive(body);
+  });
+}
