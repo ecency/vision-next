@@ -6,7 +6,12 @@ import {
   PublishValidatePost,
   PublishMultiTabWarning
 } from "@/app/publish/_components";
-import { usePublishAutosave, usePublishEditor, usePublishState } from "@/app/publish/_hooks";
+import {
+  usePublishAutosave,
+  usePublishEditor,
+  usePublishHandoff,
+  usePublishState
+} from "@/app/publish/_hooks";
 import type { ImportResult } from "@/app/publish/_components/publish-import-dialog";
 import { isCommunity } from "@/utils";
 import routes from "@/routes";
@@ -54,6 +59,20 @@ export default function Publish() {
     [setTitle, setContent, setEditorContent, setSelectedThumbnail, setTags]
   );
   const appliedCommunityRef = useRef<string | null>(null);
+
+  // A wave or deck thread that outgrew its character limit stages its content
+  // here and opens this page. setContent alone is not enough: the editor
+  // prefills itself from publish state only if it initialises after this runs,
+  // so seed both and let whichever lands second win with the same value.
+  usePublishHandoff(
+    useCallback(
+      (body: string) => {
+        setContent(body);
+        setEditorContent(body);
+      },
+      [setContent, setEditorContent]
+    )
+  );
 
   const { isActiveTab, lastSaved, draftId } = usePublishAutosave();
 
