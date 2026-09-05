@@ -17,7 +17,9 @@ import { useBottomPagination } from "@/core/hooks/use-bottom-pagination";
 import { DetectBottom } from "@/features/shared/detect-bottom";
 import { UserAvatar } from "@/features/shared/user-avatar";
 import { dateToRelative } from "@/utils";
-import { Chip, RecommendBadge } from "./curation-mark-badges";
+import { Chip } from "./curation-chip";
+import { RecommendBadge } from "./curation-mark-badges";
+import { RecommenderChip } from "./curation-recommender";
 import { CurationRecommendBtn } from "./curation-recommend-btn";
 import { useCurationDismissReco, useViewerRole } from "./hooks";
 
@@ -56,6 +58,7 @@ function RecommendationRow({ item, canDismiss, isRoster, username, recommendatio
             <li key={r.username} className="inline-flex items-center gap-1">
               @{r.username}
               {r.reason && <Chip tone="blue">{i18next.t(`curation-desk.reasons.${r.reason}`)}</Chip>}
+              <RecommenderChip trusted={r.trusted} />
             </li>
           ))}
         </ul>

@@ -29,8 +29,9 @@ import type { Entry } from "@/entities";
 import { error as errorToast } from "@/features/shared/feedback";
 import { formatError } from "@/api/format-error";
 import { QUICK_VIEW_PREFETCH_DEBOUNCE_MS } from "./consts";
-import { Chip } from "./curation-mark-badges";
+import { Chip } from "./curation-chip";
 import { CurationRecommendBtn, type CurationRecommendHandle } from "./curation-recommend-btn";
+import { RecommenderChip } from "./curation-recommender";
 import { useCurationTicker } from "./curation-ticker";
 import { CurationWindowBadge } from "./curation-window-badge";
 import { computeWindow, formatUtcHm } from "./curation-window";
@@ -358,6 +359,7 @@ export function CurationQuickView({
                       {r.rep != null && <span className="text-gray-500">({r.rep})</span>}
                       {r.reason && <Chip tone="blue">{i18next.t(`curation-desk.reasons.${r.reason}`)}</Chip>}
                       {r.is_self && <Chip tone="gray">{i18next.t("curation-desk.reco.author")}</Chip>}
+                      <RecommenderChip trusted={r.trusted} />
                       <span className="text-gray-500 ml-auto">{dateToRelative(r.at)}</span>
                     </li>
                   ))}

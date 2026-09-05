@@ -1,7 +1,6 @@
 "use client";
 
-import { memo } from "react";
-import clsx from "clsx";
+import { memo, useState } from "react";
 import i18next from "i18next";
 import {
   UilAward,
@@ -11,54 +10,49 @@ import {
   UilExclamationTriangle,
   UilThumbsUp,
 } from "@tooni/iconscout-unicons-react";
-import { isOnAbuseList } from "@ecency/sdk";
+import { isOnAbuseList, type CurationRecommender } from "@ecency/sdk";
 import { dateToRelative } from "@/utils";
 import { UserAvatar } from "@/features/shared/user-avatar";
+import { Chip } from "./curation-chip";
+import { RecommenderPopover } from "./curation-recommender";
 import { formatUtcHm } from "./curation-window";
 import type { DeskRow } from "./types";
-
-interface ChipProps {
-  tone?: "green" | "amber" | "red" | "gray" | "blue";
-  title?: string;
-  className?: string;
-  children: React.ReactNode;
-}
-
-export function Chip({ tone = "gray", title, className, children }: ChipProps) {
-  return (
-    <span
-      title={title}
-      className={clsx(
-        "inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] leading-4 whitespace-nowrap",
-        tone === "green" && "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300",
-        tone === "amber" && "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300",
-        tone === "red" && "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300",
-        tone === "blue" && "bg-blue-duck-egg text-blue-dark-sky dark:bg-blue-dark-grey dark:text-blue-dark-sky-active",
-        tone === "gray" && "bg-gray-100 text-gray-600 dark:bg-dark-default dark:text-gray-400",
-        className
-      )}
-    >
-      {children}
-    </span>
-  );
-}
 
 interface RecommendBadgeProps {
   count: number;
   networks: number;
   noMeta: number;
-  recommenders?: Array<{ username: string; rep?: number | null }>;
+  recommenders?: CurationRecommender[];
   showCollapse?: boolean;
+  /** Lets the popover read route 5 when the caller has no recommender list. */
+  author?: string;
+  permlink?: string;
 }
 
-/** "Recommended by N (M networks)" with up to three stacked avatars. */
-export function RecommendBadge({ count, networks, noMeta, recommenders, showCollapse }: RecommendBadgeProps) {
-  if (count <= 0) return null;
+/**
+ * "Recommended by N (M networks)" with up to three stacked avatars, opening a
+ * popover of the recommenders and their scorecards. Nothing is requested until
+ * the popover opens: a page of rows must not be a page of requests.
+ */
+export function RecommendBadge({
+  count,
+  networks,
+  noMeta,
+  recommenders,
+  showCollapse,
+  author,
+  permlink,
+}: RecommendBadgeProps) {
+  const [open, setOpen] = useState(false);
   const top = (recommenders ?? [])
     .slice()
     .sort((a, b) => (b.rep ?? 0) - (a.rep ?? 0))
     .slice(0, 3);
-  return (
+
+  if (count <= 0) return null;
+
+  const canOpen = !!recommenders?.length || (!!author && !!permlink);
+  const chip = (
     <Chip tone="blue" title={i18next.t("curation-desk.reco.tooltip")}>
       <UilAward className="size-3.5" aria-hidden />
       {i18next.t("curation-desk.reco.badge", { count, networks })}
@@ -74,6 +68,30 @@ export function RecommendBadge({ count, networks, noMeta, recommenders, showColl
         </span>
       )}
     </Chip>
+  );
+
+  if (!canOpen) return chip;
+
+  return (
+    <span className="relative inline-flex" onClick={(e) => e.stopPropagation()}>
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-label={i18next.t("curation-desk.reco.who")}
+        className="inline-flex rounded-md focus-visible:ring-2 focus-visible:ring-blue-dark-sky outline-none"
+        onClick={() => setOpen((value) => !value)}
+      >
+        {chip}
+      </button>
+      {open && (
+        <RecommenderPopover
+          recommenders={recommenders}
+          author={author}
+          permlink={permlink}
+          onClose={() => setOpen(false)}
+        />
+      )}
+    </span>
   );
 }
 
@@ -199,6 +217,8 @@ export const CurationMarkBadges = memo(function CurationMarkBadges({
         networks={row.unique_recommenders}
         noMeta={row.reco_no_meta_count}
         showCollapse={isRoster}
+        author={row.author}
+        permlink={row.permlink}
       />
     </div>
   );

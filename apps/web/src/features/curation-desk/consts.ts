@@ -16,6 +16,11 @@ export const RECOMMEND_CONFIRM_DEADLINE_MS = 60_000;
 /** Meta ping retry delays. */
 export const META_RETRY_MS = [2_000, 10_000, 30_000] as const;
 export const QUICK_VIEW_PREFETCH_DEBOUNCE_MS = 300;
+/**
+ * Recommenders listed in the badge popover. Each one loads its scorecard when
+ * the popover opens, so the cap is what bounds the requests one open costs.
+ */
+export const POPOVER_RECOMMENDER_LIMIT = 5;
 export const UNDO_REVIEWED_MS = 5_000;
 export const UNDO_CURSOR_MS = 30_000;
 export const SORT_STORAGE_KEY = "curation-desk-sort";

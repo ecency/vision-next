@@ -10,7 +10,7 @@ import { LoginRequired } from "@/features/shared/login-required";
 import { error as errorToast } from "@/features/shared/feedback";
 import { formatError } from "@/api/format-error";
 import { dateToRelative } from "@/utils";
-import { Chip } from "./curation-mark-badges";
+import { Chip } from "./curation-chip";
 import { formatUtcDateHm } from "./curation-window";
 import { useClearMark, useMyMarks, useViewerRole } from "./hooks";
 
