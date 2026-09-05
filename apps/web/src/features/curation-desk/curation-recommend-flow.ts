@@ -342,7 +342,10 @@ export function useRecommendFlow(author: string, permlink: string) {
     }
   }, [run, username, author, permlink, queryClient]);
 
-  return { state, recommend, withdraw, isPending: mutation.isPending, username };
+  // No `isPending` here on purpose: the mutation observer is per hook instance
+  // and the quick view keeps one button mounted across rows; the keyed state
+  // carries "pending" for exactly the recommendation it belongs to.
+  return { state, recommend, withdraw, username };
 }
 
 /**
