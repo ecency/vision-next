@@ -155,7 +155,9 @@ describe("curation desk requests", () => {
     ["recommender stats", () => fetchCurationRecommenderStats("alice"), { username: "alice" }],
     // A partial scorecard would render undefined counts and a NaN weight.
     ["partial recommender stats", () => fetchCurationRecommenderStats("alice"), { recommended: 1 }],
-    ["recommender stats without a flag", () => fetchCurationRecommenderStats("alice"), { recommended: 1, curated: 1, dismissed: 0, withdrawn: 0, precision: 1 }]
+    ["recommender stats without a flag", () => fetchCurationRecommenderStats("alice"), { recommended: 1, curated: 1, dismissed: 0, withdrawn: 0, precision: 1 }],
+    // The card prints "last N days" from this field.
+    ["recommender stats without a window", () => fetchCurationRecommenderStats("alice"), { recommended: 1, curated: 1, dismissed: 0, withdrawn: 0, precision: 1, trusted: false }]
   ])("rejects a 200 %s body that is not the shape its consumers read", async (_family, run, body) => {
     fetchMock.mockResolvedValueOnce(ok(body));
     const promise = run();

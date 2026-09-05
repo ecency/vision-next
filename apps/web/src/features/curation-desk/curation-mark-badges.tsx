@@ -101,9 +101,11 @@ export function RecommendBadge({
           aria-label={i18next.t("curation-desk.reco.who")}
           className="inline-flex rounded-md focus-visible:ring-2 focus-visible:ring-blue-dark-sky outline-none"
           // The popover's click-away listens to the document's mousedown and
-          // would count the trigger's own press as "away": close, then the
-          // click reopens. The trigger is inside the boundary.
+          // touchstart and would count the trigger's own press as "away":
+          // close, then the click reopens. The trigger is inside the boundary
+          // for a mouse and for a finger alike.
           onMouseDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
           // The row selects itself on click; opening the popover is not that.
           onClick={(e) => {
             e.stopPropagation();

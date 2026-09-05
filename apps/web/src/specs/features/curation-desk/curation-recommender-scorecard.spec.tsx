@@ -191,10 +191,26 @@ describe("recommender scorecard and chip", () => {
     });
     expect(button).toHaveAttribute("aria-expanded", "false");
 
-    // A press anywhere else closes it.
+    // A finger is a touchstart and then a synthesized click; the click-away
+    // listens to touchstart as well.
+    await open();
+    await act(async () => {
+      fireEvent.touchStart(button);
+    });
+    await act(async () => {
+      fireEvent.click(button);
+    });
+    expect(button).toHaveAttribute("aria-expanded", "false");
+
+    // A press anywhere else closes it, mouse or finger.
     await open();
     await act(async () => {
       fireEvent.mouseDown(document.body);
+    });
+    expect(button).toHaveAttribute("aria-expanded", "false");
+    await open();
+    await act(async () => {
+      fireEvent.touchStart(document.body);
     });
     expect(button).toHaveAttribute("aria-expanded", "false");
 
