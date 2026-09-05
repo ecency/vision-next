@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect } from "react";
 import i18next from "i18next";
 import { useQueryClient, type QueryClient } from "@tanstack/react-query";
 import {
@@ -42,6 +42,13 @@ import {
 const timers = new Map<string, ReturnType<typeof setTimeout>[]>();
 /** Meta pings already accepted, keyed by viewer and post like the store. */
 const pinged = new Set<string>();
+/**
+ * Withdrawals in flight, keyed like the store. A signer can hold the promise
+ * open for a long time, and the button instance that started it may by then
+ * show another post (the quick view keeps one mounted button across rows), so
+ * the guard belongs to the recommendation, not to the component.
+ */
+const withdrawing = new Set<string>();
 
 function clearTimers(key: string) {
   for (const t of timers.get(key) ?? []) clearTimeout(t);
@@ -63,6 +70,7 @@ function onViewerChanged(username: string | undefined) {
   if (first) return;
   for (const key of Array.from(timers.keys())) clearTimers(key);
   pinged.clear();
+  withdrawing.clear();
   clearRecommendStates();
 }
 
@@ -297,14 +305,14 @@ export function useRecommendFlow(author: string, permlink: string) {
   // row the chain no longer has. Resolves true when this call withdrew the
   // recommendation (broadcast, or found it already gone) and false when it did
   // nothing, so the caller reports only what happened.
-  const withdrawing = useRef(false);
   const withdraw = useCallback(async (): Promise<boolean> => {
-    if (withdrawing.current) return false;
+    const key = recommendKey(username, author, permlink);
+    if (withdrawing.has(key)) return false;
     const current = username ? getRecommendState(username, author, permlink) : undefined;
     if (current && (current.phase === "withdrawn" || (current.phase === "pending" && current.withdraw))) {
       return false;
     }
-    withdrawing.current = true;
+    withdrawing.add(key);
     try {
       if (username && current?.phase === "confirming" && current.withdraw) {
         // A withdrawal went out and its poll ended without proof either way.
@@ -330,7 +338,7 @@ export function useRecommendFlow(author: string, permlink: string) {
       await run(true);
       return true;
     } finally {
-      withdrawing.current = false;
+      withdrawing.delete(key);
     }
   }, [run, username, author, permlink, queryClient]);
 
@@ -345,5 +353,6 @@ export function resetRecommendFlowForTests() {
   if (process.env.NODE_ENV === "production") return;
   for (const key of Array.from(timers.keys())) clearTimers(key);
   pinged.clear();
+  withdrawing.clear();
   activeUser = NO_USER;
 }

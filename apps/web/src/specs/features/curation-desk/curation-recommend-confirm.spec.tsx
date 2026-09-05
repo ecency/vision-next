@@ -193,6 +193,26 @@ describe("recommend confirmation", () => {
     expect(success).toHaveBeenCalledTimes(1);
   });
 
+  it("a withdrawal the signer is still holding does not block another post's withdrawal", async () => {
+    // The quick view keeps one button mounted across rows: the same instance
+    // shows another post while the first signer promise is still open.
+    router.on(/curation-desk\/post\//, () => makePost(row, { recommend_count: 4, recommenders: [] }));
+    state.result = () => new Promise(() => undefined);
+    const { rerender } = renderWithQueryClient(
+      <CurationRecommendBtn author="alice" permlink="morning-light" alreadyRecommended />
+    );
+    await clickWithdraw();
+    expect(state.broadcasts).toEqual([true]);
+
+    rerender(<CurationRecommendBtn author="alice" permlink="second-light" alreadyRecommended />);
+    await clickWithdraw();
+    expect(state.broadcasts).toEqual([true, true]);
+
+    // The first post's own guard still holds while its broadcast is open.
+    rerender(<CurationRecommendBtn author="alice" permlink="morning-light" alreadyRecommended />);
+    expect(screen.getByLabelText("curation-desk.recommend.aria")).toBeDisabled();
+  });
+
   it("confirms a withdrawal indexed before the first poll from this session's earlier confirmation", async () => {
     // The chain was quick: by the first poll every answer is already missing
     // the name. The earlier confirmation is the body that once carried it.
