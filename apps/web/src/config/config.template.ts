@@ -115,7 +115,9 @@ const CONFIG = {
         enabled: true
       },
       curationDesk: {
-        enabled: false,
+        // On by default. An instance that does not run a curation desk turns
+        // it off here; there is no environment variable for it.
+        enabled: true,
         recommendations: {
           enabled: true
         }
