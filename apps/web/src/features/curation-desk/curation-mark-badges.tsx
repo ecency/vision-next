@@ -14,6 +14,7 @@ import { isOnAbuseList, type CurationRecommender } from "@ecency/sdk";
 import { dateToRelative } from "@/utils";
 import { UserAvatar } from "@/features/shared/user-avatar";
 import { Chip } from "./curation-chip";
+import { Popover } from "@ui/popover";
 import { RecommenderPopover } from "./curation-recommender";
 import { formatUtcHm } from "./curation-window";
 import type { DeskRow } from "./types";
@@ -72,30 +73,49 @@ export function RecommendBadge({
 
   if (!canOpen) return chip;
 
+  // The panel is the shared portal popover: it floats over the row's and the
+  // list's overflow instead of being clipped by them, and flips above the badge
+  // near the bottom of the viewport.
   return (
-    <span className="relative inline-flex">
-      <button
-        type="button"
-        aria-expanded={open}
-        aria-label={i18next.t("curation-desk.reco.who")}
-        className="inline-flex rounded-md focus-visible:ring-2 focus-visible:ring-blue-dark-sky outline-none"
-        // The row selects itself on click; opening the popover is not that.
-        onClick={(e) => {
+    <Popover
+      behavior="click"
+      show={open}
+      setShow={setOpen}
+      placement="bottom-start"
+      className="inline-flex"
+      // Escape belongs to the popover while it is open, from the focused
+      // trigger as much as from inside the panel (portal events bubble to
+      // the host); the desk keyboard map would otherwise close the drawer
+      // under it.
+      onKeyDown={(e) => {
+        if (open && e.key === "Escape") {
           e.stopPropagation();
-          setOpen((value) => !value);
-        }}
-      >
-        {chip}
-      </button>
-      {open && (
-        <RecommenderPopover
-          recommenders={recommenders}
-          author={author}
-          permlink={permlink}
-          onClose={() => setOpen(false)}
-        />
-      )}
-    </span>
+          setOpen(false);
+        }
+      }}
+      customClassName="w-72 max-h-80 overflow-y-auto rounded-xl border border-[--border-color] bg-white dark:bg-dark-200 p-2 shadow-lg text-xs"
+      directContent={
+        <button
+          type="button"
+          aria-expanded={open}
+          aria-label={i18next.t("curation-desk.reco.who")}
+          className="inline-flex rounded-md focus-visible:ring-2 focus-visible:ring-blue-dark-sky outline-none"
+          // The popover's click-away listens to the document's mousedown and
+          // would count the trigger's own press as "away": close, then the
+          // click reopens. The trigger is inside the boundary.
+          onMouseDown={(e) => e.stopPropagation()}
+          // The row selects itself on click; opening the popover is not that.
+          onClick={(e) => {
+            e.stopPropagation();
+            setOpen((value) => !value);
+          }}
+        >
+          {chip}
+        </button>
+      }
+    >
+      <RecommenderPopover recommenders={recommenders} author={author} permlink={permlink} />
+    </Popover>
   );
 }
 

@@ -166,6 +166,64 @@ describe("recommender scorecard and chip", () => {
     expect(router.callsTo(/curation-desk\/recommender\//)).toHaveLength(before);
   });
 
+  it("closes on a real press of the open badge, on a press elsewhere, and on Escape from the trigger", async () => {
+    renderWithQueryClient(<CurationMarkBadges row={row} {...badgeProps} />);
+    const button = screen.getByLabelText("curation-desk.reco.who");
+    const open = async () => {
+      await act(async () => {
+        fireEvent.click(button);
+      });
+      await flush();
+      expect(button).toHaveAttribute("aria-expanded", "true");
+    };
+
+    // A pointer press is a mousedown and then a click. The click-away listens
+    // to the mousedown; the trigger's own press must not count as "away", or
+    // the click that follows reopens what the press just closed.
+    // Two events, two turns: in a browser the close from the mousedown has
+    // rendered before the click arrives.
+    await open();
+    await act(async () => {
+      fireEvent.mouseDown(button);
+    });
+    await act(async () => {
+      fireEvent.click(button);
+    });
+    expect(button).toHaveAttribute("aria-expanded", "false");
+
+    // A press anywhere else closes it.
+    await open();
+    await act(async () => {
+      fireEvent.mouseDown(document.body);
+    });
+    expect(button).toHaveAttribute("aria-expanded", "false");
+
+    // Focus stays on the trigger after opening, so that is where Escape lands;
+    // it closes the popover and goes no further (the desk keyboard map would
+    // close the drawer under it).
+    await open();
+    const reachedDocument = vi.fn();
+    document.addEventListener("keydown", reachedDocument);
+    await act(async () => {
+      fireEvent.keyDown(button, { key: "Escape" });
+    });
+    document.removeEventListener("keydown", reachedDocument);
+    expect(button).toHaveAttribute("aria-expanded", "false");
+    expect(reachedDocument).not.toHaveBeenCalled();
+  });
+
+  it("floats the panel outside the badge's own subtree, so no overflow-hidden row clips it", async () => {
+    renderWithQueryClient(<CurationMarkBadges row={row} {...badgeProps} />);
+    const button = screen.getByLabelText("curation-desk.reco.who");
+    await act(async () => {
+      fireEvent.click(button);
+    });
+    await flush();
+    const panel = screen.getByRole("group", { name: "curation-desk.reco.who" });
+    expect(button.parentElement?.contains(panel)).toBe(false);
+    expect(document.body.contains(panel)).toBe(true);
+  });
+
   it("caps the recommenders it lists, so one open costs a bounded number of requests", async () => {
     const many = Array.from({ length: POPOVER_RECOMMENDER_LIMIT + 3 }, (_, i) => recommender(`rec${i}00`));
     router.on(/curation-desk\/post\//, () => makePost(row, { recommenders: many }));

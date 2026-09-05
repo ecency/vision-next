@@ -69,8 +69,11 @@ const isStatus: ShapeCheck = (data) => isRecord(data) && "vp" in data;
  * rather than a 404, so a body without a numeric `recommended` is another
  * route's answer and not an empty scorecard.
  */
+const SCORECARD_COUNTS = ["recommended", "curated", "dismissed", "withdrawn", "precision"] as const;
 const isRecommenderStats: ShapeCheck = (data) =>
-  isRecord(data) && typeof data.recommended === "number";
+  isRecord(data) &&
+  SCORECARD_COUNTS.every((key) => typeof data[key] === "number") &&
+  typeof data.trusted === "boolean";
 
 async function parse<T>(response: Response, what: string, check?: ShapeCheck): Promise<T> {
   if (!response.ok) {

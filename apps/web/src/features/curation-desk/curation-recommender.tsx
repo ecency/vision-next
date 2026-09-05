@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useEffect, useRef } from "react";
+import { memo } from "react";
 import i18next from "i18next";
 import { useQuery } from "@tanstack/react-query";
 import { UilAward, UilShieldCheck } from "@tooni/iconscout-unicons-react";
@@ -99,15 +99,16 @@ interface PopoverProps {
   recommenders?: CurationRecommender[];
   author?: string;
   permlink?: string;
-  onClose: () => void;
 }
 
 /**
- * The badge popover: who recommended the post, why, when and how each of them
- * has done before. Route 5 and every scorecard load on open, never on render,
- * with the list capped so one open costs a bounded number of requests.
+ * The badge popover's content: who recommended the post, why, when and how
+ * each of them has done before. Route 5 and every scorecard load on open,
+ * never on render, with the list capped so one open costs a bounded number of
+ * requests. Positioning, click-away and Escape belong to the badge, which
+ * hosts this inside the shared portal popover.
  */
-export function RecommenderPopover({ recommenders, author, permlink, onClose }: PopoverProps) {
+export function RecommenderPopover({ recommenders, author, permlink }: PopoverProps) {
   const needsFetch = !recommenders && !!author && !!permlink;
   const postOptions = getCurationPostQueryOptions(author ?? "", permlink ?? "");
   const { data: post, isLoading } = useQuery({
@@ -117,32 +118,8 @@ export function RecommenderPopover({ recommenders, author, permlink, onClose }: 
   const list = recommenders ?? post?.recommenders ?? [];
   const shown = list.slice(0, POPOVER_RECOMMENDER_LIMIT);
 
-  const panelRef = useRef<HTMLDivElement | null>(null);
-  const closeRef = useRef(onClose);
-  closeRef.current = onClose;
-  useEffect(() => {
-    function onDocumentPointerDown(event: MouseEvent | TouchEvent) {
-      if (!panelRef.current?.contains(event.target as Node)) closeRef.current();
-    }
-    document.addEventListener("mousedown", onDocumentPointerDown);
-    return () => document.removeEventListener("mousedown", onDocumentPointerDown);
-  }, []);
-
   return (
-    <div
-      ref={panelRef}
-      role="group"
-      aria-label={i18next.t("curation-desk.reco.who")}
-      // Escape belongs to the popover while it is open; the desk keyboard map
-      // would otherwise close the drawer under it.
-      onKeyDown={(e) => {
-        if (e.key === "Escape") {
-          e.stopPropagation();
-          onClose();
-        }
-      }}
-      className="absolute z-20 top-full left-0 mt-1 w-72 max-h-80 overflow-y-auto rounded-xl border border-[--border-color] bg-white dark:bg-dark-200 p-2 shadow-lg text-xs"
-    >
+    <div role="group" aria-label={i18next.t("curation-desk.reco.who")}>
       {needsFetch && isLoading && (
         <p className="text-gray-500">{i18next.t("curation-desk.scorecard.loading")}</p>
       )}
