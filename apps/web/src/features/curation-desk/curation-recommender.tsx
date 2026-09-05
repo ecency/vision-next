@@ -103,9 +103,9 @@ interface PopoverProps {
 }
 
 /**
- * The badge popover: who recommended the post, why, when, and each name's
- * scorecard. Route 5 and every scorecard load on open, never on render, and
- * the list is capped so one open costs a bounded number of requests.
+ * The badge popover: who recommended the post, why, when and how each of them
+ * has done before. Route 5 and every scorecard load on open, never on render,
+ * with the list capped so one open costs a bounded number of requests.
  */
 export function RecommenderPopover({ recommenders, author, permlink, onClose }: PopoverProps) {
   const needsFetch = !recommenders && !!author && !!permlink;

@@ -73,13 +73,17 @@ export function RecommendBadge({
   if (!canOpen) return chip;
 
   return (
-    <span className="relative inline-flex" onClick={(e) => e.stopPropagation()}>
+    <span className="relative inline-flex">
       <button
         type="button"
         aria-expanded={open}
         aria-label={i18next.t("curation-desk.reco.who")}
         className="inline-flex rounded-md focus-visible:ring-2 focus-visible:ring-blue-dark-sky outline-none"
-        onClick={() => setOpen((value) => !value)}
+        // The row selects itself on click; opening the popover is not that.
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen((value) => !value);
+        }}
       >
         {chip}
       </button>
