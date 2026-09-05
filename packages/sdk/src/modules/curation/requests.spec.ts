@@ -13,6 +13,7 @@ import {
   fetchCurationFeedPage,
   fetchCurationPost,
   fetchCurationRecommendationsPage,
+  fetchCurationRecommenderStats,
   fetchCurationRoster,
   fetchCurationStatus,
   normalizeCurationParams
@@ -150,7 +151,13 @@ describe("curation desk requests", () => {
     ["roster feed", () => curationRosterFeedRequest("tok", { sort: "queue" }), { next_cursor: null }],
     ["my marks", () => curationMyMarksRequest("tok", { state: "snoozed" }), { next_cursor: null }],
     ["status", () => fetchCurationStatus(), { counts: {} }],
-    ["roster", () => fetchCurationRoster(), { updated_at: null }]
+    ["roster", () => fetchCurationRoster(), { updated_at: null }],
+    ["recommender stats", () => fetchCurationRecommenderStats("alice"), { username: "alice" }],
+    // A partial scorecard would render undefined counts and a NaN weight.
+    ["partial recommender stats", () => fetchCurationRecommenderStats("alice"), { recommended: 1 }],
+    ["recommender stats without a flag", () => fetchCurationRecommenderStats("alice"), { recommended: 1, curated: 1, dismissed: 0, withdrawn: 0, precision: 1 }],
+    // The card prints "last N days" from this field.
+    ["recommender stats without a window", () => fetchCurationRecommenderStats("alice"), { recommended: 1, curated: 1, dismissed: 0, withdrawn: 0, precision: 1, trusted: false }]
   ])("rejects a 200 %s body that is not the shape its consumers read", async (_family, run, body) => {
     fetchMock.mockResolvedValueOnce(ok(body));
     const promise = run();
@@ -165,6 +172,22 @@ describe("curation desk requests", () => {
     await expect(fetchCurationRoster()).resolves.toMatchObject({ curators: [] });
     fetchMock.mockResolvedValueOnce(ok({ vp: null, counts: {} }));
     await expect(fetchCurationStatus()).resolves.toMatchObject({ vp: null });
+  });
+
+  it("reads the recommender scorecard from an escaped path", async () => {
+    fetchMock.mockResolvedValueOnce(
+      ok({ username: "alice", window_days: 90, recommended: 0, curated: 0, dismissed: 0, withdrawn: 0, precision: 1, trusted: false, computed_at: null })
+    );
+    await fetchCurationRecommenderStats("alice");
+    expect(lastCall().url).toBe("https://ecency.com/private-api/curation-desk/recommender/alice");
+    expect(lastCall().init.method).toBe("GET");
+  });
+
+  it("accepts a zeroed scorecard, since an unknown recommender is never a 404", async () => {
+    fetchMock.mockResolvedValueOnce(
+      ok({ username: "nobody1", window_days: 90, recommended: 0, curated: 0, dismissed: 0, withdrawn: 0, precision: 1, trusted: false, computed_at: null })
+    );
+    await expect(fetchCurationRecommenderStats("nobody1")).resolves.toMatchObject({ recommended: 0, trusted: false });
   });
 
   it("refuses a redirect on an authed request, which would resend the code", async () => {

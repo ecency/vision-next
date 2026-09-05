@@ -11,6 +11,7 @@ import { LoginRequired } from "@/features/shared/login-required";
 import { error as errorToast, success } from "@/features/shared/feedback";
 import { formatError } from "@/api/format-error";
 import { useRecommendFlow } from "./curation-recommend-flow";
+import { RecommenderScorecard } from "./curation-recommender";
 import type { RecommendState } from "./types";
 
 interface ReasonPickerProps {
@@ -18,10 +19,16 @@ interface ReasonPickerProps {
   onHide: () => void;
   onPick: (reason: CurationReason) => void | Promise<void>;
   busy?: boolean;
+  /** The viewer, so their own scorecard sits under the reasons. */
+  username?: string;
 }
 
-/** Reason picker: quality, underrated, newcomer, other. Defaults to quality. */
-export function CurationReasonPicker({ show, onHide, onPick, busy }: ReasonPickerProps) {
+/**
+ * Reason picker: quality, underrated, newcomer, other. Defaults to quality.
+ * A logged-in viewer sees their own 90-day record here, which is the one
+ * place the incentive is stated before the broadcast rather than after it.
+ */
+export function CurationReasonPicker({ show, onHide, onPick, busy, username }: ReasonPickerProps) {
   const [reason, setReason] = useState<CurationReason>("quality");
   return (
     <Modal show={show} onHide={onHide} centered size="sm">
@@ -53,6 +60,11 @@ export function CurationReasonPicker({ show, onHide, onPick, busy }: ReasonPicke
           ))}
         </div>
         <p className="text-xs text-gray-500 mt-3">{i18next.t("curation-desk.recommend.cost")}</p>
+        {username && (
+          <div className="mt-3 rounded-xl border border-[--border-color] p-2">
+            <RecommenderScorecard username={username} own />
+          </div>
+        )}
       </ModalBody>
       <ModalFooter className="flex justify-end gap-2">
         <Button appearance="gray-link" onClick={onHide} aria-label={i18next.t("g.cancel")}>
@@ -124,7 +136,7 @@ export const CurationRecommendBtn = forwardRef<CurationRecommendHandle, Props>(f
   { author, permlink, alreadyRecommended, hidden, compact, className },
   ref
 ) {
-  const { state, recommend, withdraw } = useRecommendFlow(author, permlink);
+  const { state, recommend, withdraw, username } = useRecommendFlow(author, permlink);
   const [picker, setPicker] = useState(false);
   const busy = recommendBusy(state);
 
@@ -199,7 +211,15 @@ export const CurationRecommendBtn = forwardRef<CurationRecommendHandle, Props>(f
           </span>
         </Button>
       </LoginRequired>
-      {picker && <CurationReasonPicker show={picker} onHide={() => setPicker(false)} onPick={onPick} busy={busy} />}
+      {picker && (
+        <CurationReasonPicker
+          show={picker}
+          onHide={() => setPicker(false)}
+          onPick={onPick}
+          busy={busy}
+          username={username}
+        />
+      )}
     </>
   );
 });
@@ -217,7 +237,7 @@ interface DialogProps {
  * every confirmation is another identical broadcast.
  */
 export function CurationRecommendDialog({ author, permlink, onHide }: DialogProps) {
-  const { state, recommend, withdraw } = useRecommendFlow(author, permlink);
+  const { state, recommend, withdraw, username } = useRecommendFlow(author, permlink);
   const alreadySent =
     state.phase === "pending" || state.phase === "recommended" || state.phase === "confirming";
   const busy = recommendBusy(state);
@@ -274,5 +294,5 @@ export function CurationRecommendDialog({ author, permlink, onHide }: DialogProp
     );
   }
 
-  return <CurationReasonPicker show onHide={onHide} onPick={onPick} busy={busy} />;
+  return <CurationReasonPicker show onHide={onHide} onPick={onPick} busy={busy} username={username} />;
 }

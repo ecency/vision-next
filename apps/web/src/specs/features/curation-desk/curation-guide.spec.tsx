@@ -35,6 +35,7 @@ describe("CurationGuide", () => {
       "curation-desk.guide.signals.title",
       "curation-desk.guide.hivewatchers.title",
       "curation-desk.guide.etiquette.title",
+      "curation-desk.guide.recommending-well.title",
       "curation-desk.guide.becoming.title",
       "curation-desk.guide.checklist.title",
     ]);

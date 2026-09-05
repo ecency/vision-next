@@ -15,6 +15,7 @@ const SECTIONS = [
   "signals",
   "hivewatchers",
   "etiquette",
+  "recommending-well",
   "becoming",
 ] as const;
 
