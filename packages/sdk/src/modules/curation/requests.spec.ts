@@ -34,7 +34,7 @@ describe("curation desk requests", () => {
     fetchMock.mockReset();
     // A shape every guarded family accepts, so a spec about something else
     // never trips the response guards.
-    fetchMock.mockResolvedValue(ok({ items: [], curators: [], vp: null }));
+    fetchMock.mockResolvedValue(ok({ items: [], curators: [], recommenders: [], vp: null }));
     vi.stubGlobal("fetch", fetchMock);
     CONFIG.privateApiHost = HOST;
   });
@@ -144,6 +144,9 @@ describe("curation desk requests", () => {
   it.each([
     ["feed", () => fetchCurationFeedPage({ sort: "newest" }), {}],
     ["recommendations", () => fetchCurationRecommendationsPage({}), {}],
+    // The withdrawal poll reads a body missing the viewer's name as proof, so
+    // an envelope with no list at all must never pass as an empty list.
+    ["post", () => fetchCurationPost("alice", "a-post"), {}],
     ["roster feed", () => curationRosterFeedRequest("tok", { sort: "queue" }), { next_cursor: null }],
     ["my marks", () => curationMyMarksRequest("tok", { state: "snoozed" }), { next_cursor: null }],
     ["status", () => fetchCurationStatus(), { counts: {} }],
@@ -175,6 +178,23 @@ describe("curation desk requests", () => {
     await expect(promise).rejects.toBeInstanceOf(CurationApiError);
     await promise.catch((e: CurationApiError) => expect(e.message).toMatch(/insecure/));
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("resolves a relative host against the page before judging the transport", async () => {
+    const withPage = async (href: string, host: string) => {
+      vi.stubGlobal("window", { location: { href, origin: new URL(href).origin } });
+      CONFIG.privateApiHost = host;
+      return curationMarkRequest("tok", { author: "a", permlink: "p", state: "reviewed" });
+    };
+    // Protocol-relative and path-relative hosts take the page's scheme.
+    await expect(withPage("http://ecency.com/curation", "//curation.example")).rejects.toThrow(/insecure/);
+    await expect(withPage("http://ecency.com/curation", "/gateway")).rejects.toThrow(/insecure/);
+    await expect(withPage("http://ecency.com/curation", "")).rejects.toThrow(/insecure/);
+    expect(fetchMock).not.toHaveBeenCalled();
+    await expect(withPage("https://ecency.com/curation", "//curation.example")).resolves.toBeTruthy();
+    await expect(withPage("https://ecency.com/curation", "")).resolves.toBeTruthy();
+    // An absolute host ignores the page.
+    await expect(withPage("https://ecency.com/curation", "http://curation.example")).rejects.toThrow(/insecure/);
   });
 
   it("still reads a public route from a plain http host, and posts to a local one", async () => {

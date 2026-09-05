@@ -59,6 +59,8 @@ function isRecord(data: unknown): data is Record<string, unknown> {
 /** Every paged family: the list is what the consumers page over. */
 const hasItems: ShapeCheck = (data) => isRecord(data) && Array.isArray(data.items);
 const hasCurators: ShapeCheck = (data) => isRecord(data) && Array.isArray(data.curators);
+/** Route 5: the viewer finds their own recommendation by name in this list. */
+const hasRecommenders: ShapeCheck = (data) => isRecord(data) && Array.isArray(data.recommenders);
 /** `vp` is nullable, so the field has to be present rather than truthy. */
 const isStatus: ShapeCheck = (data) => isRecord(data) && "vp" in data;
 
@@ -181,19 +183,19 @@ const LOOPBACK_HOSTS = new Set(["localhost", "127.0.0.1", "::1", "[::1]"]);
 
 /**
  * The authed routes put the HiveSigner code in the body, so the transport is
- * the only thing keeping a replayable credential private. An empty host means
- * same-origin relative requests, whose transport is the page's own.
+ * the only thing keeping a replayable credential private. A relative host
+ * (empty for same-origin, `//gateway`, `/api`) takes the page's own transport,
+ * so it is resolved against the page before the scheme is read.
  */
 function assertCredentialTransport(what: string) {
-  const host =
-    CONFIG.privateApiHost ||
-    (typeof window !== "undefined" ? (window.location?.origin ?? "") : "");
-  if (!host) return;
+  const host = CONFIG.privateApiHost || "";
+  const page = typeof window !== "undefined" ? window.location?.href : undefined;
   let parsed: URL;
   try {
-    parsed = new URL(host);
+    parsed = page ? new URL(host, page) : new URL(host);
   } catch {
-    // A host that is not absolute says nothing about the transport.
+    // Relative with no page to resolve against: outside a browser nothing can
+    // be fetched from a relative URL either.
     return;
   }
   if (parsed.protocol === "https:") return;
@@ -288,7 +290,8 @@ export function fetchCurationPost(
   return getJson<CurationPost>(
     `/post/${encodeURIComponent(author)}/${encodeURIComponent(permlink)}`,
     "fetch curation post",
-    signal
+    signal,
+    hasRecommenders
   );
 }
 

@@ -188,12 +188,14 @@ export function CurationQueueView() {
   }, [undo, undoBusy]);
 
   const runUndo = useCallback(async () => {
-    const action = undo?.action;
-    if (!action || undoBusy) return;
+    const current = undo;
+    if (!current?.action || undoBusy) return;
     setUndoBusy(true);
     try {
-      await action();
-      setUndo(null);
+      await current.action();
+      // A mark or cursor move made while this undo was in flight installed a
+      // bar of its own; only the entry this run executed comes down.
+      setUndo((latest) => (latest === current ? null : latest));
     } catch (e) {
       errorToast(...formatError(e));
     } finally {

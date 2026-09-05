@@ -76,8 +76,13 @@ export function CurationReasonPicker({ show, onHide, onPick, busy }: ReasonPicke
  * yet: while that is confirming, a second Withdraw would broadcast a second
  * `unrecommend` for a row the chain no longer has.
  */
+/**
+ * Busy while a broadcast is in flight. A withdrawal parked in "confirming" is
+ * not busy: its Withdraw asks route 5 again and either settles the state or
+ * sends a withdrawal the chain still needs.
+ */
 export function recommendBusy(state: RecommendState, isPending: boolean): boolean {
-  return isPending || state.phase === "pending" || (state.phase === "confirming" && state.withdraw);
+  return isPending || state.phase === "pending";
 }
 
 export function recommendLabel(state: RecommendState, isSelf: boolean): string {
@@ -124,8 +129,9 @@ export const CurationRecommendBtn = forwardRef<CurationRecommendHandle, Props>(f
 
   const onWithdraw = useCallback(async () => {
     try {
-      await withdraw();
-      success(i18next.t("curation-desk.recommend.withdrawn-toast"));
+      // A duplicate trigger while a withdrawal is in flight does nothing, and
+      // says nothing.
+      if (await withdraw()) success(i18next.t("curation-desk.recommend.withdrawn-toast"));
     } catch (e) {
       errorToast(...formatError(e));
     }
@@ -224,8 +230,7 @@ export function CurationRecommendDialog({ author, permlink, onHide }: DialogProp
 
   const onWithdraw = useCallback(async () => {
     try {
-      await withdraw();
-      success(i18next.t("curation-desk.recommend.withdrawn-toast"));
+      if (await withdraw()) success(i18next.t("curation-desk.recommend.withdrawn-toast"));
     } catch (e) {
       errorToast(...formatError(e));
     } finally {

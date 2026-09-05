@@ -228,6 +228,36 @@ describe("CurationQueueView", () => {
     await waitFor(() => expect(errorToast).toHaveBeenCalled());
   });
 
+  it("keeps a newer undo when an older undo settles", async () => {
+    state.username = "curator1";
+    let settleClear: (value: unknown) => void = () => undefined;
+    const clearing = new Promise((resolve) => {
+      settleClear = resolve;
+    });
+    fetchRouter.on(/curation-desk\/mark$/, () => ({ ok: true }));
+    fetchRouter.on(/curation-desk\/mark-clear$/, () => clearing);
+
+    renderWithQueryClient(<CurationQueueView />, { queryClient: prodLikeClient() });
+    await screen.findAllByRole("article");
+
+    fireEvent.click(screen.getAllByLabelText("curation-desk.actions.reviewed")[0]);
+    fireEvent.click(await screen.findByLabelText("curation-desk.live.undo"));
+    await waitFor(() => expect(fetchRouter.callsTo(/curation-desk\/mark-clear$/)).toHaveLength(1));
+
+    // Another row is reviewed while that undo is still in flight: its bar
+    // replaces the old one.
+    fireEvent.click(screen.getAllByLabelText("curation-desk.actions.reviewed").at(-1)!);
+    await waitFor(() => expect(fetchRouter.callsTo(/curation-desk\/mark$/)).toHaveLength(2));
+
+    await act(async () => {
+      settleClear(jsonResponse({ ok: true }, 200));
+      await Promise.resolve();
+    });
+    // The older undo settled; the newer bar is still up, and live again.
+    await waitFor(() => expect(screen.getByLabelText("curation-desk.live.undo")).toBeEnabled());
+    expect(errorToast).not.toHaveBeenCalled();
+  });
+
   it("renders the list as a feed of articles with an aria-labelledby title", async () => {
     renderWithQueryClient(<CurationQueueView />, { queryClient: prodLikeClient() });
     const articles = await screen.findAllByRole("article");
