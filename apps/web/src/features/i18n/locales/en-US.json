@@ -4762,9 +4762,13 @@
         "title": "12. Etiquette",
         "body": "<ul><li>No own posts through the trail, no daily friends.</li><li>Comment on first posts.</li><li>Mark honestly: a swept card is <strong>by cursor</strong>, a read card is <strong>by you</strong>.</li><li>Flag instead of arguing; no public call-outs.</li><li>Recommendations are on chain and cost Resource Credits; count networks, not accounts (other apps count as one network); dismiss a ring instead of arguing.</li></ul>"
       },
+      "recommending-well": {
+        "title": "13. Recommending well",
+        "body": "<p>Anyone can recommend a post to the curators. The recommendation is written to the Hive chain with your posting key, so the record is public.</p><p>Every recommender carries a weight from the last 90 days. Recommendations that curators dismiss lower your weight; ones that get curated raise it. Everyone starts at x1.0 and stays there until five recommendations exist, so a new recommender is neutral rather than suspect. Ten or more recommendations at x1.2 or better earn a <strong>Trusted recommender</strong> chip next to the name.</p><p>Open the recommendation badge on any post to see who recommended it, why and how each of them has done before. Your own record sits in the recommend dialog under the reasons.</p><p>Weight changes the order of the recommended list only. It never hides a post: the raw counts are always shown.</p>"
+      },
       "becoming": {
-        "title": "13. Becoming a curator",
-        "body": "<p>Four weeks as a trial curator with desk access and untrailed votes. Trial curators mark, snooze and flag like everyone else but do not see other curators' note bodies or flag reasons until promoted (those notes name authors and allegations). Then a review of reviewed-per-hour, flag precision and overlap.</p>"
+        "title": "14. Becoming a curator",
+        "body": "<p>Four weeks as a trial curator with desk access and untrailed votes. Trial curators mark, snooze and flag like everyone else but do not see other curators' note bodies or flag reasons until promoted (those notes name authors and allegations). Then a review of reviewed-per-hour, flag precision and overlap.</p><p>How many hours behind the queue is plus what got curated are public; reviewed-per-hour and marks per curator never are.</p>"
       },
       "checklist": {
         "title": "Onboarding checklist for a trial curator",
