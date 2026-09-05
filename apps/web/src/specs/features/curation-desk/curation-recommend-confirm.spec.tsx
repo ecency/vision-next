@@ -10,6 +10,8 @@ const state = vi.hoisted(() => ({
   username: "member1" as string | undefined,
   result: (() => Promise.resolve<unknown>({ tx_id: "e".repeat(40) })) as () => Promise<unknown>,
   broadcasts: [] as boolean[],
+  /** Broadcasts whose promise has not settled: what a real useMutation reports as isPending. */
+  inFlight: 0,
 }));
 
 vi.mock("@ecency/sdk", async () => ({ ...(await vi.importActual<Record<string, unknown>>("@ecency/sdk")) }));
@@ -36,10 +38,17 @@ vi.mock("@ui/modal", () => ({
 }));
 vi.mock("@/api/sdk-mutations/use-curation-recommend-mutation", () => ({
   useCurationRecommendMutation: () => ({
-    isPending: false,
+    // Per observer, like the real hook: one held promise keeps it true for
+    // whatever post the same button instance shows next.
+    isPending: state.inFlight > 0,
     mutateAsync: async (input: { withdraw?: boolean }) => {
       state.broadcasts.push(!!input.withdraw);
-      return state.result();
+      state.inFlight += 1;
+      try {
+        return await state.result();
+      } finally {
+        state.inFlight -= 1;
+      }
     },
   }),
 }));
@@ -77,6 +86,7 @@ describe("recommend confirmation", () => {
     state.username = "member1";
     state.result = () => Promise.resolve({ tx_id: "e".repeat(40) });
     state.broadcasts.length = 0;
+    state.inFlight = 0;
     resetRecommendFlowForTests();
     resetRecommendStoreForTests();
     vi.mocked(errorToast).mockClear();
@@ -204,13 +214,25 @@ describe("recommend confirmation", () => {
     await clickWithdraw();
     expect(state.broadcasts).toEqual([true]);
 
-    rerender(<CurationRecommendBtn author="alice" permlink="second-light" alreadyRecommended />);
+    // The observer's isPending is still true for the held promise; the second
+    // post is not busy, so its button is live and its withdrawal goes out.
+    const ref = React.createRef<CurationRecommendHandle>();
+    rerender(<CurationRecommendBtn ref={ref} author="alice" permlink="second-light" alreadyRecommended />);
+    expect(screen.getByLabelText("curation-desk.recommend.withdraw-aria")).toBeEnabled();
     await clickWithdraw();
     expect(state.broadcasts).toEqual([true, true]);
 
-    // The first post's own guard still holds while its broadcast is open.
-    rerender(<CurationRecommendBtn author="alice" permlink="morning-light" alreadyRecommended />);
+    // The first post's own guard still holds while its broadcast is open, for
+    // the button and for the keyboard binding alike: a pending withdrawal
+    // must not open the reason picker either.
+    rerender(<CurationRecommendBtn ref={ref} author="alice" permlink="morning-light" alreadyRecommended />);
     expect(screen.getByLabelText("curation-desk.recommend.aria")).toBeDisabled();
+    await act(async () => {
+      ref.current?.trigger();
+      await vi.advanceTimersByTimeAsync(10);
+    });
+    expect(state.broadcasts).toEqual([true, true]);
+    expect(screen.queryByText("curation-desk.recommend.title")).toBeNull();
   });
 
   it("confirms a withdrawal indexed before the first poll from this session's earlier confirmation", async () => {

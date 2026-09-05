@@ -89,12 +89,17 @@ export function CurationReasonPicker({ show, onHide, onPick, busy, username }: R
  * `unrecommend` for a row the chain no longer has.
  */
 /**
- * Busy while a broadcast is in flight. A withdrawal parked in "confirming" is
- * not busy: its Withdraw asks route 5 again and either settles the state or
- * sends a withdrawal the chain still needs.
+ * Busy while THIS recommendation's broadcast is in flight. The state is the
+ * only input: `run` sets "pending" synchronously before the broadcast, and it
+ * is keyed by viewer and post, whereas the mutation observer's `isPending`
+ * belongs to the button instance, which the quick view keeps mounted across
+ * rows (a signer holding post A's promise would disable post B's button). A
+ * withdrawal parked in "confirming" is not busy: its Withdraw asks route 5
+ * again and either settles the state or sends a withdrawal the chain still
+ * needs.
  */
-export function recommendBusy(state: RecommendState, isPending: boolean): boolean {
-  return isPending || state.phase === "pending";
+export function recommendBusy(state: RecommendState): boolean {
+  return state.phase === "pending";
 }
 
 export function recommendLabel(state: RecommendState, isSelf: boolean): string {
@@ -131,8 +136,9 @@ export const CurationRecommendBtn = forwardRef<CurationRecommendHandle, Props>(f
   { author, permlink, alreadyRecommended, hidden, compact, className },
   ref
 ) {
-  const { state, recommend, withdraw, isPending, username } = useRecommendFlow(author, permlink);
+  const { state, recommend, withdraw, username } = useRecommendFlow(author, permlink);
   const [picker, setPicker] = useState(false);
+  const busy = recommendBusy(state);
 
   const showsWithdraw =
     state.phase === "recommended" ||
@@ -170,18 +176,20 @@ export const CurationRecommendBtn = forwardRef<CurationRecommendHandle, Props>(f
   useImperativeHandle(
     ref,
     () => ({
+      // Same rule as the button: nothing opens or goes out while this
+      // recommendation's own broadcast is in flight (a pending withdrawal
+      // must not open the reason picker).
       trigger: () => {
-        if (hidden) return;
+        if (hidden || busy) return;
         if (showsWithdraw) void onWithdraw();
         else setPicker(true);
       },
     }),
-    [hidden, showsWithdraw, onWithdraw]
+    [hidden, busy, showsWithdraw, onWithdraw]
   );
 
   if (hidden) return null;
 
-  const busy = recommendBusy(state, isPending);
   const label = recommendLabel(state, !!alreadyRecommended);
 
   return (
@@ -229,10 +237,10 @@ interface DialogProps {
  * every confirmation is another identical broadcast.
  */
 export function CurationRecommendDialog({ author, permlink, onHide }: DialogProps) {
-  const { state, recommend, withdraw, isPending, username } = useRecommendFlow(author, permlink);
+  const { state, recommend, withdraw, username } = useRecommendFlow(author, permlink);
   const alreadySent =
     state.phase === "pending" || state.phase === "recommended" || state.phase === "confirming";
-  const busy = recommendBusy(state, isPending);
+  const busy = recommendBusy(state);
 
   const onPick = useCallback(
     async (reason: CurationReason) => {
