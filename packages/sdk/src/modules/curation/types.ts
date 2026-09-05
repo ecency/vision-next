@@ -277,6 +277,31 @@ export interface CurationRecommender {
   at: string;
   has_meta: boolean;
   is_self?: boolean;
+  /**
+   * Ordering weight of this recommender, 0.5 to 1.5 with 1.0 neutral. Above
+   * 1.0 means curators curated their picks more often than they dismissed
+   * them over the window. It changes ordering only, never what is shown.
+   */
+  precision?: number;
+  /** At least 10 recommendations and a precision of 1.2 or more. */
+  trusted?: boolean;
+}
+
+/**
+ * Route 14: one recommender's 90-day scorecard. An unknown username answers
+ * zeros with a neutral precision and `trusted: false`, never a 404, so a name
+ * that never recommended anything is not an error state.
+ */
+export interface CurationRecommenderStats {
+  username: string;
+  window_days: number;
+  recommended: number;
+  curated: number;
+  dismissed: number;
+  withdrawn: number;
+  precision: number;
+  trusted: boolean;
+  computed_at: string | null;
 }
 
 export type CurationReasonsHistogram = Partial<Record<CurationReason, number>>;
