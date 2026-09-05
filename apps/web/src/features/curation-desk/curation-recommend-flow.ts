@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect } from "react";
+import i18next from "i18next";
 import { useQueryClient, type QueryClient } from "@tanstack/react-query";
 import {
   QueryKeys,
@@ -41,6 +42,13 @@ import {
 const timers = new Map<string, ReturnType<typeof setTimeout>[]>();
 /** Meta pings already accepted, keyed by viewer and post like the store. */
 const pinged = new Set<string>();
+/**
+ * Withdrawals in flight, keyed like the store. A signer can hold the promise
+ * open for a long time, and the button instance that started it may by then
+ * show another post (the quick view keeps one mounted button across rows), so
+ * the guard belongs to the recommendation, not to the component.
+ */
+const withdrawing = new Set<string>();
 
 function clearTimers(key: string) {
   for (const t of timers.get(key) ?? []) clearTimeout(t);
@@ -62,6 +70,7 @@ function onViewerChanged(username: string | undefined) {
   if (first) return;
   for (const key of Array.from(timers.keys())) clearTimers(key);
   pinged.clear();
+  withdrawing.clear();
   clearRecommendStates();
 }
 
@@ -136,26 +145,31 @@ function viewerRow(post: CurationPost | undefined, username: string) {
  * to disappear instead of appearing, but only from a body that once carried
  * it: route 5 is memoized, so an answer built before the recommendation was
  * indexed is missing the name for a reason that has nothing to do with the
- * withdrawal. A recommend_count below the first count this poll saw is the
- * other proof the row moved, for the viewer whose recommendation was already
- * gone from the first body. A body that carries no count at all is not a
- * count that fell to zero: it says nothing, exactly like the missing name.
+ * withdrawal. Nothing else is proof. A recommend_count that fell is a fact
+ * about the post, not about this viewer: another recommender withdrawing
+ * between two polls moves it just as well, and reading that as "withdrawn"
+ * would send the next click to broadcast a duplicate recommendation.
+ *
+ * `viewerListed` carries that proof in from before the poll: a poll of this
+ * session that confirmed the recommendation, or a route 5 body in the query
+ * cache that lists the name. Without it a withdrawal indexed before the first
+ * poll would never confirm, since every answer from then on is missing the
+ * name.
  */
 export function startRecommendPoll(
   queryClient: QueryClient,
   username: string,
   author: string,
   permlink: string,
-  withdraw: boolean
+  withdraw: boolean,
+  viewerListed = false
 ) {
   const key = recommendKey(username, author, permlink);
   clearTimers(key);
   const startedAt = Date.now();
   const handles: ReturnType<typeof setTimeout>[] = [];
   /** The viewer's recommendation was listed by at least one answer. */
-  let sawViewer = false;
-  /** recommend_count of the first answer this poll read. */
-  let firstCount: number | null = null;
+  let sawViewer = viewerListed;
 
   const finish = (confirmed: boolean) => {
     clearTimers(key);
@@ -189,16 +203,8 @@ export function startRecommendPoll(
       post = undefined;
     }
     const mine = viewerRow(post, username);
-    if (post) {
-      if (mine) sawViewer = true;
-      if (firstCount === null) firstCount = post.recommend_count ?? null;
-    }
-    const countDropped =
-      post !== undefined &&
-      firstCount !== null &&
-      typeof post.recommend_count === "number" &&
-      post.recommend_count < firstCount;
-    const seen = withdraw ? post !== undefined && !mine && (sawViewer || countDropped) : !!mine;
+    if (post && mine) sawViewer = true;
+    const seen = withdraw ? post !== undefined && !mine && sawViewer : !!mine;
     if (seen) {
       finish(true);
       if (post) patchRecommendCounts(queryClient, post);
@@ -229,7 +235,7 @@ export function useRecommendFlow(author: string, permlink: string) {
 
   const run = useCallback(
     async (withdraw: boolean, reason?: CurationReason) => {
-      if (!username) throw new Error("[CurationDesk] recommend needs a logged in user");
+      if (!username) throw new Error(i18next.t("curation-desk.recommend.needs-login"));
       const previous = getRecommendState(username, author, permlink);
       // `since` doubles as this run's token. The poll and a later click both
       // write over the pending record, so only the run that installed it may
@@ -242,9 +248,17 @@ export function useRecommendFlow(author: string, permlink: string) {
         trxId: null,
         pinged: false,
       });
+      // A withdrawal is confirmed by the name disappearing from a body that
+      // once carried it. What already carried it counts: a poll of this
+      // session that confirmed the recommendation, or the route 5 body the
+      // quick view fetched.
+      const listed =
+        withdraw &&
+        ((previous.phase === "recommended" && previous.confirmed) ||
+          !!viewerRow(queryClient.getQueryData(getCurationPostQueryOptions(author, permlink).queryKey), username));
       // The poll starts now, not on success: the HiveSigner redirect and the
       // Keychain Mobile deep link never resolve this promise.
-      startRecommendPoll(queryClient, username, author, permlink, withdraw);
+      startRecommendPoll(queryClient, username, author, permlink, withdraw, listed);
       try {
         const result = await mutation.mutateAsync({ author, permlink, reason, withdraw });
         const trxId = normalizeBroadcastTrxId(result);
@@ -284,9 +298,54 @@ export function useRecommendFlow(author: string, permlink: string) {
   );
 
   const recommend = useCallback((reason: CurationReason) => run(false, reason), [run]);
-  const withdraw = useCallback(() => run(true), [run]);
 
-  return { state, recommend, withdraw, isPending: mutation.isPending, username };
+  // One withdrawal per recommendation. The button is disabled while a
+  // withdrawal is in flight, but the keyboard binding and the entry menu reach
+  // this without asking the button, and a second `unrecommend` spends RC for a
+  // row the chain no longer has. Resolves true when this call withdrew the
+  // recommendation (broadcast, or found it already gone) and false when it did
+  // nothing, so the caller reports only what happened.
+  const withdraw = useCallback(async (): Promise<boolean> => {
+    const key = recommendKey(username, author, permlink);
+    if (withdrawing.has(key)) return false;
+    const current = username ? getRecommendState(username, author, permlink) : undefined;
+    if (current && (current.phase === "withdrawn" || (current.phase === "pending" && current.withdraw))) {
+      return false;
+    }
+    withdrawing.add(key);
+    try {
+      if (username && current?.phase === "confirming" && current.withdraw) {
+        // A withdrawal went out and its poll ended without proof either way.
+        // That is a minute past the broadcast, beyond any memo built before
+        // the recommendation, so one fresh answer settles it: the name gone is
+        // the withdrawal; the name still there is a row the chain still has,
+        // and a second withdrawal is the right call.
+        let post: CurationPost | undefined;
+        try {
+          post = await queryClient.fetchQuery({ ...getCurationPostQueryOptions(author, permlink), staleTime: 0 });
+        } catch {
+          post = undefined;
+        }
+        if (post && !viewerRow(post, username)) {
+          setRecommendState(username, author, permlink, { phase: "withdrawn" });
+          pinged.delete(recommendKey(username, author, permlink));
+          queryClient.invalidateQueries({ queryKey: QueryKeys.curation._recommendationsPrefix });
+          patchRecommendCounts(queryClient, post);
+          return true;
+        }
+        if (!post) return false;
+      }
+      await run(true);
+      return true;
+    } finally {
+      withdrawing.delete(key);
+    }
+  }, [run, username, author, permlink, queryClient]);
+
+  // No `isPending` here on purpose: the mutation observer is per hook instance
+  // and the quick view keeps one button mounted across rows; the keyed state
+  // carries "pending" for exactly the recommendation it belongs to.
+  return { state, recommend, withdraw, username };
 }
 
 /**
@@ -297,5 +356,6 @@ export function resetRecommendFlowForTests() {
   if (process.env.NODE_ENV === "production") return;
   for (const key of Array.from(timers.keys())) clearTimers(key);
   pinged.clear();
+  withdrawing.clear();
   activeUser = NO_USER;
 }

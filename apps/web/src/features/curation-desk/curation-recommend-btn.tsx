@@ -71,6 +71,25 @@ export function CurationReasonPicker({ show, onHide, onPick, busy }: ReasonPicke
   );
 }
 
+/**
+ * Busy covers a broadcast in flight AND a withdrawal the chain has not shown
+ * yet: while that is confirming, a second Withdraw would broadcast a second
+ * `unrecommend` for a row the chain no longer has.
+ */
+/**
+ * Busy while THIS recommendation's broadcast is in flight. The state is the
+ * only input: `run` sets "pending" synchronously before the broadcast, and it
+ * is keyed by viewer and post, whereas the mutation observer's `isPending`
+ * belongs to the button instance, which the quick view keeps mounted across
+ * rows (a signer holding post A's promise would disable post B's button). A
+ * withdrawal parked in "confirming" is not busy: its Withdraw asks route 5
+ * again and either settles the state or sends a withdrawal the chain still
+ * needs.
+ */
+export function recommendBusy(state: RecommendState): boolean {
+  return state.phase === "pending";
+}
+
 export function recommendLabel(state: RecommendState, isSelf: boolean): string {
   if (state.phase === "pending") {
     return i18next.t(state.withdraw ? "curation-desk.recommend.withdrawing" : "curation-desk.recommend.sending");
@@ -105,8 +124,9 @@ export const CurationRecommendBtn = forwardRef<CurationRecommendHandle, Props>(f
   { author, permlink, alreadyRecommended, hidden, compact, className },
   ref
 ) {
-  const { state, recommend, withdraw, isPending } = useRecommendFlow(author, permlink);
+  const { state, recommend, withdraw } = useRecommendFlow(author, permlink);
   const [picker, setPicker] = useState(false);
+  const busy = recommendBusy(state);
 
   const showsWithdraw =
     state.phase === "recommended" ||
@@ -115,8 +135,9 @@ export const CurationRecommendBtn = forwardRef<CurationRecommendHandle, Props>(f
 
   const onWithdraw = useCallback(async () => {
     try {
-      await withdraw();
-      success(i18next.t("curation-desk.recommend.withdrawn-toast"));
+      // A duplicate trigger while a withdrawal is in flight does nothing, and
+      // says nothing.
+      if (await withdraw()) success(i18next.t("curation-desk.recommend.withdrawn-toast"));
     } catch (e) {
       errorToast(...formatError(e));
     }
@@ -143,18 +164,20 @@ export const CurationRecommendBtn = forwardRef<CurationRecommendHandle, Props>(f
   useImperativeHandle(
     ref,
     () => ({
+      // Same rule as the button: nothing opens or goes out while this
+      // recommendation's own broadcast is in flight (a pending withdrawal
+      // must not open the reason picker).
       trigger: () => {
-        if (hidden) return;
+        if (hidden || busy) return;
         if (showsWithdraw) void onWithdraw();
         else setPicker(true);
       },
     }),
-    [hidden, showsWithdraw, onWithdraw]
+    [hidden, busy, showsWithdraw, onWithdraw]
   );
 
   if (hidden) return null;
 
-  const busy = isPending || state.phase === "pending";
   const label = recommendLabel(state, !!alreadyRecommended);
 
   return (
@@ -194,10 +217,10 @@ interface DialogProps {
  * every confirmation is another identical broadcast.
  */
 export function CurationRecommendDialog({ author, permlink, onHide }: DialogProps) {
-  const { state, recommend, withdraw, isPending } = useRecommendFlow(author, permlink);
+  const { state, recommend, withdraw } = useRecommendFlow(author, permlink);
   const alreadySent =
     state.phase === "pending" || state.phase === "recommended" || state.phase === "confirming";
-  const busy = isPending || state.phase === "pending";
+  const busy = recommendBusy(state);
 
   const onPick = useCallback(
     async (reason: CurationReason) => {
@@ -215,8 +238,7 @@ export function CurationRecommendDialog({ author, permlink, onHide }: DialogProp
 
   const onWithdraw = useCallback(async () => {
     try {
-      await withdraw();
-      success(i18next.t("curation-desk.recommend.withdrawn-toast"));
+      if (await withdraw()) success(i18next.t("curation-desk.recommend.withdrawn-toast"));
     } catch (e) {
       errorToast(...formatError(e));
     } finally {
