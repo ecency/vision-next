@@ -12,7 +12,7 @@ const TABS = [
   { href: "/curation", key: "queue" },
   { href: "/curation/marks", key: "marks" },
   { href: "/curation/recommendations", key: "recommendations" },
-  { href: "/curation/guide", key: "guide" },
+  { href: "/curation/guide", key: "guide" }
 ] as const;
 
 /** Queue / Marks / Recommendations / Guide, with counts from the status query. */
@@ -29,34 +29,50 @@ export function CurationTabs() {
 
   const counts: Record<string, number | undefined> = {
     queue: status?.counts?.unreviewed,
-    recommendations: status?.counts?.recommended_posts,
+    recommendations: status?.counts?.recommended_posts
   };
 
   return (
-    <nav aria-label={i18next.t("curation-desk.tabs.aria")} className="flex flex-wrap items-center gap-1 text-sm">
-      <h1 className="text-lg font-bold mr-3">{i18next.t("curation-desk.page-title")}</h1>
-      {tabs.map((tab) => {
-        const active = tab.href === "/curation" ? pathname === "/curation" : pathname.startsWith(tab.href);
-        const count = counts[tab.key];
-        return (
-          <Link
-            key={tab.key}
-            href={tab.href}
-            aria-current={active ? "page" : undefined}
-            className={clsx(
-              "rounded-full px-3 py-1 flex items-center gap-1",
-              active
-                ? "bg-blue-dark-sky text-white"
-                : "bg-white dark:bg-dark-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-default"
-            )}
-          >
-            {i18next.t(`curation-desk.tabs.${tab.key}`)}
-            {count != null && count > 0 && (
-              <span className={clsx("rounded-full px-1.5 text-[11px]", active ? "bg-white/20" : "bg-gray-100 dark:bg-dark-default")}>{count}</span>
-            )}
-          </Link>
-        );
-      })}
-    </nav>
+    <div className="px-2">
+      <h1 className="text-2xl font-bold tracking-tight">{i18next.t("curation-desk.page-title")}</h1>
+      <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+        {i18next.t("curation-desk.page-intro")}
+      </p>
+      <nav
+        aria-label={i18next.t("curation-desk.tabs.aria")}
+        className="mt-5 flex items-center gap-5 overflow-x-auto border-b border-[--border-color] text-sm"
+      >
+        {tabs.map((tab) => {
+          const active =
+            tab.href === "/curation" ? pathname === "/curation" : pathname.startsWith(tab.href);
+          const count = counts[tab.key];
+          return (
+            <Link
+              key={tab.key}
+              href={tab.href}
+              aria-current={active ? "page" : undefined}
+              className={clsx(
+                "flex shrink-0 items-center gap-2 border-b-2 px-1 pb-3 pt-1 font-medium transition-colors focus-visible:outline-blue-dark-sky",
+                active
+                  ? "border-blue-dark-sky text-blue-dark-sky"
+                  : "border-transparent text-gray-600 dark:text-gray-400 hover:text-blue-dark-sky"
+              )}
+            >
+              {i18next.t(`curation-desk.tabs.${tab.key}`)}
+              {count != null && count > 0 && (
+                <span
+                  className={clsx(
+                    "rounded-full px-2 py-0.5 text-[11px] tabular-nums",
+                    active ? "bg-blue-dark-sky/10" : "bg-gray-100 dark:bg-dark-default"
+                  )}
+                >
+                  {count}
+                </span>
+              )}
+            </Link>
+          );
+        })}
+      </nav>
+    </div>
   );
 }

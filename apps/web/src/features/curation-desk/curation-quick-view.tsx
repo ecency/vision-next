@@ -208,7 +208,7 @@ export function CurationQuickView({
   // The dismiss route is mod and curator only; a trial curator gets a 403.
   const canDismissReco = viewer.isRoster && !viewer.isTrial;
   const title = row.title?.trim() || i18next.t("curation-desk.row.untitled", { author: row.author });
-  const href = `/${row.community ?? row.tags?.[0] ?? "hive"}/@${row.author}/${row.permlink}`;
+  const href = `/@${row.author}/${row.permlink}`;
 
   return (
     <ModalSidebar show={open} setShow={(v) => !v && onClose()} placement="right" className="min-w-[90%] md:min-w-[44rem]">

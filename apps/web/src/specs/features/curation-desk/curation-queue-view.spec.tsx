@@ -1,7 +1,9 @@
 import React from "react";
+import { renderToString } from "react-dom/server";
+import { hydrateRoot } from "react-dom/client";
 import "@testing-library/jest-dom";
 import { act, fireEvent, screen, waitFor } from "@testing-library/react";
-import { QueryClient } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithQueryClient } from "@/specs/test-utils";
 import {
@@ -76,6 +78,7 @@ vi.mock("@/api/sdk-mutations/use-curation-recommend-mutation", () => ({
 }));
 
 import { CurationQueueView } from "@/features/curation-desk/curation-queue-view";
+import { CurationHeader } from "@/features/curation-desk/curation-header";
 import { error as errorToast } from "@/features/shared/feedback";
 
 /** Mirrors production: refetchOnMount false, so page 1 must come from the mount itself. */
@@ -266,6 +269,51 @@ describe("CurationQueueView", () => {
       const id = article.getAttribute("aria-labelledby");
       expect(id).toBeTruthy();
       expect(document.getElementById(id!)).not.toBeNull();
+      const titleLink = document.getElementById(id!)!.querySelector("a");
+      expect(titleLink?.getAttribute("href")).toMatch(/^\/@author\d+\/post-\d+$/);
+    }
+  });
+
+  it("keeps advanced filters collapsed and retains their values when reopened", async () => {
+    renderWithQueryClient(<CurationQueueView />, { queryClient: prodLikeClient() });
+    await screen.findAllByRole("article");
+    const summary = screen.getByText("curation-desk.filters.refine").closest("summary")!;
+    const panel = summary.closest("details")!;
+    expect(panel).not.toHaveAttribute("open");
+    fireEvent.click(summary);
+    expect(panel).toHaveAttribute("open");
+    fireEvent.change(screen.getByLabelText("curation-desk.filters.app"), { target: { value: "peakd" } });
+    await waitFor(() => expect(fetchRouter.callsTo(/curation-desk\/feed/).some((call) => call.url.includes("app=peakd"))).toBe(true));
+    fireEvent.click(summary);
+    expect(panel).not.toHaveAttribute("open");
+    expect(screen.getByLabelText("curation-desk.filters.active-count")).toHaveTextContent("1");
+    fireEvent.click(summary);
+    expect(screen.getByLabelText("curation-desk.filters.app")).toHaveValue("peakd");
+    fireEvent.click(screen.getByLabelText("curation-desk.toolbar.reset"));
+    expect(screen.getByLabelText("curation-desk.filters.app")).toHaveValue("all");
+    expect(screen.queryByLabelText("curation-desk.filters.active-count")).not.toBeInTheDocument();
+  });
+
+  it("hydrates the overview when the tabs have already loaded status into the client cache", async () => {
+    const queryClient = new QueryClient({ defaultOptions: { queries: { enabled: false } } });
+    const header = (loaded: boolean) => (
+      <QueryClientProvider client={queryClient}>
+        <CurationHeader status={loaded ? makeStatus() : undefined} teamCursor={null} activeCurators={[]} isRoster={false} livePaused={false} onHelp={() => {}} />
+      </QueryClientProvider>
+    );
+    const container = document.createElement("div");
+    container.innerHTML = renderToString(header(false));
+    document.body.appendChild(container);
+    const onRecoverableError = vi.fn();
+    let root: ReturnType<typeof hydrateRoot> | undefined;
+    try {
+      await act(async () => { root = hydrateRoot(container, header(true), { onRecoverableError }); });
+      expect(onRecoverableError).not.toHaveBeenCalled();
+      expect(container).toHaveTextContent("curation-desk.header.curated-summary");
+    } finally {
+      await act(async () => root?.unmount());
+      container.remove();
+      queryClient.clear();
     }
   });
 });

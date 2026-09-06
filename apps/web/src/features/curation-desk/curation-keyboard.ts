@@ -38,7 +38,7 @@ export function isKeyboardInert(
   if (target && typeof target.tagName === "string") {
     if (EDITABLE.has(target.tagName) || target.isContentEditable) return true;
     if (target.closest?.('[contenteditable="true"]')) return true;
-    if (event.key === "Enter" && target.closest?.('button, a[href], [role="button"]')) return true;
+    if (event.key === "Enter" && target.closest?.('button, a[href], summary, [role="button"]')) return true;
   }
   const modal = doc.getElementById("modal-dialog-container");
   if (modal) {

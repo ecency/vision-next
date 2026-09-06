@@ -355,7 +355,7 @@ export function CurationQueueView() {
       },
       openExternal: () => {
         if (!activeRow) return;
-        window.open(`/${activeRow.community ?? activeRow.tags?.[0] ?? "hive"}/@${activeRow.author}/${activeRow.permlink}`, "_blank", "noopener");
+        window.open(`/@${activeRow.author}/${activeRow.permlink}`, "_blank", "noopener");
       },
       help: () => setDialog({ kind: "help" }),
     },
@@ -521,4 +521,3 @@ export function CurationQueueView() {
     </div>
   );
 }
-

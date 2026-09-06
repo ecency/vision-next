@@ -71,6 +71,12 @@ function client() {
 }
 
 describe("keyboard map", () => {
+  it("lets Enter activate an expandable panel without opening the quick view", () => {
+    const summary = document.createElement("summary");
+    const label = document.createElement("span");
+    summary.appendChild(label);
+    expect(isKeyboardInert({ target: label, key: "Enter", ctrlKey: false, metaKey: false, altKey: false })).toBe(true);
+  });
   it("maps every documented key", () => {
     expect(keyToAction({ key: "j", shiftKey: false })).toBe("next");
     expect(keyToAction({ key: "k", shiftKey: false })).toBe("prev");
@@ -183,6 +189,19 @@ describe("keyboard on the queue", () => {
     expect(screen.getAllByRole("article")[0]).not.toHaveAttribute("aria-current");
     await act(async () => press("k"));
     expect(screen.getAllByRole("article")[0]).toHaveAttribute("aria-current", "true");
+  });
+
+  it("opens the selected post without a category prefix with Shift+O", async () => {
+    const open = vi.spyOn(window, "open").mockImplementation(() => null);
+    try {
+      renderWithQueryClient(<CurationQueueView />, { queryClient: client() });
+      await screen.findAllByRole("article");
+      await act(async () => press("j"));
+      await act(async () => press("O", { shiftKey: true }));
+      expect(open).toHaveBeenCalledWith("/@author1/post-1", "_blank", "noopener");
+    } finally {
+      open.mockRestore();
+    }
   });
 
   it("ignores keys typed into an input and while a vote slider is open", async () => {

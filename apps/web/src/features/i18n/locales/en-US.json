@@ -4366,6 +4366,7 @@
     "subscribe-link": "Subscribe link"
   },
   "curation-desk": {
+    "page-intro": "Discover posts, review together, and support great authors.",
     "page-title": "Curation desk",
     "page-description": "The Ecency curation queue: new posts from every Hive front-end, the team cursor, curation windows and on-chain recommendations.",
     "tabs": {
@@ -4376,6 +4377,9 @@
       "guide": "Guide"
     },
     "header": {
+      "overview": "Curation overview",
+      "curated-summary": "{{count}} curated in 24h",
+      "power-summary": "Trail power {{vp}}%",
       "aria": "Curation status",
       "cursor": "Team reviewed up to",
       "cursor-value": "{{time}} UTC {{by}} {{when}}",
@@ -4424,6 +4428,12 @@
     },
     "filters": {
       "aria": "Queue filters",
+      "refine": "Refine posts",
+      "refine-hint": "Source, content & reputation",
+      "active-count": "{{count}} active filters",
+      "source": "Source & discovery",
+      "content": "Post content",
+      "author-reputation": "Author reputation",
       "unreviewed": "Unreviewed only",
       "hide-curated": "Hide curated",
       "app": "App",
