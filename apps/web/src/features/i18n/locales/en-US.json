@@ -4733,7 +4733,7 @@
       },
       "trail": {
         "title": "2. How the trail works",
-        "body": "<p>Sixteen curators are followed. When one of them votes a post, five Ecency accounts vote it in one transaction within seconds.</p><p>Conditions: the post is inside its payout window (the desk shows the scale factor in the last 12 h because the chain scales those votes linearly toward zero), none of the five has voted it, no hivewatchers downvote, the author is not on the ignore list, the bot is not paused and @ecency VP is above 55%. The desk shows <strong>not trailed</strong> with the reasons it can derive.</p>"
+        "body": "<p>A few curators are followed. When one of them votes a post, five Ecency accounts vote it in one transaction within seconds.</p><p>Conditions: the post is inside its payout window (the desk shows the scale factor in the last 12 h because the chain scales those votes linearly toward zero), none of the five has voted it, no hivewatchers downvote, the author is not on the ignore list, the bot is not paused and @ecency VP is above 55%. The desk shows <strong>not trailed</strong> with the reasons it can derive.</p>"
       },
       "accounts": {
         "title": "3. The five accounts",
