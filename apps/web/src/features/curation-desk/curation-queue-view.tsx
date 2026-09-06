@@ -48,12 +48,25 @@ export function CurationQueueSkeleton({ rows = 8 }: { rows?: number }) {
   return (
     <div aria-busy="true" aria-label={i18next.t("curation-desk.list.loading")}>
       {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="flex gap-3 px-3 py-2 h-[72px] border-b border-[--border-color]">
-          <div className="w-[4.5rem] h-4 rounded animate-pulse bg-gray-200 dark:bg-dark-default" />
-          <div className="size-16 rounded-lg animate-pulse bg-gray-200 dark:bg-dark-default" />
-          <div className="flex-1 flex flex-col gap-2">
+        // Same geometry as CurationQueueRow at every breakpoint: a fixed 72 px
+        // row would shift the page when the real list replaces it, since the
+        // row wraps its time block and its actions onto their own lines below lg.
+        <div
+          key={i}
+          className="flex flex-wrap gap-x-3 gap-y-2 border-b border-[--border-color] px-4 py-4 sm:px-5"
+        >
+          <div className="flex w-full shrink-0 items-center gap-2 sm:w-36 sm:flex-col sm:items-start">
+            <div className="h-4 w-12 rounded animate-pulse bg-gray-200 dark:bg-dark-default" />
+            <div className="h-4 w-20 rounded-full animate-pulse bg-gray-200 dark:bg-dark-default" />
+          </div>
+          <div className="hidden size-16 shrink-0 rounded-lg animate-pulse bg-gray-200 dark:bg-dark-default sm:block" />
+          <div className="min-w-0 flex-1 flex flex-col gap-2">
             <div className="h-4 w-3/4 rounded animate-pulse bg-gray-200 dark:bg-dark-default" />
             <div className="h-3 w-1/2 rounded animate-pulse bg-gray-200 dark:bg-dark-default" />
+          </div>
+          <div className="flex w-full flex-wrap items-center justify-end gap-1 lg:w-auto">
+            <div className="h-7 w-16 rounded-lg animate-pulse bg-gray-200 dark:bg-dark-default" />
+            <div className="h-7 w-16 rounded-lg animate-pulse bg-gray-200 dark:bg-dark-default" />
           </div>
         </div>
       ))}
@@ -355,7 +368,7 @@ export function CurationQueueView() {
       },
       openExternal: () => {
         if (!activeRow) return;
-        window.open(`/${activeRow.community ?? activeRow.tags?.[0] ?? "hive"}/@${activeRow.author}/${activeRow.permlink}`, "_blank", "noopener");
+        window.open(`/@${activeRow.author}/${activeRow.permlink}`, "_blank", "noopener");
       },
       help: () => setDialog({ kind: "help" }),
     },
@@ -414,7 +427,7 @@ export function CurationQueueView() {
       <div role="feed" aria-busy={feed.isFetching} aria-label={i18next.t("curation-desk.list.aria")} className="border-t border-[--border-color]">
         {feed.isLoading && <CurationQueueSkeleton />}
         {feed.isError && (
-          <p className="p-4 text-sm text-red-600 dark:text-red-400" role="alert">
+          <p className="p-4 text-sm text-red-030 dark:text-red-light-020" role="alert">
             {i18next.t("curation-desk.list.error")}
           </p>
         )}
@@ -521,4 +534,3 @@ export function CurationQueueView() {
     </div>
   );
 }
-

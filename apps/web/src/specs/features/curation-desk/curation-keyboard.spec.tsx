@@ -4,7 +4,7 @@ import { act, fireEvent, renderHook, screen, waitFor } from "@testing-library/re
 import { QueryClient } from "@tanstack/react-query";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithQueryClient } from "@/specs/test-utils";
-import { installFetchRouter, makeFeedPage, makeOverlay, makeRoster, makeRosterPage, makeRow, makeStatus } from "./curation-test-utils";
+import { installFetchRouter, makeFeedPage, makeOverlay, makeRoster, makeRosterPage, makeRow, makeStatus, NOW } from "./curation-test-utils";
 
 const state = vi.hoisted(() => ({ username: undefined as string | undefined }));
 
@@ -71,6 +71,12 @@ function client() {
 }
 
 describe("keyboard map", () => {
+  it("lets Enter activate an expandable panel without opening the quick view", () => {
+    const summary = document.createElement("summary");
+    const label = document.createElement("span");
+    summary.appendChild(label);
+    expect(isKeyboardInert({ target: label, key: "Enter", ctrlKey: false, metaKey: false, altKey: false })).toBe(true);
+  });
   it("maps every documented key", () => {
     expect(keyToAction({ key: "j", shiftKey: false })).toBe("next");
     expect(keyToAction({ key: "k", shiftKey: false })).toBe("prev");
@@ -160,6 +166,10 @@ describe("keyboard on the queue", () => {
   let router: ReturnType<typeof installFetchRouter>;
 
   beforeEach(() => {
+    // Fixture ages are offsets from NOW; the desk reads the real clock, so the
+    // rows drift out of their window once wall time passes NOW + 24 h.
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.setSystemTime(NOW);
     state.username = undefined;
     router = installFetchRouter()
       .on(/curation-desk\/status/, () => makeStatus())
@@ -170,7 +180,10 @@ describe("keyboard on the queue", () => {
       .on(/curation-desk\/tick/, () => ({ overlay: [], deltas: { marks: [], flags: [], signals: [] }, team_cursor: { post_id: null, created: null }, active_curators: [], trail_alerts: [], generated_at: "x", truncated: false }));
   });
 
-  afterEach(() => vi.unstubAllGlobals());
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.useRealTimers();
+  });
 
   it("j and k move aria-current across rows", async () => {
     renderWithQueryClient(<CurationQueueView />, { queryClient: client() });
@@ -183,6 +196,19 @@ describe("keyboard on the queue", () => {
     expect(screen.getAllByRole("article")[0]).not.toHaveAttribute("aria-current");
     await act(async () => press("k"));
     expect(screen.getAllByRole("article")[0]).toHaveAttribute("aria-current", "true");
+  });
+
+  it("opens the selected post without a category prefix with Shift+O", async () => {
+    const open = vi.spyOn(window, "open").mockImplementation(() => null);
+    try {
+      renderWithQueryClient(<CurationQueueView />, { queryClient: client() });
+      await screen.findAllByRole("article");
+      await act(async () => press("j"));
+      await act(async () => press("O", { shiftKey: true }));
+      expect(open).toHaveBeenCalledWith("/@author1/post-1", "_blank", "noopener");
+    } finally {
+      open.mockRestore();
+    }
   });
 
   it("ignores keys typed into an input and while a vote slider is open", async () => {

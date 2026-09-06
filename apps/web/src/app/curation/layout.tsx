@@ -12,7 +12,9 @@ import { CurationTabs } from "./_components/curation-tabs";
  * covers every nested route in one place.
  */
 export default function CurationLayout({ children }: PropsWithChildren) {
-  const enabled = EcencyConfigManager.useConfig(({ visionFeatures }) => visionFeatures.curationDesk.enabled);
+  const enabled = EcencyConfigManager.useConfig(
+    ({ visionFeatures }) => visionFeatures.curationDesk.enabled
+  );
   if (!enabled) {
     return notFound();
   }
@@ -21,7 +23,7 @@ export default function CurationLayout({ children }: PropsWithChildren) {
     <>
       <ScrollToTop />
       <Navbar />
-      <div className="app-content flex-col gap-3">
+      <div className="app-content flex-col gap-5 !max-w-[1280px]">
         <CurationTabs />
         <RouteErrorBoundary>{children}</RouteErrorBoundary>
       </div>

@@ -4366,6 +4366,7 @@
     "subscribe-link": "Subscribe link"
   },
   "curation-desk": {
+    "page-intro": "Discover posts, review together, and support great authors.",
     "page-title": "Curation desk",
     "page-description": "The Ecency curation queue: new posts from every Hive front-end, the team cursor, curation windows and on-chain recommendations.",
     "tabs": {
@@ -4376,6 +4377,9 @@
       "guide": "Guide"
     },
     "header": {
+      "overview": "Curation overview",
+      "curated-summary": "{{count}} curated in 24h",
+      "power-summary": "Trail power {{vp}}%",
       "aria": "Curation status",
       "cursor": "Team reviewed up to",
       "cursor-value": "{{time}} UTC {{by}} {{when}}",
@@ -4419,11 +4423,19 @@
       "reshuffle": "Reshuffle"
     },
     "toolbar": {
-      "match": "{{count}} match",
+      "match_one": "{{count}} match",
+      "match_other": "{{count}} matches",
       "reset": "Reset ({{count}})"
     },
     "filters": {
       "aria": "Queue filters",
+      "refine": "Refine posts",
+      "refine-hint": "Source, content & reputation",
+      "active-count_one": "{{count}} active filter",
+      "active-count_other": "{{count}} active filters",
+      "source": "Source & discovery",
+      "content": "Post content",
+      "author-reputation": "Author reputation",
       "unreviewed": "Unreviewed only",
       "hide-curated": "Hide curated",
       "app": "App",
@@ -4608,8 +4620,8 @@
       "note": "Note",
       "note-key": "Note (n)",
       "note-trial": "Note (n). Trial curators see their own notes only.",
-      "open": "Open on Ecency",
-      "open-key": "Open on Ecency (Shift+O)"
+      "open": "Open post",
+      "open-key": "Open post (Shift+O)"
     },
     "snooze": {
       "title": "Snooze until",
@@ -4633,7 +4645,8 @@
     },
     "cursor": {
       "confirm-title": "Reviewed up to here?",
-      "confirm-body": "Marks {{count}} loaded posts up to {{time}} UTC as reviewed by the team cursor. The cursor only moves forward.",
+      "confirm-body_one": "Marks {{count}} loaded post up to {{time}} UTC as reviewed by the team cursor. The cursor only moves forward.",
+      "confirm-body_other": "Marks {{count}} loaded posts up to {{time}} UTC as reviewed by the team cursor. The cursor only moves forward.",
       "confirm-ok": "Move the cursor"
     },
     "live": {
@@ -4642,7 +4655,8 @@
       "snoozed": "Snoozed for {{preset}}",
       "flagged": "Flagged for the team",
       "cleared": "Mark cleared",
-      "cursor-moved": "Team cursor moved, {{count}} posts swept",
+      "cursor-moved_one": "Team cursor moved, {{count}} post swept",
+      "cursor-moved_other": "Team cursor moved, {{count}} posts swept",
       "cursor-ahead": "The team cursor was already ahead",
       "undo": "Undo"
     },
@@ -4652,14 +4666,16 @@
       "error": "The queue could not be loaded. The desk keeps what it had; try again in a moment.",
       "empty": "Nothing to review with these filters.",
       "member-hint": "Curators see marks, signals and the team cursor here. Everyone can recommend a post to them.",
-      "tail-half": "{{count}} older unreviewed posts at half weight (24 to 72 h)",
+      "tail-half_one": "{{count}} older unreviewed post at half weight (24 to 72 h)",
+      "tail-half_other": "{{count}} older unreviewed posts at half weight (24 to 72 h)",
       "tail-eighth": "{{count}} at one eighth (older than 72 h)",
       "divider": "Team reviewed up to here · {{time}} UTC {{by}}",
       "divider-aria": "Team cursor",
       "divider-none": "Team reviewed up to here",
       "reviewed-up-to-here": "Reviewed up to here",
       "reviewed-up-to-here-key": "Reviewed up to here (Shift+R)",
-      "older-reviewed": "Show {{count}} older reviewed posts"
+      "older-reviewed_one": "Show {{count}} older reviewed post",
+      "older-reviewed_other": "Show {{count}} older reviewed posts"
     },
     "shortcuts": {
       "title": "Keyboard shortcuts",
@@ -4673,15 +4689,15 @@
       "flag": "Flag",
       "note": "Note",
       "recommend": "Recommend to curators (withdraw when already recommended)",
-      "open": "Open on Ecency in a new tab",
+      "open": "Open the post in a new tab",
       "help": "This sheet"
     },
     "quick-view": {
       "aria": "Post quick view",
       "prev": "Previous post (k)",
       "next": "Next post (j)",
-      "open": "Open on Ecency",
-      "posts": "{{count}} posts",
+      "posts_one": "{{count}} post",
+      "posts_other": "{{count}} posts",
       "signals-hint": "Numbers prompt a read, they never decide.",
       "not-found": "This post could not be loaded from the chain.",
       "author-snapshot": "Author snapshot",

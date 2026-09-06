@@ -80,7 +80,7 @@ export const AuthorAgeChip = memo(function AuthorAgeChip({ authorCreated }: { au
   const now = useCurationTicker();
   const days = accountAgeDays(authorCreated, now);
   if (days == null) return null;
-  return <span className={clsx(days < 30 && "text-amber-600 dark:text-amber-400")}>{formatAge(days)}</span>;
+  return <span className={clsx(days < 30 && "text-warning-ink dark:text-warning-default")}>{formatAge(days)}</span>;
 });
 
 function appLabel(app: string | null): string {
@@ -132,7 +132,7 @@ function Signals({ row }: { row: DeskRow }) {
 }
 
 /**
- * Compact desk row (about 72 px on desktop, a card on mobile). Memoized on
+ * A spaced desk row with actions below the content on smaller screens. Memoized on
  * booleans; the window badge is its own memo child on the shared ticker so a
  * countdown never re-renders the row. Heavy controls (vote slider, votes,
  * payout, renderer) live in the quick view only.
@@ -175,7 +175,7 @@ export const CurationQueueRow = memo(function CurationQueueRow(props: Props) {
   const titleId = `curation-row-title-${row.post_id}`;
   const descId = `curation-row-desc-${row.post_id}`;
   const title = row.title?.trim() || i18next.t("curation-desk.row.untitled", { author: row.author });
-  const href = `/${row.community ?? row.tags?.[0] ?? "hive"}/@${row.author}/${row.permlink}`;
+  const href = `/@${row.author}/${row.permlink}`;
   const thumb = row.first_image ? proxifyImageSrc(row.first_image, 200, 0, "match") : null;
   const collapsed = curated && !isActive;
   const entryStub = { author: row.author, permlink: row.permlink } as unknown as Entry;
@@ -191,14 +191,14 @@ export const CurationQueueRow = memo(function CurationQueueRow(props: Props) {
       onClick={() => onSelect(row)}
       onDoubleClick={() => onOpen(row)}
       className={clsx(
-        "group relative flex gap-3 border-b border-[--border-color] px-3 py-2 md:min-h-[72px] outline-none",
-        "hover:bg-gray-50 dark:hover:bg-dark-default/60 focus-visible:ring-2 focus-visible:ring-blue-dark-sky",
+        "group relative flex flex-wrap gap-x-3 gap-y-2 border-b border-[--border-color] px-4 py-4 sm:px-5 outline-none",
+        "hover:bg-gray-100 dark:hover:bg-dark-default/60 focus-visible:ring-2 focus-visible:ring-blue-dark-sky",
         isActive && "bg-blue-duck-egg/30 dark:bg-blue-dark-grey/40",
         reviewed && !curated && "opacity-60",
         belowCursor && !late && !resurfaced && "opacity-50",
-        curated && "border-l-4 border-l-green-500 opacity-70",
-        trailSent && !curated && "border-l-4 border-l-amber-400",
-        flagged && "border-l-4 border-l-red-500",
+        curated && "border-l-4 border-l-green opacity-70",
+        trailSent && !curated && "border-l-4 border-l-warning-default",
+        flagged && "border-l-4 border-l-red",
         collapsed && "md:min-h-0 py-1"
       )}
     >
@@ -210,12 +210,12 @@ export const CurationQueueRow = memo(function CurationQueueRow(props: Props) {
         })}
       </span>
 
-      <div className="flex flex-col items-start gap-1 w-[4.5rem] shrink-0 text-xs text-gray-600 dark:text-gray-400">
+      <div className="flex w-full shrink-0 items-center gap-2 text-xs text-gray-600 dark:text-gray-400 sm:w-36 sm:flex-col sm:items-start">
         <time dateTime={row.created} className="font-mono">
           <span className="hidden md:inline">{formatUtcHm(row.created)}</span>
           <span className="md:hidden">{dateToRelative(row.created)}</span>
         </time>
-        {!collapsed && <CurationWindowBadge created={row.created} payoutAt={row.payout_at} />}
+        {!collapsed && <CurationWindowBadge created={row.created} payoutAt={row.payout_at} className="max-w-full !whitespace-normal" />}
       </div>
 
       {!collapsed && (
@@ -281,9 +281,8 @@ export const CurationQueueRow = memo(function CurationQueueRow(props: Props) {
         role="toolbar"
         aria-label={i18next.t("curation-desk.row.actions")}
         className={clsx(
-          "flex flex-col md:flex-row items-end md:items-center gap-0.5 shrink-0",
-          "md:opacity-0 md:group-hover:opacity-100 md:focus-within:opacity-100",
-          isActive && "md:opacity-100"
+          "flex w-full flex-wrap items-center justify-end gap-1",
+          "lg:w-auto lg:pl-0 lg:self-start"
         )}
         onClick={(e) => e.stopPropagation()}
       >

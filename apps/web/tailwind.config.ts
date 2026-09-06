@@ -256,10 +256,12 @@ const config: Config = {
       },
       green: "#69bb85",
       "green-hover": "#519362",
+      "green-ink": "#27643a",
       "green-030": "#bcf3cf",
       "green-040": "#e3fceb",
       warning: {
         default: "#fcc920",
+        ink: "#854d0e",
         "030": "#ffe08a",
         "040": "#fff0c7",
         "046": "#fffcf2"

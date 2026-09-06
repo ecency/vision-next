@@ -132,7 +132,7 @@ export function CurationRecommendationsView() {
         {sort === "unique" && <span className="text-gray-500">{i18next.t("curation-desk.sort.unique-hint")}</span>}
       </div>
       {query.isLoading && <p className="p-4 text-sm text-gray-500">{i18next.t("curation-desk.list.loading")}</p>}
-      {query.isError && <p className="p-4 text-sm text-red-600 dark:text-red-400" role="alert">{i18next.t("curation-desk.list.error")}</p>}
+      {query.isError && <p className="p-4 text-sm text-red-030 dark:text-red-light-020" role="alert">{i18next.t("curation-desk.list.error")}</p>}
       {!query.isLoading && items.length === 0 && !query.isError && (
         <p className="p-6 text-sm text-gray-500 text-center">{i18next.t("curation-desk.reco-view.empty")}</p>
       )}

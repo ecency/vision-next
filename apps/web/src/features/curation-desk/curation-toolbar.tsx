@@ -5,7 +5,7 @@ import { UilRedo } from "@tooni/iconscout-unicons-react";
 import type { CurationSort } from "@ecency/sdk";
 import { Button } from "@ui/button";
 import { FormControl } from "@ui/input";
-import type { QueueFilters, ResolvedQueueFilters } from "./types";
+import type { ResolvedQueueFilters } from "./types";
 
 interface Props {
   filters: ResolvedQueueFilters;
@@ -18,10 +18,20 @@ interface Props {
 }
 
 /** Sort menu, the match count from the server's `total_estimate` and Reset. */
-export function CurationToolbar({ filters, isRoster, totalEstimate, activeFilterCount, onSort, onReshuffle, onReset }: Props) {
-  const sorts: CurationSort[] = isRoster ? ["queue", "newest", "unique", "random"] : ["queue", "newest", "unique"];
+export function CurationToolbar({
+  filters,
+  isRoster,
+  totalEstimate,
+  activeFilterCount,
+  onSort,
+  onReshuffle,
+  onReset
+}: Props) {
+  const sorts: CurationSort[] = isRoster
+    ? ["queue", "newest", "unique", "random"]
+    : ["queue", "newest", "unique"];
   return (
-    <div className="flex flex-wrap items-center gap-2 px-3 py-2 border-t border-[--border-color] text-xs">
+    <div className="flex flex-wrap items-center gap-3 px-4 py-3 sm:px-5 border-t border-[--border-color] text-xs">
       <label className="flex items-center gap-2">
         <span className="text-gray-500">{i18next.t("curation-desk.sort.label")}</span>
         <FormControl
@@ -29,7 +39,9 @@ export function CurationToolbar({ filters, isRoster, totalEstimate, activeFilter
           size="sm"
           value={filters.sort}
           aria-label={i18next.t("curation-desk.sort.label")}
-          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onSort(e.target.value as CurationSort)}
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+            onSort(e.target.value as CurationSort)
+          }
         >
           {sorts.map((sort) => (
             <option key={sort} value={sort}>
@@ -38,7 +50,9 @@ export function CurationToolbar({ filters, isRoster, totalEstimate, activeFilter
           ))}
         </FormControl>
       </label>
-      {filters.sort === "unique" && <span className="text-gray-500">{i18next.t("curation-desk.sort.unique-hint")}</span>}
+      {filters.sort === "unique" && (
+        <span className="text-gray-500">{i18next.t("curation-desk.sort.unique-hint")}</span>
+      )}
       {filters.sort === "random" && isRoster && (
         <Button
           size="xs"
@@ -52,9 +66,19 @@ export function CurationToolbar({ filters, isRoster, totalEstimate, activeFilter
         </Button>
       )}
       <span className="ml-auto flex items-center gap-2 text-gray-500">
-        {totalEstimate != null && <span aria-live="polite">{i18next.t("curation-desk.toolbar.match", { count: totalEstimate })}</span>}
+        {totalEstimate != null && (
+          <span aria-live="polite">
+            {i18next.t("curation-desk.toolbar.match", { count: totalEstimate })}
+          </span>
+        )}
         {activeFilterCount > 0 && (
-          <Button size="xs" appearance="gray-link" className="!rounded-lg" aria-label={i18next.t("curation-desk.toolbar.reset")} onClick={onReset}>
+          <Button
+            size="xs"
+            appearance="gray-link"
+            className="!rounded-lg"
+            aria-label={i18next.t("curation-desk.toolbar.reset", { count: activeFilterCount })}
+            onClick={onReset}
+          >
             {i18next.t("curation-desk.toolbar.reset", { count: activeFilterCount })}
           </Button>
         )}
