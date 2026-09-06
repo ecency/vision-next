@@ -94,10 +94,21 @@ export function FeedLayout(props: PropsWithChildren<Props>) {
       const pollOptions = withSlimPageEntries(
         getPostsRankedQueryOptions(props.filter, "", "", MAX_PENDING, props.tag, props.observer)
       );
-      const resp = await queryClient.fetchQuery({
-        ...pollOptions,
-        staleTime: POLL_STALE_TIME_MS
-      });
+      let resp: Entry[] | undefined;
+      try {
+        resp = await queryClient.fetchQuery({
+          ...pollOptions,
+          staleTime: POLL_STALE_TIME_MS
+        });
+      } catch {
+        // A poll tick is best effort. fetchQuery rejects on a node fault and on
+        // an authoritative answer alike (hivemind refuses a tag it has never
+        // indexed with a -32602 assert). The feed itself already renders empty
+        // for such a tag, so the poll behind it stays quiet too instead of
+        // surfacing as an unhandled rejection every 30 seconds. The interval
+        // keeps ticking, so a node hiccup gets another chance next tick.
+        return;
+      }
       if (cancelled || !resp || resp.length === 0) return;
 
       // Update existing entries with latest stats
