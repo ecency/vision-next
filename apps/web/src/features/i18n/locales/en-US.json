@@ -4746,7 +4746,7 @@
       },
       "windows": {
         "title": "5. Curation windows",
-        "body": "<p>Full curation weight inside 24 h of the post's creation, half from 24 to 72 h, one eighth after 72 h, scaled linearly toward zero in the last 12 h before payout (92% at 11 h left, half at 6 h, zero at the cashout second).</p><p><strong>There is no early-vote penalty</strong> (the reverse auction is 0 since HF25) and order inside a window does not matter: two curators who both vote a post inside 24 h split the pool by the rshares they added, not by who was first. So never race the first minutes. Read the post, vote inside 24 h. 98% of trail votes already land there; the badge on every row counts down to the boundary.</p>"
+        "body": "<p>Full curation weight inside 24 h of the post's creation, half from 24 to 72 h, one eighth after 72 h, scaled linearly toward zero in the last 12 h before payout (92% at 11 h left, half at 6 h, zero at the cashout second).</p><p><strong>There is no early-vote penalty</strong> (the reverse auction is 0 since HF25) and order inside a window does not matter: two curators who both vote a post inside 24 h split the pool by the rshares they added, not by who was first. So never race the first minutes. Read the post, vote inside 24 h. Nearly all trail votes already land there; the badge on every row counts down to the boundary.</p>"
       },
       "etiquette-author": {
         "title": "6. One trail per author per half day",
