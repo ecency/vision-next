@@ -4485,6 +4485,7 @@
       "new-account": "New account",
       "new-author": "New · post #{{n}}",
       "app-unknown": "unknown app",
+      "source-app": "Published via {{app}}",
       "no-community": "no community",
       "words": "{{count}} words",
       "edited": "edited",
