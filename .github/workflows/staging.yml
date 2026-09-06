@@ -1,7 +1,8 @@
 name: Staging CI/CD
 on:
-  # A manual run deploys the branch as it is: the same jobs as a push, for a
-  # missed push event or a redeploy without a commit.
+  # A manual run: the same jobs as a push, for a missed push event or a redeploy
+  # without a commit. Every job is gated on this branch (develop), so a dispatch from
+  # any other ref, the default branch included, builds and deploys nothing.
   workflow_dispatch:
   push:
     branches:
@@ -19,6 +20,9 @@ permissions:
   contents: read
 jobs:
   tests:
+    # Every job, whatever the trigger: a manual run from any other ref must do nothing,
+    # or a dispatch from the default branch would build it and ship it here.
+    if: github.ref == 'refs/heads/develop'
     # Build phase cancels: superseded test/build work is wasted spend, and only the newest
     # commit on the branch is worth building. Shares one group with the build job below —
     # they are sequential, so they never contend within a run.
@@ -61,6 +65,9 @@ jobs:
       env:
         CI: true
   build:
+    # Every job, whatever the trigger: a manual run from any other ref must do nothing,
+    # or a dispatch from the default branch would build it and ship it here.
+    if: github.ref == 'refs/heads/develop'
     concurrency:
       group: ${{ github.workflow }}-build-${{ github.ref }}
       cancel-in-progress: true
@@ -112,6 +119,9 @@ jobs:
         run: echo ${{ steps.docker_build.outputs.digest }}
 
   deploy:
+    # Every job, whatever the trigger: a manual run from any other ref must do nothing,
+    # or a dispatch from the default branch would build it and ship it here.
+    if: github.ref == 'refs/heads/develop'
     # Deploy queues rather than cancels. Concurrency is declared per job so the expensive
     # build phase can still be cancelled: an in-flight SSH/compose run is never interrupted
     # part-way, which would leave the host partially updated with nothing guaranteed to
