@@ -56,9 +56,9 @@ function restoreVisibility(): void {
   }
 }
 
-function renderFeed(): RenderResult {
+function renderFeed(feed: { tag?: string; filter?: string } = {}): RenderResult {
   return renderWithQueryClient(
-    <FeedLayout tag="" filter="trending" observer="ecency">
+    <FeedLayout tag={feed.tag ?? ""} filter={feed.filter ?? "trending"} observer="ecency">
       <div />
     </FeedLayout>,
     {
@@ -208,5 +208,112 @@ describe("feed poll", () => {
     });
 
     expect(fetchSpy.mock.calls.length).toBeGreaterThan(1);
+  });
+});
+
+/**
+ * Hivemind refuses a well formed tag it has never indexed with a JSON-RPC
+ * -32602 assert ("Tag espanol-chat does not exist"). hive-tx rethrows that as
+ * an RPCError without failover and fetchQuery rejects on it, so the poll used
+ * to surface it as an unhandled rejection once per tick, with no stack frames
+ * because RPCError carries none. The feed itself already renders empty for
+ * such a tag, so the poll behind it has nothing to report either.
+ */
+describe("feed poll on a tag hivemind does not know", () => {
+  const unhandled: unknown[] = [];
+  const onUnhandled = (reason: unknown): void => {
+    unhandled.push(reason);
+  };
+
+  function rpcError(): Error {
+    return Object.assign(new Error("Assert Exception:Tag espanol-chat does not exist"), {
+      name: "RPCError",
+      code: -32602,
+      stack: undefined
+    });
+  }
+
+  async function expectNoUnhandledRejection(): Promise<void> {
+    // Node delivers unhandledRejection only after the microtask queue drains,
+    // on a later macrotask, so a real tick has to pass before the array is
+    // worth reading.
+    vi.useRealTimers();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(unhandled).toEqual([]);
+  }
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    fetchSpy.mockClear();
+    unhandled.length = 0;
+    getQueryClient().clear();
+    setVisibility("visible");
+    process.on("unhandledRejection", onUnhandled);
+  });
+  afterEach(() => {
+    process.off("unhandledRejection", onUnhandled);
+    vi.useRealTimers();
+    vi.clearAllMocks();
+    // clearAllMocks keeps implementations, so a persistent mockRejectedValue
+    // would carry into the next case. mockReset puts the original resolving
+    // implementation back.
+    fetchSpy.mockReset();
+    getQueryClient().clear();
+    restoreVisibility();
+  });
+
+  it("keeps a failed poll to itself", async () => {
+    fetchSpy.mockRejectedValue(rpcError());
+    const { queryByText } = renderFeed({ tag: "espanol-chat", filter: "hot" });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(31_000);
+    });
+
+    // Exactly one request per tick: the poll runs on getQueryClient(), whose
+    // defaults carry no retry key. fetchQuery forces retry to false when the
+    // option is undefined. A retry default on the global client would change
+    // this count.
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    expect(queryByText(/new post/)).toBeNull();
+    await expectNoUnhandledRejection();
+  });
+
+  it("keeps polling after a failed tick", async () => {
+    fetchSpy.mockRejectedValueOnce(rpcError());
+    renderFeed({ tag: "espanol-chat", filter: "hot" });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(31_000);
+    });
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+
+    // The failed query holds no data, so the next tick is stale and fetches
+    // again on its own. No retry logic is needed for a node hiccup.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(30_000);
+    });
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
+    await expectNoUnhandledRejection();
+  });
+
+  it("keeps a failed catch-up poll to itself when the reader comes back", async () => {
+    // The visibilitychange handler calls poll() directly, outside the
+    // interval, so it is a second way for the same rejection to escape.
+    fetchSpy.mockRejectedValue(rpcError());
+    renderFeed({ tag: "espanol-chat", filter: "hot" });
+    setVisibility("hidden");
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(5 * 60_000);
+    });
+    expect(fetchSpy).not.toHaveBeenCalled();
+
+    await act(async () => {
+      setVisibility("visible");
+      await vi.advanceTimersByTimeAsync(0);
+    });
+
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    await expectNoUnhandledRejection();
   });
 });
