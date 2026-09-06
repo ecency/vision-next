@@ -39,7 +39,7 @@ function ToggleChip({
       className={clsx(
         "!rounded-full !min-h-[36px]",
         on && "!bg-blue-dark-sky/10 !text-blue-dark-sky",
-        tone === "red" && on && "!bg-red-100 !text-red-800 dark:!bg-red-900/40 dark:!text-red-300"
+        tone === "red" && on && "!bg-red/10 !text-red-030 dark:!bg-red/20 dark:!text-red-light-020"
       )}
       onClick={onClick}
     >

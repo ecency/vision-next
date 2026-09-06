@@ -137,7 +137,7 @@ export const CurationQueueList = forwardRef<VirtuosoHandle, Props>(function Cura
             <div
               role="separator"
               aria-label={i18next.t("curation-desk.list.divider-aria")}
-              className="flex items-center gap-2 px-3 py-2 text-xs text-green-700 dark:text-green-400 border-b border-[--border-color] bg-green-50/60 dark:bg-green-900/20"
+              className="flex items-center gap-2 px-3 py-2 text-xs text-green-hover dark:text-green-030 border-b border-[--border-color] bg-green-040/60 dark:bg-green/20"
             >
               <UilCheck className="size-4" aria-hidden />
               <span className="flex-1">

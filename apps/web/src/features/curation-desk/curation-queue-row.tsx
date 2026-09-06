@@ -80,7 +80,7 @@ export const AuthorAgeChip = memo(function AuthorAgeChip({ authorCreated }: { au
   const now = useCurationTicker();
   const days = accountAgeDays(authorCreated, now);
   if (days == null) return null;
-  return <span className={clsx(days < 30 && "text-amber-600 dark:text-amber-400")}>{formatAge(days)}</span>;
+  return <span className={clsx(days < 30 && "text-orange dark:text-warning-default")}>{formatAge(days)}</span>;
 });
 
 function appLabel(app: string | null): string {
@@ -192,13 +192,13 @@ export const CurationQueueRow = memo(function CurationQueueRow(props: Props) {
       onDoubleClick={() => onOpen(row)}
       className={clsx(
         "group relative flex flex-wrap gap-x-3 gap-y-2 border-b border-[--border-color] px-4 py-4 sm:px-5 outline-none",
-        "hover:bg-gray-50 dark:hover:bg-dark-default/60 focus-visible:ring-2 focus-visible:ring-blue-dark-sky",
+        "hover:bg-gray-100 dark:hover:bg-dark-default/60 focus-visible:ring-2 focus-visible:ring-blue-dark-sky",
         isActive && "bg-blue-duck-egg/30 dark:bg-blue-dark-grey/40",
         reviewed && !curated && "opacity-60",
         belowCursor && !late && !resurfaced && "opacity-50",
-        curated && "border-l-4 border-l-green-500 opacity-70",
-        trailSent && !curated && "border-l-4 border-l-amber-400",
-        flagged && "border-l-4 border-l-red-500",
+        curated && "border-l-4 border-l-green opacity-70",
+        trailSent && !curated && "border-l-4 border-l-warning-default",
+        flagged && "border-l-4 border-l-red",
         collapsed && "md:min-h-0 py-1"
       )}
     >

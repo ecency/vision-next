@@ -57,8 +57,8 @@ function Tile({
       title={title}
       className={clsx(
         "flex min-w-0 flex-col gap-1 rounded-lg bg-gray-100 dark:bg-dark-default px-3 py-3",
-        tone === "amber" && "text-amber-700 dark:text-amber-400",
-        tone === "red" && "text-red-700 dark:text-red-400"
+        tone === "amber" && "text-orange dark:text-warning-default",
+        tone === "red" && "text-red-030 dark:text-red-light-020"
       )}
     >
       <span className="text-[10px] uppercase tracking-wide text-gray-500">{label}</span>
@@ -167,9 +167,9 @@ export const CurationHeader = memo(function CurationHeader({
               className={clsx(
                 "inline-flex items-center gap-2",
                 tone === "red"
-                  ? "text-red-600 dark:text-red-400"
+                  ? "text-red-030 dark:text-red-light-020"
                   : tone === "amber"
-                    ? "text-amber-600 dark:text-amber-400"
+                    ? "text-orange dark:text-warning-default"
                     : "text-gray-600 dark:text-gray-400"
               )}
             >
@@ -179,8 +179,8 @@ export const CurationHeader = memo(function CurationHeader({
                   tone === "green"
                     ? "bg-green"
                     : tone === "amber"
-                      ? "bg-amber-500"
-                      : "bg-red-500"
+                      ? "bg-warning-default"
+                      : "bg-red"
                 )}
                 aria-hidden
               />
@@ -210,7 +210,7 @@ export const CurationHeader = memo(function CurationHeader({
                 className={clsx(
                   "text-[11px]",
                   status.behind_seconds > 4 * 3600
-                    ? "text-amber-600 dark:text-amber-400"
+                    ? "text-orange dark:text-warning-default"
                     : "text-gray-500"
                 )}
               >
@@ -356,9 +356,9 @@ export const CurationHeader = memo(function CurationHeader({
               <div
                 className={clsx(
                   "h-full rounded-full",
-                  tone === "green" && "bg-green-500",
-                  tone === "amber" && "bg-amber-500",
-                  tone === "red" && "bg-red-500",
+                  tone === "green" && "bg-green",
+                  tone === "amber" && "bg-warning-default",
+                  tone === "red" && "bg-red",
                   tone === "gray" && "bg-gray-400"
                 )}
                 style={{ width: `${barPct}%` }}
@@ -392,13 +392,13 @@ export const CurationHeader = memo(function CurationHeader({
       </details>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-gray-500">
         {status?.worker_tick_age_seconds != null && status.worker_tick_age_seconds > 120 && (
-          <span className="mt-2 text-amber-600 dark:text-amber-400">
+          <span className="mt-2 text-orange dark:text-warning-default">
             {i18next.t("curation-desk.header.worker-stale")}
           </span>
         )}
         {livePaused && (
           <span
-            className="mt-2 inline-flex items-center gap-1 text-amber-600 dark:text-amber-400"
+            className="mt-2 inline-flex items-center gap-1 text-orange dark:text-warning-default"
             role="status"
           >
             <UilPauseCircle className="size-4" aria-hidden />

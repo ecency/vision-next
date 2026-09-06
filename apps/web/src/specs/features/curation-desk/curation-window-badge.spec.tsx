@@ -110,12 +110,12 @@ describe("author account age", () => {
   it("warns in amber for an account younger than 30 days", () => {
     renderRow(makeRow({ post_id: 5, author_created: new Date(Date.now() - 9 * 24 * HOUR).toISOString() }));
     const chip = screen.getByText("curation-desk.row.age-days");
-    expect(chip.className).toContain("text-amber-600");
+    expect(chip.className).toContain("text-orange");
   });
 
   it("stays neutral for an older account and renders nothing without author_created", () => {
     const { unmount } = renderRow(makeRow({ post_id: 6, author_created: new Date(Date.now() - 800 * 24 * HOUR).toISOString() }));
-    expect(screen.getByText("curation-desk.row.age-years").className).not.toContain("text-amber-600");
+    expect(screen.getByText("curation-desk.row.age-years").className).not.toContain("text-orange");
     unmount();
 
     renderRow(makeRow({ post_id: 7, author_created: null }));

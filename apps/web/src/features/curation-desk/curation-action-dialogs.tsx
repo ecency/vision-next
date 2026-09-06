@@ -74,7 +74,7 @@ export function FlagDialog({ title, onPick, onHide }: FlagProps) {
               key={value}
               className={clsx(
                 "flex items-center gap-2 rounded-xl border px-3 py-2 cursor-pointer text-sm",
-                reason === value ? "border-red-400 bg-red-50 dark:bg-red-900/20" : "border-[--border-color]"
+                reason === value ? "border-red bg-red/10 dark:bg-red/20" : "border-[--border-color]"
               )}
             >
               <input type="radio" name="curation-flag-reason" value={value} checked={reason === value} onChange={() => setReason(value)} />

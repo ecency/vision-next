@@ -414,7 +414,7 @@ export function CurationQueueView() {
       <div role="feed" aria-busy={feed.isFetching} aria-label={i18next.t("curation-desk.list.aria")} className="border-t border-[--border-color]">
         {feed.isLoading && <CurationQueueSkeleton />}
         {feed.isError && (
-          <p className="p-4 text-sm text-red-600 dark:text-red-400" role="alert">
+          <p className="p-4 text-sm text-red-030 dark:text-red-light-020" role="alert">
             {i18next.t("curation-desk.list.error")}
           </p>
         )}

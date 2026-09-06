@@ -15,6 +15,7 @@ import {
   makeRosterPage,
   makeRow,
   makeStatus,
+  NOW,
 } from "./curation-test-utils";
 
 const state = vi.hoisted(() => ({ username: undefined as string | undefined }));
@@ -94,6 +95,10 @@ describe("CurationQueueView", () => {
   let feedPage = makeFeedPage([makeRow({ post_id: 1 }), makeRow({ post_id: 2 })]);
 
   beforeEach(() => {
+    // Fixture ages are offsets from NOW; the desk reads the real clock, so the
+    // rows drift out of their window once wall time passes NOW + 24 h.
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.setSystemTime(NOW);
     state.username = undefined;
     vi.mocked(errorToast).mockClear();
     statusBody = makeStatus();

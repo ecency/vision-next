@@ -4,7 +4,7 @@ import { act, waitFor } from "@testing-library/react";
 import { QueryClient } from "@tanstack/react-query";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithQueryClient } from "@/specs/test-utils";
-import { installFetchRouter, iso, makeOverlay, makeRoster, makeRosterPage, makeRow, makeStatus } from "./curation-test-utils";
+import { installFetchRouter, iso, makeOverlay, makeRoster, makeRosterPage, makeRow, NOW, makeStatus } from "./curation-test-utils";
 import type { DeskRow } from "@/features/curation-desk/types";
 
 const seen = vi.hoisted(() => ({ rows: [] as Array<{ postId: number; row: object }> }));
@@ -77,6 +77,9 @@ describe("row identity across a tick", () => {
 
   beforeEach(() => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
+    // Fixture ages are offsets from NOW; the desk reads the real clock, so the
+    // rows drift out of their window once wall time passes NOW + 24 h.
+    vi.setSystemTime(NOW);
     seen.rows.length = 0;
     noteCuratorActivity();
     tickBody = {

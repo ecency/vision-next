@@ -4,7 +4,7 @@ import { act, fireEvent, renderHook, screen, waitFor } from "@testing-library/re
 import { QueryClient } from "@tanstack/react-query";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithQueryClient } from "@/specs/test-utils";
-import { installFetchRouter, makeFeedPage, makeOverlay, makeRoster, makeRosterPage, makeRow, makeStatus } from "./curation-test-utils";
+import { installFetchRouter, makeFeedPage, makeOverlay, makeRoster, makeRosterPage, makeRow, makeStatus, NOW } from "./curation-test-utils";
 
 const state = vi.hoisted(() => ({ username: undefined as string | undefined }));
 
@@ -166,6 +166,10 @@ describe("keyboard on the queue", () => {
   let router: ReturnType<typeof installFetchRouter>;
 
   beforeEach(() => {
+    // Fixture ages are offsets from NOW; the desk reads the real clock, so the
+    // rows drift out of their window once wall time passes NOW + 24 h.
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.setSystemTime(NOW);
     state.username = undefined;
     router = installFetchRouter()
       .on(/curation-desk\/status/, () => makeStatus())
@@ -176,7 +180,10 @@ describe("keyboard on the queue", () => {
       .on(/curation-desk\/tick/, () => ({ overlay: [], deltas: { marks: [], flags: [], signals: [] }, team_cursor: { post_id: null, created: null }, active_curators: [], trail_alerts: [], generated_at: "x", truncated: false }));
   });
 
-  afterEach(() => vi.unstubAllGlobals());
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.useRealTimers();
+  });
 
   it("j and k move aria-current across rows", async () => {
     renderWithQueryClient(<CurationQueueView />, { queryClient: client() });
