@@ -109,17 +109,22 @@ describe("author account age", () => {
 
   it("warns in amber for an account younger than 30 days", () => {
     renderRow(makeRow({ post_id: 5, author_created: new Date(Date.now() - 9 * 24 * HOUR).toISOString() }));
-    const chip = screen.getByText("curation-desk.row.age-days");
-    expect(chip.className).toContain("text-warning-ink");
+    expect(screen.getByText("curation-desk.row.new-account").className).toContain("text-warning-ink");
   });
 
-  it("stays neutral for an older account and renders nothing without author_created", () => {
+  it("says nothing for an established account or a missing creation date", () => {
     const { unmount } = renderRow(makeRow({ post_id: 6, author_created: new Date(Date.now() - 800 * 24 * HOUR).toISOString() }));
-    expect(screen.getByText("curation-desk.row.age-years").className).not.toContain("text-warning-ink");
+    expect(screen.queryByText("curation-desk.row.new-account")).toBeNull();
     unmount();
 
     renderRow(makeRow({ post_id: 7, author_created: null }));
-    expect(screen.queryByText("curation-desk.row.age-days")).toBeNull();
-    expect(screen.queryByText("curation-desk.row.age-years")).toBeNull();
+    expect(screen.queryByText("curation-desk.row.new-account")).toBeNull();
+  });
+
+  // The hover card on the author carries reputation and the joined date, so the
+  // byline no longer repeats them.
+  it("keeps reputation and plain account age out of the byline", () => {
+    renderRow(makeRow({ post_id: 8, rep: 73, author_created: new Date(Date.now() - 800 * 24 * HOUR).toISOString() }));
+    expect(screen.queryByText("curation-desk.row.rep")).toBeNull();
   });
 });

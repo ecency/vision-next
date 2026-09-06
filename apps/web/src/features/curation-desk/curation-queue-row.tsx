@@ -60,27 +60,26 @@ interface Props extends RowActions {
   scalePct: number;
 }
 
+const NEW_ACCOUNT_DAYS = 30;
+
 function accountAgeDays(authorCreated: string | null | undefined, now: number): number | null {
   const ms = parseChainDate(authorCreated);
   if (ms == null) return null;
   return Math.floor((now - ms) / 86_400_000);
 }
 
-function formatAge(days: number): string {
-  if (days >= 365) return i18next.t("curation-desk.row.age-years", { count: Math.floor(days / 365) });
-  if (days >= 30) return i18next.t("curation-desk.row.age-months", { count: Math.floor(days / 30) });
-  return i18next.t("curation-desk.row.age-days", { count: days });
-}
-
 /**
- * Account age of the author, amber under 30 days. Its own memo child on the
- * shared clock, so the day counter never re-renders the row around it.
+ * Warns only while the author's account is under 30 days old. The plain age of
+ * an established account is not shown here: the author hover card already
+ * carries reputation and the joined date, so the byline would just repeat it.
+ * Its own memo child on the shared clock, so the day counter never re-renders
+ * the row around it.
  */
-export const AuthorAgeChip = memo(function AuthorAgeChip({ authorCreated }: { authorCreated: string | null | undefined }) {
+export const NewAccountChip = memo(function NewAccountChip({ authorCreated }: { authorCreated: string | null | undefined }) {
   const now = useCurationTicker();
   const days = accountAgeDays(authorCreated, now);
-  if (days == null) return null;
-  return <span className={clsx(days < 30 && "text-warning-ink dark:text-warning-default")}>{formatAge(days)}</span>;
+  if (days == null || days >= NEW_ACCOUNT_DAYS) return null;
+  return <Chip tone="amber">{i18next.t("curation-desk.row.new-account")}</Chip>;
 });
 
 function appLabel(app: string | null): string {
@@ -242,8 +241,7 @@ export const CurationQueueRow = memo(function CurationQueueRow(props: Props) {
               <ProfilePopover entry={entryStub} />
             </span>
           </span>
-          {row.rep != null && <span>{i18next.t("curation-desk.row.rep", { rep: row.rep })}</span>}
-          <AuthorAgeChip authorCreated={row.author_created} />
+          <NewAccountChip authorCreated={row.author_created} />
           {row.is_new_author && (
             <Chip tone="green">{i18next.t("curation-desk.row.new-author", { n: row.author_post_count ?? 1 })}</Chip>
           )}
