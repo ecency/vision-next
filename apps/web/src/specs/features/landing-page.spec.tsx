@@ -126,6 +126,9 @@ describe("LandingHeroActions", () => {
       "href",
       "/signup?referral=ecency"
     );
+    // _base.scss recolours every hovered link to blue-dark-sky-active, the tone of this
+    // button's hover background; the explicit hover text colour is what keeps the label visible.
+    expect(screen.getByRole("link", { name: "landing-page.get-started" })).toHaveClass("hover:text-white");
     expect(screen.getByRole("link", { name: "landing-page.explore" })).toHaveAttribute(
       "href",
       "/hot"
