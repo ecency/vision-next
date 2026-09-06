@@ -218,9 +218,23 @@ export const CurationQueueRow = memo(function CurationQueueRow(props: Props) {
       </div>
 
       {!collapsed && (
-        <div className="hidden sm:block size-16 shrink-0 rounded-lg overflow-hidden bg-gray-200 dark:bg-dark-default">
+        <div className="relative hidden sm:block size-16 shrink-0 rounded-lg overflow-hidden bg-gray-200 dark:bg-dark-default">
           {thumb && (
             <img src={thumb} alt="" loading="lazy" decoding="async" className="size-16 object-cover" />
+          )}
+          {/* Source reads before the text does. The box renders even without a cover
+              image, so an image-less Ecency post keeps the mark; the byline carries it
+              instead wherever this box is not rendered at all (below sm, and collapsed).
+              Inset rather than overhanging: the parent clips to round the image. */}
+          {row.is_ecency && (
+            <span className="absolute bottom-0.5 right-0.5 flex size-[18px] items-center justify-center rounded-full bg-white/90 dark:bg-dark-200/90">
+              <EcencySourceBadge
+                app={row.app}
+                isEcency
+                size={12}
+                className="!text-blue-dark-sky dark:!text-blue-dark-sky-010"
+              />
+            </span>
           )}
         </div>
       )}
@@ -250,7 +264,8 @@ export const CurationQueueRow = memo(function CurationQueueRow(props: Props) {
           )}
           <span className="inline-flex items-center gap-1">
             {row.is_ecency ? (
-              <EcencySourceBadge app={row.app} size={12} />
+              // The thumbnail owns the mark wherever the thumbnail exists.
+              <EcencySourceBadge app={row.app} isEcency size={12} className={collapsed ? undefined : "sm:hidden"} />
             ) : (
               <span className="rounded bg-gray-100 dark:bg-dark-default px-1">{appLabel(row.app) || i18next.t("curation-desk.row.app-unknown")}</span>
             )}

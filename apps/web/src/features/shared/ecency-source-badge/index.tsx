@@ -9,6 +9,14 @@ interface Props {
    * `{ name }` object) or the flat `app` string returned by the search API.
    */
   app: string | { name?: string } | null | undefined;
+  /**
+   * Overrides the `app` sniff below when the caller already knows the source.
+   * The curation desk carries the indexer's own `is_ecency` on every row, so
+   * the published metadata does not have to agree for the mark to be right,
+   * and a caller that gates its own wrapper on that flag cannot end up drawing
+   * an empty frame around a badge that decided otherwise.
+   */
+  isEcency?: boolean;
   /** Rendered size in px (square). Defaults to 14. */
   size?: number;
   className?: string;
@@ -27,13 +35,13 @@ interface Props {
  * not carry equal weight. Inlined rather than next/image so the glyph inherits
  * currentColor and each surface can retone it via className.
  */
-export function EcencySourceBadge({ app, size = 14, className }: Props) {
+export function EcencySourceBadge({ app, isEcency, size = 14, className }: Props) {
   // Every Ecency client identifier starts with "ecency" (ecency/x.y-vision,
   // ecency-mobile, ecency.waves), so anchor the match to the start rather than a
   // loose substring that would also catch lookalikes like "notecency/...".
-  const isEcency = appName(app).toLowerCase().startsWith("ecency");
+  const fromEcency = isEcency ?? appName(app).toLowerCase().startsWith("ecency");
 
-  if (!isEcency) {
+  if (!fromEcency) {
     return null;
   }
 
