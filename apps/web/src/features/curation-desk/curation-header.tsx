@@ -77,7 +77,7 @@ function Tile({
  */
 export const CurationHeader = memo(function CurationHeader({
   status: liveStatus,
-  teamCursor,
+  teamCursor: liveTeamCursor,
   activeCurators,
   isRoster,
   livePaused,
@@ -85,9 +85,12 @@ export const CurationHeader = memo(function CurationHeader({
 }: Props) {
   // The tabs can populate the shared status cache before this streamed page
   // hydrates. Match the empty server shell until this header has mounted.
+  // `teamCursor` is gated too: the parent derives it from that same status
+  // cache (and from the live tick), so the Cursor tile mismatches without it.
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   const status = mounted ? liveStatus : undefined;
+  const teamCursor = mounted ? liveTeamCursor : undefined;
   const { account } = useActiveAccount();
   const vp = status?.vp;
   const mana = status?.mana_spent_today;

@@ -722,7 +722,17 @@ export function useQueueFilters(isRoster: boolean) {
   return { filters: resolved, params, update, reset, reshuffle, activeCount };
 }
 
-export function countActiveFilters(input: QueueFilters, isRoster: boolean): number {
+/**
+ * Single source of truth for "how many filters are on". `scope: "refine"`
+ * counts the refine panel only, leaving out the two chips that sit next to it
+ * in the bar, so the panel badge and the toolbar's Reset count can never
+ * disagree about what one filter is (a min/max word range is always one).
+ */
+export function countActiveFilters(
+  input: QueueFilters,
+  isRoster: boolean,
+  scope: "all" | "refine" = "all"
+): number {
   const filters = resolveFilters(input, isRoster);
   const defaults = resolveFilters(defaultQueueFilters(), isRoster);
   let n = 0;
@@ -736,7 +746,9 @@ export function countActiveFilters(input: QueueFilters, isRoster: boolean): numb
   if (filters.minWords != null || filters.maxWords != null) n++;
   if (filters.hasImages) n++;
   if (filters.repMin > 0 || filters.repMax < 100) n++;
-  if (filters.hideCurated !== defaults.hideCurated) n++;
-  if (isRoster && filters.unreviewedOnly !== defaults.unreviewedOnly) n++;
+  if (scope === "all") {
+    if (filters.hideCurated !== defaults.hideCurated) n++;
+    if (isRoster && filters.unreviewedOnly !== defaults.unreviewedOnly) n++;
+  }
   return n;
 }

@@ -294,6 +294,23 @@ describe("CurationQueueView", () => {
     expect(screen.queryByLabelText("curation-desk.filters.active-count")).not.toBeInTheDocument();
   });
 
+  it("counts a min/max word range once in the refine badge, as the shared tally does", async () => {
+    renderWithQueryClient(<CurationQueueView />, { queryClient: prodLikeClient() });
+    await screen.findAllByRole("article");
+    const summary = screen.getByText("curation-desk.filters.refine").closest("summary")!;
+    fireEvent.click(summary);
+    fireEvent.change(screen.getByLabelText("curation-desk.filters.words"), { target: { value: "300" } });
+    fireEvent.change(screen.getByLabelText("curation-desk.filters.words-max-label"), { target: { value: "1000" } });
+    await waitFor(() =>
+      expect(
+        fetchRouter.callsTo(/curation-desk\/feed/).some((call) => call.url.includes("max_words=1000"))
+      ).toBe(true)
+    );
+    // One range, one chip. The badge used to count min and max separately and
+    // read 2 while the toolbar's Reset tally, off the shared helper, read 1.
+    expect(screen.getByLabelText("curation-desk.filters.active-count")).toHaveTextContent("1");
+  });
+
   it("hydrates the overview when the tabs have already loaded status into the client cache", async () => {
     const queryClient = new QueryClient({ defaultOptions: { queries: { enabled: false } } });
     const header = (loaded: boolean) => (
@@ -310,6 +327,32 @@ describe("CurationQueueView", () => {
       await act(async () => { root = hydrateRoot(container, header(true), { onRecoverableError }); });
       expect(onRecoverableError).not.toHaveBeenCalled();
       expect(container).toHaveTextContent("curation-desk.header.curated-summary");
+    } finally {
+      await act(async () => root?.unmount());
+      container.remove();
+      queryClient.clear();
+    }
+  });
+
+  it("hydrates the cursor tile when the tabs have already loaded the cursor into the client cache", async () => {
+    const queryClient = new QueryClient({ defaultOptions: { queries: { enabled: false } } });
+    // The parent derives teamCursor from that same shared status cache, so the
+    // prop is null in the server shell and set by the time this hydrates.
+    const cursor = { post_id: 7, created: "2026-09-06T09:00:00" };
+    const header = (loaded: boolean) => (
+      <QueryClientProvider client={queryClient}>
+        <CurationHeader status={loaded ? makeStatus() : undefined} teamCursor={loaded ? cursor : null} activeCurators={[]} isRoster={false} livePaused={false} onHelp={() => {}} />
+      </QueryClientProvider>
+    );
+    const container = document.createElement("div");
+    container.innerHTML = renderToString(header(false));
+    document.body.appendChild(container);
+    const onRecoverableError = vi.fn();
+    let root: ReturnType<typeof hydrateRoot> | undefined;
+    try {
+      await act(async () => { root = hydrateRoot(container, header(true), { onRecoverableError }); });
+      expect(onRecoverableError).not.toHaveBeenCalled();
+      expect(container).toHaveTextContent("curation-desk.header.cursor-value");
     } finally {
       await act(async () => root?.unmount());
       container.remove();

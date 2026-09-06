@@ -7,6 +7,7 @@ import type { CurationApp, CurationWindow } from "@ecency/sdk";
 import { Button } from "@ui/button";
 import { FormControl } from "@ui/input";
 import { WORD_PRESETS } from "./consts";
+import { countActiveFilters } from "./hooks";
 import type { QueueFilters, ResolvedQueueFilters } from "./types";
 
 interface Props {
@@ -55,19 +56,8 @@ const WINDOWS: CurationWindow[] = ["all", "full", "half", "eighth", "locked"];
  * filtersToParams, never to a client-side row filter.
  */
 export function CurationSortFilterBar({ filters, isRoster, communities, onChange }: Props) {
-  const advancedCount = [
-    filters.app !== "all",
-    filters.community !== "",
-    filters.newAuthors,
-    filters.recommended,
-    isRoster && filters.flagged,
-    isRoster && filters.excluded,
-    filters.window !== "all",
-    filters.minWords != null,
-    filters.maxWords != null,
-    filters.hasImages,
-    filters.repMin !== 0 || filters.repMax !== 100
-  ].filter(Boolean).length;
+  // Same tally the toolbar's Reset button shows, minus the two chips above.
+  const advancedCount = countActiveFilters(filters, isRoster, "refine");
   return (
     <div
       className="flex flex-wrap items-start gap-3 px-4 pb-4 sm:px-5 text-xs"

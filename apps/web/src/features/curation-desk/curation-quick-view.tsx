@@ -228,10 +228,6 @@ export function CurationQuickView({
               {row.word_count != null && <span>{i18next.t("curation-desk.row.words", { count: row.word_count })}</span>}
               <span>{dateToRelative(row.created)}</span>
               <CurationWindowBadge created={row.created} payoutAt={row.payout_at} />
-              <a href={href} target="_blank" rel="noopener" className="inline-flex items-center gap-1 text-blue-dark-sky hover:underline">
-                {i18next.t("curation-desk.quick-view.open")}
-                <UilExternalLinkAlt className="size-3.5" aria-hidden />
-              </a>
             </div>
             {viewer.isRoster && overlay?.signals && (
               <p className="text-[11px] text-gray-500 mt-1">{i18next.t("curation-desk.quick-view.signals-hint")}</p>
@@ -421,7 +417,7 @@ export function CurationQuickView({
           {recommendationsEnabled && !recommendClosed && (!isOwn || mine?.is_self) && (
             <CurationRecommendBtn ref={recommendRef} author={row.author} permlink={row.permlink} alreadyRecommended={!!mine} />
           )}
-          <Button size="sm" appearance="gray-link" className={clsx("!rounded-lg ml-auto")} href={href} target="_blank" rel="noopener" aria-label={i18next.t("curation-desk.actions.open")} title="Shift+O" icon={<UilExternalLinkAlt />}>
+          <Button size="sm" appearance="gray-link" className={clsx("!rounded-lg ml-auto")} href={href} target="_blank" rel="noopener" aria-label={i18next.t("curation-desk.actions.open")} title={i18next.t("curation-desk.actions.open-key")} icon={<UilExternalLinkAlt />}>
             {i18next.t("curation-desk.actions.open")}
           </Button>
         </div>

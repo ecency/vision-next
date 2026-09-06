@@ -13,7 +13,7 @@ vi.mock("@/core/hooks/use-active-username", () => ({ useActiveUsername: () => "c
 
 import { getCurationFeedInfiniteQueryOptions } from "@ecency/sdk";
 import { buildQueueDisplay } from "@/features/curation-desk/curation-queue-display";
-import { defaultQueueFilters, filtersToParams, rosterFeedQueryOptions, useQueueFilters } from "@/features/curation-desk/hooks";
+import { countActiveFilters, defaultQueueFilters, filtersToParams, rosterFeedQueryOptions, useQueueFilters } from "@/features/curation-desk/hooks";
 import type { QueueFilters } from "@/features/curation-desk/types";
 
 const hash = (key: unknown) => JSON.stringify(key);
@@ -46,6 +46,20 @@ describe("sort and filter chips", () => {
     const base = rosterFeedQueryOptions("curator1", filtersToParams(defaultQueueFilters(), true)).queryKey;
     const changed = rosterFeedQueryOptions("curator1", filtersToParams({ ...defaultQueueFilters(), ...patch }, true)).queryKey;
     expect(hash(changed)).not.toBe(hash(base));
+  });
+
+  it("counts a min/max word range once, in the refine panel badge and in the Reset tally alike", () => {
+    const filters = { ...defaultQueueFilters(), minWords: 600, maxWords: 1200, community: "hive-125125" };
+    // The panel badge and the toolbar's Reset count must never disagree about
+    // what one filter is; the range is a single chip in both.
+    expect(countActiveFilters(filters, true, "refine")).toBe(2);
+    expect(countActiveFilters(filters, true)).toBe(2);
+  });
+
+  it("leaves the two bar chips out of the refine-panel tally and keeps them in the full one", () => {
+    const filters = { ...defaultQueueFilters(), hideCurated: !defaultQueueFilters().hideCurated, unreviewedOnly: false, app: "peakd" as const };
+    expect(countActiveFilters(filters, true, "refine")).toBe(1);
+    expect(countActiveFilters(filters, true)).toBe(3);
   });
 
   it("public filters ride on the public feed key and roster-only chips are dropped there", () => {

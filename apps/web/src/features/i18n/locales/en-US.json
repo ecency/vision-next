@@ -4618,8 +4618,8 @@
       "note": "Note",
       "note-key": "Note (n)",
       "note-trial": "Note (n). Trial curators see their own notes only.",
-      "open": "Open on Ecency",
-      "open-key": "Open on Ecency (Shift+O)"
+      "open": "Open post",
+      "open-key": "Open post (Shift+O)"
     },
     "snooze": {
       "title": "Snooze until",
@@ -4683,14 +4683,13 @@
       "flag": "Flag",
       "note": "Note",
       "recommend": "Recommend to curators (withdraw when already recommended)",
-      "open": "Open on Ecency in a new tab",
+      "open": "Open the post in a new tab",
       "help": "This sheet"
     },
     "quick-view": {
       "aria": "Post quick view",
       "prev": "Previous post (k)",
       "next": "Next post (j)",
-      "open": "Open on Ecency",
       "posts": "{{count}} posts",
       "signals-hint": "Numbers prompt a read, they never decide.",
       "not-found": "This post could not be loaded from the chain.",

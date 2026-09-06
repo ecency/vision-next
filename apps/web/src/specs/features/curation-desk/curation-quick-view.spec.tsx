@@ -125,6 +125,16 @@ describe("CurationQuickView", () => {
     vi.useRealTimers();
   });
 
+  it("offers exactly one link out to the post, in the action bar", async () => {
+    renderDrawer({ row });
+    await screen.findByTestId("renderer");
+    const links = screen
+      .getAllByRole("link")
+      .filter((el) => el.getAttribute("href") === "/@alice/morning-light");
+    expect(links).toHaveLength(1);
+    expect(links[0]).toHaveTextContent("curation-desk.actions.open");
+  });
+
   it("fetches the entry once on expand and hands its body to PostContentRenderer", async () => {
     renderDrawer({ row });
     await screen.findByTestId("renderer");
