@@ -1,5 +1,9 @@
 name: Staging CI/CD
 on:
+  # A manual run: the same jobs as a push, for a missed push event or a redeploy
+  # without a commit. Every job is gated on this branch (develop), so a dispatch from
+  # any other ref, the default branch included, builds and deploys nothing.
+  workflow_dispatch:
   push:
     branches:
       - develop
@@ -16,6 +20,9 @@ permissions:
   contents: read
 jobs:
   tests:
+    # Every job, whatever the trigger: a manual run from any other ref must do nothing,
+    # or a dispatch from the default branch would build it and ship it here.
+    if: github.ref == 'refs/heads/develop'
     # Build phase cancels: superseded test/build work is wasted spend, and only the newest
     # commit on the branch is worth building. Shares one group with the build job below —
     # they are sequential, so they never contend within a run.
@@ -58,6 +65,9 @@ jobs:
       env:
         CI: true
   build:
+    # Every job, whatever the trigger: a manual run from any other ref must do nothing,
+    # or a dispatch from the default branch would build it and ship it here.
+    if: github.ref == 'refs/heads/develop'
     concurrency:
       group: ${{ github.workflow }}-build-${{ github.ref }}
       cancel-in-progress: true
@@ -109,6 +119,9 @@ jobs:
         run: echo ${{ steps.docker_build.outputs.digest }}
 
   deploy:
+    # Every job, whatever the trigger: a manual run from any other ref must do nothing,
+    # or a dispatch from the default branch would build it and ship it here.
+    if: github.ref == 'refs/heads/develop'
     # Deploy queues rather than cancels. Concurrency is declared per job so the expensive
     # build phase can still be cancelled: an in-flight SSH/compose run is never interrupted
     # part-way, which would leave the host partially updated with nothing guaranteed to
@@ -142,6 +155,7 @@ jobs:
         SEO_CRON_SECRET: ${{secrets.SEO_CRON_SECRET}}
         TURNSTILE_SECRET: ${{secrets.TURNSTILE_SECRET}}
         SSR_INTERNAL_SECRET: ${{secrets.SSR_INTERNAL_SECRET}}
+        DESK_INTERNAL_TOKEN: ${{secrets.DESK_INTERNAL_TOKEN}}
         # Newsletter service (ecency/news) lives on the EU production box; staging reaches
         # it through the IP-allowlisted TLS relay on the EU origin, same as US, with its own
         # URL secret. There is one service and one database, so subscriptions made on alpha
@@ -153,7 +167,7 @@ jobs:
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        envs: USE_PRIVATE,PRIVATE_API_ADDR,PRIVATE_API_AUTH,HIVESIGNER_SECRET,SEARCH_API_ADDR,SEARCH_API_SECRET,STRIPE_INTERNAL_SECRET,HOSTING_INTERNAL_SECRET,HIVESEARCHER_ORIGIN_IP,PLAUSIBLE_API_KEY,BLOCKSTREAM_CLIENT_ID,BLOCKSTREAM_CLIENT_SECRET,MATTERMOST_TEAM_ID,MATTERMOST_ADMIN_TOKEN,MATTERMOST_BASE_URL,MATTERMOST_WS_ALLOWED_ORIGINS,THREESPEAK_EMBED_API_KEY,SEO_CRON_SECRET,TURNSTILE_SECRET,NEWSLETTER_API_URL,NEWSLETTER_SERVICE_TOKEN,SSR_INTERNAL_SECRET
+        envs: USE_PRIVATE,PRIVATE_API_ADDR,PRIVATE_API_AUTH,HIVESIGNER_SECRET,SEARCH_API_ADDR,SEARCH_API_SECRET,STRIPE_INTERNAL_SECRET,HOSTING_INTERNAL_SECRET,HIVESEARCHER_ORIGIN_IP,PLAUSIBLE_API_KEY,BLOCKSTREAM_CLIENT_ID,BLOCKSTREAM_CLIENT_SECRET,MATTERMOST_TEAM_ID,MATTERMOST_ADMIN_TOKEN,MATTERMOST_BASE_URL,MATTERMOST_WS_ALLOWED_ORIGINS,THREESPEAK_EMBED_API_KEY,SEO_CRON_SECRET,TURNSTILE_SECRET,NEWSLETTER_API_URL,NEWSLETTER_SERVICE_TOKEN,SSR_INTERNAL_SECRET,DESK_INTERNAL_TOKEN
         script: |
           export USE_PRIVATE=$USE_PRIVATE
           export PRIVATE_API_ADDR=$PRIVATE_API_ADDR
@@ -171,6 +185,7 @@ jobs:
           export SEO_CRON_SECRET=$SEO_CRON_SECRET
           export TURNSTILE_SECRET=$TURNSTILE_SECRET
           export SSR_INTERNAL_SECRET=$SSR_INTERNAL_SECRET
+          export DESK_INTERNAL_TOKEN=$DESK_INTERNAL_TOKEN
           # Unlike production this does not fail without the newsletter settings: staging may run
           # without the feature. It says so, because the web hides the controls silently otherwise.
           if [ -z "$NEWSLETTER_API_URL" ] || [ -z "$NEWSLETTER_SERVICE_TOKEN" ]; then

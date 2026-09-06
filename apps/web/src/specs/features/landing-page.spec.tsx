@@ -116,23 +116,23 @@ describe("LandingHeroActions", () => {
     expect(screen.getByText("landing-page.get-started")).toBeInTheDocument();
   });
 
-  it("renders accessible scroll button", () => {
+  it("links directly to trending without requiring JavaScript", () => {
     render(<LandingHeroActions />);
-    const scrollBtn = screen.getByRole("button", { name: "landing-page.scroll-down" });
-    expect(scrollBtn).toBeInTheDocument();
-    expect(scrollBtn).toHaveClass("scroll-down");
-  });
-
-  it("smooth-scrolls down on click", () => {
-    const scrollBySpy = vi.spyOn(window, "scrollBy").mockImplementation(() => {});
-
-    render(<LandingHeroActions />);
-    fireEvent.click(screen.getByRole("button", { name: "landing-page.scroll-down" }));
-    expect(scrollBySpy).toHaveBeenCalledWith(
-      expect.objectContaining({ behavior: "smooth" })
+    expect(screen.getByRole("link", { name: "landing-page.trending-now" })).toHaveAttribute(
+      "href",
+      "#trending"
     );
-
-    scrollBySpy.mockRestore();
+    expect(screen.getByRole("link", { name: "landing-page.get-started" })).toHaveAttribute(
+      "href",
+      "/signup?referral=ecency"
+    );
+    // _base.scss recolours every hovered link to blue-dark-sky-active, the tone of this
+    // button's hover background; the explicit hover text colour is what keeps the label visible.
+    expect(screen.getByRole("link", { name: "landing-page.get-started" })).toHaveClass("hover:text-white");
+    expect(screen.getByRole("link", { name: "landing-page.explore" })).toHaveAttribute(
+      "href",
+      "/hot"
+    );
   });
 });
 

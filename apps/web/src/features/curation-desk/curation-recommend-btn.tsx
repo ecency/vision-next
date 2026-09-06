@@ -1,0 +1,298 @@
+"use client";
+
+import { forwardRef, useCallback, useImperativeHandle, useState } from "react";
+import clsx from "clsx";
+import i18next from "i18next";
+import { UilAward, UilSpinner } from "@tooni/iconscout-unicons-react";
+import { CURATION_REASONS, type CurationReason } from "@ecency/sdk";
+import { Button } from "@ui/button";
+import { Modal, ModalBody, ModalFooter, ModalHeader, ModalTitle } from "@ui/modal";
+import { LoginRequired } from "@/features/shared/login-required";
+import { error as errorToast, success } from "@/features/shared/feedback";
+import { formatError } from "@/api/format-error";
+import { useRecommendFlow } from "./curation-recommend-flow";
+import { RecommenderScorecard } from "./curation-recommender";
+import type { RecommendState } from "./types";
+
+interface ReasonPickerProps {
+  show: boolean;
+  onHide: () => void;
+  onPick: (reason: CurationReason) => void | Promise<void>;
+  busy?: boolean;
+  /** The viewer, so their own scorecard sits under the reasons. */
+  username?: string;
+}
+
+/**
+ * Reason picker: quality, underrated, newcomer, other. Defaults to quality.
+ * A logged-in viewer sees their own 90-day record here, which is the one
+ * place the incentive is stated before the broadcast rather than after it.
+ */
+export function CurationReasonPicker({ show, onHide, onPick, busy, username }: ReasonPickerProps) {
+  const [reason, setReason] = useState<CurationReason>("quality");
+  return (
+    <Modal show={show} onHide={onHide} centered size="sm">
+      <ModalHeader closeButton>
+        <ModalTitle>{i18next.t("curation-desk.recommend.title")}</ModalTitle>
+      </ModalHeader>
+      <ModalBody>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{i18next.t("curation-desk.recommend.intro")}</p>
+        <div role="radiogroup" aria-label={i18next.t("curation-desk.recommend.reason-label")} className="flex flex-col gap-2">
+          {CURATION_REASONS.map((value) => (
+            <label
+              key={value}
+              className={clsx(
+                "flex items-center gap-2 rounded-xl border px-3 py-2 cursor-pointer",
+                reason === value
+                  ? "border-blue-dark-sky bg-blue-duck-egg/40 dark:bg-blue-dark-grey"
+                  : "border-[--border-color]"
+              )}
+            >
+              <input
+                type="radio"
+                name="curation-recommend-reason"
+                value={value}
+                checked={reason === value}
+                onChange={() => setReason(value)}
+              />
+              <span className="text-sm">{i18next.t(`curation-desk.reasons.${value}`)}</span>
+            </label>
+          ))}
+        </div>
+        <p className="text-xs text-gray-500 mt-3">{i18next.t("curation-desk.recommend.cost")}</p>
+        {username && (
+          <div className="mt-3 rounded-xl border border-[--border-color] p-2">
+            <RecommenderScorecard username={username} own />
+          </div>
+        )}
+      </ModalBody>
+      <ModalFooter className="flex justify-end gap-2">
+        <Button appearance="gray-link" onClick={onHide} aria-label={i18next.t("g.cancel")}>
+          {i18next.t("g.cancel")}
+        </Button>
+        <Button
+          onClick={() => void onPick(reason)}
+          disabled={busy}
+          isLoading={busy}
+          aria-label={i18next.t("curation-desk.recommend.confirm")}
+        >
+          {i18next.t("curation-desk.recommend.confirm")}
+        </Button>
+      </ModalFooter>
+    </Modal>
+  );
+}
+
+/**
+ * Busy covers a broadcast in flight AND a withdrawal the chain has not shown
+ * yet: while that is confirming, a second Withdraw would broadcast a second
+ * `unrecommend` for a row the chain no longer has.
+ */
+/**
+ * Busy while THIS recommendation's broadcast is in flight. The state is the
+ * only input: `run` sets "pending" synchronously before the broadcast, and it
+ * is keyed by viewer and post, whereas the mutation observer's `isPending`
+ * belongs to the button instance, which the quick view keeps mounted across
+ * rows (a signer holding post A's promise would disable post B's button). A
+ * withdrawal parked in "confirming" is not busy: its Withdraw asks route 5
+ * again and either settles the state or sends a withdrawal the chain still
+ * needs.
+ */
+export function recommendBusy(state: RecommendState): boolean {
+  return state.phase === "pending";
+}
+
+export function recommendLabel(state: RecommendState, isSelf: boolean): string {
+  if (state.phase === "pending") {
+    return i18next.t(state.withdraw ? "curation-desk.recommend.withdrawing" : "curation-desk.recommend.sending");
+  }
+  if (state.phase === "recommended") return i18next.t("curation-desk.recommend.recommended");
+  if (state.phase === "confirming") return i18next.t("curation-desk.recommend.confirming");
+  if (isSelf) return i18next.t("curation-desk.recommend.recommended");
+  return i18next.t("curation-desk.recommend.action");
+}
+
+interface Props {
+  author: string;
+  permlink: string;
+  /** Route 5 already told us the viewer recommended this post (or the is_self row). */
+  alreadyRecommended?: boolean;
+  /** Hidden on the viewer's own posts unless an is_self row exists. */
+  hidden?: boolean;
+  compact?: boolean;
+  className?: string;
+}
+
+export interface CurationRecommendHandle {
+  /** The keyboard `x` binding: recommend (reason picker) or withdraw when already recommended. */
+  trigger: () => void;
+}
+
+/**
+ * Recommend to curators / Withdraw. On-chain custom_json with posting
+ * authority; optimistic state, poll and meta ping in curation-recommend-flow.
+ */
+export const CurationRecommendBtn = forwardRef<CurationRecommendHandle, Props>(function CurationRecommendBtn(
+  { author, permlink, alreadyRecommended, hidden, compact, className },
+  ref
+) {
+  const { state, recommend, withdraw, username } = useRecommendFlow(author, permlink);
+  const [picker, setPicker] = useState(false);
+  const busy = recommendBusy(state);
+
+  const showsWithdraw =
+    state.phase === "recommended" ||
+    state.phase === "confirming" ||
+    (state.phase === "idle" && !!alreadyRecommended);
+
+  const onWithdraw = useCallback(async () => {
+    try {
+      // A duplicate trigger while a withdrawal is in flight does nothing, and
+      // says nothing.
+      if (await withdraw()) success(i18next.t("curation-desk.recommend.withdrawn-toast"));
+    } catch (e) {
+      errorToast(...formatError(e));
+    }
+  }, [withdraw]);
+
+  const onPick = useCallback(
+    async (reason: CurationReason) => {
+      setPicker(false);
+      try {
+        await recommend(reason);
+        success(i18next.t("curation-desk.recommend.sent-toast"));
+      } catch (e) {
+        const message = String((e as Error)?.message ?? "");
+        if (/RC|resource credit|mana/i.test(message)) {
+          errorToast(i18next.t("curation-desk.recommend.rc-error"));
+        } else {
+          errorToast(...formatError(e));
+        }
+      }
+    },
+    [recommend]
+  );
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      // Same rule as the button: nothing opens or goes out while this
+      // recommendation's own broadcast is in flight (a pending withdrawal
+      // must not open the reason picker).
+      trigger: () => {
+        if (hidden || busy) return;
+        if (showsWithdraw) void onWithdraw();
+        else setPicker(true);
+      },
+    }),
+    [hidden, busy, showsWithdraw, onWithdraw]
+  );
+
+  if (hidden) return null;
+
+  const label = recommendLabel(state, !!alreadyRecommended);
+
+  return (
+    <>
+      <LoginRequired promptOnAnon>
+        <Button
+          size={compact ? "xs" : "sm"}
+          appearance={showsWithdraw ? "pressed" : "gray-link"}
+          className={clsx("!rounded-lg", className)}
+          disabled={busy}
+          aria-label={showsWithdraw ? i18next.t("curation-desk.recommend.withdraw-aria") : i18next.t("curation-desk.recommend.aria")}
+          title={showsWithdraw ? i18next.t("curation-desk.recommend.withdraw") : i18next.t("curation-desk.recommend.action")}
+          onClick={() => (showsWithdraw ? void onWithdraw() : setPicker(true))}
+          icon={busy ? <UilSpinner className="animate-spin" /> : <UilAward />}
+        >
+          <span className={compact ? "sr-only md:not-sr-only" : undefined}>
+            {label}
+            {showsWithdraw ? ` · ${i18next.t("curation-desk.recommend.withdraw")}` : ""}
+          </span>
+        </Button>
+      </LoginRequired>
+      {picker && (
+        <CurationReasonPicker
+          show={picker}
+          onHide={() => setPicker(false)}
+          onPick={onPick}
+          busy={busy}
+          username={username}
+        />
+      )}
+    </>
+  );
+});
+
+interface DialogProps {
+  author: string;
+  permlink: string;
+  onHide: () => void;
+}
+
+/**
+ * Entry menu entry point: the same reason picker over the same flow, unless
+ * this viewer already recommended the post. The menu is a second surface onto
+ * one flow state, so it reads that state instead of offering a picker whose
+ * every confirmation is another identical broadcast.
+ */
+export function CurationRecommendDialog({ author, permlink, onHide }: DialogProps) {
+  const { state, recommend, withdraw, username } = useRecommendFlow(author, permlink);
+  const alreadySent =
+    state.phase === "pending" || state.phase === "recommended" || state.phase === "confirming";
+  const busy = recommendBusy(state);
+
+  const onPick = useCallback(
+    async (reason: CurationReason) => {
+      try {
+        await recommend(reason);
+        success(i18next.t("curation-desk.recommend.sent-toast"));
+      } catch (e) {
+        errorToast(...formatError(e));
+      } finally {
+        onHide();
+      }
+    },
+    [recommend, onHide]
+  );
+
+  const onWithdraw = useCallback(async () => {
+    try {
+      if (await withdraw()) success(i18next.t("curation-desk.recommend.withdrawn-toast"));
+    } catch (e) {
+      errorToast(...formatError(e));
+    } finally {
+      onHide();
+    }
+  }, [withdraw, onHide]);
+
+  if (alreadySent) {
+    return (
+      <Modal show onHide={onHide} centered size="sm">
+        <ModalHeader closeButton>
+          <ModalTitle>{i18next.t("curation-desk.recommend.already-title")}</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {i18next.t("curation-desk.recommend.already-body")}
+          </p>
+        </ModalBody>
+        <ModalFooter className="flex justify-end gap-2">
+          <Button appearance="gray-link" onClick={onHide} aria-label={i18next.t("g.cancel")}>
+            {i18next.t("g.cancel")}
+          </Button>
+          <Button
+            onClick={() => void onWithdraw()}
+            disabled={busy}
+            isLoading={busy}
+            aria-label={i18next.t("curation-desk.recommend.withdraw-aria")}
+          >
+            {i18next.t("curation-desk.recommend.withdraw")}
+          </Button>
+        </ModalFooter>
+      </Modal>
+    );
+  }
+
+  return <CurationReasonPicker show onHide={onHide} onPick={onPick} busy={busy} username={username} />;
+}

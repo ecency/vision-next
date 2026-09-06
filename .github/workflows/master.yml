@@ -1,5 +1,9 @@
 name: Master CI/CD
 on:
+  # A manual run: the same jobs as a push, for a missed push event or a redeploy
+  # without a commit. Every job is gated on this branch (main), so a dispatch from
+  # any other ref, the default branch included, builds and deploys nothing.
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -15,6 +19,9 @@ permissions:
   contents: read
 jobs:
   tests:
+    # Every job, whatever the trigger: a manual run from any other ref must do nothing,
+    # or a dispatch from the default branch would build it and ship it here.
+    if: github.ref == 'refs/heads/main'
     # Build phase cancels; see the deploy jobs below for why deploys do not.
     concurrency:
       group: ${{ github.workflow }}-build-${{ github.ref }}
@@ -55,6 +62,9 @@ jobs:
       env:
         CI: true
   build:
+    # Every job, whatever the trigger: a manual run from any other ref must do nothing,
+    # or a dispatch from the default branch would build it and ship it here.
+    if: github.ref == 'refs/heads/main'
     concurrency:
       group: ${{ github.workflow }}-build-${{ github.ref }}
       cancel-in-progress: true
@@ -109,6 +119,9 @@ jobs:
         run: echo ${{ steps.docker_build.outputs.digest }}
 
   deploy-EU:
+    # Every job, whatever the trigger: a manual run from any other ref must do nothing,
+    # or a dispatch from the default branch would build it and ship it here.
+    if: github.ref == 'refs/heads/main'
     # Production deploy queues rather than cancels: interrupting an SSH/compose run leaves
     # the host partially updated, and if the superseding run fails before its own deploy,
     # nothing re-applies it. Keyed per region so EU and US do not block each other.
@@ -143,12 +156,13 @@ jobs:
         SEO_CRON_SECRET: ${{secrets.SEO_CRON_SECRET}}
         TURNSTILE_SECRET: ${{secrets.TURNSTILE_SECRET}}
         SSR_INTERNAL_SECRET: ${{secrets.SSR_INTERNAL_SECRET}}
+        DESK_INTERNAL_TOKEN: ${{secrets.DESK_INTERNAL_TOKEN}}
       with:
         host: ${{ secrets.SSH_HOST_EU }}
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        envs: USE_PRIVATE,PRIVATE_API_ADDR,PRIVATE_API_AUTH,HIVESIGNER_SECRET,SEARCH_API_ADDR,SEARCH_API_SECRET,STRIPE_INTERNAL_SECRET,HOSTING_INTERNAL_SECRET,HIVESEARCHER_ORIGIN_IP,PLAUSIBLE_API_KEY,BLOCKSTREAM_CLIENT_ID,BLOCKSTREAM_CLIENT_SECRET,MATTERMOST_TEAM_ID,MATTERMOST_ADMIN_TOKEN,MATTERMOST_BASE_URL,MATTERMOST_WS_ALLOWED_ORIGINS,THREESPEAK_EMBED_API_KEY,SEO_CRON_SECRET,TURNSTILE_SECRET,NEWSLETTER_API_URL,NEWSLETTER_SERVICE_TOKEN,SSR_INTERNAL_SECRET
+        envs: USE_PRIVATE,PRIVATE_API_ADDR,PRIVATE_API_AUTH,HIVESIGNER_SECRET,SEARCH_API_ADDR,SEARCH_API_SECRET,STRIPE_INTERNAL_SECRET,HOSTING_INTERNAL_SECRET,HIVESEARCHER_ORIGIN_IP,PLAUSIBLE_API_KEY,BLOCKSTREAM_CLIENT_ID,BLOCKSTREAM_CLIENT_SECRET,MATTERMOST_TEAM_ID,MATTERMOST_ADMIN_TOKEN,MATTERMOST_BASE_URL,MATTERMOST_WS_ALLOWED_ORIGINS,THREESPEAK_EMBED_API_KEY,SEO_CRON_SECRET,TURNSTILE_SECRET,NEWSLETTER_API_URL,NEWSLETTER_SERVICE_TOKEN,SSR_INTERNAL_SECRET,DESK_INTERNAL_TOKEN
         script: |
           set -eo pipefail
           export USE_PRIVATE=$USE_PRIVATE
@@ -173,6 +187,7 @@ jobs:
           export SEO_CRON_SECRET=$SEO_CRON_SECRET
           export TURNSTILE_SECRET=$TURNSTILE_SECRET
           export SSR_INTERNAL_SECRET=$SSR_INTERNAL_SECRET
+          export DESK_INTERNAL_TOKEN=$DESK_INTERNAL_TOKEN
           # The web sizing knobs default in compose, so `docker-compose config`
           # would otherwise read whatever the HOST happens to have exported and
           # this region's memory profile could change with no commit behind it.
@@ -219,6 +234,9 @@ jobs:
           docker system prune -f
 
   deploy-US:
+    # Every job, whatever the trigger: a manual run from any other ref must do nothing,
+    # or a dispatch from the default branch would build it and ship it here.
+    if: github.ref == 'refs/heads/main'
     concurrency:
       group: ${{ github.workflow }}-deploy-US-${{ github.ref }}
       cancel-in-progress: false
@@ -248,6 +266,7 @@ jobs:
         SEO_CRON_SECRET: ${{secrets.SEO_CRON_SECRET}}
         TURNSTILE_SECRET: ${{secrets.TURNSTILE_SECRET}}
         SSR_INTERNAL_SECRET: ${{secrets.SSR_INTERNAL_SECRET}}
+        DESK_INTERNAL_TOKEN: ${{secrets.DESK_INTERNAL_TOKEN}}
         # Newsletter service lives on the EU box; the US tier reaches it through the TLS relay
         # on the EU origin (api.blogs.ecency.com/newsletter-relay, IP-allowlisted), so this
         # region's URL is its own secret. Same token.
@@ -281,7 +300,7 @@ jobs:
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        envs: USE_PRIVATE,PRIVATE_API_ADDR,PRIVATE_API_AUTH,HIVESIGNER_SECRET,SEARCH_API_ADDR,SEARCH_API_SECRET,STRIPE_INTERNAL_SECRET,HOSTING_INTERNAL_SECRET,HIVESEARCHER_ORIGIN_IP,PLAUSIBLE_API_KEY,BLOCKSTREAM_CLIENT_ID,BLOCKSTREAM_CLIENT_SECRET,MATTERMOST_TEAM_ID,MATTERMOST_ADMIN_TOKEN,MATTERMOST_BASE_URL,MATTERMOST_WS_ALLOWED_ORIGINS,THREESPEAK_EMBED_API_KEY,SEO_CRON_SECRET,TURNSTILE_SECRET,NEWSLETTER_API_URL,NEWSLETTER_SERVICE_TOKEN,WEB_REPLICAS,WEB_HEAP_MB,WEB_MEM_LIMIT,WEB_UPDATE_ORDER,SSR_INTERNAL_SECRET
+        envs: USE_PRIVATE,PRIVATE_API_ADDR,PRIVATE_API_AUTH,HIVESIGNER_SECRET,SEARCH_API_ADDR,SEARCH_API_SECRET,STRIPE_INTERNAL_SECRET,HOSTING_INTERNAL_SECRET,HIVESEARCHER_ORIGIN_IP,PLAUSIBLE_API_KEY,BLOCKSTREAM_CLIENT_ID,BLOCKSTREAM_CLIENT_SECRET,MATTERMOST_TEAM_ID,MATTERMOST_ADMIN_TOKEN,MATTERMOST_BASE_URL,MATTERMOST_WS_ALLOWED_ORIGINS,THREESPEAK_EMBED_API_KEY,SEO_CRON_SECRET,TURNSTILE_SECRET,NEWSLETTER_API_URL,NEWSLETTER_SERVICE_TOKEN,WEB_REPLICAS,WEB_HEAP_MB,WEB_MEM_LIMIT,WEB_UPDATE_ORDER,SSR_INTERNAL_SECRET,DESK_INTERNAL_TOKEN
         script: |
           set -eo pipefail
           export USE_PRIVATE=$USE_PRIVATE
@@ -300,6 +319,7 @@ jobs:
           export SEO_CRON_SECRET=$SEO_CRON_SECRET
           export TURNSTILE_SECRET=$TURNSTILE_SECRET
           export SSR_INTERNAL_SECRET=$SSR_INTERNAL_SECRET
+          export DESK_INTERNAL_TOKEN=$DESK_INTERNAL_TOKEN
           # The web tier decides per request whether the newsletter service is configured, so a
           # missing secret would ship a silent no-show. Fail loudly instead.
           : "${NEWSLETTER_API_URL:?NEWSLETTER_API_URL is required for the US deploy}"

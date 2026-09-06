@@ -641,6 +641,35 @@ export const QueryKeys = {
   },
 
   // ===========================================================================
+  // Curation desk
+  // ===========================================================================
+  curation: {
+    /** Public feed; `params` is the normalized (defaults dropped) param map. */
+    feed: (params: Record<string, string> = {}) => ["curation", "feed", params],
+    /** Authed roster feed; every sort and filter value is on the key. */
+    rosterFeed: (username: string | undefined, params: Record<string, string> = {}) => [
+      "curation",
+      "roster-feed",
+      username,
+      params,
+    ],
+    status: () => ["curation", "status"],
+    roster: () => ["curation", "roster"],
+    recommendations: (params: Record<string, string> = {}) => [
+      "curation",
+      "recommendations",
+      params,
+    ],
+    _recommendationsPrefix: ["curation", "recommendations"],
+    post: (author: string, permlink: string) => ["curation", "post", author, permlink],
+    /** Route 14: one recommender's 90-day scorecard. */
+    recommender: (username: string) => ["curation", "recommender", username],
+    /** Mutation key of the recommend and unrecommend broadcast. */
+    recommend: () => ["curation", "recommend"],
+    _prefix: ["curation"],
+  },
+
+  // ===========================================================================
   // AI
   // ===========================================================================
   ai: {

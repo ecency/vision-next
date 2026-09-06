@@ -1,5 +1,23 @@
 # Changelog
 
+## 2.4.0
+
+### Minor Changes
+
+- Recommender scorecard, trusted chip and the recommending-well guide chapter (#1734)
+
+## 2.3.100
+
+### Patch Changes
+
+- feat: curation desk (/curation) with on-chain recommendations (#1731)
+
+## 2.3.99
+
+### Patch Changes
+
+- SDK: read received HP delegations from balance-api (#1724)
+
 ## 2.3.98
 
 ### Patch Changes
