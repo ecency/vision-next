@@ -11,6 +11,7 @@ import {
   UilCheck,
   UilCommentAltNotes,
   UilExclamationTriangle,
+  UilGlobe,
   UilExternalLinkAlt,
   UilThumbsUp,
   UilTimes,
@@ -22,6 +23,7 @@ import { EcencySourceBadge } from "@/features/shared/ecency-source-badge";
 import type { Entry } from "@/entities";
 import { dateToRelative } from "@/utils";
 import { Chip } from "./curation-chip";
+import { appLabel } from "./curation-queue-display";
 import { CurationMarkBadges } from "./curation-mark-badges";
 import { CurationRecommendBtn } from "./curation-recommend-btn";
 import { CurationWindowBadge } from "./curation-window-badge";
@@ -82,9 +84,38 @@ export const NewAccountChip = memo(function NewAccountChip({ authorCreated }: { 
   return <Chip tone="amber">{i18next.t("curation-desk.row.new-account")}</Chip>;
 });
 
-function appLabel(app: string | null): string {
-  if (!app) return "";
-  return app.split("/")[0].replace(/-.*$/, "");
+/**
+ * Which client published the post: the Ecency mark when the desk's own
+ * is_ecency says so, a neutral globe for anything else. A glyph rather than a
+ * word, because the app name was 25 words down a page of 25 rows and the one
+ * worth spotting at a glance is Ecency's. The name moves to the tooltip.
+ */
+function RowSourceMark({ row, className }: { row: DeskRow; className?: string }) {
+  if (row.is_ecency) {
+    return (
+      <EcencySourceBadge
+        app={row.app}
+        isEcency
+        className={clsx("size-3.5 !text-blue-dark-sky dark:!text-blue-dark-sky-010", className)}
+      />
+    );
+  }
+  const app = appLabel(row.app);
+  // The glyph is the only content here, so the name goes on the wrapper and the
+  // icon stays decorative, the way every other icon in the desk is written.
+  const label = app
+    ? i18next.t("curation-desk.row.source-app", { app })
+    : i18next.t("curation-desk.row.app-unknown");
+  return (
+    <span
+      role="img"
+      aria-label={label}
+      title={label}
+      className={clsx("inline-flex text-gray-500 dark:text-gray-400", className)}
+    >
+      <UilGlobe className="size-3.5" aria-hidden />
+    </span>
+  );
 }
 
 /** Signals line (roster only). A null value renders "n/a", never zeros. */
@@ -226,16 +257,9 @@ export const CurationQueueRow = memo(function CurationQueueRow(props: Props) {
               image, so an image-less Ecency post keeps the mark; the byline carries it
               instead wherever this box is not rendered at all (below sm, and collapsed).
               Inset rather than overhanging: the parent clips to round the image. */}
-          {row.is_ecency && (
-            <span className="absolute bottom-0.5 right-0.5 flex size-[18px] items-center justify-center rounded-full bg-white/90 dark:bg-dark-200/90">
-              <EcencySourceBadge
-                app={row.app}
-                isEcency
-                size={12}
-                className="!text-blue-dark-sky dark:!text-blue-dark-sky-010"
-              />
-            </span>
-          )}
+          <span className="absolute bottom-0.5 right-0.5 flex size-5 items-center justify-center rounded-full bg-white/90 dark:bg-dark-200/90">
+            <RowSourceMark row={row} />
+          </span>
         </div>
       )}
 
@@ -263,12 +287,8 @@ export const CurationQueueRow = memo(function CurationQueueRow(props: Props) {
             <Chip tone="red">{i18next.t("curation-desk.marks.abuse-list")}</Chip>
           )}
           <span className="inline-flex items-center gap-1">
-            {row.is_ecency ? (
-              // The thumbnail owns the mark wherever the thumbnail exists.
-              <EcencySourceBadge app={row.app} isEcency size={12} className={collapsed ? undefined : "sm:hidden"} />
-            ) : (
-              <span className="rounded bg-gray-100 dark:bg-dark-default px-1">{appLabel(row.app) || i18next.t("curation-desk.row.app-unknown")}</span>
-            )}
+            {/* The thumbnail owns the mark wherever the thumbnail exists. */}
+            <RowSourceMark row={row} className={collapsed ? undefined : "sm:hidden"} />
             <span>{row.community_title ?? row.community ?? row.tags?.[0] ?? i18next.t("curation-desk.row.no-community")}</span>
           </span>
           {row.word_count != null && <span>{i18next.t("curation-desk.row.words", { count: row.word_count })}</span>}

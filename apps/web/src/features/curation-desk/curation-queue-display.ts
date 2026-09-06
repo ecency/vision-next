@@ -18,6 +18,16 @@ export interface QueueDisplay {
   chronological: boolean;
 }
 
+/**
+ * The publishing client, without its version: "peakd/2025.1" -> "peakd". Lives here
+ * rather than beside the row because the quick view names the same source in text,
+ * which is the non-hover path to it.
+ */
+export function appLabel(app: string | null): string {
+  if (!app) return "";
+  return app.split("/")[0].replace(/-.*$/, "");
+}
+
 export function isChronological(sort: CurationSort): boolean {
   return sort === "queue" || sort === "newest";
 }

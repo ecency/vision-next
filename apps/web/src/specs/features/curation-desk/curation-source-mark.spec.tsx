@@ -17,6 +17,7 @@ vi.mock("@/api/format-error", () => ({ formatError: (e: unknown) => [String(e), 
 vi.mock("@/api/sdk-mutations/use-curation-recommend-mutation", () => ({ useCurationRecommendMutation: () => ({ mutateAsync: vi.fn(), isPending: false }) }));
 
 import { Chip } from "@/features/curation-desk/curation-chip";
+import { appLabel } from "@/features/curation-desk/curation-queue-display";
 import { CurationQueueRow } from "@/features/curation-desk/curation-queue-row";
 import type { DeskRow } from "@/features/curation-desk/types";
 
@@ -36,8 +37,11 @@ function renderRow(row: DeskRow, isActive = false) {
 }
 
 const marks = () => screen.queryAllByRole("img", { name: "waves.source-ecency" });
-const onThumbnail = () => marks().filter((m) => m.closest("span")?.getAttribute("class")?.includes("absolute"));
-const inByline = () => marks().filter((m) => !m.closest("span")?.getAttribute("class")?.includes("absolute"));
+const globes = () => screen.queryAllByRole("img", { name: /source-app|app-unknown/ });
+// The Ecency mark is the svg itself; the globe's name sits on its wrapper. Both are
+// inside the thumbnail's pill when the thumbnail is the one carrying them.
+const onThumbnail = (els = marks()) => els.filter((m) => m.closest(".absolute") !== null);
+const inByline = (els = marks()) => els.filter((m) => m.closest(".absolute") === null);
 
 describe("Ecency source mark on a desk row", () => {
   // jsdom has no breakpoints, so the responsive half is asserted through the class the
@@ -75,10 +79,29 @@ describe("Ecency source mark on a desk row", () => {
     expect(inByline()).toHaveLength(1);
   });
 
-  it("marks nothing and names the app for a post from another front-end", () => {
+  it("gives another front-end a globe and no app word", () => {
     renderRow(makeRow({ post_id: 4, is_ecency: false, app: "peakd/2025.1", first_image: "https://img.example/c.jpg" }));
     expect(marks()).toHaveLength(0);
-    expect(screen.getByText("peakd")).toBeInTheDocument();
+    // The name is the tooltip now, not a chip in the byline.
+    expect(screen.queryByText("peakd")).toBeNull();
+    expect(onThumbnail(globes())).toHaveLength(1);
+    expect(inByline(globes())).toHaveLength(1);
+    expect(onThumbnail(globes())[0]).toHaveAttribute("title", "curation-desk.row.source-app");
+  });
+
+  it("falls back to the unknown-app name when the post declares no app", () => {
+    renderRow(makeRow({ post_id: 6, is_ecency: false, app: null, first_image: "https://img.example/c.jpg" }));
+    expect(globes()).toHaveLength(2);
+    expect(onThumbnail(globes())[0]).toHaveAttribute("title", "curation-desk.row.app-unknown");
+  });
+});
+
+describe("appLabel", () => {
+  it("drops the version and anything after a hyphen", () => {
+    expect(appLabel("peakd/2025.1")).toBe("peakd");
+    expect(appLabel("ecency/4.4.2-vision")).toBe("ecency");
+    expect(appLabel("ecency-mobile")).toBe("ecency");
+    expect(appLabel(null)).toBe("");
   });
 });
 
