@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.5.32
+
+### Patch Changes
+
+- fix(render-helper): strip the Lumen "Posted via" byline (#1728)
+
 ## 2.5.31
 
 ### Patch Changes
