@@ -6,7 +6,10 @@ export function LandingHeroActions() {
     <>
       <div className="flex flex-wrap items-center gap-3 mt-8">
         <Link
-          className="get-started inline-flex items-center justify-center min-h-[3rem] px-7 py-3 rounded-full bg-blue-dark-sky-hover text-white font-semibold hover:bg-blue-dark-sky-active transition-colors"
+          // The global `a:hover` rule in _base.scss recolours every link to
+          // blue-dark-sky-active, the same tone as this button's hover background,
+          // so the label vanished on hover. `hover:text-white` outranks that rule.
+          className="get-started inline-flex items-center justify-center min-h-[3rem] px-7 py-3 rounded-full bg-blue-dark-sky-hover text-white hover:text-white font-semibold hover:bg-blue-dark-sky-active transition-colors"
           href="/signup?referral=ecency"
           prefetch={false}
         >
