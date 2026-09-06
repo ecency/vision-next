@@ -80,7 +80,7 @@ export const AuthorAgeChip = memo(function AuthorAgeChip({ authorCreated }: { au
   const now = useCurationTicker();
   const days = accountAgeDays(authorCreated, now);
   if (days == null) return null;
-  return <span className={clsx(days < 30 && "text-orange dark:text-warning-default")}>{formatAge(days)}</span>;
+  return <span className={clsx(days < 30 && "text-warning-ink dark:text-warning-default")}>{formatAge(days)}</span>;
 });
 
 function appLabel(app: string | null): string {

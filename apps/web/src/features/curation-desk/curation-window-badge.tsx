@@ -55,8 +55,8 @@ export const CurationWindowBadge = memo(function CurationWindowBadge({ created, 
       }
       className={clsx(
         "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide whitespace-nowrap",
-        tone === "green" && "bg-green-040 text-green-hover dark:bg-green/20 dark:text-green-030",
-        tone === "amber" && "bg-warning-040 text-orange dark:bg-warning-default/20 dark:text-warning-default",
+        tone === "green" && "bg-green-040 text-green-ink dark:bg-green/20 dark:text-green-030",
+        tone === "amber" && "bg-warning-040 text-warning-ink dark:bg-warning-default/20 dark:text-warning-default",
         tone === "gray" && "bg-gray-100 text-gray-600 dark:bg-dark-default dark:text-gray-400",
         className
       )}
