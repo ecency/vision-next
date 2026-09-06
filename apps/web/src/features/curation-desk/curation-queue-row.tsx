@@ -23,6 +23,7 @@ import { EcencySourceBadge } from "@/features/shared/ecency-source-badge";
 import type { Entry } from "@/entities";
 import { dateToRelative } from "@/utils";
 import { Chip } from "./curation-chip";
+import { appLabel } from "./curation-queue-display";
 import { CurationMarkBadges } from "./curation-mark-badges";
 import { CurationRecommendBtn } from "./curation-recommend-btn";
 import { CurationWindowBadge } from "./curation-window-badge";
@@ -83,11 +84,6 @@ export const NewAccountChip = memo(function NewAccountChip({ authorCreated }: { 
   return <Chip tone="amber">{i18next.t("curation-desk.row.new-account")}</Chip>;
 });
 
-function appLabel(app: string | null): string {
-  if (!app) return "";
-  return app.split("/")[0].replace(/-.*$/, "");
-}
-
 /**
  * Which client published the post: the Ecency mark when the desk's own
  * is_ecency says so, a neutral globe for anything else. A glyph rather than a
@@ -100,7 +96,7 @@ function RowSourceMark({ row, className }: { row: DeskRow; className?: string })
       <EcencySourceBadge
         app={row.app}
         isEcency
-        className={clsx("!text-blue-dark-sky dark:!text-blue-dark-sky-010", className)}
+        className={clsx("size-3.5 !text-blue-dark-sky dark:!text-blue-dark-sky-010", className)}
       />
     );
   }

@@ -30,6 +30,7 @@ import { error as errorToast } from "@/features/shared/feedback";
 import { formatError } from "@/api/format-error";
 import { QUICK_VIEW_PREFETCH_DEBOUNCE_MS } from "./consts";
 import { Chip } from "./curation-chip";
+import { appLabel } from "./curation-queue-display";
 import { CurationRecommendBtn, type CurationRecommendHandle } from "./curation-recommend-btn";
 import { RecommenderChip } from "./curation-recommender";
 import { useCurationTicker } from "./curation-ticker";
@@ -224,6 +225,14 @@ export function CurationQuickView({
               {entry?.author_reputation == null && row.author_post_count != null && (
                 <span>{i18next.t("curation-desk.quick-view.posts", { count: row.author_post_count })}</span>
               )}
+              {/* The list says the source with a glyph and a tooltip, which a touch
+                  device cannot hover and a keyboard cannot focus. This is the
+                  non-hover path to the same fact, one keystroke away on every row. */}
+              <Chip tone="gray">
+                {row.is_ecency
+                  ? i18next.t("curation-desk.row.source-ecency")
+                  : appLabel(row.app) || i18next.t("curation-desk.row.app-unknown")}
+              </Chip>
               <span>{row.community_title ?? row.community ?? row.tags?.[0] ?? ""}</span>
               {row.word_count != null && <span>{i18next.t("curation-desk.row.words", { count: row.word_count })}</span>}
               <span>{dateToRelative(row.created)}</span>

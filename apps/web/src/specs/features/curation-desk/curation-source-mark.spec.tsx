@@ -17,6 +17,7 @@ vi.mock("@/api/format-error", () => ({ formatError: (e: unknown) => [String(e), 
 vi.mock("@/api/sdk-mutations/use-curation-recommend-mutation", () => ({ useCurationRecommendMutation: () => ({ mutateAsync: vi.fn(), isPending: false }) }));
 
 import { Chip } from "@/features/curation-desk/curation-chip";
+import { appLabel } from "@/features/curation-desk/curation-queue-display";
 import { CurationQueueRow } from "@/features/curation-desk/curation-queue-row";
 import type { DeskRow } from "@/features/curation-desk/types";
 
@@ -92,6 +93,15 @@ describe("Ecency source mark on a desk row", () => {
     renderRow(makeRow({ post_id: 6, is_ecency: false, app: null, first_image: "https://img.example/c.jpg" }));
     expect(globes()).toHaveLength(2);
     expect(onThumbnail(globes())[0]).toHaveAttribute("title", "curation-desk.row.app-unknown");
+  });
+});
+
+describe("appLabel", () => {
+  it("drops the version and anything after a hyphen", () => {
+    expect(appLabel("peakd/2025.1")).toBe("peakd");
+    expect(appLabel("ecency/4.4.2-vision")).toBe("ecency");
+    expect(appLabel("ecency-mobile")).toBe("ecency");
+    expect(appLabel(null)).toBe("");
   });
 });
 

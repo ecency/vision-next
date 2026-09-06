@@ -4486,6 +4486,7 @@
       "new-author": "New · post #{{n}}",
       "app-unknown": "unknown app",
       "source-app": "Published via {{app}}",
+      "source-ecency": "Ecency",
       "no-community": "no community",
       "words": "{{count}} words",
       "edited": "edited",
