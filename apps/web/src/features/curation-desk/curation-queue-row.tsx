@@ -358,10 +358,12 @@ export const CurationQueueRow = memo(function CurationQueueRow(props: Props) {
         {recommendationsEnabled && !locked && !isOwnPost && (
           <CurationRecommendBtn author={row.author} permlink={row.permlink} compact />
         )}
+        {/* after:!hidden: _base.scss appends its own external-link glyph to
+            every a[target="_blank"], and this button already draws one. */}
         <Button
           size="xs"
           appearance="gray-link"
-          className="!rounded-lg"
+          className="!rounded-lg after:!hidden"
           href={href}
           target="_blank"
           rel="noopener"

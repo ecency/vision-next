@@ -417,7 +417,7 @@ export function CurationQuickView({
           {recommendationsEnabled && !recommendClosed && (!isOwn || mine?.is_self) && (
             <CurationRecommendBtn ref={recommendRef} author={row.author} permlink={row.permlink} alreadyRecommended={!!mine} />
           )}
-          <Button size="sm" appearance="gray-link" className={clsx("!rounded-lg ml-auto")} href={href} target="_blank" rel="noopener" aria-label={i18next.t("curation-desk.actions.open")} title={i18next.t("curation-desk.actions.open-key")} icon={<UilExternalLinkAlt />}>
+          <Button size="sm" appearance="gray-link" className={clsx("!rounded-lg ml-auto after:!hidden")} href={href} target="_blank" rel="noopener" aria-label={i18next.t("curation-desk.actions.open")} title={i18next.t("curation-desk.actions.open-key")} icon={<UilExternalLinkAlt />}>
             {i18next.t("curation-desk.actions.open")}
           </Button>
         </div>
