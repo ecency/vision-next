@@ -79,15 +79,17 @@ export function CurationSortFilterBar({ filters, isRoster, communities, onChange
         />
       </div>
       <details className="group/filters min-w-[12rem] flex-1 rounded-xl border border-[--border-color] open:basis-full">
-        <summary className="flex cursor-pointer list-none items-center gap-2 rounded-xl px-3 py-3 text-sm focus-visible:outline-blue-dark-sky [&::-webkit-details-marker]:hidden">
+        <summary className="flex cursor-pointer list-none items-center gap-2 rounded-xl px-3 py-3 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-dark-sky [&::-webkit-details-marker]:hidden">
           <UilSlidersVAlt className="size-4 text-gray-500" aria-hidden />
           <span className="font-medium">{i18next.t("curation-desk.filters.refine")}</span>
           {advancedCount > 0 && (
-            <span
-              className="rounded-full bg-blue-dark-sky/10 px-2 py-0.5 text-xs text-blue-dark-sky"
-              aria-label={i18next.t("curation-desk.filters.active-count", { count: advancedCount })}
-            >
-              {advancedCount}
+            <span className="rounded-full bg-blue-dark-sky/10 px-2 py-0.5 text-xs text-blue-dark-sky">
+              {/* A bare span takes no accessible name, so aria-label here would be
+                  ignored: the count carries its own text instead. */}
+              <span aria-hidden="true">{advancedCount}</span>
+              <span className="sr-only">
+                {i18next.t("curation-desk.filters.active-count", { count: advancedCount })}
+              </span>
             </span>
           )}
           <span className="ml-auto hidden truncate text-xs text-gray-500 sm:inline">

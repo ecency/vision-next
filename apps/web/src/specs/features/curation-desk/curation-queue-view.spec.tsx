@@ -291,12 +291,12 @@ describe("CurationQueueView", () => {
     await waitFor(() => expect(fetchRouter.callsTo(/curation-desk\/feed/).some((call) => call.url.includes("app=peakd"))).toBe(true));
     fireEvent.click(summary);
     expect(panel).not.toHaveAttribute("open");
-    expect(screen.getByLabelText("curation-desk.filters.active-count")).toHaveTextContent("1");
+    expect(screen.getByText("curation-desk.filters.active-count").parentElement).toHaveTextContent("1");
     fireEvent.click(summary);
     expect(screen.getByLabelText("curation-desk.filters.app")).toHaveValue("peakd");
     fireEvent.click(screen.getByLabelText("curation-desk.toolbar.reset"));
     expect(screen.getByLabelText("curation-desk.filters.app")).toHaveValue("all");
-    expect(screen.queryByLabelText("curation-desk.filters.active-count")).not.toBeInTheDocument();
+    expect(screen.queryByText("curation-desk.filters.active-count")).not.toBeInTheDocument();
   });
 
   it("counts a min/max word range once in the refine badge, as the shared tally does", async () => {
@@ -313,7 +313,18 @@ describe("CurationQueueView", () => {
     );
     // One range, one chip. The badge used to count min and max separately and
     // read 2 while the toolbar's Reset tally, off the shared helper, read 1.
-    expect(screen.getByLabelText("curation-desk.filters.active-count")).toHaveTextContent("1");
+    expect(screen.getByText("curation-desk.filters.active-count").parentElement).toHaveTextContent("1");
+  });
+
+  it("leaves the two bar chips out of the refine badge while Reset still counts them", async () => {
+    renderWithQueryClient(<CurationQueueView />, { queryClient: prodLikeClient() });
+    await screen.findAllByRole("article");
+    fireEvent.click(screen.getByLabelText("curation-desk.filters.hide-curated"));
+    await waitFor(() =>
+      expect(screen.getByLabelText("curation-desk.toolbar.reset")).toBeInTheDocument()
+    );
+    // The chip sits beside the panel, not inside it: Reset counts it, the panel badge must not.
+    expect(screen.queryByText("curation-desk.filters.active-count")).not.toBeInTheDocument();
   });
 
   it("hydrates the overview when the tabs have already loaded status into the client cache", async () => {

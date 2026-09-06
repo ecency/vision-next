@@ -76,7 +76,7 @@ export function CurationToolbar({
             size="xs"
             appearance="gray-link"
             className="!rounded-lg"
-            aria-label={i18next.t("curation-desk.toolbar.reset")}
+            aria-label={i18next.t("curation-desk.toolbar.reset", { count: activeFilterCount })}
             onClick={onReset}
           >
             {i18next.t("curation-desk.toolbar.reset", { count: activeFilterCount })}

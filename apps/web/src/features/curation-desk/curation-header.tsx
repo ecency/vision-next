@@ -147,7 +147,7 @@ export const CurationHeader = memo(function CurationHeader({
       aria-label={i18next.t("curation-desk.header.aria")}
     >
       <details className="group/overview">
-        <summary className="mr-10 flex cursor-pointer list-none flex-wrap items-center gap-x-5 gap-y-2 rounded-md py-1 focus-visible:outline-blue-dark-sky [&::-webkit-details-marker]:hidden">
+        <summary className="mr-10 flex cursor-pointer list-none flex-wrap items-center gap-x-5 gap-y-2 rounded-md py-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-dark-sky [&::-webkit-details-marker]:hidden">
           <span className="inline-flex items-center gap-2 text-sm font-medium">
             {i18next.t("curation-desk.header.overview")}
             <UilAngleDown
