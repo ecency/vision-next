@@ -59,3 +59,16 @@ describe("dayjs locale server safety (#1669 review)", () => {
     expect(dayjs.locale()).toBe(before);
   });
 });
+
+describe("dayjs locale null guard (ECENCY-NEXT-1GPC)", () => {
+  it("ignores a null or undefined language and keeps the current locale", async () => {
+    await setDayjsLocale("es-ES");
+    expect(dayjs.locale()).toBe("es");
+    // The FAQ locale watcher once restored ls.get("current-language") without
+    // a null check, so a visitor with no stored language reached this call
+    // with null and lang.toLowerCase() threw as an unhandled rejection.
+    await expect(setDayjsLocale(null)).resolves.toBeUndefined();
+    await expect(setDayjsLocale(undefined)).resolves.toBeUndefined();
+    expect(dayjs.locale()).toBe("es");
+  });
+});

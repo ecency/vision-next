@@ -27,6 +27,9 @@ export function NavigationLocaleWatcherClient({ targetLanguage }: Props) {
 
   const localeChanged = useCallback((lang: string) => void setDayjsLocale(lang), []);
 
+  // Keep this effect declared before useMount: setLang writes current-language
+  // synchronously and useMount then overwrites it with the original language,
+  // which is what the unmount restore below reads.
   useEffect(() => {
     if (derivedLanguage && lang !== derivedLanguage) {
       // setLang is the ordered pipeline: it loads the i18n resources and the
@@ -47,7 +50,9 @@ export function NavigationLocaleWatcherClient({ targetLanguage }: Props) {
 
   useUnmount(() => {
     const currentLang = ls.get("current-language");
-    if (currentLang) setLang(currentLang);
+    if (currentLang) {
+      setLang(currentLang);
+    }
     i18next.off("languageChanged", localeChanged);
   });
 
