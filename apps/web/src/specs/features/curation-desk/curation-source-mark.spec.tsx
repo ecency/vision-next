@@ -20,9 +20,11 @@ import { Chip } from "@/features/curation-desk/curation-chip";
 import { CurationQueueRow } from "@/features/curation-desk/curation-queue-row";
 import type { DeskRow } from "@/features/curation-desk/types";
 
+// RowActions.onVote is required and tsconfig excludes **/*.spec.tsx, so leaving it
+// out type-checks clean and only fails when something clicks the vote button.
 const actions = {
-  onSelect: vi.fn(), onOpen: vi.fn(), onReviewed: vi.fn(), onSnooze: vi.fn(),
-  onFlag: vi.fn(), onNote: vi.fn(), onClearMark: vi.fn(),
+  onSelect: vi.fn(), onOpen: vi.fn(), onVote: vi.fn(), onReviewed: vi.fn(),
+  onSnooze: vi.fn(), onFlag: vi.fn(), onNote: vi.fn(), onClearMark: vi.fn(),
 };
 
 function renderRow(row: DeskRow, isActive = false) {
@@ -61,6 +63,16 @@ describe("Ecency source mark on a desk row", () => {
     expect(onThumbnail()).toHaveLength(0);
     expect(inByline()).toHaveLength(1);
     expect(inByline()[0].getAttribute("class")).not.toContain("sm:hidden");
+  });
+
+  it("draws the mark, not an empty frame, when the row says Ecency but the app string does not", () => {
+    // The wrapper and the glyph are driven by one flag now. is_ecency cannot outrun the
+    // app string today (app_source is itself derived from json_metadata->>'app'), but the
+    // two used to be gated by different predicates, so widening is_ecency would have left
+    // an empty circle on the thumbnail with the byline copy hidden above sm.
+    renderRow(makeRow({ post_id: 5, is_ecency: true, app: null, first_image: "https://img.example/c.jpg" }));
+    expect(onThumbnail()).toHaveLength(1);
+    expect(inByline()).toHaveLength(1);
   });
 
   it("marks nothing and names the app for a post from another front-end", () => {

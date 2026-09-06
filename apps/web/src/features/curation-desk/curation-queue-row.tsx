@@ -230,7 +230,8 @@ export const CurationQueueRow = memo(function CurationQueueRow(props: Props) {
             <span className="absolute bottom-0.5 right-0.5 flex size-[18px] items-center justify-center rounded-full bg-white/90 dark:bg-dark-200/90">
               <EcencySourceBadge
                 app={row.app}
-                size={11}
+                isEcency
+                size={12}
                 className="!text-blue-dark-sky dark:!text-blue-dark-sky-010"
               />
             </span>
@@ -264,7 +265,7 @@ export const CurationQueueRow = memo(function CurationQueueRow(props: Props) {
           <span className="inline-flex items-center gap-1">
             {row.is_ecency ? (
               // The thumbnail owns the mark wherever the thumbnail exists.
-              <EcencySourceBadge app={row.app} size={12} className={collapsed ? undefined : "sm:hidden"} />
+              <EcencySourceBadge app={row.app} isEcency size={12} className={collapsed ? undefined : "sm:hidden"} />
             ) : (
               <span className="rounded bg-gray-100 dark:bg-dark-default px-1">{appLabel(row.app) || i18next.t("curation-desk.row.app-unknown")}</span>
             )}
