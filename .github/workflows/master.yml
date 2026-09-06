@@ -1,5 +1,8 @@
 name: Master CI/CD
 on:
+  # A manual run deploys the branch as it is: the same jobs as a push, for a
+  # missed push event or a redeploy without a commit.
+  workflow_dispatch:
   push:
     branches:
       - main
