@@ -6,7 +6,7 @@ import { FeedLayout, FeedList, TagFeedHeader } from "../_components";
 import { isCommunity } from "@/utils";
 import React from "react";
 import { Metadata, ResolvingMetadata } from "next";
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import { generateFeedMetadata, normalizeFeedTag } from "@/app/(dynamicPages)/feed/[...sections]/_helpers";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient, prefetchQuery } from "@/core/react-query";
@@ -114,22 +114,8 @@ export default async function FeedPage({ params, searchParams }: Props) {
   // the cursor chain when the first page is full (infinite scroll = JS path).
   // A tag hivemind cannot accept renders the same empty feed whether or not we
   // ask it, so the doomed round trip (and the error it raises) is skipped.
-  let feedPrefetch: ReturnType<typeof prefetchGetPostsFeedQuery> | undefined;
-  if (queryable) {
-    try {
-      feedPrefetch = prefetchGetPostsFeedQuery(filter, tag, 20, observer);
-      await feedPrefetch;
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : String(e);
-      if (msg.includes("does not exist")) {
-        notFound();
-      }
-      throw e;
-    }
-  }
-
   const [feed, appBase] = await Promise.all([
-    feedPrefetch,
+    queryable ? prefetchGetPostsFeedQuery(filter, tag, 20, observer) : undefined,
     getServerAppBase()
   ]);
 
