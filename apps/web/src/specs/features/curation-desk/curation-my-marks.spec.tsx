@@ -1,6 +1,6 @@
 import React from "react";
 import "@testing-library/jest-dom";
-import { fireEvent, screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { QueryClient } from "@tanstack/react-query";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { CurationMarkState, CurationMyMarksResponse } from "@ecency/sdk";
@@ -97,9 +97,48 @@ describe("CurationMyMarksView", () => {
 
     const calls = router.callsTo(/curation-desk\/marks$/);
     expect(calls).toHaveLength(2);
-    expect(calls[0].body).toMatchObject({ state: "snoozed", limit: 50, code: "code-1" });
+    // The landing tab is All, so no state narrows the route.
+    expect(calls[0].body).toMatchObject({ limit: 50, code: "code-1" });
+    expect(calls[0].body).not.toHaveProperty("state");
     expect(calls[0].body).not.toHaveProperty("cursor");
-    expect(calls[1].body).toMatchObject({ state: "snoozed", limit: 50, cursor: "m2", code: "code-1" });
+    expect(calls[1].body).toMatchObject({ limit: 50, cursor: "m2", code: "code-1" });
+    expect(calls[1].body).not.toHaveProperty("state");
+  });
+
+  /**
+   * The page used to open on Snoozed, so a curator who had only pressed `r`
+   * landed on an empty list and read it as "my marks are not showing". The
+   * landing tab now asks for every state.
+   */
+  it("opens on every state, so a reviewed mark is visible without picking a tab", async () => {
+    router.on(/curation-desk\/marks$/, () => marksPage([7], null, "reviewed"));
+    renderWithQueryClient(<CurationMyMarksView />);
+
+    expect(await screen.findByText("Mark 7")).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "curation-desk.marks-view.all" })).toHaveAttribute(
+      "aria-selected",
+      "true"
+    );
+    // A mixed list names each row's own state (the pill of the same name is
+    // the tab, so scope the assertion to the record).
+    expect(
+      within(screen.getByRole("listitem")).getByText("curation-desk.mark-states.reviewed")
+    ).toBeInTheDocument();
+    expect(router.callsTo(/curation-desk\/marks$/)[0].body).not.toHaveProperty("state");
+  });
+
+  it("names the state in the empty copy of a state tab, not the generic sentence", async () => {
+    router.on(/curation-desk\/marks$/, (_url, init) => {
+      const body = init?.body ? (JSON.parse(String(init.body)) as Record<string, unknown>) : {};
+      return body.state === "flagged" ? marksPage([], null, "flagged") : marksPage([1], null);
+    });
+    renderWithQueryClient(<CurationMyMarksView />);
+    await screen.findByText("Mark 1");
+
+    fireEvent.click(screen.getByRole("tab", { name: "curation-desk.mark-states.flagged" }));
+
+    expect(await screen.findByText("curation-desk.marks-view.empty-state")).toBeInTheDocument();
+    expect(screen.queryByText("curation-desk.marks-view.empty")).toBeNull();
   });
 
   // TanStack keeps the loaded pages when a later one fails, and raises isError
