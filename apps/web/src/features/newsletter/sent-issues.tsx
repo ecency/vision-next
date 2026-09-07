@@ -20,6 +20,33 @@ export const sentIssuesKey = (
   viewer: string | null | undefined
 ): readonly [QueryIdentifiers, string, string, string] => [QueryIdentifiers.NEWSLETTER_SENT_ISSUES, type, target, viewer ?? "anon"] as const;
 
+/**
+ * When the issue went out. `period_start` is when the covered week or month
+ * BEGAN, not when the digest was sent, so a weekly row reads a full week older
+ * than the send: on Mon 2026-09-07 the newest @ecency row said 8/24, for an
+ * issue that left on 8/31. Under a heading that says "Sent digests" that reads
+ * as an oldest-first list rather than a recent one.
+ *
+ * `created_at` is the send: the tick opens the issue and starts sending it in
+ * the same pass (six seconds apart across the issues measured), and it is the
+ * only send-side timestamp the summary payload carries. The period is not lost,
+ * it moves to the title.
+ *
+ * Returns null rather than an Invalid Date so the caller can fall back instead
+ * of rendering "Invalid Date" for a payload without a usable timestamp.
+ */
+export function sentIssueSentAt(issue: Pick<SentIssue, "created_at">): Date | null {
+  if (!issue.created_at) return null;
+  const at = new Date(issue.created_at);
+  return Number.isNaN(at.getTime()) ? null : at;
+}
+
+/** The period label, kept as a plain UTC date: `period_start` is a date, not an instant. */
+export function periodStartLabel(periodStart: string, locale = i18next.language): string {
+  const at = new Date(`${periodStart}T00:00:00Z`);
+  return Number.isNaN(at.getTime()) ? periodStart : at.toLocaleDateString(locale, { timeZone: "UTC" });
+}
+
 export function SentIssues({
   type,
   target,
@@ -53,24 +80,32 @@ export function SentIssues({
         {i18next.t("newsletter.sent-issues")}
       </div>
       <ul className="m-0 p-0 list-none flex flex-col gap-1" aria-labelledby="newsletter-sent-issues-heading">
-        {items.map((i: SentIssue) => (
-          <li key={i.id} className="flex flex-wrap items-baseline gap-x-2 opacity-90">
-            <time dateTime={i.period_start} className="text-xs opacity-70 tabular-nums">
-              {new Date(`${i.period_start}T00:00:00Z`).toLocaleDateString(i18next.language, { timeZone: "UTC" })}
-            </time>
-            {i.post_author && i.post_permlink ? (
-              <Link href={`/@${i.post_author}/${i.post_permlink}`} className="truncate max-w-[16rem]">
-                {i.subject}
-              </Link>
-            ) : (
-              <span className="truncate max-w-[16rem]">{i.subject}</span>
-            )}
-            <span className="text-xs opacity-70">
-              {i18next.t("newsletter.sent-issue-stats", { delivered: i.delivered, bounced: i.bounced })}
-              {i.rejected > 0 ? ` · ${i18next.t("newsletter.sent-issue-rejected", { rejected: i.rejected })}` : ""}
-            </span>
-          </li>
-        ))}
+        {items.map((i: SentIssue) => {
+          const sentAt = sentIssueSentAt(i);
+          const period = periodStartLabel(i.period_start);
+          return (
+            <li key={i.id} className="flex flex-wrap items-baseline gap-x-2 opacity-90">
+              <time
+                dateTime={sentAt ? sentAt.toISOString() : i.period_start}
+                title={i18next.t("newsletter.sent-issue-period", { date: period })}
+                className="text-xs opacity-70 tabular-nums"
+              >
+                {sentAt ? sentAt.toLocaleDateString(i18next.language) : period}
+              </time>
+              {i.post_author && i.post_permlink ? (
+                <Link href={`/@${i.post_author}/${i.post_permlink}`} className="truncate max-w-[16rem]">
+                  {i.subject}
+                </Link>
+              ) : (
+                <span className="truncate max-w-[16rem]">{i.subject}</span>
+              )}
+              <span className="text-xs opacity-70">
+                {i18next.t("newsletter.sent-issue-stats", { delivered: i.delivered, bounced: i.bounced })}
+                {i.rejected > 0 ? ` · ${i18next.t("newsletter.sent-issue-rejected", { rejected: i.rejected })}` : ""}
+              </span>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

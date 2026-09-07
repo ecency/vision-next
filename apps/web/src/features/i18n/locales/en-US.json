@@ -4340,6 +4340,7 @@
     "send-see-history": "See sent digests",
     "sent-issues-unavailable": "Sent digests could not be loaded right now.",
     "sent-issue-rejected": "{{rejected}} rejected by receivers",
+    "sent-issue-period": "Covers the period beginning {{date}}",
     "compose-button": "Compose email digest",
     "compose-title": "Compose an email digest for {{list}}",
     "compose-help": "Pick {{min}} to {{max}} recent posts, in the order they should appear, then add a subject and an intro. Readers get it as their current digest.",
