@@ -12,6 +12,8 @@ interface Props {
   isRoster: boolean;
   totalEstimate: number | null | undefined;
   activeFilterCount: number;
+  /** The account whose saved refine set is in effect, null when none is. */
+  savedOwner: string | null;
   onSort: (sort: CurationSort) => void;
   onReshuffle: () => void;
   onReset: () => void;
@@ -23,6 +25,7 @@ export function CurationToolbar({
   isRoster,
   totalEstimate,
   activeFilterCount,
+  savedOwner,
   onSort,
   onReshuffle,
   onReset
@@ -65,12 +68,19 @@ export function CurationToolbar({
           {i18next.t("curation-desk.sort.reshuffle")}
         </Button>
       )}
-      <span className="ml-auto flex items-center gap-2 text-gray-500">
+      <span className="ml-auto flex flex-wrap items-center justify-end gap-2 text-gray-500">
         {totalEstimate != null && (
           <span aria-live="polite">
-            {i18next.t("curation-desk.toolbar.match", { count: totalEstimate })}
+            {/* The server counts the team backlog, not this request, so a
+                narrowed queue must not print that number as "matches". */}
+            {activeFilterCount > 0
+              ? i18next.t("curation-desk.toolbar.backlog", { count: totalEstimate })
+              : i18next.t("curation-desk.toolbar.match", { count: totalEstimate })}
           </span>
         )}
+        {/* A restored set is silent otherwise, and on a shared browser the
+            curator has no way to tell whose filters are in effect. */}
+        {savedOwner && <span>{i18next.t("curation-desk.toolbar.saved", { username: savedOwner })}</span>}
         {activeFilterCount > 0 && (
           <Button
             size="xs"

@@ -55,6 +55,33 @@ export type ResolvedQueueFilters = Omit<QueueFilters, "sort" | "unreviewedOnly">
   unreviewedOnly: boolean;
 };
 
+/**
+ * The refine set carried between visits. `sort` keeps its own storage key,
+ * `seed` is session scoped, and `window`, `flagged` and `excluded` are
+ * per-visit lenses: see SAVED_FILTER_FIELDS for each reason.
+ */
+export type SavedQueueFilters = Partial<
+  Pick<
+    QueueFilters,
+    | "app"
+    | "community"
+    | "newAuthors"
+    | "recommended"
+    | "hideCurated"
+    | "unreviewedOnly"
+    | "minWords"
+    | "maxWords"
+    | "hasImages"
+    | "repMin"
+    | "repMax"
+  >
+>;
+
+export interface SavedFiltersStore {
+  v: number;
+  users: Record<string, { filters: SavedQueueFilters }>;
+}
+
 export type WindowState =
   | { kind: "full"; msLeft: number; urgent: boolean }
   | { kind: "half"; ageMs: number }

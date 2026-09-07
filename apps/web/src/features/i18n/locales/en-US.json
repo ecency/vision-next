@@ -4425,6 +4425,9 @@
     "toolbar": {
       "match_one": "{{count}} match",
       "match_other": "{{count}} matches",
+      "backlog_one": "{{count}} post in the queue",
+      "backlog_other": "{{count}} posts in the queue",
+      "saved": "Saved filters for @{{username}}",
       "reset": "Reset ({{count}})"
     },
     "filters": {
@@ -4712,7 +4715,10 @@
     },
     "marks-view": {
       "title": "My marks",
+      "all": "All",
       "empty": "No marks here.",
+      "empty-state": "No {{state}} marks yet.",
+      "votes-hint": "Marks are what you record while reviewing. A vote is not a mark, so posts you curated are counted in the queue and not here.",
       "roster-only": "Marks are a curator tool. Read the guide to learn how the roster works.",
       "until": "until {{until}} UTC"
     },

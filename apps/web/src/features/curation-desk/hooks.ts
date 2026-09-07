@@ -45,6 +45,12 @@ import {
 } from "./consts";
 import { curationDeskApi } from "./curation-desk-api";
 import { mergeTickIntoPages, replaceRowInPages } from "./curation-tick-merge";
+import {
+  pickSavedFilters,
+  readSavedFilters,
+  readStoredUsername,
+  saveFilters,
+} from "./curation-filter-storage";
 import type { DeskRow, MarkActionInput, QueueFilters, ResolvedQueueFilters, ViewerRole } from "./types";
 
 // ---------------------------------------------------------------------------
@@ -672,10 +678,22 @@ export function filtersToParams(input: QueueFilters, isRoster: boolean): Curatio
 
 export function useQueueFilters(isRoster: boolean) {
   const [filters, setFilters] = useState<QueueFilters>(defaultQueueFilters);
+  const username = useActiveUsername();
+  // The desk holds both feeds until this flips, so the server shell and the
+  // first client render agree and exactly one page-one request goes out.
+  const [restored, setRestored] = useState(false);
+  const ownerRef = useRef<string | null | undefined>(undefined);
+  const dirtyRef = useRef(false);
 
-  // Browser-only state after mount: the persisted sort (per viewer, try/catch)
-  // and the session seed, generated once per browser session.
+  // Browser-only state after mount: the saved refine set and the persisted
+  // sort (both per viewer, try/catch) and the session seed, generated once per
+  // browser session. Keyed on the account so switching users re-reads.
   useEffect(() => {
+    const owner = username ?? readStoredUsername();
+    if (ownerRef.current === owner) return;
+    const first = ownerRef.current === undefined;
+    ownerRef.current = owner;
+
     let persisted: CurationSort | null = null;
     try {
       const stored = ls.get(SORT_STORAGE_KEY);
@@ -684,10 +702,30 @@ export function useQueueFilters(isRoster: boolean) {
       persisted = null;
     }
     const seed = readSessionSeed();
-    setFilters((prev) => (prev.sort === persisted && prev.seed === seed ? prev : { ...prev, sort: prev.sort ?? persisted, seed }));
-  }, []);
+    const saved = readSavedFilters(owner);
+    const hasSaved = Object.keys(saved).length > 0;
+    // Logging in mid-visit must not throw away what is on screen: an account
+    // with nothing saved adopts the current filters instead of resetting them.
+    if (first || hasSaved) {
+      // One setFilters call, so sort and seed can never be applied apart: a
+      // restored `random` without its seed is a request the backend refuses.
+      setFilters((prev) => ({ ...defaultQueueFilters(), ...saved, sort: prev.sort ?? persisted, seed }));
+    } else {
+      setFilters((prev) => ({ ...prev, sort: prev.sort ?? persisted, seed }));
+    }
+    setRestored(true);
+  }, [username]);
+
+  // Only a change the curator made is written back: the restore never saves
+  // itself, and the write lands once per committed render rather than inside
+  // the setFilters updater, which the two reputation sliders need.
+  useEffect(() => {
+    if (!restored || !dirtyRef.current) return;
+    saveFilters(ownerRef.current ?? null, pickSavedFilters(filters, defaultQueueFilters(), isRoster));
+  }, [filters, restored, isRoster]);
 
   const update = useCallback((patch: Partial<QueueFilters>) => {
+    dirtyRef.current = true;
     setFilters((prev) => {
       const next = { ...prev, ...patch };
       if (patch.sort && patch.sort !== prev.sort) {
@@ -702,6 +740,9 @@ export function useQueueFilters(isRoster: boolean) {
   }, []);
 
   const reset = useCallback(() => {
+    // Clearing must clear the stored copy too, or the next visit restores
+    // exactly what was just cleared and Reset reads as broken.
+    dirtyRef.current = true;
     setFilters((prev) => ({ ...defaultQueueFilters(), sort: prev.sort, seed: prev.seed }));
   }, []);
 
@@ -718,8 +759,18 @@ export function useQueueFilters(isRoster: boolean) {
   const resolved = useMemo(() => resolveFilters(filters, isRoster), [filters, isRoster]);
   const params = useMemo(() => filtersToParams(filters, isRoster), [filters, isRoster]);
   const activeCount = useMemo(() => countActiveFilters(filters, isRoster), [filters, isRoster]);
+  // The owner the record was read under, not the store's activeUser: the two
+  // resolve from different places on a cold load, so labelling the line with
+  // the store could name a different account than the one that was restored.
+  const savedOwner = useMemo(
+    () =>
+      restored && Object.keys(pickSavedFilters(filters, defaultQueueFilters(), isRoster)).length > 0
+        ? ownerRef.current ?? null
+        : null,
+    [restored, filters, isRoster]
+  );
 
-  return { filters: resolved, params, update, reset, reshuffle, activeCount };
+  return { filters: resolved, params, update, reset, reshuffle, activeCount, restored, savedOwner };
 }
 
 /**
