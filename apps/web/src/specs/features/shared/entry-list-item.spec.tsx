@@ -38,9 +38,8 @@ vi.mock("@ecency/sdk", async () => ({
 // is exercised. Everything else (votes, menu, payout, avatar, popover...) is a
 // deterministic stub.
 vi.mock("@/features/shared", async () => {
-  const { makeEntryPath } = await vi.importActual<typeof import("@/utils/make-path")>(
-    "@/utils/make-path"
-  );
+  const { makeEntryPath } =
+    await vi.importActual<typeof import("@/utils/make-path")>("@/utils/make-path");
   const Real = await import("react");
 
   const EntryLink = ({ entry, children, className }: any) =>
@@ -157,6 +156,36 @@ describe("EntryListItem", () => {
     expect(screen.getByText("summary:another-post")).toBeInTheDocument();
   });
 
+  it("routes an author-set description through the summary helper instead of rendering it raw", () => {
+    // Some clients copy the whole markdown body into json_metadata.description.
+    const description = "# Heading\n\n* **bold** item\n".repeat(50);
+    const entry = mockEntry({
+      author: "dave",
+      permlink: "verbose-post",
+      title: "Verbose Post",
+      json_metadata: { tags: ["test"], description }
+    });
+
+    renderItem(entry);
+
+    expect(screen.queryByText(/# Heading/)).toBeNull();
+    // The mocked helper answers "summary:" for a raw string, and that is what the card shows.
+    expect(screen.getByText("summary:")).toBeInTheDocument();
+  });
+
+  it("renders a slim row's derived description as is", () => {
+    const entry = {
+      ...mockEntry({ author: "erin", permlink: "slim-post", title: "Slim Post", body: "" }),
+      slim: { ext_link: false },
+      json_metadata: { tags: ["test"], description: "*derived* text" }
+    };
+
+    renderItem(entry);
+
+    // Parsed again, the mocked helper would answer "summary:" instead.
+    expect(screen.getByText("*derived* text")).toBeInTheDocument();
+  });
+
   it("renders a replies link to the entry when the post has children", () => {
     const entry = mockEntry({
       author: "carol",
@@ -171,7 +200,9 @@ describe("EntryListItem", () => {
     // The comments count link shows the children count and links to the entry.
     const repliesLink = screen
       .getAllByRole("link")
-      .find((a) => a.getAttribute("href") === "/@carol/popular-post" && a.textContent?.includes("3"));
+      .find(
+        (a) => a.getAttribute("href") === "/@carol/popular-post" && a.textContent?.includes("3")
+      );
     expect(repliesLink).toBeTruthy();
   });
 

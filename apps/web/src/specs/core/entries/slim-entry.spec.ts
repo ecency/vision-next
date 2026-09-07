@@ -27,9 +27,26 @@ describe("slimEntry", () => {
     expect(slimEntry(entry()).body).toBe("");
   });
 
-  it("keeps an author-written description untouched", () => {
+  it("keeps a short author-written description, trimmed", () => {
     const e = entry({ json_metadata: { description: "  Author summary  " } });
     expect(slimEntry(e).json_metadata?.description).toBe("Author summary");
+  });
+
+  it("keeps a bounded excerpt of a description without spaces", () => {
+    const description = "這是一段完全沒有空格的中文描述文字".repeat(20);
+    const e = entry({ json_metadata: { description } });
+    expect(slimEntry(e).json_metadata?.description).toBe(description.slice(0, 200));
+  });
+
+  it("caps an author-written description that holds the whole markdown body", () => {
+    const description = "# Heading\n\n* **bold** item ![](https://images.hive.blog/x.png)\n".repeat(
+      60
+    );
+    const e = entry({ json_metadata: { description } });
+    const slimmed = slimEntry(e).json_metadata?.description ?? "";
+    expect(slimmed.length).toBeLessThanOrEqual(210);
+    expect(slimmed).not.toContain("#");
+    expect(slimmed).not.toContain("**");
   });
 
   it("derives the same summary the card renders when there is no description", () => {
@@ -319,7 +336,10 @@ describe("getEntryModerationReason", () => {
 
   it("keeps reading live vote state on a slim row", () => {
     const e = slimEntry(
-      entry({ body: "hello there", stats: { total_votes: 0, flag_weight: 0, gray: true, hide: false } })
+      entry({
+        body: "hello there",
+        stats: { total_votes: 0, flag_weight: 0, gray: true, hide: false }
+      })
     );
     expect(getEntryModerationReason(e)).toBe(ContentModerationReason.MOD_MUTED);
   });
