@@ -129,31 +129,49 @@ export function useWavesApi() {
         body: raw,
         jsonMetadata: jsonMeta,
         rootAuthor: entry.author,
-        rootPermlink: entry.permlink
+        rootPermlink: entry.permlink,
+        isUpdate: !!editingEntry
       };
 
-      // Add 3Speak beneficiary when the wave contains a video embed, then merge
-      // the DecentMemes meme beneficiaries (comment caps: 30% max) on top.
-      let beneficiaries = enforceThreeSpeakBeneficiary([], raw);
-      if (applyDecentMemes) {
-        const enforced = enforceDecentMemesBeneficiary(
-          beneficiaries,
-          decentMemes!.beneficiaries,
-          username,
-          DECENTMEMES_COMMENT_MAX_WEIGHT
-        );
-        beneficiaries = enforced.beneficiaries;
-        if (enforced.dropped) {
-          info(i18next.t("decentmemes.beneficiaries-trimmed"));
+      // Beneficiaries belong to the transaction that publishes the content and
+      // to no other. The chain stores them once: a second
+      // `comment_payout_beneficiaries` extension is rejected outright ("Comment
+      // already has beneficiaries specified."), and once the wave has a single
+      // vote the extension is refused even when none were set. Since the SDK
+      // gates the whole `comment_options` operation on `payload.options` and
+      // both operations ride one transaction, an edit that sets `options` does
+      // not merely fail to update the payout split, it loses the body edit with
+      // it. So an edit broadcasts the `comment` operation alone, which is what
+      // every other edit path here already does.
+      //
+      // Only the beneficiaries are frozen. The `decentmemes` tag and the meme
+      // json_metadata above stay outside this guard on purpose: metadata is
+      // freely editable on chain, and pulling it in here would strip attribution
+      // from every edited meme wave.
+      if (!editingEntry) {
+        // Add 3Speak beneficiary when the wave contains a video embed, then merge
+        // the DecentMemes meme beneficiaries (comment caps: 30% max) on top.
+        let beneficiaries = enforceThreeSpeakBeneficiary([], raw);
+        if (applyDecentMemes) {
+          const enforced = enforceDecentMemesBeneficiary(
+            beneficiaries,
+            decentMemes!.beneficiaries,
+            username,
+            DECENTMEMES_COMMENT_MAX_WEIGHT
+          );
+          beneficiaries = enforced.beneficiaries;
+          if (enforced.dropped) {
+            info(i18next.t("decentmemes.beneficiaries-trimmed"));
+          }
         }
-      }
-      if (beneficiaries.length > 0) {
-        commentPayload.options = {
-          beneficiaries: beneficiaries.map((b) => ({
-            account: b.account,
-            weight: b.weight
-          }))
-        };
+        if (beneficiaries.length > 0) {
+          commentPayload.options = {
+            beneficiaries: beneficiaries.map((b) => ({
+              account: b.account,
+              weight: b.weight
+            }))
+          };
+        }
       }
 
       await sdkComment(commentPayload);
