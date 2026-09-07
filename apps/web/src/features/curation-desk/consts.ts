@@ -36,8 +36,11 @@ export const SAVED_FILTERS_VERSION = 1;
 export const MY_MARKS_KEY_SUFFIX = "my-marks";
 /** Marks per page; the route answers a `next_cursor` while more remain. */
 export const MY_MARKS_PAGE_SIZE = 50;
-/** Word count presets, offered as both a minimum and a maximum. */
-export const WORD_PRESETS = [300, 600, 1000] as const;
+/**
+ * Word count presets, offered as both a minimum and a maximum. 150 is there
+ * for the photographers, artists and poets whose strong posts are short.
+ */
+export const WORD_PRESETS = [150, 300, 600, 1000] as const;
 /**
  * The option lists the two selects render. They live here so the select and
  * the saved-filter validator can never drift apart.

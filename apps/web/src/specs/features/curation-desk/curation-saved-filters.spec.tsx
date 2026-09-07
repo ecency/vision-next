@@ -102,13 +102,24 @@ describe("saved refine filters", () => {
       });
     });
 
-    it("never carries the per-visit lenses or the session seed", () => {
+    it("never carries the moderation lenses, the sort or the session seed", () => {
       const picked = pickSavedFilters(
-        { ...defaults, flagged: true, excluded: true, window: "full", sort: "newest", seed: "abcd1234" },
+        { ...defaults, flagged: true, excluded: true, sort: "newest", seed: "abcd1234" },
         defaults,
         true
       );
       expect(picked).toEqual({});
+    });
+
+    /**
+     * The window was left out at first because it also collapses the weight
+     * tails. Curators asked for it back on the first day, and Reset is on
+     * screen whenever any filter is on.
+     */
+    it("carries the window, and only a window the backend knows", () => {
+      expect(pickSavedFilters({ ...defaults, window: "full" }, defaults, true)).toEqual({ window: "full" });
+      expect(sanitizeSavedFilters({ window: "full" })).toEqual({ window: "full" });
+      expect(sanitizeSavedFilters({ window: "yesterday" })).toEqual({});
     });
   });
 

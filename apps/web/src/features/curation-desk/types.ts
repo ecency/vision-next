@@ -57,8 +57,8 @@ export type ResolvedQueueFilters = Omit<QueueFilters, "sort" | "unreviewedOnly">
 
 /**
  * The refine set carried between visits. `sort` keeps its own storage key,
- * `seed` is session scoped, and `window`, `flagged` and `excluded` are
- * per-visit lenses: see SAVED_FILTER_FIELDS for each reason.
+ * `seed` is session scoped, and `flagged` and `excluded` are per-visit
+ * lenses: see SAVED_FILTER_FIELDS for each reason.
  */
 export type SavedQueueFilters = Partial<
   Pick<
@@ -69,6 +69,7 @@ export type SavedQueueFilters = Partial<
     | "recommended"
     | "hideCurated"
     | "unreviewedOnly"
+    | "window"
     | "minWords"
     | "maxWords"
     | "hasImages"
