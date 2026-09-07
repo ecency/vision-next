@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.4.1
+
+### Patch Changes
+
+- Curation desk: keep the curator's place when the queue head moves (#1753)
+
 ## 2.4.0
 
 ### Minor Changes

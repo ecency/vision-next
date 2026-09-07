@@ -10598,6 +10598,13 @@ interface CurationTickResponse {
             post_id: number;
             signals: CurationSignals | null;
         }>;
+        /**
+         * Rows whose curation state moved since the client's own `generated_at`.
+         * The overlay carries no state, so without these a page the client keeps
+         * holding would render a curated post as open and votable. Optional: a
+         * backend that predates it simply sends nothing.
+         */
+        rows?: Array<Pick<CurationRow, "post_id" | "state" | "trailed_by" | "voted_by" | "unvoted_at">>;
     };
     team_cursor: CurationTeamCursor;
     active_curators: CurationActiveCurator[];

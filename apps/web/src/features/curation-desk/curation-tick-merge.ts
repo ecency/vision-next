@@ -46,6 +46,22 @@ function upsertMark(marks: CurationMark[], mark: CurationMark): CurationMark[] {
   return next;
 }
 
+type RowStateDelta = NonNullable<CurationTickResponse["deltas"]["rows"]>[number];
+
+/**
+ * Does this description differ from what the row already holds? The tick names
+ * every visible row, so without this every one of them would be a new object on
+ * every tick and the memoized rows would all re-render four times a minute.
+ */
+function rowStateChanged(row: DeskRow, next: RowStateDelta): boolean {
+  return (
+    row.state !== next.state ||
+    (row.unvoted_at ?? null) !== (next.unvoted_at ?? null) ||
+    JSON.stringify(row.trailed_by ?? null) !== JSON.stringify(next.trailed_by ?? null) ||
+    JSON.stringify(row.voted_by ?? []) !== JSON.stringify(next.voted_by ?? [])
+  );
+}
+
 /** Team level = the newest mark on the row. */
 function teamLevel(marks: CurationMark[]): Pick<CurationOverlay, "team_mark" | "team_mark_by" | "team_snooze_until"> {
   const newest = marks
@@ -87,8 +103,16 @@ export function mergeTickIntoPages(
   const signalsById = new Map(
     (tick.deltas?.signals ?? []).map((s) => [s.post_id, s.signals] as const)
   );
+  // The overlay carries no curation state, so this is the only thing that
+  // tells a page the client keeps holding that a post has since been curated.
+  // The route describes every visible row, changed or not, because no candidate
+  // timestamp covers all the writes that matter: deciding what actually moved is
+  // this side's job, and skipping the rest is what keeps the row identities.
+  const rowsById = new Map(
+    (tick.deltas?.rows ?? []).map((r) => [r.post_id, r] as const)
+  );
 
-  if (!overlayById.size && !marksById.size && !flagsById.size && !signalsById.size) {
+  if (!overlayById.size && !marksById.size && !flagsById.size && !signalsById.size && !rowsById.size) {
     return data;
   }
 
@@ -101,7 +125,18 @@ export function mergeTickIntoPages(
       const marks = marksById.get(id);
       const flags = flagsById.get(id);
       const signals = signalsById.get(id);
-      if (!fullOverlay && !marks && !flags && signals === undefined) return row;
+      const described = rowsById.get(id);
+      const state = described && rowStateChanged(row, described) ? described : undefined;
+      const hasOverlayNews = !!fullOverlay || !!marks || !!flags || signals !== undefined;
+      if (!hasOverlayNews && !state) return row;
+      // A state-only delta must NOT invent an overlay. The next tick asks for a full
+      // overlay only for rows that still have none (`need`), so fabricating an empty
+      // one here would permanently convince the client that this row's marks, flags
+      // and signals were already loaded.
+      if (!hasOverlayNews) {
+        pageChanged = true;
+        return { ...row, ...state };
+      }
 
       let overlay: CurationOverlay = fullOverlay ?? row.overlay ?? emptyOverlay();
       if (marks) {
@@ -121,7 +156,9 @@ export function mergeTickIntoPages(
         overlay = { ...overlay, signals };
       }
       pageChanged = true;
-      return { ...row, overlay };
+      // `state` names only the fields it carries, so nothing else on the row
+      // is touched: `unvoted_at` back to null is a real value, not an absence.
+      return state ? { ...row, ...state, overlay } : { ...row, overlay };
     });
     if (!pageChanged) return page;
     anyPageChanged = true;
