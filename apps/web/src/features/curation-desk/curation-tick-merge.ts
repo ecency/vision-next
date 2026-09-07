@@ -87,8 +87,13 @@ export function mergeTickIntoPages(
   const signalsById = new Map(
     (tick.deltas?.signals ?? []).map((s) => [s.post_id, s.signals] as const)
   );
+  // The overlay carries no curation state, so this is the only thing that
+  // tells a page the client keeps holding that a post has since been curated.
+  const rowsById = new Map(
+    (tick.deltas?.rows ?? []).map((r) => [r.post_id, r] as const)
+  );
 
-  if (!overlayById.size && !marksById.size && !flagsById.size && !signalsById.size) {
+  if (!overlayById.size && !marksById.size && !flagsById.size && !signalsById.size && !rowsById.size) {
     return data;
   }
 
@@ -101,7 +106,8 @@ export function mergeTickIntoPages(
       const marks = marksById.get(id);
       const flags = flagsById.get(id);
       const signals = signalsById.get(id);
-      if (!fullOverlay && !marks && !flags && signals === undefined) return row;
+      const state = rowsById.get(id);
+      if (!fullOverlay && !marks && !flags && signals === undefined && !state) return row;
 
       let overlay: CurationOverlay = fullOverlay ?? row.overlay ?? emptyOverlay();
       if (marks) {
@@ -121,7 +127,9 @@ export function mergeTickIntoPages(
         overlay = { ...overlay, signals };
       }
       pageChanged = true;
-      return { ...row, overlay };
+      // `state` names only the fields it carries, so nothing else on the row
+      // is touched: `unvoted_at` back to null is a real value, not an absence.
+      return state ? { ...row, ...state, overlay } : { ...row, overlay };
     });
     if (!pageChanged) return page;
     anyPageChanged = true;

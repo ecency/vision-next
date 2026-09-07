@@ -163,7 +163,7 @@ export function CurationQueueView() {
   // that reached page 1 after the last fetch only appears through this poll.
   // Enabled whatever the row count is: an empty filtered view is exactly the
   // one that needs to hear about the first post that matches it.
-  useStatusPoll({ enabled: true, feedKey: queryKey, fetchPageOne, feedVersion });
+  useStatusPoll({ enabled: true, feedKey: queryKey, fetchPageOne, feedVersion, sort: filters.sort });
 
   const teamCursor = tick.teamCursor ?? firstPage?.team_cursor ?? status.data?.team_cursor ?? null;
   const totalEstimate = viewer.isRoster ? (firstPage as { total_estimate?: number | null } | undefined)?.total_estimate : undefined;

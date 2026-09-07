@@ -88,7 +88,7 @@ describe("useStatusPoll", () => {
     statusBody = makeStatus({ feed_version: "v2", latest_post_id: 9 });
     const fetchPageOne = vi.fn(async () => makeFeedPage([makeRow({ post_id: 9 })], { feed_version: "v2" }));
 
-    renderHook(() => useStatusPoll({ enabled: true, feedKey, fetchPageOne, feedVersion: "v1" }), { wrapper });
+    renderHook(() => useStatusPoll({ enabled: true, feedKey, fetchPageOne, feedVersion: "v1", sort: "newest" }), { wrapper });
     await poll();
 
     expect(fetchPageOne).toHaveBeenCalledTimes(1);
@@ -103,7 +103,7 @@ describe("useStatusPoll", () => {
     statusBody = makeStatus({ latest_post_id: 9 });
     const fetchPageOne = vi.fn(async () => makeRosterPage([makeRow({ post_id: 9 }), makeRow({ post_id: 4 })]));
 
-    renderHook(() => useStatusPoll({ enabled: true, feedKey, fetchPageOne }), { wrapper });
+    renderHook(() => useStatusPoll({ enabled: true, feedKey, fetchPageOne, sort: "newest" }), { wrapper });
     await poll();
 
     expect(fetchPageOne).toHaveBeenCalledTimes(1);
@@ -122,7 +122,7 @@ describe("useStatusPoll", () => {
     statusBody = makeStatus({ latest_post_id: 9 });
     const fetchPageOne = vi.fn(async () => makeRosterPage([makeRow({ post_id: 9 })]));
 
-    renderHook(() => useStatusPoll({ enabled: true, feedKey, fetchPageOne }), { wrapper });
+    renderHook(() => useStatusPoll({ enabled: true, feedKey, fetchPageOne, sort: "newest" }), { wrapper });
     await poll();
 
     expect(fetchPageOne).toHaveBeenCalledTimes(1);
@@ -137,7 +137,7 @@ describe("useStatusPoll", () => {
     statusBody = makeStatus({ latest_post_id: null });
     const fetchPageOne = vi.fn(async () => makeRosterPage([]));
 
-    renderHook(() => useStatusPoll({ enabled: true, feedKey, fetchPageOne }), { wrapper });
+    renderHook(() => useStatusPoll({ enabled: true, feedKey, fetchPageOne, sort: "newest" }), { wrapper });
     await poll();
     await poll();
 
@@ -149,7 +149,7 @@ describe("useStatusPoll", () => {
     statusBody = makeStatus({ latest_post_id: 9 });
     const fetchPageOne = vi.fn(async () => makeRosterPage([makeRow({ post_id: 9 })]));
 
-    renderHook(() => useStatusPoll({ enabled: true, feedKey, fetchPageOne }), { wrapper });
+    renderHook(() => useStatusPoll({ enabled: true, feedKey, fetchPageOne, sort: "newest" }), { wrapper });
     await poll();
     await poll();
 
@@ -161,7 +161,7 @@ describe("useStatusPoll", () => {
     seed(feedKey, [makeFeedPage([makeRow({ post_id: 1 })], { feed_version: "v1" })]);
     const fetchPageOne = vi.fn(async () => makeFeedPage([makeRow({ post_id: 9 })]));
 
-    renderHook(() => useStatusPoll({ enabled: true, feedKey, fetchPageOne, feedVersion: "v1" }), { wrapper });
+    renderHook(() => useStatusPoll({ enabled: true, feedKey, fetchPageOne, feedVersion: "v1", sort: "newest" }), { wrapper });
     await poll();
     await poll();
 
@@ -179,7 +179,7 @@ describe("useStatusPoll", () => {
       return makeFeedPage([makeRow({ post_id: 9 })], { feed_version: "v2" });
     });
 
-    renderHook(() => useStatusPoll({ enabled: true, feedKey, fetchPageOne, feedVersion: "v1" }), { wrapper });
+    renderHook(() => useStatusPoll({ enabled: true, feedKey, fetchPageOne, feedVersion: "v1", sort: "newest" }), { wrapper });
     await poll();
     expect(fetchPageOne).toHaveBeenCalledTimes(1);
     expect(loaded(feedKey).pages[0].items[0].post_id).toBe(1);
@@ -197,7 +197,7 @@ describe("useStatusPoll", () => {
     statusBody = makeStatus({ feed_version: "v2", latest_post_id: 9 });
     const fetchPageOne = vi.fn(async () => makeFeedPage([makeRow({ post_id: 9 })], { feed_version: "v2" }));
 
-    renderHook(() => useStatusPoll({ enabled: true, feedKey, fetchPageOne, feedVersion: "v1" }), { wrapper });
+    renderHook(() => useStatusPoll({ enabled: true, feedKey, fetchPageOne, feedVersion: "v1", sort: "newest" }), { wrapper });
     await poll();
     expect(fetchPageOne).not.toHaveBeenCalled();
 
@@ -218,7 +218,7 @@ describe("useStatusPoll", () => {
     statusBody = makeStatus({ feed_version: "v2", latest_post_id: 9 });
     const fetchPageOne = vi.fn(async () => makeFeedPage([makeRow({ post_id: 9 })], { feed_version: "v2" }));
 
-    renderHook(() => useStatusPoll({ enabled: true, feedKey, fetchPageOne, feedVersion: "v1" }), { wrapper });
+    renderHook(() => useStatusPoll({ enabled: true, feedKey, fetchPageOne, feedVersion: "v1", sort: "newest" }), { wrapper });
     await poll();
     // That request was sent under the older head, so its answer would put the
     // change back the moment it installs.
@@ -237,25 +237,92 @@ describe("useStatusPoll", () => {
     expect(loaded(feedKey).pages[0].items[0].post_id).toBe(9);
   });
 
-  it("resets to the refreshed page instead of leaving a hole behind a new head", async () => {
+  /**
+   * Replacing the loaded pages is what threw a curator's place away: the item
+   * array falls from N*25 back to 25 and the virtual list collapses to the
+   * top. The refreshed head is merged in instead, and every later page stays.
+   */
+  it("merges the refreshed head into page one and keeps the loaded pages", async () => {
     seed(feedKey, [
       makeFeedPage([makeRow({ post_id: 100 }), makeRow({ post_id: 76 })], { feed_version: "v1" }),
       makeFeedPage([makeRow({ post_id: 75 }), makeRow({ post_id: 51 })], { feed_version: "v1" }),
     ]);
     statusBody = makeStatus({ feed_version: "v2", latest_post_id: 105 });
     const fetchPageOne = vi.fn(async () =>
-      makeFeedPage([makeRow({ post_id: 105 }), makeRow({ post_id: 81 })], { feed_version: "v2" })
+      makeFeedPage([makeRow({ post_id: 105 }), makeRow({ post_id: 100 })], { feed_version: "v2" })
     );
 
-    renderHook(() => useStatusPoll({ enabled: true, feedKey, fetchPageOne, feedVersion: "v1" }), { wrapper });
+    renderHook(() => useStatusPoll({ enabled: true, feedKey, fetchPageOne, feedVersion: "v1", sort: "newest" }), { wrapper });
     await poll();
 
     const data = loaded(feedKey);
-    // Page two was selected under the old head, so its cursor no longer joins
-    // up with the refreshed page: 80 to 76 would be missing between them.
+    expect(data.pages).toHaveLength(2);
+    expect(data.pageParams).toHaveLength(2);
+    // 105 arrived, 100 came back from the server, and 76 is below the
+    // refreshed window so it stays where page two continues from.
+    expect(data.pages[0].items.map((r) => r.post_id)).toEqual([105, 100, 76]);
+    expect(data.pages[1].items.map((r) => r.post_id)).toEqual([75, 51]);
+  });
+
+  it("drops a row the refreshed window no longer carries, and keeps the ones below it", async () => {
+    seed(feedKey, [
+      makeFeedPage([makeRow({ post_id: 100 }), makeRow({ post_id: 90 }), makeRow({ post_id: 76 })], { feed_version: "v1" }),
+      makeFeedPage([makeRow({ post_id: 75 })], { feed_version: "v1" }),
+    ]);
+    statusBody = makeStatus({ feed_version: "v2", latest_post_id: 105 });
+    // 90 was curated, so the server stopped serving it. Inside the refreshed
+    // window the server is the truth; 76 sits below it and is kept.
+    const fetchPageOne = vi.fn(async () =>
+      makeFeedPage([makeRow({ post_id: 105 }), makeRow({ post_id: 100 }), makeRow({ post_id: 80 })], {
+        feed_version: "v2",
+      })
+    );
+
+    renderHook(() => useStatusPoll({ enabled: true, feedKey, fetchPageOne, feedVersion: "v1", sort: "newest" }), { wrapper });
+    await poll();
+
+    const data = loaded(feedKey);
+    expect(data.pages[0].items.map((r) => r.post_id)).toEqual([105, 100, 80, 76]);
+    expect(data.pages).toHaveLength(2);
+  });
+
+  it("replaces rather than splices when more than a page arrived in between", async () => {
+    seed(feedKey, [
+      makeFeedPage([makeRow({ post_id: 100 }), makeRow({ post_id: 76 })], { feed_version: "v1" }),
+      makeFeedPage([makeRow({ post_id: 75 }), makeRow({ post_id: 51 })], { feed_version: "v1" }),
+    ]);
+    statusBody = makeStatus({ feed_version: "v2", latest_post_id: 200 });
+    // Nothing in common with the loaded page one: 101 to 199 are unaccounted
+    // for, so merging the two runs would silently swallow them.
+    const fetchPageOne = vi.fn(async () =>
+      makeFeedPage([makeRow({ post_id: 200 }), makeRow({ post_id: 150 })], { feed_version: "v2" })
+    );
+
+    renderHook(() => useStatusPoll({ enabled: true, feedKey, fetchPageOne, feedVersion: "v1", sort: "newest" }), { wrapper });
+    await poll();
+
+    const data = loaded(feedKey);
     expect(data.pages).toHaveLength(1);
     expect(data.pageParams).toEqual([undefined]);
-    expect(data.pages[0].items.map((r) => r.post_id)).toEqual([105, 81]);
+    expect(data.pages[0].items.map((r) => r.post_id)).toEqual([200, 150]);
+  });
+
+  it("keeps replacing under a sort that has no key to merge on", async () => {
+    seed(feedKey, [
+      makeFeedPage([makeRow({ post_id: 100 })], { feed_version: "v1" }),
+      makeFeedPage([makeRow({ post_id: 75 })], { feed_version: "v1" }),
+    ]);
+    statusBody = makeStatus({ feed_version: "v2", latest_post_id: 105 });
+    const fetchPageOne = vi.fn(async () =>
+      makeFeedPage([makeRow({ post_id: 105 }), makeRow({ post_id: 100 })], { feed_version: "v2" })
+    );
+
+    renderHook(() => useStatusPoll({ enabled: true, feedKey, fetchPageOne, feedVersion: "v1", sort: "unique" }), { wrapper });
+    await poll();
+
+    const data = loaded(feedKey);
+    expect(data.pages).toHaveLength(1);
+    expect(data.pages[0].items.map((r) => r.post_id)).toEqual([105, 100]);
   });
 
   it("installs nothing when the filters change while page one is in flight", async () => {
@@ -267,7 +334,7 @@ describe("useStatusPoll", () => {
 
     const { rerender } = renderHook(
       ({ key, fetcher }: { key: unknown[]; fetcher: () => Promise<CurationFeedPage> }) =>
-        useStatusPoll({ enabled: true, feedKey: key, fetchPageOne: fetcher, feedVersion: "v1" }),
+        useStatusPoll({ enabled: true, feedKey: key, fetchPageOne: fetcher, feedVersion: "v1", sort: "newest" }),
       { wrapper, initialProps: { key: feedKey as unknown[], fetcher: fetchPageOne } }
     );
     // One quiet poll first, so the next one is a refresh and not a baseline.
@@ -295,7 +362,7 @@ describe("useStatusPoll", () => {
     const gate = deferred<CurationFeedPage>();
     const fetchPageOne = vi.fn(() => gate.promise);
 
-    renderHook(() => useStatusPoll({ enabled: true, feedKey, fetchPageOne, feedVersion: "v1" }), { wrapper });
+    renderHook(() => useStatusPoll({ enabled: true, feedKey, fetchPageOne, feedVersion: "v1", sort: "newest" }), { wrapper });
     await poll();
     expect(router.callsTo(/curation-desk\/status/)).toHaveLength(1);
     expect(fetchPageOne).toHaveBeenCalledTimes(1);

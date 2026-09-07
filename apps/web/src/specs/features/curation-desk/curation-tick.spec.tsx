@@ -266,6 +266,56 @@ describe("mergeTickIntoPages", () => {
     expect(mergeTickIntoPages(data, tickBody())).toBe(data);
   });
 
+  /**
+   * The desk used to shed a stale row by accident, by replacing every loaded
+   * page whenever the head moved. It keeps the pages now, so a post the trail
+   * curated while the curator was reading has to reach the row it is on.
+   */
+  it("applies a row delta, so a curated post stops rendering as open", () => {
+    const open = makeRow({ post_id: 1, state: 0, voted_by: [], overlay: makeOverlay() });
+    const untouched = makeRow({ post_id: 2, state: 0, overlay: makeOverlay() });
+    const data: InfiniteData<CurationRosterFeedPage> = {
+      pages: [makeRosterPage([open, untouched])],
+      pageParams: [undefined],
+    };
+
+    const result = mergeTickIntoPages(
+      data,
+      tickBody({
+        deltas: {
+          marks: [],
+          flags: [],
+          signals: [],
+          rows: [
+            {
+              post_id: 1,
+              state: 1,
+              trailed_by: null,
+              voted_by: [{ voter: "ecency", weight: 560 }],
+              unvoted_at: null,
+            },
+          ],
+        },
+      })
+    )!;
+
+    expect(result.pages[0].items[0].state).toBe(1);
+    expect(result.pages[0].items[0].voted_by).toHaveLength(1);
+    // The row keeps everything the delta did not name, and its overlay.
+    expect(result.pages[0].items[0].title).toBe(open.title);
+    expect(result.pages[0].items[0].overlay).toBeTruthy();
+    // A row the delta did not name is the same object, so it does not re-render.
+    expect(result.pages[0].items[1]).toBe(untouched);
+  });
+
+  it("is unchanged by a backend that sends no row deltas", () => {
+    const data: InfiniteData<CurationRosterFeedPage> = {
+      pages: [makeRosterPage([makeRow({ post_id: 1, state: 0 })])],
+      pageParams: [undefined],
+    };
+    expect(mergeTickIntoPages(data, tickBody({ deltas: { marks: [], flags: [], signals: [] } }))).toBe(data);
+  });
+
   it("keeps a colleague's note body when a note-less delta updates their mark", () => {
     const withNote = makeRow({
       post_id: 1,

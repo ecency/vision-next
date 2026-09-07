@@ -44,6 +44,7 @@ import {
   SORT_STORAGE_KEY,
 } from "./consts";
 import { curationDeskApi } from "./curation-desk-api";
+import { mergeHeadPage } from "./curation-head-merge";
 import { mergeTickIntoPages, replaceRowInPages } from "./curation-tick-merge";
 import {
   pickSavedFilters,
@@ -300,6 +301,8 @@ export interface StatusPollOptions {
    * instead, so the same head move is caught without one.
    */
   feedVersion?: string | null;
+  /** Decides whether a refreshed head can be merged into the loaded pages. */
+  sort: CurationSort;
 }
 
 /** What the poll compares. A null `latestPostId` means "not observed yet". */
@@ -360,7 +363,7 @@ function headAheadOfLoaded(next: FeedHeadVersion, loadedHead: number | null): bo
  * after the filters or the account changed belongs to the queue that left.
  * Overlapping interval and visibilitychange polls share one in-flight promise.
  */
-export function useStatusPoll({ enabled, feedKey, fetchPageOne, feedVersion }: StatusPollOptions) {
+export function useStatusPoll({ enabled, feedKey, fetchPageOne, feedVersion, sort }: StatusPollOptions) {
   const queryClient = useQueryClient();
   const versionRef = useRef<FeedHeadVersion | null>(null);
   const feedKeyRef = useRef(feedKey);
@@ -369,6 +372,8 @@ export function useStatusPoll({ enabled, feedKey, fetchPageOne, feedVersion }: S
   fetchRef.current = fetchPageOne;
   const feedVersionRef = useRef(feedVersion);
   feedVersionRef.current = feedVersion;
+  const sortRef = useRef(sort);
+  sortRef.current = sort;
   const generationRef = useRef(0);
   const inFlightRef = useRef<Promise<void> | null>(null);
 
@@ -429,7 +434,9 @@ export function useStatusPoll({ enabled, feedKey, fetchPageOne, feedVersion }: S
           // keeping them behind a refreshed head leaves a hole where the head
           // grew. The refreshed page is the queue again and pagination
           // continues from its own cursor; scroll position is best effort.
-          (old) => (old ? { ...old, pages: [page], pageParams: old.pageParams.slice(0, 1) } : old)
+          // Keep every loaded page: replacing them is what threw the
+          // curator's place away every time the head moved.
+          (old) => mergeHeadPage(old, page, sortRef.current)
         );
         versionRef.current = next;
       } catch {
