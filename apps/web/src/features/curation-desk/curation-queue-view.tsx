@@ -142,7 +142,9 @@ export function CurationQueueView() {
 
   const tick = useCurationTick({
     username: viewer.username,
-    enabled: viewer.isRoster && rows.length > 0,
+    // Not gated on rows: with an empty filtered queue the hand-off bar is the
+    // only thing on screen, and it needs the tick to update and to age.
+    enabled: viewer.isRoster,
     feedKey: queryKey,
     rows,
     getVisibleIds,
@@ -168,6 +170,17 @@ export function CurationQueueView() {
   useStatusPoll({ enabled: true, feedKey: queryKey, fetchPageOne, feedVersion, sort: filters.sort });
 
   const teamCursor = tick.teamCursor ?? firstPage?.team_cursor ?? status.data?.team_cursor ?? null;
+  // "Your queue starts at the oldest post nobody has handled" is true only when
+  // every handled kind is out of the list: reviewed and snoozed (unreviewedOnly),
+  // curated (hideCurated), and neither moderation lens, since the flagged lens
+  // selects handled rows and the excluded view lists rows the queue never
+  // serves. Oldest first, or "starts at" means nothing.
+  const queueStartsAtOldestUnhandled =
+    filters.sort === "queue" &&
+    filters.unreviewedOnly &&
+    filters.hideCurated &&
+    !filters.flagged &&
+    !filters.excluded;
   // The tick is the authority once it has answered under this key, an empty
   // answer included: that is how a position that aged out leaves the bar. Until
   // then the loaded page seeds it, so the bar is filled on arrival rather than
@@ -390,7 +403,7 @@ export function CurationQueueView() {
           updatedAt={tick.lastTickAt}
           now={now}
           communities={communities}
-          queueStartsAtOldestUnhandled={filters.sort === "queue" && filters.unreviewedOnly}
+          queueStartsAtOldestUnhandled={queueStartsAtOldestUnhandled}
         />
       )}
       <CurationSortFilterBar

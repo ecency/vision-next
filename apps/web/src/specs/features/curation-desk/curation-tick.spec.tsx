@@ -68,22 +68,29 @@ describe("useCurationTick", () => {
     vi.useRealTimers();
   });
 
-  it("does not tick while the tab is hidden or with zero loaded rows", async () => {
+  it("does not tick while the tab is hidden", async () => {
     setVisibility("hidden");
     seed();
-    const hidden = renderHook(() => useCurationTick({ username: "curator1", enabled: true, feedKey, rows: [rowA, rowB], getVisibleIds: () => [1, 2] }), { wrapper });
+    renderHook(() => useCurationTick({ username: "curator1", enabled: true, feedKey, rows: [rowA, rowB], getVisibleIds: () => [1, 2] }), { wrapper });
     await act(async () => {
       await vi.advanceTimersByTimeAsync(15_000 * 3);
     });
     expect(router.callsTo(/tick/)).toHaveLength(0);
-    hidden.unmount();
+  });
 
+  /**
+   * The tick carries the team hand-off and who is active, so an empty filtered
+   * queue is exactly where it has to keep going: the bar is the only thing on
+   * screen, and it has to update and to age. The lists just go out empty.
+   */
+  it("keeps ticking with an empty queue, with empty lists", async () => {
     setVisibility("visible");
     renderHook(() => useCurationTick({ username: "curator1", enabled: true, feedKey, rows: [], getVisibleIds: () => [] }), { wrapper });
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(15_000 * 3);
+      await vi.advanceTimersByTimeAsync(15_000);
     });
-    expect(router.callsTo(/tick/)).toHaveLength(0);
+    expect(router.callsTo(/tick/)).toHaveLength(1);
+    expect(router.callsTo(/tick/)[0].body).toMatchObject({ need: [], visible: [] });
   });
 
   it("ticks once on visibilitychange and every 15 s while visible", async () => {

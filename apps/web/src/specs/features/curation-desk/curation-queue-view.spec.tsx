@@ -183,6 +183,21 @@ describe("CurationQueueView", () => {
     expect(await screen.findByText("curation-desk.handoff.title")).toBeInTheDocument();
   });
 
+  /**
+   * "Your queue starts at the oldest post nobody has handled" is true only with
+   * every handled kind out of the list. Showing curated posts puts handled rows
+   * back in, so the sentence goes.
+   */
+  it("drops the where-you-start sentence once curated posts are shown", async () => {
+    state.username = "curator1";
+    renderWithQueryClient(<CurationQueueView />, { queryClient: prodLikeClient() });
+    expect(await screen.findByText("curation-desk.handoff.where-you-start")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("switch", { name: "curation-desk.filters.hide-curated" }));
+
+    await waitFor(() => expect(screen.queryByText("curation-desk.handoff.where-you-start")).toBeNull());
+  });
+
   it("loads the roster feed with hide_reviewed on the key for a roster user", async () => {
     state.username = "curator1";
     renderWithQueryClient(<CurationQueueView />, { queryClient: prodLikeClient() });

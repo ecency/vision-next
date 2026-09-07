@@ -220,8 +220,10 @@ export function useCurationTick(options: TickOptions): TickState {
   const tickNow = useCallback(async () => {
     if (!enabled || !username || inFlightRef.current) return;
     if (typeof document !== "undefined" && document.visibilityState === "hidden") return;
+    // An empty queue is not a reason to stop: the tick also carries the team
+    // hand-off and who is active, and a curator whose filters match nothing is
+    // exactly the one reading the bar. The lists just go out empty.
     const rows = rowsRef.current;
-    if (rows.length === 0) return;
     if (Date.now() - lastActivityAt > IDLE_MS) return;
 
     const visible = visibleRef.current().slice(0, 100);
