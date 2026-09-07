@@ -679,9 +679,11 @@ export function filtersToParams(input: QueueFilters, isRoster: boolean): Curatio
 export function useQueueFilters(isRoster: boolean) {
   const [filters, setFilters] = useState<QueueFilters>(defaultQueueFilters);
   const username = useActiveUsername();
-  // The desk holds both feeds until this flips, so the server shell and the
-  // first client render agree and exactly one page-one request goes out.
-  const [restored, setRestored] = useState(false);
+  // WHOSE filters are applied, not merely that some restore has happened. A
+  // boolean would stay true through an account change, and both feeds would
+  // fetch page one for the new account under the old account's refine set
+  // before the effect below had a chance to correct it.
+  const [restoredFor, setRestoredFor] = useState<string | null | undefined>(undefined);
   const ownerRef = useRef<string | null | undefined>(undefined);
   const dirtyRef = useRef(false);
 
@@ -691,8 +693,11 @@ export function useQueueFilters(isRoster: boolean) {
   useEffect(() => {
     const owner = username ?? readStoredUsername();
     if (ownerRef.current === owner) return;
-    const first = ownerRef.current === undefined;
+    const previous = ownerRef.current;
     ownerRef.current = owner;
+    // A change made under the previous account must never be written into this
+    // account's entry.
+    dirtyRef.current = false;
 
     let persisted: CurationSort | null = null;
     try {
@@ -703,26 +708,38 @@ export function useQueueFilters(isRoster: boolean) {
     }
     const seed = readSessionSeed();
     const saved = readSavedFilters(owner);
-    const hasSaved = Object.keys(saved).length > 0;
-    // Logging in mid-visit must not throw away what is on screen: an account
-    // with nothing saved adopts the current filters instead of resetting them.
-    if (first || hasSaved) {
-      // One setFilters call, so sort and seed can never be applied apart: a
-      // restored `random` without its seed is a request the backend refuses.
-      setFilters((prev) => ({ ...defaultQueueFilters(), ...saved, sort: prev.sort ?? persisted, seed }));
-    } else {
-      setFilters((prev) => ({ ...prev, sort: prev.sort ?? persisted, seed }));
-    }
-    setRestored(true);
+    // Signing in from an anonymous visit keeps what is on screen, because the
+    // curator picked it a moment ago and would not expect it to vanish.
+    // Switching between two accounts never does: that would apply, and on the
+    // next edit save, one curator's lane under another's name.
+    const carry = previous === null && Object.keys(saved).length === 0;
+    // One setFilters call, so sort and seed can never be applied apart: a
+    // restored `random` without its seed is a request the backend refuses.
+    setFilters((prev) =>
+      carry
+        ? { ...prev, sort: prev.sort ?? persisted, seed }
+        : { ...defaultQueueFilters(), ...saved, sort: prev.sort ?? persisted, seed }
+    );
+    setRestoredFor(owner);
   }, [username]);
+
+  /**
+   * Derived, never stored. On an account change `username` moves in one commit
+   * and the effect follows in the next, so a stored flag would leave a window
+   * where the feeds are enabled under the wrong account's params. `username`
+   * is undefined until the store publishes it, and the cold-load owner is read
+   * from the same key the store reads, so that case must not gate.
+   */
+  const restored =
+    restoredFor !== undefined && (username === undefined || restoredFor === username);
 
   // Only a change the curator made is written back: the restore never saves
   // itself, and the write lands once per committed render rather than inside
   // the setFilters updater, which the two reputation sliders need.
   useEffect(() => {
     if (!restored || !dirtyRef.current) return;
-    saveFilters(ownerRef.current ?? null, pickSavedFilters(filters, defaultQueueFilters(), isRoster));
-  }, [filters, restored, isRoster]);
+    saveFilters(restoredFor ?? null, pickSavedFilters(filters, defaultQueueFilters(), isRoster));
+  }, [filters, restored, restoredFor, isRoster]);
 
   const update = useCallback((patch: Partial<QueueFilters>) => {
     dirtyRef.current = true;
@@ -764,13 +781,15 @@ export function useQueueFilters(isRoster: boolean) {
   // the store could name a different account than the one that was restored.
   const savedOwner = useMemo(
     () =>
-      restored && Object.keys(pickSavedFilters(filters, defaultQueueFilters(), isRoster)).length > 0
-        ? ownerRef.current ?? null
+      restored &&
+      restoredFor != null &&
+      Object.keys(pickSavedFilters(filters, defaultQueueFilters(), isRoster)).length > 0
+        ? restoredFor
         : null,
-    [restored, filters, isRoster]
+    [restored, restoredFor, filters, isRoster]
   );
 
-  return { filters: resolved, params, update, reset, reshuffle, activeCount, restored, savedOwner };
+  return { filters: resolved, params, update, reset, reshuffle, activeCount, restored, restoredFor, savedOwner };
 }
 
 /**

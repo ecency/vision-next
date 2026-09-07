@@ -190,6 +190,46 @@ describe("saved refine filters", () => {
       expect(result.current.filters.app).toBe("peakd");
     });
 
+    /**
+     * Signing in from an anonymous visit keeps what is on screen. Switching
+     * between two accounts must not: applying one curator's lane under
+     * another's name would then be saved into their entry on the next edit.
+     */
+    it("carries filters forward when an anonymous visit signs in", async () => {
+      state.username = undefined;
+      const { result, rerender } = renderHook(() => useQueueFilters(true));
+      await waitFor(() => expect(result.current.restored).toBe(true));
+      act(() => result.current.update({ app: "peakd" }));
+
+      state.username = "curator1";
+      rerender();
+
+      await waitFor(() => expect(result.current.restored).toBe(true));
+      expect(result.current.filters.app).toBe("peakd");
+    });
+
+    it("does not let one account inherit or save another account's lane", async () => {
+      saveFilters("curator1", { app: "peakd" });
+      const { result, rerender } = renderHook(() => useQueueFilters(true));
+      await waitFor(() => expect(result.current.filters.app).toBe("peakd"));
+
+      state.username = "curator2";
+      rerender();
+
+      await waitFor(() => expect(result.current.restoredFor).toBe("curator2"));
+      // curator2 has nothing saved, so they get the defaults, not peakd, and
+      // the request params follow: `restored` is derived from whose filters
+      // are applied, so the feeds cannot fetch under the old account's set.
+      expect(result.current.filters.app).toBe("all");
+      expect(result.current.params.app).toBe("all");
+      expect(result.current.restored).toBe(true);
+      expect(result.current.savedOwner).toBeNull();
+      // and a later edit is stored under curator2 alone
+      act(() => result.current.update({ hasImages: true }));
+      await waitFor(() => expect(readSavedFilters("curator2")).toEqual({ hasImages: true }));
+      expect(readSavedFilters("curator1")).toEqual({ app: "peakd" });
+    });
+
     it("restores for the account the store has not published yet", async () => {
       saveFilters("curator1", { app: "ecency" });
       state.username = undefined;
