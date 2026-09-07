@@ -268,9 +268,13 @@ export function CurationQueueView() {
   // Every loaded row can leave live while the server still holds more: the
   // list is not mounted to ask for the next page from its end, so it is
   // asked for here, rather than showing "nothing to review" over a queue.
+  // A page that failed is not asked for again from here: the error shows,
+  // and the next status poll or a refresh asks anew.
   useEffect(() => {
-    if (rows.length === 0 && feed.hasNextPage && !feed.isFetching) void feed.fetchNextPage();
-  }, [rows.length, feed.hasNextPage, feed.isFetching, feed.fetchNextPage]);
+    if (rows.length === 0 && feed.hasNextPage && !feed.isFetching && !feed.isError && !feed.isFetchNextPageError) {
+      void feed.fetchNextPage();
+    }
+  }, [rows.length, feed.hasNextPage, feed.isFetching, feed.isError, feed.isFetchNextPageError, feed.fetchNextPage]);
   const neighbour = activeIndex >= 0 ? ordered[activeIndex + 1] ?? null : null;
 
   const mark = useCurationMark();
@@ -345,6 +349,9 @@ export function CurationQueueView() {
           until: Date.now() + UNDO_REVIEWED_MS,
         });
       } catch (e) {
+        // Nothing was written, so a departure of this row later is not the
+        // curator's doing.
+        ownMarksRef.current.delete(rowKey(row));
         errorToast(...formatError(e));
       }
     },

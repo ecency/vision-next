@@ -204,8 +204,21 @@ export function CurationQuickView({
   // The `c` and `p` keys wait for the entry the same way, then press the
   // button itself: both buttons sit behind the sign-in prompt, so a signed-out
   // reader gets that prompt from the key too.
-  const [replyOpen, setReplyOpen] = useState(false);
-  useEffect(() => setReplyOpen(false), [author, permlink]);
+  // The post the box is open for, so a cached next post never renders one
+  // frame of the previous post's open box (and its autofocus) before a reset.
+  const [replyFor, setReplyFor] = useState<string | null>(null);
+  const replyOpen = replyFor != null && replyFor === `${author}/${permlink}`;
+  const setReplyOpen = useCallback(
+    (next: boolean | ((current: boolean) => boolean)) => {
+      const key = `${author}/${permlink}`;
+      setReplyFor((current) => {
+        const isOpen = current === key;
+        const open = typeof next === "function" ? next(isOpen) : next;
+        return open ? key : null;
+      });
+    },
+    [author, permlink]
+  );
   const commentRef = useRef<HTMLButtonElement | HTMLAnchorElement | null>(null);
   const findComment = useCallback(() => commentRef.current, []);
   usePressWhenMounted(open && !!commentOnOpen && !!entry, findComment, onCommentHandled);

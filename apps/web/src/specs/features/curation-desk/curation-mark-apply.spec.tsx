@@ -14,6 +14,7 @@ vi.mock("@/utils", async () => ({
 }));
 vi.mock("@/core/hooks/use-active-username", () => ({ useActiveUsername: () => "curator1" }));
 
+import { mergeHeadPage } from "@/features/curation-desk/curation-head-merge";
 import {
   noteCuratorActivity,
   resetRowMutations,
@@ -130,14 +131,23 @@ describe("a mark applied to the loaded roster feeds", () => {
   });
 });
 
-describe("roster feed paging after rows left a page live", () => {
-  it("asks for the next page while the route says more remain, whatever the page's row count", () => {
+describe("roster feed paging after rows left or came back live", () => {
+  it("pages on the route's own boundary, whatever the loaded page holds now", () => {
     const { getNextPageParam } = rosterFeedQueryOptions("curator1", { sort: "queue" });
     const short = makeRosterPage([makeRow({ post_id: 1, _cursor: "s:1" })]);
-    expect(getNextPageParam({ ...short, next_cursor: "s:25" })).toBe("s:1");
+    // Rows left: a short page is no sign the queue ended.
+    expect(getNextPageParam({ ...short, next_cursor: "s:25" })).toBe("s:25");
     expect(getNextPageParam({ ...short, next_cursor: null })).toBeUndefined();
-    // Every row of the last page left: the route's own cursor carries on.
     expect(getNextPageParam({ ...makeRosterPage([]), next_cursor: "s:25" })).toBe("s:25");
+    // Rows came back: the last row's own cursor could sit past posts the route
+    // has not served. A row this desk noted, kept through a head refresh that
+    // did not overlap the loaded page, lands at the end of the replaced page.
+    const noted = makeRow({ post_id: 50, _cursor: "s:50", overlay: makeOverlay({ notes_count: 1 }) });
+    const loaded: InfiniteData<CurationRosterFeedPage> = { pages: [makeRosterPage([makeRow({ post_id: 40, _cursor: "s:40" }), noted])], pageParams: [undefined] };
+    const head = makeRosterPage([makeRow({ post_id: 1, _cursor: "s:1" }), makeRow({ post_id: 2, _cursor: "s:2" })], { next_cursor: "s:2" });
+    const merged = mergeHeadPage(loaded, head, "random", { wroteSince: (r) => r.post_id === 50 })!;
+    expect(merged.pages[0].items.map((r) => r.post_id)).toEqual([1, 2, 50]);
+    expect(getNextPageParam(merged.pages[0])).toBe("s:2");
   });
 });
 
@@ -244,7 +254,7 @@ describe("an undone mark and what happened meanwhile", () => {
     router.on(/curation-desk\/tick/, () => new Promise((resolve) => (answer = resolve)));
     router.on(/curation-desk\/mark$/, () => ({ mark: null, row: row(12, 9, "reviewed") }));
     router.on(/curation-desk\/mark-clear$/, () => ({ mark: null, row: row(12, 9) }));
-    renderHook(() => useCurationTick({ username: "curator1", enabled: true, feedKey: hiding, rows, getVisibleIds: () => [11, 12, 13], feed: { sort: "queue" } }), { wrapper });
+    const tick = renderHook(() => useCurationTick({ username: "curator1", enabled: true, feedKey: hiding, rows, getVisibleIds: () => [11, 12, 13], feed: { sort: "queue" } }), { wrapper });
     const mark = renderHook(() => useCurationMark(), { wrapper });
     const clear = renderHook(() => useClearMark(), { wrapper });
 
@@ -275,6 +285,14 @@ describe("an undone mark and what happened meanwhile", () => {
       });
       await Promise.resolve();
     });
+    // The merge ran: the tick recorded its answer (fake timers, so a flush by
+    // hand rather than waitFor).
+    for (let i = 0; i < 12 && tick.result.current.lastTickAt == null; i++) {
+      await act(async () => {
+        await Promise.resolve();
+      });
+    }
+    expect(tick.result.current.lastTickAt).not.toBeNull();
     expect(ids(hiding)).toEqual([[11, 12, 13]]);
     expect(queryClient.getQueryData<InfiniteData<CurationRosterFeedPage>>(hiding)!.pages[0].items[1].overlay?.team_mark).toBeNull();
   });

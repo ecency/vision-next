@@ -4,7 +4,7 @@ import { act, fireEvent, renderHook, screen, waitFor } from "@testing-library/re
 import { QueryClient } from "@tanstack/react-query";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithQueryClient } from "@/specs/test-utils";
-import { installFetchRouter, iso, makeFeedPage, makeOverlay, makeRoster, makeRosterPage, makeRow, makeStatus, NOW } from "./curation-test-utils";
+import { installFetchRouter, iso, jsonResponse, makeFeedPage, makeOverlay, makeRoster, makeRosterPage, makeRow, makeStatus, NOW } from "./curation-test-utils";
 
 const drawerRenders = vi.hoisted(() => [] as Array<{ post_id: number; comment: boolean; tip: boolean }>);
 const state = vi.hoisted(() => ({ username: undefined as string | undefined }));
@@ -370,6 +370,29 @@ describe("keyboard on the queue", () => {
     expect(infoToast).not.toHaveBeenCalled();
   });
 
+  it("treats a departure after a failed mark as a colleague's: nothing of the curator's was written", async () => {
+    state.username = "curator1";
+    vi.mocked(infoToast).mockClear();
+    router.on(/curation-desk\/mark$/, () => jsonResponse({ error: "down" }, 500));
+    renderWithQueryClient(<CurationQueueView />, { queryClient: client() });
+    expect(await screen.findAllByRole("article")).toHaveLength(2);
+    await act(async () => press("j"));
+    await act(async () => press("Enter"));
+    // A snooze keeps the selection where it is until the answer, unlike r.
+    await act(async () => press("z"));
+    fireEvent.click(await screen.findByLabelText("curation-desk.snooze.preset-3"));
+    await waitFor(() => expect(router.callsTo(/curation-desk\/mark$/)).toHaveLength(1));
+    expect(screen.getByTestId("quick-view-open")).toHaveTextContent("11");
+
+    router.on(/curation-desk\/tick/, tickReviewing(11));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(15_000);
+    });
+    await waitFor(() => expect(document.getElementById("curation-row-title-11")).toBeNull());
+    expect(screen.queryByTestId("quick-view-open")).toBeNull();
+    expect(infoToast).toHaveBeenCalledWith("curation-desk.live.left-queue");
+  });
+
   it("moves the selection to the new last row when the last one leaves", async () => {
     state.username = "curator1";
     renderWithQueryClient(<CurationQueueView />, { queryClient: client() });
@@ -487,6 +510,28 @@ describe("keyboard on the queue", () => {
     expect(drawerRenders.some((r) => r.post_id === 11 && r.tip)).toBe(false);
     expect(drawerRenders.some((r) => r.post_id === 11 && r.comment)).toBe(true);
     expect(drawerRenders.some((r) => r.post_id === 12 && r.tip)).toBe(true);
+  });
+
+  it("does not keep asking for a next page that failed", async () => {
+    state.username = "curator1";
+    router.on(/curation-desk\/roster-feed/, (_url, init) => {
+      const body = JSON.parse(String(init?.body));
+      return body.cursor
+        ? jsonResponse({ error: "down" }, 500)
+        : makeRosterPage([makeRow({ post_id: 11, overlay: makeOverlay() }), makeRow({ post_id: 12, overlay: makeOverlay() })], { next_cursor: "c12" });
+    });
+    renderWithQueryClient(<CurationQueueView />, { queryClient: client() });
+    expect(await screen.findAllByRole("article")).toHaveLength(2);
+    router.on(/curation-desk\/tick/, tickReviewing(11, 12));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(15_000);
+    });
+    await waitFor(() => expect(router.callsTo(/curation-desk\/roster-feed/).length).toBeGreaterThanOrEqual(2));
+    // The one failed ask, and no loop behind it.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(5_000);
+    });
+    expect(router.callsTo(/curation-desk\/roster-feed/)).toHaveLength(2);
   });
 
   it("Enter opens the drawer once: the row no longer handles it too", async () => {

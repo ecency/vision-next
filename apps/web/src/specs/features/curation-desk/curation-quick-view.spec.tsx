@@ -432,6 +432,31 @@ describe("CurationQuickView", () => {
     expect(onTipHandled).toHaveBeenCalledTimes(1);
   });
 
+  it("never renders the previous post's open reply box on a cached next post, not even for a frame", async () => {
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
+    for (const r of [row, next]) {
+      client.setQueryData(["posts", "entry", `/@${r.author}/${r.permlink}`], { author: r.author, permlink: r.permlink, body: "cached", json_metadata: {}, active_votes: [] });
+    }
+    const boxes: string[] = [];
+    const observer = new MutationObserver(() => {
+      for (const box of document.querySelectorAll("[data-curation-reply]")) boxes.push(box.closest("[data-curation-drawer]")?.querySelector("h2")?.textContent ?? "?");
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    const { rerender } = renderWithQueryClient(
+      <CurationQuickView row={row} neighbour={null} viewer={member} recommendationsEnabled onClose={noop} onPrev={noop} onNext={noop} onReviewed={noop} onSkip={noop} onSnooze={noop} onFlag={noop} onNote={noop} onSaveNote={noop} recommendRef={null} />,
+      { queryClient: client }
+    );
+    fireEvent.click(await screen.findByRole("button", { name: "curation-desk.actions.comment-key" }));
+    expect(screen.getByTestId("comment-box")).toBeInTheDocument();
+    rerender(
+      <CurationQuickView row={next} neighbour={null} viewer={member} recommendationsEnabled onClose={noop} onPrev={noop} onNext={noop} onReviewed={noop} onSkip={noop} onSnooze={noop} onFlag={noop} onNote={noop} onSaveNote={noop} recommendRef={null} />
+    );
+    await screen.findByText("Post 2");
+    expect(screen.queryByTestId("comment-box")).toBeNull();
+    observer.disconnect();
+    expect(boxes.filter((title) => title === "Post 2")).toEqual([]);
+  });
+
   it("closes the reply box when the drawer moves to another post", async () => {
     const { rerender } = renderDrawer({ row });
     await screen.findByTestId("renderer");

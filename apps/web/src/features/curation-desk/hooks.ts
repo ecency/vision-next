@@ -126,14 +126,13 @@ export function rosterFeedQueryOptions(username: string | undefined, params: Cur
     initialPageParam: undefined as string | undefined,
     queryFn: ({ pageParam, signal }: { pageParam?: string; signal?: AbortSignal }) =>
       curationDeskApi.rosterFeed(username, withLimit, pageParam, signal),
-    getNextPageParam: (lastPage: CurationRosterFeedPage): string | undefined => {
-      // The route says whether more remain; the row count does not, because a
-      // loaded page shrinks as rows leave it live (curated, reviewed by a
-      // colleague) and a short page would otherwise end the queue early.
-      if (!lastPage || lastPage.next_cursor == null) return undefined;
-      const last = lastPage.items[lastPage.items.length - 1];
-      return last?._cursor ?? lastPage.next_cursor;
-    },
+    // The route's own boundary, always: it says whether more remain and where
+    // the next page starts. The loaded page is no guide to either, because it
+    // changes under the curator: rows leave it live (curated, reviewed by a
+    // colleague), so a short page is no sign the queue ended, and rows come
+    // back into it (an undo, a row a stale head read omitted), so its last
+    // row's cursor could sit past posts the route has not served yet.
+    getNextPageParam: (lastPage: CurationRosterFeedPage): string | undefined => lastPage?.next_cursor ?? undefined,
     // The public feed's select: same dedupe, same takedown masking.
     select: selectCurationFeedPages<CurationRosterFeedPage>,
     staleTime: 10_000,
