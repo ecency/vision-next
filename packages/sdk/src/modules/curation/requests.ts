@@ -363,7 +363,7 @@ export function curationMarkRequest(
   code: string | undefined,
   input: CurationMarkInput
 ): Promise<CurationMarkResponse> {
-  const { author, permlink, state, reason, note, snooze_until } = input;
+  const { author, permlink, state, reason, note, snooze_until, lane } = input;
   if (!author || !permlink || !state) {
     throw new Error("[SDK][Curation] mark needs author, permlink and state");
   }
@@ -371,6 +371,7 @@ export function curationMarkRequest(
   if (reason) body.reason = reason;
   if (note) body.note = note;
   if (snooze_until) body.snooze_until = snooze_until;
+  if (lane) body.lane = lane;
   return postJson<CurationMarkResponse>("/mark", code, body, "set mark");
 }
 

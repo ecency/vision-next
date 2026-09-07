@@ -13,17 +13,13 @@ import {
   votingValue,
   type CurationActiveCurator,
   type CurationStatus,
-  type CurationTeamCursor
 } from "@ecency/sdk";
 import { Button } from "@ui/button";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { UserAvatar } from "@/features/shared/user-avatar";
-import { dateToRelative } from "@/utils";
-import { formatHm, formatUtcHm } from "./curation-window";
 
 interface Props {
   status: CurationStatus | undefined;
-  teamCursor: CurationTeamCursor | null | undefined;
   activeCurators: CurationActiveCurator[];
   isRoster: boolean;
   livePaused: boolean;
@@ -77,7 +73,6 @@ function Tile({
  */
 export const CurationHeader = memo(function CurationHeader({
   status: liveStatus,
-  teamCursor: liveTeamCursor,
   activeCurators,
   isRoster,
   livePaused,
@@ -85,12 +80,9 @@ export const CurationHeader = memo(function CurationHeader({
 }: Props) {
   // The tabs can populate the shared status cache before this streamed page
   // hydrates. Match the empty server shell until this header has mounted.
-  // `teamCursor` is gated too: the parent derives it from that same status
-  // cache (and from the live tick), so the Cursor tile mismatches without it.
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   const status = mounted ? liveStatus : undefined;
-  const teamCursor = mounted ? liveTeamCursor : undefined;
   const { account } = useActiveAccount();
   const vp = status?.vp;
   const mana = status?.mana_spent_today;
@@ -189,38 +181,6 @@ export const CurationHeader = memo(function CurationHeader({
           )}
         </summary>
         <div className="mt-3 grid grid-cols-2 gap-2 lg:grid-cols-3 xl:grid-cols-6">
-          <Tile
-            label={i18next.t("curation-desk.header.cursor")}
-            value={
-              teamCursor?.created
-                ? i18next
-                    .t("curation-desk.header.cursor-value", {
-                      time: formatUtcHm(teamCursor.created),
-                      by: teamCursor.set_by ? `@${teamCursor.set_by}` : "",
-                      when: teamCursor.set_at ? dateToRelative(teamCursor.set_at) : ""
-                    })
-                    // The public cursor names nobody, so the trailing pieces go.
-                    .replace(/\s+/g, " ")
-                    .trim()
-                : i18next.t("curation-desk.header.cursor-none")
-            }
-          >
-            {status?.behind_seconds != null && (
-              <span
-                className={clsx(
-                  "text-[11px]",
-                  status.behind_seconds > 4 * 3600
-                    ? "text-warning-ink dark:text-warning-default"
-                    : "text-gray-500"
-                )}
-              >
-                {i18next.t("curation-desk.header.behind", {
-                  time: formatHm(status.behind_seconds * 1000)
-                })}
-              </span>
-            )}
-          </Tile>
-
           {status?.counts && (
             <Tile
               label={i18next.t("curation-desk.header.curated-today")}

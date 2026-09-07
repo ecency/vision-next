@@ -2,7 +2,7 @@ import React from "react";
 import { renderToString } from "react-dom/server";
 import { hydrateRoot } from "react-dom/client";
 import "@testing-library/jest-dom";
-import { act, fireEvent, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithQueryClient } from "@/specs/test-utils";
@@ -165,6 +165,73 @@ describe("CurationQueueView", () => {
     // Nothing went out on the defaults first, and nothing follows to correct it.
     await waitFor(() => expect(screen.getAllByRole("article").length).toBeGreaterThan(0));
     expect(fetchRouter.callsTo(/curation-desk\/feed/)).toHaveLength(1);
+  });
+
+  /**
+   * The hand-off names curators and counts their marks, which spec 8 keeps
+   * roster-only permanently. The backend fences it out of every public payload;
+   * this is the same fence on the render side.
+   */
+  it("shows the team hand-off to the roster and never to a public visitor", async () => {
+    renderWithQueryClient(<CurationQueueView />, { queryClient: prodLikeClient() });
+    await waitFor(() => expect(fetchRouter.callsTo(/curation-desk\/feed/)).toHaveLength(1));
+    expect(screen.queryByText("curation-desk.handoff.title")).toBeNull();
+    cleanup();
+
+    state.username = "curator1";
+    renderWithQueryClient(<CurationQueueView />, { queryClient: prodLikeClient() });
+    expect(await screen.findByText("curation-desk.handoff.title")).toBeInTheDocument();
+  });
+
+  /**
+   * The loaded page seeds the bar before the first tick. Once a tick has
+   * answered it is the authority, an answer with no hand-off at all included:
+   * during a rolling deploy a page from the new backend can be followed by a
+   * tick from the old one, and falling back to the page then would revive its
+   * entries and label them freshly updated.
+   */
+  it("stops showing the page's hand-off once a tick answers without one", async () => {
+    state.username = "curator1";
+    fetchRouter.on(/curation-desk\/roster-feed/, () =>
+      makeRosterPage([makeRow({ post_id: 11, overlay: makeOverlay() })], {
+        handoff: [
+          {
+            username: "seckorama",
+            reviewed_to: "2026-09-05T08:14:00",
+            reviewed_to_post_id: 9,
+            last_mark_at: "2026-09-05T10:00:00",
+            marks_24h: 3,
+            lane: {},
+          },
+        ],
+      })
+    );
+    renderWithQueryClient(<CurationQueueView />, { queryClient: prodLikeClient() });
+    // seeded from the page, before any tick
+    expect(await screen.findByText("@seckorama")).toBeInTheDocument();
+
+    // the tick mock above answers with no `handoff` at all: an older backend
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(15_000);
+    });
+
+    await waitFor(() => expect(screen.queryByText("@seckorama")).toBeNull());
+    expect(screen.queryByText("curation-desk.handoff.empty")).toBeNull();
+  });
+
+  /**
+   * "Your queue starts at the oldest post nobody has handled" is true only with
+   * every handled kind out of the list. Showing curated posts puts handled rows
+   * back in, so the sentence goes.
+   */
+  it("drops the where-you-start sentence once curated posts are shown", async () => {
+    state.username = "curator1";
+    renderWithQueryClient(<CurationQueueView />, { queryClient: prodLikeClient() });
+    expect(await screen.findByText("curation-desk.handoff.where-you-start")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("switch", { name: "curation-desk.filters.hide-curated" }));
+
+    await waitFor(() => expect(screen.queryByText("curation-desk.handoff.where-you-start")).toBeNull());
   });
 
   it("loads the roster feed with hide_reviewed on the key for a roster user", async () => {
@@ -361,7 +428,7 @@ describe("CurationQueueView", () => {
     const queryClient = new QueryClient({ defaultOptions: { queries: { enabled: false } } });
     const header = (loaded: boolean) => (
       <QueryClientProvider client={queryClient}>
-        <CurationHeader status={loaded ? makeStatus() : undefined} teamCursor={null} activeCurators={[]} isRoster={false} livePaused={false} onHelp={() => {}} />
+        <CurationHeader status={loaded ? makeStatus() : undefined} activeCurators={[]} isRoster={false} livePaused={false} onHelp={() => {}} />
       </QueryClientProvider>
     );
     const container = document.createElement("div");
@@ -380,14 +447,11 @@ describe("CurationQueueView", () => {
     }
   });
 
-  it("hydrates the cursor tile when the tabs have already loaded the cursor into the client cache", async () => {
+  it("hydrates the status tiles when the tabs have already loaded the status into the client cache", async () => {
     const queryClient = new QueryClient({ defaultOptions: { queries: { enabled: false } } });
-    // The parent derives teamCursor from that same shared status cache, so the
-    // prop is null in the server shell and set by the time this hydrates.
-    const cursor = { post_id: 7, created: "2026-09-06T09:00:00" };
     const header = (loaded: boolean) => (
       <QueryClientProvider client={queryClient}>
-        <CurationHeader status={loaded ? makeStatus() : undefined} teamCursor={loaded ? cursor : null} activeCurators={[]} isRoster={false} livePaused={false} onHelp={() => {}} />
+        <CurationHeader status={loaded ? makeStatus() : undefined} activeCurators={[]} isRoster={false} livePaused={false} onHelp={() => {}} />
       </QueryClientProvider>
     );
     const container = document.createElement("div");
@@ -398,7 +462,7 @@ describe("CurationQueueView", () => {
     try {
       await act(async () => { root = hydrateRoot(container, header(true), { onRecoverableError }); });
       expect(onRecoverableError).not.toHaveBeenCalled();
-      expect(container).toHaveTextContent("curation-desk.header.cursor-value");
+      expect(container).toHaveTextContent("curation-desk.header.curated-today");
     } finally {
       await act(async () => root?.unmount());
       container.remove();

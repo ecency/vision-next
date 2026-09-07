@@ -68,22 +68,29 @@ describe("useCurationTick", () => {
     vi.useRealTimers();
   });
 
-  it("does not tick while the tab is hidden or with zero loaded rows", async () => {
+  it("does not tick while the tab is hidden", async () => {
     setVisibility("hidden");
     seed();
-    const hidden = renderHook(() => useCurationTick({ username: "curator1", enabled: true, feedKey, rows: [rowA, rowB], getVisibleIds: () => [1, 2] }), { wrapper });
+    renderHook(() => useCurationTick({ username: "curator1", enabled: true, feedKey, rows: [rowA, rowB], getVisibleIds: () => [1, 2] }), { wrapper });
     await act(async () => {
       await vi.advanceTimersByTimeAsync(15_000 * 3);
     });
     expect(router.callsTo(/tick/)).toHaveLength(0);
-    hidden.unmount();
+  });
 
+  /**
+   * The tick carries the team hand-off and who is active, so an empty filtered
+   * queue is exactly where it has to keep going: the bar is the only thing on
+   * screen, and it has to update and to age. The lists just go out empty.
+   */
+  it("keeps ticking with an empty queue, with empty lists", async () => {
     setVisibility("visible");
     renderHook(() => useCurationTick({ username: "curator1", enabled: true, feedKey, rows: [], getVisibleIds: () => [] }), { wrapper });
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(15_000 * 3);
+      await vi.advanceTimersByTimeAsync(15_000);
     });
-    expect(router.callsTo(/tick/)).toHaveLength(0);
+    expect(router.callsTo(/tick/)).toHaveLength(1);
+    expect(router.callsTo(/tick/)[0].body).toMatchObject({ need: [], visible: [] });
   });
 
   it("ticks once on visibilitychange and every 15 s while visible", async () => {
@@ -384,6 +391,36 @@ describe("mergeTickIntoPages", () => {
     )!;
     expect(moved).not.toBe(data);
     expect(moved.pages[0].items[0].voted_by).toHaveLength(1);
+  });
+
+  /**
+   * With curated posts hidden, a row the tick reports as curated leaves the
+   * list now, rather than sitting there as a curated card until the next
+   * refresh happens to drop it. With them shown, it turns into that card.
+   */
+  it("drops a row that just got curated when the queue hides curated posts", () => {
+    const open = makeRow({ post_id: 1, state: 0, overlay: makeOverlay() });
+    const other = makeRow({ post_id: 2, state: 0, overlay: makeOverlay() });
+    const data: InfiniteData<CurationRosterFeedPage> = {
+      pages: [makeRosterPage([open, other])],
+      pageParams: [undefined],
+    };
+    const curated = tickBody({
+      deltas: {
+        marks: [],
+        flags: [],
+        signals: [],
+        rows: [{ post_id: 1, state: 1, trailed_by: null, voted_by: [], unvoted_at: null }],
+      },
+    });
+
+    const hidden = mergeTickIntoPages(data, curated, { dropCurated: true })!;
+    expect(hidden.pages[0].items.map((r) => r.post_id)).toEqual([2]);
+    expect(hidden.pages[0].items[0]).toBe(other);
+
+    const shown = mergeTickIntoPages(data, curated, { dropCurated: false })!;
+    expect(shown.pages[0].items.map((r) => r.post_id)).toEqual([1, 2]);
+    expect(shown.pages[0].items[0].state).toBe(1);
   });
 
   it("is unchanged by a backend that sends no row deltas", () => {

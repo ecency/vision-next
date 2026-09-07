@@ -1,21 +1,23 @@
-import type { CurationApp } from "@ecency/sdk";
+import type { CurationApp, CurationWindow } from "@ecency/sdk";
 import * as ls from "@/utils/local-storage";
-import { CURATION_APPS, FILTERS_STORAGE_KEY, SAVED_FILTERS_VERSION, WORD_PRESETS } from "./consts";
+import { CURATION_APPS, CURATION_WINDOWS, FILTERS_STORAGE_KEY, SAVED_FILTERS_VERSION, WORD_PRESETS } from "./consts";
 import type { QueueFilters, SavedFiltersStore, SavedQueueFilters } from "./types";
 
 /**
- * The refine fields worth carrying between visits. Four are deliberately out:
+ * The refine fields worth carrying between visits. Three are deliberately out:
  *
  * - `sort` keeps its own shipped key, so nobody's saved order is migrated.
  * - `seed` is session scoped: a stored one would freeze Random forever, and
  *   restoring `sort: random` before the seed exists sends `seed=""`, which the
  *   backend rejects.
- * - `window` selects by wall-clock age, so remembering it turns one afternoon's
- *   focus into a standing instruction to hide everything older than a day. It
- *   is also the field that switches off the half and eighth weight tails, so a
- *   restored one hides those posts with no way back on screen.
  * - `flagged` and `excluded` are moderation lenses, not a lane; `excluded`
  *   lists rows the public feed never serves.
+ *
+ * `window` was left out at first, because a remembered "under 24 h" also
+ * switches off the half and eighth weight tails. Curators asked for it back
+ * the first day: resetting it on every reload was the thing they noticed
+ * most, and Reset is on screen whenever any filter is on, which is the way
+ * back the original reasoning said was missing.
  */
 export const SAVED_FILTER_FIELDS = [
   "app",
@@ -24,6 +26,7 @@ export const SAVED_FILTER_FIELDS = [
   "recommended",
   "hideCurated",
   "unreviewedOnly",
+  "window",
   "minWords",
   "maxWords",
   "hasImages",
@@ -60,6 +63,9 @@ export function sanitizeSavedFilters(raw: unknown): SavedQueueFilters {
   }
   if (typeof input.community === "string" && COMMUNITY_RE.test(input.community)) {
     out.community = input.community;
+  }
+  if (typeof input.window === "string" && (CURATION_WINDOWS as readonly string[]).includes(input.window)) {
+    out.window = input.window as CurationWindow;
   }
   if (isBool(input.newAuthors)) out.newAuthors = input.newAuthors;
   if (isBool(input.recommended)) out.recommended = input.recommended;

@@ -4382,10 +4382,6 @@
       "curated-summary": "{{count}} curated in 24h",
       "power-summary": "Trail power {{vp}}%",
       "aria": "Curation status",
-      "cursor": "Team reviewed up to",
-      "cursor-value": "{{time}} UTC {{by}} {{when}}",
-      "cursor-none": "No team cursor yet",
-      "behind": "{{time}} behind",
       "active": "Active curators",
       "active-none": "Nobody else active",
       "active-hint": "Another curator is active: consider the opposite direction.",
@@ -4647,21 +4643,12 @@
       "hint": "Notes name authors and findings. They stay on the desk; trial curators see their own only.",
       "save": "Save note"
     },
-    "cursor": {
-      "confirm-title": "Reviewed up to here?",
-      "confirm-body_one": "Marks {{count}} loaded post up to {{time}} UTC as reviewed by the team cursor. The cursor only moves forward.",
-      "confirm-body_other": "Marks {{count}} loaded posts up to {{time}} UTC as reviewed by the team cursor. The cursor only moves forward.",
-      "confirm-ok": "Move the cursor"
-    },
     "live": {
       "reviewed": "Marked reviewed: {{title}}",
       "noted": "Note saved",
       "snoozed": "Snoozed for {{preset}}",
       "flagged": "Flagged for the team",
       "cleared": "Mark cleared",
-      "cursor-moved_one": "Team cursor moved, {{count}} post swept",
-      "cursor-moved_other": "Team cursor moved, {{count}} posts swept",
-      "cursor-ahead": "The team cursor was already ahead",
       "undo": "Undo"
     },
     "list": {
@@ -4676,8 +4663,6 @@
       "divider": "Team reviewed up to here · {{time}} UTC {{by}}",
       "divider-aria": "Team cursor",
       "divider-none": "Team reviewed up to here",
-      "reviewed-up-to-here": "Reviewed up to here",
-      "reviewed-up-to-here-key": "Reviewed up to here (Shift+R)",
       "older-reviewed_one": "Show {{count}} older reviewed post",
       "older-reviewed_other": "Show {{count}} older reviewed posts"
     },
@@ -4687,7 +4672,6 @@
       "quick-view": "Open or close the quick view",
       "vote": "Open the vote slider",
       "reviewed": "Mark reviewed",
-      "reviewed-up-to-here": "Reviewed up to here (team cursor)",
       "skip": "Skip (nothing written)",
       "snooze": "Snooze",
       "flag": "Flag",
@@ -4713,6 +4697,28 @@
       "no-marks": "No marks yet",
       "recommenders": "Recommended by {{count}}",
       "no-recommenders": "No recommendations yet"
+    },
+    "handoff": {
+      "aria": "Team hand-off",
+      "title": "Team hand-off",
+      "empty": "Nobody has marked a post in the last 24 hours.",
+      "updated": "updated {{when}}",
+      "you": "@{{username}} (you)",
+      "to-time": "to {{time}} UTC",
+      "to-date": "to {{time}} UTC",
+      "marks_one": "{{count}} mark",
+      "marks_other": "{{count}} marks",
+      "lane-all": "all posts",
+      "lane-rereading": "re-reading handled posts",
+      "lane-unflagged": "not flagged",
+      "lane-with-curated": "curated included",
+      "lane-more": "{{lane}} and {{count}} more",
+      "lane-narrowed_one": "{{count}} filter",
+      "lane-narrowed_other": "{{count}} filters",
+      "order-newest": "newest first, not a watermark",
+      "order-random": "shuffled, not a watermark",
+      "order-unique": "by recommenders, not a watermark",
+      "where-you-start": "Your queue starts at the oldest post nobody has handled."
     },
     "marks-view": {
       "title": "My marks",
@@ -4783,7 +4789,7 @@
       },
       "etiquette": {
         "title": "12. Etiquette",
-        "body": "<ul><li>No own posts through the trail, no daily friends.</li><li>Comment on first posts.</li><li>Mark honestly: a swept card is <strong>by cursor</strong>, a read card is <strong>by you</strong>.</li><li>Flag instead of arguing; no public call-outs.</li><li>Recommendations are on chain and cost Resource Credits; count networks, not accounts (other apps count as one network); dismiss a ring instead of arguing.</li></ul>"
+        "body": "<ul><li>No own posts through the trail, no daily friends.</li><li>Comment on first posts.</li><li>Mark honestly: your marks are the team hand-off, so a card you did not read is not reviewed.</li><li>Flag instead of arguing; no public call-outs.</li><li>Recommendations are on chain and cost Resource Credits; count networks, not accounts (other apps count as one network); dismiss a ring instead of arguing.</li></ul>"
       },
       "recommending-well": {
         "title": "13. Recommending well",
@@ -4796,14 +4802,14 @@
       "checklist": {
         "title": "Onboarding checklist for a trial curator",
         "step-1": "Log in on ecency.com, open the curation desk; confirm your name appears under Active after your first mark.",
-        "step-2": "Read this guide once; answer the six-question check (trail weight at 70% VP, which window a 30 h old post is in and what that does to curation, what \"author trailed 2 h ago\" means, what formulaic means, what to do after a hivewatchers downvote, what \"reviewed up to here\" does).",
+        "step-2": "Read this guide once; answer the six-question check (trail weight at 70% VP, which window a 30 h old post is in and what that does to curation, what \"author trailed 2 h ago\" means, what formulaic means, what to do after a hivewatchers downvote, what the team hand-off shows).",
         "step-3": "Set your default vote weight in the vote dialog; understand it is your weight, the trail weight is the header number.",
         "step-4": "Review 20 cards without voting: mark reviewed, open the drawer, read one author snapshot.",
         "step-5": "Snooze one card and find it in My marks.",
         "step-6": "Flag one card with a reason; ask a mentor to review the flag.",
         "step-7": "Vote one post; watch \"waiting for trail\" become \"not trailed: not in trail list\" (expected for trial accounts).",
-        "step-8": "Do one hand-off with a mentor: they set \"reviewed up to here\", you pick up oldest-first from the cursor.",
-        "step-9": "Learn the keys: j k Enter v r Shift+R s z f n x ?.",
+        "step-8": "Do one hand-off with a mentor: read their line in the team hand-off, then pick up oldest-first from there.",
+        "step-9": "Learn the keys: j k Enter v r s z f n x ?.",
         "step-10": "Read the Team panel: votes today per curator, excluded list, conflicts (flagged and curated).",
         "step-11": "Do one plagiarism check end to end and write a note on the card.",
         "step-12": "After two weeks compare your reviewed-per-hour and flag precision with the team medians with your mentor."

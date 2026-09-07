@@ -71,7 +71,7 @@ vi.mock("@/api/sdk-mutations/use-curation-recommend-mutation", () => ({
 import { CurationQuickView } from "@/features/curation-desk/curation-quick-view";
 import type { ViewerRole } from "@/features/curation-desk/types";
 
-const member: ViewerRole = { username: "member1", kind: "member", role: null, isRoster: false, isTrial: false, canRewindCursor: false, isLoading: false };
+const member: ViewerRole = { username: "member1", kind: "member", role: null, isRoster: false, isTrial: false, isLoading: false };
 const roster: ViewerRole = { ...member, username: "curator1", kind: "roster", role: "curator", isRoster: true };
 
 const noop = () => {};

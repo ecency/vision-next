@@ -196,6 +196,56 @@ export interface CurationActiveCurator {
   last_action_at: string;
 }
 
+/**
+ * The narrowing facets a curator was working when they made a mark. Empty means
+ * the whole queue. The keys are the roster feed's own params, so a value here has
+ * already been through the allow lists the query runs on.
+ */
+export type CurationLane = Partial<{
+  /** Present only when it is not the queue order, under which alone a position is a watermark. */
+  sort: CurationSort;
+  view: string;
+  app: CurationApp;
+  community: string;
+  window: CurationWindow;
+  rep_min: number;
+  rep_max: number;
+  min_words: number;
+  max_words: number;
+  has_images: boolean;
+  new_authors: boolean;
+  recommended: boolean;
+  flagged: boolean;
+  hide_curated: boolean;
+  hide_reviewed: boolean;
+  hide_snoozed: boolean;
+}>;
+
+/**
+ * How far one curator has got, derived from their marks so nobody types it. This
+ * is the hand-off curators used to post in Discord.
+ *
+ * `reviewed_to` is a progress claim rather than a contiguous reviewed prefix: a
+ * mark is any of the four states and marks are not made in queue order. It is
+ * read, never used to aim anything. `lane` travels with the mark that set the
+ * position, so the two always describe the same moment. Roster-only: the public
+ * payloads carry no per-curator activity at all.
+ */
+export interface CurationHandoffEntry {
+  username: string;
+  reviewed_to: string | null;
+  reviewed_to_post_id: number | null;
+  last_mark_at: string;
+  /** Absent for a trial viewer looking at somebody else. */
+  marks_24h?: number;
+  /**
+   * Null is UNKNOWN: a mark from before the desk sent lanes, or one that said
+   * nothing. It is never the whole queue, which is `{}`. Absent until the
+   * backend that records it is deployed.
+   */
+  lane?: CurationLane | null;
+}
+
 export interface CurationFeedPage {
   items: CurationRow[];
   next_cursor: string | null;
@@ -210,6 +260,8 @@ export interface CurationRosterFeedPage {
   next_cursor: string | null;
   team_cursor: CurationTeamCursor;
   active_curators: CurationActiveCurator[];
+  /** Roster only, and absent until the backend that derives it is deployed. */
+  handoff?: CurationHandoffEntry[];
   facets: { communities: Array<{ community: string; title?: string | null; count?: number }> };
   total_estimate: number | null;
   head_lag_seconds: number;
@@ -370,6 +422,8 @@ export interface CurationTickResponse {
   };
   team_cursor: CurationTeamCursor;
   active_curators: CurationActiveCurator[];
+  /** Roster only, and absent until the backend that derives it is deployed. */
+  handoff?: CurationHandoffEntry[];
   trail_alerts: unknown[];
   generated_at: string;
   truncated: boolean;
@@ -382,6 +436,13 @@ export interface CurationMarkInput {
   reason?: string;
   note?: string;
   snooze_until?: string;
+  /**
+   * The feed params the desk was showing when it made this mark. The hand-off
+   * reads a position and its lane off the same mark, so a desk with two tabs on
+   * different filters stamps each mark with its own. Paging keys are dropped by
+   * the gateway; absent means the lane is unknown, never the whole queue.
+   */
+  lane?: CurationRosterFeedParams;
 }
 
 export interface CurationMarkResponse {

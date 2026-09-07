@@ -4,14 +4,18 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import dynamic from "next/dynamic";
 import i18next from "i18next";
 import type { VirtuosoHandle } from "react-virtuoso";
-import { getCurationFeedInfiniteQueryOptions, type CurationFlagReason } from "@ecency/sdk";
+import {
+  getCurationFeedInfiniteQueryOptions,
+  type CurationFlagReason,
+  type CurationHandoffEntry,
+} from "@ecency/sdk";
 import { EcencyConfigManager } from "@/config";
-import { ModalConfirm } from "@ui/modal-confirm";
 import { error as errorToast } from "@/features/shared/feedback";
 import { formatError } from "@/api/format-error";
-import { UNDO_CURSOR_MS, UNDO_REVIEWED_MS } from "./consts";
+import { UNDO_REVIEWED_MS } from "./consts";
 import { FlagDialog, NoteDialog, ShortcutSheet, SnoozeDialog } from "./curation-action-dialogs";
 import { curationDeskApi } from "./curation-desk-api";
+import { CurationHandoffBar } from "./curation-handoff-bar";
 import { CurationHeader } from "./curation-header";
 import { useCurationKeyboard } from "./curation-keyboard";
 import { buildQueueDisplay, navigableRows, rowKey } from "./curation-queue-display";
@@ -20,7 +24,6 @@ import type { CurationRecommendHandle } from "./curation-recommend-btn";
 import { CurationSortFilterBar } from "./curation-sort-filter-bar";
 import { useCurationTicker } from "./curation-ticker";
 import { CurationToolbar } from "./curation-toolbar";
-import { formatUtcHm } from "./curation-window";
 import {
   filtersToParams,
   publicPageOneFetcher,
@@ -32,7 +35,6 @@ import {
   useCurationStatus,
   useCurationTick,
   useQueueFilters,
-  useSetCursor,
   useStatusPoll,
   useViewerRole,
 } from "./hooks";
@@ -79,7 +81,6 @@ type Dialog =
   | { kind: "snooze"; row: DeskRow }
   | { kind: "flag"; row: DeskRow }
   | { kind: "note"; row: DeskRow }
-  | { kind: "cursor"; row: DeskRow; count: number }
   | { kind: "help" };
 
 interface Undo {
@@ -141,11 +142,14 @@ export function CurationQueueView() {
 
   const tick = useCurationTick({
     username: viewer.username,
-    enabled: viewer.isRoster && rows.length > 0,
+    // Not gated on rows: with an empty filtered queue the hand-off bar is the
+    // only thing on screen, and it needs the tick to update and to age.
+    enabled: viewer.isRoster,
     feedKey: queryKey,
     rows,
     getVisibleIds,
     feedGeneratedAt: firstPage?.generated_at,
+    hideCurated: filters.hideCurated,
   });
 
   const fetchPageOne = useMemo(
@@ -166,6 +170,29 @@ export function CurationQueueView() {
   useStatusPoll({ enabled: true, feedKey: queryKey, fetchPageOne, feedVersion, sort: filters.sort });
 
   const teamCursor = tick.teamCursor ?? firstPage?.team_cursor ?? status.data?.team_cursor ?? null;
+  // "Your queue starts at the oldest post nobody has handled" is true only when
+  // every handled kind is out of the list: reviewed and snoozed (unreviewedOnly),
+  // curated (hideCurated), and neither moderation lens, since the flagged lens
+  // selects handled rows and the excluded view lists rows the queue never
+  // serves. Oldest first, or "starts at" means nothing.
+  const queueStartsAtOldestUnhandled =
+    filters.sort === "queue" &&
+    filters.unreviewedOnly &&
+    filters.hideCurated &&
+    !filters.flagged &&
+    !filters.excluded;
+  // The tick is the authority once it has answered under this key, an empty
+  // answer included (that is how a position that aged out leaves the bar) and
+  // an answer with no hand-off at all included: during a rolling deploy a page
+  // from the new backend can be followed by a tick from the old one, and
+  // falling back to the page then would revive its entries and label them
+  // freshly updated. Only before the first answer does the loaded page seed
+  // the bar, so it is filled on arrival rather than blank for fifteen seconds.
+  // Null means "not known" and is never rendered as nobody marked.
+  const handoff: CurationHandoffEntry[] | null =
+    tick.lastTickAt != null
+      ? tick.handoff
+      : (firstPage as { handoff?: CurationHandoffEntry[] } | undefined)?.handoff ?? null;
   const totalEstimate = viewer.isRoster ? (firstPage as { total_estimate?: number | null } | undefined)?.total_estimate : undefined;
   const communities = (firstPage as { facets?: { communities: Array<{ community: string; title?: string | null; count?: number }> } } | undefined)?.facets?.communities ?? [];
 
@@ -193,7 +220,6 @@ export function CurationQueueView() {
 
   const mark = useCurationMark();
   const clearMark = useClearMark();
-  const setCursor = useSetCursor();
 
   // The bar outlives its window while an undo is in flight: dropping it there
   // would tell the viewer the undo applied before the request answered.
@@ -250,7 +276,9 @@ export function CurationQueueView() {
   const doMark = useCallback(
     async (row: DeskRow, input: { state: "reviewed" | "snoozed" | "flagged" | "noted"; reason?: string; note?: string; snooze_until?: string }, message: string) => {
       try {
-        await mark.mutateAsync({ row, ...input });
+        // The lane this desk is showing rides on the mark, so the hand-off can
+        // say which queue the position was earned in without ever guessing.
+        await mark.mutateAsync({ row, ...input, lane: params });
         setUndo({
           message,
           action: input.state === "reviewed" ? () => clearMark.mutateAsync(row) : null,
@@ -260,7 +288,7 @@ export function CurationQueueView() {
         errorToast(...formatError(e));
       }
     },
-    [mark, clearMark]
+    [mark, clearMark, params]
   );
 
   const onSelect = useCallback((row: DeskRow) => setActiveKey(rowKey(row)), []);
@@ -313,40 +341,6 @@ export function CurationQueueView() {
     [viewer.isRoster, clearMark]
   );
 
-  const onReviewedUpToHere = useCallback(() => {
-    if (!viewer.isRoster) return;
-    const row = activeRow ?? ordered[ordered.length - 1];
-    if (!row) return;
-    const idx = ordered.findIndex((r) => r.post_id === row.post_id);
-    setDialog({ kind: "cursor", row, count: idx + 1 });
-  }, [viewer.isRoster, activeRow, ordered]);
-
-  const confirmCursor = useCallback(
-    async (row: DeskRow) => {
-      setDialog({ kind: "none" });
-      const previous = teamCursor;
-      try {
-        const result = await setCursor.mutateAsync({ post_id: row.post_id, action: "advance" });
-        if (!result.moved) {
-          setUndo({ message: i18next.t("curation-desk.live.cursor-ahead"), action: null, until: Date.now() + UNDO_REVIEWED_MS });
-          return;
-        }
-        setUndo({
-          message: i18next.t("curation-desk.live.cursor-moved", { count: result.swept_count ?? 0 }),
-          action:
-            viewer.canRewindCursor && previous?.post_id != null
-              ? () => setCursor.mutateAsync({ post_id: previous.post_id!, action: "rewind", reason: "undo" })
-              : null,
-          until: Date.now() + UNDO_CURSOR_MS,
-        });
-        void tick.tickNow();
-      } catch (e) {
-        errorToast(...formatError(e));
-      }
-    },
-    [teamCursor, setCursor, viewer.canRewindCursor, tick]
-  );
-
   useCurationKeyboard(
     {
       next: () => move(1),
@@ -357,7 +351,6 @@ export function CurationQueueView() {
       },
       vote: () => activeRow && onVote(activeRow),
       reviewed: requireRoster(() => activeRow && onReviewed(activeRow)),
-      reviewedUpToHere: requireRoster(onReviewedUpToHere),
       skip: () => move(1),
       snooze: requireRoster(() => activeRow && onSnooze(activeRow)),
       flag: requireRoster(() => activeRow && onFlag(activeRow)),
@@ -393,7 +386,6 @@ export function CurationQueueView() {
     <div className="bg-white dark:bg-dark-200 rounded-2xl overflow-hidden" data-curation-queue>
       <CurationHeader
         status={status.data}
-        teamCursor={teamCursor}
         activeCurators={tick.activeCurators}
         isRoster={viewer.isRoster}
         livePaused={tick.paused}
@@ -409,6 +401,16 @@ export function CurationQueueView() {
         onReset={reset}
         savedOwner={savedOwner}
       />
+      {viewer.isRoster && (
+        <CurationHandoffBar
+          entries={handoff}
+          username={viewer.username}
+          updatedAt={tick.lastTickAt}
+          now={now}
+          communities={communities}
+          queueStartsAtOldestUnhandled={queueStartsAtOldestUnhandled}
+        />
+      )}
       <CurationSortFilterBar
         filters={filters}
         isRoster={viewer.isRoster}
@@ -461,9 +463,7 @@ export function CurationQueueView() {
             dataUpdatedAt={feed.dataUpdatedAt}
             fetchNextPage={feed.fetchNextPage}
             onToggleTail={onToggleTail}
-            onReviewedUpToHere={onReviewedUpToHere}
             onVisibleRows={onVisibleRows}
-            isBusy={setCursor.isPending}
             onSelect={onSelect}
             onOpen={onOpen}
             onVote={onVote}
@@ -525,18 +525,6 @@ export function CurationQueueView() {
             setDialog({ kind: "none" });
             onSaveNote(dialog.row, note);
           }}
-        />
-      )}
-      {dialog.kind === "cursor" && (
-        <ModalConfirm
-          titleText={i18next.t("curation-desk.cursor.confirm-title")}
-          descriptionText={i18next.t("curation-desk.cursor.confirm-body", {
-            count: dialog.count,
-            time: formatUtcHm(dialog.row.created),
-          })}
-          okText={i18next.t("curation-desk.cursor.confirm-ok")}
-          onConfirm={() => void confirmCursor(dialog.row)}
-          onCancel={() => setDialog({ kind: "none" })}
         />
       )}
       {dialog.kind === "help" && <ShortcutSheet onHide={() => setDialog({ kind: "none" })} />}

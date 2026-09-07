@@ -1,5 +1,6 @@
 import type {
   CurationApp,
+  CurationRosterFeedParams,
   CurationFlagReason,
   CurationMarkState,
   CurationOverlay,
@@ -24,7 +25,6 @@ export interface ViewerRole {
   role: CurationRole | null;
   isRoster: boolean;
   isTrial: boolean;
-  canRewindCursor: boolean;
   isLoading: boolean;
 }
 
@@ -57,8 +57,8 @@ export type ResolvedQueueFilters = Omit<QueueFilters, "sort" | "unreviewedOnly">
 
 /**
  * The refine set carried between visits. `sort` keeps its own storage key,
- * `seed` is session scoped, and `window`, `flagged` and `excluded` are
- * per-visit lenses: see SAVED_FILTER_FIELDS for each reason.
+ * `seed` is session scoped, and `flagged` and `excluded` are per-visit
+ * lenses: see SAVED_FILTER_FIELDS for each reason.
  */
 export type SavedQueueFilters = Partial<
   Pick<
@@ -69,6 +69,7 @@ export type SavedQueueFilters = Partial<
     | "recommended"
     | "hideCurated"
     | "unreviewedOnly"
+    | "window"
     | "minWords"
     | "maxWords"
     | "hasImages"
@@ -120,6 +121,8 @@ export interface MarkActionInput {
   reason?: CurationFlagReason | string;
   note?: string;
   snooze_until?: string;
+  /** The feed params on screen when the mark was made; the hand-off's lane. */
+  lane?: CurationRosterFeedParams;
 }
 
 /** Recommender-side state of one post for the viewer. Chain truth, optimistic locally. */

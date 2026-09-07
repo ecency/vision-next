@@ -84,7 +84,9 @@ describe("keyboard map", () => {
     expect(keyToAction({ key: "o", shiftKey: false })).toBe("toggleQuickView");
     expect(keyToAction({ key: "v", shiftKey: false })).toBe("vote");
     expect(keyToAction({ key: "r", shiftKey: false })).toBe("reviewed");
-    expect(keyToAction({ key: "R", shiftKey: true })).toBe("reviewedUpToHere");
+    // Shift+R was the team cursor. Retired, and not rebound: curator muscle
+    // memory would fire the new binding for a while.
+    expect(keyToAction({ key: "R", shiftKey: true })).toBeNull();
     expect(keyToAction({ key: "s", shiftKey: false })).toBe("skip");
     expect(keyToAction({ key: "ArrowRight", shiftKey: false })).toBe("skip");
     expect(keyToAction({ key: "z", shiftKey: false })).toBe("snooze");
@@ -149,7 +151,7 @@ describe("keyboard map", () => {
 describe("useCurationKeyboard", () => {
   it("calls the handler for a key and nothing while typing", () => {
     const handlers = Object.fromEntries(
-      ["next", "prev", "toggleQuickView", "vote", "reviewed", "reviewedUpToHere", "skip", "snooze", "flag", "note", "recommend", "openExternal", "help"].map((k) => [k, vi.fn()])
+      ["next", "prev", "toggleQuickView", "vote", "reviewed", "skip", "snooze", "flag", "note", "recommend", "openExternal", "help"].map((k) => [k, vi.fn()])
     ) as unknown as CurationKeyHandlers;
     renderHook(() => useCurationKeyboard(handlers, true));
     press("j");
@@ -240,7 +242,12 @@ describe("keyboard on the queue", () => {
     await act(async () => press("j"));
     await act(async () => press("r"));
     await waitFor(() => expect(router.callsTo(/curation-desk\/mark$/)).toHaveLength(1));
-    expect(router.callsTo(/curation-desk\/mark$/)[0].body).toMatchObject({ state: "reviewed", code: "code-1" });
+    const body = router.callsTo(/curation-desk\/mark$/)[0].body as Record<string, unknown>;
+    expect(body).toMatchObject({ state: "reviewed", code: "code-1" });
+    // The mark carries the lane this desk is showing, so the team hand-off can
+    // say which queue the position was earned in. The roster default is the
+    // whole queue in queue order with handled rows hidden.
+    expect(body.lane).toMatchObject({ sort: "queue", app: "all", hide_reviewed: true, hide_snoozed: true });
   });
 
   it("Enter opens the drawer once: the row no longer handles it too", async () => {
