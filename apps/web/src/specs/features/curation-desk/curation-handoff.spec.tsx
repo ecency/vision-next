@@ -94,12 +94,16 @@ describe("describeLane", () => {
 });
 
 describe("orderHandoff", () => {
-  it("puts the viewer first, so their own line does not move as colleagues work", () => {
+  it("puts the viewer first, then whoever marked most recently, whatever order arrived", () => {
     const rows = orderHandoff(
-      [entry({ username: "seckorama" }), entry({ username: "me" }), entry({ username: "dunsky" })],
+      [
+        entry({ username: "seckorama", last_mark_at: "2026-09-07T06:00:00" }),
+        entry({ username: "me", last_mark_at: "2026-09-07T05:00:00" }),
+        entry({ username: "dunsky", last_mark_at: "2026-09-07T09:40:00" }),
+      ],
       "me"
     );
-    expect(rows.map((r) => r.username)).toEqual(["me", "seckorama", "dunsky"]);
+    expect(rows.map((r) => r.username)).toEqual(["me", "dunsky", "seckorama"]);
   });
 
   it("is empty for nothing at all", () => {
@@ -125,6 +129,7 @@ describe("CurationHandoffBar", () => {
         updatedAt={NOW}
         now={NOW}
         communities={[]}
+        queueStartsAtOldestUnhandled
       />
     );
     const rows = screen.getAllByRole("listitem");
@@ -139,7 +144,7 @@ describe("CurationHandoffBar", () => {
    */
   it("prints a date on a position that is not from today", () => {
     renderWithQueryClient(
-      <CurationHandoffBar entries={[entry()]} username="me" updatedAt={NOW} now={NOW} communities={[]} />
+      <CurationHandoffBar entries={[entry()]} username="me" updatedAt={NOW} now={NOW} communities={[]} queueStartsAtOldestUnhandled />
     );
     expect(screen.getByText("curation-desk.handoff.to-time")).toBeInTheDocument();
 
@@ -150,13 +155,14 @@ describe("CurationHandoffBar", () => {
         updatedAt={NOW}
         now={NOW}
         communities={[]}
+        queueStartsAtOldestUnhandled
       />
     );
     expect(screen.getAllByText("curation-desk.handoff.to-date").length).toBeGreaterThan(0);
   });
 
   it("says the queue is untouched rather than rendering nothing", () => {
-    renderWithQueryClient(<CurationHandoffBar entries={[]} username="me" updatedAt={NOW} now={NOW} communities={[]} />);
+    renderWithQueryClient(<CurationHandoffBar entries={[]} username="me" updatedAt={NOW} now={NOW} communities={[]} queueStartsAtOldestUnhandled />);
     expect(screen.getByText("curation-desk.handoff.empty")).toBeInTheDocument();
   });
 
@@ -165,7 +171,7 @@ describe("CurationHandoffBar", () => {
    * send hand-offs. That is not "nobody has marked", and must not read as it.
    */
   it("claims nothing while the hand-off is not known", () => {
-    renderWithQueryClient(<CurationHandoffBar entries={null} username="me" updatedAt={null} now={NOW} communities={[]} />);
+    renderWithQueryClient(<CurationHandoffBar entries={null} username="me" updatedAt={null} now={NOW} communities={[]} queueStartsAtOldestUnhandled />);
     expect(screen.queryByText("curation-desk.handoff.empty")).toBeNull();
     expect(screen.queryByRole("list")).toBeNull();
     expect(screen.getByText("curation-desk.handoff.title")).toBeInTheDocument();
@@ -178,14 +184,31 @@ describe("CurationHandoffBar", () => {
    */
   it("shows when it was last updated, and flags it once two ticks are missed", () => {
     const fresh = renderWithQueryClient(
-      <CurationHandoffBar entries={[entry()]} username="me" updatedAt={NOW - 10_000} now={NOW} communities={[]} />
+      <CurationHandoffBar entries={[entry()]} username="me" updatedAt={NOW - 10_000} now={NOW} communities={[]} queueStartsAtOldestUnhandled />
     );
     expect(screen.getByText("curation-desk.handoff.updated")).not.toHaveClass("text-warning-ink");
     fresh.unmount();
     renderWithQueryClient(
-      <CurationHandoffBar entries={[entry()]} username="me" updatedAt={NOW - 5 * 60_000} now={NOW} communities={[]} />
+      <CurationHandoffBar entries={[entry()]} username="me" updatedAt={NOW - 5 * 60_000} now={NOW} communities={[]} queueStartsAtOldestUnhandled />
     );
     expect(screen.getByText("curation-desk.handoff.updated")).toHaveClass("text-warning-ink");
+  });
+
+  /**
+   * "Your queue starts at the oldest post nobody has handled" is true of the
+   * queue order with handled rows hidden and of nothing else, so it is said
+   * only then.
+   */
+  it("says where the queue starts only when that is actually true", () => {
+    const first = renderWithQueryClient(
+      <CurationHandoffBar entries={[]} username="me" updatedAt={NOW} now={NOW} communities={[]} queueStartsAtOldestUnhandled />
+    );
+    expect(screen.getByText("curation-desk.handoff.where-you-start")).toBeInTheDocument();
+    first.unmount();
+    renderWithQueryClient(
+      <CurationHandoffBar entries={[]} username="me" updatedAt={NOW} now={NOW} communities={[]} queueStartsAtOldestUnhandled={false} />
+    );
+    expect(screen.queryByText("curation-desk.handoff.where-you-start")).toBeNull();
   });
 
   it("names the community by its title when the queue knows it", () => {
@@ -196,6 +219,7 @@ describe("CurationHandoffBar", () => {
         updatedAt={NOW}
         now={NOW}
         communities={[{ community: "hive-125125", title: "Photography" }]}
+        queueStartsAtOldestUnhandled
       />
     );
     expect(screen.getByText("Photography")).toBeInTheDocument();
@@ -210,6 +234,7 @@ describe("CurationHandoffBar", () => {
         updatedAt={NOW}
         now={NOW}
         communities={[]}
+        queueStartsAtOldestUnhandled
       />
     );
     expect(screen.getByText("@seckorama")).toBeInTheDocument();
@@ -219,7 +244,7 @@ describe("CurationHandoffBar", () => {
   it("renders a position whose lane is unknown, without claiming the whole queue", () => {
     // null is the shape the backend actually sends for a mark from before lanes.
     renderWithQueryClient(
-      <CurationHandoffBar entries={[entry({ lane: null })]} username="me" updatedAt={NOW} now={NOW} communities={[]} />
+      <CurationHandoffBar entries={[entry({ lane: null })]} username="me" updatedAt={NOW} now={NOW} communities={[]} queueStartsAtOldestUnhandled />
     );
     expect(screen.getByRole("listitem")).toBeInTheDocument();
     expect(screen.queryByText("curation-desk.handoff.lane-all")).toBeNull();

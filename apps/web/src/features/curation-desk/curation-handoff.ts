@@ -107,7 +107,8 @@ export function describeLane(lane: CurationLane | null | undefined, communityTit
 /**
  * The viewer first, then whoever marked most recently. Their own line is the
  * one they check against, so it should not move down the list as colleagues
- * work.
+ * work. The order of the rest is decided here rather than trusted from the
+ * wire: nothing in the response contract promises one.
  */
 export function orderHandoff(
   entries: CurationHandoffEntry[] | null | undefined,
@@ -115,7 +116,9 @@ export function orderHandoff(
 ): CurationHandoffEntry[] {
   if (!entries?.length) return [];
   const mine = username ? entries.filter((e) => e.username === username) : [];
-  const others = entries.filter((e) => e.username !== username);
+  const others = entries
+    .filter((e) => e.username !== username)
+    .sort((a, b) => (parseChainDate(b.last_mark_at) ?? 0) - (parseChainDate(a.last_mark_at) ?? 0));
   return [...mine, ...others];
 }
 

@@ -21,6 +21,13 @@ interface Props {
   updatedAt: number | null;
   now: number;
   communities: Array<{ community: string; title?: string | null }>;
+  /**
+   * The viewer is on the queue order with handled rows hidden, so page one
+   * of THEIR queue really is the oldest post nobody has handled. Under any
+   * other sort or with handled rows shown that sentence would be false, and
+   * it is left out rather than said.
+   */
+  queueStartsAtOldestUnhandled: boolean;
 }
 
 /** The tick runs every 15 s; two missed ticks and the bar is describing the past. */
@@ -39,7 +46,14 @@ const STALE_MS = 2 * POLL_MS_CURATOR;
  * a progress claim and not a contiguous reviewed prefix, so it is worth reading
  * and must never aim anything.
  */
-export function CurationHandoffBar({ entries, username, updatedAt, now, communities }: Props) {
+export function CurationHandoffBar({
+  entries,
+  username,
+  updatedAt,
+  now,
+  communities,
+  queueStartsAtOldestUnhandled,
+}: Props) {
   const rows = useMemo(() => orderHandoff(entries, username), [entries, username]);
   const titles = useMemo(
     () => new Map(communities.map((c) => [c.community, c.title ?? null] as const)),
@@ -102,7 +116,9 @@ export function CurationHandoffBar({ entries, username, updatedAt, now, communit
         </ul>
       )}
 
-      <p className="mt-2 text-gray-500">{i18next.t("curation-desk.handoff.where-you-start")}</p>
+      {queueStartsAtOldestUnhandled && (
+        <p className="mt-2 text-gray-500">{i18next.t("curation-desk.handoff.where-you-start")}</p>
+      )}
     </section>
   );
 }

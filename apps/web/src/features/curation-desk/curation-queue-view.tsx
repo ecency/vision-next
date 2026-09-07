@@ -390,6 +390,7 @@ export function CurationQueueView() {
           updatedAt={tick.lastTickAt}
           now={now}
           communities={communities}
+          queueStartsAtOldestUnhandled={filters.sort === "queue" && filters.unreviewedOnly}
         />
       )}
       <CurationSortFilterBar
