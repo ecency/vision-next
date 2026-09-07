@@ -115,6 +115,36 @@ describe("useStatusPoll", () => {
     expect((items.find((r) => r.post_id === 3) as CurationRosterFeedPage["items"][number] | undefined)?.overlay?.notes_count).toBe(1);
   });
 
+  it("keeps a row the curator put back that a head read before the mark omits", async () => {
+    // Page one: 4 and 3. While the refresh is out the curator marks 4 reviewed
+    // and undoes it: 4 is loaded again, unmarked. The refresh was read in
+    // between, when 4 was reviewed, so it does not carry 4 at all.
+    seed(feedKey, [makeRosterPage([makeRow({ post_id: 4 }), makeRow({ post_id: 3 })])]);
+    statusBody = makeStatus({ latest_post_id: 9 });
+    let release: (page: AnyFeedPage) => void = () => undefined;
+    const fetchPageOne = vi.fn(
+      () =>
+        new Promise<AnyFeedPage>((resolve) => {
+          release = resolve;
+        })
+    );
+    renderHook(() => useStatusPoll({ enabled: true, feedKey, fetchPageOne, sort: "queue" }), { wrapper });
+    await poll();
+    expect(fetchPageOne).toHaveBeenCalledTimes(1);
+
+    const restored = makeRow({ post_id: 4, overlay: makeOverlay() });
+    queryClient.setQueryData<InfiniteData<AnyFeedPage>>(feedKey, { pages: [makeRosterPage([restored, makeRow({ post_id: 3 })])], pageParams: [undefined] });
+    noteRowMutation(4);
+
+    await act(async () => {
+      release(makeRosterPage([makeRow({ post_id: 9 }), makeRow({ post_id: 3 })]));
+    });
+    await flush();
+    const items = loaded(feedKey).pages[0].items;
+    expect(items.map((r) => r.post_id).sort()).toEqual([3, 4, 9]);
+    expect((items.find((r) => r.post_id === 4) as CurationRosterFeedPage["items"][number]).overlay).toEqual(makeOverlay());
+  });
+
   it("takes the baseline from the loaded page, so a head that moved before the first poll refreshes", async () => {
     seed(feedKey, [makeFeedPage([makeRow({ post_id: 1 })], { feed_version: "v1" })]);
     // The head moved between the page load and this first poll.

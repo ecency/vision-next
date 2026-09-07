@@ -2,6 +2,7 @@ import React from "react";
 import "@testing-library/jest-dom";
 import { act, fireEvent, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { QueryClient } from "@tanstack/react-query";
 import { renderWithQueryClient } from "@/specs/test-utils";
 import { installFetchRouter, makePost, makeRoster, makeRow } from "./curation-test-utils";
 
@@ -94,8 +95,22 @@ vi.mock("@/api/mutations", () => ({
 vi.mock("@/features/shared/user-avatar", () => ({ UserAvatar: () => <span /> }));
 vi.mock("@/features/shared/feedback", () => ({ success: vi.fn(), error: vi.fn() }));
 vi.mock("@/api/format-error", () => ({ formatError: (e: unknown) => [String(e), "common"] }));
+// The real drawer mounts its surface a frame after `show` flips; a stub that
+// mounted at once hid the case where the entry is already cached and the
+// buttons are not there yet on the first render.
 vi.mock("@ui/modal/modal-sidebar", () => ({
-  ModalSidebar: ({ show, children }: { show: boolean; children: React.ReactNode }) => (show ? <div role="dialog">{children}</div> : null),
+  ModalSidebar: ({ show, children }: { show: boolean; children: React.ReactNode }) => {
+    const [mounted, setMounted] = React.useState(false);
+    React.useEffect(() => {
+      if (!show) {
+        setMounted(false);
+        return;
+      }
+      const frame = requestAnimationFrame(() => setMounted(true));
+      return () => cancelAnimationFrame(frame);
+    }, [show]);
+    return show && mounted ? <div role="dialog">{children}</div> : null;
+  },
 }));
 vi.mock("@/api/sdk-mutations/use-curation-recommend-mutation", () => ({
   useCurationRecommendMutation: () => ({ mutateAsync: vi.fn(), isPending: false }),
@@ -379,6 +394,31 @@ describe("CurationQuickView", () => {
     });
     expect(await screen.findByTestId("comment-box")).toBeInTheDocument();
     expect(onCommentHandled).toHaveBeenCalledTimes(1);
+  });
+
+  it("presses c, p and v once the drawer's buttons are there, with an entry that is already cached", async () => {
+    const onCommentHandled = vi.fn();
+    const onTipHandled = vi.fn();
+    const onVoteHandled = vi.fn();
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
+    client.setQueryData(["posts", "entry", "/@alice/morning-light"], {
+      author: "alice",
+      permlink: "morning-light",
+      body: "cached body",
+      json_metadata: {},
+      active_votes: [],
+    });
+    renderWithQueryClient(
+      <CurationQuickView row={row} neighbour={null} viewer={member} recommendationsEnabled commentOnOpen tipOnOpen voteOnOpen onCommentHandled={onCommentHandled} onTipHandled={onTipHandled} onVoteHandled={onVoteHandled} onClose={noop} onPrev={noop} onNext={noop} onReviewed={noop} onSkip={noop} onSnooze={noop} onFlag={noop} onNote={noop} onSaveNote={noop} recommendRef={null} />,
+      { queryClient: client }
+    );
+    expect(state.entryFetch).not.toHaveBeenCalled();
+    expect(await screen.findByTestId("comment-box")).toBeInTheDocument();
+    await waitFor(() => expect(state.tipOpens).toEqual(["alice/morning-light"]));
+    await waitFor(() => expect(state.voteClicks).toHaveLength(1));
+    expect(onCommentHandled).toHaveBeenCalledTimes(1);
+    expect(onTipHandled).toHaveBeenCalledTimes(1);
+    expect(onVoteHandled).toHaveBeenCalledTimes(1);
   });
 
   it("sends Points to the author from the Points button and from the p key", async () => {

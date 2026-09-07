@@ -433,33 +433,6 @@ function headAheadOfLoaded(next: FeedHeadVersion, loadedHead: number | null): bo
  * after the filters or the account changed belongs to the queue that left.
  * Overlapping interval and visibilitychange polls share one in-flight promise.
  */
-/**
- * A head page read before a mark this desk made carries the marked row as it
- * was: the loaded copy (the mark's answer) wins, and a row the mark took out
- * of the loaded pages is not brought back by the older read.
- */
-function withoutStaleRows<TPage extends { items: DeskRow[] }>(
-  page: TPage,
-  loaded: InfiniteData<TPage, unknown> | undefined,
-  sentAt: number
-): TPage {
-  if (!rowMutationAt.size) return page;
-  const held = new Map<number, DeskRow>();
-  for (const p of loaded?.pages ?? []) for (const r of p.items) held.set(r.post_id, r);
-  const items: DeskRow[] = [];
-  let changed = false;
-  for (const row of page.items) {
-    if (!rowMutatedSince(row.post_id, sentAt)) {
-      items.push(row);
-      continue;
-    }
-    changed = true;
-    const mine = held.get(row.post_id);
-    if (mine) items.push(mine);
-  }
-  return changed ? { ...page, items: items as TPage["items"] } : page;
-}
-
 export function useStatusPoll({ enabled, feedKey, fetchPageOne, feedVersion, sort }: StatusPollOptions) {
   const queryClient = useQueryClient();
   const versionRef = useRef<FeedHeadVersion | null>(null);
@@ -538,7 +511,7 @@ export function useStatusPoll({ enabled, feedKey, fetchPageOne, feedVersion, sor
           // continues from its own cursor; scroll position is best effort.
           // Keep every loaded page: replacing them is what threw the
           // curator's place away every time the head moved.
-          (old) => mergeHeadPage(old, withoutStaleRows(page, old, sentAt), sort)
+          (old) => mergeHeadPage(old, page, sort, { wroteSince: (row) => rowMutatedSince(row.post_id, sentAt) })
         );
         versionRef.current = next;
       } catch {

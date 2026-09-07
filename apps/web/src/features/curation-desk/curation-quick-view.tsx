@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import clsx from "clsx";
 import i18next from "i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -98,6 +98,41 @@ function cadencePerDay(entries: Entry[] | undefined): number | null {
 }
 
 /**
+ * Presses a button that lives inside the drawer once it is actually there.
+ * The drawer's surface mounts a frame after `show` flips, so with a cached
+ * entry the first render already has the entry and none of the buttons yet:
+ * a press on that render hit nothing and the request was consumed all the
+ * same. The wait is bounded, and the request is handed back either way, so a
+ * button that never mounts (signed out, no entry) cannot pin it.
+ */
+function usePressWhenMounted(
+  active: boolean,
+  find: () => HTMLElement | null | undefined,
+  onHandled: (() => void) | undefined
+) {
+  const handledRef = useRef(onHandled);
+  handledRef.current = onHandled;
+  useEffect(() => {
+    if (!active) return;
+    let tries = 0;
+    let frame = 0;
+    const attempt = () => {
+      const button = find();
+      if (button) {
+        button.click();
+        handledRef.current?.();
+      } else if (tries++ < 120) {
+        frame = requestAnimationFrame(attempt);
+      } else {
+        handledRef.current?.();
+      }
+    };
+    attempt();
+    return () => cancelAnimationFrame(frame);
+  }, [active, find]);
+}
+
+/**
  * Right drawer with the full post. One entry fetch on expand through the
  * shared entry cache; the immediate neighbour is prefetched only while the
  * drawer is open, after a 300 ms debounce, so a curator holding j on a closed
@@ -161,15 +196,10 @@ export function CurationQuickView({
   }, [open, author, permlink]);
 
   // The `v` key: the slider only exists once the entry query resolved, so the
-  // click waits for the entry instead of a fixed delay that missed a slow fetch.
+  // press waits for the entry instead of a fixed delay that missed a slow fetch.
   const drawerRef = useRef<HTMLDivElement | null>(null);
-  const voteHandledRef = useRef(onVoteHandled);
-  voteHandledRef.current = onVoteHandled;
-  useEffect(() => {
-    if (!open || !voteOnOpen || !entry) return;
-    drawerRef.current?.querySelector<HTMLElement>('.entry-vote-btn[role="button"]')?.click();
-    voteHandledRef.current?.();
-  }, [open, voteOnOpen, entry]);
+  const findVote = useCallback(() => drawerRef.current?.querySelector<HTMLElement>('.entry-vote-btn[role="button"]'), []);
+  usePressWhenMounted(open && !!voteOnOpen && !!entry, findVote, onVoteHandled);
 
   // The `c` and `p` keys wait for the entry the same way, then press the
   // button itself: both buttons sit behind the sign-in prompt, so a signed-out
@@ -177,21 +207,11 @@ export function CurationQuickView({
   const [replyOpen, setReplyOpen] = useState(false);
   useEffect(() => setReplyOpen(false), [author, permlink]);
   const commentRef = useRef<HTMLButtonElement | HTMLAnchorElement | null>(null);
-  const commentHandledRef = useRef(onCommentHandled);
-  commentHandledRef.current = onCommentHandled;
-  useEffect(() => {
-    if (!open || !commentOnOpen || !entry) return;
-    commentRef.current?.click();
-    commentHandledRef.current?.();
-  }, [open, commentOnOpen, entry]);
+  const findComment = useCallback(() => commentRef.current, []);
+  usePressWhenMounted(open && !!commentOnOpen && !!entry, findComment, onCommentHandled);
   const tipRef = useRef<HTMLButtonElement | HTMLAnchorElement | null>(null);
-  const tipHandledRef = useRef(onTipHandled);
-  tipHandledRef.current = onTipHandled;
-  useEffect(() => {
-    if (!open || !tipOnOpen || !entry) return;
-    tipRef.current?.click();
-    tipHandledRef.current?.();
-  }, [open, tipOnOpen, entry]);
+  const findTip = useCallback(() => tipRef.current, []);
+  usePressWhenMounted(open && !!tipOnOpen && !!entry, findTip, onTipHandled);
 
   // The `x` key: the recommend button mounts with the drawer, so the trigger
   // waits for the mounted handle (a few frames at most) instead of a fixed delay.
