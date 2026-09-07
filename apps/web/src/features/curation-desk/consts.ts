@@ -24,7 +24,6 @@ export const QUICK_VIEW_PREFETCH_DEBOUNCE_MS = 300;
  */
 export const POPOVER_RECOMMENDER_LIMIT = 5;
 export const UNDO_REVIEWED_MS = 5_000;
-export const UNDO_CURSOR_MS = 30_000;
 export const SORT_STORAGE_KEY = "curation-desk-sort";
 export const SEED_STORAGE_KEY = "curation-desk-seed";
 /**

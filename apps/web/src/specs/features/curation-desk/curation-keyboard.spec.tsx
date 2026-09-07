@@ -84,7 +84,9 @@ describe("keyboard map", () => {
     expect(keyToAction({ key: "o", shiftKey: false })).toBe("toggleQuickView");
     expect(keyToAction({ key: "v", shiftKey: false })).toBe("vote");
     expect(keyToAction({ key: "r", shiftKey: false })).toBe("reviewed");
-    expect(keyToAction({ key: "R", shiftKey: true })).toBe("reviewedUpToHere");
+    // Shift+R was the team cursor. Retired, and not rebound: curator muscle
+    // memory would fire the new binding for a while.
+    expect(keyToAction({ key: "R", shiftKey: true })).toBeNull();
     expect(keyToAction({ key: "s", shiftKey: false })).toBe("skip");
     expect(keyToAction({ key: "ArrowRight", shiftKey: false })).toBe("skip");
     expect(keyToAction({ key: "z", shiftKey: false })).toBe("snooze");
@@ -149,7 +151,7 @@ describe("keyboard map", () => {
 describe("useCurationKeyboard", () => {
   it("calls the handler for a key and nothing while typing", () => {
     const handlers = Object.fromEntries(
-      ["next", "prev", "toggleQuickView", "vote", "reviewed", "reviewedUpToHere", "skip", "snooze", "flag", "note", "recommend", "openExternal", "help"].map((k) => [k, vi.fn()])
+      ["next", "prev", "toggleQuickView", "vote", "reviewed", "skip", "snooze", "flag", "note", "recommend", "openExternal", "help"].map((k) => [k, vi.fn()])
     ) as unknown as CurationKeyHandlers;
     renderHook(() => useCurationKeyboard(handlers, true));
     press("j");

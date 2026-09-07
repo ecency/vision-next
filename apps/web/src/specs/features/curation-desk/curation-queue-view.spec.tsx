@@ -2,7 +2,7 @@ import React from "react";
 import { renderToString } from "react-dom/server";
 import { hydrateRoot } from "react-dom/client";
 import "@testing-library/jest-dom";
-import { act, fireEvent, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithQueryClient } from "@/specs/test-utils";
@@ -165,6 +165,22 @@ describe("CurationQueueView", () => {
     // Nothing went out on the defaults first, and nothing follows to correct it.
     await waitFor(() => expect(screen.getAllByRole("article").length).toBeGreaterThan(0));
     expect(fetchRouter.callsTo(/curation-desk\/feed/)).toHaveLength(1);
+  });
+
+  /**
+   * The hand-off names curators and counts their marks, which spec 8 keeps
+   * roster-only permanently. The backend fences it out of every public payload;
+   * this is the same fence on the render side.
+   */
+  it("shows the team hand-off to the roster and never to a public visitor", async () => {
+    renderWithQueryClient(<CurationQueueView />, { queryClient: prodLikeClient() });
+    await waitFor(() => expect(fetchRouter.callsTo(/curation-desk\/feed/)).toHaveLength(1));
+    expect(screen.queryByText("curation-desk.handoff.title")).toBeNull();
+    cleanup();
+
+    state.username = "curator1";
+    renderWithQueryClient(<CurationQueueView />, { queryClient: prodLikeClient() });
+    expect(await screen.findByText("curation-desk.handoff.title")).toBeInTheDocument();
   });
 
   it("loads the roster feed with hide_reviewed on the key for a roster user", async () => {
@@ -361,7 +377,7 @@ describe("CurationQueueView", () => {
     const queryClient = new QueryClient({ defaultOptions: { queries: { enabled: false } } });
     const header = (loaded: boolean) => (
       <QueryClientProvider client={queryClient}>
-        <CurationHeader status={loaded ? makeStatus() : undefined} teamCursor={null} activeCurators={[]} isRoster={false} livePaused={false} onHelp={() => {}} />
+        <CurationHeader status={loaded ? makeStatus() : undefined} activeCurators={[]} isRoster={false} livePaused={false} onHelp={() => {}} />
       </QueryClientProvider>
     );
     const container = document.createElement("div");
@@ -380,14 +396,11 @@ describe("CurationQueueView", () => {
     }
   });
 
-  it("hydrates the cursor tile when the tabs have already loaded the cursor into the client cache", async () => {
+  it("hydrates the status tiles when the tabs have already loaded the status into the client cache", async () => {
     const queryClient = new QueryClient({ defaultOptions: { queries: { enabled: false } } });
-    // The parent derives teamCursor from that same shared status cache, so the
-    // prop is null in the server shell and set by the time this hydrates.
-    const cursor = { post_id: 7, created: "2026-09-06T09:00:00" };
     const header = (loaded: boolean) => (
       <QueryClientProvider client={queryClient}>
-        <CurationHeader status={loaded ? makeStatus() : undefined} teamCursor={loaded ? cursor : null} activeCurators={[]} isRoster={false} livePaused={false} onHelp={() => {}} />
+        <CurationHeader status={loaded ? makeStatus() : undefined} activeCurators={[]} isRoster={false} livePaused={false} onHelp={() => {}} />
       </QueryClientProvider>
     );
     const container = document.createElement("div");
@@ -398,7 +411,7 @@ describe("CurationQueueView", () => {
     try {
       await act(async () => { root = hydrateRoot(container, header(true), { onRecoverableError }); });
       expect(onRecoverableError).not.toHaveBeenCalled();
-      expect(container).toHaveTextContent("curation-desk.header.cursor-value");
+      expect(container).toHaveTextContent("curation-desk.header.curated-today");
     } finally {
       await act(async () => root?.unmount());
       container.remove();

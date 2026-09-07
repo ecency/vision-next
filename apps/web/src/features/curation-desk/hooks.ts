@@ -18,10 +18,10 @@ import {
   normalizeCurationParams,
   selectCurationFeedPages,
   type CurationActiveCurator,
-  type CurationCursorInput,
   type CurationDismissAction,
   type CurationFeedPage,
   type CurationFeedParams,
+  type CurationHandoffEntry,
   type CurationMarkState,
   type CurationMyMarksResponse,
   type CurationRosterFeedPage,
@@ -69,7 +69,6 @@ export function useViewerRole(): ViewerRole {
         role: null,
         isRoster: false,
         isTrial: false,
-        canRewindCursor: false,
         isLoading: false,
       };
     }
@@ -81,7 +80,6 @@ export function useViewerRole(): ViewerRole {
       role,
       isRoster: !!role,
       isTrial: role === "trial",
-      canRewindCursor: role === "mod" || role === "admin",
       isLoading: roster.isLoading,
     };
   }, [username, roster.data, roster.isLoading]);
@@ -164,6 +162,8 @@ export interface TickOptions {
 export interface TickState {
   teamCursor: CurationTeamCursor | null;
   activeCurators: CurationActiveCurator[];
+  /** How far each curator has got. Empty until the backend deriving it is live. */
+  handoff: CurationHandoffEntry[];
   trailAlerts: unknown[];
   /** The last tick failed; the loaded queue stays, live updates are paused. */
   paused: boolean;
@@ -203,6 +203,7 @@ export function useCurationTick(options: TickOptions): TickState {
   const [state, setState] = useState<Omit<TickState, "tickNow">>({
     teamCursor: null,
     activeCurators: [],
+    handoff: [],
     trailAlerts: [],
     paused: false,
     lastTickAt: null,
@@ -241,6 +242,7 @@ export function useCurationTick(options: TickOptions): TickState {
       setState({
         teamCursor: response.team_cursor ?? null,
         activeCurators: response.active_curators ?? [],
+        handoff: response.handoff ?? [],
         trailAlerts: response.trail_alerts ?? [],
         paused: false,
         lastTickAt: Date.now(),
@@ -543,20 +545,6 @@ export function useClearMark() {
   });
 }
 
-export function useSetCursor() {
-  const username = useActiveUsername();
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationKey: [...QueryKeys.curation._prefix, "cursor", username],
-    mutationFn: async (input: CurationCursorInput) => {
-      noteCuratorActivity();
-      return curationDeskApi.cursor(username, input);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QueryKeys.curation.status() });
-    },
-  });
-}
 
 export function useCurationDismissReco() {
   const username = useActiveUsername();

@@ -27,7 +27,6 @@ describe("curationDeskApi", () => {
     ["mark", () => curationDeskApi.mark("alice", { author: "a", permlink: "p", state: "reviewed" })],
     ["mark-clear", () => curationDeskApi.markClear("alice", { author: "a", permlink: "p" })],
     ["marks", () => curationDeskApi.myMarks("alice", { state: "snoozed" })],
-    ["cursor", () => curationDeskApi.cursor("alice", { post_id: 1, action: "advance" })],
     ["recommend-meta", () => curationDeskApi.recommendMeta("alice", { author: "a", permlink: "p", trx_id: "a".repeat(40) })],
     ["recommendation-dismiss", () => curationDeskApi.dismissReco("alice", { author: "a", permlink: "p", action: "dismiss" })],
   ];

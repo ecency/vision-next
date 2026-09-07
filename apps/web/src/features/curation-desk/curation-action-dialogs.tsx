@@ -151,7 +151,6 @@ const SHORTCUTS: Array<[string, string]> = [
   ["Enter / o", "quick-view"],
   ["v", "vote"],
   ["r", "reviewed"],
-  ["Shift+R", "reviewed-up-to-here"],
   ["s / →", "skip"],
   ["z", "snooze"],
   ["f", "flag"],

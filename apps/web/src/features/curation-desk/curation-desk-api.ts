@@ -1,6 +1,5 @@
 import { ensureValidToken } from "@/utils";
 import {
-  curationCursorRequest,
   curationDismissRecoRequest,
   curationMarkClearRequest,
   curationMarkRequest,
@@ -8,7 +7,6 @@ import {
   curationRecommendMetaRequest,
   curationRosterFeedRequest,
   curationTickRequest,
-  type CurationCursorInput,
   type CurationDismissRecoInput,
   type CurationMarkInput,
   type CurationMyMarksParams,
@@ -60,9 +58,6 @@ export const curationDeskApi = {
     return curationMyMarksRequest(await code(username), params, signal);
   },
 
-  async cursor(username: string | undefined, input: CurationCursorInput) {
-    return curationCursorRequest(await code(username), input);
-  },
 
   async recommendMeta(
     username: string | undefined,

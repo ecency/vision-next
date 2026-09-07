@@ -24,7 +24,6 @@ export interface ViewerRole {
   role: CurationRole | null;
   isRoster: boolean;
   isTrial: boolean;
-  canRewindCursor: boolean;
   isLoading: boolean;
 }
 

@@ -8,7 +8,6 @@ export interface CurationKeyHandlers {
   toggleQuickView: () => void;
   vote: () => void;
   reviewed: () => void;
-  reviewedUpToHere: () => void;
   skip: () => void;
   snooze: () => void;
   flag: () => void;
@@ -56,7 +55,6 @@ export function isKeyboardInert(
 export function keyToAction(event: Pick<KeyboardEvent, "key" | "shiftKey">): keyof CurationKeyHandlers | null {
   const { key, shiftKey } = event;
   if (shiftKey) {
-    if (key === "R") return "reviewedUpToHere";
     if (key === "O") return "openExternal";
     if (key === "?") return "help";
     return null;

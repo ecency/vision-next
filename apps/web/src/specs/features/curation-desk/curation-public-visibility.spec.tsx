@@ -119,7 +119,6 @@ function renderHeader(isRoster: boolean) {
   return renderWithQueryClient(
     <CurationHeader
       status={makeStatus()}
-      teamCursor={{ post_id: 12, created: iso(-2 * 3_600_000) }}
       activeCurators={[{ username: CURATOR, last_action_at: iso(-60_000) }]}
       isRoster={isRoster}
       livePaused={false}
@@ -175,8 +174,7 @@ describe("public curation desk renders no per-curator activity", () => {
     expect(screen.queryByText("curation-desk.header.active-none")).toBeNull();
     expect(screen.queryByText("curation-desk.header.active-hint")).toBeNull();
     expect(container.querySelector(`[data-username="${CURATOR}"]`)).toBeNull();
-    // Coverage and the curated-today count stay public.
-    expect(screen.getByText("curation-desk.header.behind")).toBeInTheDocument();
+    // The curated-today count stays public.
     expect(screen.getByText("curation-desk.header.curated-today")).toBeInTheDocument();
   });
 

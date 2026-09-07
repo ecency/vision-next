@@ -25,9 +25,7 @@ interface Props extends RowActions {
   dataUpdatedAt: number;
   fetchNextPage: (options?: { cancelRefetch?: boolean }) => Promise<unknown>;
   onToggleTail: (which: "half" | "eighth" | "olderReviewed") => void;
-  onReviewedUpToHere: () => void;
   onVisibleRows: (rows: DeskRow[]) => void;
-  isBusy: boolean;
 }
 
 /**
@@ -48,9 +46,7 @@ export const CurationQueueList = forwardRef<VirtuosoHandle, Props>(function Cura
     isFetching,
     fetchNextPage,
     onToggleTail,
-    onReviewedUpToHere,
     onVisibleRows,
-    isBusy,
     // Destructured one by one: a rest object is a new identity on every render,
     // so itemContent would be rebuilt and every row re-rendered.
     onSelect,
@@ -153,19 +149,6 @@ export const CurationQueueList = forwardRef<VirtuosoHandle, Props>(function Cura
                       .replace(/[\s·]+$/, "")
                   : i18next.t("curation-desk.list.divider-none")}
               </span>
-              {isRoster && (
-                <Button
-                  size="xs"
-                  appearance="gray-link"
-                  className="!rounded-lg"
-                  disabled={isBusy}
-                  aria-label={i18next.t("curation-desk.list.reviewed-up-to-here")}
-                  title={i18next.t("curation-desk.list.reviewed-up-to-here-key")}
-                  onClick={onReviewedUpToHere}
-                >
-                  {i18next.t("curation-desk.list.reviewed-up-to-here")}
-                </Button>
-              )}
             </div>
           );
         case "older-reviewed":
@@ -194,9 +177,7 @@ export const CurationQueueList = forwardRef<VirtuosoHandle, Props>(function Cura
       recommendationsEnabled,
       chronological,
       teamCursor,
-      isBusy,
       onToggleTail,
-      onReviewedUpToHere,
       onSelect,
       onOpen,
       onVote,
