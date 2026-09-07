@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import clsx from "clsx";
 import i18next from "i18next";
+import { EcencyConfigManager } from "@/config";
 import { CURATION_FLAG_REASONS, type CurationFlagReason } from "@ecency/sdk";
 import { Button } from "@ui/button";
 import { FormControl } from "@ui/input";
@@ -163,6 +164,9 @@ const SHORTCUTS: Array<[string, string]> = [
 ];
 
 export function ShortcutSheet({ onHide }: { onHide: () => void }) {
+  // The p key sends Points where the instance has them and HIVE elsewhere,
+  // like the button it presses; the sheet says the same.
+  const points = EcencyConfigManager.CONFIG.visionFeatures.points.enabled;
   return (
     <Modal show onHide={onHide} centered size="sm">
       <ModalHeader closeButton>
@@ -175,7 +179,9 @@ export function ShortcutSheet({ onHide }: { onHide: () => void }) {
               <dt>
                 <kbd className="rounded border border-[--border-color] bg-gray-100 dark:bg-dark-default px-1.5 py-0.5 font-mono text-xs">{keys}</kbd>
               </dt>
-              <dd className="text-gray-700 dark:text-gray-300">{i18next.t(`curation-desk.shortcuts.${name}`)}</dd>
+              <dd className="text-gray-700 dark:text-gray-300">
+                {i18next.t(`curation-desk.shortcuts.${name === "tip" && points ? "tip-points" : name}`)}
+              </dd>
             </React.Fragment>
           ))}
         </dl>

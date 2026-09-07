@@ -159,6 +159,7 @@ describe("CurationQuickView", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.useRealTimers();
+    window.localStorage.clear();
   });
 
   it("offers exactly one link out to the post, in the action bar", async () => {
@@ -351,6 +352,9 @@ describe("CurationQuickView", () => {
 
     act(() => state.replyCallbacks.onError?.("kept text", new Error("rc")));
     expect(screen.getByTestId("comment-box")).toHaveAttribute("data-initial", "kept text");
+    // The text is also back in the editor's own draft, so a failure that lands
+    // after the curator moved to another post is waiting when they return.
+    expect(window.localStorage.getItem("ecency_reply_text_alice_morning-light")).toBe(JSON.stringify("kept text"));
 
     fireEvent.click(screen.getByRole("button", { name: "g.cancel" }));
     expect(screen.queryByTestId("comment-box")).toBeNull();

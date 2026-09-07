@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import i18next from "i18next";
 import { useCreateReply } from "@/api/mutations";
 import { createReplyPermlink, makeJsonMetaDataReply } from "@/utils";
+import * as ls from "@/utils/local-storage";
 import { Comment } from "@/features/shared/comment";
 import type { Entry } from "@/entities";
 import appPackage from "../../../package.json";
@@ -18,22 +19,20 @@ interface Props {
  * The reply box of the quick view. The same optimistic reply the post page
  * makes: the mutation answers at once and settles in the background, so the
  * box closes on submit. A broadcast that fails later reopens it with the text
- * kept, which is why the box stays mounted while it is closed.
+ * kept, which is why the box stays mounted while it is closed; and the text
+ * also goes back into the editor's own draft, so a failure that lands after
+ * the curator moved to another post is waiting when they come back.
  */
 export function CurationReplyBox({ entry, open, onClose }: Props) {
-  const [inProgress, setInProgress] = useState(false);
   const [failedText, setFailedText] = useState<string | null>(null);
 
-  const { mutateAsync: createReply } = useCreateReply(
+  const { mutateAsync: createReply, isPending } = useCreateReply(
     entry,
     entry,
-    () => {
-      setInProgress(false);
-      onClose();
-    },
+    onClose,
     (text) => {
+      ls.set(`reply_text_${entry.author}_${entry.permlink}`, text);
       setFailedText(text);
-      setInProgress(false);
     }
   );
 
@@ -42,7 +41,6 @@ export function CurationReplyBox({ entry, open, onClose }: Props) {
     const tags = entry.json_metadata?.tags || ["ecency"];
     const jsonMeta = makeJsonMetaDataReply(tags, appPackage.version);
     setFailedText(null);
-    setInProgress(true);
     return createReply({ jsonMeta, text, permlink, point: true });
   };
 
@@ -60,7 +58,7 @@ export function CurationReplyBox({ entry, open, onClose }: Props) {
         }}
         cancellable
         autoFocus
-        inProgress={inProgress}
+        inProgress={isPending}
         initialText={failedText}
       />
     </div>

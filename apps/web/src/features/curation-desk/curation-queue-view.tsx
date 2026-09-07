@@ -209,8 +209,15 @@ export function CurationQueueView() {
   const [quickView, setQuickView] = useState(false);
   const [voteOnOpen, setVoteOnOpen] = useState(false);
   const [recommendOnOpen, setRecommendOnOpen] = useState(false);
-  const [commentOnOpen, setCommentOnOpen] = useState(false);
-  const [tipOnOpen, setTipOnOpen] = useState(false);
+  // The row that asked, not a flag: j/k stay alive while the entry loads,
+  // so a flag alone would open the reply box or the tip on whatever post the
+  // curator moved to meanwhile.
+  const [commentFor, setCommentFor] = useState<string | null>(null);
+  const [tipFor, setTipFor] = useState<string | null>(null);
+  useEffect(() => {
+    if (commentFor != null && commentFor !== activeKey) setCommentFor(null);
+    if (tipFor != null && tipFor !== activeKey) setTipFor(null);
+  }, [activeKey, commentFor, tipFor]);
   const [dialog, setDialog] = useState<Dialog>({ kind: "none" });
   const [undo, setUndo] = useState<Undo | null>(null);
   const [undoBusy, setUndoBusy] = useState(false);
@@ -353,8 +360,8 @@ export function CurationQueueView() {
     setQuickView(false);
     setVoteOnOpen(false);
     setRecommendOnOpen(false);
-    setCommentOnOpen(false);
-    setTipOnOpen(false);
+    setCommentFor(null);
+    setTipFor(null);
   }, []);
   const onVote = useCallback((row: DeskRow) => {
     setActiveKey(rowKey(row));
@@ -410,12 +417,12 @@ export function CurationQueueView() {
       comment: () => {
         if (!activeRow) return;
         if (!quickView) setQuickView(true);
-        setCommentOnOpen(true);
+        setCommentFor(rowKey(activeRow));
       },
       tip: () => {
         if (!activeRow) return;
         if (!quickView) setQuickView(true);
-        setTipOnOpen(true);
+        setTipFor(rowKey(activeRow));
       },
       reviewed: requireRoster(() => activeRow && onReviewed(activeRow)),
       skip: () => move(1),
@@ -552,10 +559,10 @@ export function CurationQueueView() {
         onVoteHandled={() => setVoteOnOpen(false)}
         recommendOnOpen={recommendOnOpen}
         onRecommendHandled={() => setRecommendOnOpen(false)}
-        commentOnOpen={commentOnOpen}
-        onCommentHandled={() => setCommentOnOpen(false)}
-        tipOnOpen={tipOnOpen}
-        onTipHandled={() => setTipOnOpen(false)}
+        commentOnOpen={commentFor != null && commentFor === activeKey}
+        onCommentHandled={() => setCommentFor(null)}
+        tipOnOpen={tipFor != null && tipFor === activeKey}
+        onTipHandled={() => setTipFor(null)}
         onClose={closeQuickView}
         onPrev={() => move(-1)}
         onNext={() => move(1)}

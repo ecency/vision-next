@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithQueryClient } from "@/specs/test-utils";
 import { installFetchRouter, iso, makeFeedPage, makeOverlay, makeRoster, makeRosterPage, makeRow, makeStatus, NOW } from "./curation-test-utils";
 
+const drawerRenders = vi.hoisted(() => [] as Array<{ post_id: number; comment: boolean; tip: boolean }>);
 const state = vi.hoisted(() => ({ username: undefined as string | undefined }));
 
 vi.mock("@ecency/sdk", async () => ({ ...(await vi.importActual<Record<string, unknown>>("@ecency/sdk")) }));
@@ -49,7 +50,10 @@ vi.mock("react-virtuoso", () => ({
   }),
 }));
 vi.mock("@/features/curation-desk/curation-quick-view", () => ({
-  CurationQuickView: ({ row }: { row: { post_id: number } | null }) => (row ? <div data-testid="quick-view-open">{row.post_id}</div> : null),
+  CurationQuickView: ({ row, commentOnOpen, tipOnOpen }: { row: { post_id: number } | null; commentOnOpen?: boolean; tipOnOpen?: boolean }) => {
+    if (row) drawerRenders.push({ post_id: row.post_id, comment: !!commentOnOpen, tip: !!tipOnOpen });
+    return row ? <div data-testid="quick-view-open" data-comment={String(!!commentOnOpen)} data-tip={String(!!tipOnOpen)}>{row.post_id}</div> : null;
+  },
 }));
 vi.mock("@/features/shared/profile-popover", () => ({ ProfilePopover: ({ entry }: { entry: { author: string } }) => <span>@{entry.author}</span> }));
 vi.mock("@/features/shared/user-avatar", () => ({ UserAvatar: () => <span /> }));
@@ -457,6 +461,32 @@ describe("keyboard on the queue", () => {
     expect(screen.queryByText("curation-desk.list.empty")).toBeNull();
     const second = router.callsTo(/curation-desk\/roster-feed/)[1].body as Record<string, unknown>;
     expect(second.cursor).toBe("c12");
+  });
+
+  it("binds a pending c or p to the row that asked, so moving on before the entry loads drops it", async () => {
+    state.username = "curator1";
+    renderWithQueryClient(<CurationQueueView />, { queryClient: client() });
+    await screen.findAllByRole("article");
+    await act(async () => press("j"));
+    await act(async () => press("c"));
+    expect(screen.getByTestId("quick-view-open")).toHaveAttribute("data-comment", "true");
+    // The drawer never answered (entry still loading); the curator moves on.
+    await act(async () => press("j"));
+    expect(screen.getByTestId("quick-view-open")).toHaveTextContent("12");
+    expect(screen.getByTestId("quick-view-open")).toHaveAttribute("data-comment", "false");
+    await act(async () => press("p"));
+    expect(screen.getByTestId("quick-view-open")).toHaveAttribute("data-tip", "true");
+    await act(async () => press("k"));
+    expect(screen.getByTestId("quick-view-open")).toHaveAttribute("data-tip", "false");
+    // Back on 12: nothing pending is left over from before.
+    await act(async () => press("j"));
+    expect(screen.getByTestId("quick-view-open")).toHaveAttribute("data-tip", "false");
+    // Not even for one render: the drawer consumes the flag in its own effect,
+    // which runs before the queue view could clear it.
+    expect(drawerRenders.some((r) => r.post_id === 12 && r.comment)).toBe(false);
+    expect(drawerRenders.some((r) => r.post_id === 11 && r.tip)).toBe(false);
+    expect(drawerRenders.some((r) => r.post_id === 11 && r.comment)).toBe(true);
+    expect(drawerRenders.some((r) => r.post_id === 12 && r.tip)).toBe(true);
   });
 
   it("Enter opens the drawer once: the row no longer handles it too", async () => {
