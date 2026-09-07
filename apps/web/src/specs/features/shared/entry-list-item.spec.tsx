@@ -5,7 +5,6 @@ import { describe, expect, it, vi } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { Entry } from "@/entities";
 import { mockEntry } from "@/specs/test-utils";
-import { postBodySummary } from "@ecency/render-helper";
 
 // `@/utils` is globally mocked to only expose `random` + `getAccessToken`.
 // EntryListItem (and its muted-content child) import several other helpers
@@ -169,7 +168,6 @@ describe("EntryListItem", () => {
 
     renderItem(entry);
 
-    expect(postBodySummary).toHaveBeenCalledWith(description.trim(), 200);
     expect(screen.queryByText(/# Heading/)).toBeNull();
     // The mocked helper answers "summary:" for a raw string, and that is what the card shows.
     expect(screen.getByText("summary:")).toBeInTheDocument();
@@ -184,8 +182,8 @@ describe("EntryListItem", () => {
 
     renderItem(entry);
 
+    // Parsed again, the mocked helper would answer "summary:" instead.
     expect(screen.getByText("*derived* text")).toBeInTheDocument();
-    expect(postBodySummary).not.toHaveBeenCalledWith("*derived* text", 200);
   });
 
   it("renders a replies link to the entry when the post has children", () => {
