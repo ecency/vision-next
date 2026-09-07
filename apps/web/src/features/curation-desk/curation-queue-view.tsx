@@ -10,9 +10,9 @@ import {
   type CurationHandoffEntry,
 } from "@ecency/sdk";
 import { EcencyConfigManager } from "@/config";
-import { error as errorToast } from "@/features/shared/feedback";
+import { error as errorToast, info as infoToast } from "@/features/shared/feedback";
 import { formatError } from "@/api/format-error";
-import { UNDO_REVIEWED_MS } from "./consts";
+import { OWN_MARK_WINDOW_MS, UNDO_REVIEWED_MS } from "./consts";
 import { FlagDialog, NoteDialog, ShortcutSheet, SnoozeDialog } from "./curation-action-dialogs";
 import { curationDeskApi } from "./curation-desk-api";
 import { CurationHandoffBar } from "./curation-handoff-bar";
@@ -217,20 +217,53 @@ export function CurationQueueView() {
   const listRef = useRef<VirtuosoHandle | null>(null);
   const recommendRef = useRef<CurationRecommendHandle | null>(null);
 
-  // A row leaves the list live (reviewed by a colleague, curated, snoozed),
-  // and when it was the selected one the selection moves to the row that took
-  // its place, never back to the top: `j` after that keeps walking down.
-  const foundIndex = activeKey ? ordered.findIndex((r) => rowKey(r) === activeKey) : -1;
-  const lastActiveIndexRef = useRef(-1);
-  const activeIndex =
-    foundIndex >= 0 || !activeKey || ordered.length === 0
-      ? foundIndex
-      : Math.min(Math.max(0, lastActiveIndexRef.current), ordered.length - 1);
-  lastActiveIndexRef.current = activeIndex;
+  const activeIndex = activeKey ? ordered.findIndex((r) => rowKey(r) === activeKey) : -1;
   const activeRow = activeIndex >= 0 ? ordered[activeIndex] : null;
+
+  // Marks this desk made, so a row leaving on its own mark reads as the
+  // curator moving on, while a row a colleague took leaves under their hands.
+  const ownMarksRef = useRef(new Map<string, number>());
+  const noteOwnMark = useCallback((row: DeskRow) => ownMarksRef.current.set(rowKey(row), Date.now()), []);
+  const prevOrderedRef = useRef<DeskRow[]>([]);
+  const prevKeyRef = useRef(queryKey);
+  // The selected row can stop resolving for three reasons, and only one of
+  // them is a live departure: the row left the loaded pages under the curator
+  // (a colleague reviewed it, it got curated, or this desk marked it). Then
+  // the selection moves to the row that took its place, never back to the
+  // top, so j keeps walking down. A drawer open on a post a colleague took
+  // closes with a word: it must never swap to a post the curator has not
+  // read. A different feed (lens, sort, account) is a different list with
+  // nothing chosen in it, and a row folded into a collapsed tail is still
+  // loaded, so the selection simply waits for it.
   useEffect(() => {
-    if (activeKey && foundIndex < 0 && activeRow) setActiveKey(rowKey(activeRow));
-  }, [activeKey, foundIndex, activeRow]);
+    const prev = prevOrderedRef.current;
+    prevOrderedRef.current = ordered;
+    if (prevKeyRef.current !== queryKey) {
+      prevKeyRef.current = queryKey;
+      if (activeKey) setActiveKey(null);
+      if (quickView) setQuickView(false);
+      return;
+    }
+    if (!activeKey || activeIndex >= 0) return;
+    const prevIndex = prev.findIndex((r) => rowKey(r) === activeKey);
+    if (prevIndex < 0) return;
+    if (rows.some((r) => rowKey(r) === activeKey)) return;
+    const ownAt = ownMarksRef.current.get(activeKey);
+    ownMarksRef.current.delete(activeKey);
+    const own = ownAt != null && Date.now() - ownAt < OWN_MARK_WINDOW_MS;
+    if (!own && quickView) {
+      setQuickView(false);
+      infoToast(i18next.t("curation-desk.live.left-queue"));
+    }
+    setActiveKey(ordered.length ? rowKey(ordered[Math.min(prevIndex, ordered.length - 1)]) : null);
+  }, [ordered, rows, queryKey, activeKey, activeIndex, quickView]);
+
+  // Every loaded row can leave live while the server still holds more: the
+  // list is not mounted to ask for the next page from its end, so it is
+  // asked for here, rather than showing "nothing to review" over a queue.
+  useEffect(() => {
+    if (rows.length === 0 && feed.hasNextPage && !feed.isFetching) void feed.fetchNextPage();
+  }, [rows.length, feed.hasNextPage, feed.isFetching, feed.fetchNextPage]);
   const neighbour = activeIndex >= 0 ? ordered[activeIndex + 1] ?? null : null;
 
   const mark = useCurationMark();
@@ -288,12 +321,13 @@ export function CurationQueueView() {
     [viewer.isRoster]
   );
 
-  const positionOf = useRowPosition(queryKey);
+  const positionOf = useRowPosition(queryKey, filters.sort);
   const doMark = useCallback(
     async (row: DeskRow, input: { state: "reviewed" | "snoozed" | "flagged" | "noted"; reason?: string; note?: string; snooze_until?: string }, message: string) => {
       // A reviewed row leaves an unreviewed-only queue at once, so its place
       // is captured before the mark for the undo to put it back there.
       const restoreAt = positionOf(row.post_id);
+      noteOwnMark(row);
       try {
         // The lane this desk is showing rides on the mark, so the hand-off can
         // say which queue the position was earned in without ever guessing.
@@ -307,7 +341,7 @@ export function CurationQueueView() {
         errorToast(...formatError(e));
       }
     },
-    [mark, clearMark, params, positionOf]
+    [mark, clearMark, params, positionOf, noteOwnMark]
   );
 
   const onSelect = useCallback((row: DeskRow) => setActiveKey(rowKey(row)), []);

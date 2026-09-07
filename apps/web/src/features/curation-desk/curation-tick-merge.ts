@@ -6,6 +6,7 @@ import type {
   CurationTickResponse,
 } from "@ecency/sdk";
 import { rowHiddenByFeed, type FeedFilters } from "./curation-feed-rules";
+import { parseChainDate } from "./curation-window";
 import type { DeskRow } from "./types";
 
 function emptyOverlay(): CurationOverlay {
@@ -63,16 +64,27 @@ function rowStateChanged(row: DeskRow, next: RowStateDelta): boolean {
   );
 }
 
-/** Team level = the newest mark on the row. */
-function teamLevel(marks: CurationMark[]): Pick<CurationOverlay, "team_mark" | "team_mark_by" | "team_snooze_until"> {
+/**
+ * Team level = the newest mark on the row. A snooze that has run out is no
+ * mark any more: the server's minute job clears the team level then but
+ * leaves the mark row, which the feed still delivers, so counting it would
+ * snooze a resurfaced post again the moment any other mark reaches it.
+ */
+function teamLevel(marks: CurationMark[], now: number): Pick<CurationOverlay, "team_mark" | "team_mark_by" | "team_snooze_until"> {
   const newest = marks
-    .filter((m) => m.state !== "noted")
+    .filter((m) => m.state !== "noted" && !snoozeExpired(m, now))
     .sort((a, b) => (a.updated_at < b.updated_at ? 1 : -1))[0];
   return {
     team_mark: newest?.state ?? null,
     team_mark_by: newest?.curator ?? null,
     team_snooze_until: newest?.state === "snoozed" ? newest.snooze_until ?? null : null,
   };
+}
+
+function snoozeExpired(mark: CurationMark, now: number): boolean {
+  if (mark.state !== "snoozed") return false;
+  const until = parseChainDate(mark.snooze_until);
+  return until != null && until <= now;
 }
 
 export interface TickMergeOptions {
@@ -84,6 +96,8 @@ export interface TickMergeOptions {
    * it. Without this every described row stays and only its badge changes.
    */
   feed?: FeedFilters;
+  /** The clock a snooze is judged against; defaults to Date.now(). */
+  now?: number;
 }
 
 /**
@@ -128,6 +142,7 @@ export function mergeTickIntoPages(
   if (!overlayById.size && !marksById.size && !flagsById.size && !signalsById.size && !rowsById.size) {
     return data;
   }
+  const now = options.now ?? Date.now();
 
   /** The row with this tick applied, or the same object when nothing on it moved. */
   const mergeRow = (row: DeskRow): DeskRow => {
@@ -153,7 +168,7 @@ export function mergeTickIntoPages(
       overlay = {
         ...overlay,
         marks: list,
-        ...teamLevel(list),
+        ...teamLevel(list, now),
         notes_count: list.filter(markHasNote).length,
       };
     }
@@ -233,6 +248,17 @@ export function removeRowFromPages<TPage extends { items: DeskRow[] }>(
 export interface RowPosition {
   page: number;
   index: number;
+  /** The feed's order, so a row can go back to its PLACE when its index moved. */
+  sort?: string;
+}
+
+/** Row `a` sorts before row `b` under a chronological order; null for any other order. */
+function sortsBefore(a: DeskRow, b: DeskRow, sort: string | undefined): boolean | null {
+  if (sort !== "queue" && sort !== "newest") return null;
+  const ca = parseChainDate(a.created) ?? 0;
+  const cb = parseChainDate(b.created) ?? 0;
+  if (ca !== cb) return sort === "queue" ? ca < cb : ca > cb;
+  return sort === "queue" ? a.post_id < b.post_id : a.post_id > b.post_id;
 }
 
 /** Where a row sits in the loaded pages, or null when it is not loaded. */
@@ -249,9 +275,10 @@ export function findRowPosition<TPage extends { items: DeskRow[] }>(
 }
 
 /**
- * Put a row back where it was before it left (an undone mark). A row that is
- * still loaded is replaced in place instead; a position past the loaded
- * pages lands at the end of the last one.
+ * Put a row back where it belongs after an undone mark. Under a chronological
+ * order that is its place in the order, whatever left or arrived meanwhile;
+ * under any other order it is the slot it held, clamped to what is loaded. A
+ * row that is still loaded is replaced in place instead.
  */
 export function insertRowInPages<TPage extends { items: DeskRow[] }>(
   data: InfiniteData<TPage, unknown> | undefined,
@@ -260,10 +287,26 @@ export function insertRowInPages<TPage extends { items: DeskRow[] }>(
 ): InfiniteData<TPage, unknown> | undefined {
   if (!data || !Array.isArray(data.pages) || data.pages.length === 0) return data;
   if (findRowPosition(data, row.post_id)) return replaceRowInPages(data, row);
-  const page = Math.min(Math.max(0, at.page), data.pages.length - 1);
+  let page = Math.min(Math.max(0, at.page), data.pages.length - 1);
+  let index = Math.min(Math.max(0, at.index), data.pages[page].items.length);
+  if (at.sort === "queue" || at.sort === "newest") {
+    // The first loaded row that sorts after it; none means the end of the
+    // last page, which is also where the server would serve it next.
+    page = data.pages.length - 1;
+    index = data.pages[page].items.length;
+    outer: for (let p = 0; p < data.pages.length; p++) {
+      for (let i = 0; i < data.pages[p].items.length; i++) {
+        if (sortsBefore(row, data.pages[p].items[i], at.sort)) {
+          page = p;
+          index = i;
+          break outer;
+        }
+      }
+    }
+  }
   const pages = data.pages.slice();
   const items = pages[page].items.slice();
-  items.splice(Math.min(Math.max(0, at.index), items.length), 0, row);
+  items.splice(index, 0, row);
   pages[page] = { ...pages[page], items };
   return { ...data, pages };
 }

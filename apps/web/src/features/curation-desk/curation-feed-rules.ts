@@ -27,17 +27,30 @@ function flag(value: string | boolean | undefined, fallback: boolean): boolean {
  */
 export function rowHiddenByFeed(row: DeskRow, feed: FeedFilters): boolean {
   const view = typeof feed.view === "string" && feed.view ? feed.view : "queue";
-  if (view === "excluded") return false;
   const excluded = row.overlay?.excluded_reason ?? null;
-  if (excluded && excluded !== "rep_low") return true;
-  if (view === "curated") return row.state !== 1;
-  if (view !== "all") {
-    const openOnly = flag(feed.hide_curated, true) || flag(feed.recommended, false) || feed.sort === "unique";
-    if (openOnly && row.state !== 0) return true;
+  if (view === "excluded") {
+    // The excluded lens is the one place an excluded row is served, whatever
+    // its state; a row that stops being excluded leaves it.
+    if (!excluded) return true;
+  } else {
+    if (excluded && excluded !== "rep_low") return true;
+    if (view === "curated") {
+      if (row.state !== 1) return true;
+    } else if (view !== "all") {
+      const openOnly = flag(feed.hide_curated, true) || flag(feed.recommended, false) || feed.sort === "unique";
+      if (openOnly && row.state !== 0) return true;
+    }
   }
+  // The team mark rules apply on every roster view, the way the server adds
+  // them to every roster query.
   const mark = row.overlay?.team_mark ?? null;
   if (flag(feed.flagged, false)) return mark !== "flagged";
-  if (flag(feed.hide_reviewed, true) && mark === "reviewed") return true;
-  if (flag(feed.hide_snoozed, true) && mark === "snoozed") return true;
+  const hideReviewed = flag(feed.hide_reviewed, true);
+  const hideSnoozed = flag(feed.hide_snoozed, true);
+  // Both on is the server's "unhandled" test, `team_mark IS NULL`: a flag is a
+  // team mark too, so a flagged row is handled and lives on the flagged lens.
+  if (hideReviewed && hideSnoozed) return mark !== null;
+  if (hideReviewed && mark === "reviewed") return true;
+  if (hideSnoozed && mark === "snoozed") return true;
   return false;
 }

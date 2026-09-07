@@ -121,11 +121,11 @@ describe("row identity across a tick", () => {
     const before12 = last(12);
     const renders = seen.rows.length;
 
-    // A flag keeps the row listed (the queue shows flagged rows); a reviewed
-    // mark would take it out, which the next case covers.
+    // A note keeps the row listed (it is not a team mark); a reviewed mark
+    // would take it out, which the next case covers.
     tickBody = {
       ...tickBody,
-      deltas: { marks: [{ post_id: 12, curator: "riyat", state: "flagged", updated_at: iso(10_000) }], flags: [], signals: [] },
+      deltas: { marks: [{ post_id: 12, curator: "riyat", state: "noted", has_note: true, updated_at: iso(10_000) }], flags: [], signals: [] },
     };
     await act(async () => {
       await vi.advanceTimersByTimeAsync(15_000);
@@ -136,7 +136,7 @@ describe("row identity across a tick", () => {
     // objects straight through, so React.memo skips the untouched row.
     expect(last(11)).toBe(before11);
     expect(last(12)).not.toBe(before12);
-    expect((last(12) as DeskRow).overlay?.team_mark).toBe("flagged");
+    expect((last(12) as DeskRow).overlay?.notes_count).toBe(1);
   });
 
   it("takes a row a colleague just reviewed out of the unreviewed-only queue, keeping its neighbour's object", async () => {

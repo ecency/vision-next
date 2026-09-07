@@ -6,11 +6,13 @@ const open = (mark: "reviewed" | "snoozed" | "flagged" | null = null, extra: Par
   makeRow({ post_id: 1, state: 0, overlay: makeOverlay({ team_mark: mark, team_mark_by: mark ? "riyat" : null, ...extra }) });
 
 describe("rowHiddenByFeed", () => {
-  it("mirrors the roster feed's defaults: reviewed and snoozed rows leave, noted and flagged rows stay", () => {
+  it("mirrors the roster feed's defaults: any team mark leaves, a note stays", () => {
     expect(rowHiddenByFeed(open(), {})).toBe(false);
     expect(rowHiddenByFeed(open("reviewed"), {})).toBe(true);
     expect(rowHiddenByFeed(open("snoozed"), {})).toBe(true);
-    expect(rowHiddenByFeed(open("flagged"), {})).toBe(false);
+    // Unreviewed only is the server's `team_mark IS NULL`: a flag is handled
+    // too, and lives on the flagged lens.
+    expect(rowHiddenByFeed(open("flagged"), {})).toBe(true);
     // A note never becomes a team mark, so a noted row reads as unmarked here.
     expect(rowHiddenByFeed(open(null, { notes_count: 2 }), {})).toBe(false);
   });
@@ -20,6 +22,10 @@ describe("rowHiddenByFeed", () => {
     expect(rowHiddenByFeed(open("reviewed"), { hide_reviewed: "0" })).toBe(false);
     expect(rowHiddenByFeed(open("snoozed"), { hide_snoozed: "0" })).toBe(false);
     expect(rowHiddenByFeed(open("snoozed"), { hide_reviewed: "0" })).toBe(true);
+    // With one of the two off the server keeps everything but the hidden
+    // kind, flagged rows included.
+    expect(rowHiddenByFeed(open("flagged"), { hide_reviewed: "0" })).toBe(false);
+    expect(rowHiddenByFeed(open("flagged"), { hide_snoozed: "0" })).toBe(false);
   });
 
   it("keeps curated rows out unless the feed shows them", () => {
@@ -44,5 +50,11 @@ describe("rowHiddenByFeed", () => {
     expect(rowHiddenByFeed(excluded, { view: "excluded" })).toBe(false);
     // rep_low is served on every public view, so it is not a reason to leave.
     expect(rowHiddenByFeed(open(null, { excluded_reason: "rep_low" }), {})).toBe(false);
+    // The team mark rules run on every roster view, the excluded lens too,
+    // and a row that stops being excluded leaves that lens.
+    expect(rowHiddenByFeed(open("reviewed", { excluded_reason: "abuser" }), { view: "excluded" })).toBe(true);
+    expect(rowHiddenByFeed(open("reviewed", { excluded_reason: "abuser" }), { view: "excluded", hide_reviewed: "0" })).toBe(false);
+    expect(rowHiddenByFeed(open(), { view: "excluded" })).toBe(true);
+    expect(rowHiddenByFeed(makeRow({ post_id: 3, state: 1, overlay: makeOverlay({ team_mark: "reviewed" }) }), { view: "curated" })).toBe(true);
   });
 });

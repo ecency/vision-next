@@ -4656,7 +4656,8 @@
       "snoozed": "Snoozed for {{preset}}",
       "flagged": "Flagged for the team",
       "cleared": "Mark cleared",
-      "undo": "Undo"
+      "undo": "Undo",
+      "left-queue": "This post just left the queue: a colleague handled it, or it was curated."
     },
     "list": {
       "aria": "Curation queue",

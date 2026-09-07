@@ -40,6 +40,12 @@ export const MY_MARKS_PAGE_SIZE = 50;
  * Word count presets, offered as both a minimum and a maximum. 150 is there
  * for the photographers, artists and poets whose strong posts are short.
  */
+/**
+ * How long a row that leaves the list after this desk marked it still reads
+ * as the curator's own doing; past that a departure is a colleague's.
+ */
+export const OWN_MARK_WINDOW_MS = 30_000;
+
 export const WORD_PRESETS = [150, 300, 600, 1000] as const;
 /**
  * The option lists the two selects render. They live here so the select and
