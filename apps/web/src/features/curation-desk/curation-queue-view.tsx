@@ -251,7 +251,9 @@ export function CurationQueueView() {
   const doMark = useCallback(
     async (row: DeskRow, input: { state: "reviewed" | "snoozed" | "flagged" | "noted"; reason?: string; note?: string; snooze_until?: string }, message: string) => {
       try {
-        await mark.mutateAsync({ row, ...input });
+        // The lane this desk is showing rides on the mark, so the hand-off can
+        // say which queue the position was earned in without ever guessing.
+        await mark.mutateAsync({ row, ...input, lane: params });
         setUndo({
           message,
           action: input.state === "reviewed" ? () => clearMark.mutateAsync(row) : null,
@@ -261,7 +263,7 @@ export function CurationQueueView() {
         errorToast(...formatError(e));
       }
     },
-    [mark, clearMark]
+    [mark, clearMark, params]
   );
 
   const onSelect = useCallback((row: DeskRow) => setActiveKey(rowKey(row)), []);

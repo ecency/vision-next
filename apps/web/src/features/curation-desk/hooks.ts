@@ -520,6 +520,7 @@ export function useCurationMark() {
         reason: input.reason,
         note: input.note,
         snooze_until: input.snooze_until,
+        lane: input.lane,
       });
     },
     onSuccess: (response) => {

@@ -429,6 +429,13 @@ export interface CurationMarkInput {
   reason?: string;
   note?: string;
   snooze_until?: string;
+  /**
+   * The feed params the desk was showing when it made this mark. The hand-off
+   * reads a position and its lane off the same mark, so a desk with two tabs on
+   * different filters stamps each mark with its own. Paging keys are dropped by
+   * the gateway; absent means the lane is unknown, never the whole queue.
+   */
+  lane?: CurationRosterFeedParams;
 }
 
 export interface CurationMarkResponse {

@@ -242,7 +242,12 @@ describe("keyboard on the queue", () => {
     await act(async () => press("j"));
     await act(async () => press("r"));
     await waitFor(() => expect(router.callsTo(/curation-desk\/mark$/)).toHaveLength(1));
-    expect(router.callsTo(/curation-desk\/mark$/)[0].body).toMatchObject({ state: "reviewed", code: "code-1" });
+    const body = router.callsTo(/curation-desk\/mark$/)[0].body as Record<string, unknown>;
+    expect(body).toMatchObject({ state: "reviewed", code: "code-1" });
+    // The mark carries the lane this desk is showing, so the team hand-off can
+    // say which queue the position was earned in. The roster default is the
+    // whole queue in queue order with handled rows hidden.
+    expect(body.lane).toMatchObject({ sort: "queue", app: "all", hide_reviewed: true, hide_snoozed: true });
   });
 
   it("Enter opens the drawer once: the row no longer handles it too", async () => {

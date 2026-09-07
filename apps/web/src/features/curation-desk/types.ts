@@ -1,5 +1,6 @@
 import type {
   CurationApp,
+  CurationRosterFeedParams,
   CurationFlagReason,
   CurationMarkState,
   CurationOverlay,
@@ -119,6 +120,8 @@ export interface MarkActionInput {
   reason?: CurationFlagReason | string;
   note?: string;
   snooze_until?: string;
+  /** The feed params on screen when the mark was made; the hand-off's lane. */
+  lane?: CurationRosterFeedParams;
 }
 
 /** Recommender-side state of one post for the viewer. Chain truth, optimistic locally. */
