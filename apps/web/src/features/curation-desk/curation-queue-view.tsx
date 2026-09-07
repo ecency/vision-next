@@ -182,12 +182,17 @@ export function CurationQueueView() {
     !filters.flagged &&
     !filters.excluded;
   // The tick is the authority once it has answered under this key, an empty
-  // answer included: that is how a position that aged out leaves the bar. Until
-  // then the loaded page seeds it, so the bar is filled on arrival rather than
-  // blank for fifteen seconds. Null all the way down means "not known", which
-  // is what an old backend gets, and it is never rendered as nobody marked.
+  // answer included (that is how a position that aged out leaves the bar) and
+  // an answer with no hand-off at all included: during a rolling deploy a page
+  // from the new backend can be followed by a tick from the old one, and
+  // falling back to the page then would revive its entries and label them
+  // freshly updated. Only before the first answer does the loaded page seed
+  // the bar, so it is filled on arrival rather than blank for fifteen seconds.
+  // Null means "not known" and is never rendered as nobody marked.
   const handoff: CurationHandoffEntry[] | null =
-    tick.handoff ?? (firstPage as { handoff?: CurationHandoffEntry[] } | undefined)?.handoff ?? null;
+    tick.lastTickAt != null
+      ? tick.handoff
+      : (firstPage as { handoff?: CurationHandoffEntry[] } | undefined)?.handoff ?? null;
   const totalEstimate = viewer.isRoster ? (firstPage as { total_estimate?: number | null } | undefined)?.total_estimate : undefined;
   const communities = (firstPage as { facets?: { communities: Array<{ community: string; title?: string | null; count?: number }> } } | undefined)?.facets?.communities ?? [];
 

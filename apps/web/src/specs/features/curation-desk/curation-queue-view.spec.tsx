@@ -184,6 +184,42 @@ describe("CurationQueueView", () => {
   });
 
   /**
+   * The loaded page seeds the bar before the first tick. Once a tick has
+   * answered it is the authority, an answer with no hand-off at all included:
+   * during a rolling deploy a page from the new backend can be followed by a
+   * tick from the old one, and falling back to the page then would revive its
+   * entries and label them freshly updated.
+   */
+  it("stops showing the page's hand-off once a tick answers without one", async () => {
+    state.username = "curator1";
+    fetchRouter.on(/curation-desk\/roster-feed/, () =>
+      makeRosterPage([makeRow({ post_id: 11, overlay: makeOverlay() })], {
+        handoff: [
+          {
+            username: "seckorama",
+            reviewed_to: "2026-09-05T08:14:00",
+            reviewed_to_post_id: 9,
+            last_mark_at: "2026-09-05T10:00:00",
+            marks_24h: 3,
+            lane: {},
+          },
+        ],
+      })
+    );
+    renderWithQueryClient(<CurationQueueView />, { queryClient: prodLikeClient() });
+    // seeded from the page, before any tick
+    expect(await screen.findByText("@seckorama")).toBeInTheDocument();
+
+    // the tick mock above answers with no `handoff` at all: an older backend
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(15_000);
+    });
+
+    await waitFor(() => expect(screen.queryByText("@seckorama")).toBeNull());
+    expect(screen.queryByText("curation-desk.handoff.empty")).toBeNull();
+  });
+
+  /**
    * "Your queue starts at the oldest post nobody has handled" is true only with
    * every handled kind out of the list. Showing curated posts puts handled rows
    * back in, so the sentence goes.
