@@ -138,6 +138,24 @@ describe("useWavesApi beneficiaries", () => {
     expect(payload.isUpdate).toBe(false);
   });
 
+  it("still attaches the meme beneficiaries when publishing a new meme wave", async () => {
+    const payload = await broadcast({
+      entry: container,
+      raw: "fresh meme",
+      host: "ecency.waves",
+      decentMemes: {
+        templateIds: ["tpl-1"],
+        beneficiaries: [{ account: "memecreator", weight: 500 }]
+      }
+    });
+
+    expect(payload.options?.beneficiaries).toContainEqual({
+      account: "memecreator",
+      weight: 500
+    });
+    expect(payload.isUpdate).toBe(false);
+  });
+
   it("sends no comment options when editing an ordinary wave", async () => {
     const payload = await broadcast({
       entry: container,

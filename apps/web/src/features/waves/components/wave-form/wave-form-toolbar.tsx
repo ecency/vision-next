@@ -65,17 +65,24 @@ export const WaveFormToolbar = ({
       <div className="flex items-center">
         <WaveFormToolbarImagePicker onAddImage={onAddImage} disabled={disabled} />
         <WaveFormEmojiPicker onPick={onEmojiPick} disabled={disabled} />
-        <EcencyConfigManager.Conditional
-          condition={({ thirdPartyFeatures }) => thirdPartyFeatures.threeSpeak.uploading.enabled}
-        >
-          <Button
-            appearance="gray-link"
-            icon={<UilVideo />}
-            onClick={onShowVideoUpload}
-            disabled={disabled || hasVideo || !onShowVideoUpload}
-            title={i18next.t("video-upload.title-short")}
-          />
-        </EcencyConfigManager.Conditional>
+        {/* A video and a meme each owe a payout route, and beneficiaries are
+            written once, by the transaction that publishes the wave. Neither
+            can be attached to content that already exists, so the controls that
+            create that obligation are offered only while composing, the way the
+            poll button below already is. */}
+        {!isEdit && (
+          <EcencyConfigManager.Conditional
+            condition={({ thirdPartyFeatures }) => thirdPartyFeatures.threeSpeak.uploading.enabled}
+          >
+            <Button
+              appearance="gray-link"
+              icon={<UilVideo />}
+              onClick={onShowVideoUpload}
+              disabled={disabled || hasVideo || !onShowVideoUpload}
+              title={i18next.t("video-upload.title-short")}
+            />
+          </EcencyConfigManager.Conditional>
+        )}
         {!isEdit && (
           <Button
             appearance="gray-link"
@@ -96,20 +103,22 @@ export const WaveFormToolbar = ({
             aria-label={i18next.t("ai-image-generator.toolbar-button")}
           />
         </EcencyConfigManager.Conditional>
-        <EcencyConfigManager.Conditional
-          condition={({ visionFeatures }) => visionFeatures.decentMemes.enabled}
-        >
-          <LoginRequired>
-            <Button
-              appearance="gray-link"
-              icon={<UilImageShare />}
-              onClick={() => setShowMemeMaker(true)}
-              disabled={disabled}
-              aria-label={i18next.t("decentmemes.toolbar-button")}
-              title={i18next.t("decentmemes.toolbar-button")}
-            />
-          </LoginRequired>
-        </EcencyConfigManager.Conditional>
+        {!isEdit && (
+          <EcencyConfigManager.Conditional
+            condition={({ visionFeatures }) => visionFeatures.decentMemes.enabled}
+          >
+            <LoginRequired>
+              <Button
+                appearance="gray-link"
+                icon={<UilImageShare />}
+                onClick={() => setShowMemeMaker(true)}
+                disabled={disabled}
+                aria-label={i18next.t("decentmemes.toolbar-button")}
+                title={i18next.t("decentmemes.toolbar-button")}
+              />
+            </LoginRequired>
+          </EcencyConfigManager.Conditional>
+        )}
         <PollsCreation
           existingPoll={activePoll}
           show={show}
