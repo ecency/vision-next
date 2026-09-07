@@ -31,6 +31,22 @@ const SORT_FILTERS: EntryFilter[] = [
  * URL scheme is unchanged: Following → /@user/feed (rewritten to the feed
  * route), Communities → /{sort}/my, Global → /{sort}.
  */
+/**
+ * The Communities source lives at `/{sort}/my` (see `communitiesHref` below), so
+ * recognising it has to anchor on that trailing segment. An unanchored match also
+ * catches every tag that merely begins with "my". An unanchored replace then
+ * rewrites the FIRST occurrence: /created/myhivejourney became /createdhivejourney,
+ * a 404 served to any logged-out visitor opening such a feed.
+ *
+ * Returns the Global path to fall back to, or null when this is not a `/my` feed.
+ */
+export function globalFeedFallbackPath(pathname: string | null | undefined): string | null {
+  if (!pathname?.endsWith("/my")) {
+    return null;
+  }
+  return pathname.slice(0, -"/my".length) || "/";
+}
+
 export function useFeedMenu() {
   const { activeUser } = useActiveAccount();
 
