@@ -4702,7 +4702,7 @@
       "aria": "Team hand-off",
       "title": "Team hand-off",
       "empty": "Nobody has marked a post in the last 24 hours.",
-      "paused": "paused while you are away",
+      "updated": "updated {{when}}",
       "you": "@{{username}} (you)",
       "to-time": "to {{time}} UTC",
       "to-date": "to {{time}} UTC",
@@ -4710,7 +4710,14 @@
       "marks_other": "{{count}} marks",
       "lane-all": "all posts",
       "lane-rereading": "re-reading handled posts",
+      "lane-unflagged": "not flagged",
+      "lane-with-curated": "curated included",
       "lane-more": "{{lane}} and {{count}} more",
+      "lane-narrowed_one": "{{count}} filter",
+      "lane-narrowed_other": "{{count}} filters",
+      "order-newest": "newest first, not a watermark",
+      "order-random": "shuffled, not a watermark",
+      "order-unique": "by recommenders, not a watermark",
       "where-you-start": "Your queue starts at the oldest post nobody has handled."
     },
     "marks-view": {

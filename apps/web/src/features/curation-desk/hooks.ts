@@ -157,13 +157,19 @@ export interface TickOptions {
    * asking for everything with `since: null`.
    */
   feedGeneratedAt?: string | null;
+  /** The queue hides curated posts, so a row the tick reports as curated leaves it. */
+  hideCurated?: boolean;
 }
 
 export interface TickState {
   teamCursor: CurationTeamCursor | null;
   activeCurators: CurationActiveCurator[];
-  /** How far each curator has got. Empty until the backend deriving it is live. */
-  handoff: CurationHandoffEntry[];
+  /**
+   * How far each curator has got. Null until a tick has answered under the
+   * current key, and null from a backend that does not send it: those are
+   * not "nobody has marked", which only an empty array means.
+   */
+  handoff: CurationHandoffEntry[] | null;
   trailAlerts: unknown[];
   /** The last tick failed; the loaded queue stays, live updates are paused. */
   paused: boolean;
@@ -189,6 +195,8 @@ export function useCurationTick(options: TickOptions): TickState {
   visibleRef.current = options.getVisibleIds;
   const feedGeneratedAtRef = useRef(options.feedGeneratedAt);
   feedGeneratedAtRef.current = options.feedGeneratedAt;
+  const hideCuratedRef = useRef(options.hideCurated);
+  hideCuratedRef.current = options.hideCurated;
   const sinceRef = useRef<string | null>(null);
   const inFlightRef = useRef(false);
   const feedKeyRef = useRef(feedKey);
@@ -203,7 +211,7 @@ export function useCurationTick(options: TickOptions): TickState {
   const [state, setState] = useState<Omit<TickState, "tickNow">>({
     teamCursor: null,
     activeCurators: [],
-    handoff: [],
+    handoff: null,
     trailAlerts: [],
     paused: false,
     lastTickAt: null,
@@ -234,7 +242,7 @@ export function useCurationTick(options: TickOptions): TickState {
       if (generation !== generationRef.current) return;
       sinceRef.current = response.generated_at ?? sinceRef.current;
       queryClient.setQueryData<InfiniteData<CurationRosterFeedPage, unknown>>(key, (old) =>
-        mergeTickIntoPages(old, response)
+        mergeTickIntoPages(old, response, { dropCurated: hideCuratedRef.current === true })
       );
       if (response.truncated && since !== null) {
         queryClient.invalidateQueries({ queryKey: key });
@@ -242,7 +250,7 @@ export function useCurationTick(options: TickOptions): TickState {
       setState({
         teamCursor: response.team_cursor ?? null,
         activeCurators: response.active_curators ?? [],
-        handoff: response.handoff ?? [],
+        handoff: response.handoff ?? null,
         trailAlerts: response.trail_alerts ?? [],
         paused: false,
         lastTickAt: Date.now(),
@@ -280,6 +288,10 @@ export function useCurationTick(options: TickOptions): TickState {
   useEffect(() => {
     generationRef.current += 1;
     sinceRef.current = null;
+    // The state describes the queue that just ended, and the key changes with
+    // the account too: a curator's hand-off, counts included, must not stay on
+    // screen for the trial who signs in after them and has an empty queue.
+    setState({ teamCursor: null, activeCurators: [], handoff: null, trailAlerts: [], paused: false, lastTickAt: null });
     return () => {
       generationRef.current += 1;
     };

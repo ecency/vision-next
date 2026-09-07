@@ -386,6 +386,36 @@ describe("mergeTickIntoPages", () => {
     expect(moved.pages[0].items[0].voted_by).toHaveLength(1);
   });
 
+  /**
+   * With curated posts hidden, a row the tick reports as curated leaves the
+   * list now, rather than sitting there as a curated card until the next
+   * refresh happens to drop it. With them shown, it turns into that card.
+   */
+  it("drops a row that just got curated when the queue hides curated posts", () => {
+    const open = makeRow({ post_id: 1, state: 0, overlay: makeOverlay() });
+    const other = makeRow({ post_id: 2, state: 0, overlay: makeOverlay() });
+    const data: InfiniteData<CurationRosterFeedPage> = {
+      pages: [makeRosterPage([open, other])],
+      pageParams: [undefined],
+    };
+    const curated = tickBody({
+      deltas: {
+        marks: [],
+        flags: [],
+        signals: [],
+        rows: [{ post_id: 1, state: 1, trailed_by: null, voted_by: [], unvoted_at: null }],
+      },
+    });
+
+    const hidden = mergeTickIntoPages(data, curated, { dropCurated: true })!;
+    expect(hidden.pages[0].items.map((r) => r.post_id)).toEqual([2]);
+    expect(hidden.pages[0].items[0]).toBe(other);
+
+    const shown = mergeTickIntoPages(data, curated, { dropCurated: false })!;
+    expect(shown.pages[0].items.map((r) => r.post_id)).toEqual([1, 2]);
+    expect(shown.pages[0].items[0].state).toBe(1);
+  });
+
   it("is unchanged by a backend that sends no row deltas", () => {
     const data: InfiniteData<CurationRosterFeedPage> = {
       pages: [makeRosterPage([makeRow({ post_id: 1, state: 0 })])],

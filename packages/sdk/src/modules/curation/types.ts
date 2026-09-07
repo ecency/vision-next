@@ -202,6 +202,8 @@ export interface CurationActiveCurator {
  * already been through the allow lists the query runs on.
  */
 export type CurationLane = Partial<{
+  /** Present only when it is not the queue order, under which alone a position is a watermark. */
+  sort: CurationSort;
   view: string;
   app: CurationApp;
   community: string;
@@ -216,6 +218,7 @@ export type CurationLane = Partial<{
   flagged: boolean;
   hide_curated: boolean;
   hide_reviewed: boolean;
+  hide_snoozed: boolean;
 }>;
 
 /**
@@ -235,8 +238,12 @@ export interface CurationHandoffEntry {
   last_mark_at: string;
   /** Absent for a trial viewer looking at somebody else. */
   marks_24h?: number;
-  /** Absent until the backend that records it is deployed. */
-  lane?: CurationLane;
+  /**
+   * Null is UNKNOWN: a mark from before the desk sent lanes, or one that said
+   * nothing. It is never the whole queue, which is `{}`. Absent until the
+   * backend that records it is deployed.
+   */
+  lane?: CurationLane | null;
 }
 
 export interface CurationFeedPage {

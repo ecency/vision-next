@@ -6,16 +6,25 @@ import i18next from "i18next";
 import type { CurationHandoffEntry } from "@ecency/sdk";
 import { UserAvatar } from "@/features/shared/user-avatar";
 import { dateToRelative } from "@/utils";
+import { POLL_MS_CURATOR } from "./consts";
 import { describeLane, isSameUtcDay, orderHandoff } from "./curation-handoff";
 import { formatUtcDateHm, formatUtcHm } from "./curation-window";
 
 interface Props {
-  entries: CurationHandoffEntry[] | undefined;
+  /**
+   * Null is "not known": no tick has answered under this key yet, or the
+   * backend does not send it. Only an empty array means nobody has marked.
+   */
+  entries: CurationHandoffEntry[] | null;
   username: string | undefined;
-  /** The tick pauses after ten idle minutes, and a stale bar must say so. */
-  live: boolean;
+  /** When the tick last answered, so a bar the tick has stopped feeding says so. */
+  updatedAt: number | null;
   now: number;
+  communities: Array<{ community: string; title?: string | null }>;
 }
+
+/** The tick runs every 15 s; two missed ticks and the bar is describing the past. */
+const STALE_MS = 2 * POLL_MS_CURATOR;
 
 /**
  * Who got how far, and in which queue.
@@ -30,8 +39,16 @@ interface Props {
  * a progress claim and not a contiguous reviewed prefix, so it is worth reading
  * and must never aim anything.
  */
-export function CurationHandoffBar({ entries, username, live, now }: Props) {
+export function CurationHandoffBar({ entries, username, updatedAt, now, communities }: Props) {
   const rows = useMemo(() => orderHandoff(entries, username), [entries, username]);
+  const titles = useMemo(
+    () => new Map(communities.map((c) => [c.community, c.title ?? null] as const)),
+    [communities]
+  );
+  // The tick stops on its own when the tab is idle, hidden or empty, and on a
+  // failure, so freshness is read off the clock rather than off a flag that
+  // only one of those paths sets.
+  const stale = updatedAt != null && now - updatedAt > STALE_MS;
 
   return (
     <section
@@ -40,10 +57,14 @@ export function CurationHandoffBar({ entries, username, live, now }: Props) {
     >
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
         <h2 className="text-sm font-medium">{i18next.t("curation-desk.handoff.title")}</h2>
-        {!live && <span className="text-gray-500">{i18next.t("curation-desk.handoff.paused")}</span>}
+        {updatedAt != null && (
+          <span className={clsx(stale ? "text-warning-ink dark:text-warning-default" : "text-gray-500")}>
+            {i18next.t("curation-desk.handoff.updated", { when: dateToRelative(new Date(updatedAt).toISOString()) })}
+          </span>
+        )}
       </div>
 
-      {rows.length === 0 ? (
+      {entries === null ? null : rows.length === 0 ? (
         <p className="mt-2 text-gray-500">{i18next.t("curation-desk.handoff.empty")}</p>
       ) : (
         <ul className="mt-2 flex flex-col gap-1.5">
@@ -56,7 +77,9 @@ export function CurationHandoffBar({ entries, username, live, now }: Props) {
                 ? i18next.t("curation-desk.handoff.to-time", { time: formatUtcHm(entry.reviewed_to) })
                 : i18next.t("curation-desk.handoff.to-date", { time: formatUtcDateHm(entry.reviewed_to) })
               : null;
-            const lane = describeLane(entry.lane);
+            // Under any order but the queue order the position is not a watermark;
+            // the lane text says so in words, which is enough.
+            const lane = describeLane(entry.lane, entry.lane?.community ? titles.get(entry.lane.community) : null);
             return (
               <li key={entry.username} className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
                 <UserAvatar username={entry.username} size="xsmall" className="size-4 rounded-full" />

@@ -55,6 +55,41 @@ describe("describeLane", () => {
   it("prefers the community's title over its id, and says nothing without a lane", () => {
     expect(describeLane({ community: "hive-125125" }, "Photography")).toBe("Photography");
     expect(describeLane(undefined)).toBe("");
+    // Null is a mark from before the desk sent lanes: unknown, never a claim.
+    expect(describeLane(null)).toBe("");
+  });
+
+  /**
+   * The one property this text exists for: a lane that narrows anything can
+   * never print as the whole queue. Every facet the backend can record is
+   * either named or counted.
+   */
+  it.each([
+    ["min_words", { min_words: 500 }],
+    ["max_words", { max_words: 300 }],
+    ["rep range", { rep_min: 40, rep_max: 100 }],
+    ["has_images", { has_images: true }],
+    ["excluded view", { view: "excluded" }],
+    ["curated included", { hide_curated: false }],
+    ["snoozed shown", { hide_snoozed: false }],
+    ["not flagged", { flagged: false }],
+  ] as const)("never reads %s as the whole queue", (_name, lane) => {
+    const text = describeLane(lane);
+    expect(text).not.toBe("curation-desk.handoff.lane-all");
+    expect(text).not.toBe("");
+  });
+
+  /**
+   * The order decides whether a position is a watermark at all: a mark on
+   * newest-first says nothing about the older posts. It comes first, and it is
+   * never the whole queue either.
+   */
+  it("names any order but the queue order, first", () => {
+    expect(describeLane({ sort: "newest" })).toBe("curation-desk.handoff.order-newest");
+    expect(describeLane({ sort: "random", app: "peakd" })).toBe(
+      "curation-desk.handoff.order-random, curation-desk.filters.app-peakd"
+    );
+    expect(describeLane({ sort: "queue" })).toBe("curation-desk.handoff.lane-all");
   });
 });
 
@@ -87,8 +122,9 @@ describe("CurationHandoffBar", () => {
       <CurationHandoffBar
         entries={[entry({ username: "seckorama", marks_24h: 3 }), entry({ username: "me" })]}
         username="me"
-        live
+        updatedAt={NOW}
         now={NOW}
+        communities={[]}
       />
     );
     const rows = screen.getAllByRole("listitem");
@@ -103,7 +139,7 @@ describe("CurationHandoffBar", () => {
    */
   it("prints a date on a position that is not from today", () => {
     renderWithQueryClient(
-      <CurationHandoffBar entries={[entry()]} username="me" live now={NOW} />
+      <CurationHandoffBar entries={[entry()]} username="me" updatedAt={NOW} now={NOW} communities={[]} />
     );
     expect(screen.getByText("curation-desk.handoff.to-time")).toBeInTheDocument();
 
@@ -111,23 +147,58 @@ describe("CurationHandoffBar", () => {
       <CurationHandoffBar
         entries={[entry({ reviewed_to: "2026-09-04T08:14:00" })]}
         username="me"
-        live
+        updatedAt={NOW}
         now={NOW}
+        communities={[]}
       />
     );
     expect(screen.getAllByText("curation-desk.handoff.to-date").length).toBeGreaterThan(0);
   });
 
   it("says the queue is untouched rather than rendering nothing", () => {
-    renderWithQueryClient(<CurationHandoffBar entries={[]} username="me" live now={NOW} />);
+    renderWithQueryClient(<CurationHandoffBar entries={[]} username="me" updatedAt={NOW} now={NOW} communities={[]} />);
     expect(screen.getByText("curation-desk.handoff.empty")).toBeInTheDocument();
   });
 
-  it("says so when the tick has paused, rather than showing a stale bar as live", () => {
-    renderWithQueryClient(
-      <CurationHandoffBar entries={[entry()]} username="me" live={false} now={NOW} />
+  /**
+   * Null is "not known": no tick has answered yet, or the backend does not
+   * send hand-offs. That is not "nobody has marked", and must not read as it.
+   */
+  it("claims nothing while the hand-off is not known", () => {
+    renderWithQueryClient(<CurationHandoffBar entries={null} username="me" updatedAt={null} now={NOW} communities={[]} />);
+    expect(screen.queryByText("curation-desk.handoff.empty")).toBeNull();
+    expect(screen.queryByRole("list")).toBeNull();
+    expect(screen.getByText("curation-desk.handoff.title")).toBeInTheDocument();
+  });
+
+  /**
+   * The tick stops on its own when the tab is idle or hidden, and on a failure,
+   * so freshness is read off the clock rather than off a flag only one of those
+   * paths sets. Two missed ticks and the bar says when it last heard anything.
+   */
+  it("shows when it was last updated, and flags it once two ticks are missed", () => {
+    const fresh = renderWithQueryClient(
+      <CurationHandoffBar entries={[entry()]} username="me" updatedAt={NOW - 10_000} now={NOW} communities={[]} />
     );
-    expect(screen.getByText("curation-desk.handoff.paused")).toBeInTheDocument();
+    expect(screen.getByText("curation-desk.handoff.updated")).not.toHaveClass("text-warning-ink");
+    fresh.unmount();
+    renderWithQueryClient(
+      <CurationHandoffBar entries={[entry()]} username="me" updatedAt={NOW - 5 * 60_000} now={NOW} communities={[]} />
+    );
+    expect(screen.getByText("curation-desk.handoff.updated")).toHaveClass("text-warning-ink");
+  });
+
+  it("names the community by its title when the queue knows it", () => {
+    renderWithQueryClient(
+      <CurationHandoffBar
+        entries={[entry({ lane: { community: "hive-125125" } })]}
+        username="me"
+        updatedAt={NOW}
+        now={NOW}
+        communities={[{ community: "hive-125125", title: "Photography" }]}
+      />
+    );
+    expect(screen.getByText("Photography")).toBeInTheDocument();
   });
 
   /** A trial viewer gets positions but no count for anyone but themselves. */
@@ -136,17 +207,19 @@ describe("CurationHandoffBar", () => {
       <CurationHandoffBar
         entries={[entry({ username: "seckorama", marks_24h: undefined })]}
         username="trial1"
-        live
+        updatedAt={NOW}
         now={NOW}
+        communities={[]}
       />
     );
     expect(screen.getByText("@seckorama")).toBeInTheDocument();
     expect(screen.queryByText("curation-desk.handoff.marks")).toBeNull();
   });
 
-  it("renders a position a backend without the lane still answers", () => {
+  it("renders a position whose lane is unknown, without claiming the whole queue", () => {
+    // null is the shape the backend actually sends for a mark from before lanes.
     renderWithQueryClient(
-      <CurationHandoffBar entries={[entry({ lane: undefined })]} username="me" live now={NOW} />
+      <CurationHandoffBar entries={[entry({ lane: null })]} username="me" updatedAt={NOW} now={NOW} communities={[]} />
     );
     expect(screen.getByRole("listitem")).toBeInTheDocument();
     expect(screen.queryByText("curation-desk.handoff.lane-all")).toBeNull();

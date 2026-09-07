@@ -4,7 +4,11 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import dynamic from "next/dynamic";
 import i18next from "i18next";
 import type { VirtuosoHandle } from "react-virtuoso";
-import { getCurationFeedInfiniteQueryOptions, type CurationFlagReason } from "@ecency/sdk";
+import {
+  getCurationFeedInfiniteQueryOptions,
+  type CurationFlagReason,
+  type CurationHandoffEntry,
+} from "@ecency/sdk";
 import { EcencyConfigManager } from "@/config";
 import { error as errorToast } from "@/features/shared/feedback";
 import { formatError } from "@/api/format-error";
@@ -143,6 +147,7 @@ export function CurationQueueView() {
     rows,
     getVisibleIds,
     feedGeneratedAt: firstPage?.generated_at,
+    hideCurated: filters.hideCurated,
   });
 
   const fetchPageOne = useMemo(
@@ -163,11 +168,13 @@ export function CurationQueueView() {
   useStatusPoll({ enabled: true, feedKey: queryKey, fetchPageOne, feedVersion, sort: filters.sort });
 
   const teamCursor = tick.teamCursor ?? firstPage?.team_cursor ?? status.data?.team_cursor ?? null;
-  // The loaded page seeds it, so the bar is filled on arrival rather than blank
-  // until the first tick lands fifteen seconds later.
-  const handoff = tick.handoff.length
-    ? tick.handoff
-    : (firstPage as { handoff?: typeof tick.handoff } | undefined)?.handoff ?? [];
+  // The tick is the authority once it has answered under this key, an empty
+  // answer included: that is how a position that aged out leaves the bar. Until
+  // then the loaded page seeds it, so the bar is filled on arrival rather than
+  // blank for fifteen seconds. Null all the way down means "not known", which
+  // is what an old backend gets, and it is never rendered as nobody marked.
+  const handoff: CurationHandoffEntry[] | null =
+    tick.handoff ?? (firstPage as { handoff?: CurationHandoffEntry[] } | undefined)?.handoff ?? null;
   const totalEstimate = viewer.isRoster ? (firstPage as { total_estimate?: number | null } | undefined)?.total_estimate : undefined;
   const communities = (firstPage as { facets?: { communities: Array<{ community: string; title?: string | null; count?: number }> } } | undefined)?.facets?.communities ?? [];
 
@@ -380,8 +387,9 @@ export function CurationQueueView() {
         <CurationHandoffBar
           entries={handoff}
           username={viewer.username}
-          live={!tick.paused}
+          updatedAt={tick.lastTickAt}
           now={now}
+          communities={communities}
         />
       )}
       <CurationSortFilterBar

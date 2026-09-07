@@ -74,6 +74,15 @@ function teamLevel(marks: CurationMark[]): Pick<CurationOverlay, "team_mark" | "
   };
 }
 
+export interface TickMergeOptions {
+  /**
+   * The queue is hiding curated posts, so a row the tick reports as curated
+   * leaves the list now rather than sitting there as a curated card until the
+   * next refresh serves the page without it.
+   */
+  dropCurated?: boolean;
+}
+
 /**
  * Apply one tick response to the loaded roster pages. Rows the tick did not
  * touch are returned as the SAME object, so memoized row components skip their
@@ -81,7 +90,8 @@ function teamLevel(marks: CurationMark[]): Pick<CurationOverlay, "team_mark" | "
  */
 export function mergeTickIntoPages(
   data: InfiniteData<CurationRosterFeedPage, unknown> | undefined,
-  tick: CurationTickResponse
+  tick: CurationTickResponse,
+  options: TickMergeOptions = {}
 ): InfiniteData<CurationRosterFeedPage, unknown> | undefined {
   if (!data) return data;
 
@@ -116,53 +126,67 @@ export function mergeTickIntoPages(
     return data;
   }
 
+  /** The row with this tick applied, or the same object when nothing on it moved. */
+  const mergeRow = (row: DeskRow): DeskRow => {
+    const id = row.post_id;
+    const fullOverlay = overlayById.get(id);
+    const marks = marksById.get(id);
+    const flags = flagsById.get(id);
+    const signals = signalsById.get(id);
+    const described = rowsById.get(id);
+    const state = described && rowStateChanged(row, described) ? described : undefined;
+    const hasOverlayNews = !!fullOverlay || !!marks || !!flags || signals !== undefined;
+    if (!hasOverlayNews && !state) return row;
+    // A state-only delta must NOT invent an overlay. The next tick asks for a full
+    // overlay only for rows that still have none (`need`), so fabricating an empty
+    // one here would permanently convince the client that this row's marks, flags
+    // and signals were already loaded.
+    if (!hasOverlayNews) return { ...row, ...state };
+
+    let overlay: CurationOverlay = fullOverlay ?? row.overlay ?? emptyOverlay();
+    if (marks) {
+      let list = overlay.marks;
+      for (const mark of marks) list = upsertMark(list, mark);
+      overlay = {
+        ...overlay,
+        marks: list,
+        ...teamLevel(list),
+        notes_count: list.filter(markHasNote).length,
+      };
+    }
+    if (flags) {
+      overlay = { ...overlay, flags: flags.flags, excluded_reason: flags.excluded_reason };
+    }
+    if (signals !== undefined) {
+      overlay = { ...overlay, signals };
+    }
+    // `state` names only the fields it carries, so nothing else on the row
+    // is touched: `unvoted_at` back to null is a real value, not an absence.
+    return state ? { ...row, ...state, overlay } : { ...row, overlay };
+  };
+
   let anyPageChanged = false;
   const pages = data.pages.map((page) => {
     let pageChanged = false;
-    const items = page.items.map((row) => {
-      const id = row.post_id;
-      const fullOverlay = overlayById.get(id);
-      const marks = marksById.get(id);
-      const flags = flagsById.get(id);
-      const signals = signalsById.get(id);
-      const described = rowsById.get(id);
-      const state = described && rowStateChanged(row, described) ? described : undefined;
-      const hasOverlayNews = !!fullOverlay || !!marks || !!flags || signals !== undefined;
-      if (!hasOverlayNews && !state) return row;
-      // A state-only delta must NOT invent an overlay. The next tick asks for a full
-      // overlay only for rows that still have none (`need`), so fabricating an empty
-      // one here would permanently convince the client that this row's marks, flags
-      // and signals were already loaded.
-      if (!hasOverlayNews) {
+    const items: DeskRow[] = [];
+    for (const row of page.items) {
+      const described = rowsById.get(row.post_id);
+      // The curator asked not to see curated posts, and this one just was:
+      // it leaves now, rather than turning into a curated card that sits in
+      // the queue until the next refresh happens to drop it.
+      if (options.dropCurated && described && described.state !== 0 && row.state === 0) {
         pageChanged = true;
-        return { ...row, ...state };
+        continue;
       }
-
-      let overlay: CurationOverlay = fullOverlay ?? row.overlay ?? emptyOverlay();
-      if (marks) {
-        let list = overlay.marks;
-        for (const mark of marks) list = upsertMark(list, mark);
-        overlay = {
-          ...overlay,
-          marks: list,
-          ...teamLevel(list),
-          notes_count: list.filter(markHasNote).length,
-        };
-      }
-      if (flags) {
-        overlay = { ...overlay, flags: flags.flags, excluded_reason: flags.excluded_reason };
-      }
-      if (signals !== undefined) {
-        overlay = { ...overlay, signals };
-      }
-      pageChanged = true;
-      // `state` names only the fields it carries, so nothing else on the row
-      // is touched: `unvoted_at` back to null is a real value, not an absence.
-      return state ? { ...row, ...state, overlay } : { ...row, overlay };
-    });
+      const next = mergeRow(row);
+      if (next !== row) pageChanged = true;
+      items.push(next);
+    }
     if (!pageChanged) return page;
     anyPageChanged = true;
-    return { ...page, items };
+    // The loaded rows are roster rows with a nullable overlay; the page type
+    // is stricter than the merge needs to be, as the original map was too.
+    return { ...page, items: items as CurationRosterFeedPage["items"] };
   });
 
   return anyPageChanged ? { ...data, pages } : data;
