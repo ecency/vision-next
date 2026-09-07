@@ -119,6 +119,7 @@ describe("saved refine filters", () => {
     it("carries the window, and only a window the backend knows", () => {
       expect(pickSavedFilters({ ...defaults, window: "full" }, defaults, true)).toEqual({ window: "full" });
       expect(sanitizeSavedFilters({ window: "full" })).toEqual({ window: "full" });
+      expect(sanitizeSavedFilters({ window: "12h" })).toEqual({ window: "12h" });
       expect(sanitizeSavedFilters({ window: "yesterday" })).toEqual({});
     });
   });

@@ -27,7 +27,7 @@ export type CurationView = (typeof CURATION_VIEWS)[number];
 export const CURATION_APPS = ["all", "ecency", "peakd", "other"] as const;
 export type CurationApp = (typeof CURATION_APPS)[number];
 
-export const CURATION_WINDOWS = ["full", "half", "eighth", "locked", "all"] as const;
+export const CURATION_WINDOWS = ["12h", "full", "half", "eighth", "locked", "all"] as const;
 export type CurationWindow = (typeof CURATION_WINDOWS)[number];
 
 export const CURATION_MARK_STATES = ["reviewed", "snoozed", "flagged", "noted"] as const;

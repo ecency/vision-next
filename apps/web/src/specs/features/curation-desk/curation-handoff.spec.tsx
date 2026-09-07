@@ -35,6 +35,7 @@ describe("describeLane", () => {
 
   it("reuses the refine panel's own labels, so one filter never reads two ways", () => {
     expect(describeLane({ app: "peakd" })).toBe("curation-desk.filters.app-peakd");
+    expect(describeLane({ window: "12h" })).toBe("curation-desk.filters.window-12h");
     expect(describeLane({ new_authors: true })).toBe("curation-desk.filters.new-authors");
   });
 

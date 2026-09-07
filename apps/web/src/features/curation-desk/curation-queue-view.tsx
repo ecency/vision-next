@@ -208,6 +208,8 @@ export function CurationQueueView() {
   const [quickView, setQuickView] = useState(false);
   const [voteOnOpen, setVoteOnOpen] = useState(false);
   const [recommendOnOpen, setRecommendOnOpen] = useState(false);
+  const [commentOnOpen, setCommentOnOpen] = useState(false);
+  const [tipOnOpen, setTipOnOpen] = useState(false);
   const [dialog, setDialog] = useState<Dialog>({ kind: "none" });
   const [undo, setUndo] = useState<Undo | null>(null);
   const [undoBusy, setUndoBusy] = useState(false);
@@ -300,6 +302,8 @@ export function CurationQueueView() {
     setQuickView(false);
     setVoteOnOpen(false);
     setRecommendOnOpen(false);
+    setCommentOnOpen(false);
+    setTipOnOpen(false);
   }, []);
   const onVote = useCallback((row: DeskRow) => {
     setActiveKey(rowKey(row));
@@ -350,6 +354,18 @@ export function CurationQueueView() {
         setQuickView((v) => !v);
       },
       vote: () => activeRow && onVote(activeRow),
+      // Both live in the drawer next to the vote slider and wait for the entry
+      // there, the way the vote does.
+      comment: () => {
+        if (!activeRow) return;
+        if (!quickView) setQuickView(true);
+        setCommentOnOpen(true);
+      },
+      tip: () => {
+        if (!activeRow) return;
+        if (!quickView) setQuickView(true);
+        setTipOnOpen(true);
+      },
       reviewed: requireRoster(() => activeRow && onReviewed(activeRow)),
       skip: () => move(1),
       snooze: requireRoster(() => activeRow && onSnooze(activeRow)),
@@ -485,6 +501,10 @@ export function CurationQueueView() {
         onVoteHandled={() => setVoteOnOpen(false)}
         recommendOnOpen={recommendOnOpen}
         onRecommendHandled={() => setRecommendOnOpen(false)}
+        commentOnOpen={commentOnOpen}
+        onCommentHandled={() => setCommentOnOpen(false)}
+        tipOnOpen={tipOnOpen}
+        onTipHandled={() => setTipOnOpen(false)}
         onClose={closeQuickView}
         onPrev={() => move(-1)}
         onNext={() => move(1)}

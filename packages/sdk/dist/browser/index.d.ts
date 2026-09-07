@@ -10276,7 +10276,7 @@ declare const CURATION_VIEWS: readonly ["queue", "latest", "new-authors", "recom
 type CurationView = (typeof CURATION_VIEWS)[number];
 declare const CURATION_APPS: readonly ["all", "ecency", "peakd", "other"];
 type CurationApp = (typeof CURATION_APPS)[number];
-declare const CURATION_WINDOWS: readonly ["full", "half", "eighth", "locked", "all"];
+declare const CURATION_WINDOWS: readonly ["12h", "full", "half", "eighth", "locked", "all"];
 type CurationWindow = (typeof CURATION_WINDOWS)[number];
 declare const CURATION_MARK_STATES: readonly ["reviewed", "snoozed", "flagged", "noted"];
 type CurationMarkState = (typeof CURATION_MARK_STATES)[number];

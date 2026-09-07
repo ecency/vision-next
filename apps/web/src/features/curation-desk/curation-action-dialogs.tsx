@@ -150,6 +150,8 @@ const SHORTCUTS: Array<[string, string]> = [
   ["j / k", "next-prev"],
   ["Enter / o", "quick-view"],
   ["v", "vote"],
+  ["c", "comment"],
+  ["p", "tip"],
   ["r", "reviewed"],
   ["s / →", "skip"],
   ["z", "snooze"],

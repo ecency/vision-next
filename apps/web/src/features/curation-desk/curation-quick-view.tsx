@@ -10,9 +10,11 @@ import {
   UilArrowRight,
   UilBell,
   UilCheck,
+  UilCommentAlt,
   UilCommentAltNotes,
   UilExclamationTriangle,
   UilExternalLinkAlt,
+  UilGift,
   UilTimes,
 } from "@tooni/iconscout-unicons-react";
 import { getAccountPostsQueryOptions, getCurationPostQueryOptions, type CurationRecommender } from "@ecency/sdk";
@@ -23,16 +25,20 @@ import { PostContentRenderer } from "@/features/shared/post-content-renderer";
 import { EntryVoteBtn } from "@/features/shared/entry-vote-btn";
 import { EntryVotes } from "@/features/shared/entry-votes";
 import { EntryPayout } from "@/features/shared/entry-payout";
+import { EntryTipBtn } from "@/features/shared/entry-tip-btn";
+import { LoginRequired } from "@/features/shared/login-required";
 import { UserAvatar } from "@/features/shared/user-avatar";
 import { dateToRelative } from "@/utils";
 import type { Entry } from "@/entities";
 import { error as errorToast } from "@/features/shared/feedback";
 import { formatError } from "@/api/format-error";
+import { EcencyConfigManager } from "@/config";
 import { QUICK_VIEW_PREFETCH_DEBOUNCE_MS } from "./consts";
 import { Chip } from "./curation-chip";
 import { appLabel } from "./curation-queue-display";
 import { CurationRecommendBtn, type CurationRecommendHandle } from "./curation-recommend-btn";
 import { RecommenderChip } from "./curation-recommender";
+import { CurationReplyBox } from "./curation-reply-box";
 import { useCurationTicker } from "./curation-ticker";
 import { CurationWindowBadge } from "./curation-window-badge";
 import { computeWindow, formatUtcHm } from "./curation-window";
@@ -49,8 +55,14 @@ interface Props {
   /** The `v` key asked for the vote slider; consumed once the entry arrives. */
   voteOnOpen?: boolean;
   recommendOnOpen?: boolean;
+  /** The `c` key: open the reply box once the entry is here. */
+  commentOnOpen?: boolean;
+  /** The `p` key: open the Points transfer once the entry is here. */
+  tipOnOpen?: boolean;
   onRecommendHandled?: () => void;
   onVoteHandled?: () => void;
+  onCommentHandled?: () => void;
+  onTipHandled?: () => void;
   onClose: () => void;
   onPrev: () => void;
   onNext: () => void;
@@ -98,8 +110,12 @@ export function CurationQuickView({
   recommendationsEnabled,
   voteOnOpen,
   recommendOnOpen,
+  commentOnOpen,
+  tipOnOpen,
   onRecommendHandled,
   onVoteHandled,
+  onCommentHandled,
+  onTipHandled,
   onClose,
   onPrev,
   onNext,
@@ -154,6 +170,28 @@ export function CurationQuickView({
     drawerRef.current?.querySelector<HTMLElement>('.entry-vote-btn[role="button"]')?.click();
     voteHandledRef.current?.();
   }, [open, voteOnOpen, entry]);
+
+  // The `c` and `p` keys wait for the entry the same way, then press the
+  // button itself: both buttons sit behind the sign-in prompt, so a signed-out
+  // reader gets that prompt from the key too.
+  const [replyOpen, setReplyOpen] = useState(false);
+  useEffect(() => setReplyOpen(false), [author, permlink]);
+  const commentRef = useRef<HTMLButtonElement | HTMLAnchorElement | null>(null);
+  const commentHandledRef = useRef(onCommentHandled);
+  commentHandledRef.current = onCommentHandled;
+  useEffect(() => {
+    if (!open || !commentOnOpen || !entry) return;
+    commentRef.current?.click();
+    commentHandledRef.current?.();
+  }, [open, commentOnOpen, entry]);
+  const tipRef = useRef<HTMLButtonElement | HTMLAnchorElement | null>(null);
+  const tipHandledRef = useRef(onTipHandled);
+  tipHandledRef.current = onTipHandled;
+  useEffect(() => {
+    if (!open || !tipOnOpen || !entry) return;
+    tipRef.current?.click();
+    tipHandledRef.current?.();
+  }, [open, tipOnOpen, entry]);
 
   // The `x` key: the recommend button mounts with the drawer, so the trigger
   // waits for the mounted handle (a few frames at most) instead of a fixed delay.
@@ -210,6 +248,11 @@ export function CurationQuickView({
   const canDismissReco = viewer.isRoster && !viewer.isTrial;
   const title = row.title?.trim() || i18next.t("curation-desk.row.untitled", { author: row.author });
   const href = `/@${row.author}/${row.permlink}`;
+  // The tip dialog sends Points where the instance has them and HIVE elsewhere;
+  // the label says which.
+  const tipLabel = EcencyConfigManager.CONFIG.visionFeatures.points.enabled
+    ? "curation-desk.actions.points"
+    : "curation-desk.actions.tip";
 
   return (
     <ModalSidebar show={open} setShow={(v) => !v && onClose()} placement="right" className="min-w-[90%] md:min-w-[44rem]">
@@ -261,7 +304,49 @@ export function CurationQuickView({
                   <EntryVoteBtn entry={entry} isPostSlider />
                   <EntryVotes entry={entry} />
                   <EntryPayout entry={entry} />
+                  <div className="ml-auto flex items-center gap-1">
+                    {/* The reply editor draws nothing for a signed-out reader, so the
+                        button asks them to sign in instead of toggling an empty box. */}
+                    <LoginRequired promptOnAnon>
+                      <Button
+                        ref={commentRef as React.Ref<HTMLButtonElement | HTMLAnchorElement>}
+                        size="sm"
+                        appearance="gray-link"
+                        className="!rounded-lg"
+                        aria-label={i18next.t("curation-desk.actions.comment-key")}
+                        aria-pressed={replyOpen}
+                        title="c"
+                        onClick={() => setReplyOpen((v) => !v)}
+                        icon={<UilCommentAlt />}
+                      >
+                        {i18next.t("curation-desk.actions.comment")}
+                      </Button>
+                    </LoginRequired>
+                    <EntryTipBtn
+                      entry={entry}
+                      trigger={(openTip) => (
+                        <Button
+                          ref={tipRef as React.Ref<HTMLButtonElement | HTMLAnchorElement>}
+                          size="sm"
+                          appearance="gray-link"
+                          className="!rounded-lg"
+                          aria-label={i18next.t(`${tipLabel}-key`)}
+                          title="p"
+                          onClick={openTip}
+                          icon={<UilGift />}
+                        >
+                          {i18next.t(tipLabel)}
+                        </Button>
+                      )}
+                    />
+                  </div>
                 </div>
+                <CurationReplyBox
+                  key={`${entry.author}/${entry.permlink}`}
+                  entry={entry}
+                  open={replyOpen}
+                  onClose={() => setReplyOpen(false)}
+                />
               </>
             )}
           </div>

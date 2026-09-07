@@ -46,7 +46,7 @@ export const WORD_PRESETS = [150, 300, 600, 1000] as const;
  * the saved-filter validator can never drift apart.
  */
 export const CURATION_APPS: CurationApp[] = ["all", "ecency", "peakd", "other"];
-export const CURATION_WINDOWS: CurationWindow[] = ["all", "full", "half", "eighth", "locked"];
+export const CURATION_WINDOWS: CurationWindow[] = ["all", "12h", "full", "half", "eighth", "locked"];
 /** Vote is hidden under this payout scale-down factor (percent). */
 export const LOCKED_VOTE_FLOOR_PCT = 25;
 export const HOUR_MS = 3_600_000;

@@ -46,6 +46,10 @@ interface Props {
   // make. When `postTips` (the full breakdown) is present it wins.
   tipCount?: number;
   tippedByViewer?: boolean;
+  // A caller-drawn trigger. It replaces the built-in button but keeps the
+  // login gate, the lazy transfer dialog and the memo, so a tip sent from a
+  // different surface (the curation desk) looks the same on chain.
+  trigger?: (open: () => void) => React.ReactNode;
 }
 
 export function EntryTipBtn({
@@ -56,7 +60,8 @@ export function EntryTipBtn({
   postTips,
   inlineTipButton,
   tipCount: tipCountProp,
-  tippedByViewer
+  tippedByViewer,
+  trigger
 }: Props) {
   const { activeUser } = useActiveAccount();
 
@@ -138,7 +143,9 @@ export function EntryTipBtn({
   return (
     <>
       <LoginRequired promptOnAnon>
-        {inlineTipButton ? (
+        {trigger ? (
+          trigger(openTransferDialog)
+        ) : inlineTipButton ? (
           inlineTipBtn
         ) : hasBreakdown && tipCount > 0 ? (
           <Popover
