@@ -356,6 +356,59 @@ describe("useStatusPoll", () => {
     expect(data.pages[1].items.map((r) => r.post_id)).toEqual([70]);
   });
 
+  /**
+   * Page one always starts at the head, so a loaded row on the head side of the
+   * refreshed page would have come back if it were still in the queue. Its absence
+   * proves it left, and keeping it would render a curated row as open.
+   */
+  it("drops a departed row above the refreshed head, not only inside it", async () => {
+    seed(feedKey, [
+      makeFeedPage([makeRow({ post_id: 105 }), makeRow({ post_id: 100 }), makeRow({ post_id: 90 })], {
+        feed_version: "v1",
+      }),
+    ]);
+    statusBody = makeStatus({ feed_version: "v2", latest_post_id: 100 });
+    // 105 was curated, so the head is 100 now and the refresh never mentions 105.
+    const fetchPageOne = vi.fn(async () =>
+      makeFeedPage([makeRow({ post_id: 100 }), makeRow({ post_id: 90 }), makeRow({ post_id: 80 })], {
+        feed_version: "v2",
+      })
+    );
+
+    renderHook(() => useStatusPoll({ enabled: true, feedKey, fetchPageOne, feedVersion: "v1", sort: "newest" }), { wrapper });
+    await poll();
+
+    expect(loaded(feedKey).pages[0].items.map((r) => r.post_id)).toEqual([100, 90, 80]);
+  });
+
+  it("carries the sort captured at the start of the poll, not the one in force when it lands", async () => {
+    seed(feedKey, [
+      makeFeedPage([makeRow({ post_id: 100 }), makeRow({ post_id: 76 })], { feed_version: "v1" }),
+      makeFeedPage([makeRow({ post_id: 75 })], { feed_version: "v1" }),
+    ]);
+    statusBody = makeStatus({ feed_version: "v2", latest_post_id: 105 });
+    const gate = deferred<CurationFeedPage>();
+    const fetchPageOne = vi.fn(() => gate.promise);
+
+    const { rerender } = renderHook(
+      ({ sort }: { sort: "newest" | "unique" }) =>
+        useStatusPoll({ enabled: true, feedKey, fetchPageOne, feedVersion: "v1", sort }),
+      { wrapper, initialProps: { sort: "newest" as const } }
+    );
+    await poll();
+    // The curator switches sort while page one is still in flight. `unique` has no
+    // key to merge on, so reading it here would replace a queue fetched as `newest`.
+    rerender({ sort: "unique" });
+    await act(async () => {
+      gate.resolve(makeFeedPage([makeRow({ post_id: 105 }), makeRow({ post_id: 100 })], { feed_version: "v2" }));
+      await flush();
+    });
+
+    const data = loaded(feedKey);
+    expect(data.pages).toHaveLength(2);
+    expect(data.pages[0].items.map((r) => r.post_id)).toEqual([105, 100, 76]);
+  });
+
   it("keeps replacing under a sort that has no key to merge on", async () => {
     seed(feedKey, [
       makeFeedPage([makeRow({ post_id: 100 })], { feed_version: "v1" }),

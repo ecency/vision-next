@@ -384,6 +384,10 @@ export function useStatusPoll({ enabled, feedKey, fetchPageOne, feedVersion, sor
       const generation = generationRef.current;
       const key = feedKeyRef.current;
       const fetchPage = fetchRef.current;
+      // Captured with the key, not read after the await: the sort decides both the
+      // merge order and whether a merge happens at all, so a change while the page
+      // was in flight would apply the new queue's rule to the old queue's cache.
+      const sort = sortRef.current;
       let status: CurationStatus;
       try {
         status = await queryClient.fetchQuery({ ...getCurationStatusQueryOptions(), staleTime: 0 });
@@ -436,7 +440,7 @@ export function useStatusPoll({ enabled, feedKey, fetchPageOne, feedVersion, sor
           // continues from its own cursor; scroll position is best effort.
           // Keep every loaded page: replacing them is what threw the
           // curator's place away every time the head moved.
-          (old) => mergeHeadPage(old, page, sortRef.current)
+          (old) => mergeHeadPage(old, page, sort)
         );
         versionRef.current = next;
       } catch {

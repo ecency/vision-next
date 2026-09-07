@@ -74,18 +74,24 @@ export function mergeHeadPage<TPage extends AnyPage>(
     if (compare(row, hi) > 0) hi = row;
   }
 
-  /** Strictly outside the range the refreshed page speaks for. */
-  const outsideWindow = (row: DeskRow) => compare(row, lo) < 0 || compare(row, hi) > 0;
-  /** Inside the window the server is the truth, so a row it no longer carries has left. */
-  const survives = (row: DeskRow) => outsideWindow(row) || freshIds.has(row.post_id);
-  const kept = old.filter(outsideWindow);
+  const descending = sort === "newest";
+  /**
+   * Beyond the refreshed page's TAIL, which is the only side that can still hold
+   * rows the server did not just speak for. Page one always starts at the head, so
+   * anything the loaded page held on the head side of the refreshed page would have
+   * come back again if it were still in the queue: its absence proves it left, and
+   * carrying it forward would leave a curated or excluded row rendered as open. Only
+   * what lies past the tail continues into the later pages.
+   */
+  const beyondTail = (row: DeskRow) => (descending ? compare(row, lo) < 0 : compare(row, hi) > 0);
+  const survives = (row: DeskRow) => beyondTail(row) || freshIds.has(row.post_id);
+  const kept = old.filter(beyondTail);
   // Contiguity: the two runs must touch. They do when the refreshed page still
   // holds a row the loaded page held, or when it already covers everything the
   // loaded page had. Otherwise a page or more arrived in between.
   const touches = old.some((row) => freshIds.has(row.post_id)) || kept.length === 0;
   if (!touches) return replace();
 
-  const descending = sort === "newest";
   const merged = [...fresh, ...kept].sort((a, b) => (descending ? compare(b, a) : compare(a, b)));
   // A page one that shrank can leave the refreshed window reaching into page two, so
   // the departures are applied to every loaded page and not only to the first. In the
