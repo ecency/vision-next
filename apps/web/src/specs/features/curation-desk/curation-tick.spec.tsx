@@ -308,6 +308,84 @@ describe("mergeTickIntoPages", () => {
     expect(result.pages[0].items[1]).toBe(untouched);
   });
 
+  /**
+   * The next tick asks for a full overlay only for rows that still have none, so
+   * inventing an empty one here would convince the client for good that this row's
+   * marks, flags and signals had already been loaded.
+   */
+  it("does not invent an overlay for a row that only changed state", () => {
+    const noOverlay = makeRow({ post_id: 1, state: 0 });
+    delete (noOverlay as { overlay?: unknown }).overlay;
+    const data: InfiniteData<CurationRosterFeedPage> = {
+      pages: [makeRosterPage([noOverlay])],
+      pageParams: [undefined],
+    };
+
+    const result = mergeTickIntoPages(
+      data,
+      tickBody({
+        deltas: {
+          marks: [],
+          flags: [],
+          signals: [],
+          rows: [{ post_id: 1, state: 1, trailed_by: null, voted_by: [], unvoted_at: null }],
+        },
+      })
+    )!;
+
+    expect(result.pages[0].items[0].state).toBe(1);
+    expect(result.pages[0].items[0].overlay).toBeUndefined();
+  });
+
+  /**
+   * The route names every visible row, changed or not, so deciding what actually
+   * moved is this side's job. Without it every visible row would be a new object
+   * four times a minute and every memoized row would re-render.
+   */
+  it("keeps the row object when the description matches what it already holds", () => {
+    const row = makeRow({ post_id: 1, state: 0, voted_by: [], overlay: makeOverlay() });
+    const data: InfiniteData<CurationRosterFeedPage> = {
+      pages: [makeRosterPage([row])],
+      pageParams: [undefined],
+    };
+
+    const same = mergeTickIntoPages(
+      data,
+      tickBody({
+        deltas: {
+          marks: [],
+          flags: [],
+          signals: [],
+          rows: [{ post_id: 1, state: 0, trailed_by: null, voted_by: [], unvoted_at: null }],
+        },
+      })
+    )!;
+    expect(same).toBe(data);
+
+    // A vote that advances no timestamp on the server still lands here.
+    const moved = mergeTickIntoPages(
+      data,
+      tickBody({
+        deltas: {
+          marks: [],
+          flags: [],
+          signals: [],
+          rows: [
+            {
+              post_id: 1,
+              state: 0,
+              trailed_by: null,
+              voted_by: [{ voter: "ecency", weight: 560 }],
+              unvoted_at: null,
+            },
+          ],
+        },
+      })
+    )!;
+    expect(moved).not.toBe(data);
+    expect(moved.pages[0].items[0].voted_by).toHaveLength(1);
+  });
+
   it("is unchanged by a backend that sends no row deltas", () => {
     const data: InfiniteData<CurationRosterFeedPage> = {
       pages: [makeRosterPage([makeRow({ post_id: 1, state: 0 })])],

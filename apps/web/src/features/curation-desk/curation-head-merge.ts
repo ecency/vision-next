@@ -56,7 +56,11 @@ export function mergeHeadPage<TPage extends AnyPage>(
   // A non-chronological order has no key to merge on: `unique` reranks and
   // `random` is seeded, so the union of two pages is not a queue.
   if (!isChronological(sort) || !loaded || loaded.items.length === 0) return replace();
-  if (page.items.length === 0) return data;
+  // An empty page one is a successful answer, not a no-op: under keyset paging the
+  // later pages start after it, so nothing can be below it either. The queue really
+  // is empty, and keeping the loaded rows would leave posts on screen that the server
+  // no longer serves and that still look actionable.
+  if (page.items.length === 0) return replace();
 
   const fresh = page.items as DeskRow[];
   const old = loaded.items as DeskRow[];
@@ -70,25 +74,36 @@ export function mergeHeadPage<TPage extends AnyPage>(
     if (compare(row, hi) > 0) hi = row;
   }
 
-  const outside = old.filter((row) => compare(row, lo) < 0 || compare(row, hi) > 0);
+  /** Strictly outside the range the refreshed page speaks for. */
+  const outsideWindow = (row: DeskRow) => compare(row, lo) < 0 || compare(row, hi) > 0;
+  /** Inside the window the server is the truth, so a row it no longer carries has left. */
+  const survives = (row: DeskRow) => outsideWindow(row) || freshIds.has(row.post_id);
+  const kept = old.filter(outsideWindow);
   // Contiguity: the two runs must touch. They do when the refreshed page still
   // holds a row the loaded page held, or when it already covers everything the
   // loaded page had. Otherwise a page or more arrived in between.
-  const touches = old.some((row) => freshIds.has(row.post_id)) || outside.length === 0;
+  const touches = old.some((row) => freshIds.has(row.post_id)) || kept.length === 0;
   if (!touches) return replace();
 
   const descending = sort === "newest";
-  const merged = [...fresh, ...outside].sort((a, b) => (descending ? compare(b, a) : compare(a, b)));
+  const merged = [...fresh, ...kept].sort((a, b) => (descending ? compare(b, a) : compare(a, b)));
+  // A page one that shrank can leave the refreshed window reaching into page two, so
+  // the departures are applied to every loaded page and not only to the first. In the
+  // ordinary case the later pages sit below the window and nothing is dropped.
+  let laterChanged = false;
+  const later = data.pages.slice(1).map((p) => {
+    const kept = (p.items as DeskRow[]).filter(survives);
+    if (kept.length === p.items.length) return p;
+    laterChanged = true;
+    return { ...p, items: kept } as TPage;
+  });
   // Nothing actually changed: hand back the same objects so no row re-renders.
-  if (
-    merged.length === old.length &&
-    merged.every((row, i) => row === old[i])
-  ) {
+  if (!laterChanged && merged.length === old.length && merged.every((row, i) => row === old[i])) {
     return data;
   }
   return {
     ...data,
-    pages: [{ ...page, items: merged } as TPage, ...data.pages.slice(1)] as TPage[],
+    pages: [{ ...page, items: merged } as TPage, ...later] as TPage[],
     pageParams: data.pageParams,
   };
 }

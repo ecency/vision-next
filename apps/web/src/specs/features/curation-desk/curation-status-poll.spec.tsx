@@ -307,6 +307,55 @@ describe("useStatusPoll", () => {
     expect(data.pages[0].items.map((r) => r.post_id)).toEqual([200, 150]);
   });
 
+  /**
+   * An empty page one is a successful answer, not a no-op. Under keyset paging the
+   * later pages start after it, so an empty head means an empty queue: keeping the
+   * loaded rows would leave posts on screen that the server no longer serves.
+   */
+  it("clears the queue when the refreshed page comes back empty", async () => {
+    seed(feedKey, [
+      makeFeedPage([makeRow({ post_id: 100 }), makeRow({ post_id: 76 })], { feed_version: "v1" }),
+      makeFeedPage([makeRow({ post_id: 75 })], { feed_version: "v1" }),
+    ]);
+    statusBody = makeStatus({ feed_version: "v2", latest_post_id: 105 });
+    const fetchPageOne = vi.fn(async () => makeFeedPage([], { feed_version: "v2" }));
+
+    renderHook(() => useStatusPoll({ enabled: true, feedKey, fetchPageOne, feedVersion: "v1", sort: "newest" }), { wrapper });
+    await poll();
+
+    const data = loaded(feedKey);
+    expect(data.pages).toHaveLength(1);
+    expect(data.pages[0].items).toEqual([]);
+    expect(data.pageParams).toEqual([undefined]);
+  });
+
+  /**
+   * When enough of page one leaves, the fixed-size refresh reaches into page two.
+   * A row inside that window which the server no longer carries must go from THERE
+   * too, not only from page one.
+   */
+  it("drops a departed row from a later page when the window reaches into it", async () => {
+    seed(feedKey, [
+      makeFeedPage([makeRow({ post_id: 100 }), makeRow({ post_id: 90 })], { feed_version: "v1" }),
+      makeFeedPage([makeRow({ post_id: 80 }), makeRow({ post_id: 70 })], { feed_version: "v1" }),
+    ]);
+    statusBody = makeStatus({ feed_version: "v2", latest_post_id: 105 });
+    // 90 and 80 were curated; the refreshed window now spans 105 down to 75.
+    const fetchPageOne = vi.fn(async () =>
+      makeFeedPage([makeRow({ post_id: 105 }), makeRow({ post_id: 100 }), makeRow({ post_id: 75 })], {
+        feed_version: "v2",
+      })
+    );
+
+    renderHook(() => useStatusPoll({ enabled: true, feedKey, fetchPageOne, feedVersion: "v1", sort: "newest" }), { wrapper });
+    await poll();
+
+    const data = loaded(feedKey);
+    expect(data.pages[0].items.map((r) => r.post_id)).toEqual([105, 100, 75]);
+    // 80 was inside the window and the server dropped it; 70 sits below and stays.
+    expect(data.pages[1].items.map((r) => r.post_id)).toEqual([70]);
+  });
+
   it("keeps replacing under a sort that has no key to merge on", async () => {
     seed(feedKey, [
       makeFeedPage([makeRow({ post_id: 100 })], { feed_version: "v1" }),
