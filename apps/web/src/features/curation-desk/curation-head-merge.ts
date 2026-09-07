@@ -84,7 +84,6 @@ export function mergeHeadPage<TPage extends AnyPage>(
    * what lies past the tail continues into the later pages.
    */
   const beyondTail = (row: DeskRow) => (descending ? compare(row, lo) < 0 : compare(row, hi) > 0);
-  const survives = (row: DeskRow) => beyondTail(row) || freshIds.has(row.post_id);
   const kept = old.filter(beyondTail);
   // Contiguity: the two runs must touch. They do when the refreshed page still
   // holds a row the loaded page held, or when it already covers everything the
@@ -93,12 +92,14 @@ export function mergeHeadPage<TPage extends AnyPage>(
   if (!touches) return replace();
 
   const merged = [...fresh, ...kept].sort((a, b) => (descending ? compare(b, a) : compare(a, b)));
-  // A page one that shrank can leave the refreshed window reaching into page two, so
-  // the departures are applied to every loaded page and not only to the first. In the
-  // ordinary case the later pages sit below the window and nothing is dropped.
+  // A page one that shrank can leave the refreshed page reaching into page two, so
+  // the same rule is applied to every loaded page and not only to the first. A row
+  // that is not beyond the tail either left the queue or was just promoted into the
+  // merged page one, and both mean it does not belong here any more. In the ordinary
+  // case the later pages sit past the tail and nothing is dropped.
   let laterChanged = false;
   const later = data.pages.slice(1).map((p) => {
-    const kept = (p.items as DeskRow[]).filter(survives);
+    const kept = (p.items as DeskRow[]).filter(beyondTail);
     if (kept.length === p.items.length) return p;
     laterChanged = true;
     return { ...p, items: kept } as TPage;

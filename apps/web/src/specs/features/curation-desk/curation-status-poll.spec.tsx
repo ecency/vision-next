@@ -393,7 +393,7 @@ describe("useStatusPoll", () => {
     const { rerender } = renderHook(
       ({ sort }: { sort: "newest" | "unique" }) =>
         useStatusPoll({ enabled: true, feedKey, fetchPageOne, feedVersion: "v1", sort }),
-      { wrapper, initialProps: { sort: "newest" as const } }
+      { wrapper, initialProps: { sort: "newest" } as { sort: "newest" | "unique" } }
     );
     await poll();
     // The curator switches sort while page one is still in flight. `unique` has no
@@ -407,6 +407,34 @@ describe("useStatusPoll", () => {
     const data = loaded(feedKey);
     expect(data.pages).toHaveLength(2);
     expect(data.pages[0].items.map((r) => r.post_id)).toEqual([105, 100, 76]);
+  });
+
+  /**
+   * A row the refresh promoted into page one must leave the later page it came
+   * from, or the cache holds it twice. The shared select dedupes by post_id so it
+   * never renders twice, but the duplicate is real and inflates the loaded count.
+   */
+  it("drops a row from its later page once the refresh promoted it into page one", async () => {
+    seed(feedKey, [
+      makeFeedPage([makeRow({ post_id: 100 }), makeRow({ post_id: 90 })], { feed_version: "v1" }),
+      makeFeedPage([makeRow({ post_id: 80 }), makeRow({ post_id: 70 })], { feed_version: "v1" }),
+    ]);
+    statusBody = makeStatus({ feed_version: "v2", latest_post_id: 105 });
+    // The refreshed page now reaches down to 80, which page two also holds.
+    const fetchPageOne = vi.fn(async () =>
+      makeFeedPage([makeRow({ post_id: 105 }), makeRow({ post_id: 100 }), makeRow({ post_id: 80 })], {
+        feed_version: "v2",
+      })
+    );
+
+    renderHook(() => useStatusPoll({ enabled: true, feedKey, fetchPageOne, feedVersion: "v1", sort: "newest" }), { wrapper });
+    await poll();
+
+    const data = loaded(feedKey);
+    expect(data.pages[0].items.map((r) => r.post_id)).toEqual([105, 100, 80]);
+    expect(data.pages[1].items.map((r) => r.post_id)).toEqual([70]);
+    const all = data.pages.flatMap((p) => p.items.map((r) => r.post_id));
+    expect(all).toEqual([...new Set(all)]);
   });
 
   it("keeps replacing under a sort that has no key to merge on", async () => {
