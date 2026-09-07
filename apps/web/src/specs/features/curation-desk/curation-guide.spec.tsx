@@ -3,8 +3,13 @@ import fs from "fs";
 import path from "path";
 import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { CurationGuide } from "@/features/curation-desk/curation-guide";
+
+vi.mock("@/features/shared/theme", () => ({ Theme: () => <span data-testid="theme-sync" /> }));
+vi.mock("@/features/metadata", () => ({ PagesMetadataGenerator: { getForPage: async () => ({}) } }));
+
+import CurationGuidePage from "@/app/curation/guide/page";
 
 const FEATURE = path.resolve(__dirname, "../../../features/curation-desk");
 const ROUTE = path.resolve(__dirname, "../../../app/curation/guide/page.tsx");
@@ -16,6 +21,12 @@ describe("CurationGuide", () => {
       expect(source).not.toMatch(/["']use client["']/);
     }
     expect(fs.readFileSync(ROUTE, "utf8")).toMatch(/export const revalidate = 86400/);
+  });
+
+  it("reapplies the visitor's theme on the route, since the static tier shares one document across visitors", () => {
+    render(<CurationGuidePage />);
+    expect(screen.getByTestId("theme-sync")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("curation-desk.guide.title");
   });
 
   it("renders the chapter headings from the guide keys", () => {
