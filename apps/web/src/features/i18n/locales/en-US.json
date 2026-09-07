@@ -362,12 +362,14 @@
     "filter-year": "This year",
     "filter-alltime": "All time",
     "filter-no-reblog": "Exclude reblog",
+    "show-reblogs": "Show reblogs",
     "filter-with-reblog": "Include reblog"
   },
   "navbar": {
     "discover": "Discover",
     "decks": "Decks",
     "post": "Create Post",
+    "write": "Write",
     "day-theme": "Day Theme",
     "night-theme": "Night Theme",
     "address-placeholder": "enter url or search query",
@@ -668,6 +670,7 @@
   },
   "trending-tags": {
     "title": "Topics",
+    "explore": "Explore topics",
     "view-more": "View more"
   },
   "sort-trending-tags": {
@@ -3186,6 +3189,8 @@
   },
   "top-communities": {
     "title": "Top communities",
+    "discover-title": "Discover communities",
+    "explore": "Explore communities",
     "create-button": "Create your community"
   },
   "feedback-modal": {

@@ -28,6 +28,7 @@ interface Props {
   mainBarExpanded: boolean;
   setMainBarExpanded: (v: boolean) => void;
   experimental?: boolean; // Use this flag for testing something
+  readingLayout?: boolean;
 }
 
 export function NavbarDesktop({
@@ -36,7 +37,8 @@ export function NavbarDesktop({
   setStepOne,
   mainBarExpanded,
   setMainBarExpanded,
-  experimental = false
+  experimental = false,
+  readingLayout = false
 }: Props) {
   const { activeUser } = useActiveAccount();
   const hydrated = useHydrated();
@@ -66,8 +68,7 @@ export function NavbarDesktop({
     >
       <div
         className={classNameObject({
-          "ecency-navbar-desktop max-w-[1600px] w-full mx-auto flex items-center justify-between px-4 py-3":
-            true,
+          "ecency-navbar-desktop max-w-[1600px] w-full mx-auto flex items-center justify-between px-4 py-3": true,
           "bg-white dark:bg-dark-700 border-b border-[--border-color]": !experimental,
           "ecency-navbar-desktop-experemental glass-box rounded-2xl bg-white/80 dark:bg-dark-200/80 backdrop-blur-sm dark:backdrop-blur-md":
             experimental,
@@ -76,7 +77,7 @@ export function NavbarDesktop({
       >
         <NavbarMainSidebarToggle onClick={() => setMainBarExpanded(true)} />
         <div className="flex-1" />
-        <NavbarTextMenu />
+        <NavbarTextMenu readingLayout={readingLayout} />
         <div className="flex-spacer" />
         <Tooltip content="FAQ and documetation">
           <Button
@@ -94,12 +95,12 @@ export function NavbarDesktop({
           // isDesktop, so its chunk never loads on mobile; until it mounts the
           // pixel-identical server-rendered shell keeps the input visible from
           // the first paint (#1664).
-          <div className="max-w-[400px] w-full">
+          <div className="navbar-search-slot max-w-[400px] w-full">
             {isDesktop ? <Search /> : <NavbarSearchShell />}
           </div>
         )}
-        <div className="flex items-center ml-3 gap-3">
-          <NavbarPerksButton />
+        <div className="navbar-actions flex items-center ml-3 gap-3">
+          <NavbarPerksButton subdued={readingLayout} />
           <Tooltip content={i18next.t("chat.title")}>
             <div key={`desktop-chat-${activeUser?.username || "anon"}`} className="relative">
               <Button
@@ -110,19 +111,23 @@ export function NavbarDesktop({
                 aria-label={i18next.t("chat.title")}
               />
               {!unread?.truncated && unread?.totalUnread ? (
-                <span className="navbar-chat-badge notranslate">
-                  {unread.totalUnread}
-                </span>
+                <span className="navbar-chat-badge notranslate">{unread.totalUnread}</span>
               ) : null}
             </div>
           </Tooltip>
           <Tooltip content={i18next.t("navbar.post")}>
             <Button
               href="/publish"
-              appearance="gray-link"
+              appearance={readingLayout && activeUser ? "primary" : "gray-link"}
+              className={readingLayout ? "feed-write-button" : undefined}
+              iconPlacement="left"
               icon={<UilEditAlt />}
               aria-label={i18next.t("navbar.post")}
-            />
+            >
+              {readingLayout && (
+                <span className="hidden xl:inline">{i18next.t("navbar.write")}</span>
+              )}
+            </Button>
           </Tooltip>
           {hydrated && activeUser && (
             <NavbarNotificationsButton key={`desktop-notifications-${activeUser.username}`} />
@@ -150,7 +155,11 @@ export function NavbarDesktop({
         </div>
       </div>
       {hydrated && activeUser && (
-        <NavbarSide key={`desktop-${activeUser.username}`} show={showSidebar} setShow={setShowSidebar} />
+        <NavbarSide
+          key={`desktop-${activeUser.username}`}
+          show={showSidebar}
+          setShow={setShowSidebar}
+        />
       )}
       <NavbarMainSidebar
         show={mainBarExpanded}

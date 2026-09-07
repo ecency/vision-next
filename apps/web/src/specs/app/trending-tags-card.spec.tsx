@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react";
+import { screen, fireEvent, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithQueryClient } from "@/specs/test-utils";
@@ -9,9 +9,12 @@ vi.mock("@/core/hooks/use-active-account", () => ({
   useActiveAccount: vi.fn()
 }));
 
+let sections = ["hot", ""];
+const push = vi.fn();
+
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn() }),
-  useParams: () => ({ sections: ["hot", ""] })
+  useRouter: () => ({ push }),
+  useParams: () => ({ sections })
 }));
 
 // The global @/utils mock keeps only two members; TagLink needs isCommunity.
@@ -29,7 +32,7 @@ vi.mock("@/core/caches", () => ({
 }));
 
 let followedTags: string[] = [];
-const TRENDING = ["hive", "photography", "life", "art"];
+let trending = ["hive", "photography", "life", "art"];
 
 vi.mock("@ecency/sdk", async () => {
   const actual = await vi.importActual<typeof import("@ecency/sdk")>("@ecency/sdk");
@@ -37,7 +40,7 @@ vi.mock("@ecency/sdk", async () => {
     ...actual,
     getTrendingTagsQueryOptions: vi.fn(() => ({
       queryKey: ["trending-tags", 250],
-      queryFn: async () => TRENDING,
+      queryFn: async () => trending,
       initialPageParam: 0,
       getNextPageParam: () => undefined
     })),
@@ -56,16 +59,18 @@ vi.mock("@ecency/sdk", async () => {
   };
 });
 
-// The chips only: the card's "View more" link sits outside the flex-wrap row.
+// Topic links are separate from their follow and dismiss actions.
 const chipTexts = () =>
-  Array.from(document.querySelectorAll(".trending-tags-card .flex-wrap a")).map((a) =>
-    (a.textContent ?? "").trim()
+  Array.from(document.querySelectorAll(".feed-topic-list a")).map((a) =>
+    (a.textContent ?? "").replace(/^#/, "").trim()
   );
 
 describe("TrendingTagsCard", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     followedTags = [];
+    sections = ["hot", ""];
+    trending = ["hive", "photography", "life", "art"];
   });
 
   it("pins the user's followed tags first and lists each tag once", async () => {
@@ -87,7 +92,33 @@ describe("TrendingTagsCard", () => {
     renderWithQueryClient(<TrendingTagsCard />);
 
     await screen.findByText("art");
-    expect(chipTexts()).toEqual(TRENDING);
+    expect(chipTexts()).toEqual(trending);
     expect(screen.queryByRole("button", { name: "follow-tag.add" })).not.toBeInTheDocument();
+  });
+  it("limits suggestions, keeps the selected topic and offers the full topics page", async () => {
+    vi.mocked(useActiveAccount).mockReturnValue({ activeUser: { username: "alice" } } as never);
+    trending = ["hive", "photography", "life", "art", "gaming", "music", "gardening", "travel"];
+    sections = ["hot", "travel"];
+    renderWithQueryClient(<TrendingTagsCard />);
+    await screen.findByText("travel");
+    expect(chipTexts()).toHaveLength(6);
+    expect(screen.getByText("travel").closest("a")).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("link", { name: "trending-tags.explore" })).toHaveAttribute(
+      "href",
+      "/tags"
+    );
+    fireEvent.click(screen.getByRole("button", { name: "g.dismiss" }));
+    expect(push).toHaveBeenCalledWith("/hot/my");
+  });
+
+  it("does not put follow controls inside navigation links", async () => {
+    vi.mocked(useActiveAccount).mockReturnValue({ activeUser: { username: "alice" } } as never);
+    renderWithQueryClient(<TrendingTagsCard />);
+    await waitFor(() =>
+      expect(screen.getAllByRole("button", { name: "follow-tag.add" })).toHaveLength(4)
+    );
+    for (const control of screen.getAllByRole("button", { name: "follow-tag.add" })) {
+      expect(control.closest("a")).toBeNull();
+    }
   });
 });

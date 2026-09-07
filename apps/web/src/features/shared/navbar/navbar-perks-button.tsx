@@ -13,7 +13,7 @@ import * as ls from "@/utils/local-storage";
 /** Set once the user opens /perks — clears the one-time discovery dot. */
 export const PERKS_SEEN_KEY = "perks_seen";
 
-export function NavbarPerksButton() {
+export function NavbarPerksButton({ subdued = false }: { subdued?: boolean }) {
   const label = i18next.t("user-nav.perks");
   const { activeUser } = useActiveAccount();
 
@@ -44,19 +44,30 @@ export function NavbarPerksButton() {
     streak && streak.current > 0 ? (
       <Button
         href="/perks"
-        aria-label={streakLabel}
+        appearance={subdued ? "gray-link" : "primary"}
+        aria-label={subdued ? `${label}: ${streakLabel}` : streakLabel}
         title={streak.at_risk ? i18next.t("perks.quests.streak-at-risk") : streakLabel}
         className={clsx(
           "font-semibold flex items-center gap-1 whitespace-nowrap text-sm",
           streak.at_risk && "text-orange-500"
         )}
       >
-        <span aria-hidden>🔥</span>
-        <span>{streak.current > 99 ? "99+" : streak.current}</span>
+        <span className="inline-flex items-center gap-1.5">
+          {subdued ? (
+            <>
+              <UilFire className="size-4 xl:hidden" aria-hidden="true" />
+              <span className="hidden xl:inline">{label}</span>
+            </>
+          ) : (
+            <span aria-hidden>🔥</span>
+          )}
+          <span>{streak.current > 99 ? "99+" : streak.current}</span>
+        </span>
       </Button>
     ) : (
       <Button
         href="/perks"
+        appearance={subdued ? "gray-link" : "primary"}
         icon={<UilFire />}
         aria-label={label}
         title={label}

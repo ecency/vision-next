@@ -9,15 +9,16 @@ import { Feedback } from "@/features/shared/feedback";
 import { Navbar } from "@/features/shared/navbar";
 import { ScrollToTop } from "@/features/shared/scroll-to-top";
 import { Theme } from "@/features/shared/theme";
+import "./feed-reading.scss";
 
 export default function FeedLayout({ children }: PropsWithChildren) {
   return (
-    <>
+    <div className="feed-page">
       <ScrollToTop />
       <Theme />
       <Feedback />
-      <Navbar />
-      <div className="app-content overflow-hidden entry-index-page">
+      <Navbar readingLayout />
+      <div className="app-content entry-index-page feed-reading-layout">
         <div className="tags-side">
           <MyFavoritesWidget />
           <TrendingTagsCard />
@@ -33,6 +34,6 @@ export default function FeedLayout({ children }: PropsWithChildren) {
           <TopCommunitiesWidget />
         </div>
       </div>
-    </>
+    </div>
   );
 }

@@ -10,7 +10,7 @@ import { classNameObject } from "@ui/util";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useHydrated } from "@/api/queries";
 
-export function NavbarTextMenu() {
+export function NavbarTextMenu({ readingLayout = false }: { readingLayout?: boolean }) {
   const pathname = usePathname();
   const { activeUser } = useActiveAccount();
   const hydrated = useHydrated();
@@ -53,18 +53,18 @@ export function NavbarTextMenu() {
           <IntentLink
             key={item.link}
             className={classNameObject({
-              "text-sm font-semibold duration-300 hover:opacity-75 mt-0 px-2 py-0.5 rounded-2xl":
-                true,
+              "text-sm font-semibold duration-300 hover:opacity-75 mt-0 px-2 py-0.5 rounded-2xl": true,
               "text-gunmetal dark:text-white": !pathname?.includes(item.link),
               "bg-blue-duck-egg text-blue-dark-sky dark:bg-dark-default": pathname?.includes(
                 item.link
               )
             })}
             href={item.link}
+            aria-current={pathname?.includes(item.link) ? "page" : undefined}
           >
             {item.label}
           </IntentLink>
-          {i !== visibleItems.length - 1 && (
+          {!readingLayout && i !== visibleItems.length - 1 && (
             <i
               key={"circle" + item.label}
               className="size-2 bg-gray-200 dark:bg-dark-default rounded-full"

@@ -1,3 +1,4 @@
+import "@testing-library/jest-dom";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
@@ -5,13 +6,14 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 // Route state is driven by the catch-all [...sections] segments. Tests mutate
 // `mockSections` before rendering to simulate Following / Communities / Global.
 let mockSections: string[] = [];
+let mockQuery = "";
 const mockPush = vi.fn();
 
 vi.mock("next/navigation", () => ({
   useParams: () => ({ sections: mockSections }),
   useRouter: () => ({ push: mockPush }),
   usePathname: () => "/" + mockSections.join("/"),
-  useSearchParams: () => new URLSearchParams()
+  useSearchParams: () => new URLSearchParams(mockQuery)
 }));
 
 import { EntryIndexMenu } from "@/app/_components/entry-index-menu";
@@ -48,6 +50,7 @@ const SORT = {
 describe("EntryIndexMenu — Source × Sort filter bar", () => {
   beforeEach(() => {
     mockSections = [];
+    mockQuery = "";
     mockPush.mockClear();
     setLoggedIn(false);
   });
@@ -58,7 +61,9 @@ describe("EntryIndexMenu — Source × Sort filter bar", () => {
     expect(screen.queryByRole("link", { name: SOURCE.following })).toBeNull();
     expect(screen.queryByRole("link", { name: SOURCE.communities })).toBeNull();
 
-    expect(screen.getByRole("link", { name: SORT.trending }).getAttribute("href")).toBe("/trending");
+    expect(screen.getByRole("link", { name: SORT.trending }).getAttribute("href")).toBe(
+      "/trending"
+    );
     expect(screen.getByRole("link", { name: SORT.hot }).getAttribute("href")).toBe("/hot");
     expect(screen.getByRole("link", { name: SORT.created }).getAttribute("href")).toBe("/created");
     // "Top" surfaces the payout sort out of the overflow menu.
@@ -96,7 +101,9 @@ describe("EntryIndexMenu — Source × Sort filter bar", () => {
     );
     expect(screen.getByRole("link", { name: SORT.top }).getAttribute("href")).toBe("/payout/my");
     // Global drops the tag, keeping the current sort.
-    expect(screen.getByRole("link", { name: SOURCE.global }).getAttribute("href")).toBe("/trending");
+    expect(screen.getByRole("link", { name: SOURCE.global }).getAttribute("href")).toBe(
+      "/trending"
+    );
   });
 
   it("hides sorts and shows the reblog toggle on the Following feed", () => {
@@ -107,13 +114,13 @@ describe("EntryIndexMenu — Source × Sort filter bar", () => {
     expect(screen.queryByRole("link", { name: SORT.trending })).toBeNull();
     expect(screen.queryByRole("link", { name: SORT.top })).toBeNull();
 
-    expect(
-      screen.getByRole("link", { name: SOURCE.following }).getAttribute("aria-current")
-    ).toBe("page");
-    // Reblog toggle replaces the sort group (rendered for both desktop and mobile).
-    expect(
-      screen.getAllByRole("button", { name: "entry-filter.filter-no-reblog" }).length
-    ).toBeGreaterThan(0);
+    expect(screen.getByRole("link", { name: SOURCE.following }).getAttribute("aria-current")).toBe(
+      "page"
+    );
+    expect(screen.getByRole("switch", { name: "entry-filter.show-reblogs" })).toHaveAttribute(
+      "aria-checked",
+      "true"
+    );
   });
 
   it("does not strand logged-out visitors on a feed URL — sorts stay as an escape", () => {
@@ -124,8 +131,39 @@ describe("EntryIndexMenu — Source × Sort filter bar", () => {
     // Not treated as the personal Following feed, so the sort tabs remain
     // navigable instead of collapsing to a lone reblog toggle.
     expect(screen.getByRole("link", { name: SORT.hot }).getAttribute("href")).toBe("/hot");
-    expect(screen.getByRole("link", { name: SORT.trending }).getAttribute("href")).toBe("/trending");
-    expect(screen.queryByRole("button", { name: "entry-filter.filter-no-reblog" })).toBeNull();
+    expect(screen.getByRole("link", { name: SORT.trending }).getAttribute("href")).toBe(
+      "/trending"
+    );
+    expect(screen.queryByRole("switch", { name: "entry-filter.show-reblogs" })).toBeNull();
+  });
+
+  it("excludes reblogs without dropping unrelated query parameters", () => {
+    setLoggedIn(true);
+    mockSections = ["feed", "@alice"];
+    mockQuery = "view=compact&test=a%26b";
+    render(<EntryIndexMenu />);
+    fireEvent.click(screen.getByRole("switch", { name: "entry-filter.show-reblogs" }));
+    expect(mockPush).toHaveBeenCalledWith("/feed/@alice?view=compact&test=a%26b&no-reblog=true");
+  });
+
+  it("reflects a bookmarked exclusion and only removes that filter when enabled", () => {
+    setLoggedIn(true);
+    mockSections = ["feed", "@alice"];
+    mockQuery = "no-reblog=true&view=compact";
+    render(<EntryIndexMenu />);
+    const toggle = screen.getByRole("switch", { name: "entry-filter.show-reblogs" });
+    expect(toggle).toHaveAttribute("aria-checked", "false");
+    fireEvent.click(toggle);
+    expect(mockPush).toHaveBeenCalledWith("/feed/@alice?view=compact");
+  });
+
+  it("does not leave a trailing question mark after enabling reblogs", () => {
+    setLoggedIn(true);
+    mockSections = ["feed", "@alice"];
+    mockQuery = "no-reblog=true";
+    render(<EntryIndexMenu />);
+    fireEvent.click(screen.getByRole("switch", { name: "entry-filter.show-reblogs" }));
+    expect(mockPush).toHaveBeenCalledWith("/feed/@alice");
   });
 
   it("labels the mobile sort trigger with the active overflow filter", () => {
@@ -146,8 +184,12 @@ describe("EntryIndexMenu — Source × Sort filter bar", () => {
     const chip = screen.getByRole("link", { name: "#photography" });
     expect(chip.getAttribute("aria-current")).toBe("page");
     // ...so Global must NOT read as selected.
-    expect(screen.getByRole("link", { name: SOURCE.global }).getAttribute("aria-current")).toBeNull();
-    expect(screen.getByRole("link", { name: SOURCE.global }).getAttribute("href")).toBe("/trending");
+    expect(
+      screen.getByRole("link", { name: SOURCE.global }).getAttribute("aria-current")
+    ).toBeNull();
+    expect(screen.getByRole("link", { name: SOURCE.global }).getAttribute("href")).toBe(
+      "/trending"
+    );
 
     // Sort tabs stay and preserve the hashtag.
     expect(screen.getByRole("link", { name: SORT.hot }).getAttribute("href")).toBe(

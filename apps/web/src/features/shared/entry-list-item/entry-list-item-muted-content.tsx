@@ -81,7 +81,7 @@ export function EntryListItemMutedContent({ entry: entryProp, isThumbLcp }: Prop
           </a>
         </div>
       )}
-      <div className={shouldShowMutedOverlay ? "opacity-50" : ""}>
+      <div className={shouldShowMutedOverlay ? "entry-preview opacity-50" : "entry-preview"}>
         {(!nsfw || showNsfw || globalNsfw) && (
           <EntryListItemThumbnail
             entryProp={entryProp}

@@ -3,16 +3,16 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 import { FollowTagChipToggle, useFollowedTags } from "@/features/shared/follow-tag-btn";
-import { TagLink } from "@/features/shared/tag";
+import { makePathTag } from "@/features/shared/tag";
 import { getAccessToken } from "@/utils";
-import { Button } from "@ui/button";
 import { getTrendingTagsQueryOptions } from "@ecency/sdk";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { UilMultiply } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
 import Link from "next/link";
+import { IntentLink } from "@/features/shared/intent-link";
 import { useParams, useRouter } from "next/navigation";
-import { Fragment, useCallback, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import "./_index.scss";
 
 export function TrendingTagsCard() {
@@ -27,12 +27,13 @@ export function TrendingTagsCard() {
 
   const { activeUser } = useActiveAccount();
   const username = activeUser?.username;
-  const accessToken = useMemo(
-    () => (username ? getAccessToken(username) : undefined),
-    [username]
-  );
+  const accessToken = useMemo(() => (username ? getAccessToken(username) : undefined), [username]);
 
-  const { data: trendingTagsPages } = useInfiniteQuery(getTrendingTagsQueryOptions(250));
+  const {
+    data: trendingTagsPages,
+    isLoading,
+    isError
+  } = useInfiniteQuery(getTrendingTagsQueryOptions(250));
   // The user's followed tags come first, then the trending list without them,
   // so a followed topic is one click away and never listed twice.
   const { tags: favoriteTags } = useFollowedTags(username, accessToken);
@@ -40,7 +41,7 @@ export function TrendingTagsCard() {
   const trendingTags = useMemo(() => {
     const first = trendingTagsPages?.pages[0];
     if (!first) {
-      return first;
+      return pinnedTags;
     }
     const pinned = new Set(pinnedTags);
     return [...pinnedTags, ...first.filter((t) => !pinned.has(t))];
@@ -50,63 +51,54 @@ export function TrendingTagsCard() {
     router.push("/" + filter + ((activeUser && activeUser.username && "/my") || ""));
   }, [activeUser, filter, router]);
 
-  return (
-    <div className="trending-tags-card">
-      <h2 className="list-header">{i18next.t("trending-tags.title")}</h2>
+  // Keep the current topic reachable even when it falls outside the short list.
+  const visibleTags = useMemo(() => {
+    const selected = trendingTags?.includes(tag) ? tag : undefined;
+    return [...new Set([...(selected ? [selected] : []), ...(trendingTags ?? [])])].slice(0, 6);
+  }, [tag, trendingTags]);
 
-      <div className="flex flex-wrap gap-2">
-        {trendingTags?.slice(0, 30).map((t) => (
-          <Fragment key={t}>
-            <div className="flex">
-              <TagLink tag={t} type="link">
-                <>
-                  {t}
-                  {activeUser && <FollowTagChipToggle tag={t} />}
-                  {tag === t && (
-                    <div
-                      className="text-gray-600 flex dark:text-gray-400 ml-1 cursor-pointer"
-                      role="button"
-                      tabIndex={0}
-                      aria-label={i18next.t("g.dismiss", { defaultValue: "Dismiss" })}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        handleUnselection();
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.stopPropagation();
-                          e.preventDefault();
-                          handleUnselection();
-                        }
-                      }}
-                    >
-                      <UilMultiply className="size-3.5" />
-                    </div>
-                  )}
-                </>
-              </TagLink>
-            </div>
-          </Fragment>
+  return (
+    <div className="trending-tags-card feed-topics">
+      <h2 className="feed-sidebar-heading">{i18next.t("trending-tags.title")}</h2>
+      <ul className="feed-topic-list">
+        {visibleTags.map((t) => (
+          <li key={t} className="feed-topic-row">
+            <IntentLink
+              href={makePathTag("created", t)}
+              aria-current={tag === t ? "page" : undefined}
+            >
+              <span aria-hidden="true">#</span>
+              <span className="truncate">{t}</span>
+            </IntentLink>
+            {activeUser && <FollowTagChipToggle tag={t} />}
+            {tag === t && (
+              <button
+                type="button"
+                className="feed-topic-dismiss"
+                aria-label={i18next.t("g.dismiss")}
+                onClick={handleUnselection}
+              >
+                <UilMultiply className="size-3.5" aria-hidden="true" />
+              </button>
+            )}
+          </li>
         ))}
-        {trendingTags?.length === 0 &&
-          Array.from(new Array(30).keys()).map((i) => (
-            <div
-              className="animate-pulse rounded-full h-[22px] bg-blue-dark-sky-040 dark:bg-blue-dark-grey"
+        {isLoading &&
+          visibleTags.length === 0 &&
+          Array.from({ length: 6 }, (_, i) => (
+            <li
               key={i}
-              style={{
-                width: 64 + (i % 3) * 10
-              }}
+              className="h-8 w-28 rounded bg-gray-100 dark:bg-gray-800 animate-pulse"
+              aria-hidden="true"
             />
           ))}
-      </div>
-      {trendingTags && trendingTags.length > 0 && (
-        <Link href="/tags" className="mt-4 block">
-          <Button full={true} size="sm" appearance="gray">
-            {i18next.t("trending-tags.view-more")}
-          </Button>
-        </Link>
+      </ul>
+      {isError && visibleTags.length === 0 && (
+        <p className="text-sm text-gray-600 dark:text-gray-400">{i18next.t("g.server-error")}</p>
       )}
+      <Link href="/tags" className="feed-sidebar-link">
+        {i18next.t("trending-tags.explore")}
+      </Link>
     </div>
   );
 }

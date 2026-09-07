@@ -16,14 +16,13 @@ const MAX_VISIBLE = 5;
 export function MyFavoritesWidget() {
   const { activeUser } = useActiveAccount();
   const username = activeUser?.username;
-  const accessToken = useMemo(
-    () => (username ? getAccessToken(username) : undefined),
-    [username]
-  );
+  const accessToken = useMemo(() => (username ? getAccessToken(username) : undefined), [username]);
 
-  const { data: favorites, isLoading, isError } = useQuery(
-    getFavoritesQueryOptions(username, accessToken)
-  );
+  const {
+    data: favorites,
+    isLoading,
+    isError
+  } = useQuery(getFavoritesQueryOptions(username, accessToken));
 
   const [showDialog, setShowDialog] = useState(false);
 
@@ -32,8 +31,8 @@ export function MyFavoritesWidget() {
   }
 
   return (
-    <div className="mb-4">
-      <div className="font-semibold">{i18next.t("my-favorites-widget.title")}</div>
+    <div className="feed-favorites mb-8">
+      <h2 className="feed-sidebar-heading">{i18next.t("my-favorites-widget.title")}</h2>
       <div className="flex flex-col gap-2 mt-2">
         {isLoading &&
           new Array(MAX_VISIBLE).fill(0).map((_, i) => (
@@ -67,10 +66,9 @@ export function MyFavoritesWidget() {
       </div>
       {!isLoading && favorites && favorites.length > MAX_VISIBLE && (
         <Button
-          className="mt-2"
+          className="feed-sidebar-link mt-2"
           size="sm"
-          appearance="gray"
-          full={true}
+          appearance="link"
           onClick={() => setShowDialog(true)}
         >
           {i18next.t("my-favorites-widget.view-all")}

@@ -4,7 +4,9 @@ import { render } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-const useActiveAccount = vi.fn(() => ({ activeUser: { username: "tester" } as { username: string } | null }));
+const useActiveAccount = vi.fn(() => ({
+  activeUser: { username: "tester" } as { username: string } | null
+}));
 vi.mock("@/core/hooks/use-active-account", () => ({
   useActiveAccount: () => useActiveAccount()
 }));
@@ -22,14 +24,14 @@ import { NavbarPerksButton } from "@/features/shared/navbar/navbar-perks-button"
 
 type Streak = { current: number; best: number; at_risk: boolean };
 
-function renderWith(streak?: Streak) {
+function renderWith(streak?: Streak, subdued = false) {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   if (streak) {
     queryClient.setQueryData(["quests", "status", "tester"], { streak });
   }
   return render(
     <QueryClientProvider client={queryClient}>
-      <NavbarPerksButton />
+      <NavbarPerksButton subdued={subdued} />
     </QueryClientProvider>
   );
 }
@@ -95,5 +97,14 @@ describe("NavbarPerksButton", () => {
     markPerksSeen();
     const { container } = renderWith({ current: 6, best: 6, at_risk: false });
     expect(dot(container)).toBeNull();
+  });
+  test("the subdued feed variant preserves the streak, destination, and at-risk signal", () => {
+    markPerksSeen();
+    const { container } = renderWith({ current: 150, best: 200, at_risk: true }, true);
+    expect(control(container)).toHaveAttribute("href", "/perks");
+    expect(control(container)).toHaveAttribute("aria-label", "user-nav.perks: perks.quests.streak");
+    expect(container.textContent).toContain("99+");
+    expect(control(container).className).toContain("text-orange-500");
+    expect(dot(container)).not.toBeNull();
   });
 });
