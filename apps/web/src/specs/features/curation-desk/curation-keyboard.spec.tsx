@@ -252,6 +252,57 @@ describe("keyboard on the queue", () => {
     expect(body.lane).toMatchObject({ sort: "queue", app: "all", hide_reviewed: true, hide_snoozed: true });
   });
 
+  it("r takes the reviewed row out of the queue, keeps the selection on the next row and undo puts it back", async () => {
+    state.username = "curator1";
+    router.on(/curation-desk\/mark-clear$/, (_url, init) => ({
+      mark: null,
+      row: { ...makeRow({ post_id: Number(JSON.parse(String(init?.body)).permlink.split("-")[1]) }), overlay: makeOverlay() },
+    }));
+    renderWithQueryClient(<CurationQueueView />, { queryClient: client() });
+    expect(await screen.findAllByRole("article")).toHaveLength(2);
+    await act(async () => press("j"));
+    expect(document.getElementById("curation-row-title-11")?.closest("article")).toHaveAttribute("aria-current", "true");
+
+    await act(async () => press("r"));
+    // Reviewed means done for the whole team: the row leaves the unreviewed
+    // queue at once, and the next post is the selected one, not the top.
+    await waitFor(() => expect(document.getElementById("curation-row-title-11")).toBeNull());
+    expect(screen.getAllByRole("article")).toHaveLength(1);
+    expect(document.getElementById("curation-row-title-12")?.closest("article")).toHaveAttribute("aria-current", "true");
+
+    fireEvent.click(await screen.findByLabelText("curation-desk.live.undo"));
+    await waitFor(() => expect(router.callsTo(/curation-desk\/mark-clear$/)).toHaveLength(1));
+    // Back in its place, ahead of the row that had followed it.
+    await waitFor(() => expect(screen.getAllByRole("article")).toHaveLength(2));
+    expect(document.getElementById("curation-row-title-11")?.closest("article")).toBe(screen.getAllByRole("article")[0]);
+  });
+
+  it("moves the selection to the row that took the place of one a colleague reviewed", async () => {
+    state.username = "curator1";
+    renderWithQueryClient(<CurationQueueView />, { queryClient: client() });
+    expect(await screen.findAllByRole("article")).toHaveLength(2);
+    await act(async () => press("j"));
+    expect(document.getElementById("curation-row-title-11")?.closest("article")).toHaveAttribute("aria-current", "true");
+
+    router.on(/curation-desk\/tick/, () => ({
+      overlay: [],
+      deltas: { marks: [{ post_id: 11, curator: "riyat", state: "reviewed", updated_at: "2026-09-05T12:00:10" }], flags: [], signals: [] },
+      team_cursor: { post_id: null, created: null },
+      active_curators: [],
+      trail_alerts: [],
+      generated_at: "y",
+      truncated: false,
+    }));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(15_000);
+    });
+    await waitFor(() => expect(document.getElementById("curation-row-title-11")).toBeNull());
+    expect(document.getElementById("curation-row-title-12")?.closest("article")).toHaveAttribute("aria-current", "true");
+    // j from there walks on (nothing below), never back to the top.
+    await act(async () => press("j"));
+    expect(document.getElementById("curation-row-title-12")?.closest("article")).toHaveAttribute("aria-current", "true");
+  });
+
   it("Enter opens the drawer once: the row no longer handles it too", async () => {
     renderWithQueryClient(<CurationQueueView />, { queryClient: client() });
     const articles = await screen.findAllByRole("article");

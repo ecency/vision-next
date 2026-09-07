@@ -5,6 +5,7 @@ import type {
   CurationRosterFeedPage,
   CurationTickResponse,
 } from "@ecency/sdk";
+import { rowHiddenByFeed, type FeedFilters } from "./curation-feed-rules";
 import type { DeskRow } from "./types";
 
 function emptyOverlay(): CurationOverlay {
@@ -76,11 +77,13 @@ function teamLevel(marks: CurationMark[]): Pick<CurationOverlay, "team_mark" | "
 
 export interface TickMergeOptions {
   /**
-   * The queue is hiding curated posts, so a row the tick reports as curated
-   * leaves the list now rather than sitting there as a curated card until the
-   * next refresh serves the page without it.
+   * The filters of the feed these pages belong to. A row the tick moves
+   * outside them (curated while the queue hides curated posts, reviewed by a
+   * colleague while it shows unreviewed posts only) leaves the list now,
+   * rather than sitting there until the next refresh serves the page without
+   * it. Without this every described row stays and only its badge changes.
    */
-  dropCurated?: boolean;
+  feed?: FeedFilters;
 }
 
 /**
@@ -170,16 +173,15 @@ export function mergeTickIntoPages(
     let pageChanged = false;
     const items: DeskRow[] = [];
     for (const row of page.items) {
-      const described = rowsById.get(row.post_id);
-      // The curator asked not to see curated posts, and this one just was:
-      // it leaves now, rather than turning into a curated card that sits in
-      // the queue until the next refresh happens to drop it.
-      if (options.dropCurated && described && described.state !== 0 && row.state === 0) {
-        pageChanged = true;
+      const next = mergeRow(row);
+      if (next === row) {
+        items.push(row);
         continue;
       }
-      const next = mergeRow(row);
-      if (next !== row) pageChanged = true;
+      pageChanged = true;
+      // Only a row this tick changed is judged: what the server served as is
+      // stays until the server says otherwise.
+      if (options.feed && rowHiddenByFeed(next, options.feed)) continue;
       items.push(next);
     }
     if (!pageChanged) return page;
@@ -211,4 +213,57 @@ export function replaceRowInPages<TPage extends { items: DeskRow[] }>(
     return { ...page, items };
   });
   return changed ? { ...data, pages } : data;
+}
+
+/** Drop one row (by post_id) from the loaded pages, keeping every other object. */
+export function removeRowFromPages<TPage extends { items: DeskRow[] }>(
+  data: InfiniteData<TPage, unknown> | undefined,
+  postId: number
+): InfiniteData<TPage, unknown> | undefined {
+  if (!data || !Array.isArray(data.pages)) return data;
+  let changed = false;
+  const pages = data.pages.map((page) => {
+    if (!page.items.some((r) => r.post_id === postId)) return page;
+    changed = true;
+    return { ...page, items: page.items.filter((r) => r.post_id !== postId) };
+  });
+  return changed ? { ...data, pages } : data;
+}
+
+export interface RowPosition {
+  page: number;
+  index: number;
+}
+
+/** Where a row sits in the loaded pages, or null when it is not loaded. */
+export function findRowPosition<TPage extends { items: DeskRow[] }>(
+  data: InfiniteData<TPage, unknown> | undefined,
+  postId: number
+): RowPosition | null {
+  if (!data || !Array.isArray(data.pages)) return null;
+  for (let page = 0; page < data.pages.length; page++) {
+    const index = data.pages[page].items.findIndex((r) => r.post_id === postId);
+    if (index !== -1) return { page, index };
+  }
+  return null;
+}
+
+/**
+ * Put a row back where it was before it left (an undone mark). A row that is
+ * still loaded is replaced in place instead; a position past the loaded
+ * pages lands at the end of the last one.
+ */
+export function insertRowInPages<TPage extends { items: DeskRow[] }>(
+  data: InfiniteData<TPage, unknown> | undefined,
+  row: DeskRow,
+  at: RowPosition
+): InfiniteData<TPage, unknown> | undefined {
+  if (!data || !Array.isArray(data.pages) || data.pages.length === 0) return data;
+  if (findRowPosition(data, row.post_id)) return replaceRowInPages(data, row);
+  const page = Math.min(Math.max(0, at.page), data.pages.length - 1);
+  const pages = data.pages.slice();
+  const items = pages[page].items.slice();
+  items.splice(Math.min(Math.max(0, at.index), items.length), 0, row);
+  pages[page] = { ...pages[page], items };
+  return { ...data, pages };
 }

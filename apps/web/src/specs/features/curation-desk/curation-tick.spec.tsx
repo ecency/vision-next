@@ -414,13 +414,46 @@ describe("mergeTickIntoPages", () => {
       },
     });
 
-    const hidden = mergeTickIntoPages(data, curated, { dropCurated: true })!;
+    const hidden = mergeTickIntoPages(data, curated, { feed: { hide_curated: true } })!;
     expect(hidden.pages[0].items.map((r) => r.post_id)).toEqual([2]);
     expect(hidden.pages[0].items[0]).toBe(other);
 
-    const shown = mergeTickIntoPages(data, curated, { dropCurated: false })!;
+    const shown = mergeTickIntoPages(data, curated, { feed: { hide_curated: false } })!;
     expect(shown.pages[0].items.map((r) => r.post_id)).toEqual([1, 2]);
     expect(shown.pages[0].items[0].state).toBe(1);
+  });
+
+  it("drops a row a colleague reviewed or snoozed from a queue that hides those, and keeps a noted one", () => {
+    const rows = [1, 2, 3, 4].map((id) => makeRow({ post_id: id, state: 0, overlay: makeOverlay() }));
+    const data: InfiniteData<CurationRosterFeedPage> = { pages: [makeRosterPage(rows)], pageParams: [undefined] };
+    const tick = tickBody({
+      deltas: {
+        marks: [
+          { post_id: 1, curator: "riyat", state: "reviewed", updated_at: "2026-09-05T12:00:00" },
+          { post_id: 2, curator: "riyat", state: "snoozed", snooze_until: "2026-09-06T12:00:00", updated_at: "2026-09-05T12:00:00" },
+          { post_id: 3, curator: "riyat", state: "noted", has_note: true, updated_at: "2026-09-05T12:00:00" },
+        ],
+        flags: [],
+        signals: [],
+      },
+    });
+
+    // The desk's default: unreviewed only, snoozed hidden. A note is not a
+    // team mark, so the noted row stays for the next curator to read.
+    const hiding = mergeTickIntoPages(data, tick, { feed: {} })!;
+    expect(hiding.pages[0].items.map((r) => r.post_id)).toEqual([3, 4]);
+    expect(hiding.pages[0].items[0].overlay?.notes_count).toBe(1);
+    expect(hiding.pages[0].items[1]).toBe(rows[3]);
+
+    // Showing every mark: the rows stay and carry their badges.
+    const showing = mergeTickIntoPages(data, tick, { feed: { hide_reviewed: false, hide_snoozed: false } })!;
+    expect(showing.pages[0].items.map((r) => r.post_id)).toEqual([1, 2, 3, 4]);
+    expect(showing.pages[0].items[0].overlay?.team_mark).toBe("reviewed");
+    expect(showing.pages[0].items[1].overlay?.team_mark).toBe("snoozed");
+
+    // No feed named: nothing leaves.
+    const unjudged = mergeTickIntoPages(data, tick)!;
+    expect(unjudged.pages[0].items.map((r) => r.post_id)).toEqual([1, 2, 3, 4]);
   });
 
   it("is unchanged by a backend that sends no row deltas", () => {

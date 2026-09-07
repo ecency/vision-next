@@ -1,6 +1,6 @@
 import React from "react";
 import "@testing-library/jest-dom";
-import { act, waitFor } from "@testing-library/react";
+import { act, screen, waitFor } from "@testing-library/react";
 import { QueryClient } from "@tanstack/react-query";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithQueryClient } from "@/specs/test-utils";
@@ -121,9 +121,11 @@ describe("row identity across a tick", () => {
     const before12 = last(12);
     const renders = seen.rows.length;
 
+    // A flag keeps the row listed (the queue shows flagged rows); a reviewed
+    // mark would take it out, which the next case covers.
     tickBody = {
       ...tickBody,
-      deltas: { marks: [{ post_id: 12, curator: "riyat", state: "reviewed", updated_at: iso(10_000) }], flags: [], signals: [] },
+      deltas: { marks: [{ post_id: 12, curator: "riyat", state: "flagged", updated_at: iso(10_000) }], flags: [], signals: [] },
     };
     await act(async () => {
       await vi.advanceTimersByTimeAsync(15_000);
@@ -134,6 +136,27 @@ describe("row identity across a tick", () => {
     // objects straight through, so React.memo skips the untouched row.
     expect(last(11)).toBe(before11);
     expect(last(12)).not.toBe(before12);
-    expect((last(12) as DeskRow).overlay?.team_mark).toBe("reviewed");
+    expect((last(12) as DeskRow).overlay?.team_mark).toBe("flagged");
+  });
+
+  it("takes a row a colleague just reviewed out of the unreviewed-only queue, keeping its neighbour's object", async () => {
+    renderWithQueryClient(<CurationQueueView />, {
+      queryClient: new QueryClient({ defaultOptions: { queries: { retry: false, refetchOnMount: false, staleTime: 60_000 } } }),
+    });
+    await waitFor(() => expect(seen.rows.filter((r) => r.postId === 12)).not.toHaveLength(0));
+    const before11 = last(11);
+
+    tickBody = {
+      ...tickBody,
+      deltas: { marks: [{ post_id: 12, curator: "riyat", state: "reviewed", updated_at: iso(10_000) }], flags: [], signals: [] },
+    };
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(15_000);
+    });
+    // Reviewed by someone else means nobody else needs to read it: the row is
+    // gone from the list, not left there with a badge until a refresh.
+    await waitFor(() => expect(screen.queryByRole("article", { name: "12" })).toBeNull());
+    expect(screen.getByRole("article", { name: "11" })).toBeInTheDocument();
+    expect(last(11)).toBe(before11);
   });
 });
