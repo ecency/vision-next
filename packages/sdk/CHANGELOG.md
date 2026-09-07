@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.4.2
+
+### Patch Changes
+
+- Curation desk: hand off per curator, and retire the shared team cursor (#1754)
+
 ## 2.4.1
 
 ### Patch Changes
