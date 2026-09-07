@@ -1,7 +1,8 @@
 import React from "react";
 import "@testing-library/jest-dom";
-import { act, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { QueryClient } from "@tanstack/react-query";
 import { renderWithQueryClient } from "@/specs/test-utils";
 import { installFetchRouter, makePost, makeRoster, makeRow } from "./curation-test-utils";
 
@@ -10,6 +11,11 @@ const state = vi.hoisted(() => ({
   entryFetch: vi.fn(),
   rendererProps: [] as Array<Record<string, unknown>>,
   voteClicks: [] as number[],
+  tipOpens: [] as string[],
+  toggleUiProp: vi.fn(),
+  replies: [] as Array<Record<string, unknown>>,
+  // The reply mutation's callbacks, so a test can settle or fail the broadcast.
+  replyCallbacks: { onSuccess: undefined as (() => void) | undefined, onError: undefined as ((text: string, err: unknown) => void) | undefined },
 }));
 
 vi.mock("@ecency/sdk", async () => {
@@ -29,7 +35,7 @@ vi.mock("@/core/hooks/use-active-account", () => ({
   useActiveAccount: () => ({ activeUser: state.username ? { username: state.username } : null, account: null, isLoading: false }),
 }));
 vi.mock("@/core/global-store", () => ({
-  useGlobalStore: (selector: (s: unknown) => unknown) => selector({ toggleUiProp: vi.fn(), activeUser: state.username ? { username: state.username } : null }),
+  useGlobalStore: (selector: (s: unknown) => unknown) => selector({ toggleUiProp: state.toggleUiProp, activeUser: state.username ? { username: state.username } : null }),
 }));
 vi.mock("@/core/caches", () => ({
   EcencyEntriesCacheManagement: {
@@ -58,11 +64,53 @@ vi.mock("@/features/shared/entry-vote-btn", () => ({
 }));
 vi.mock("@/features/shared/entry-votes", () => ({ EntryVotes: () => null }));
 vi.mock("@/features/shared/entry-payout", () => ({ EntryPayout: () => null }));
+vi.mock("@/features/shared/entry-tip-btn", () => ({
+  EntryTipBtn: ({ entry, trigger }: { entry: { author: string; permlink: string }; trigger: (open: () => void) => React.ReactNode }) => (
+    <>{trigger(() => state.tipOpens.push(`${entry.author}/${entry.permlink}`))}</>
+  ),
+}));
+// The editor is the post page's; here a textarea and the two buttons stand in.
+vi.mock("@/features/shared/comment", () => ({
+  Comment: ({ onSubmit, onCancel, initialText, inProgress }: { onSubmit: (t: string) => Promise<unknown>; onCancel?: () => void; initialText?: string | null; inProgress?: boolean }) => (
+    <div data-testid="comment-box" data-initial={initialText ?? ""} data-busy={inProgress ? "1" : "0"}>
+      <textarea aria-label="reply" defaultValue={initialText ?? ""} />
+      <button type="button" onClick={() => void onSubmit((document.querySelector('[aria-label="reply"]') as HTMLTextAreaElement).value)}>g.reply</button>
+      <button type="button" onClick={onCancel}>g.cancel</button>
+    </div>
+  ),
+}));
+vi.mock("@/api/mutations", () => ({
+  useCreateReply: (_entry: unknown, _root: unknown, onSuccess?: () => void, onError?: (text: string, err: unknown) => void) => {
+    state.replyCallbacks.onSuccess = onSuccess;
+    state.replyCallbacks.onError = onError;
+    return {
+      mutateAsync: vi.fn(async (vars: Record<string, unknown>) => {
+        state.replies.push(vars);
+        onSuccess?.();
+        return {};
+      }),
+    };
+  },
+}));
 vi.mock("@/features/shared/user-avatar", () => ({ UserAvatar: () => <span /> }));
 vi.mock("@/features/shared/feedback", () => ({ success: vi.fn(), error: vi.fn() }));
 vi.mock("@/api/format-error", () => ({ formatError: (e: unknown) => [String(e), "common"] }));
+// The real drawer mounts its surface a frame after `show` flips; a stub that
+// mounted at once hid the case where the entry is already cached and the
+// buttons are not there yet on the first render.
 vi.mock("@ui/modal/modal-sidebar", () => ({
-  ModalSidebar: ({ show, children }: { show: boolean; children: React.ReactNode }) => (show ? <div role="dialog">{children}</div> : null),
+  ModalSidebar: ({ show, children }: { show: boolean; children: React.ReactNode }) => {
+    const [mounted, setMounted] = React.useState(false);
+    React.useEffect(() => {
+      if (!show) {
+        setMounted(false);
+        return;
+      }
+      const frame = requestAnimationFrame(() => setMounted(true));
+      return () => cancelAnimationFrame(frame);
+    }, [show]);
+    return show && mounted ? <div role="dialog">{children}</div> : null;
+  },
 }));
 vi.mock("@/api/sdk-mutations/use-curation-recommend-mutation", () => ({
   useCurationRecommendMutation: () => ({ mutateAsync: vi.fn(), isPending: false }),
@@ -115,6 +163,9 @@ describe("CurationQuickView", () => {
     }));
     state.rendererProps.length = 0;
     state.voteClicks.length = 0;
+    state.tipOpens.length = 0;
+    state.replies.length = 0;
+    state.toggleUiProp.mockReset();
     router = installFetchRouter()
       .on(/curation-desk\/roster$/, () => makeRoster())
       .on(/curation-desk\/post\//, () => makePost(row));
@@ -123,6 +174,7 @@ describe("CurationQuickView", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.useRealTimers();
+    window.localStorage.clear();
   });
 
   it("offers exactly one link out to the post, in the action bar", async () => {
@@ -266,5 +318,154 @@ describe("CurationQuickView", () => {
     });
     await waitFor(() => expect(state.voteClicks).toHaveLength(1));
     expect(onVoteHandled).toHaveBeenCalledTimes(1);
+  });
+
+  it("toggles the reply box from the Comment button and posts the reply under the post", async () => {
+    renderDrawer({ row });
+    await screen.findByTestId("renderer");
+    expect(screen.queryByTestId("comment-box")).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "curation-desk.actions.comment-key" }));
+    expect(screen.getByTestId("comment-box")).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText("reply"), { target: { value: "Lovely light in the third shot." } });
+    fireEvent.click(screen.getByRole("button", { name: "g.reply" }));
+    await waitFor(() => expect(state.replies).toHaveLength(1));
+    const vars = state.replies[0];
+    expect(vars.text).toBe("Lovely light in the third shot.");
+    expect(vars.point).toBe(true);
+    expect(String(vars.permlink)).toMatch(/^re-alice-/);
+    expect((vars.jsonMeta as { tags: string[] }).tags).toEqual(["ecency"]);
+    // The reply is optimistic, so the box closes on submit.
+    await waitFor(() => expect(screen.queryByTestId("comment-box")).toBeNull());
+  });
+
+  it("asks a signed-out reader to sign in instead of opening an empty reply box", async () => {
+    state.username = undefined;
+    renderDrawer({ row, viewer: { ...member, username: "", kind: "anon" } });
+    await screen.findByTestId("renderer");
+    fireEvent.click(screen.getByRole("button", { name: "curation-desk.actions.comment-key" }));
+    expect(state.toggleUiProp).toHaveBeenCalledWith("login");
+    expect(screen.queryByTestId("comment-box")).toBeNull();
+
+    // The c key goes through the same button, so it prompts too.
+    state.toggleUiProp.mockReset();
+    const onCommentHandled = vi.fn();
+    renderDrawer({ row: next, viewer: { ...member, username: "", kind: "anon" }, commentOnOpen: true, onCommentHandled });
+    await waitFor(() => expect(onCommentHandled).toHaveBeenCalledTimes(1));
+    expect(state.toggleUiProp).toHaveBeenCalledWith("login");
+    expect(screen.queryByTestId("comment-box")).toBeNull();
+  });
+
+  it("reopens the reply box with the text kept when the broadcast fails later", async () => {
+    renderDrawer({ row });
+    await screen.findByTestId("renderer");
+    fireEvent.click(screen.getByRole("button", { name: "curation-desk.actions.comment-key" }));
+    fireEvent.change(screen.getByLabelText("reply"), { target: { value: "kept text" } });
+    fireEvent.click(screen.getByRole("button", { name: "g.reply" }));
+    await waitFor(() => expect(screen.queryByTestId("comment-box")).toBeNull());
+
+    act(() => state.replyCallbacks.onError?.("kept text", new Error("rc")));
+    expect(screen.getByTestId("comment-box")).toHaveAttribute("data-initial", "kept text");
+    // The text is also back in the editor's own draft, so a failure that lands
+    // after the curator moved to another post is waiting when they return.
+    expect(window.localStorage.getItem("ecency_reply_text_alice_morning-light")).toBe(JSON.stringify("kept text"));
+
+    fireEvent.click(screen.getByRole("button", { name: "g.cancel" }));
+    expect(screen.queryByTestId("comment-box")).toBeNull();
+  });
+
+  it("opens the reply box for the c key once the entry arrives, then hands the flag back", async () => {
+    const onCommentHandled = vi.fn();
+    let resolveEntry: ((value: unknown) => void) | undefined;
+    state.entryFetch.mockImplementation(
+      (author: string, permlink: string) =>
+        new Promise((resolve) => {
+          resolveEntry = () => resolve({ author, permlink, body: "slow body", json_metadata: {}, active_votes: [] });
+        })
+    );
+    renderDrawer({ row, commentOnOpen: true, onCommentHandled });
+    await act(async () => {});
+    expect(screen.queryByTestId("comment-box")).toBeNull();
+    expect(onCommentHandled).not.toHaveBeenCalled();
+
+    await act(async () => {
+      resolveEntry?.(undefined);
+    });
+    expect(await screen.findByTestId("comment-box")).toBeInTheDocument();
+    expect(onCommentHandled).toHaveBeenCalledTimes(1);
+  });
+
+  it("presses c, p and v once the drawer's buttons are there, with an entry that is already cached", async () => {
+    const onCommentHandled = vi.fn();
+    const onTipHandled = vi.fn();
+    const onVoteHandled = vi.fn();
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
+    client.setQueryData(["posts", "entry", "/@alice/morning-light"], {
+      author: "alice",
+      permlink: "morning-light",
+      body: "cached body",
+      json_metadata: {},
+      active_votes: [],
+    });
+    renderWithQueryClient(
+      <CurationQuickView row={row} neighbour={null} viewer={member} recommendationsEnabled commentOnOpen tipOnOpen voteOnOpen onCommentHandled={onCommentHandled} onTipHandled={onTipHandled} onVoteHandled={onVoteHandled} onClose={noop} onPrev={noop} onNext={noop} onReviewed={noop} onSkip={noop} onSnooze={noop} onFlag={noop} onNote={noop} onSaveNote={noop} recommendRef={null} />,
+      { queryClient: client }
+    );
+    expect(state.entryFetch).not.toHaveBeenCalled();
+    expect(await screen.findByTestId("comment-box")).toBeInTheDocument();
+    await waitFor(() => expect(state.tipOpens).toEqual(["alice/morning-light"]));
+    await waitFor(() => expect(state.voteClicks).toHaveLength(1));
+    expect(onCommentHandled).toHaveBeenCalledTimes(1);
+    expect(onTipHandled).toHaveBeenCalledTimes(1);
+    expect(onVoteHandled).toHaveBeenCalledTimes(1);
+  });
+
+  it("sends Points to the author from the Points button and from the p key", async () => {
+    const onTipHandled = vi.fn();
+    renderDrawer({ row });
+    fireEvent.click(await screen.findByRole("button", { name: "curation-desk.actions.points-key" }));
+    expect(state.tipOpens).toEqual(["alice/morning-light"]);
+
+    renderDrawer({ row: next, tipOnOpen: true, onTipHandled });
+    await waitFor(() => expect(state.tipOpens).toEqual(["alice/morning-light", "bob/second"]));
+    expect(onTipHandled).toHaveBeenCalledTimes(1);
+  });
+
+  it("never renders the previous post's open reply box on a cached next post, not even for a frame", async () => {
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
+    for (const r of [row, next]) {
+      client.setQueryData(["posts", "entry", `/@${r.author}/${r.permlink}`], { author: r.author, permlink: r.permlink, body: "cached", json_metadata: {}, active_votes: [] });
+    }
+    const boxes: string[] = [];
+    const observer = new MutationObserver(() => {
+      for (const box of document.querySelectorAll("[data-curation-reply]")) boxes.push(box.closest("[data-curation-drawer]")?.querySelector("h2")?.textContent ?? "?");
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    const { rerender } = renderWithQueryClient(
+      <CurationQuickView row={row} neighbour={null} viewer={member} recommendationsEnabled onClose={noop} onPrev={noop} onNext={noop} onReviewed={noop} onSkip={noop} onSnooze={noop} onFlag={noop} onNote={noop} onSaveNote={noop} recommendRef={null} />,
+      { queryClient: client }
+    );
+    fireEvent.click(await screen.findByRole("button", { name: "curation-desk.actions.comment-key" }));
+    expect(screen.getByTestId("comment-box")).toBeInTheDocument();
+    rerender(
+      <CurationQuickView row={next} neighbour={null} viewer={member} recommendationsEnabled onClose={noop} onPrev={noop} onNext={noop} onReviewed={noop} onSkip={noop} onSnooze={noop} onFlag={noop} onNote={noop} onSaveNote={noop} recommendRef={null} />
+    );
+    await screen.findByText("Post 2");
+    expect(screen.queryByTestId("comment-box")).toBeNull();
+    observer.disconnect();
+    expect(boxes.filter((title) => title === "Post 2")).toEqual([]);
+  });
+
+  it("closes the reply box when the drawer moves to another post", async () => {
+    const { rerender } = renderDrawer({ row });
+    await screen.findByTestId("renderer");
+    fireEvent.click(screen.getByRole("button", { name: "curation-desk.actions.comment-key" }));
+    expect(screen.getByTestId("comment-box")).toBeInTheDocument();
+    rerender(
+      <CurationQuickView row={next} neighbour={null} viewer={member} recommendationsEnabled onClose={noop} onPrev={noop} onNext={noop} onReviewed={noop} onSkip={noop} onSnooze={noop} onFlag={noop} onNote={noop} onSaveNote={noop} recommendRef={null} />
+    );
+    await screen.findByTestId("renderer");
+    expect(screen.queryByTestId("comment-box")).toBeNull();
   });
 });

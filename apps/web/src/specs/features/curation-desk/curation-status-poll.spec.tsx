@@ -3,7 +3,7 @@ import { act, renderHook } from "@testing-library/react";
 import { QueryClient, QueryClientProvider, type InfiniteData } from "@tanstack/react-query";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { CurationFeedPage, CurationRosterFeedPage } from "@ecency/sdk";
-import { installFetchRouter, makeFeedPage, makeRosterPage, makeRow, makeStatus } from "./curation-test-utils";
+import { installFetchRouter, makeFeedPage, makeOverlay, makeRosterPage, makeRow, makeStatus } from "./curation-test-utils";
 
 /** The poll reads both feeds through the same key, so the specs do too. */
 type AnyFeedPage = CurationFeedPage | CurationRosterFeedPage;
@@ -17,7 +17,7 @@ vi.mock("@/utils", async () => ({
 }));
 vi.mock("@/core/hooks/use-active-username", () => ({ useActiveUsername: () => "member1" }));
 
-import { useStatusPoll } from "@/features/curation-desk/hooks";
+import { noteRowMutation, resetRowMutations, useStatusPoll } from "@/features/curation-desk/hooks";
 
 function deferred<T>() {
   let resolve!: (value: T) => void;
@@ -80,6 +80,69 @@ describe("useStatusPoll", () => {
 
   afterEach(() => {
     vi.unstubAllGlobals();
+    resetRowMutations();
+  });
+
+  it("never lets a head read before a mark bring the marked row back, or overwrite it", async () => {
+    // Page one: 4 and 3. While the head refresh is out, the curator marks 4
+    // reviewed (it leaves the loaded pages) and notes 3 (its loaded copy is
+    // the mark's answer). The refresh was read before either write.
+    seed(feedKey, [makeRosterPage([makeRow({ post_id: 4 }), makeRow({ post_id: 3, overlay: makeOverlay() })])]);
+    statusBody = makeStatus({ latest_post_id: 9 });
+    let release: (page: AnyFeedPage) => void = () => undefined;
+    const fetchPageOne = vi.fn(
+      () =>
+        new Promise<AnyFeedPage>((resolve) => {
+          release = resolve;
+        })
+    );
+    renderHook(() => useStatusPoll({ enabled: true, feedKey, fetchPageOne, sort: "queue" }), { wrapper });
+    await poll();
+    expect(fetchPageOne).toHaveBeenCalledTimes(1);
+
+    // The marks land while the page is in flight.
+    const noted = makeRow({ post_id: 3, overlay: makeOverlay({ notes_count: 1 }) });
+    queryClient.setQueryData<InfiniteData<AnyFeedPage>>(feedKey, { pages: [makeRosterPage([noted])], pageParams: [undefined] });
+    noteRowMutation(4);
+    noteRowMutation(3);
+
+    await act(async () => {
+      release(makeRosterPage([makeRow({ post_id: 9 }), makeRow({ post_id: 4 }), makeRow({ post_id: 3, overlay: makeOverlay() })]));
+    });
+    await flush();
+    const items = loaded(feedKey).pages[0].items;
+    expect(items.map((r) => r.post_id).sort()).toEqual([3, 9]);
+    expect((items.find((r) => r.post_id === 3) as CurationRosterFeedPage["items"][number] | undefined)?.overlay?.notes_count).toBe(1);
+  });
+
+  it("keeps a row the curator put back that a head read before the mark omits", async () => {
+    // Page one: 4 and 3. While the refresh is out the curator marks 4 reviewed
+    // and undoes it: 4 is loaded again, unmarked. The refresh was read in
+    // between, when 4 was reviewed, so it does not carry 4 at all.
+    seed(feedKey, [makeRosterPage([makeRow({ post_id: 4 }), makeRow({ post_id: 3 })])]);
+    statusBody = makeStatus({ latest_post_id: 9 });
+    let release: (page: AnyFeedPage) => void = () => undefined;
+    const fetchPageOne = vi.fn(
+      () =>
+        new Promise<AnyFeedPage>((resolve) => {
+          release = resolve;
+        })
+    );
+    renderHook(() => useStatusPoll({ enabled: true, feedKey, fetchPageOne, sort: "queue" }), { wrapper });
+    await poll();
+    expect(fetchPageOne).toHaveBeenCalledTimes(1);
+
+    const restored = makeRow({ post_id: 4, overlay: makeOverlay() });
+    queryClient.setQueryData<InfiniteData<AnyFeedPage>>(feedKey, { pages: [makeRosterPage([restored, makeRow({ post_id: 3 })])], pageParams: [undefined] });
+    noteRowMutation(4);
+
+    await act(async () => {
+      release(makeRosterPage([makeRow({ post_id: 9 }), makeRow({ post_id: 3 })]));
+    });
+    await flush();
+    const items = loaded(feedKey).pages[0].items;
+    expect(items.map((r) => r.post_id).sort()).toEqual([3, 4, 9]);
+    expect((items.find((r) => r.post_id === 4) as CurationRosterFeedPage["items"][number]).overlay).toEqual(makeOverlay());
   });
 
   it("takes the baseline from the loaded page, so a head that moved before the first poll refreshes", async () => {

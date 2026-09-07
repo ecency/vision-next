@@ -1,8 +1,8 @@
-import { vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import React from "react";
-import { screen } from "@testing-library/react";
+import { fireEvent, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import { renderWithQueryClient, mockEntry } from "@/specs/test-utils";
+import { renderWithQueryClient, mockEntry, setupModalContainers } from "@/specs/test-utils";
 
 // LoginRequired only renders its (gated) children for a logged-in user.
 vi.mock("@/core/hooks/use-active-account", () => ({
@@ -41,6 +41,15 @@ vi.mock("@/features/ui", () => ({
     </>
   ),
   PopoverContent: ({ children }: any) => <>{children}</>
+}));
+
+// The transfer dialog is loaded through next/dynamic; a stub that prints its
+// props is enough to prove which dialog opened and with what.
+vi.mock("next/dynamic", () => ({
+  default: () =>
+    function TransferStub(props: any) {
+      return <div data-testid="transfer">{`${props.asset} ${props.to} ${props.memo}`}</div>;
+    }
 }));
 
 import { EntryTipBtn } from "@/features/shared/entry-tip-btn";
@@ -83,5 +92,30 @@ describe("EntryTipBtn — feed-provided tip count + already-tipped state", () =>
       <EntryTipBtn entry={mockEntry as any} postTips={postTips} tipCount={1} />
     );
     expect(container.querySelector(".tip-count")?.textContent).toBe("5");
+  });
+});
+
+describe("EntryTipBtn — caller-drawn trigger", () => {
+  beforeEach(setupModalContainers);
+
+  it("opens the same tip dialog from a trigger the caller draws", async () => {
+    const entry = mockEntry({ author: "alice", permlink: "morning-light" });
+    renderWithQueryClient(
+      <EntryTipBtn
+        entry={entry}
+        trigger={(open) => (
+          <button type="button" onClick={open}>
+            Send Points
+          </button>
+        )}
+      />
+    );
+    // Only the trigger is drawn: no built-in gift button beside it.
+    expect(document.querySelector(".entry-tip-btn")).toBeNull();
+    expect(screen.queryByTestId("transfer")).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "Send Points" }));
+    const dialog = await screen.findByTestId("transfer");
+    expect(dialog).toHaveTextContent("POINT alice Tip for @alice/morning-light");
   });
 });

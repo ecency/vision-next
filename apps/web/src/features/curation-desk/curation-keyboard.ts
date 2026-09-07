@@ -7,6 +7,8 @@ export interface CurationKeyHandlers {
   prev: () => void;
   toggleQuickView: () => void;
   vote: () => void;
+  comment: () => void;
+  tip: () => void;
   reviewed: () => void;
   skip: () => void;
   snooze: () => void;
@@ -71,6 +73,10 @@ export function keyToAction(event: Pick<KeyboardEvent, "key" | "shiftKey">): key
       return "toggleQuickView";
     case "v":
       return "vote";
+    case "c":
+      return "comment";
+    case "p":
+      return "tip";
     case "r":
       return "reviewed";
     case "s":

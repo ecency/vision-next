@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+  hashKey,
   useInfiniteQuery,
   useMutation,
   useQuery,
@@ -45,7 +46,15 @@ import {
 } from "./consts";
 import { curationDeskApi } from "./curation-desk-api";
 import { mergeHeadPage } from "./curation-head-merge";
-import { mergeTickIntoPages, replaceRowInPages } from "./curation-tick-merge";
+import { rowHiddenByFeed, type FeedFilters } from "./curation-feed-rules";
+import {
+  findRowPosition,
+  insertRowInPages,
+  mergeTickIntoPages,
+  removeRowFromPages,
+  replaceRowInPages,
+  type RowPosition,
+} from "./curation-tick-merge";
 import {
   pickSavedFilters,
   readSavedFilters,
@@ -117,11 +126,13 @@ export function rosterFeedQueryOptions(username: string | undefined, params: Cur
     initialPageParam: undefined as string | undefined,
     queryFn: ({ pageParam, signal }: { pageParam?: string; signal?: AbortSignal }) =>
       curationDeskApi.rosterFeed(username, withLimit, pageParam, signal),
-    getNextPageParam: (lastPage: CurationRosterFeedPage): string | undefined => {
-      if (!lastPage || lastPage.items.length < limit) return undefined;
-      const last = lastPage.items[lastPage.items.length - 1];
-      return last?._cursor ?? lastPage.next_cursor ?? undefined;
-    },
+    // The route's own boundary, always: it says whether more remain and where
+    // the next page starts. The loaded page is no guide to either, because it
+    // changes under the curator: rows leave it live (curated, reviewed by a
+    // colleague), so a short page is no sign the queue ended, and rows come
+    // back into it (an undo, a row a stale head read omitted), so its last
+    // row's cursor could sit past posts the route has not served yet.
+    getNextPageParam: (lastPage: CurationRosterFeedPage): string | undefined => lastPage?.next_cursor ?? undefined,
     // The public feed's select: same dedupe, same takedown masking.
     select: selectCurationFeedPages<CurationRosterFeedPage>,
     staleTime: 10_000,
@@ -145,6 +156,25 @@ export function noteCuratorActivity() {
   lastActivityAt = Date.now();
 }
 
+/**
+ * When this desk last wrote a mark on a row. A tick or a head refresh that
+ * left before that write can carry the row as it was before it, so their
+ * answer for that row is discarded: the write's own answer is the newer one.
+ */
+const rowMutationAt = new Map<number, number>();
+export function noteRowMutation(postId: number) {
+  rowMutationAt.set(postId, Date.now());
+}
+export function rowMutatedSince(postId: number, sentAt: number): boolean {
+  // The same millisecond counts: a read that raced the write is the case.
+  const at = rowMutationAt.get(postId);
+  return at != null && at >= sentAt;
+}
+/** For specs only. */
+export function resetRowMutations() {
+  rowMutationAt.clear();
+}
+
 export interface TickOptions {
   username: string | undefined;
   enabled: boolean;
@@ -157,8 +187,25 @@ export interface TickOptions {
    * asking for everything with `since: null`.
    */
   feedGeneratedAt?: string | null;
-  /** The queue hides curated posts, so a row the tick reports as curated leaves it. */
-  hideCurated?: boolean;
+  /** The feed's own filters: a row the tick moves outside them leaves the list. */
+  feed?: FeedFilters;
+}
+
+function withoutRowsMutatedSince(tick: CurationTickResponse, sentAt: number): CurationTickResponse {
+  const fresh = <T extends { post_id: number }>(items: T[] | undefined) =>
+    items?.filter((item) => !rowMutatedSince(item.post_id, sentAt));
+  if (!rowMutationAt.size) return tick;
+  return {
+    ...tick,
+    overlay: fresh(tick.overlay) ?? tick.overlay,
+    deltas: {
+      ...tick.deltas,
+      marks: fresh(tick.deltas?.marks) ?? [],
+      flags: fresh(tick.deltas?.flags) ?? [],
+      signals: fresh(tick.deltas?.signals) ?? [],
+      rows: fresh(tick.deltas?.rows),
+    },
+  };
 }
 
 export interface TickState {
@@ -195,8 +242,8 @@ export function useCurationTick(options: TickOptions): TickState {
   visibleRef.current = options.getVisibleIds;
   const feedGeneratedAtRef = useRef(options.feedGeneratedAt);
   feedGeneratedAtRef.current = options.feedGeneratedAt;
-  const hideCuratedRef = useRef(options.hideCurated);
-  hideCuratedRef.current = options.hideCurated;
+  const feedRef = useRef(options.feed);
+  feedRef.current = options.feed;
   const sinceRef = useRef<string | null>(null);
   const inFlightRef = useRef(false);
   const feedKeyRef = useRef(feedKey);
@@ -234,17 +281,23 @@ export function useCurationTick(options: TickOptions): TickState {
     // is in flight, so the answer describes the queue that asked for it.
     const generation = generationRef.current;
     const key = feedKeyRef.current;
+    const feed = feedRef.current;
+    const sentAt = Date.now();
     inFlightRef.current = true;
     try {
-      const response: CurationTickResponse = await curationDeskApi.tick(username, {
+      const answer: CurationTickResponse = await curationDeskApi.tick(username, {
         since,
         need,
         visible,
       });
       if (generation !== generationRef.current) return;
+      // A row this desk marked while the tick was out is described here as it
+      // was before the mark (an undo after a mark is the usual case), so the
+      // mark's own answer stays and the tick's word on that row is dropped.
+      const response = withoutRowsMutatedSince(answer, sentAt);
       sinceRef.current = response.generated_at ?? sinceRef.current;
       queryClient.setQueryData<InfiniteData<CurationRosterFeedPage, unknown>>(key, (old) =>
-        mergeTickIntoPages(old, response, { dropCurated: hideCuratedRef.current === true })
+        mergeTickIntoPages(old, response, { feed })
       );
       if (response.truncated && since !== null) {
         queryClient.invalidateQueries({ queryKey: key });
@@ -441,6 +494,7 @@ export function useStatusPoll({ enabled, feedKey, fetchPageOne, feedVersion, sor
         return;
       }
       try {
+        const sentAt = Date.now();
         const page = await queryClient.fetchQuery({
           queryKey: [...key, "latest"],
           queryFn: ({ signal }) => fetchPage(signal),
@@ -456,7 +510,7 @@ export function useStatusPoll({ enabled, feedKey, fetchPageOne, feedVersion, sor
           // continues from its own cursor; scroll position is best effort.
           // Keep every loaded page: replacing them is what threw the
           // curator's place away every time the head moved.
-          (old) => mergeHeadPage(old, page, sort)
+          (old) => mergeHeadPage(old, page, sort, { wroteSince: (row) => rowMutatedSince(row.post_id, sentAt) })
         );
         versionRef.current = next;
       } catch {
@@ -508,10 +562,61 @@ export function publicPageOneFetcher(params: CurationFeedParams) {
 // Marks, cursor, dismiss
 // ---------------------------------------------------------------------------
 
-function patchRosterRow(queryClient: ReturnType<typeof useQueryClient>, username: string | undefined, row: DeskRow) {
-  queryClient.setQueriesData<InfiniteData<CurationRosterFeedPage, unknown>>(
-    { queryKey: rosterFeedPrefix(username) },
-    (old) => replaceRowInPages(old, row)
+/**
+ * A marked (or cleared) row, applied to every loaded roster feed. Each feed
+ * judges the row by its own filters, read off its key: the unreviewed-only
+ * queue drops a row just marked reviewed, the queue showing every mark keeps
+ * it with its badge. `restoreAt` puts a row an undo brought back where it was.
+ */
+function applyMarkedRow(
+  queryClient: ReturnType<typeof useQueryClient>,
+  username: string | undefined,
+  row: DeskRow,
+  restoreAt?: RestorePosition
+) {
+  noteRowMutation(row.post_id);
+  for (const query of queryClient.getQueryCache().findAll({ queryKey: rosterFeedPrefix(username) })) {
+    const feed = (query.queryKey[3] ?? {}) as FeedFilters;
+    if (rowHiddenByFeed(row, feed)) {
+      queryClient.setQueryData<InfiniteData<CurationRosterFeedPage, unknown>>(query.queryKey, (old) =>
+        removeRowFromPages(old, row.post_id)
+      );
+      continue;
+    }
+    if (restoreAt && hashKey(restoreAt.key) === query.queryHash) {
+      queryClient.setQueryData<InfiniteData<CurationRosterFeedPage, unknown>>(query.queryKey, (old) =>
+        insertRowInPages(old, row, restoreAt)
+      );
+      continue;
+    }
+    const data = query.state.data as InfiniteData<CurationRosterFeedPage, unknown> | undefined;
+    if (findRowPosition(data, row.post_id)) {
+      queryClient.setQueryData<InfiniteData<CurationRosterFeedPage, unknown>>(query.queryKey, (old) =>
+        replaceRowInPages(old, row)
+      );
+    } else if (restoreAt && query.getObserversCount() === 0) {
+      // Another cached feed let the row go on the mark and has no place to
+      // put it back; nobody is reading it, so it is fetched afresh when next
+      // shown rather than shown without the row.
+      queryClient.removeQueries({ queryKey: query.queryKey, exact: true });
+    }
+  }
+}
+
+/** Where a row sat in one feed before a mark took it out; `key` names the feed. */
+export interface RestorePosition extends RowPosition {
+  key: QueryKey;
+}
+
+/** The place a row holds in the feed under `key` right now, for an undo to restore. */
+export function useRowPosition(key: QueryKey, sort: CurationSort) {
+  const queryClient = useQueryClient();
+  return useCallback(
+    (postId: number): RestorePosition | undefined => {
+      const at = findRowPosition(queryClient.getQueryData<InfiniteData<CurationRosterFeedPage, unknown>>(key), postId);
+      return at ? { key, sort, ...at } : undefined;
+    },
+    [queryClient, key, sort]
   );
 }
 
@@ -538,10 +643,15 @@ export function useCurationMark() {
       });
     },
     onSuccess: (response) => {
-      if (response?.row) patchRosterRow(queryClient, username, response.row);
+      if (response?.row) applyMarkedRow(queryClient, username, response.row);
       queryClient.invalidateQueries({ queryKey: [...QueryKeys.curation._prefix, MY_MARKS_KEY_SUFFIX, username] });
     },
   });
+}
+
+export interface ClearMarkInput extends Pick<DeskRow, "author" | "permlink"> {
+  /** Captured before the mark that took the row out, so the undo puts it back there. */
+  restoreAt?: RestorePosition;
 }
 
 export function useClearMark() {
@@ -549,12 +659,12 @@ export function useClearMark() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationKey: [...QueryKeys.curation._prefix, "mark-clear", username],
-    mutationFn: async (row: Pick<DeskRow, "author" | "permlink">) => {
+    mutationFn: async (row: ClearMarkInput) => {
       noteCuratorActivity();
       return curationDeskApi.markClear(username, { author: row.author, permlink: row.permlink });
     },
-    onSuccess: (response) => {
-      if (response?.row) patchRosterRow(queryClient, username, response.row);
+    onSuccess: (response, variables) => {
+      if (response?.row) applyMarkedRow(queryClient, username, response.row, variables.restoreAt);
       queryClient.invalidateQueries({ queryKey: [...QueryKeys.curation._prefix, MY_MARKS_KEY_SUFFIX, username] });
     },
   });
@@ -571,7 +681,7 @@ export function useCurationDismissReco() {
       return curationDeskApi.dismissReco(username, input);
     },
     onSuccess: (response, variables) => {
-      if (response?.row) patchRosterRow(queryClient, username, response.row);
+      if (response?.row) applyMarkedRow(queryClient, username, response.row);
       queryClient.invalidateQueries({ queryKey: QueryKeys.curation._recommendationsPrefix });
       queryClient.invalidateQueries({ queryKey: QueryKeys.curation.post(variables.author, variables.permlink) });
     },

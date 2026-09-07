@@ -10,9 +10,9 @@ import {
   type CurationHandoffEntry,
 } from "@ecency/sdk";
 import { EcencyConfigManager } from "@/config";
-import { error as errorToast } from "@/features/shared/feedback";
+import { error as errorToast, info as infoToast } from "@/features/shared/feedback";
 import { formatError } from "@/api/format-error";
-import { UNDO_REVIEWED_MS } from "./consts";
+import { OWN_MARK_WINDOW_MS, UNDO_REVIEWED_MS } from "./consts";
 import { FlagDialog, NoteDialog, ShortcutSheet, SnoozeDialog } from "./curation-action-dialogs";
 import { curationDeskApi } from "./curation-desk-api";
 import { CurationHandoffBar } from "./curation-handoff-bar";
@@ -35,6 +35,7 @@ import {
   useCurationStatus,
   useCurationTick,
   useQueueFilters,
+  useRowPosition,
   useStatusPoll,
   useViewerRole,
 } from "./hooks";
@@ -149,7 +150,7 @@ export function CurationQueueView() {
     rows,
     getVisibleIds,
     feedGeneratedAt: firstPage?.generated_at,
-    hideCurated: filters.hideCurated,
+    feed: params,
   });
 
   const fetchPageOne = useMemo(
@@ -208,6 +209,15 @@ export function CurationQueueView() {
   const [quickView, setQuickView] = useState(false);
   const [voteOnOpen, setVoteOnOpen] = useState(false);
   const [recommendOnOpen, setRecommendOnOpen] = useState(false);
+  // The row that asked, not a flag: j/k stay alive while the entry loads,
+  // so a flag alone would open the reply box or the tip on whatever post the
+  // curator moved to meanwhile.
+  const [commentFor, setCommentFor] = useState<string | null>(null);
+  const [tipFor, setTipFor] = useState<string | null>(null);
+  useEffect(() => {
+    if (commentFor != null && commentFor !== activeKey) setCommentFor(null);
+    if (tipFor != null && tipFor !== activeKey) setTipFor(null);
+  }, [activeKey, commentFor, tipFor]);
   const [dialog, setDialog] = useState<Dialog>({ kind: "none" });
   const [undo, setUndo] = useState<Undo | null>(null);
   const [undoBusy, setUndoBusy] = useState(false);
@@ -216,6 +226,55 @@ export function CurationQueueView() {
 
   const activeIndex = activeKey ? ordered.findIndex((r) => rowKey(r) === activeKey) : -1;
   const activeRow = activeIndex >= 0 ? ordered[activeIndex] : null;
+
+  // Marks this desk made, so a row leaving on its own mark reads as the
+  // curator moving on, while a row a colleague took leaves under their hands.
+  const ownMarksRef = useRef(new Map<string, number>());
+  const noteOwnMark = useCallback((row: DeskRow) => ownMarksRef.current.set(rowKey(row), Date.now()), []);
+  const prevOrderedRef = useRef<DeskRow[]>([]);
+  const prevKeyRef = useRef(queryKey);
+  // The selected row can stop resolving for three reasons, and only one of
+  // them is a live departure: the row left the loaded pages under the curator
+  // (a colleague reviewed it, it got curated, or this desk marked it). Then
+  // the selection moves to the row that took its place, never back to the
+  // top, so j keeps walking down. A drawer open on a post a colleague took
+  // closes with a word: it must never swap to a post the curator has not
+  // read. A different feed (lens, sort, account) is a different list with
+  // nothing chosen in it, and a row folded into a collapsed tail is still
+  // loaded, so the selection simply waits for it.
+  useEffect(() => {
+    const prev = prevOrderedRef.current;
+    prevOrderedRef.current = ordered;
+    if (prevKeyRef.current !== queryKey) {
+      prevKeyRef.current = queryKey;
+      if (activeKey) setActiveKey(null);
+      if (quickView) setQuickView(false);
+      return;
+    }
+    if (!activeKey || activeIndex >= 0) return;
+    const prevIndex = prev.findIndex((r) => rowKey(r) === activeKey);
+    if (prevIndex < 0) return;
+    if (rows.some((r) => rowKey(r) === activeKey)) return;
+    const ownAt = ownMarksRef.current.get(activeKey);
+    ownMarksRef.current.delete(activeKey);
+    const own = ownAt != null && Date.now() - ownAt < OWN_MARK_WINDOW_MS;
+    if (!own && quickView) {
+      setQuickView(false);
+      infoToast(i18next.t("curation-desk.live.left-queue"));
+    }
+    setActiveKey(ordered.length ? rowKey(ordered[Math.min(prevIndex, ordered.length - 1)]) : null);
+  }, [ordered, rows, queryKey, activeKey, activeIndex, quickView]);
+
+  // Every loaded row can leave live while the server still holds more: the
+  // list is not mounted to ask for the next page from its end, so it is
+  // asked for here, rather than showing "nothing to review" over a queue.
+  // A page that failed is not asked for again from here: the error shows,
+  // and the next status poll or a refresh asks anew.
+  useEffect(() => {
+    if (rows.length === 0 && feed.hasNextPage && !feed.isFetching && !feed.isError && !feed.isFetchNextPageError) {
+      void feed.fetchNextPage();
+    }
+  }, [rows.length, feed.hasNextPage, feed.isFetching, feed.isError, feed.isFetchNextPageError, feed.fetchNextPage]);
   const neighbour = activeIndex >= 0 ? ordered[activeIndex + 1] ?? null : null;
 
   const mark = useCurationMark();
@@ -273,22 +332,30 @@ export function CurationQueueView() {
     [viewer.isRoster]
   );
 
+  const positionOf = useRowPosition(queryKey, filters.sort);
   const doMark = useCallback(
     async (row: DeskRow, input: { state: "reviewed" | "snoozed" | "flagged" | "noted"; reason?: string; note?: string; snooze_until?: string }, message: string) => {
+      // A reviewed row leaves an unreviewed-only queue at once, so its place
+      // is captured before the mark for the undo to put it back there.
+      const restoreAt = positionOf(row.post_id);
+      noteOwnMark(row);
       try {
         // The lane this desk is showing rides on the mark, so the hand-off can
         // say which queue the position was earned in without ever guessing.
         await mark.mutateAsync({ row, ...input, lane: params });
         setUndo({
           message,
-          action: input.state === "reviewed" ? () => clearMark.mutateAsync(row) : null,
+          action: input.state === "reviewed" ? () => clearMark.mutateAsync({ author: row.author, permlink: row.permlink, restoreAt }) : null,
           until: Date.now() + UNDO_REVIEWED_MS,
         });
       } catch (e) {
+        // Nothing was written, so a departure of this row later is not the
+        // curator's doing.
+        ownMarksRef.current.delete(rowKey(row));
         errorToast(...formatError(e));
       }
     },
-    [mark, clearMark, params]
+    [mark, clearMark, params, positionOf, noteOwnMark]
   );
 
   const onSelect = useCallback((row: DeskRow) => setActiveKey(rowKey(row)), []);
@@ -300,6 +367,8 @@ export function CurationQueueView() {
     setQuickView(false);
     setVoteOnOpen(false);
     setRecommendOnOpen(false);
+    setCommentFor(null);
+    setTipFor(null);
   }, []);
   const onVote = useCallback((row: DeskRow) => {
     setActiveKey(rowKey(row));
@@ -350,6 +419,18 @@ export function CurationQueueView() {
         setQuickView((v) => !v);
       },
       vote: () => activeRow && onVote(activeRow),
+      // Both live in the drawer next to the vote slider and wait for the entry
+      // there, the way the vote does.
+      comment: () => {
+        if (!activeRow) return;
+        if (!quickView) setQuickView(true);
+        setCommentFor(rowKey(activeRow));
+      },
+      tip: () => {
+        if (!activeRow) return;
+        if (!quickView) setQuickView(true);
+        setTipFor(rowKey(activeRow));
+      },
       reviewed: requireRoster(() => activeRow && onReviewed(activeRow)),
       skip: () => move(1),
       snooze: requireRoster(() => activeRow && onSnooze(activeRow)),
@@ -485,6 +566,10 @@ export function CurationQueueView() {
         onVoteHandled={() => setVoteOnOpen(false)}
         recommendOnOpen={recommendOnOpen}
         onRecommendHandled={() => setRecommendOnOpen(false)}
+        commentOnOpen={commentFor != null && commentFor === activeKey}
+        onCommentHandled={() => setCommentFor(null)}
+        tipOnOpen={tipFor != null && tipFor === activeKey}
+        onTipHandled={() => setTipFor(null)}
         onClose={closeQuickView}
         onPrev={() => move(-1)}
         onNext={() => move(1)}

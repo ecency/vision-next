@@ -40,16 +40,38 @@ function compare(a: DeskRow, b: DeskRow): number {
  * Rows the merge does not change are returned as the SAME object, so the
  * memoized rows skip their render and the tick's identity contract holds.
  */
+export interface HeadMergeOptions {
+  /**
+   * Rows this desk wrote after the page was requested. The page was read
+   * before those writes, so its word on them is older than what is loaded:
+   * the loaded copy replaces the page's, a row the desk took out stays out,
+   * and a row the desk put back (an undo) that the page omits is kept.
+   */
+  wroteSince?: (row: DeskRow) => boolean;
+}
+
 export function mergeHeadPage<TPage extends AnyPage>(
   data: InfiniteData<TPage, unknown> | undefined,
   page: TPage,
-  sort: CurationSort
+  sort: CurationSort,
+  options: HeadMergeOptions = {}
 ): InfiniteData<TPage, unknown> | undefined {
   if (!data) return data;
+  const wrote = options.wroteSince;
+  const held = new Map<number, DeskRow>();
+  if (wrote) for (const p of data.pages) for (const r of p.items as DeskRow[]) held.set(r.post_id, r);
+  /** The page's rows with this desk's newer word on the ones it wrote since. */
+  const fresh: DeskRow[] = wrote
+    ? (page.items as DeskRow[]).flatMap((r) => (wrote(r) ? (held.has(r.post_id) ? [held.get(r.post_id)!] : []) : [r]))
+    : (page.items as DeskRow[]);
+  const freshIds = new Set(fresh.map((r) => r.post_id));
+  /** Loaded rows written since that the page does not carry, from the pages named. */
+  const omitted = (pages: TPage[]) =>
+    wrote ? pages.flatMap((p) => (p.items as DeskRow[]).filter((r) => wrote(r) && !freshIds.has(r.post_id))) : [];
   /** What this did in every case before: page one alone, later pages dropped. */
   const replace = (): InfiniteData<TPage, unknown> => ({
     ...data,
-    pages: [page] as TPage[],
+    pages: [{ ...page, items: [...fresh, ...omitted(data.pages)] } as TPage],
     pageParams: data.pageParams.slice(0, 1),
   });
   const loaded = data.pages[0];
@@ -60,11 +82,9 @@ export function mergeHeadPage<TPage extends AnyPage>(
   // later pages start after it, so nothing can be below it either. The queue really
   // is empty, and keeping the loaded rows would leave posts on screen that the server
   // no longer serves and that still look actionable.
-  if (page.items.length === 0) return replace();
+  if (fresh.length === 0) return replace();
 
-  const fresh = page.items as DeskRow[];
   const old = loaded.items as DeskRow[];
-  const freshIds = new Set(fresh.map((r) => r.post_id));
 
   // The window the refreshed page speaks for, whichever direction it is in.
   let lo = fresh[0];
@@ -91,7 +111,10 @@ export function mergeHeadPage<TPage extends AnyPage>(
   const touches = old.some((row) => freshIds.has(row.post_id)) || kept.length === 0;
   if (!touches) return replace();
 
-  const merged = [...fresh, ...kept].sort((a, b) => (descending ? compare(b, a) : compare(a, b)));
+  // A row this desk put back inside the refreshed window, which the older read
+  // omits, stays; past the tail the ordinary rule already keeps it.
+  const restored = omitted(data.pages).filter((row) => !beyondTail(row));
+  const merged = [...fresh, ...restored, ...kept].sort((a, b) => (descending ? compare(b, a) : compare(a, b)));
   // A page one that shrank can leave the refreshed page reaching into page two, so
   // the same rule is applied to every loaded page and not only to the first. A row
   // that is not beyond the tail either left the queue or was just promoted into the

@@ -414,13 +414,81 @@ describe("mergeTickIntoPages", () => {
       },
     });
 
-    const hidden = mergeTickIntoPages(data, curated, { dropCurated: true })!;
+    const hidden = mergeTickIntoPages(data, curated, { feed: { hide_curated: true } })!;
     expect(hidden.pages[0].items.map((r) => r.post_id)).toEqual([2]);
     expect(hidden.pages[0].items[0]).toBe(other);
 
-    const shown = mergeTickIntoPages(data, curated, { dropCurated: false })!;
+    const shown = mergeTickIntoPages(data, curated, { feed: { hide_curated: false } })!;
     expect(shown.pages[0].items.map((r) => r.post_id)).toEqual([1, 2]);
     expect(shown.pages[0].items[0].state).toBe(1);
+  });
+
+  it("drops a row a colleague reviewed or snoozed from a queue that hides those, and keeps a noted one", () => {
+    const rows = [1, 2, 3, 4].map((id) => makeRow({ post_id: id, state: 0, overlay: makeOverlay() }));
+    const data: InfiniteData<CurationRosterFeedPage> = { pages: [makeRosterPage(rows)], pageParams: [undefined] };
+    const tick = tickBody({
+      deltas: {
+        marks: [
+          { post_id: 1, curator: "riyat", state: "reviewed", updated_at: "2026-09-05T12:00:00" },
+          { post_id: 2, curator: "riyat", state: "snoozed", snooze_until: "2026-09-06T12:00:00", updated_at: "2026-09-05T12:00:00" },
+          { post_id: 3, curator: "riyat", state: "noted", has_note: true, updated_at: "2026-09-05T12:00:00" },
+        ],
+        flags: [],
+        signals: [],
+      },
+    });
+
+    // The desk's default: unreviewed only, snoozed hidden. A note is not a
+    // team mark, so the noted row stays for the next curator to read.
+    const now = Date.parse("2026-09-05T12:30:00Z");
+    const hiding = mergeTickIntoPages(data, tick, { feed: {}, now })!;
+    expect(hiding.pages[0].items.map((r) => r.post_id)).toEqual([3, 4]);
+    expect(hiding.pages[0].items[0].overlay?.notes_count).toBe(1);
+    expect(hiding.pages[0].items[1]).toBe(rows[3]);
+
+    // Showing every mark: the rows stay and carry their badges.
+    const showing = mergeTickIntoPages(data, tick, { feed: { hide_reviewed: false, hide_snoozed: false }, now })!;
+    expect(showing.pages[0].items.map((r) => r.post_id)).toEqual([1, 2, 3, 4]);
+    expect(showing.pages[0].items[0].overlay?.team_mark).toBe("reviewed");
+    expect(showing.pages[0].items[1].overlay?.team_mark).toBe("snoozed");
+
+    // No feed named: nothing leaves.
+    const unjudged = mergeTickIntoPages(data, tick, { now })!;
+    expect(unjudged.pages[0].items.map((r) => r.post_id)).toEqual([1, 2, 3, 4]);
+  });
+
+  it("does not count a snooze that ran out: a note on a resurfaced row leaves it listed", () => {
+    // The minute job cleared the team level, but the expired mark is still
+    // delivered with the row. A colleague's note must not snooze it again.
+    const expired = { curator: "riyat", state: "snoozed" as const, snooze_until: "2026-09-05T11:00:00", updated_at: "2026-09-04T11:00:00" };
+    const row = makeRow({ post_id: 7, state: 0, overlay: makeOverlay({ marks: [expired], team_mark: null, resurfaced_at: "2026-09-05T11:00:05" }) });
+    const data: InfiniteData<CurationRosterFeedPage> = { pages: [makeRosterPage([row])], pageParams: [undefined] };
+    const tick = tickBody({
+      deltas: { marks: [{ post_id: 7, curator: "cur2", state: "noted", has_note: true, updated_at: "2026-09-05T12:00:00" }], flags: [], signals: [] },
+    });
+    const merged = mergeTickIntoPages(data, tick, { feed: {}, now: Date.parse("2026-09-05T12:30:00Z") })!;
+    expect(merged.pages[0].items.map((r) => r.post_id)).toEqual([7]);
+    expect(merged.pages[0].items[0].overlay?.team_mark).toBeNull();
+    // Still inside its snooze: the same note keeps it snoozed and out.
+    const early = mergeTickIntoPages(data, tick, { feed: {}, now: Date.parse("2026-09-05T10:00:00Z") })!;
+    expect(early.pages[0].items).toEqual([]);
+  });
+
+  it("judges a flag, an exclusion and the flagged lens by the same rule", () => {
+    const rows = [1, 2, 3].map((id) => makeRow({ post_id: id, state: 0, overlay: makeOverlay() }));
+    const data: InfiniteData<CurationRosterFeedPage> = { pages: [makeRosterPage(rows)], pageParams: [undefined] };
+    const now = Date.parse("2026-09-05T12:30:00Z");
+    // A flag is a team mark: the default queue (unhandled only) lets it go.
+    const flagged = tickBody({ deltas: { marks: [{ post_id: 1, curator: "riyat", state: "flagged", updated_at: "2026-09-05T12:00:00" }], flags: [], signals: [] } });
+    expect(mergeTickIntoPages(data, flagged, { feed: {}, now })!.pages[0].items.map((r) => r.post_id)).toEqual([2, 3]);
+    // A row a mod excluded leaves every lens but the excluded one.
+    const excluded = tickBody({ deltas: { marks: [], flags: [{ post_id: 2, flags: { abuser: true }, excluded_reason: "abuser" }], signals: [] } });
+    expect(mergeTickIntoPages(data, excluded, { feed: {}, now })!.pages[0].items.map((r) => r.post_id)).toEqual([1, 3]);
+    // On the flagged lens a review takes the flag's place, so the row leaves that lens.
+    const lens = [makeRow({ post_id: 9, state: 0, overlay: makeOverlay({ team_mark: "flagged", team_mark_by: "riyat", marks: [{ curator: "riyat", state: "flagged", updated_at: "2026-09-05T11:00:00" }] }) })];
+    const lensData: InfiniteData<CurationRosterFeedPage> = { pages: [makeRosterPage(lens)], pageParams: [undefined] };
+    const reviewed = tickBody({ deltas: { marks: [{ post_id: 9, curator: "cur2", state: "reviewed", updated_at: "2026-09-05T12:00:00" }], flags: [], signals: [] } });
+    expect(mergeTickIntoPages(lensData, reviewed, { feed: { flagged: "1" }, now })!.pages[0].items).toEqual([]);
   });
 
   it("is unchanged by a backend that sends no row deltas", () => {

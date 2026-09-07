@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import clsx from "clsx";
 import i18next from "i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -10,9 +10,11 @@ import {
   UilArrowRight,
   UilBell,
   UilCheck,
+  UilCommentAlt,
   UilCommentAltNotes,
   UilExclamationTriangle,
   UilExternalLinkAlt,
+  UilGift,
   UilTimes,
 } from "@tooni/iconscout-unicons-react";
 import { getAccountPostsQueryOptions, getCurationPostQueryOptions, type CurationRecommender } from "@ecency/sdk";
@@ -23,16 +25,20 @@ import { PostContentRenderer } from "@/features/shared/post-content-renderer";
 import { EntryVoteBtn } from "@/features/shared/entry-vote-btn";
 import { EntryVotes } from "@/features/shared/entry-votes";
 import { EntryPayout } from "@/features/shared/entry-payout";
+import { EntryTipBtn } from "@/features/shared/entry-tip-btn";
+import { LoginRequired } from "@/features/shared/login-required";
 import { UserAvatar } from "@/features/shared/user-avatar";
 import { dateToRelative } from "@/utils";
 import type { Entry } from "@/entities";
 import { error as errorToast } from "@/features/shared/feedback";
 import { formatError } from "@/api/format-error";
+import { EcencyConfigManager } from "@/config";
 import { QUICK_VIEW_PREFETCH_DEBOUNCE_MS } from "./consts";
 import { Chip } from "./curation-chip";
 import { appLabel } from "./curation-queue-display";
 import { CurationRecommendBtn, type CurationRecommendHandle } from "./curation-recommend-btn";
 import { RecommenderChip } from "./curation-recommender";
+import { CurationReplyBox } from "./curation-reply-box";
 import { useCurationTicker } from "./curation-ticker";
 import { CurationWindowBadge } from "./curation-window-badge";
 import { computeWindow, formatUtcHm } from "./curation-window";
@@ -49,8 +55,14 @@ interface Props {
   /** The `v` key asked for the vote slider; consumed once the entry arrives. */
   voteOnOpen?: boolean;
   recommendOnOpen?: boolean;
+  /** The `c` key: open the reply box once the entry is here. */
+  commentOnOpen?: boolean;
+  /** The `p` key: open the Points transfer once the entry is here. */
+  tipOnOpen?: boolean;
   onRecommendHandled?: () => void;
   onVoteHandled?: () => void;
+  onCommentHandled?: () => void;
+  onTipHandled?: () => void;
   onClose: () => void;
   onPrev: () => void;
   onNext: () => void;
@@ -86,6 +98,41 @@ function cadencePerDay(entries: Entry[] | undefined): number | null {
 }
 
 /**
+ * Presses a button that lives inside the drawer once it is actually there.
+ * The drawer's surface mounts a frame after `show` flips, so with a cached
+ * entry the first render already has the entry and none of the buttons yet:
+ * a press on that render hit nothing and the request was consumed all the
+ * same. The wait is bounded, and the request is handed back either way, so a
+ * button that never mounts (signed out, no entry) cannot pin it.
+ */
+function usePressWhenMounted(
+  active: boolean,
+  find: () => HTMLElement | null | undefined,
+  onHandled: (() => void) | undefined
+) {
+  const handledRef = useRef(onHandled);
+  handledRef.current = onHandled;
+  useEffect(() => {
+    if (!active) return;
+    let tries = 0;
+    let frame = 0;
+    const attempt = () => {
+      const button = find();
+      if (button) {
+        button.click();
+        handledRef.current?.();
+      } else if (tries++ < 120) {
+        frame = requestAnimationFrame(attempt);
+      } else {
+        handledRef.current?.();
+      }
+    };
+    attempt();
+    return () => cancelAnimationFrame(frame);
+  }, [active, find]);
+}
+
+/**
  * Right drawer with the full post. One entry fetch on expand through the
  * shared entry cache; the immediate neighbour is prefetched only while the
  * drawer is open, after a 300 ms debounce, so a curator holding j on a closed
@@ -98,8 +145,12 @@ export function CurationQuickView({
   recommendationsEnabled,
   voteOnOpen,
   recommendOnOpen,
+  commentOnOpen,
+  tipOnOpen,
   onRecommendHandled,
   onVoteHandled,
+  onCommentHandled,
+  onTipHandled,
   onClose,
   onPrev,
   onNext,
@@ -145,15 +196,35 @@ export function CurationQuickView({
   }, [open, author, permlink]);
 
   // The `v` key: the slider only exists once the entry query resolved, so the
-  // click waits for the entry instead of a fixed delay that missed a slow fetch.
+  // press waits for the entry instead of a fixed delay that missed a slow fetch.
   const drawerRef = useRef<HTMLDivElement | null>(null);
-  const voteHandledRef = useRef(onVoteHandled);
-  voteHandledRef.current = onVoteHandled;
-  useEffect(() => {
-    if (!open || !voteOnOpen || !entry) return;
-    drawerRef.current?.querySelector<HTMLElement>('.entry-vote-btn[role="button"]')?.click();
-    voteHandledRef.current?.();
-  }, [open, voteOnOpen, entry]);
+  const findVote = useCallback(() => drawerRef.current?.querySelector<HTMLElement>('.entry-vote-btn[role="button"]'), []);
+  usePressWhenMounted(open && !!voteOnOpen && !!entry, findVote, onVoteHandled);
+
+  // The `c` and `p` keys wait for the entry the same way, then press the
+  // button itself: both buttons sit behind the sign-in prompt, so a signed-out
+  // reader gets that prompt from the key too.
+  // The post the box is open for, so a cached next post never renders one
+  // frame of the previous post's open box (and its autofocus) before a reset.
+  const [replyFor, setReplyFor] = useState<string | null>(null);
+  const replyOpen = replyFor != null && replyFor === `${author}/${permlink}`;
+  const setReplyOpen = useCallback(
+    (next: boolean | ((current: boolean) => boolean)) => {
+      const key = `${author}/${permlink}`;
+      setReplyFor((current) => {
+        const isOpen = current === key;
+        const open = typeof next === "function" ? next(isOpen) : next;
+        return open ? key : null;
+      });
+    },
+    [author, permlink]
+  );
+  const commentRef = useRef<HTMLButtonElement | HTMLAnchorElement | null>(null);
+  const findComment = useCallback(() => commentRef.current, []);
+  usePressWhenMounted(open && !!commentOnOpen && !!entry, findComment, onCommentHandled);
+  const tipRef = useRef<HTMLButtonElement | HTMLAnchorElement | null>(null);
+  const findTip = useCallback(() => tipRef.current, []);
+  usePressWhenMounted(open && !!tipOnOpen && !!entry, findTip, onTipHandled);
 
   // The `x` key: the recommend button mounts with the drawer, so the trigger
   // waits for the mounted handle (a few frames at most) instead of a fixed delay.
@@ -210,6 +281,11 @@ export function CurationQuickView({
   const canDismissReco = viewer.isRoster && !viewer.isTrial;
   const title = row.title?.trim() || i18next.t("curation-desk.row.untitled", { author: row.author });
   const href = `/@${row.author}/${row.permlink}`;
+  // The tip dialog sends Points where the instance has them and HIVE elsewhere;
+  // the label says which.
+  const tipLabel = EcencyConfigManager.CONFIG.visionFeatures.points.enabled
+    ? "curation-desk.actions.points"
+    : "curation-desk.actions.tip";
 
   return (
     <ModalSidebar show={open} setShow={(v) => !v && onClose()} placement="right" className="min-w-[90%] md:min-w-[44rem]">
@@ -261,7 +337,49 @@ export function CurationQuickView({
                   <EntryVoteBtn entry={entry} isPostSlider />
                   <EntryVotes entry={entry} />
                   <EntryPayout entry={entry} />
+                  <div className="ml-auto flex items-center gap-1">
+                    {/* The reply editor draws nothing for a signed-out reader, so the
+                        button asks them to sign in instead of toggling an empty box. */}
+                    <LoginRequired promptOnAnon>
+                      <Button
+                        ref={commentRef as React.Ref<HTMLButtonElement | HTMLAnchorElement>}
+                        size="sm"
+                        appearance="gray-link"
+                        className="!rounded-lg"
+                        aria-label={i18next.t("curation-desk.actions.comment-key")}
+                        aria-pressed={replyOpen}
+                        title="c"
+                        onClick={() => setReplyOpen((v) => !v)}
+                        icon={<UilCommentAlt />}
+                      >
+                        {i18next.t("curation-desk.actions.comment")}
+                      </Button>
+                    </LoginRequired>
+                    <EntryTipBtn
+                      entry={entry}
+                      trigger={(openTip) => (
+                        <Button
+                          ref={tipRef as React.Ref<HTMLButtonElement | HTMLAnchorElement>}
+                          size="sm"
+                          appearance="gray-link"
+                          className="!rounded-lg"
+                          aria-label={i18next.t(`${tipLabel}-key`)}
+                          title="p"
+                          onClick={openTip}
+                          icon={<UilGift />}
+                        >
+                          {i18next.t(tipLabel)}
+                        </Button>
+                      )}
+                    />
+                  </div>
                 </div>
+                <CurationReplyBox
+                  key={`${entry.author}/${entry.permlink}`}
+                  entry={entry}
+                  open={replyOpen}
+                  onClose={() => setReplyOpen(false)}
+                />
               </>
             )}
           </div>

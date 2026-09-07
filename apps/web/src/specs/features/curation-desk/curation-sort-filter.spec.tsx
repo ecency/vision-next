@@ -13,6 +13,7 @@ vi.mock("@/core/hooks/use-active-username", () => ({ useActiveUsername: () => "c
 
 import { getCurationFeedInfiniteQueryOptions } from "@ecency/sdk";
 import { buildQueueDisplay } from "@/features/curation-desk/curation-queue-display";
+import { CURATION_WINDOWS } from "@/features/curation-desk/consts";
 import { countActiveFilters, defaultQueueFilters, filtersToParams, rosterFeedQueryOptions, useQueueFilters } from "@/features/curation-desk/hooks";
 import type { QueueFilters } from "@/features/curation-desk/types";
 
@@ -85,6 +86,11 @@ describe("sort and filter chips", () => {
   it("reaches max_words through its own preset select", () => {
     const params = filtersToParams({ ...defaultQueueFilters(), minWords: 300, maxWords: 1000 }, true);
     expect(params).toMatchObject({ min_words: 300, max_words: 1000 });
+  });
+
+  it("offers the 12 h band and sends it as window=12h", () => {
+    expect(CURATION_WINDOWS).toContain("12h");
+    expect(filtersToParams({ ...defaultQueueFilters(), window: "12h" }, false)).toMatchObject({ window: "12h" });
   });
 
   it("maps every chip to a server param and never filters rows client-side", () => {

@@ -3,8 +3,16 @@ import fs from "fs";
 import path from "path";
 import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { CurationGuide } from "@/features/curation-desk/curation-guide";
+
+// The real <Theme /> effect, reading a store that says night, applied to a
+// document the cached copy rendered light: the route must end up dark.
+const store = vi.hoisted(() => ({ theme: "night" }));
+vi.mock("@/core/global-store", () => ({ useGlobalStore: (select: (s: unknown) => unknown) => select({ theme: store.theme }) }));
+vi.mock("@/features/metadata", () => ({ PagesMetadataGenerator: { getForPage: async () => ({}) } }));
+
+import CurationGuidePage from "@/app/curation/guide/page";
 
 const FEATURE = path.resolve(__dirname, "../../../features/curation-desk");
 const ROUTE = path.resolve(__dirname, "../../../app/curation/guide/page.tsx");
@@ -16,6 +24,24 @@ describe("CurationGuide", () => {
       expect(source).not.toMatch(/["']use client["']/);
     }
     expect(fs.readFileSync(ROUTE, "utf8")).toMatch(/export const revalidate = 86400/);
+  });
+
+  it("reapplies the visitor's theme on the route, since the static tier shares one document across visitors", () => {
+    // The document as a light-theme visitor's cached copy left it.
+    document.documentElement.classList.remove("dark");
+    document.body.classList.remove("dark");
+    store.theme = "night";
+    const { unmount } = render(<CurationGuidePage />);
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("curation-desk.guide.title");
+    expect(document.documentElement.classList.contains("dark")).toBe(true);
+    expect(document.body.classList.contains("dark")).toBe(true);
+    unmount();
+
+    // And the other way round: a dark cached copy for a light-theme visitor.
+    store.theme = "day";
+    render(<CurationGuidePage />);
+    expect(document.documentElement.classList.contains("dark")).toBe(false);
+    expect(document.body.classList.contains("dark")).toBe(false);
   });
 
   it("renders the chapter headings from the guide keys", () => {

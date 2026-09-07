@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.4.3
+
+### Patch Changes
+
+- Curation desk: reply and Points from the quick view, and a 12 h window (#1755)
+
 ## 2.4.2
 
 ### Patch Changes

@@ -4,8 +4,9 @@ import { act, fireEvent, renderHook, screen, waitFor } from "@testing-library/re
 import { QueryClient } from "@tanstack/react-query";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithQueryClient } from "@/specs/test-utils";
-import { installFetchRouter, makeFeedPage, makeOverlay, makeRoster, makeRosterPage, makeRow, makeStatus, NOW } from "./curation-test-utils";
+import { installFetchRouter, iso, jsonResponse, makeFeedPage, makeOverlay, makeRoster, makeRosterPage, makeRow, makeStatus, NOW } from "./curation-test-utils";
 
+const drawerRenders = vi.hoisted(() => [] as Array<{ post_id: number; comment: boolean; tip: boolean }>);
 const state = vi.hoisted(() => ({ username: undefined as string | undefined }));
 
 vi.mock("@ecency/sdk", async () => ({ ...(await vi.importActual<Record<string, unknown>>("@ecency/sdk")) }));
@@ -49,17 +50,21 @@ vi.mock("react-virtuoso", () => ({
   }),
 }));
 vi.mock("@/features/curation-desk/curation-quick-view", () => ({
-  CurationQuickView: ({ row }: { row: unknown }) => (row ? <div data-testid="quick-view-open" /> : null),
+  CurationQuickView: ({ row, commentOnOpen, tipOnOpen }: { row: { post_id: number } | null; commentOnOpen?: boolean; tipOnOpen?: boolean }) => {
+    if (row) drawerRenders.push({ post_id: row.post_id, comment: !!commentOnOpen, tip: !!tipOnOpen });
+    return row ? <div data-testid="quick-view-open" data-comment={String(!!commentOnOpen)} data-tip={String(!!tipOnOpen)}>{row.post_id}</div> : null;
+  },
 }));
 vi.mock("@/features/shared/profile-popover", () => ({ ProfilePopover: ({ entry }: { entry: { author: string } }) => <span>@{entry.author}</span> }));
 vi.mock("@/features/shared/user-avatar", () => ({ UserAvatar: () => <span /> }));
-vi.mock("@/features/shared/feedback", () => ({ success: vi.fn(), error: vi.fn() }));
+vi.mock("@/features/shared/feedback", () => ({ success: vi.fn(), error: vi.fn(), info: vi.fn() }));
 vi.mock("@/api/format-error", () => ({ formatError: (e: unknown) => [String(e), "common"] }));
 vi.mock("@/api/sdk-mutations/use-curation-recommend-mutation", () => ({
   useCurationRecommendMutation: () => ({ mutateAsync: vi.fn(), isPending: false }),
 }));
 
 import { CurationQueueView } from "@/features/curation-desk/curation-queue-view";
+import { info as infoToast } from "@/features/shared/feedback";
 import { isKeyboardInert, keyToAction, useCurationKeyboard, type CurationKeyHandlers } from "@/features/curation-desk/curation-keyboard";
 
 function press(key: string, options: Partial<KeyboardEventInit> = {}, target: Element | Document = document) {
@@ -83,6 +88,8 @@ describe("keyboard map", () => {
     expect(keyToAction({ key: "Enter", shiftKey: false })).toBe("toggleQuickView");
     expect(keyToAction({ key: "o", shiftKey: false })).toBe("toggleQuickView");
     expect(keyToAction({ key: "v", shiftKey: false })).toBe("vote");
+    expect(keyToAction({ key: "c", shiftKey: false })).toBe("comment");
+    expect(keyToAction({ key: "p", shiftKey: false })).toBe("tip");
     expect(keyToAction({ key: "r", shiftKey: false })).toBe("reviewed");
     // Shift+R was the team cursor. Retired, and not rebound: curator muscle
     // memory would fire the new binding for a while.
@@ -151,7 +158,7 @@ describe("keyboard map", () => {
 describe("useCurationKeyboard", () => {
   it("calls the handler for a key and nothing while typing", () => {
     const handlers = Object.fromEntries(
-      ["next", "prev", "toggleQuickView", "vote", "reviewed", "skip", "snooze", "flag", "note", "recommend", "openExternal", "help"].map((k) => [k, vi.fn()])
+      ["next", "prev", "toggleQuickView", "vote", "comment", "tip", "reviewed", "skip", "snooze", "flag", "note", "recommend", "openExternal", "help"].map((k) => [k, vi.fn()])
     ) as unknown as CurationKeyHandlers;
     renderHook(() => useCurationKeyboard(handlers, true));
     press("j");
@@ -248,6 +255,283 @@ describe("keyboard on the queue", () => {
     // say which queue the position was earned in. The roster default is the
     // whole queue in queue order with handled rows hidden.
     expect(body.lane).toMatchObject({ sort: "queue", app: "all", hide_reviewed: true, hide_snoozed: true });
+  });
+
+  it("r takes the reviewed row out of the queue, keeps the selection on the next row and undo puts it back", async () => {
+    state.username = "curator1";
+    router.on(/curation-desk\/mark-clear$/, (_url, init) => ({
+      mark: null,
+      row: { ...makeRow({ post_id: Number(JSON.parse(String(init?.body)).permlink.split("-")[1]) }), overlay: makeOverlay() },
+    }));
+    renderWithQueryClient(<CurationQueueView />, { queryClient: client() });
+    expect(await screen.findAllByRole("article")).toHaveLength(2);
+    await act(async () => press("j"));
+    expect(document.getElementById("curation-row-title-11")?.closest("article")).toHaveAttribute("aria-current", "true");
+
+    await act(async () => press("r"));
+    // Reviewed means done for the whole team: the row leaves the unreviewed
+    // queue at once, and the next post is the selected one, not the top.
+    await waitFor(() => expect(document.getElementById("curation-row-title-11")).toBeNull());
+    expect(screen.getAllByRole("article")).toHaveLength(1);
+    expect(document.getElementById("curation-row-title-12")?.closest("article")).toHaveAttribute("aria-current", "true");
+
+    fireEvent.click(await screen.findByLabelText("curation-desk.live.undo"));
+    await waitFor(() => expect(router.callsTo(/curation-desk\/mark-clear$/)).toHaveLength(1));
+    // Back in its place, ahead of the row that had followed it.
+    await waitFor(() => expect(screen.getAllByRole("article")).toHaveLength(2));
+    expect(document.getElementById("curation-row-title-11")?.closest("article")).toBe(screen.getAllByRole("article")[0]);
+  });
+
+  it("moves the selection to the row that took the place of one a colleague reviewed", async () => {
+    state.username = "curator1";
+    renderWithQueryClient(<CurationQueueView />, { queryClient: client() });
+    expect(await screen.findAllByRole("article")).toHaveLength(2);
+    await act(async () => press("j"));
+    expect(document.getElementById("curation-row-title-11")?.closest("article")).toHaveAttribute("aria-current", "true");
+
+    router.on(/curation-desk\/tick/, () => ({
+      overlay: [],
+      deltas: { marks: [{ post_id: 11, curator: "riyat", state: "reviewed", updated_at: "2026-09-05T12:00:10" }], flags: [], signals: [] },
+      team_cursor: { post_id: null, created: null },
+      active_curators: [],
+      trail_alerts: [],
+      generated_at: "y",
+      truncated: false,
+    }));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(15_000);
+    });
+    await waitFor(() => expect(document.getElementById("curation-row-title-11")).toBeNull());
+    expect(document.getElementById("curation-row-title-12")?.closest("article")).toHaveAttribute("aria-current", "true");
+    // j from there walks on (nothing below), never back to the top.
+    await act(async () => press("j"));
+    expect(document.getElementById("curation-row-title-12")?.closest("article")).toHaveAttribute("aria-current", "true");
+  });
+
+  function tickReviewing(...ids: number[]) {
+    return () => ({
+      overlay: [],
+      deltas: { marks: ids.map((post_id) => ({ post_id, curator: "riyat", state: "reviewed", updated_at: "2026-09-05T12:00:10" })), flags: [], signals: [] },
+      team_cursor: { post_id: null, created: null },
+      active_curators: [],
+      trail_alerts: [],
+      generated_at: "y",
+      truncated: false,
+    });
+  }
+
+  it("closes a drawer open on a post a colleague took, with a word, instead of swapping the post", async () => {
+    state.username = "curator1";
+    vi.mocked(infoToast).mockClear();
+    renderWithQueryClient(<CurationQueueView />, { queryClient: client() });
+    expect(await screen.findAllByRole("article")).toHaveLength(2);
+    await act(async () => press("j"));
+    await act(async () => press("Enter"));
+    expect(screen.getByTestId("quick-view-open")).toHaveTextContent("11");
+
+    router.on(/curation-desk\/tick/, tickReviewing(11));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(15_000);
+    });
+    await waitFor(() => expect(document.getElementById("curation-row-title-11")).toBeNull());
+    // Never post 12 in the drawer: the curator did not open it.
+    expect(screen.queryByTestId("quick-view-open")).toBeNull();
+    expect(infoToast).toHaveBeenCalledWith("curation-desk.live.left-queue");
+    // The selection still moved on, so the keys keep working from there.
+    expect(document.getElementById("curation-row-title-12")?.closest("article")).toHaveAttribute("aria-current", "true");
+  });
+
+  it("keeps the drawer on the next post after the curator's own r, without the word", async () => {
+    state.username = "curator1";
+    vi.mocked(infoToast).mockClear();
+    renderWithQueryClient(<CurationQueueView />, { queryClient: client() });
+    expect(await screen.findAllByRole("article")).toHaveLength(2);
+    await act(async () => press("j"));
+    await act(async () => press("Enter"));
+    await act(async () => press("r"));
+    await waitFor(() => expect(document.getElementById("curation-row-title-11")).toBeNull());
+    expect(screen.getByTestId("quick-view-open")).toHaveTextContent("12");
+    expect(infoToast).not.toHaveBeenCalled();
+  });
+
+  it("follows the curator's own r on the last row to the row before it, drawer open, without the word", async () => {
+    state.username = "curator1";
+    vi.mocked(infoToast).mockClear();
+    renderWithQueryClient(<CurationQueueView />, { queryClient: client() });
+    expect(await screen.findAllByRole("article")).toHaveLength(2);
+    await act(async () => press("j"));
+    await act(async () => press("j"));
+    await act(async () => press("Enter"));
+    expect(screen.getByTestId("quick-view-open")).toHaveTextContent("12");
+    await act(async () => press("r"));
+    await waitFor(() => expect(document.getElementById("curation-row-title-12")).toBeNull());
+    expect(document.getElementById("curation-row-title-11")?.closest("article")).toHaveAttribute("aria-current", "true");
+    expect(screen.getByTestId("quick-view-open")).toHaveTextContent("11");
+    expect(infoToast).not.toHaveBeenCalled();
+  });
+
+  it("treats a departure after a failed mark as a colleague's: nothing of the curator's was written", async () => {
+    state.username = "curator1";
+    vi.mocked(infoToast).mockClear();
+    router.on(/curation-desk\/mark$/, () => jsonResponse({ error: "down" }, 500));
+    renderWithQueryClient(<CurationQueueView />, { queryClient: client() });
+    expect(await screen.findAllByRole("article")).toHaveLength(2);
+    await act(async () => press("j"));
+    await act(async () => press("Enter"));
+    // A snooze keeps the selection where it is until the answer, unlike r.
+    await act(async () => press("z"));
+    fireEvent.click(await screen.findByLabelText("curation-desk.snooze.preset-3"));
+    await waitFor(() => expect(router.callsTo(/curation-desk\/mark$/)).toHaveLength(1));
+    expect(screen.getByTestId("quick-view-open")).toHaveTextContent("11");
+
+    router.on(/curation-desk\/tick/, tickReviewing(11));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(15_000);
+    });
+    await waitFor(() => expect(document.getElementById("curation-row-title-11")).toBeNull());
+    expect(screen.queryByTestId("quick-view-open")).toBeNull();
+    expect(infoToast).toHaveBeenCalledWith("curation-desk.live.left-queue");
+  });
+
+  it("moves the selection to the new last row when the last one leaves", async () => {
+    state.username = "curator1";
+    renderWithQueryClient(<CurationQueueView />, { queryClient: client() });
+    expect(await screen.findAllByRole("article")).toHaveLength(2);
+    await act(async () => press("j"));
+    await act(async () => press("j"));
+    expect(document.getElementById("curation-row-title-12")?.closest("article")).toHaveAttribute("aria-current", "true");
+    router.on(/curation-desk\/tick/, tickReviewing(12));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(15_000);
+    });
+    await waitFor(() => expect(document.getElementById("curation-row-title-12")).toBeNull());
+    expect(document.getElementById("curation-row-title-11")?.closest("article")).toHaveAttribute("aria-current", "true");
+  });
+
+  it("chooses nothing in a different feed: a lens change clears the selection and closes the drawer", async () => {
+    state.username = "curator1";
+    router.on(/curation-desk\/roster-feed/, (_url, init) => {
+      const body = JSON.parse(String(init?.body));
+      return body.flagged
+        ? makeRosterPage([makeRow({ post_id: 21, overlay: makeOverlay({ team_mark: "flagged" }) }), makeRow({ post_id: 22, overlay: makeOverlay({ team_mark: "flagged" }) })])
+        : makeRosterPage([makeRow({ post_id: 11, overlay: makeOverlay() }), makeRow({ post_id: 12, overlay: makeOverlay() })]);
+    });
+    renderWithQueryClient(<CurationQueueView />, { queryClient: client() });
+    expect(await screen.findAllByRole("article")).toHaveLength(2);
+    await act(async () => press("j"));
+    await act(async () => press("j"));
+    await act(async () => press("Enter"));
+    expect(screen.getByTestId("quick-view-open")).toHaveTextContent("12");
+
+    fireEvent.click(screen.getByRole("switch", { name: "curation-desk.filters.flagged" }));
+    await waitFor(() => expect(document.getElementById("curation-row-title-21")).not.toBeNull());
+    expect(screen.queryAllByRole("article").some((a) => a.getAttribute("aria-current") === "true")).toBe(false);
+    expect(screen.queryByTestId("quick-view-open")).toBeNull();
+
+    // Back and forth once more: both feeds are cached now, so the switch
+    // lands on the other list with no empty frame in between, the case
+    // where a departed-row fallback would pick a row nobody chose.
+    fireEvent.click(screen.getByRole("switch", { name: "curation-desk.filters.flagged" }));
+    await waitFor(() => expect(document.getElementById("curation-row-title-12")).not.toBeNull());
+    await act(async () => press("j"));
+    await act(async () => press("j"));
+    await act(async () => press("Enter"));
+    expect(screen.getByTestId("quick-view-open")).toHaveTextContent("12");
+    fireEvent.click(screen.getByRole("switch", { name: "curation-desk.filters.flagged" }));
+    await waitFor(() => expect(document.getElementById("curation-row-title-22")).not.toBeNull());
+    expect(screen.queryAllByRole("article").some((a) => a.getAttribute("aria-current") === "true")).toBe(false);
+    expect(screen.queryByTestId("quick-view-open")).toBeNull();
+  });
+
+  it("leaves the selection alone when the selected row only folds into a collapsed tail", async () => {
+    state.username = "curator1";
+    // Row 11 crosses the 24 h line 30 s from now; under window=all it then
+    // folds into the half-weight tail, still loaded, just not listed.
+    router.on(/curation-desk\/roster-feed/, () =>
+      makeRosterPage([makeRow({ post_id: 11, created: iso(-(24 * 3_600_000 - 30_000)), overlay: makeOverlay() }), makeRow({ post_id: 12, overlay: makeOverlay() })])
+    );
+    renderWithQueryClient(<CurationQueueView />, { queryClient: client() });
+    expect(await screen.findAllByRole("article")).toHaveLength(2);
+    await act(async () => press("j"));
+    expect(document.getElementById("curation-row-title-11")?.closest("article")).toHaveAttribute("aria-current", "true");
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(70_000);
+    });
+    await waitFor(() => expect(document.getElementById("curation-row-title-11")).toBeNull());
+    // Not re-targeted at row 12: nothing was chosen there.
+    expect(document.getElementById("curation-row-title-12")?.closest("article")).not.toHaveAttribute("aria-current");
+  });
+
+  it("asks for the next page itself when every loaded row left live and the route holds more", async () => {
+    state.username = "curator1";
+    router.on(/curation-desk\/roster-feed/, (_url, init) => {
+      const body = JSON.parse(String(init?.body));
+      return body.cursor
+        ? makeRosterPage([makeRow({ post_id: 13, overlay: makeOverlay() })], { next_cursor: null })
+        : makeRosterPage([makeRow({ post_id: 11, overlay: makeOverlay() }), makeRow({ post_id: 12, overlay: makeOverlay() })], { next_cursor: "c12" });
+    });
+    renderWithQueryClient(<CurationQueueView />, { queryClient: client() });
+    expect(await screen.findAllByRole("article")).toHaveLength(2);
+    expect(router.callsTo(/curation-desk\/roster-feed/)).toHaveLength(1);
+
+    router.on(/curation-desk\/tick/, tickReviewing(11, 12));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(15_000);
+    });
+    // No list to reach the end of, so the view asks on its own; the empty
+    // state never shows over a queue the server still holds.
+    await waitFor(() => expect(document.getElementById("curation-row-title-13")).not.toBeNull());
+    expect(screen.queryByText("curation-desk.list.empty")).toBeNull();
+    const second = router.callsTo(/curation-desk\/roster-feed/)[1].body as Record<string, unknown>;
+    expect(second.cursor).toBe("c12");
+  });
+
+  it("binds a pending c or p to the row that asked, so moving on before the entry loads drops it", async () => {
+    state.username = "curator1";
+    renderWithQueryClient(<CurationQueueView />, { queryClient: client() });
+    await screen.findAllByRole("article");
+    await act(async () => press("j"));
+    await act(async () => press("c"));
+    expect(screen.getByTestId("quick-view-open")).toHaveAttribute("data-comment", "true");
+    // The drawer never answered (entry still loading); the curator moves on.
+    await act(async () => press("j"));
+    expect(screen.getByTestId("quick-view-open")).toHaveTextContent("12");
+    expect(screen.getByTestId("quick-view-open")).toHaveAttribute("data-comment", "false");
+    await act(async () => press("p"));
+    expect(screen.getByTestId("quick-view-open")).toHaveAttribute("data-tip", "true");
+    await act(async () => press("k"));
+    expect(screen.getByTestId("quick-view-open")).toHaveAttribute("data-tip", "false");
+    // Back on 12: nothing pending is left over from before.
+    await act(async () => press("j"));
+    expect(screen.getByTestId("quick-view-open")).toHaveAttribute("data-tip", "false");
+    // Not even for one render: the drawer consumes the flag in its own effect,
+    // which runs before the queue view could clear it.
+    expect(drawerRenders.some((r) => r.post_id === 12 && r.comment)).toBe(false);
+    expect(drawerRenders.some((r) => r.post_id === 11 && r.tip)).toBe(false);
+    expect(drawerRenders.some((r) => r.post_id === 11 && r.comment)).toBe(true);
+    expect(drawerRenders.some((r) => r.post_id === 12 && r.tip)).toBe(true);
+  });
+
+  it("does not keep asking for a next page that failed", async () => {
+    state.username = "curator1";
+    router.on(/curation-desk\/roster-feed/, (_url, init) => {
+      const body = JSON.parse(String(init?.body));
+      return body.cursor
+        ? jsonResponse({ error: "down" }, 500)
+        : makeRosterPage([makeRow({ post_id: 11, overlay: makeOverlay() }), makeRow({ post_id: 12, overlay: makeOverlay() })], { next_cursor: "c12" });
+    });
+    renderWithQueryClient(<CurationQueueView />, { queryClient: client() });
+    expect(await screen.findAllByRole("article")).toHaveLength(2);
+    router.on(/curation-desk\/tick/, tickReviewing(11, 12));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(15_000);
+    });
+    await waitFor(() => expect(router.callsTo(/curation-desk\/roster-feed/).length).toBeGreaterThanOrEqual(2));
+    // The one failed ask, and no loop behind it.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(5_000);
+    });
+    expect(router.callsTo(/curation-desk\/roster-feed/)).toHaveLength(2);
   });
 
   it("Enter opens the drawer once: the row no longer handles it too", async () => {
