@@ -175,6 +175,19 @@ describe("EntryListItem", () => {
     expect(screen.getByText("summary:")).toBeInTheDocument();
   });
 
+  it("renders a slim row's derived description as is", () => {
+    const entry = {
+      ...mockEntry({ author: "erin", permlink: "slim-post", title: "Slim Post", body: "" }),
+      slim: { ext_link: false },
+      json_metadata: { tags: ["test"], description: "*derived* text" }
+    };
+
+    renderItem(entry);
+
+    expect(screen.getByText("*derived* text")).toBeInTheDocument();
+    expect(postBodySummary).not.toHaveBeenCalledWith("*derived* text", 200);
+  });
+
   it("renders a replies link to the entry when the post has children", () => {
     const entry = mockEntry({
       author: "carol",

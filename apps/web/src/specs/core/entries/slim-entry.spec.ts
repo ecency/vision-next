@@ -32,6 +32,12 @@ describe("slimEntry", () => {
     expect(slimEntry(e).json_metadata?.description).toBe("Author summary");
   });
 
+  it("keeps a bounded excerpt of a description without spaces", () => {
+    const description = "這是一段完全沒有空格的中文描述文字".repeat(20);
+    const e = entry({ json_metadata: { description } });
+    expect(slimEntry(e).json_metadata?.description).toBe(description.slice(0, 200));
+  });
+
   it("caps an author-written description that holds the whole markdown body", () => {
     const description = "# Heading\n\n* **bold** item ![](https://images.hive.blog/x.png)\n".repeat(
       60

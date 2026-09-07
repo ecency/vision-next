@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { postBodySummary } from "@ecency/render-helper";
-import { ENTRY_SUMMARY_LENGTH, entrySummary } from "@/core/entries/entry-summary";
+import { ENTRY_SUMMARY_LENGTH, entrySummary, summarizeText } from "@/core/entries/entry-summary";
+import { slimEntry } from "@/core/entries/slim-entry";
 import type { Entry } from "@/entities";
 import { mockEntry } from "@/specs/test-utils";
 
@@ -32,7 +33,62 @@ const MARKDOWN_BODY = [
   .join("\n")
   .repeat(6);
 
+const CJK = "這是一段完全沒有空格的中文描述文字".repeat(20);
+
+describe("summarizeText", () => {
+  it("keeps a bounded excerpt of text without spaces instead of dropping it", () => {
+    expect(postBodySummary(CJK, ENTRY_SUMMARY_LENGTH)).toBe(""); // the helper's own behaviour
+    expect(summarizeText(CJK)).toBe(CJK.slice(0, ENTRY_SUMMARY_LENGTH));
+  });
+
+  it("cuts space-less text by code point, never through a surrogate pair", () => {
+    const text = summarizeText("🎉".repeat(400));
+    expect(Array.from(text)).toHaveLength(ENTRY_SUMMARY_LENGTH);
+    expect(text).toBe("🎉".repeat(ENTRY_SUMMARY_LENGTH));
+  });
+
+  it("returns an empty string for text that strips to nothing", () => {
+    expect(summarizeText("![](https://images.hive.blog/x.png)")).toBe("");
+  });
+});
+
 describe("entrySummary", () => {
+  it("keeps an excerpt of a description without spaces", () => {
+    const e = entry({ json_metadata: { description: CJK } });
+    expect(entrySummary(e)).toBe(CJK.slice(0, ENTRY_SUMMARY_LENGTH));
+  });
+
+  it("keeps that excerpt even when the body is image-only", () => {
+    const e = entry({
+      body: "![](https://images.hive.blog/x.png)",
+      json_metadata: { description: CJK }
+    });
+    expect(entrySummary(e)).toBe(CJK.slice(0, ENTRY_SUMMARY_LENGTH));
+  });
+
+  it("returns a slim row's derived description as is, without parsing it again", () => {
+    const slim = {
+      ...entry({ body: "" }),
+      slim: { ext_link: false },
+      json_metadata: { description: "*literal asterisks* and <div>kept</div>" }
+    };
+    expect(entrySummary(slim)).toBe("*literal asterisks* and <div>kept</div>");
+  });
+
+  it("shows on the card exactly what the slimmer derived (slimmer-to-card path)", () => {
+    const e = entry({
+      body: "\\*literal asterisks\\* and &lt;div&gt;encoded&lt;/div&gt; with more words"
+    });
+    // Warm render-helper's per-entry cache with the full entry first, as SSR does.
+    postBodySummary(e, ENTRY_SUMMARY_LENGTH);
+    const slim = slimEntry(e);
+
+    expect(slim.json_metadata?.description).toBe(
+      "*literal asterisks* and <div>encoded</div> with more words"
+    );
+    expect(entrySummary(slim)).toBe(slim.json_metadata?.description);
+  });
+
   it("keeps a short author-written description, trimmed", () => {
     const e = entry({ json_metadata: { description: "  Author summary  " } });
     expect(entrySummary(e)).toBe("Author summary");
