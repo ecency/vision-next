@@ -28,9 +28,14 @@
       window.location.reload();
     } catch (e) {
       // sessionStorage unavailable — fall back to URL parameter guard
-      if (window.location.search.indexOf(PARAM + "=1") !== -1) return;
-      var sep = window.location.search ? "&" : "?";
-      window.location.replace(window.location.href + sep + PARAM + "=1");
+      var loc = window.location;
+      if (loc.search.indexOf(PARAM + "=1") !== -1) return;
+      var sep = loc.search ? "&" : "?";
+      // Rebuild from the parts instead of appending to href: href carries the
+      // fragment, so "...#frag" + "?_cr=1" buries the guard INSIDE the hash,
+      // where the search check above can never see it. On a URL with a hash
+      // that made this fallback reload forever.
+      loc.replace(loc.origin + loc.pathname + loc.search + sep + PARAM + "=1" + loc.hash);
     }
   }
 

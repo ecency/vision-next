@@ -12,7 +12,11 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import usePrevious from "react-use/lib/usePrevious";
 import { Button } from "@ui/button";
 import { classNameObject } from "@ui/util";
-import { FeedMenuItem, useFeedMenu } from "@/app/_components/entry-index-menu/use-feed-menu";
+import {
+  FeedMenuItem,
+  globalFeedFallbackPath,
+  useFeedMenu
+} from "@/app/_components/entry-index-menu/use-feed-menu";
 
 const PILL_CLASS =
   "text-gray-steel hover:text-blue-dark-sky rounded-full flex items-center px-3 py-1.5";
@@ -51,8 +55,9 @@ export function EntryIndexMenu() {
 
   // Logged-out users can't view a community ("/my") feed — fall back to global.
   useEffect(() => {
-    if (pathname?.includes("/my") && !activeUser) {
-      router.push(pathname.replace("/my", ""));
+    const fallback = globalFeedFallbackPath(pathname);
+    if (fallback && !activeUser) {
+      router.push(fallback);
     }
   }, [activeUser, pathname, router]);
 
