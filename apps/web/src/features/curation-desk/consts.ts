@@ -1,3 +1,5 @@
+import type { CurationApp, CurationWindow } from "@ecency/sdk";
+
 export const QUEUE_PAGE_SIZE = 25;
 export const POLL_MS_CURATOR = 15_000;
 export const POLL_MS_PUBLIC = 60_000;
@@ -25,11 +27,24 @@ export const UNDO_REVIEWED_MS = 5_000;
 export const UNDO_CURSOR_MS = 30_000;
 export const SORT_STORAGE_KEY = "curation-desk-sort";
 export const SEED_STORAGE_KEY = "curation-desk-seed";
+/**
+ * The saved refine set, per account: `{ v, users: { [username]: { filters } } }`.
+ * The sort keeps its own key above and the seed is never persisted; see
+ * SAVED_FILTER_FIELDS for why the rest of the panel is in or out.
+ */
+export const FILTERS_STORAGE_KEY = "curation-desk-filters";
+export const SAVED_FILTERS_VERSION = 1;
 export const MY_MARKS_KEY_SUFFIX = "my-marks";
 /** Marks per page; the route answers a `next_cursor` while more remain. */
 export const MY_MARKS_PAGE_SIZE = 50;
 /** Word count presets, offered as both a minimum and a maximum. */
 export const WORD_PRESETS = [300, 600, 1000] as const;
+/**
+ * The option lists the two selects render. They live here so the select and
+ * the saved-filter validator can never drift apart.
+ */
+export const CURATION_APPS: CurationApp[] = ["all", "ecency", "peakd", "other"];
+export const CURATION_WINDOWS: CurationWindow[] = ["all", "full", "half", "eighth", "locked"];
 /** Vote is hidden under this payout scale-down factor (percent). */
 export const LOCKED_VOTE_FLOOR_PCT = 25;
 export const HOUR_MS = 3_600_000;

@@ -6,7 +6,7 @@ import { UilAngleDown, UilSlidersVAlt } from "@tooni/iconscout-unicons-react";
 import type { CurationApp, CurationWindow } from "@ecency/sdk";
 import { Button } from "@ui/button";
 import { FormControl } from "@ui/input";
-import { WORD_PRESETS } from "./consts";
+import { CURATION_APPS, CURATION_WINDOWS, WORD_PRESETS } from "./consts";
 import { countActiveFilters } from "./hooks";
 import type { QueueFilters, ResolvedQueueFilters } from "./types";
 
@@ -48,9 +48,6 @@ function ToggleChip({
   );
 }
 
-const APPS: CurationApp[] = ["all", "ecency", "peakd", "other"];
-const WINDOWS: CurationWindow[] = ["all", "full", "half", "eighth", "locked"];
-
 /**
  * Filter chips of spec 8.13. Every chip maps to a server param through
  * filtersToParams, never to a client-side row filter.
@@ -58,6 +55,13 @@ const WINDOWS: CurationWindow[] = ["all", "full", "half", "eighth", "locked"];
 export function CurationSortFilterBar({ filters, isRoster, communities, onChange }: Props) {
   // Same tally the toolbar's Reset button shows, minus the two chips above.
   const advancedCount = countActiveFilters(filters, isRoster, "refine");
+  // The facets are the server's global top list, so a restored (or simply
+  // rarer) community can be absent from it. Without this the select would show
+  // "All communities" while the request filters by one.
+  const communityOptions =
+    filters.community && !communities.some((c) => c.community === filters.community)
+      ? [{ community: filters.community }, ...communities]
+      : communities;
   return (
     <div
       className="flex flex-wrap items-start gap-3 px-4 pb-4 sm:px-5 text-xs"
@@ -116,7 +120,7 @@ export function CurationSortFilterBar({ filters, isRoster, communities, onChange
                   onChange({ app: e.target.value as CurationApp })
                 }
               >
-                {APPS.map((app) => (
+                {CURATION_APPS.map((app) => (
                   <option key={app} value={app}>
                     {i18next.t(`curation-desk.filters.app-${app}`)}
                   </option>
@@ -135,7 +139,7 @@ export function CurationSortFilterBar({ filters, isRoster, communities, onChange
                 }
               >
                 <option value="">{i18next.t("curation-desk.filters.community-all")}</option>
-                {communities.map((c) => (
+                {communityOptions.map((c) => (
                   <option key={c.community} value={c.community}>
                     {c.title || c.community}
                     {c.count != null ? ` (${c.count})` : ""}
@@ -186,7 +190,7 @@ export function CurationSortFilterBar({ filters, isRoster, communities, onChange
                   onChange({ window: e.target.value as CurationWindow })
                 }
               >
-                {WINDOWS.map((w) => (
+                {CURATION_WINDOWS.map((w) => (
                   <option key={w} value={w}>
                     {i18next.t(`curation-desk.filters.window-${w}`)}
                   </option>

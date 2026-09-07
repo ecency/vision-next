@@ -100,11 +100,14 @@ export function CurationQueueView() {
   const recommendationsEnabled = EcencyConfigManager.useConfig(
     ({ visionFeatures }) => visionFeatures.curationDesk.recommendations.enabled
   );
-  const { filters, params, update, reset, reshuffle, activeCount } = useQueueFilters(viewer.isRoster);
+  const { filters, params, update, reset, reshuffle, activeCount, restored, savedOwner } =
+    useQueueFilters(viewer.isRoster);
   const publicParams = useMemo(() => filtersToParams(filters, false), [filters]);
 
-  const rosterFeed = useCurationRosterFeed(viewer.username, params, viewer.isRoster);
-  const publicFeed = useCurationFeed(publicParams, !viewer.isRoster && !viewer.isLoading);
+  // Both feeds wait for the saved refine set, so the desk issues exactly one
+  // page-one request instead of one on the defaults and a second to correct it.
+  const rosterFeed = useCurationRosterFeed(viewer.username, params, viewer.isRoster && restored);
+  const publicFeed = useCurationFeed(publicParams, restored && !viewer.isRoster && !viewer.isLoading);
   const feed = viewer.isRoster ? rosterFeed : publicFeed;
   const status = useCurationStatus();
 
@@ -381,7 +384,10 @@ export function CurationQueueView() {
 
   // The roster lookup decides WHICH feed is read, so "nothing here" cannot be
   // said while it, or the feed it selects, is still in flight.
-  const empty = !viewer.isLoading && !feed.isLoading && !feed.isFetching && rows.length === 0;
+  // A disabled query reports isLoading false, so the restore gate belongs in
+  // both conditions: without it the shell would paint "nothing to review"
+  // before the first request has even been allowed to go out.
+  const empty = restored && !viewer.isLoading && !feed.isLoading && !feed.isFetching && rows.length === 0;
 
   return (
     <div className="bg-white dark:bg-dark-200 rounded-2xl overflow-hidden" data-curation-queue>
@@ -401,8 +407,14 @@ export function CurationQueueView() {
         onSort={(sort) => update({ sort })}
         onReshuffle={reshuffle}
         onReset={reset}
+        savedOwner={savedOwner}
       />
-      <CurationSortFilterBar filters={filters} isRoster={viewer.isRoster} communities={communities} onChange={update} />
+      <CurationSortFilterBar
+        filters={filters}
+        isRoster={viewer.isRoster}
+        communities={communities}
+        onChange={update}
+      />
 
       <div className="sr-only" aria-live="polite" role="status">
         {undo?.message ?? ""}
@@ -424,8 +436,8 @@ export function CurationQueueView() {
         </div>
       )}
 
-      <div role="feed" aria-busy={feed.isFetching} aria-label={i18next.t("curation-desk.list.aria")} className="border-t border-[--border-color]">
-        {feed.isLoading && <CurationQueueSkeleton />}
+      <div role="feed" aria-busy={feed.isFetching || !restored} aria-label={i18next.t("curation-desk.list.aria")} className="border-t border-[--border-color]">
+        {(!restored || feed.isLoading) && <CurationQueueSkeleton />}
         {feed.isError && (
           <p className="p-4 text-sm text-red-030 dark:text-red-light-020" role="alert">
             {i18next.t("curation-desk.list.error")}

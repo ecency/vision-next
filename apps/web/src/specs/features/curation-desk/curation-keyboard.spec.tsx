@@ -183,6 +183,10 @@ describe("keyboard on the queue", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.useRealTimers();
+    // Vitest isolates per file, not per test, and the refine filters now
+    // persist: without this a filter set in one case narrows the next one.
+    window.localStorage.clear();
+    window.sessionStorage.clear();
   });
 
   it("j and k move aria-current across rows", async () => {

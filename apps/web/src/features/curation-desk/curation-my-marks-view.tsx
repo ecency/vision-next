@@ -14,9 +14,17 @@ import { Chip } from "./curation-chip";
 import { formatUtcDateHm } from "./curation-window";
 import { useClearMark, useMyMarks, useViewerRole } from "./hooks";
 
-const TABS: CurationMarkState[] = ["snoozed", "flagged", "reviewed", "noted"];
+/**
+ * "All" first, then the four states. A mark is written by the review actions
+ * only: a vote is not a mark, so a post the curator curated is never in this
+ * list. Opening on a single state hid every other one behind a pill that
+ * carried no count, which read as "my marks are not showing".
+ */
+type MarksTab = "all" | CurationMarkState;
+const TABS: MarksTab[] = ["all", "reviewed", "snoozed", "flagged", "noted"];
 
-function MarksList({ state }: { state: CurationMarkState }) {
+function MarksList({ tab }: { tab: MarksTab }) {
+  const state = tab === "all" ? undefined : tab;
   const { data, isLoading, isError, hasNextPage, isFetchingNextPage, fetchNextPage } = useMyMarks(state);
   const clearMark = useClearMark();
   // Keyset pages, appended: the route hands back a cursor while more remain.
@@ -27,7 +35,18 @@ function MarksList({ state }: { state: CurationMarkState }) {
   // so the full-page error is only right while nothing is on screen.
   if (isError && items.length === 0)
     return <p className="p-4 text-sm text-red-030 dark:text-red-light-020" role="alert">{i18next.t("curation-desk.list.error")}</p>;
-  if (!items.length) return <p className="p-6 text-sm text-gray-500 text-center">{i18next.t("curation-desk.marks-view.empty")}</p>;
+  // Naming the tab matters: the generic sentence under a state pill reads as
+  // "the desk lost my marks" rather than "this state has none".
+  if (!items.length)
+    return (
+      <p className="p-6 text-sm text-gray-500 text-center">
+        {tab === "all"
+          ? i18next.t("curation-desk.marks-view.empty")
+          : i18next.t("curation-desk.marks-view.empty-state", {
+              state: i18next.t(`curation-desk.mark-states.${tab}`).toLowerCase()
+            })}
+      </p>
+    );
 
   return (
     <>
@@ -41,6 +60,10 @@ function MarksList({ state }: { state: CurationMarkState }) {
               <div className="flex flex-wrap items-center gap-2 text-xs text-gray-600 dark:text-gray-400 mt-0.5">
                 <span>@{mark.author}</span>
                 <span>{dateToRelative(mark.updated_at)}</span>
+                {/* The All tab mixes states, so each row names its own. */}
+                {tab === "all" && (
+                  <Chip tone="gray">{i18next.t(`curation-desk.mark-states.${mark.state}`)}</Chip>
+                )}
                 {mark.state === "snoozed" && mark.snooze_until && (
                   <Chip tone="amber">{i18next.t("curation-desk.marks-view.until", { until: formatUtcDateHm(mark.snooze_until) })}</Chip>
                 )}
@@ -89,10 +112,10 @@ function MarksList({ state }: { state: CurationMarkState }) {
   );
 }
 
-/** My marks: snoozed, flagged, reviewed and noted, one tab each. Roster only. */
+/** My marks: everything, then one tab per state. Roster only. */
 export function CurationMyMarksView() {
   const viewer = useViewerRole();
-  const [state, setState] = useState<CurationMarkState>("snoozed");
+  const [tab, setTab] = useState<MarksTab>("all");
 
   return (
     <div className="bg-white dark:bg-dark-200 rounded-2xl overflow-hidden">
@@ -103,24 +126,29 @@ export function CurationMyMarksView() {
           <p className="p-6 text-sm text-gray-500 text-center">{i18next.t("curation-desk.marks-view.roster-only")}</p>
         ) : (
           <>
-            <div role="tablist" aria-label={i18next.t("curation-desk.marks-view.title")} className="flex gap-1 px-3 py-2 border-b border-[--border-color]">
-              {TABS.map((tab) => (
+            <div role="tablist" aria-label={i18next.t("curation-desk.marks-view.title")} className="flex gap-1 overflow-x-auto px-3 py-2 border-b border-[--border-color]">
+              {TABS.map((value) => (
                 <button
-                  key={tab}
+                  key={value}
                   type="button"
                   role="tab"
-                  aria-selected={state === tab}
+                  aria-selected={tab === value}
                   className={clsx(
-                    "rounded-full px-3 py-1 text-xs",
-                    state === tab ? "bg-blue-dark-sky text-white" : "bg-gray-100 dark:bg-dark-default text-gray-700 dark:text-gray-300"
+                    "shrink-0 rounded-full px-3 py-1 text-xs",
+                    tab === value ? "bg-blue-dark-sky text-white" : "bg-gray-100 dark:bg-dark-default text-gray-700 dark:text-gray-300"
                   )}
-                  onClick={() => setState(tab)}
+                  onClick={() => setTab(value)}
                 >
-                  {i18next.t(`curation-desk.mark-states.${tab}`)}
+                  {value === "all"
+                    ? i18next.t("curation-desk.marks-view.all")
+                    : i18next.t(`curation-desk.mark-states.${value}`)}
                 </button>
               ))}
             </div>
-            <MarksList state={state} />
+            <p className="px-3 pt-2 text-xs text-gray-500">
+              {i18next.t("curation-desk.marks-view.votes-hint")}
+            </p>
+            <MarksList tab={tab} />
           </>
         )}
       </LoginRequired>

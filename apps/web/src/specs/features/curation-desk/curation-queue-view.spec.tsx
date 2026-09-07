@@ -124,6 +124,10 @@ describe("CurationQueueView", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.useRealTimers();
+    // Vitest isolates per file, not per test, and the refine filters now
+    // persist: without this a filter set in one case narrows the next one.
+    window.localStorage.clear();
+    window.sessionStorage.clear();
   });
 
   it("requests page 1 on mount without endReached (initialData trap guard)", async () => {
@@ -135,6 +139,32 @@ describe("CurationQueueView", () => {
     expect(call.url).not.toContain("cursor=");
     // No roster lookup for an anonymous visitor.
     expect(fetchRouter.callsTo(/curation-desk\/roster$/)).toHaveLength(0);
+  });
+
+  /**
+   * The saved refine set is read in an effect, so both feeds wait for it. The
+   * public feed is the path that proves it: on a hard load the store has not
+   * published the active user yet, so the viewer reads as anonymous and the
+   * feed is enabled on the very first render. Without the gate it asks for
+   * page 1 on the defaults and then again on the restored params.
+   */
+  it("issues exactly one page-1 request, already carrying the saved filters", async () => {
+    // The store fills activeUser in its own mount effect, so this is undefined
+    // on the first render while the key it reads is already there.
+    state.username = undefined;
+    window.localStorage.setItem("ecency_active_user", JSON.stringify("member1"));
+    window.localStorage.setItem(
+      "ecency_curation-desk-filters",
+      JSON.stringify({ v: 1, users: { member1: { filters: { app: "peakd" } } } })
+    );
+
+    renderWithQueryClient(<CurationQueueView />, { queryClient: prodLikeClient() });
+
+    await waitFor(() => expect(fetchRouter.callsTo(/curation-desk\/feed/)).toHaveLength(1));
+    expect(fetchRouter.callsTo(/curation-desk\/feed/)[0].url).toContain("app=peakd");
+    // Nothing went out on the defaults first, and nothing follows to correct it.
+    await waitFor(() => expect(screen.getAllByRole("article").length).toBeGreaterThan(0));
+    expect(fetchRouter.callsTo(/curation-desk\/feed/)).toHaveLength(1);
   });
 
   it("loads the roster feed with hide_reviewed on the key for a roster user", async () => {

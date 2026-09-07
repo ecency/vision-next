@@ -106,6 +106,10 @@ describe("row identity across a tick", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.useRealTimers();
+    // Vitest isolates per file, not per test, and the refine filters now
+    // persist: without this a filter set in one case narrows the next one.
+    window.localStorage.clear();
+    window.sessionStorage.clear();
   });
 
   it("hands an untouched row the SAME object after a delta on its neighbour", async () => {
