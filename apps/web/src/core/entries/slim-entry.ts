@@ -1,8 +1,9 @@
-import { catchPostImage, getEntryImageRawUrl, postBodySummary } from "@ecency/render-helper";
+import { catchPostImage, getEntryImageRawUrl } from "@ecency/render-helper";
 import { hasExternalLink } from "@ecency/sdk";
 import { Entry } from "@/entities";
 import { parseEntryLocationFromBody } from "./entry-location";
 import { annotateLanguageHints } from "./language-hint";
+import { ENTRY_SUMMARY_LENGTH, entrySummary } from "./entry-summary";
 
 /**
  * Feed cards render a ~200 character summary and a thumbnail, but the bridge
@@ -22,7 +23,7 @@ import { annotateLanguageHints } from "./language-hint";
  */
 
 /** Same length the card passes to postBodySummary, so the text is unchanged. */
-export const SLIM_SUMMARY_LENGTH = 200;
+export const SLIM_SUMMARY_LENGTH = ENTRY_SUMMARY_LENGTH;
 
 /**
  * The first usable URL in an author-written metadata field.
@@ -90,13 +91,9 @@ function pickThumbnail(entry: Entry): string | undefined {
 }
 
 function pickDescription(entry: Entry): string {
-  const existing = entry.json_metadata?.description;
-  if (typeof existing === "string" && existing.trim().length > 0) {
-    return existing.trim();
-  }
-
-  // Same call the card makes, so posts keep the summary they show today.
-  const summary = postBodySummary(entry, SLIM_SUMMARY_LENGTH)?.trim();
+  // Same call the card makes, so posts keep the summary they show today. This
+  // also caps an oversized author-set description before it rides the payload.
+  const summary = entrySummary(entry, SLIM_SUMMARY_LENGTH);
   if (summary) {
     return summary;
   }

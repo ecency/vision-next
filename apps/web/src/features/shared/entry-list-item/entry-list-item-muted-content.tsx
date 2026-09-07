@@ -5,12 +5,12 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Entry } from "@/entities";
 import { EntryListItemThumbnail } from "@/features/shared/entry-list-item/entry-list-item-thumbnail";
 import { EntryLink } from "@/features/shared";
-import { postBodySummary } from "@ecency/render-helper";
 import { useGlobalStore } from "@/core/global-store";
 import { EcencyClientServerBridge } from "@/core/client-server-bridge";
 import { EntryListItemContext } from "@/features/shared/entry-list-item/entry-list-item-context";
 import { ContentModerationReason } from "@ecency/sdk";
 import { getEntryModerationReason } from "@/core/entries/entry-moderation";
+import { entrySummary } from "@/core/entries/entry-summary";
 import Link from "next/link";
 import { UilMapPinAlt } from "@tooni/iconscout-unicons-react";
 import { useEntryLocation } from "@/utils";
@@ -28,6 +28,7 @@ export function EntryListItemMutedContent({ entry: entryProp, isThumbLcp }: Prop
 
   const entry = useMemo(() => entryProp.original_entry || entryProp, [entryProp]);
   const isCrossPost = useMemo(() => !!entry.original_entry, [entry.original_entry]);
+  const summary = useMemo(() => entrySummary(entry), [entry]);
 
   // Which rule fired (moderator action, downvotes, low-trust promo) is decided in
   // the SDK, so the mobile app flags the very same posts for the very same reason.
@@ -106,9 +107,7 @@ export function EntryListItemMutedContent({ entry: entryProp, isThumbLcp }: Prop
             </Link>
           )}
           <EntryLink entry={isCrossPost ? entryProp : entry}>
-            <div className="item-body">
-              {entry.json_metadata?.description || postBodySummary(entry, 200)}
-            </div>
+            <div className="item-body">{summary}</div>
           </EntryLink>
         </div>
       </div>
