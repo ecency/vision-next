@@ -14,19 +14,29 @@ vi.mock("@ecency/sdk", async () => ({
 
 const MINUTE = 60 * 1000;
 
-function createStorage(seed: Record<string, string> = {}) {
+function createStorage(seed: Record<string, string> = {}, writeDelayMs = 0) {
   const map = new Map<string, string>(Object.entries(seed));
+  /** Every operation in the order it reached storage, for the ordering test. */
+  const ops: string[] = [];
   const storage: PersistStorage = {
     read: async (key) => map.get(key) ?? null,
     write: async (key, value) => {
+      // A real store does not settle a write in the same microtask a key list
+      // settles in. Without that asymmetry an unserialised prune still happens
+      // to land in the right order here and the ordering test proves nothing.
+      if (writeDelayMs > 0) {
+        await new Promise((resolve) => setTimeout(resolve, writeDelayMs));
+      }
+      ops.push(`write:${key}`);
       map.set(key, value);
     },
     remove: async (key) => {
+      ops.push(`remove:${key}`);
       map.delete(key);
     },
     keys: async () => [...map.keys()]
   };
-  return { map, storage };
+  return { map, ops, storage };
 }
 
 function makeClient() {
@@ -145,16 +155,23 @@ describe("query cache persistence", () => {
   it("lets the outgoing account's last write land before the next prunes it", async () => {
     // Both instances touch the same store in the same tick on an account
     // switch. Unordered, the write recreates the record the prune just removed.
+    // Asserted on the operation order rather than on the record being absent:
+    // a prune removes a key that was never written just as happily, so the
+    // end state alone cannot tell the fix from the bug.
     const client = makeClient();
     client.setQueryData(feedKey("alice"), { pages: [[entry("a")]], pageParams: [null] });
-    const { map, storage } = createStorage();
+    const { map, ops, storage } = createStorage({}, 5);
 
     const disposeAlice = startQueryCachePersistence(client, "alice", storage);
     disposeAlice();
     const disposeBob = startQueryCachePersistence(client, "bob", storage);
 
-    await vi.waitFor(() => expect(map.has("queries:alice")).toBe(false));
+    await vi.waitFor(() => expect(ops).toContain("remove:queries:alice"));
     disposeBob();
+
+    expect(ops).toContain("write:queries:alice");
+    expect(ops.indexOf("write:queries:alice")).toBeLessThan(ops.indexOf("remove:queries:alice"));
+    expect(map.has("queries:alice")).toBe(false);
   });
 
   it("writes only the families a first paint reads", async () => {
