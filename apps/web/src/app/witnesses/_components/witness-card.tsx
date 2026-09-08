@@ -16,7 +16,7 @@ interface Props {
 
 export const WitnessCard = ({ row, witness, onVotersClick }: Props) => {
   return (
-    <div className="witnesses-card p-3 mb-3 border border-[--border-color] rounded">
+    <div className="witnesses-card p-3 mb-3 border border-[--border-color] rounded-xl">
       <div className="flex items-center justify-between">
         <div>
           <h3>

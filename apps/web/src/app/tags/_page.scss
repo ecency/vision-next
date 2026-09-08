@@ -10,14 +10,6 @@
     border-radius: 12px;
     margin-bottom: 24px;
 
-    @include themify(day) {
-      @apply bg-white;
-    }
-
-    @include themify(night) {
-      @apply bg-dark-200;
-    }
-
     .header-title {
       @apply text-blue-dark-sky;
       font-size: 26px;
@@ -38,11 +30,13 @@
     margin-bottom: 16px;
 
     @include themify(day) {
-      @apply border-gray-200 bg-white;
+      border-color: var(--border-color);
+      background: var(--reading-surface-bg);
     }
 
     @include themify(night) {
-      @apply border-dark-200 bg-dark-200;
+      border-color: var(--border-color);
+      background: var(--reading-surface-bg);
     }
 
     table {
@@ -105,11 +99,13 @@
     text-align: center;
 
     @include themify(day) {
-      @apply bg-white text-gray-600;
+      @apply text-gray-600;
+      background: var(--reading-surface-bg);
     }
 
     @include themify(night) {
-      @apply bg-dark-200 text-blue-powder;
+      @apply text-blue-powder;
+      background: var(--reading-surface-bg);
     }
   }
 }

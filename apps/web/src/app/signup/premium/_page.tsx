@@ -227,7 +227,7 @@ export function PremiumSignUp() {
 
   return (
     <div className="max-w-[500px] mx-auto">
-      <div className="bg-white dark:bg-dark-200 rounded-2xl p-6 md:p-8">
+      <div className="reading-surface rounded-2xl p-6 md:p-8">
         <h2 className="text-2xl font-bold mb-2">{i18next.t("signup-options.premium.title")}</h2>
         <p className="opacity-60 mb-4">{i18next.t("sign-up.buy-account-desc")}</p>
 

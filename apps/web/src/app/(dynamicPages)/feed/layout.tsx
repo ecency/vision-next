@@ -14,15 +14,17 @@ import "./feed-reading.scss";
 
 export default function FeedLayout({ children }: PropsWithChildren) {
   return (
-    <div className="feed-page reading-page">
+    <div className="feed-page reading-page reading-background">
       <ScrollToTop />
       <Theme />
       <Feedback />
       <Navbar />
       <div className="app-content entry-index-page feed-reading-layout reading-list-layout">
         <div className="tags-side">
-          <MyFavoritesWidget />
-          <TrendingTagsCard />
+          <div className="reading-surface border border-[--border-color] rounded-xl p-4">
+            <MyFavoritesWidget />
+            <TrendingTagsCard />
+          </div>
         </div>
         <div className="entry-page-content">
           <div className="page-tools">
@@ -32,7 +34,9 @@ export default function FeedLayout({ children }: PropsWithChildren) {
         </div>
         <div className="side-menu">
           <FeatureSpotlightWidget />
-          <TopCommunitiesWidget />
+          <div className="reading-surface border border-[--border-color] rounded-xl p-4">
+            <TopCommunitiesWidget />
+          </div>
         </div>
       </div>
     </div>

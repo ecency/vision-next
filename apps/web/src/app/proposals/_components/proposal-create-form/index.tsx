@@ -309,7 +309,7 @@ export function ProposalCreateForm() {
       {step === 1 && (
         <div
           className={clsx(
-            "transaction-form rounded-2xl border border-[--border-color] bg-white dark:bg-dark-default shadow-sm",
+            "transaction-form rounded-2xl border border-[--border-color] reading-surface shadow-sm",
             isPending && "in-progress"
           )}
         >
@@ -363,7 +363,7 @@ export function ProposalCreateForm() {
                     setShow={(next) => {
                       setShowPermlinkSuggestions(next && isAuthenticated && !isPending);
                     }}
-                    customClassName="bg-white dark:bg-dark-default border border-[--border-color] rounded-xl shadow-lg"
+                    customClassName="reading-surface border border-[--border-color] rounded-xl shadow-lg"
                     behavior="click"
                     directContent={
                       <FormControl
@@ -490,7 +490,7 @@ export function ProposalCreateForm() {
                     show={showStartPicker}
                     setShow={setShowStartPicker}
                     behavior="click"
-                    customClassName="bg-white dark:bg-dark-default border border-[--border-color] rounded-2xl shadow-lg"
+                    customClassName="reading-surface border border-[--border-color] rounded-2xl shadow-lg"
                     directContent={
                       <Button
                         type="button"
@@ -527,7 +527,7 @@ export function ProposalCreateForm() {
                     show={showEndPicker}
                     setShow={setShowEndPicker}
                     behavior="click"
-                    customClassName="bg-white dark:bg-dark-default border border-[--border-color] rounded-2xl shadow-lg"
+                    customClassName="reading-surface border border-[--border-color] rounded-2xl shadow-lg"
                     directContent={
                       <Button
                         type="button"
@@ -612,7 +612,7 @@ export function ProposalCreateForm() {
       {step === 2 && (
         <div
           className={clsx(
-            "transaction-form rounded-2xl border border-[--border-color] bg-white dark:bg-dark-default shadow-sm",
+            "transaction-form rounded-2xl border border-[--border-color] reading-surface shadow-sm",
             isPending && "in-progress"
           )}
         >
@@ -691,7 +691,7 @@ export function ProposalCreateForm() {
       )}
 
       {step === 3 && (
-        <div className="transaction-form rounded-2xl border border-[--border-color] bg-white dark:bg-dark-default shadow-sm">
+        <div className="transaction-form rounded-2xl border border-[--border-color] reading-surface shadow-sm">
           <div className="transaction-form-header px-6 py-5">
             <div className="step-no">3</div>
             <div className="box-titles">

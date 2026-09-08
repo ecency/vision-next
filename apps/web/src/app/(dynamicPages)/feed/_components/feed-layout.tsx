@@ -1,7 +1,7 @@
 "use client";
 
 import { ListStyle } from "@/enums";
-import { PropsWithChildren, useEffect, useRef, useState } from "react";
+import { PropsWithChildren, ReactNode, useEffect, useRef, useState } from "react";
 import { useGlobalStore } from "@/core/global-store";
 import { usePostsFeedQuery } from "@/api/queries";
 import { Entry, SearchResponse } from "@/entities";
@@ -27,6 +27,10 @@ interface Props {
   filter: string;
   tag: string;
   observer?: string;
+  /** Rendered above the post list, outside the list surface (tag header, onboarding). */
+  before?: ReactNode;
+  /** Rendered below the post list, outside the list surface (archive pager). */
+  after?: ReactNode;
 }
 
 // Union for a single page
@@ -205,6 +209,8 @@ export function FeedLayout(props: PropsWithChildren<Props>) {
             </div>
         )}
 
+        {props.before}
+
         <div className={`entry-list-body ${listStyle === ListStyle.grid ? "grid-view" : ""}`}>
           {isFetching && <LinearProgress />}
 
@@ -221,6 +227,8 @@ export function FeedLayout(props: PropsWithChildren<Props>) {
 
           {props.children}
         </div>
+
+        {props.after}
       </div>
   );
 }

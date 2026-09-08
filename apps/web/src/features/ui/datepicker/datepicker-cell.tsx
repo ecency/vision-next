@@ -36,7 +36,7 @@ export function DatepickerCell({ day, value, calendarValue, onPick }: Props) {
       className={clsx(
         isAnotherMonth && "opacity-50",
         isPast && "!opacity-25 !cursor-not-allowed",
-        "cursor-pointer text-base h-[54px] flex items-center justify-center rounded-xl text-gray-800 dark:text-gray-200  hover:bg-blue-duck-egg hover:text-blue-dark-sky hover:dark:bg-dark-default focus:text-blue-dark-sky-active focus:dark:bg-dark-200",
+        "cursor-pointer text-base h-[54px] flex items-center justify-center rounded-xl text-gray-800 dark:text-gray-200  hover:bg-blue-duck-egg hover:text-blue-dark-sky hover:dark:bg-dark-default focus:text-blue-dark-sky-active focus:dark:bg-dark-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-dark-sky",
         hasSelected && "bg-gray-200 !text-blue-dark-sky dark:bg-gray-800"
       )}
       role="button"

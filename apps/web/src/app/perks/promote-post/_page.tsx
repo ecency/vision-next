@@ -30,7 +30,7 @@ export function PromotePost() {
   );
 
   return (
-    <div className="p-2 md:p-4 lg:p-6 bg-white rounded-xl w-full flex flex-col gap-4">
+    <div className="p-2 md:p-4 lg:p-6 reading-surface rounded-xl w-full flex flex-col gap-4">
       <div>
         <Link href="/perks">
           <Button

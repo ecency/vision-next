@@ -36,3 +36,8 @@
     }
   }
 }
+
+.reading-background .contributors .contributors-list .list-body .list-item {
+  background: var(--reading-surface-bg);
+  border: 1px solid var(--border-color);
+}

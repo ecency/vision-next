@@ -14,7 +14,7 @@ interface Props {
 
 export function MajorPerkCard({ title, img, subtitle, actionText, icon, onClick }: Props) {
   return (
-    <div className="bg-white h-full rounded-3xl cursor-pointer p-6 relative overflow-hidden">
+    <div className="reading-surface h-full rounded-3xl cursor-pointer p-6 relative overflow-hidden">
       <Image
         width={1000}
         height={1000}

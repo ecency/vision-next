@@ -74,7 +74,17 @@ export default async function CommunityPostsPage({ params, searchParams }: Props
 
     return (
       <HydrationBoundary state={dehydrate(getQueryClient())}>
-        <ProfileEntriesLayout section={tag} username={community}>
+        <ProfileEntriesLayout
+          section={tag}
+          username={community}
+          after={
+            <EntryArchivePager
+              basePath={basePath}
+              olderCursor={archive.nextCursor ? cursorToken(archive.nextCursor) : null}
+              showLatest={true}
+            />
+          }
+        >
           <EntryListContent
             community={communityData}
             username={community}
@@ -82,11 +92,6 @@ export default async function CommunityPostsPage({ params, searchParams }: Props
             entries={archiveEntries}
             loading={false}
             sectionParam={tag}
-          />
-          <EntryArchivePager
-            basePath={basePath}
-            olderCursor={archive.nextCursor ? cursorToken(archive.nextCursor) : null}
-            showLatest={true}
           />
         </ProfileEntriesLayout>
       </HydrationBoundary>
@@ -139,7 +144,15 @@ export default async function CommunityPostsPage({ params, searchParams }: Props
         </div>
       )}
 
-      <ProfileEntriesLayout section={tag} username={community}>
+      <ProfileEntriesLayout
+        section={tag}
+        username={community}
+        after={
+          olderCursor && (
+            <EntryArchivePager basePath={basePath} olderCursor={olderCursor} showLatest={false} />
+          )
+        }
+      >
         <EntryListContent
           community={communityData}
           username={community}
@@ -154,9 +167,6 @@ export default async function CommunityPostsPage({ params, searchParams }: Props
           section={tag}
           initialEntryAuthors={flatEntries.map((entry) => entry.author)}
         />
-        {olderCursor && (
-          <EntryArchivePager basePath={basePath} olderCursor={olderCursor} showLatest={false} />
-        )}
       </ProfileEntriesLayout>
     </HydrationBoundary>
   );

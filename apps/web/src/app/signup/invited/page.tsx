@@ -124,7 +124,7 @@ export default function InvitedSignupPage() {
 
   return (
     <div className="max-w-[540px] mx-auto">
-      <div className="bg-white dark:bg-dark-200 rounded-2xl p-6 md:p-8">
+      <div className="reading-surface rounded-2xl p-6 md:p-8">
         <h2 className="text-2xl font-bold mb-2">
           {i18next.t("onboard.title-visitor", { defaultValue: "Get invited by a friend" })}
         </h2>

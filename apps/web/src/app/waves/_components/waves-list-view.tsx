@@ -206,7 +206,7 @@ export function WavesListView({ feedType, username }: Props) {
 
   if (isError && combinedDataFlow.length === 0) {
     return (
-      <div className="rounded-2xl bg-white dark:bg-dark-200 p-4 text-sm text-gray-700 dark:text-gray-300">
+      <div className="rounded-2xl reading-surface p-4 text-sm text-gray-700 dark:text-gray-300">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-1">
             <div className="font-semibold">
@@ -235,7 +235,7 @@ export function WavesListView({ feedType, username }: Props) {
   // left to paginate) — e.g. a tag/source with no waves or a fresh Following feed.
   if (isFetched && !isError && combinedDataFlow.length === 0 && !hasNextPage) {
     return (
-      <div className="rounded-2xl bg-white dark:bg-dark-200 p-4 text-sm text-gray-700 dark:text-gray-300">
+      <div className="rounded-2xl reading-surface p-4 text-sm text-gray-700 dark:text-gray-300">
         <div className="font-semibold">{i18next.t("waves.feed.empty-title")}</div>
         <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
           {i18next.t("waves.feed.empty-subtitle")}

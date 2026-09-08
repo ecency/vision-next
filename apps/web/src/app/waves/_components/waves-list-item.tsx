@@ -262,7 +262,7 @@ export const WavesListItem = React.memo(function WavesListItem({
     <div
       ref={rootRef}
       className={clsx(
-        "waves-list-item bg-white dark:bg-dark-200 relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-dark-sky",
+        "waves-list-item reading-surface relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-dark-sky",
         "border-b border-[--border-color] last:border-b-0",
         isMuted && "grayscale opacity-50",
         interactable && "cursor-pointer",

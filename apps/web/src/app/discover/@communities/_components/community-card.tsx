@@ -15,7 +15,7 @@ interface Props {
 export function CommunityCard({ community, i }: Props) {
   return (
     <CommunityCardAnimated
-      className="col-span-12 sm:col-span-6 lg:col-span-4 border border-[--border-color] bg-white dark:bg-dark-200 rounded-2xl p-4 flex flex-col justify-between gap-4"
+      className="col-span-12 sm:col-span-6 lg:col-span-4 border border-[--border-color] reading-surface rounded-2xl p-4 flex flex-col justify-between gap-4"
       i={i}
     >
       <div className="uppercase text-xs font-semibold opacity-25">{i18next.t("g.community")}</div>
@@ -23,7 +23,7 @@ export function CommunityCard({ community, i }: Props) {
         <Link href={`/created/${community.name}`}>
           <UserAvatar username={community.name} size="large" />
         </Link>
-        <div className="flex flex-col gap-2">
+        <div className="min-w-0 flex-1 flex flex-col gap-2">
           <h3 className="font-semibold">
             <Link className="line-clamp-1" href={`/created/${community.name}`}>
               {community.title}

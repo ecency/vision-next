@@ -464,7 +464,7 @@ export function CurationQueueView() {
   const empty = restored && !viewer.isLoading && !feed.isLoading && !feed.isFetching && rows.length === 0;
 
   return (
-    <div className="bg-white dark:bg-dark-200 rounded-2xl overflow-hidden" data-curation-queue>
+    <div className="reading-surface rounded-2xl overflow-hidden" data-curation-queue>
       <CurationHeader
         status={status.data}
         activeCurators={tick.activeCurators}

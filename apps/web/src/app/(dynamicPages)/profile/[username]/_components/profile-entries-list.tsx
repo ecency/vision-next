@@ -78,7 +78,24 @@ export async function ProfileEntriesList({ section, account, initialFeed, curren
 
   return (
     <>
-      <ProfileEntriesLayout section={section} username={account.name}>
+      <ProfileEntriesLayout
+        section={section}
+        username={account.name}
+        after={
+          /* Crawlable entry into the cursor archive: infinite scroll is the JS
+             enhancement, this "Older" link is the no-JS/crawler path. The cursor
+             is the last post of page 1; shown only when page 1 was full. */
+          ARCHIVE_SECTIONS.includes(section) &&
+          rawFirstPage.length >= ARCHIVE_PAGE_SIZE &&
+          lastOfFirstPage && (
+            <EntryArchivePager
+              basePath={`/@${account.name}/${section}`}
+              olderCursor={`${lastOfFirstPage.author}/${lastOfFirstPage.permlink}`}
+              showLatest={false}
+            />
+          )
+        }
+      >
         <EntryListContent
           account={account}
           username={`@${account.name}`}
@@ -95,18 +112,6 @@ export async function ProfileEntriesList({ section, account, initialFeed, curren
           initialPageEntriesCount={initialPageEntriesCount}
           initialDataLoaded={initialDataLoaded}
         />
-        {/* Crawlable entry into the cursor archive: infinite scroll is the JS
-            enhancement, this "Older" link is the no-JS/crawler path. The cursor
-            is the last post of page 1; shown only when page 1 was full. */}
-        {ARCHIVE_SECTIONS.includes(section) &&
-          rawFirstPage.length >= ARCHIVE_PAGE_SIZE &&
-          lastOfFirstPage && (
-            <EntryArchivePager
-              basePath={`/@${account.name}/${section}`}
-              olderCursor={`${lastOfFirstPage.author}/${lastOfFirstPage.permlink}`}
-              showLatest={false}
-            />
-          )}
       </ProfileEntriesLayout>
     </>
   );

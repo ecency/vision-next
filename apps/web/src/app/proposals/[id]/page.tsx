@@ -63,7 +63,7 @@ export default async function ProposalDetailsPage({ params }: Props) {
   const ogImage = entry ? catchPostImage(entry.body, 600, 500, "match") : null;
 
   return (
-    <>
+    <div className="reading-background">
       <Head>
         <title>{`${i18next.t("proposals.page-title")} | ${proposal?.subject}`}</title>
         <meta name="description" content={`${proposal?.subject} by @${proposal?.creator}`} />
@@ -99,13 +99,13 @@ export default async function ProposalDetailsPage({ params }: Props) {
         <div className="proposal-list relative">
           {proposal && <ProposalListItem proposal={proposal} />}
         </div>
-        <div className="the-entry">
+        <div className="the-entry reading-surface rounded-xl p-4 md:p-6">
           <div
             className="entry-body markdown-view user-selectable"
             dangerouslySetInnerHTML={renderedBody}
           />
         </div>
       </div>
-    </>
+    </div>
   );
 }

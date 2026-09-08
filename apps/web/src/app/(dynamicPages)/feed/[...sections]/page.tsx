@@ -89,8 +89,8 @@ export default async function FeedPage({ params, searchParams }: Props) {
         state={stripActiveVotesFromDehydratedState(dehydrate(getQueryClient()), loggedInUser)}
       >
         <div className="entry-list">
+          {showTagHeader && <TagFeedHeader tag={tag} hasPosts={entries.length > 0} />}
           <div className="entry-list-body">
-            {showTagHeader && <TagFeedHeader tag={tag} hasPosts={entries.length > 0} />}
             <EntryListContent
               username=""
               loading={false}
@@ -99,12 +99,12 @@ export default async function FeedPage({ params, searchParams }: Props) {
               isPromoted={false}
               showEmptyPlaceholder={false}
             />
-            <EntryArchivePager
-              basePath={basePath}
-              olderCursor={nextCursor ? cursorToken(nextCursor) : null}
-              showLatest={true}
-            />
           </div>
+          <EntryArchivePager
+            basePath={basePath}
+            olderCursor={nextCursor ? cursorToken(nextCursor) : null}
+            showLatest={true}
+          />
         </div>
       </HydrationBoundary>
     );
@@ -149,15 +149,25 @@ export default async function FeedPage({ params, searchParams }: Props) {
       state={stripActiveVotesFromDehydratedState(dehydrate(getQueryClient()), loggedInUser)}
     >
       {breadcrumbJsonLd && <JsonLd data={breadcrumbJsonLd} />}
-      <FeedLayout tag={tag} filter={filter} observer={observer}>
-        {/* Personal feed (/@user/feed) is where new users land after login;
-            the card self-gates to fresh accounts and renders nothing otherwise. */}
-        {filter === "feed" && <WavesOnboardingChecklist />}
-        {showTagHeader && <TagFeedHeader tag={tag} hasPosts={firstPage.length > 0} />}
+      <FeedLayout
+        tag={tag}
+        filter={filter}
+        observer={observer}
+        before={
+          <>
+            {/* Personal feed (/@user/feed) is where new users land after login;
+                the card self-gates to fresh accounts and renders nothing otherwise. */}
+            {filter === "feed" && <WavesOnboardingChecklist />}
+            {showTagHeader && <TagFeedHeader tag={tag} hasPosts={firstPage.length > 0} />}
+          </>
+        }
+        after={
+          olderCursor && (
+            <EntryArchivePager basePath={basePath} olderCursor={olderCursor} showLatest={false} />
+          )
+        }
+      >
         <FeedList filter={filter} tag={tag} observer={observer} />
-        {olderCursor && (
-          <EntryArchivePager basePath={basePath} olderCursor={olderCursor} showLatest={false} />
-        )}
       </FeedLayout>
     </HydrationBoundary>
   );

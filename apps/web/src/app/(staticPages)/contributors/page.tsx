@@ -26,36 +26,38 @@ export default async function Contributors() {
 
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>
-      <ScrollToTop />
-      <Theme />
-      <Navbar />
+      <div className="reading-background">
+        <ScrollToTop />
+        <Theme />
+        <Navbar />
 
-      <div className="app-content static-page contributors-page">
-        <div className="contributors">
-          <div className="contributors-list">
-            <div className="list-header">
-              <h1 className="list-title">{i18next.t("contributors.title")}</h1>
-              <Tsx k="contributors.description">
-                <div className="list-description" />
-              </Tsx>
-            </div>
-            <div className="list-body">
-              {data?.map((c) => (
-                <div className="list-item" key={c.name}>
-                  <div className="item-main">
-                    <ProfileLink username={c.name}>
-                      <UserAvatar username={c.name} size="small" />
-                    </ProfileLink>
-
-                    <div className="item-info">
+        <div className="app-content static-page contributors-page">
+          <div className="contributors">
+            <div className="contributors-list">
+              <div className="list-header">
+                <h1 className="list-title">{i18next.t("contributors.title")}</h1>
+                <Tsx k="contributors.description">
+                  <div className="list-description" />
+                </Tsx>
+              </div>
+              <div className="list-body">
+                {data?.map((c) => (
+                  <div className="list-item" key={c.name}>
+                    <div className="item-main">
                       <ProfileLink username={c.name}>
-                        <span className="item-name notranslate">{c.name}</span>
+                        <UserAvatar username={c.name} size="small" />
                       </ProfileLink>
+
+                      <div className="item-info">
+                        <ProfileLink username={c.name}>
+                          <span className="item-name notranslate">{c.name}</span>
+                        </ProfileLink>
+                      </div>
                     </div>
+                    <div className="item-extra">{c.contributes.join(", ")}</div>
                   </div>
-                  <div className="item-extra">{c.contributes.join(", ")}</div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </div>

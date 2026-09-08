@@ -65,7 +65,7 @@ export function FeatureSpotlightWidget() {
   const isExternal = /^https?:\/\//.test(spotlight.button_link);
 
   return (
-    <div className="feature-spotlight relative mb-4 rounded-2xl bg-gray-100 p-4 dark:bg-gray-900">
+    <div className="feature-spotlight relative mb-4 rounded-2xl reading-surface border border-[--border-color] p-4">
       <Button
         appearance="link"
         className="absolute top-2 right-2"

@@ -73,7 +73,7 @@ export function WavesFeedTabs({
   );
 
   return (
-    <div className="sticky top-0 z-10 bg-white dark:bg-dark-200 border-b border-[--border-color] rounded-t-2xl">
+    <div className="sticky top-0 z-10 reading-surface border-b border-[--border-color] rounded-t-2xl">
       <div className={clsx("flex items-stretch", !fluid && "overflow-x-auto no-scrollbar")}>
         <button
           type="button"

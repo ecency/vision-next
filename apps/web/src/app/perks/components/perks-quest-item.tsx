@@ -47,7 +47,7 @@ export function PerksQuestItem({
           : undefined
       }
       className={clsx(
-        "flex items-center gap-3 rounded-xl border p-3 bg-white dark:bg-gray-900 transition-colors",
+        "flex items-center gap-3 rounded-xl border p-3 reading-surface transition-colors",
         completed
           ? "border-green-200 dark:border-green-900"
           : "border-gray-200 dark:border-gray-800",

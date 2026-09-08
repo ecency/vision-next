@@ -17,5 +17,6 @@ export function DetectBottom({ onBottom }: Props) {
     }
   }, [inViewport, onBottom]);
 
-  return <div ref={ref} />;
+  // Class lets list surfaces detect "nothing here but the sentinel" via :has().
+  return <div ref={ref} className="detect-bottom" />;
 }

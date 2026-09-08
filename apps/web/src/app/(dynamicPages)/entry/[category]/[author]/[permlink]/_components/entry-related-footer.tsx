@@ -123,7 +123,7 @@ export async function EntryRelatedFooter({ entry }: Props) {
         : "md:grid-cols-3";
 
   return (
-    <div className="entry-related-footer mt-6 pt-4 border-t border-[--border-color]">
+    <div className="entry-related-footer reading-surface rounded-xl my-4 lg:mb-8 p-3 md:p-4 border border-[--border-color]">
       <div className={`grid grid-cols-1 ${colsClass} gap-x-8 gap-y-4`}>
         {columns.map((col) => (
           <div key={col.title} className="min-w-0">

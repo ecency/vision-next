@@ -1,0 +1,25 @@
+// Tokens also reach portals and list layouts rendered outside a page wrapper.
+:root {
+  --reading-page-bg: #f8f9fb;
+  --reading-surface-bg: #fff;
+  --reading-border-color: #e2e5e9;
+}
+
+.dark {
+  --reading-page-bg: #15171b;
+  --reading-surface-bg: #1b1e24;
+  --reading-border-color: #30343b;
+}
+
+// Opt-in page palette. Tokens live on :root/.dark above so portaled content
+// (popovers, dialogs) opened from these pages resolves the same surface colour.
+.reading-background {
+  min-height: 100vh;
+  display: flow-root;
+  background: var(--reading-page-bg);
+  --border-color: var(--reading-border-color);
+}
+
+.reading-surface {
+  background: var(--reading-surface-bg);
+}

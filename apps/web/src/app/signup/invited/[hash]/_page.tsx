@@ -182,7 +182,7 @@ export function InvitedSponsorPage({ hash }: Props) {
 
   return (
     <div className="max-w-[600px] w-full mx-auto">
-      <div className="bg-white dark:bg-dark-200 rounded-2xl p-6 md:p-8">
+      <div className="reading-surface rounded-2xl p-6 md:p-8">
         <h3 className="text-2xl font-semibold text-blue-dark-sky mb-2">
           {i18next.t("onboard.sponsor-title", {
             defaultValue: "Create account for a friend"

@@ -51,7 +51,7 @@ export default async function FAQ({ searchParams }: Props) {
   const searchResult = searchWithinFaq(params["q"] ?? "");
 
   return (
-    <>
+    <div className="reading-background">
       <ScrollToTop />
       <Feedback />
       <Theme />
@@ -83,7 +83,7 @@ export default async function FAQ({ searchParams }: Props) {
               return (
                 <div
                   key={x}
-                  className="faq-item"
+                  className="faq-item reading-surface border border-[--border-color] rounded-xl p-4 md:p-6"
                   itemScope={true}
                   itemProp="mainEntity"
                   itemType="https://schema.org/Question"
@@ -108,6 +108,6 @@ export default async function FAQ({ searchParams }: Props) {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

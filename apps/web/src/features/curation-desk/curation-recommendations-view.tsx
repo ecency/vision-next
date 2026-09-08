@@ -112,7 +112,7 @@ export function CurationRecommendationsView() {
   });
 
   return (
-    <div className="bg-white dark:bg-dark-200 rounded-2xl overflow-hidden">
+    <div className="reading-surface rounded-2xl overflow-hidden">
       <div className="flex flex-wrap items-center gap-2 px-3 py-2 border-b border-[--border-color] text-xs">
         <span className="text-gray-500">{i18next.t("curation-desk.sort.label")}</span>
         {(["unique", "newest"] as CurationRecommendationsSort[]).map((value) => (

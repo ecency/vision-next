@@ -36,7 +36,7 @@ export function BuyPointsPage() {
 
   return (
     <div className="buy-points-page grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 lg:gap-6">
-      <div className="sm:col-span-2 lg:col-span-3 p-2 md:p-4 lg:p-6 bg-white rounded-xl w-full flex flex-col">
+      <div className="sm:col-span-2 lg:col-span-3 p-2 md:p-4 lg:p-6 reading-surface rounded-xl w-full flex flex-col">
         <Link href="/perks/points">
           <Button
             size="sm"

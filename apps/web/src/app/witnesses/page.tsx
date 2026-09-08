@@ -24,12 +24,14 @@ export default async function Witnesses() {
 
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>
-      <ScrollToTop />
-      <Theme />
-      <Navbar />
-      <div className="app-content witnesses-page">
-        <WitnessesHeader />
-        <WitnessesList />
+      <div className="reading-background">
+        <ScrollToTop />
+        <Theme />
+        <Navbar />
+        <div className="app-content witnesses-page">
+          <WitnessesHeader />
+          <WitnessesList />
+        </div>
       </div>
     </HydrationBoundary>
   );

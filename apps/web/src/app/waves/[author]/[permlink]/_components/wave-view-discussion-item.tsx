@@ -37,7 +37,7 @@ export function WaveViewDiscussionItem({ item, i }: Props) {
         onExpandReplies={() => setExpanded(!expanded)}
       />
       {expanded && (
-        <div className="animate-fade-in-up relative bg-white dark:bg-dark-200 [&_.wave-form]:border-b [&_.wave-form]:border-[--border-color]">
+        <div className="animate-fade-in-up relative reading-surface [&_.wave-form]:border-b [&_.wave-form]:border-[--border-color]">
           <WaveForm entry={undefined} replySource={entry} />
           {data?.map((reply, j) => (
             <WaveViewDiscussionItem item={reply as WaveEntry} i={j} key={j} />

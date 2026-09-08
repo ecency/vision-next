@@ -118,7 +118,7 @@ export function CurationMyMarksView() {
   const [tab, setTab] = useState<MarksTab>("all");
 
   return (
-    <div className="bg-white dark:bg-dark-200 rounded-2xl overflow-hidden">
+    <div className="reading-surface rounded-2xl overflow-hidden">
       <LoginRequired>
         {viewer.isLoading ? (
           <p className="p-4 text-sm text-gray-500">{i18next.t("curation-desk.list.loading")}</p>

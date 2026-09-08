@@ -15,7 +15,7 @@ interface Props {
 export function PrimaryCommunityCard({ community }: Props) {
   return (
     <CommunityCardAnimated
-      className="border border-[--border-color] bg-white dark:bg-dark-200 rounded-2xl p-4 h-full flex flex-col gap-4"
+      className="border border-[--border-color] reading-surface rounded-2xl p-4 h-full flex flex-col gap-4"
       i={0}
     >
       <div className="uppercase text-xs font-semibold opacity-25">{i18next.t("g.community")}</div>

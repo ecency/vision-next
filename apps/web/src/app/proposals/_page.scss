@@ -126,10 +126,8 @@
   .the-entry {
     margin: 0 auto 90px auto;
     width: 100%;
-    padding: 0 10px;
 
     @media (min-width: $md-break) {
-      padding: 0;
       max-width: 750px;
     }
 

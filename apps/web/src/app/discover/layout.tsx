@@ -24,7 +24,7 @@ export default function Layout(
       <FullHeight />
       <Theme />
       <Navbar />
-      <div className="bg-blue-duck-egg dark:bg-black pt-[63px] md:pt-[69px] min-h-[100vh] pb-24 md:pb-16">
+      <div className="reading-background pt-[63px] md:pt-[69px] pb-24 md:pb-16">
         <div className="absolute hidden lg:block top-16 left-0 right-0 h-[280px]">
           <Image
             width={1920}
@@ -33,7 +33,7 @@ export default function Layout(
             alt=""
             className="absolute top-0 right-0 max-w-[50vw] h-full object-contain object-right-top"
           />
-          <div className="bg-gradient-to-t from-blue-duck-egg dark:from-black to-transparent w-full h-full relative" />
+          <div className="bg-gradient-to-t from-[#f8f9fb] dark:from-[#15171b] to-transparent w-full h-full relative" />
         </div>
 
         <div className="container mx-auto px-4 mt-4 lg:mt-0">

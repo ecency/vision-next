@@ -45,7 +45,7 @@ export function WaveFollowsCard() {
   }, [data, activeUser]);
 
   return (
-    <div className="rounded-2xl bg-white dark:bg-dark-200 p-4">
+    <div className="rounded-2xl reading-surface p-4">
       <div className="font-semibold mb-6 flex justify-between items-center gap-4">
         <span>{i18next.t("waves.who-to-follow")}</span>
         <StyledTooltip content={i18next.t("waves.who-to-follow-hint")}>

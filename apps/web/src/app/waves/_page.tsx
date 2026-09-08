@@ -107,7 +107,7 @@ export function WavesPage() {
       {!isShorts && <WavesOnboardingChecklist />}
       {!isShorts && <WavesCreateCard />}
       {showTagChip && (
-        <div className="rounded-2xl bg-white dark:bg-dark-200 p-4 mb-4 flex flex-wrap items-center gap-3 text-sm">
+        <div className="rounded-2xl reading-surface p-4 mb-4 flex flex-wrap items-center gap-3 text-sm">
           <span className="font-semibold">
             {i18next.t("waves.tag-feed-indicator", { tag: selectedTag })}
           </span>
@@ -117,7 +117,7 @@ export function WavesPage() {
         </div>
       )}
       {showSourceChip && (
-        <div className="rounded-2xl bg-white dark:bg-dark-200 p-4 mb-4 flex flex-wrap items-center gap-3 text-sm">
+        <div className="rounded-2xl reading-surface p-4 mb-4 flex flex-wrap items-center gap-3 text-sm">
           <span className="font-semibold">
             {i18next.t("waves.source-feed-indicator", { source: sourceLabel })}
           </span>

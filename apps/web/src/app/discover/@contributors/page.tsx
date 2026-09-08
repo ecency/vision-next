@@ -14,12 +14,12 @@ export default async function ContributorPage() {
         <div className="flex flex-wrap gap-4">
           {data?.map((c, i) => (
             <div
-              className="rounded-2xl border border-[--border-color] p-4 bg-gray-100 dark:bg-dark-200"
+              className="min-w-0 max-w-full rounded-2xl border border-[--border-color] p-4 reading-surface"
               key={i}
             >
-              <ProfileLink username={c.name} className="flex items-center gap-2 truncate">
-                <UserAvatar username={c.name} size="medium" />
-                <div className="flex flex-col">
+              <ProfileLink username={c.name} className="flex items-center gap-2">
+                <div className="shrink-0"><UserAvatar username={c.name} size="medium" /></div>
+                <div className="min-w-0 flex flex-col [overflow-wrap:anywhere]">
                   <span className="notranslate">@{c.name}</span>
                   <div className="text-sm opacity-50 text-gray-800 dark:text-white">
                     {c.contributes.join(", ")}

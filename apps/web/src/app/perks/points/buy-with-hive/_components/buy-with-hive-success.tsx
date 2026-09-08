@@ -13,7 +13,7 @@ export function BuyWithHiveSuccess({ pointsAmount }: Props) {
 
   return (
     <div className="animate-fade-in-up container mx-auto max-w-[800px] py-4 sm:py-6 md:py-8">
-      <div className="px-2 py-4 sm:px-4 md:p-6 lg:p-12 bg-white rounded-2xl flex flex-col gap-4 md:gap-8 lg:gap-12 xl:gap-16 items-center">
+      <div className="px-2 py-4 sm:px-4 md:p-6 lg:p-12 reading-surface rounded-2xl flex flex-col gap-4 md:gap-8 lg:gap-12 xl:gap-16 items-center">
         <div className="flex flex-col items-center justify-center gap-2">
           <UilCheckCircle className="text-green size-12" />
 

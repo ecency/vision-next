@@ -24,7 +24,7 @@ export function PointsActionCard({
   onClick
 }: Props) {
   return (
-    <div className="p-2 md:p-4 lg:p-6 bg-white rounded-xl w-full flex flex-col justify-between gap-4">
+    <div className="p-2 md:p-4 lg:p-6 reading-surface rounded-xl w-full flex flex-col justify-between gap-4">
       <div className="flex flex-col">
         <Image width={250} height={150} alt="" src={imageSrc} className="mx-auto h-[150px]" />
         <div className="font-bold mt-8 lg:mt-12">{title}</div>

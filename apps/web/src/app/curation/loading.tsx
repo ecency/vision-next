@@ -1,7 +1,7 @@
 /** Eight fixed-height skeleton rows, the height of a compact desk row, so the list paints without layout shift. */
 export default function CurationLoading() {
   return (
-    <div className="bg-white dark:bg-dark-200 rounded-2xl overflow-hidden" aria-busy="true">
+    <div className="reading-surface rounded-2xl overflow-hidden" aria-busy="true">
       <div className="h-[56px] border-b border-[--border-color] animate-pulse bg-gray-100 dark:bg-dark-default/40" />
       {Array.from({ length: 8 }).map((_, i) => (
         <div key={i} className="flex gap-3 px-3 py-2 h-[72px] border-b border-[--border-color]">

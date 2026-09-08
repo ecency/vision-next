@@ -50,6 +50,13 @@
 
   @apply font-sans;
 
+  .entry-body blockquote {
+    @include themify(night) {
+      color: #a8adb6;
+      border-color: #606a74;
+    }
+  }
+
   .the-entry {
     margin: 0 auto 90px auto;
     width: 100%;

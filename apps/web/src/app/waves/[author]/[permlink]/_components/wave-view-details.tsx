@@ -53,8 +53,8 @@ export function WaveViewDetails({ entry: initialEntry }: Props) {
   );
 
   return (
-    <div className="relative z-10 rounded-2xl bg-white dark:bg-dark-200 cursor-pointer">
-      <div className="sticky top-0 z-20 rounded-t-2xl bg-white dark:bg-dark-200 border-b border-[--border-color]">
+    <div className="relative z-10 rounded-2xl reading-surface cursor-pointer">
+      <div className="sticky top-0 z-20 rounded-t-2xl reading-surface border-b border-[--border-color]">
         <WavesListItemHeader
           interactable={false}
           entry={entry!}

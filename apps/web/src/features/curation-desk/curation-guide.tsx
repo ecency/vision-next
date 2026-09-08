@@ -62,7 +62,7 @@ function sustainable(weightPct: number): number {
  */
 export function CurationGuide() {
   return (
-    <article className="mx-auto w-full max-w-3xl rounded-2xl bg-white px-5 py-6 dark:bg-dark-200 lg:px-8 lg:py-8">
+    <article className="mx-auto w-full max-w-3xl rounded-2xl reading-surface px-5 py-6 lg:px-8 lg:py-8">
       <h1 className="text-xl font-bold tracking-tight sm:text-2xl">
         {i18next.t("curation-desk.guide.title")}
       </h1>
