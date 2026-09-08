@@ -44,7 +44,7 @@ const SORT = {
   trending: "entry-filter.filter-trending",
   hot: "entry-filter.filter-hot",
   created: "entry-filter.filter-created",
-  top: "entry-filter.filter-top"
+  payout: "g.payout"
 };
 
 describe("EntryIndexMenu — Source × Sort filter bar", () => {
@@ -66,8 +66,8 @@ describe("EntryIndexMenu — Source × Sort filter bar", () => {
     );
     expect(screen.getByRole("link", { name: SORT.hot }).getAttribute("href")).toBe("/hot");
     expect(screen.getByRole("link", { name: SORT.created }).getAttribute("href")).toBe("/created");
-    // "Top" surfaces the payout sort out of the overflow menu.
-    expect(screen.getByRole("link", { name: SORT.top }).getAttribute("href")).toBe("/payout");
+    // The payout label uses the existing singular translation.
+    expect(screen.getByRole("link", { name: SORT.payout }).getAttribute("href")).toBe("/payout");
   });
 
   it("shows Following, Communities and Global as sources once logged in", () => {
@@ -99,7 +99,7 @@ describe("EntryIndexMenu — Source × Sort filter bar", () => {
     expect(screen.getByRole("link", { name: SORT.trending }).getAttribute("href")).toBe(
       "/trending/my"
     );
-    expect(screen.getByRole("link", { name: SORT.top }).getAttribute("href")).toBe("/payout/my");
+    expect(screen.getByRole("link", { name: SORT.payout }).getAttribute("href")).toBe("/payout/my");
     // Global drops the tag, keeping the current sort.
     expect(screen.getByRole("link", { name: SOURCE.global }).getAttribute("href")).toBe(
       "/trending"
@@ -112,7 +112,7 @@ describe("EntryIndexMenu — Source × Sort filter bar", () => {
     render(<EntryIndexMenu />);
 
     expect(screen.queryByRole("link", { name: SORT.trending })).toBeNull();
-    expect(screen.queryByRole("link", { name: SORT.top })).toBeNull();
+    expect(screen.queryByRole("link", { name: SORT.payout })).toBeNull();
 
     expect(screen.getByRole("link", { name: SOURCE.following }).getAttribute("aria-current")).toBe(
       "page"
@@ -166,13 +166,18 @@ describe("EntryIndexMenu — Source × Sort filter bar", () => {
     expect(mockPush).toHaveBeenCalledWith("/feed/@alice");
   });
 
-  it("labels the mobile sort trigger with the active overflow filter", () => {
-    mockSections = ["muted"];
+  it.each([
+    ["muted", "entry-filter.filter-muted"],
+    ["promoted", "entry-filter.filter-promoted"],
+    ["payout", "g.payout"]
+  ])("marks %s as active in desktop tabs and the mobile trigger", (filter, label) => {
+    mockSections = [filter];
     render(<EntryIndexMenu />);
 
-    // Muted lives in the overflow menu, but the closed mobile trigger must still
+    // The closed mobile trigger must still
     // reflect it rather than falling back to the generic "Sort by" label.
-    expect(screen.getByRole("button", { name: "entry-filter.filter-muted" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: label })).toBeTruthy();
+    expect(screen.getByRole("link", { name: label })).toHaveAttribute("aria-current", "page");
   });
 
   it("shows a hashtag chip, leaves Global unselected and keeps the tag on sorts", () => {
@@ -195,7 +200,7 @@ describe("EntryIndexMenu — Source × Sort filter bar", () => {
     expect(screen.getByRole("link", { name: SORT.hot }).getAttribute("href")).toBe(
       "/hot/photography"
     );
-    expect(screen.getByRole("link", { name: SORT.top }).getAttribute("href")).toBe(
+    expect(screen.getByRole("link", { name: SORT.payout }).getAttribute("href")).toBe(
       "/payout/photography"
     );
   });
@@ -213,12 +218,12 @@ describe("EntryIndexMenu — Source × Sort filter bar", () => {
     expect(screen.queryByRole("link", { name: SOURCE.communities })).toBeNull();
   });
 
-  it("exposes Muted and Promoted behind the More filters menu", () => {
+  it("exposes Muted and Promoted directly without a More filters menu", () => {
     setLoggedIn(true);
     mockSections = ["hot"];
     render(<EntryIndexMenu />);
 
-    fireEvent.click(screen.getByRole("button", { name: "entry-filter.more-filters" }));
+    expect(screen.queryByRole("button", { name: "entry-filter.more-filters" })).toBeNull();
 
     expect(
       screen.getByRole("link", { name: "entry-filter.filter-muted" }).getAttribute("href")

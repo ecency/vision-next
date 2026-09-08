@@ -4,7 +4,7 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 import React, { useCallback, useEffect, useMemo } from "react";
 import "./_index.scss";
-import { kebabMenuHorizontalSvg, menuDownSvg } from "@ui/svg";
+import { menuDownSvg } from "@ui/svg";
 import Link from "next/link";
 import i18next from "i18next";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "@ui/dropdown";
@@ -30,7 +30,7 @@ export function EntryIndexMenu() {
   const { activeUser } = useActiveAccount();
   const prevActiveUser = usePrevious(activeUser);
 
-  const { sources, sorts, overflow, isFollowing } = useFeedMenu();
+  const { sources, sorts, additionalFilters, isFollowing } = useFeedMenu();
 
   const noReblog = useMemo(() => searchParams?.get("no-reblog") === "true", [searchParams]);
 
@@ -42,11 +42,11 @@ export function EntryIndexMenu() {
     () => sources.find((s) => s.selected) ?? sources[sources.length - 1],
     [sources]
   );
-  // Include overflow (Muted/Promoted) so the mobile trigger reflects the active
-  // filter even when it isn't one of the visible sort tabs.
+  // Include Muted/Promoted so the mobile trigger reflects the active
+  // filter when the dropdown is closed.
   const selectedSort = useMemo(
-    () => [...sorts, ...overflow].find((s) => s.selected),
-    [sorts, overflow]
+    () => [...sorts, ...additionalFilters].find((s) => s.selected),
+    [sorts, additionalFilters]
   );
 
   // Logged-out users can't view a community ("/my") feed — fall back to global.
@@ -124,26 +124,8 @@ export function EntryIndexMenu() {
         {!isFollowing && (
           <div className="feed-sort-controls">
             <ul className="feed-sort-tabs" aria-label={i18next.t("entry-filter.sort-label")}>
-              {sorts.map(renderTab)}
+              {[...sorts, ...additionalFilters].map(renderTab)}
             </ul>
-            <Dropdown>
-              <DropdownToggle>
-                <Button
-                  size="sm"
-                  appearance="gray-link"
-                  icon={kebabMenuHorizontalSvg}
-                  aria-label={i18next.t("entry-filter.more-filters")}
-                  aria-haspopup="menu"
-                />
-              </DropdownToggle>
-              <DropdownMenu align="left">
-                {overflow.map((item) => (
-                  <DropdownItem key={item.id} href={item.href} selected={item.selected}>
-                    {item.label}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown>
           </div>
         )}
       </div>
@@ -172,7 +154,7 @@ export function EntryIndexMenu() {
               </Button>
             </DropdownToggle>
             <DropdownMenu align="left">
-              {[...sorts, ...overflow].map((item) => (
+              {[...sorts, ...additionalFilters].map((item) => (
                 <DropdownItem key={item.id} selected={item.selected} onClick={item.onClick}>
                   {item.label}
                 </DropdownItem>
