@@ -58,6 +58,8 @@ export function useCreateReply(
       options?: CommentOptions;
     }) => {
       if (!activeUser || !account || !entry) throw new Error("Missing active user or entry");
+      if (!text || !text.trim()) throw new Error("Reply body cannot be empty");
+      if (!entry.permlink) throw new Error("Missing parent permlink — cannot create reply");
 
       const optimisticEntry = tempEntry({
         author: account,
