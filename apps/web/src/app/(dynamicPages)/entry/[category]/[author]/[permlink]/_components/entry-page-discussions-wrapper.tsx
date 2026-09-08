@@ -26,7 +26,7 @@ function DiscussionsLoader({ entry, category }: Props) {
 
   if (isError) {
     return (
-      <div className="bg-white/80 dark:bg-dark-200/90 rounded-xl p-4 my-4 flex justify-center">
+      <div className="reading-surface border border-[--border-color] rounded-xl p-4 my-4 flex justify-center">
         <Button icon={<UilComment />} onClick={() => refetch()}>
           {i18next.t("discussion.load-error", { defaultValue: "Failed to load comments. Tap to retry" })}
         </Button>
@@ -39,7 +39,7 @@ function DiscussionsLoader({ entry, category }: Props) {
 
 function DiscussionsSkeleton() {
   return (
-    <div className="bg-white/80 dark:bg-dark-200/90 rounded-xl p-2 md:p-3">
+    <div className="reading-surface border border-[--border-color] rounded-xl p-2 md:p-3">
       <div className="w-full rounded-lg animate-pulse h-[80px] bg-blue-dark-sky-040 dark:bg-blue-dark-grey mb-4" />
       <div className="w-full rounded-lg animate-pulse h-[120px] bg-blue-dark-sky-040 dark:bg-blue-dark-grey mb-4" />
       <div className="w-full rounded-lg animate-pulse h-[120px] bg-blue-dark-sky-040 dark:bg-blue-dark-grey" />
@@ -56,7 +56,7 @@ export function EntryPageDiscussionsWrapper({ entry, category }: Props) {
   // Auto-load for logged-in users, manual load for anonymous
   if (!activeUser && !showDiscussions) {
     return commentCount > 0 ? (
-      <div className="bg-white/80 dark:bg-dark-200/90 rounded-xl p-4 my-4 flex justify-center">
+      <div className="reading-surface border border-[--border-color] rounded-xl p-4 my-4 flex justify-center">
         <Button
           icon={<UilComment />}
           onClick={() => setShowDiscussions(true)}

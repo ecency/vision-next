@@ -258,7 +258,7 @@ export default async function EntryPage({ params, searchParams }: Props) {
       ) : null}
       <EntryPageContextProvider>
         <MdHandler />
-        <div className="app-content entry-page bg-fixed bg-contain bg-gradient-to-tr from-blue-dark-sky/20 to-white dark:from-dark-default dark:to-black">
+        <div className="app-content entry-page">
           <div className="the-entry">
             <EntryPageCrossPostHeader entry={entry} />
             {breadcrumbs.length > 0 && <EntryPageBreadcrumb items={breadcrumbs} />}

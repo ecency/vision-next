@@ -33,7 +33,7 @@ export function EntryPageContentSSR({ entry, isRawContent }: Props) {
       {/* SSR static body - wrapped with NSFW check */}
       <EntryPageNsfwBodyWrapper entry={entry}>
         {!isRawContent && (
-          <div className="bg-white/80 dark:bg-dark-200/90 rounded-xl p-2 md:p-4">
+          <div className="reading-surface border border-[--border-color] rounded-xl p-2 md:p-4">
             <EntryTranslateInline entry={entry} />
             <EntryPageStaticBody entry={entry} />
             {postPoll && <PollWidget entry={entry} poll={postPoll} isReadOnly={false} />}
@@ -48,7 +48,7 @@ export function EntryPageContentSSR({ entry, isRawContent }: Props) {
           </pre>
         )}
       </EntryPageNsfwBodyWrapper>
-      <div className="entry-footer bg-white/80 dark:bg-dark-200/90 rounded-xl flex-wrap my-4 lg:mb-8">
+      <div className="entry-footer reading-surface border border-[--border-color] rounded-xl flex-wrap my-4 lg:mb-8">
         {location?.coordinates && (
           <Link
             href={`https://maps.google.com/?q=${location.coordinates.lat},${location.coordinates.lng}`}

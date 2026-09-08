@@ -61,7 +61,7 @@ export default function WavesLayout(props: PropsWithChildren) {
 
   return (
     <WavesTagFilterProvider>
-      <div className="waves-page-layout bg-blue-duck-egg dark:bg-dark-700 min-h-[100vh]">
+      <div className="waves-page-layout reading-background">
         <Feedback />
         <ScrollToTop />
         <Navbar />

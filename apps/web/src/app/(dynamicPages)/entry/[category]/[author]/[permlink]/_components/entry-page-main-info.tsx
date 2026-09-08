@@ -24,7 +24,7 @@ export function EntryPageMainInfo({ entry }: Props) {
   const reputation = accountReputation(entry.author_reputation ?? 0);
 
   return (
-    <div className=" bg-white/80 dark:bg-dark-200/90 rounded-xl flex flex-col mb-4 md:mb-6 lg:mb-8 mt-2 lg:mt-4">
+    <div className="reading-surface border border-[--border-color] rounded-xl flex flex-col mb-4 md:mb-6 lg:mb-8 mt-2 lg:mt-4">
       {!isComment && (
         <h1 className="px-3 md:px-4 pt-3 md:pt-4 pb-1 text-2xl md:text-[30px] lg:text-[38px] font-semibold !leading-[1.25] break-words !font-[var(--font-lora)]">
           {entry.title}

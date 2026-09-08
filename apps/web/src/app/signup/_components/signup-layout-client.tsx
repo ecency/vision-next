@@ -29,7 +29,7 @@ export function SignupLayoutClient({ children }: PropsWithChildren) {
   }, []);
 
   return (
-    <div className=" bg-blue-duck-egg dark:bg-transparent pt-[63px] md:pt-[69px] min-h-[100vh] pb-16">
+    <div className="reading-background pt-[63px] md:pt-[69px] pb-16">
       <Feedback />
       <Navbar />
 

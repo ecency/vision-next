@@ -14,7 +14,7 @@ export function EntryRelatedRow({ item }: { item: RelatedItem }) {
   return (
     <Link
       href={makeEntryPath(item.category, item.author, item.permlink)}
-      className="no-style group flex gap-2.5 items-center py-1.5"
+      className="no-style group flex gap-2.5 items-center py-1.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-dark-sky"
     >
       {item.image ? (
         <Image
@@ -31,7 +31,7 @@ export function EntryRelatedRow({ item }: { item: RelatedItem }) {
         />
       )}
       <span className="min-w-0 flex flex-col">
-        <span className="text-[13px] leading-tight line-clamp-2 group-hover:text-blue-dark-sky">
+        <span className="text-[13px] text-gray-800 dark:text-gray-200 leading-tight line-clamp-2 group-hover:text-blue-dark-sky group-focus-visible:text-blue-dark-sky dark:group-hover:text-blue-400 dark:group-focus-visible:text-blue-400">
           {item.title}
         </span>
         <span className="text-[11px] text-gray-600 dark:text-gray-400 mt-0.5 truncate">

@@ -25,7 +25,7 @@ export function WavesTrendingTagsCard() {
   const tags = useMemo(() => data?.slice(0, TRENDING_TAGS_LIMIT) ?? [], [data]);
 
   return (
-    <div className="rounded-2xl bg-white dark:bg-dark-200 p-4 flex flex-col gap-4">
+    <div className="rounded-2xl reading-surface p-4 flex flex-col gap-4">
       <div className="flex flex-col gap-1">
         <div className="font-semibold">{i18next.t("waves.whats-happening")}</div>
         <div className="text-xs text-gray-600 dark:text-gray-400">

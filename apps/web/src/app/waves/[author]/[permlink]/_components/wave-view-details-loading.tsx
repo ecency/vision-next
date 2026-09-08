@@ -3,7 +3,7 @@ import { WaveActionsLoading, WaveFormLoading } from "@/features/waves";
 
 export function WaveViewDetailsLoading() {
   return (
-    <div className="relative z-10 rounded-2xl bg-white dark:bg-dark-200 cursor-pointer">
+    <div className="relative z-10 rounded-2xl reading-surface cursor-pointer">
       <WaveListItemHeaderLoading />
       <div className="flex flex-col w-full mt-4 gap-2 px-4">
         <div className="animate-pulse h-[16px] rounded-lg w-full bg-blue-dark-sky-040 dark:bg-blue-dark-grey" />

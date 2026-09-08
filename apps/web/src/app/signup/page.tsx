@@ -70,7 +70,7 @@ export default async function Page({
           />
         ))}
       {options.map((option) => (
-        <div key={option.key} className={`bg-white dark:bg-dark-200 rounded-2xl p-6 flex flex-col justify-between ${option.desktopOnly ? "hidden md:flex" : ""}`}>
+        <div key={option.key} className={`reading-surface rounded-2xl p-6 flex flex-col justify-between ${option.desktopOnly ? "hidden md:flex" : ""}`}>
           <div className="uppercase opacity-50 font-bold text-sm">
             {i18next.t(`signup-options.${option.key}.label`)}
           </div>

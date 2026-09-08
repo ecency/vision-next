@@ -72,7 +72,7 @@ export function EntryPendingIndexView({ entry, isTimedOut }: Props) {
                 {entry.title}
               </h1>
 
-              <div className="bg-white/80 dark:bg-dark-200/90 rounded-xl p-2 md:p-4">
+              <div className="reading-surface border border-[--border-color] rounded-xl p-2 md:p-4">
                 <div
                   id="post-body"
                   className="entry-body markdown-view user-selectable client"

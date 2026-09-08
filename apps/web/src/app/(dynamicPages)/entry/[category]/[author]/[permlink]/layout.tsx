@@ -7,12 +7,12 @@ import "./entry.scss";
 
 export default function EntryPageLayout(props: PropsWithChildren) {
   return (
-    <>
+    <div className="reading-background">
       <ScrollToTop />
       <Theme />
       <Feedback />
       <Navbar />
       {props.children}
-    </>
+    </div>
   );
 }

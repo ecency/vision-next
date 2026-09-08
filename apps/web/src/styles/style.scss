@@ -19,6 +19,7 @@
 
 // Component stylesheets, collapsed into this entry (issue #1632).
 @import "./shared-components";
+@import "./reading-palette";
 
 @layer utilities {
   .no-scrollbar::-webkit-scrollbar {

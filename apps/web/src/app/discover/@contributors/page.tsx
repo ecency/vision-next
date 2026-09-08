@@ -14,7 +14,7 @@ export default async function ContributorPage() {
         <div className="flex flex-wrap gap-4">
           {data?.map((c, i) => (
             <div
-              className="rounded-2xl border border-[--border-color] p-4 bg-gray-100 dark:bg-dark-200"
+              className="rounded-2xl border border-[--border-color] p-4 reading-surface"
               key={i}
             >
               <ProfileLink username={c.name} className="flex items-center gap-2 truncate">

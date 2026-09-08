@@ -45,7 +45,7 @@ export function WavesReelsView({ username }: Props) {
 
   if (isError && items.length === 0) {
     return (
-      <div className="rounded-2xl bg-white dark:bg-dark-200 p-4 text-sm text-gray-700 dark:text-gray-300">
+      <div className="rounded-2xl reading-surface p-4 text-sm text-gray-700 dark:text-gray-300">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="font-semibold">
             {i18next.t("waves.feed.unavailable", {
@@ -62,7 +62,7 @@ export function WavesReelsView({ username }: Props) {
 
   if (!isLoading && items.length === 0) {
     return (
-      <div className="rounded-2xl bg-white dark:bg-dark-200 p-8 text-center text-sm text-gray-600 dark:text-gray-400">
+      <div className="rounded-2xl reading-surface p-8 text-center text-sm text-gray-600 dark:text-gray-400">
         {i18next.t("waves.shorts-empty", { defaultValue: "No shorts yet." })}
       </div>
     );

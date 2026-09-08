@@ -68,7 +68,7 @@ export function EntryPageDiscussions({ entry: initialEntry, category }: Props) {
   const [hasComments, setHasComments] = useState(initialEntry.children > 0);
 
   return (
-      <div className="bg-white/80 dark:bg-dark-200/90 rounded-xl p-2 md:p-3">
+      <div className="reading-surface border border-[--border-color] rounded-xl p-2 md:p-3">
         {activeUser && <EntryReplySection entry={entry} />}
 
         {activeUser && !hasComments && <CommentEngagement />}

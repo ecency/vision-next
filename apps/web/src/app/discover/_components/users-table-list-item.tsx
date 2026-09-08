@@ -12,7 +12,7 @@ interface Props {
 
 export function UsersTableListItem({ username, children, prefix }: PropsWithChildren<Props>) {
   return (
-    <div className="relative bg-gray-100 dark:bg-dark-200 border border-[--border-color] rounded-2xl p-4 flex items-center justify-between gap-4">
+    <div className="relative reading-surface border border-[--border-color] rounded-2xl p-4 flex items-center justify-between gap-4">
       <div className="flex items-center gap-4">
         {prefix}
         <UserAvatar size="medium" username={username} />
