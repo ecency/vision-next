@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 3.0.0
+
+### Major Changes
+
+- Bump the npm_and_yarn group across 4 directories with 2 updates (#1771)
+
 ## 2.5.32
 
 ### Patch Changes
