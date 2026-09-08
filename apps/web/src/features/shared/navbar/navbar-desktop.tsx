@@ -94,6 +94,18 @@ export function NavbarDesktop({
         )}
         <div className="navbar-actions flex items-center ml-3 gap-3">
           <NavbarPerksButton subdued />
+          <Tooltip content={i18next.t("navbar.post")}>
+            <Button
+              href="/publish"
+              appearance={activeUser ? "primary" : "gray-link"}
+              className="navbar-write-button"
+              iconPlacement="left"
+              icon={<UilEditAlt />}
+              aria-label={i18next.t("navbar.write")}
+            >
+              <span className="hidden xl:inline">{i18next.t("navbar.write")}</span>
+            </Button>
+          </Tooltip>
           <Tooltip content={i18next.t("chat.title")}>
             <div key={`desktop-chat-${activeUser?.username || "anon"}`} className="relative">
               <Button
@@ -107,18 +119,6 @@ export function NavbarDesktop({
                 <span className="navbar-chat-badge notranslate">{unread.totalUnread}</span>
               ) : null}
             </div>
-          </Tooltip>
-          <Tooltip content={i18next.t("navbar.post")}>
-            <Button
-              href="/publish"
-              appearance={activeUser ? "primary" : "gray-link"}
-              className="navbar-write-button"
-              iconPlacement="left"
-              icon={<UilEditAlt />}
-              aria-label={i18next.t("navbar.write")}
-            >
-              <span className="hidden xl:inline">{i18next.t("navbar.write")}</span>
-            </Button>
           </Tooltip>
           {hydrated && activeUser && (
             <NavbarNotificationsButton key={`desktop-notifications-${activeUser.username}`} />
