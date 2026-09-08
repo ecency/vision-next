@@ -249,14 +249,22 @@ export const CurationQueueRow = memo(function CurationQueueRow(props: Props) {
       </div>
 
       {!collapsed && (
-        <div className="relative hidden sm:block size-16 shrink-0 rounded-lg overflow-hidden bg-gray-200 dark:bg-dark-default">
-          {thumb && (
-            <img src={thumb} alt="" loading="lazy" decoding="async" className="size-16 object-cover" />
+        <div
+          className={clsx(
+            "relative size-12 sm:size-16 shrink-0 rounded-lg overflow-hidden bg-gray-200 dark:bg-dark-default",
+            // Phones get a smaller cover, but only when there is one: an empty grey
+            // box would just push the title over for nothing.
+            !thumb && "hidden sm:block"
           )}
-          {/* Source reads before the text does. The box renders even without a cover
-              image, so an image-less Ecency post keeps the mark; the byline carries it
-              instead wherever this box is not rendered at all (below sm, and collapsed).
-              Inset rather than overhanging: the parent clips to round the image. */}
+        >
+          {thumb && (
+            <img src={thumb} alt="" loading="lazy" decoding="async" className="size-full object-cover" />
+          )}
+          {/* Source reads before the text does. From sm up the box renders even without
+              a cover image, so an image-less Ecency post keeps the mark; the byline
+              carries it instead wherever this box is not rendered (image-less rows below
+              sm, and collapsed rows). Inset rather than overhanging: the parent clips
+              to round the image. */}
           <span className="absolute bottom-0.5 right-0.5 flex size-5 items-center justify-center rounded-full bg-white/90 dark:bg-dark-200/90">
             <RowSourceMark row={row} />
           </span>
@@ -287,8 +295,11 @@ export const CurationQueueRow = memo(function CurationQueueRow(props: Props) {
             <Chip tone="red">{i18next.t("curation-desk.marks.abuse-list")}</Chip>
           )}
           <span className="inline-flex items-center gap-1">
-            {/* The thumbnail owns the mark wherever the thumbnail exists. */}
-            <RowSourceMark row={row} className={collapsed ? undefined : "sm:hidden"} />
+            {/* The thumbnail owns the mark wherever the thumbnail box exists. */}
+            <RowSourceMark
+              row={row}
+              className={collapsed ? undefined : thumb ? "hidden" : "sm:hidden"}
+            />
             <span>{row.community_title ?? row.community ?? row.tags?.[0] ?? i18next.t("curation-desk.row.no-community")}</span>
           </span>
           {row.word_count != null && <span>{i18next.t("curation-desk.row.words", { count: row.word_count })}</span>}
