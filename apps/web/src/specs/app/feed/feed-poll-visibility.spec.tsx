@@ -8,6 +8,7 @@ import { renderWithQueryClient } from "@/specs/test-utils";
 import type { Entry } from "@/entities";
 
 const fetchSpy = vi.hoisted(() => vi.fn(async () => [] as Entry[]));
+const accountFetchSpy = vi.hoisted(() => vi.fn(async () => [] as Entry[]));
 
 vi.mock("@/utils", async () => ({
   ...(await vi.importActual<typeof import("@/utils")>("@/utils")),
@@ -23,6 +24,12 @@ vi.mock("@ecency/sdk", async () => {
       (sort: string, a: string, p: string, limit: number, tag: string, observer: string) => ({
         queryKey: QueryKeys.posts.postsRankedPage(sort, a, p, limit, tag, observer),
         queryFn: fetchSpy
+      })
+    ),
+    getAccountPostsQueryOptions: vi.fn(
+      (username: string, filter: string, a: string, p: string, limit: number, observer: string) => ({
+        queryKey: QueryKeys.posts.accountPostsPage(username, filter, a, p, limit, observer),
+        queryFn: accountFetchSpy
       })
     )
   };
@@ -78,6 +85,7 @@ describe("feed poll", () => {
   beforeEach(() => {
     vi.useFakeTimers();
     fetchSpy.mockClear();
+    accountFetchSpy.mockClear();
     // FeedLayout polls through getQueryClient(), the module-level client, not
     // the one the provider holds. Its cache outlives a test, and with the poll's
     // staleTime a leftover entry would satisfy the next test's fetch and make
@@ -189,6 +197,30 @@ describe("feed poll", () => {
     });
 
     expect(fetchSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("polls the reader's own feed through account posts", async () => {
+    // Following is chronological and comes from a different bridge method than
+    // the ranked lists: polling it as a ranked sort would ask hivemind for
+    // `sort=feed`, which it does not serve, and merge the answer into a cache
+    // entry the feed does not read.
+    renderFeed({ filter: "feed", tag: "@bob" });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(31_000);
+    });
+
+    expect(accountFetchSpy).toHaveBeenCalled();
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it("leaves feeds the chip does not watch alone", async () => {
+    renderFeed({ filter: "payout" });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(31_000);
+    });
+
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(accountFetchSpy).not.toHaveBeenCalled();
   });
 
   it("does refetch on return once the last poll has gone stale", async () => {

@@ -6,6 +6,7 @@ import { ClientInit } from "@/app/client-init";
 import { EntryStatsPrefetch } from "@/app/entry-stats-prefetch";
 import { EcencyConfigManager } from "@/config";
 import { getQueryClient } from "@/core/react-query";
+import { QueryCachePersistence } from "@/core/react-query/query-cache-persistence";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { UIManager } from "@ui/core";
 import dynamic from "next/dynamic";
@@ -70,6 +71,10 @@ export function ClientProviders(props: PropsWithChildren) {
       >
         <UIManager>
           <ClientInit />
+          {/* Restores the reader's last feed/sidebar cache and keeps it
+              written. Outside DeferredRender on purpose: a restore that lands
+              after the first paint has missed the paint it exists for. */}
+          <QueryCachePersistence />
           {/* Inside UIManager but OUTSIDE DeferredRender on purpose: its
               effect must flush with root hydration, not after the lazy
               feature cascade (#1668). */}
