@@ -1,6 +1,7 @@
 "use client";
 
 import clsx from "clsx";
+import { useEffect, useState } from "react";
 import i18next from "i18next";
 import { UilAngleDown, UilSlidersVAlt } from "@tooni/iconscout-unicons-react";
 import type { CurationApp, CurationWindow } from "@ecency/sdk";
@@ -247,39 +248,83 @@ export function CurationSortFilterBar({ filters, isRoster, communities, onChange
             <legend className="mb-3 font-semibold text-gray-600 dark:text-gray-400">
               {i18next.t("curation-desk.filters.author-reputation")}
             </legend>
-            <div className="flex flex-col gap-3 text-gray-600 dark:text-gray-400">
-              <span>
-                {i18next.t("curation-desk.filters.rep", {
-                  min: filters.repMin,
-                  max: filters.repMax
-                })}
-              </span>
-              <input
-                type="range"
-                min={0}
-                max={100}
-                value={filters.repMin}
-                aria-label={i18next.t("curation-desk.filters.rep-min")}
-                onChange={(e) =>
-                  onChange({ repMin: Math.min(Number(e.target.value), filters.repMax) })
-                }
-                className="w-full accent-blue-dark-sky"
-              />
-              <input
-                type="range"
-                min={0}
-                max={100}
-                value={filters.repMax}
-                aria-label={i18next.t("curation-desk.filters.rep-max")}
-                onChange={(e) =>
-                  onChange({ repMax: Math.max(Number(e.target.value), filters.repMin) })
-                }
-                className="w-full accent-blue-dark-sky"
-              />
-            </div>
+            <ReputationRange
+              repMin={filters.repMin}
+              repMax={filters.repMax}
+              onCommit={(range) => onChange(range)}
+            />
           </fieldset>
         </div>
       </details>
+    </div>
+  );
+}
+
+/**
+ * The two reputation sliders. They move a local copy while the pointer or the
+ * arrow key is down and hand the range over once it is let go: every step of a
+ * drag used to be a filter change, and a filter change is a new feed key, a
+ * page-one request and a saved-filters write. Thirty steps of one drag were
+ * thirty of each, with the queue re-rendering under the thumb.
+ */
+function ReputationRange({
+  repMin,
+  repMax,
+  onCommit
+}: {
+  repMin: number;
+  repMax: number;
+  onCommit: (range: { repMin: number; repMax: number }) => void;
+}) {
+  const [draft, setDraft] = useState({ repMin, repMax });
+  // Follow a change made elsewhere (Reset, a restored set). While a drag is on,
+  // the committed range does not move, so this never fights the thumb.
+  useEffect(() => {
+    setDraft({ repMin, repMax });
+  }, [repMin, repMax]);
+
+  const commit = () => {
+    if (draft.repMin !== repMin || draft.repMax !== repMax) {
+      onCommit(draft);
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-3 text-gray-600 dark:text-gray-400">
+      <span>
+        {i18next.t("curation-desk.filters.rep", {
+          min: draft.repMin,
+          max: draft.repMax
+        })}
+      </span>
+      <input
+        type="range"
+        min={0}
+        max={100}
+        value={draft.repMin}
+        aria-label={i18next.t("curation-desk.filters.rep-min")}
+        onChange={(e) =>
+          setDraft((d) => ({ ...d, repMin: Math.min(Number(e.target.value), d.repMax) }))
+        }
+        onPointerUp={commit}
+        onKeyUp={commit}
+        onBlur={commit}
+        className="w-full accent-blue-dark-sky"
+      />
+      <input
+        type="range"
+        min={0}
+        max={100}
+        value={draft.repMax}
+        aria-label={i18next.t("curation-desk.filters.rep-max")}
+        onChange={(e) =>
+          setDraft((d) => ({ ...d, repMax: Math.max(Number(e.target.value), d.repMin) }))
+        }
+        onPointerUp={commit}
+        onKeyUp={commit}
+        onBlur={commit}
+        className="w-full accent-blue-dark-sky"
+      />
     </div>
   );
 }

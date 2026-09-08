@@ -11,8 +11,9 @@ import { UilMultiply } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
 import Link from "next/link";
 import { IntentLink } from "@/features/shared/intent-link";
+import { seededShuffle } from "@/utils/seeded-shuffle";
 import { useParams, useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import "./_index.scss";
 
 export function TrendingTagsCard() {
@@ -39,17 +40,17 @@ export function TrendingTagsCard() {
   const { tags: favoriteTags } = useFollowedTags(username, accessToken);
   const pinnedTags = useMemo(() => favoriteTags?.map((f) => f.tag) ?? [], [favoriteTags]);
   const firstTrendingPage = trendingTagsPages?.pages[0];
-  const [shuffledTags, setShuffledTags] = useState<string[] | null>(null);
-
-  // Shuffle after hydration, then keep suggestions steady during local interactions.
-  useEffect(() => {
-    const shuffled = [...(firstTrendingPage ?? [])];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    setShuffledTags(shuffled);
-  }, [firstTrendingPage]);
+  // One seed per mount, and the order is derived, not set from an effect. The
+  // effect version painted the server's order first and reshuffled a frame
+  // after hydration, and again on every refetch that returned a new page: the
+  // topics visibly jumped on load and whenever the reader tabbed back. This
+  // query is never prefetched on the server, so the first render that has
+  // data is a client render and there is nothing for hydration to disagree with.
+  const [seed] = useState(() => Math.random());
+  const shuffledTags = useMemo(
+    () => (firstTrendingPage ? seededShuffle(firstTrendingPage, seed) : null),
+    [firstTrendingPage, seed]
+  );
 
   const trendingTags = useMemo(() => {
     const pinned = new Set(pinnedTags);

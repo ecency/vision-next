@@ -7,6 +7,7 @@ import { IntentLink } from "@/features/shared/intent-link";
 import { SubscriptionBtn } from "@/app/communities/_components/subscription-btn";
 import { formattedNumber, makePath } from "@/utils";
 import { AllFilter } from "@/enums";
+import { seededShuffle } from "@/utils/seeded-shuffle";
 import { getCommunitiesQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import i18next from "i18next";
@@ -17,25 +18,6 @@ const PINNED = "hive-125125";
 const SLOTS = 3;
 /** The ranked communities the two rotating slots draw from. */
 const POOL_SIZE = 30;
-
-/** Deterministic shuffle for one seed, so a re-render never reshuffles. */
-function seededShuffle<T>(items: T[], seed: number): T[] {
-  const out = [...items];
-  // mulberry32: small, good enough for picking suggestions.
-  let state = Math.floor(seed * 0xffffffff) >>> 0;
-  const rand = () => {
-    state = (state + 0x6d2b79f5) >>> 0;
-    let t = state;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-  for (let i = out.length - 1; i > 0; i--) {
-    const j = Math.floor(rand() * (i + 1));
-    [out[i], out[j]] = [out[j], out[i]];
-  }
-  return out;
-}
 
 export const TopCommunitiesWidget = () => {
   const { data: ecencyCommunity, isLoading: ecencyLoading } = useQuery(

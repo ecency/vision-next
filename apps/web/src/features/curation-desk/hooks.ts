@@ -39,6 +39,7 @@ import {
   MY_MARKS_KEY_SUFFIX,
   MY_MARKS_PAGE_SIZE,
   POLL_MS_CURATOR,
+  POLL_MS_CURATOR_EMPTY_QUEUE,
   POLL_MS_PUBLIC,
   QUEUE_PAGE_SIZE,
   SEED_STORAGE_KEY,
@@ -246,6 +247,8 @@ export function useCurationTick(options: TickOptions): TickState {
   feedRef.current = options.feed;
   const sinceRef = useRef<string | null>(null);
   const inFlightRef = useRef(false);
+  /** When the last tick request left; the interval paces an empty queue off it. */
+  const lastSentAtRef = useRef<number | null>(null);
   const feedKeyRef = useRef(feedKey);
   feedKeyRef.current = feedKey;
   /**
@@ -283,6 +286,7 @@ export function useCurationTick(options: TickOptions): TickState {
     const key = feedKeyRef.current;
     const feed = feedRef.current;
     const sentAt = Date.now();
+    lastSentAtRef.current = sentAt;
     inFlightRef.current = true;
     try {
       const answer: CurationTickResponse = await curationDeskApi.tick(username, {
@@ -320,7 +324,21 @@ export function useCurationTick(options: TickOptions): TickState {
 
   useEffect(() => {
     if (!enabled || !username) return;
-    const interval = setInterval(() => void tickNow(), POLL_MS_CURATOR);
+    // An empty queue keeps ticking, but slower: the first tick goes out on
+    // the usual cadence so the bar fills in, and from then on a queue with no
+    // row to refresh asks again only once a minute. A visibility change or a
+    // queue that fills up returns to the 15 s cadence on its own.
+    const interval = setInterval(() => {
+      const sentAt = lastSentAtRef.current;
+      if (
+        rowsRef.current.length === 0 &&
+        sentAt !== null &&
+        Date.now() - sentAt < POLL_MS_CURATOR_EMPTY_QUEUE
+      ) {
+        return;
+      }
+      void tickNow();
+    }, POLL_MS_CURATOR);
     const onVisible = () => {
       if (document.visibilityState === "visible") void tickNow();
     };
@@ -343,6 +361,9 @@ export function useCurationTick(options: TickOptions): TickState {
   useEffect(() => {
     generationRef.current += 1;
     sinceRef.current = null;
+    // A fresh queue gets its first tick on the usual cadence, even if the one
+    // that just ended was empty and had slowed the interval down.
+    lastSentAtRef.current = null;
     // The state describes the queue that just ended, and the key changes with
     // the account too: a curator's hand-off, counts included, must not stay on
     // screen for the trial who signs in after them and has an empty queue.
