@@ -8,7 +8,11 @@ import { Entry, SearchResponse } from "@/entities";
 import { EntryListContent } from "@/features/shared/entry-list-content";
 import { LinearProgress } from "@/features/shared/linear-progress";
 import { UserAvatar } from "@/features/shared/user-avatar";
-import { getPostsRankedQueryOptions, QueryKeys } from "@ecency/sdk";
+import {
+  getAccountPostsQueryOptions,
+  getPostsRankedQueryOptions,
+  QueryKeys
+} from "@ecency/sdk";
 import { getQueryClient } from "@/core/react-query";
 import { withSlimPageEntries } from "@/core/entries/slim-entry";
 import { mergePreservingHint } from "@/core/entries/language-hint";
@@ -35,6 +39,49 @@ interface Props {
 
 // Union for a single page
 type Page = Entry[] | SearchResponse;
+
+/** Ranked lists whose top moves often enough to be worth watching. */
+const POLLED_RANKED_FILTERS = ["trending", "hot", "created"];
+
+/**
+ * What a "new posts" poll asks for on this feed, and the cache entry its answer
+ * merges into, or null for a feed the chip does not watch.
+ *
+ * Following is the reader's own chronological feed: it comes from a different
+ * bridge method than the ranked lists and lives under a different key, so it
+ * needs both halves of this, not just a place in the filter list. It is also
+ * the feed the chip is most useful on, since a post appearing at the top is
+ * simply someone they follow publishing, not a re-ranking.
+ */
+function resolvePollTarget(filter: string, tag: string, observer: string) {
+  // Same derivation the feed query itself uses for `@user` tags.
+  const account = tag.startsWith("@") || tag.startsWith("%40")
+    ? tag.replace("@", "").replace(/%40/g, "")
+    : "";
+
+  // Following only. The route's catch-all accepts an @account tag under any
+  // filter, and a section that is not the personal feed is not a chronological
+  // list this chip has anything true to say about.
+  if (account && filter === "feed") {
+    return {
+      feedKey: QueryKeys.posts.accountPosts(account, filter, 20, observer),
+      options: withSlimPageEntries(
+        getAccountPostsQueryOptions(account, filter, "", "", MAX_PENDING, observer)
+      )
+    };
+  }
+
+  if (POLLED_RANKED_FILTERS.includes(filter)) {
+    return {
+      feedKey: QueryKeys.posts.postsRanked(filter, tag, 20, observer),
+      options: withSlimPageEntries(
+        getPostsRankedQueryOptions(filter, "", "", MAX_PENDING, tag, observer)
+      )
+    };
+  }
+
+  return null;
+}
 
 export function FeedLayout(props: PropsWithChildren<Props>) {
   const listStyle = useGlobalStore((s) => s.listStyle);
@@ -65,15 +112,13 @@ export function FeedLayout(props: PropsWithChildren<Props>) {
   }, [data, extra]); // firstPageEntries is derived from data, so data is enough
 
   useEffect(() => {
-    if (!props.observer || !["trending", "hot", "created"].includes(props.filter)) return;
+    if (!props.observer) return;
+
+    const target = resolvePollTarget(props.filter, props.tag, props.observer);
+    if (!target) return;
 
     const queryClient = getQueryClient();
-    const queryKey = QueryKeys.posts.postsRanked(
-      props.filter,
-      props.tag,
-      20,
-      props.observer ?? ""
-    );
+    const queryKey = target.feedKey;
 
     // A hidden tab has nobody to show a "new posts" chip to, and this is not a
     // cheap tick: each fetch is a full 20-post ranked page, 257 KB gzipped on
@@ -95,9 +140,7 @@ export function FeedLayout(props: PropsWithChildren<Props>) {
       // Own cache identity: this SDK page key is also read by deck columns,
       // which render whole posts. The merge below reads the returned value, not
       // the cache, so the marker costs nothing here.
-      const pollOptions = withSlimPageEntries(
-        getPostsRankedQueryOptions(props.filter, "", "", MAX_PENDING, props.tag, props.observer)
-      );
+      const pollOptions = target.options;
       let resp: Entry[] | undefined;
       try {
         resp = await queryClient.fetchQuery({
@@ -115,7 +158,14 @@ export function FeedLayout(props: PropsWithChildren<Props>) {
       }
       if (cancelled || !resp || resp.length === 0) return;
 
-      // Update existing entries with latest stats
+      // Update existing entries with latest stats.
+      //
+      // Written with the LIST's own fetch time, not now: a stats merge refreshes
+      // what the rows say, never which rows they are. Letting it stamp the entry
+      // as freshly fetched would tell everything downstream that reads staleness
+      // — refetchOnMount, and the persisted copy's max age — that an hour-old
+      // list is a minute old.
+      const fetchedAt = queryClient.getQueryState(queryKey)?.dataUpdatedAt;
       queryClient.setQueryData<InfiniteData<Entry[] | SearchResponse, unknown>>(queryKey, (old) => {
         if (!old) return old;
         const map = new Map(resp.map((e) => [`${e.author}-${e.permlink}`, e]));
@@ -131,7 +181,7 @@ export function FeedLayout(props: PropsWithChildren<Props>) {
             return page; // SearchResponse: leave as-is
           }),
         };
-      });
+      }, fetchedAt ? { updatedAt: fetchedAt } : undefined);
 
       // Update any “extra” entries we’re showing above the list
       setExtra((p) =>

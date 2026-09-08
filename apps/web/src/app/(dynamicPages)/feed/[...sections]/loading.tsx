@@ -1,5 +1,5 @@
-import { ReadingListLoading } from "@/features/shared/reading-layout/reading-list-loading";
+import { FeedLoading } from "../_components";
 
 export default function Loading() {
-  return <ReadingListLoading showProgress />;
+  return <FeedLoading />;
 }

@@ -18,12 +18,19 @@ const PINNED = "hive-125125";
 const SLOTS = 3;
 /** The ranked communities the two rotating slots draw from. */
 const POOL_SIZE = 30;
+/**
+ * How many ranked communities to ask for. The pool is 30 and the card shows
+ * three, so the request only ever needs to cover the pool with a little room;
+ * the previous 100 pulled the whole payload on every feed load to render three
+ * rows.
+ */
+const FETCH_LIMIT = 50;
 
 export const TopCommunitiesWidget = () => {
   const { data: ecencyCommunity, isLoading: ecencyLoading } = useQuery(
     getCommunityCache(PINNED)
   );
-  const { data, isLoading, isError } = useQuery(getCommunitiesQueryOptions("rank"));
+  const { data, isLoading, isError } = useQuery(getCommunitiesQueryOptions("rank", undefined, FETCH_LIMIT));
   // One seed per mount: the pair changes on every page load, so more communities
   // get seen, but stays put while the reader scrolls and the queries refetch.
   const [seed] = useState(() => Math.random());

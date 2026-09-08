@@ -6,8 +6,10 @@ import { QueryClient } from "@tanstack/react-query";
 import { getQueryClient } from "@/core/react-query";
 import { renderWithQueryClient } from "@/specs/test-utils";
 import type { Entry } from "@/entities";
+import { QueryKeys as QUERY_KEYS } from "@ecency/sdk";
 
 const fetchSpy = vi.hoisted(() => vi.fn(async () => [] as Entry[]));
+const accountFetchSpy = vi.hoisted(() => vi.fn(async () => [] as Entry[]));
 
 vi.mock("@/utils", async () => ({
   ...(await vi.importActual<typeof import("@/utils")>("@/utils")),
@@ -23,6 +25,12 @@ vi.mock("@ecency/sdk", async () => {
       (sort: string, a: string, p: string, limit: number, tag: string, observer: string) => ({
         queryKey: QueryKeys.posts.postsRankedPage(sort, a, p, limit, tag, observer),
         queryFn: fetchSpy
+      })
+    ),
+    getAccountPostsQueryOptions: vi.fn(
+      (username: string, filter: string, a: string, p: string, limit: number, observer: string) => ({
+        queryKey: QueryKeys.posts.accountPostsPage(username, filter, a, p, limit, observer),
+        queryFn: accountFetchSpy
       })
     )
   };
@@ -78,6 +86,7 @@ describe("feed poll", () => {
   beforeEach(() => {
     vi.useFakeTimers();
     fetchSpy.mockClear();
+    accountFetchSpy.mockClear();
     // FeedLayout polls through getQueryClient(), the module-level client, not
     // the one the provider holds. Its cache outlives a test, and with the poll's
     // staleTime a leftover entry would satisfy the next test's fetch and make
@@ -189,6 +198,67 @@ describe("feed poll", () => {
     });
 
     expect(fetchSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not age the list forward when it merges stats", async () => {
+    // A tab left open all afternoon merges stats every 30s. If that counted as
+    // a fetch, the list would read as fresh to refetchOnMount and to the
+    // persisted copy's max age while being hours behind.
+    const client = getQueryClient();
+    const feedKey = QUERY_KEYS.posts.postsRanked("trending", "", 20, "ecency");
+    client.setQueryData(feedKey, {
+      pages: [[{ author: "alice", permlink: "one", stats: { total_votes: 1 } }]],
+      pageParams: [null]
+    });
+    const fetchedAt = client.getQueryState(feedKey)?.dataUpdatedAt as number;
+    fetchSpy.mockResolvedValueOnce([
+      { author: "alice", permlink: "one", stats: { total_votes: 9 } } as unknown as Entry
+    ]);
+
+    renderFeed();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(31_000);
+    });
+
+    const page = (client.getQueryData(feedKey) as { pages: Entry[][] }).pages[0];
+    expect(page[0].stats?.total_votes).toBe(9);
+    expect(client.getQueryState(feedKey)?.dataUpdatedAt).toBe(fetchedAt);
+  });
+
+  it("polls the reader's own feed through account posts", async () => {
+    // Following is chronological and comes from a different bridge method than
+    // the ranked lists: polling it as a ranked sort would ask hivemind for
+    // `sort=feed`, which it does not serve, and merge the answer into a cache
+    // entry the feed does not read.
+    renderFeed({ filter: "feed", tag: "@bob" });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(31_000);
+    });
+
+    expect(accountFetchSpy).toHaveBeenCalled();
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it("leaves an account-tagged feed that is not Following alone", async () => {
+    // The route's catch-all accepts an @account tag under any filter. Only the
+    // personal feed is the chronological list this chip speaks for.
+    renderFeed({ filter: "payout", tag: "@bob" });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(31_000);
+    });
+
+    expect(accountFetchSpy).not.toHaveBeenCalled();
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it("leaves feeds the chip does not watch alone", async () => {
+    renderFeed({ filter: "payout" });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(31_000);
+    });
+
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(accountFetchSpy).not.toHaveBeenCalled();
   });
 
   it("does refetch on return once the last poll has gone stale", async () => {
