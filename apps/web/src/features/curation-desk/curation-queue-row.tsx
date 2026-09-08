@@ -19,16 +19,16 @@ import {
 import { Button } from "@ui/button";
 import { UserAvatar } from "@/features/shared/user-avatar";
 import { ProfilePopover } from "@/features/shared/profile-popover";
+import { TimeLabel } from "@/features/shared/time-label";
 import { EcencySourceBadge } from "@/features/shared/ecency-source-badge";
 import type { Entry } from "@/entities";
-import { dateToRelative } from "@/utils";
 import { Chip } from "./curation-chip";
 import { appLabel } from "./curation-queue-display";
 import { CurationMarkBadges } from "./curation-mark-badges";
 import { CurationRecommendBtn } from "./curation-recommend-btn";
 import { CurationWindowBadge } from "./curation-window-badge";
 import { useCurationTicker } from "./curation-ticker";
-import { formatUtcHm, parseChainDate } from "./curation-window";
+import { parseChainDate } from "./curation-window";
 import type { DeskRow, RowSection, WindowState } from "./types";
 
 export interface RowActions {
@@ -241,9 +241,12 @@ export const CurationQueueRow = memo(function CurationQueueRow(props: Props) {
       </span>
 
       <div className="flex w-full shrink-0 items-center gap-2 text-xs text-gray-600 dark:text-gray-400 sm:w-36 sm:flex-col sm:items-start">
-        <time dateTime={row.created} className="font-mono">
-          <span className="hidden md:inline">{formatUtcHm(row.created)}</span>
-          <span className="md:hidden">{dateToRelative(row.created)}</span>
+        {/* The app-wide label: relative ("31m") with the full local date as the
+            tooltip. The row used to print a bare UTC clock from md up, which
+            curators read as local time; UTC stays on the labelled cursor and
+            hand-off strings, where the shared number is the point. */}
+        <time dateTime={row.created}>
+          <TimeLabel created={row.created} className="font-mono" />
         </time>
         {!collapsed && <CurationWindowBadge created={row.created} payoutAt={row.payout_at} className="max-w-full !whitespace-normal" />}
       </div>
