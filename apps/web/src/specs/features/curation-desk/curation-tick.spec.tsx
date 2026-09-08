@@ -130,6 +130,33 @@ describe("useCurationTick", () => {
     expect(router.callsTo(/tick/)).toHaveLength(4);
   });
 
+  it("retries a failed empty-queue tick on the next interval instead of waiting a minute", async () => {
+    setVisibility("visible");
+    let fail = true;
+    router.on(/curation-desk\/tick/, () => {
+      if (fail) throw new Error("boom");
+      return tickResponse;
+    });
+    renderHook(
+      () => useCurationTick({ username: "curator1", enabled: true, feedKey, rows: [], getVisibleIds: () => [] }),
+      { wrapper }
+    );
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(15_000);
+    });
+    expect(router.callsTo(/tick/)).toHaveLength(1);
+    fail = false;
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(15_000);
+    });
+    expect(router.callsTo(/tick/)).toHaveLength(2);
+    // Answered now, so the slow cadence applies from here.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(30_000);
+    });
+    expect(router.callsTo(/tick/)).toHaveLength(2);
+  });
+
   it("ticks once on visibilitychange and every 15 s while visible", async () => {
     seed();
     renderHook(() => useCurationTick({ username: "curator1", enabled: true, feedKey, rows: [rowA, rowB], getVisibleIds: () => [1, 2] }), { wrapper });

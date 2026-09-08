@@ -247,8 +247,11 @@ export function useCurationTick(options: TickOptions): TickState {
   feedRef.current = options.feed;
   const sinceRef = useRef<string | null>(null);
   const inFlightRef = useRef(false);
-  /** When the last tick request left; the interval paces an empty queue off it. */
-  const lastSentAtRef = useRef<number | null>(null);
+  /**
+   * When the last tick that was answered left. The interval paces an empty
+   * queue off it, so a failed tick does not count: the next interval retries.
+   */
+  const lastAnsweredAtRef = useRef<number | null>(null);
   const feedKeyRef = useRef(feedKey);
   feedKeyRef.current = feedKey;
   /**
@@ -286,7 +289,6 @@ export function useCurationTick(options: TickOptions): TickState {
     const key = feedKeyRef.current;
     const feed = feedRef.current;
     const sentAt = Date.now();
-    lastSentAtRef.current = sentAt;
     inFlightRef.current = true;
     try {
       const answer: CurationTickResponse = await curationDeskApi.tick(username, {
@@ -295,6 +297,7 @@ export function useCurationTick(options: TickOptions): TickState {
         visible,
       });
       if (generation !== generationRef.current) return;
+      lastAnsweredAtRef.current = sentAt;
       // A row this desk marked while the tick was out is described here as it
       // was before the mark (an undo after a mark is the usual case), so the
       // mark's own answer stays and the tick's word on that row is dropped.
@@ -326,14 +329,15 @@ export function useCurationTick(options: TickOptions): TickState {
     if (!enabled || !username) return;
     // An empty queue keeps ticking, but slower: the first tick goes out on
     // the usual cadence so the bar fills in, and from then on a queue with no
-    // row to refresh asks again only once a minute. A visibility change or a
-    // queue that fills up returns to the 15 s cadence on its own.
+    // row to refresh asks again only once a minute. A visibility change, a
+    // queue that fills up or a tick that failed returns to the 15 s cadence
+    // on its own.
     const interval = setInterval(() => {
-      const sentAt = lastSentAtRef.current;
+      const answeredAt = lastAnsweredAtRef.current;
       if (
         rowsRef.current.length === 0 &&
-        sentAt !== null &&
-        Date.now() - sentAt < POLL_MS_CURATOR_EMPTY_QUEUE
+        answeredAt !== null &&
+        Date.now() - answeredAt < POLL_MS_CURATOR_EMPTY_QUEUE
       ) {
         return;
       }
@@ -363,7 +367,7 @@ export function useCurationTick(options: TickOptions): TickState {
     sinceRef.current = null;
     // A fresh queue gets its first tick on the usual cadence, even if the one
     // that just ended was empty and had slowed the interval down.
-    lastSentAtRef.current = null;
+    lastAnsweredAtRef.current = null;
     // The state describes the queue that just ended, and the key changes with
     // the account too: a curator's hand-off, counts included, must not stay on
     // screen for the trial who signs in after them and has an empty queue.

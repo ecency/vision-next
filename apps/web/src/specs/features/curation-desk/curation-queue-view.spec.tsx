@@ -442,7 +442,7 @@ describe("CurationQueueView", () => {
    * new feed key, a page-one request and a saved-filters write; the queue
    * re-rendered under the thumb. The range now lands when the thumb is let go.
    */
-  it("applies the reputation range once the slider is released, not on every step", async () => {
+  it("applies the reputation range on the release, wherever it happens, not on every step", async () => {
     renderWithQueryClient(<CurationQueueView />, { queryClient: prodLikeClient() });
     await screen.findAllByRole("article");
     fireEvent.click(screen.getByText("curation-desk.filters.refine").closest("summary")!);
@@ -450,14 +450,16 @@ describe("CurationQueueView", () => {
     const feedCalls = () => fetchRouter.callsTo(/curation-desk\/feed\?/).length;
     const before = feedCalls();
 
-    fireEvent.change(repMin, { target: { value: "10" } });
-    fireEvent.change(repMin, { target: { value: "20" } });
-    fireEvent.change(repMin, { target: { value: "30" } });
+    // A drag is `input` events; the browser fires `change` once on release,
+    // on the input, even when the pointer is let go elsewhere on the page.
+    fireEvent.input(repMin, { target: { value: "10" } });
+    fireEvent.input(repMin, { target: { value: "20" } });
+    fireEvent.input(repMin, { target: { value: "30" } });
     expect(repMin).toHaveValue("30");
     expect(feedCalls()).toBe(before);
     expect(fetchRouter.callsTo(/curation-desk\/feed\?/).some((call) => call.url.includes("rep_min="))).toBe(false);
 
-    fireEvent.pointerUp(repMin);
+    fireEvent.change(repMin, { target: { value: "30" } });
     await waitFor(() => expect(feedCalls()).toBe(before + 1));
     const last = fetchRouter.callsTo(/curation-desk\/feed\?/).at(-1)!;
     expect(last.url).toContain("rep_min=30");

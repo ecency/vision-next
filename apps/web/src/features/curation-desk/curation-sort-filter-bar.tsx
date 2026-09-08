@@ -1,7 +1,7 @@
 "use client";
 
 import clsx from "clsx";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import i18next from "i18next";
 import { UilAngleDown, UilSlidersVAlt } from "@tooni/iconscout-unicons-react";
 import type { CurationApp, CurationWindow } from "@ecency/sdk";
@@ -283,14 +283,35 @@ function ReputationRange({
     setDraft({ repMin, repMax });
   }, [repMin, repMax]);
 
-  const commit = () => {
-    if (draft.repMin !== repMin || draft.repMax !== repMax) {
-      onCommit(draft);
-    }
-  };
+  const draftRef = useRef(draft);
+  draftRef.current = draft;
+  const committedRef = useRef({ repMin, repMax });
+  committedRef.current = { repMin, repMax };
+  const onCommitRef = useRef(onCommit);
+  onCommitRef.current = onCommit;
+
+  // The native `change` event is the release: a range input fires `input` on
+  // every step and `change` once the value is let go, on the input itself
+  // even when the pointer is released somewhere else on the page (and after
+  // each keyboard step). React's onChange is the `input` event, and a
+  // pointerup handler on the input never sees a release outside it.
+  const rootRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    const onRelease = () => {
+      const next = draftRef.current;
+      const committed = committedRef.current;
+      if (next.repMin !== committed.repMin || next.repMax !== committed.repMax) {
+        onCommitRef.current(next);
+      }
+    };
+    root.addEventListener("change", onRelease);
+    return () => root.removeEventListener("change", onRelease);
+  }, []);
 
   return (
-    <div className="flex flex-col gap-3 text-gray-600 dark:text-gray-400">
+    <div ref={rootRef} className="flex flex-col gap-3 text-gray-600 dark:text-gray-400">
       <span>
         {i18next.t("curation-desk.filters.rep", {
           min: draft.repMin,
@@ -306,9 +327,6 @@ function ReputationRange({
         onChange={(e) =>
           setDraft((d) => ({ ...d, repMin: Math.min(Number(e.target.value), d.repMax) }))
         }
-        onPointerUp={commit}
-        onKeyUp={commit}
-        onBlur={commit}
         className="w-full accent-blue-dark-sky"
       />
       <input
@@ -320,9 +338,6 @@ function ReputationRange({
         onChange={(e) =>
           setDraft((d) => ({ ...d, repMax: Math.max(Number(e.target.value), d.repMin) }))
         }
-        onPointerUp={commit}
-        onKeyUp={commit}
-        onBlur={commit}
         className="w-full accent-blue-dark-sky"
       />
     </div>
