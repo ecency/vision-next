@@ -76,7 +76,14 @@ export interface PersistFamily {
  */
 export const PERSIST_FAMILIES: PersistFamily[] = [
   {
-    // The reader's own feed and any profile section they were last reading.
+    // The reader's own feed. Profile sections share this key shape but are
+    // fetched as DEFAULT_OBSERVER whatever the login (deliberately: see
+    // profile-entries-infinite-list and consts/observer), so for a signed-in
+    // reader they carry a different observer than their feed and the identity
+    // check below leaves them out. That is the trade taken, not an oversight:
+    // the check is what keeps one account's rows out of another's record, and
+    // a profile list discards its own page 1 in favour of the server's, so a
+    // restored copy of that page would have had nothing to paint anyway.
     // QueryKeys.posts.accountPosts(username, filter, limit, observer).
     id: "account-posts",
     maxAge: 10 * MINUTE,
