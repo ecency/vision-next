@@ -9,7 +9,7 @@ interface Props {
 
 export function FaqCategoryStateless({ contentList, categoryTitle, expanded, setExpanded }: Props) {
   return (
-    <div className="faq-container section-container">
+    <div className="faq-container section-container reading-surface border border-[--border-color] rounded-xl">
       <div
         className="section flex flex-col border-b border-[--border-color]"
         role="button"

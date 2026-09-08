@@ -100,7 +100,7 @@ export function PerksQuestsSection() {
     document.getElementById("perks-spin")?.scrollIntoView({ behavior: "smooth", block: "center" });
 
   return (
-    <div className="bg-white dark:bg-gray-900 border rounded-xl overflow-hidden">
+    <div className="reading-surface border rounded-xl overflow-hidden">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 pb-0">
         <div>
           <div className="text-lg font-bold">{i18next.t("perks.quests.title")}</div>

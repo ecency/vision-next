@@ -49,7 +49,7 @@ export function ProposalListItem({
   const remaining = diff < 0 ? 0 : diff;
 
   return (
-    <div className={`proposal-list-item ${votedByViewer ? "voted-by-voter" : ""}`}>
+    <div className={`proposal-list-item ${votedByViewer ? "voted-by-voter" : "reading-surface"}`}>
       <div className="item-content">
         <div className="left-side">
           <div className="proposal-users-card">

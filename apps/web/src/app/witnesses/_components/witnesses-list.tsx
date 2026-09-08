@@ -107,7 +107,7 @@ export function WitnessesList() {
           />
         </div>
       </div>
-      <div className="witnesses-table">
+      <div className="witnesses-table reading-surface rounded-xl">
         <Table full={true}>
           <thead>
             <Tr>
@@ -125,7 +125,7 @@ export function WitnessesList() {
             {witnesses.map((row, i) => (
               <Tr
                 key={`${row.name}-${row.rank}${i}`}
-                className={`${proxyVotes.includes(row.name) ? "voted-by-voter" : ""}`}
+                className={`${proxyVotes.includes(row.name) ? "voted-by-voter" : "reading-surface"}`}
               >
                 <Td className="border p-2">
                   <div className="witness-rank">
@@ -204,7 +204,7 @@ export function WitnessesList() {
       <div className="md:hidden">
         {witnesses.map((row, i) => (
           <div key={`${row.name}${i}`}>
-            <div className={`${proxyVotes.includes(row.name) ? "voted-by-voter" : ""}`}>
+            <div className={`rounded-xl ${proxyVotes.includes(row.name) ? "voted-by-voter" : "reading-surface"}`}>
               <WitnessCard witness={row.name} row={row} key={`${row.name}-${i}`} onVotersClick={setVoterDialogWitness} />
             </div>
           </div>

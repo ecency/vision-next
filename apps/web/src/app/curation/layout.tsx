@@ -20,13 +20,13 @@ export default function CurationLayout({ children }: PropsWithChildren) {
   }
 
   return (
-    <>
+    <div className="reading-background">
       <ScrollToTop />
       <Navbar />
       <div className="app-content flex-col gap-5 !max-w-[1280px]">
         <CurationTabs />
         <RouteErrorBoundary>{children}</RouteErrorBoundary>
       </div>
-    </>
+    </div>
   );
 }

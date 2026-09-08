@@ -73,14 +73,10 @@
 }
 
 .reading-page {
-  min-height: 100vh;
-  display: flow-root;
   --feed-muted: #606a74;
 
   @include themify(night) {
-    background: #15171b;
     --feed-muted: #a8adb6;
-    --border-color: #30343b;
 
     .entry-list-body:not(.grid-view) .entry-list-item {
       border-bottom-color: #292d33;
@@ -91,6 +87,7 @@
 // Shared post and loading layouts, using the same row/grid preference.
 .reading-page .reading-list-layout {
   .entry-list-body.grid-view {
+    margin-top: 16px;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
@@ -107,10 +104,7 @@
       padding: 16px;
       border: 1px solid var(--border-color);
       border-radius: 12px;
-    }
-
-    .entry-list-item {
-      background: transparent;
+      background: var(--reading-surface-bg);
     }
 
     .entry-list-item .item-image,
@@ -144,6 +138,12 @@
   }
 
   .entry-list-body:not(.grid-view) {
+    background: var(--reading-surface-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding-inline: 16px;
+    margin-top: 16px;
+
     .entry-list-item {
       background: transparent;
       border-radius: 0;

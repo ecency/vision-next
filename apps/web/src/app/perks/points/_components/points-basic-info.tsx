@@ -16,7 +16,7 @@ export function PointsBasicInfo() {
   );
 
   return (
-    <div className="sm:col-span-2 lg:col-span-3 p-2 md:p-4 lg:p-6 bg-white rounded-xl w-full flex flex-col">
+    <div className="sm:col-span-2 lg:col-span-3 p-2 md:p-4 lg:p-6 reading-surface rounded-xl w-full flex flex-col">
       <Link href="/perks">
         <Button
           size="sm"

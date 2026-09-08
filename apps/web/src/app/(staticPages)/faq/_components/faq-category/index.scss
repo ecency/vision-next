@@ -2,7 +2,7 @@
 
 .faq-container.section-container {
   @include themify(night) {
-    @apply bg-dark-default;
+    background: var(--reading-surface-bg, theme("colors.dark.default"));
   }
 }
 
@@ -41,7 +41,7 @@
   }
 
   .section-content:hover {
-    @apply bg-light-400;
+    @apply bg-gray-100 dark:bg-gray-800;
   }
 
   .section-content {

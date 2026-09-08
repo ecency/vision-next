@@ -159,7 +159,7 @@ export function ProposalsPage() {
   const showProposalsList = !showCreateForm;
 
   return (
-    <>
+    <div className="reading-background">
       <ScrollToTop />
       <Theme />
       <Feedback />
@@ -241,6 +241,6 @@ export function ProposalsPage() {
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 }

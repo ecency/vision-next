@@ -11,6 +11,7 @@
 
 @import "./theme-day";
 @import "./theme-night";
+@import "./reading-palette";
 
 /* Static pages CSS moved to page-level imports for better LCP performance */
 /* Import in specific pages that need it: landing page, FAQ, about, etc. */
@@ -19,7 +20,6 @@
 
 // Component stylesheets, collapsed into this entry (issue #1632).
 @import "./shared-components";
-@import "./reading-palette";
 
 @layer utilities {
   .no-scrollbar::-webkit-scrollbar {

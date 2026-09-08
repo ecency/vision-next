@@ -26,7 +26,7 @@ export function TagsPage() {
   const tags = useMemo(() => data?.pages.flat() ?? [], [data]);
 
   return (
-    <>
+    <div className="reading-background">
       <ScrollToTop />
       <Theme />
       <Navbar />
@@ -103,6 +103,6 @@ export function TagsPage() {
           </>
         )}
       </div>
-    </>
+    </div>
   );
 }

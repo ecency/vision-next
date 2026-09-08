@@ -31,7 +31,7 @@ export default function CurationPage() {
         condition={({ visionFeatures }) => visionFeatures.discover.curation.enabled}
       >
         <UsersTableListLayout>
-          <div className="flex justify-between items-center">
+          <div className="flex flex-wrap gap-2 justify-between items-center">
             <div className="font-semibold">{i18next.t("leaderboard.title-curators")}</div>
             <div className="text-sm opacity-50">
               {i18next.t(`leaderboard.title-${params.get("period") ?? "day"}`)}

@@ -16,7 +16,7 @@ export function FaqCategoryClient({ contentList, categoryTitle }: Props) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="faq-container section-container">
+    <div className="faq-container section-container reading-surface border border-[--border-color] rounded-xl">
       <Accordion className={expanded ? "border-b border-[--border-color]" : ""}>
         <AccordionToggle eventKey="0">
           <div

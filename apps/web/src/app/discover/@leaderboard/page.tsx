@@ -36,7 +36,7 @@ export default function LeaderboardPage({ searchParams }: Props) {
         condition={({ visionFeatures }) => visionFeatures.discover.leaderboard.enabled}
       >
         <UsersTableListLayout>
-          <div className="flex justify-between items-center">
+          <div className="flex flex-wrap gap-2 justify-between items-center">
             <div className="font-semibold">
               {i18next.t(`leaderboard.title-${params.get("period") ?? "day"}`)}
             </div>
