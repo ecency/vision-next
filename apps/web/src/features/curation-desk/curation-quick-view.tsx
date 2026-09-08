@@ -5,8 +5,8 @@ import clsx from "clsx";
 import i18next from "i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  UilAngleLeft,
-  UilAngleRight,
+  UilAngleUp,
+  UilAngleDown,
   UilArrowRight,
   UilBell,
   UilCheck,
@@ -291,7 +291,7 @@ export function CurationQuickView({
     <ModalSidebar show={open} setShow={(v) => !v && onClose()} placement="right" className="min-w-[90%] md:min-w-[44rem]">
       <div ref={drawerRef} data-curation-drawer className="flex flex-col h-full" aria-label={i18next.t("curation-desk.quick-view.aria")}>
         <div className="flex items-start gap-2 p-3 border-b border-[--border-color]">
-          <Button size="xs" appearance="gray-link" className="!rounded-lg" aria-label={i18next.t("curation-desk.quick-view.prev")} title="k" onClick={onPrev} icon={<UilAngleLeft />} />
+          <Button size="xs" appearance="gray-link" className="!rounded-lg" aria-label={i18next.t("curation-desk.quick-view.prev")} title={i18next.t("curation-desk.quick-view.prev")} onClick={onPrev} icon={<UilAngleUp />} />
           <div className="min-w-0 flex-1">
             <h2 className="font-semibold leading-tight line-clamp-2">{title}</h2>
             <div className="flex flex-wrap items-center gap-2 text-xs text-gray-600 dark:text-gray-400 mt-1">
@@ -318,7 +318,7 @@ export function CurationQuickView({
               <p className="text-[11px] text-gray-500 mt-1">{i18next.t("curation-desk.quick-view.signals-hint")}</p>
             )}
           </div>
-          <Button size="xs" appearance="gray-link" className="!rounded-lg" aria-label={i18next.t("curation-desk.quick-view.next")} title="j" onClick={onNext} icon={<UilAngleRight />} />
+          <Button size="xs" appearance="gray-link" className="!rounded-lg" aria-label={i18next.t("curation-desk.quick-view.next")} title={i18next.t("curation-desk.quick-view.next")} onClick={onNext} icon={<UilAngleDown />} />
           <Button ref={closeRef as React.Ref<HTMLButtonElement | HTMLAnchorElement>} size="xs" appearance="gray-link" className="!rounded-lg" aria-label={i18next.t("g.close")} onClick={onClose} icon={<UilTimes />} />
         </div>
 

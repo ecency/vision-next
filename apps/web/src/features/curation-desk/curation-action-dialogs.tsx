@@ -148,7 +148,10 @@ export function NoteDialog({ title, initial = "", onSave, onHide }: NoteProps) {
 }
 
 const SHORTCUTS: Array<[string, string]> = [
-  ["j / k", "next-prev"],
+  // j is DOWN and k is UP, like vim and the arrow keys. Listed as two rows so
+  // the sheet cannot be read as "next = newer" in a newest-first queue.
+  ["j / ↓", "down"],
+  ["k / ↑", "up"],
   ["Enter / o", "quick-view"],
   ["v", "vote"],
   ["c", "comment"],
