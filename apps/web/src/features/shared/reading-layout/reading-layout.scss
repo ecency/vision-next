@@ -78,8 +78,10 @@
   @include themify(night) {
     --feed-muted: #a8adb6;
 
-    .entry-list-body:not(.grid-view) .entry-list-item {
-      border-bottom-color: #292d33;
+    // Specificity must beat the shared divider rule below, which sets the
+    // shorthand border-top with the palette --border-color.
+    .reading-list-layout .entry-list-body:not(.grid-view) .entry-list-item + .entry-list-item {
+      border-top-color: #292d33;
     }
   }
 }
@@ -144,10 +146,25 @@
     padding-inline: 16px;
     margin-top: 16px;
 
+    // Nothing to show (an empty tag hub, or a fresh feed before its first page):
+    // drop the card chrome rather than paint an empty outline under the header.
+    &:not(:has(> :not(.detect-bottom))) {
+      border-color: transparent;
+      background: transparent;
+    }
+
     .entry-list-item {
       background: transparent;
       border-radius: 0;
       margin-top: 0;
+      // Dividers sit BETWEEN rows only. A bottom border on the last row would
+      // double the card edge, and :last-of-type cannot find it past the
+      // scroll sentinel that follows the list.
+      border-bottom: 0;
+
+      & + .entry-list-item {
+        border-top: 1px solid var(--border-color);
+      }
       padding: 20px 0;
 
       .item-header {

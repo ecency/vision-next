@@ -8,7 +8,8 @@
 
   .tags-side {
     display: none;
-    width: 180px;
+    // Preserve 180px for widget content inside the padded, bordered panel.
+    width: 214px;
     margin-right: 0;
     padding-top: 16px;
 

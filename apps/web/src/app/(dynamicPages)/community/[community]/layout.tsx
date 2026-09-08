@@ -35,7 +35,14 @@ export default async function CommunityPageLayout({ children, params }: PropsWit
       <Feedback />
       <Navbar />
       <div className="app-content community-page reading-list-layout">
-        <div className="profile-side self-start w-full reading-surface border border-[--border-color] rounded-xl p-4">
+        {/* Painted only with content: not-found renders inside this layout with no card. */}
+        <div
+          className={`profile-side self-start w-full ${
+            account && communityData
+              ? "reading-surface border border-[--border-color] rounded-xl p-4"
+              : ""
+          }`}
+        >
           {account && communityData && (
             <CommunityCard account={account} community={communityData} />
           )}

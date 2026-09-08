@@ -27,7 +27,17 @@ export function ProfileEntriesArchive({
 }: Props) {
   const stripped = stripActiveVotesFromValue(entries, currentUser);
   return (
-    <ProfileEntriesLayout section={section} username={account.name}>
+    <ProfileEntriesLayout
+      section={section}
+      username={account.name}
+      after={
+        <EntryArchivePager
+          basePath={`/@${account.name}/${section}`}
+          olderCursor={olderCursor}
+          showLatest={true}
+        />
+      }
+    >
       <EntryListContent
         account={account}
         username={`@${account.name}`}
@@ -36,11 +46,6 @@ export function ProfileEntriesArchive({
         sectionParam={section}
         isPromoted={false}
         showEmptyPlaceholder={false}
-      />
-      <EntryArchivePager
-        basePath={`/@${account.name}/${section}`}
-        olderCursor={olderCursor}
-        showLatest={true}
       />
     </ProfileEntriesLayout>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import { ListStyle } from "@/enums";
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, ReactNode } from "react";
 import { useGlobalStore } from "@/core/global-store";
 import { usePostsFeedQuery } from "@/api/queries";
 import { LinearProgress } from "@/features/shared/linear-progress";
@@ -10,6 +10,8 @@ import { isCommunity } from "@/utils";
 interface Props {
   username: string;
   section: string;
+  /** Rendered below the post list, outside the list surface (archive pager). */
+  after?: ReactNode;
 }
 
 export function ProfileEntriesLayout(props: PropsWithChildren<Props>) {
@@ -28,6 +30,7 @@ export function ProfileEntriesLayout(props: PropsWithChildren<Props>) {
         {isFetching && <LinearProgress />}
         {props.children}
       </div>
+      {props.after}
     </div>
   );
 }
