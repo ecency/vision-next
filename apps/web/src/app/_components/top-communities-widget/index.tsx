@@ -11,26 +11,55 @@ import { getCommunitiesQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import i18next from "i18next";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+
+const PINNED = "hive-125125";
+const SLOTS = 3;
+/** The ranked communities the two rotating slots draw from. */
+const POOL_SIZE = 30;
+
+/** Deterministic shuffle for one seed, so a re-render never reshuffles. */
+function seededShuffle<T>(items: T[], seed: number): T[] {
+  const out = [...items];
+  // mulberry32: small, good enough for picking suggestions.
+  let state = Math.floor(seed * 0xffffffff) >>> 0;
+  const rand = () => {
+    state = (state + 0x6d2b79f5) >>> 0;
+    let t = state;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
 
 export const TopCommunitiesWidget = () => {
   const { data: ecencyCommunity, isLoading: ecencyLoading } = useQuery(
-    getCommunityCache("hive-125125")
+    getCommunityCache(PINNED)
   );
   const { data, isLoading, isError } = useQuery(getCommunitiesQueryOptions("rank"));
+  // One seed per mount: the pair changes on every page load, so more communities
+  // get seen, but stays put while the reader scrolls and the queries refetch.
+  const [seed] = useState(() => Math.random());
 
   const list = useMemo(() => {
-    // A failed Town Square request must not hide the other suggestions. Keep
-    // the selection stable while reading, and deduplicate by community name.
+    // Town Square is pinned first. The other slots rotate through the top of the
+    // ranking instead of always showing the same two leaders. A failed Town
+    // Square request must not hide the other suggestions, and the list is
+    // deduplicated by community name.
     const communities = new Map<string, Community>();
-    for (const community of [...(ecencyCommunity ? [ecencyCommunity] : []), ...(data ?? [])]) {
-      if (!communities.has(community.name)) {
-        communities.set(community.name, community);
-      }
-      if (communities.size === 3) break;
+    if (ecencyCommunity) communities.set(ecencyCommunity.name, ecencyCommunity);
+    const pool = (data ?? []).filter((c) => c.name !== PINNED).slice(0, POOL_SIZE);
+    for (const community of seededShuffle(pool, seed)) {
+      if (communities.size === SLOTS) break;
+      if (!communities.has(community.name)) communities.set(community.name, community);
     }
     return [...communities.values()];
-  }, [ecencyCommunity, data]);
+  }, [ecencyCommunity, data, seed]);
   const loading = isLoading || ecencyLoading;
 
   return (

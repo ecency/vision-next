@@ -70,15 +70,19 @@ describe("feed community suggestions", () => {
     ];
   });
 
-  it("shows three distinct communities and keeps discovery and creation reachable", async () => {
+  it("shows Town Square plus two distinct ranked communities and keeps discovery and creation reachable", async () => {
     renderWithQueryClient(<TopCommunitiesWidget />);
-    await screen.findByRole("link", { name: "Gaming" });
-    expect(screen.getAllByRole("link", { name: "Town Square" })).toHaveLength(1);
-    expect(screen.queryByRole("link", { name: "Music" })).toBeNull();
-    expect(screen.getByRole("link", { name: "Photography" })).toHaveAttribute(
-      "href",
-      "/created/hive-100001"
+    await screen.findByRole("link", { name: "Town Square" });
+    const others = ["Photography", "Gaming", "Music"];
+    await waitFor(() =>
+      expect(others.filter((t) => screen.queryByRole("link", { name: t })).length).toBe(2)
     );
+    expect(screen.getAllByRole("link", { name: "Town Square" })).toHaveLength(1);
+    const shown = others.filter((t) => screen.queryByRole("link", { name: t }));
+    for (const title of shown) {
+      const name = ranked.find((c) => c.title === title)!.name;
+      expect(screen.getByRole("link", { name: title })).toHaveAttribute("href", `/created/${name}`);
+    }
     expect(screen.getByRole("link", { name: "top-communities.explore" })).toHaveAttribute(
       "href",
       "/communities"
@@ -87,6 +91,37 @@ describe("feed community suggestions", () => {
       "href",
       "/communities/create"
     );
+  });
+
+  it("rotates the two unpinned slots between page loads instead of always showing the leaders", async () => {
+    // The pair is drawn from the top of the ranking with a per-mount seed, so
+    // different loads surface different communities. Drive the seed directly.
+    ranked = [
+      town,
+      ...Array.from({ length: 8 }, (_, i) =>
+        mockCommunity({ name: `hive-20000${i}`, title: `Community ${i}` })
+      )
+    ];
+    const pairs = new Set<string>();
+    for (const seed of [0.05, 0.35, 0.65, 0.95]) {
+      vi.spyOn(Math, "random").mockReturnValueOnce(seed);
+      const { unmount } = renderWithQueryClient(<TopCommunitiesWidget />);
+      await screen.findByRole("link", { name: "Town Square" });
+      await waitFor(() =>
+        expect(screen.getAllByRole("link", { name: /^Community \d$/ })).toHaveLength(2)
+      );
+      pairs.add(
+        screen
+          .getAllByRole("link", { name: /^Community \d$/ })
+          .map((l) => l.textContent)
+          .sort()
+          .join("|")
+      );
+      unmount();
+    }
+    expect(pairs.size).toBeGreaterThan(1);
+    // Town Square is pinned and never drawn twice.
+    expect([...pairs].every((p) => !p.includes("Town Square"))).toBe(true);
   });
 
   it("renders the ranked list even when the Town Square request fails", async () => {
