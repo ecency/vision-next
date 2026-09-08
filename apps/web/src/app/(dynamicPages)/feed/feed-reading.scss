@@ -59,6 +59,7 @@
 
   .feed-sidebar-link {
     @apply text-blue-dark-sky;
+
     display: inline-flex;
     align-items: center;
     min-height: 40px;
@@ -104,6 +105,7 @@
 
     > a {
       @apply text-gray-700 dark:text-gray-300;
+
       display: flex;
       align-items: center;
       gap: 10px;
@@ -143,6 +145,7 @@
 
   .feed-community-name {
     @apply text-gray-800 dark:text-gray-200;
+
     display: flex;
     align-items: center;
     gap: 8px;
@@ -163,6 +166,7 @@
 
   .feed-community-about {
     @apply line-clamp-2;
+
     color: var(--feed-muted);
     margin: 8px 0 4px;
     font-size: 14px;
@@ -184,10 +188,10 @@
   .entry-list-body:not(.grid-view) {
     .entry-list-item {
       margin-top: 0;
-      padding: 24px 0;
+      padding: 20px 0;
 
       .item-header {
-        margin-bottom: 10px;
+        margin-bottom: 8px;
         flex-wrap: wrap;
         overflow: visible;
         gap: 4px 12px;
@@ -243,6 +247,7 @@
         min-width: 0;
         .item-title {
           @apply text-gray-900 dark:text-gray-100;
+
           font-size: 22px;
           line-height: 1.35;
           max-height: none;
@@ -252,6 +257,7 @@
         }
         .item-body {
           @apply line-clamp-2;
+
           color: var(--feed-muted);
           font-size: 16px;
           line-height: 1.55;
@@ -294,18 +300,18 @@
     @media (min-width: 640px) {
       .entry-preview {
         display: flex;
-        flex-direction: row-reverse;
+        flex-direction: row;
         align-items: flex-start;
-        gap: 24px;
+        gap: 20px;
       }
 
       .entry-list-item .item-body {
         .item-image {
-          float: right;
+          float: left;
           flex: 0 0 150px;
           width: 150px;
           height: 104px;
-          margin: 0 0 0 24px;
+          margin: 0 20px 0 0;
           border-radius: 8px;
         }
         .entry-preview .item-image {
@@ -321,9 +327,9 @@
       }
 
       .entry-list-loading-item .item-image {
-        float: right;
-        margin-left: 24px;
-        margin-right: 0;
+        float: left;
+        margin-left: 0;
+        margin-right: 20px;
       }
     }
   }
@@ -362,7 +368,6 @@
   .feed-navigation-desktop {
     flex: 1;
     min-width: 0;
-    flex-direction: column;
   }
   .feed-source-tabs,
   .feed-sort-tabs {
@@ -390,7 +395,8 @@
   }
   .feed-tab-selected {
     @apply text-blue-dark-sky dark:text-blue-dark-sky;
-    border-bottom-color: currentColor;
+
+    border-bottom-color: currentcolor;
     font-weight: 600;
   }
   .feed-reblog-toggle {
@@ -406,6 +412,7 @@
   }
   .feed-switch-track {
     @apply bg-gray-300 dark:bg-gray-600;
+
     display: inline-flex;
     align-items: center;
     flex-shrink: 0;
@@ -432,9 +439,7 @@
 
 .feed-navbar {
   .ecency-navbar-desktop {
-    max-width: 1440px;
     gap: 12px;
-    padding-inline: 24px;
   }
   .navbar-search-slot {
     max-width: 320px;
@@ -470,7 +475,6 @@
 
   @media (max-width: 1279px) {
     .ecency-navbar-desktop {
-      padding-inline: 16px;
       gap: 8px;
     }
     .navbar-actions {

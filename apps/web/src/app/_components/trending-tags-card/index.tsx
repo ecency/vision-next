@@ -12,7 +12,7 @@ import i18next from "i18next";
 import Link from "next/link";
 import { IntentLink } from "@/features/shared/intent-link";
 import { useParams, useRouter } from "next/navigation";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import "./_index.scss";
 
 export function TrendingTagsCard() {
@@ -38,14 +38,26 @@ export function TrendingTagsCard() {
   // so a followed topic is one click away and never listed twice.
   const { tags: favoriteTags } = useFollowedTags(username, accessToken);
   const pinnedTags = useMemo(() => favoriteTags?.map((f) => f.tag) ?? [], [favoriteTags]);
-  const trendingTags = useMemo(() => {
-    const first = trendingTagsPages?.pages[0];
-    if (!first) {
-      return pinnedTags;
+  const firstTrendingPage = trendingTagsPages?.pages[0];
+  const [shuffledTags, setShuffledTags] = useState<string[] | null>(null);
+
+  // Shuffle after hydration, then keep suggestions steady during local interactions.
+  useEffect(() => {
+    const shuffled = [...(firstTrendingPage ?? [])];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
+    setShuffledTags(shuffled);
+  }, [firstTrendingPage]);
+
+  const trendingTags = useMemo(() => {
     const pinned = new Set(pinnedTags);
-    return [...pinnedTags, ...first.filter((t) => !pinned.has(t))];
-  }, [pinnedTags, trendingTagsPages?.pages]);
+    return [
+      ...pinnedTags,
+      ...(shuffledTags ?? firstTrendingPage ?? []).filter((t) => !pinned.has(t))
+    ];
+  }, [pinnedTags, shuffledTags, firstTrendingPage]);
 
   const handleUnselection = useCallback(() => {
     router.push("/" + filter + ((activeUser && activeUser.username && "/my") || ""));
@@ -53,9 +65,14 @@ export function TrendingTagsCard() {
 
   // Keep the current topic reachable even when it falls outside the short list.
   const visibleTags = useMemo(() => {
-    const selected = trendingTags?.includes(tag) ? tag : undefined;
+    // Following URLs rewrite to /feed/feed/%40username; that segment is an account,
+    // while "my" and "global" identify feed sources rather than hashtags.
+    const selected =
+      filter !== "feed" && tag && tag !== "my" && tag !== "global" && !/^(@|%40)/i.test(tag)
+        ? tag
+        : undefined;
     return [...new Set([...(selected ? [selected] : []), ...(trendingTags ?? [])])].slice(0, 6);
-  }, [tag, trendingTags]);
+  }, [filter, tag, trendingTags]);
 
   return (
     <div className="trending-tags-card feed-topics">

@@ -115,7 +115,7 @@ export function EntryIndexMenu() {
 
   return (
     <div className="entry-index-menu feed-navigation">
-      <div className="hidden lg:flex feed-navigation-desktop">
+      <div className="hidden lg:flex flex-col feed-navigation-desktop">
         {showSources && (
           <ul className="feed-source-tabs" aria-label={i18next.t("entry-filter.source-label")}>
             {sources.map(renderTab)}

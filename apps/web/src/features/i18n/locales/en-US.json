@@ -180,6 +180,7 @@
     "view-on-x": "View on X"
   },
   "g": {
+    "dismiss": "Dismiss",
     "now": "Now",
     "all": "All",
     "add": "Add",
@@ -370,6 +371,7 @@
     "decks": "Decks",
     "post": "Create Post",
     "write": "Write",
+    "perks-streak": "{{label}}: {{streak}}",
     "day-theme": "Day Theme",
     "night-theme": "Night Theme",
     "address-placeholder": "enter url or search query",

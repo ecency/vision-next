@@ -122,7 +122,7 @@ export function NavbarDesktop({
               className={readingLayout ? "feed-write-button" : undefined}
               iconPlacement="left"
               icon={<UilEditAlt />}
-              aria-label={i18next.t("navbar.post")}
+              aria-label={i18next.t(readingLayout ? "navbar.write" : "navbar.post")}
             >
               {readingLayout && (
                 <span className="hidden xl:inline">{i18next.t("navbar.write")}</span>

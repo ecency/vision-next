@@ -45,7 +45,9 @@ export function NavbarPerksButton({ subdued = false }: { subdued?: boolean }) {
       <Button
         href="/perks"
         appearance={subdued ? "gray-link" : "primary"}
-        aria-label={subdued ? `${label}: ${streakLabel}` : streakLabel}
+        aria-label={
+          subdued ? i18next.t("navbar.perks-streak", { label, streak: streakLabel }) : streakLabel
+        }
         title={streak.at_risk ? i18next.t("perks.quests.streak-at-risk") : streakLabel}
         className={clsx(
           "font-semibold flex items-center gap-1 whitespace-nowrap text-sm",

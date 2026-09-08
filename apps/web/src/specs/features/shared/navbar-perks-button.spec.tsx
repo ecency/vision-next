@@ -1,5 +1,6 @@
 import { vi } from "vitest";
 import React from "react";
+import i18next from "i18next";
 import { render } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -102,7 +103,11 @@ describe("NavbarPerksButton", () => {
     markPerksSeen();
     const { container } = renderWith({ current: 150, best: 200, at_risk: true }, true);
     expect(control(container)).toHaveAttribute("href", "/perks");
-    expect(control(container)).toHaveAttribute("aria-label", "user-nav.perks: perks.quests.streak");
+    expect(control(container)).toHaveAttribute("aria-label", "navbar.perks-streak");
+    expect(i18next.t).toHaveBeenCalledWith("navbar.perks-streak", {
+      label: "user-nav.perks",
+      streak: "perks.quests.streak"
+    });
     expect(container.textContent).toContain("99+");
     expect(control(container).className).toContain("text-orange-500");
     expect(dot(container)).not.toBeNull();
