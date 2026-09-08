@@ -64,7 +64,7 @@ export default function WavesLayout(props: PropsWithChildren) {
       <div className="waves-page-layout bg-blue-duck-egg dark:bg-dark-700 min-h-[100vh]">
         <Feedback />
         <ScrollToTop />
-        <Navbar experimental={true} />
+        <Navbar />
         <div className="pt-16 pb-24 md:pt-[108px] md:pb-0 max-w-[1600px] md:px-6 lg:px-8 mx-auto grid grid-cols-12 gap-4 md:gap-6 xl:gap-8">
           <div className="hidden md:col-span-4 xl:col-span-3 md:flex flex-col gap-4 xl:gap-8">
             {isWaveDetails && waveAuthor ? (

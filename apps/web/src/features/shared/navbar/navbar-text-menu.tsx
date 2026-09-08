@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Fragment } from "react";
+import React from "react";
 import { IntentLink } from "@/features/shared/intent-link";
 import i18next from "i18next";
 import i18n from "i18next";
@@ -10,7 +10,7 @@ import { classNameObject } from "@ui/util";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useHydrated } from "@/api/queries";
 
-export function NavbarTextMenu({ readingLayout = false }: { readingLayout?: boolean }) {
+export function NavbarTextMenu() {
   const pathname = usePathname();
   const { activeUser } = useActiveAccount();
   const hydrated = useHydrated();
@@ -48,29 +48,21 @@ export function NavbarTextMenu({ readingLayout = false }: { readingLayout?: bool
 
   return (
     <div className="hidden sm:flex md:hidden xl:flex text-menu items-center gap-4 justify-center h-full md:mr-2">
-      {visibleItems.map((item, i) => (
-        <Fragment key={i}>
-          <IntentLink
-            key={item.link}
-            className={classNameObject({
-              "text-sm font-semibold duration-300 hover:opacity-75 mt-0 px-2 py-0.5 rounded-2xl": true,
-              "text-gunmetal dark:text-white": !pathname?.includes(item.link),
-              "bg-blue-duck-egg text-blue-dark-sky dark:bg-dark-default": pathname?.includes(
-                item.link
-              )
-            })}
-            href={item.link}
-            aria-current={pathname?.includes(item.link) ? "page" : undefined}
-          >
-            {item.label}
-          </IntentLink>
-          {!readingLayout && i !== visibleItems.length - 1 && (
-            <i
-              key={"circle" + item.label}
-              className="size-2 bg-gray-200 dark:bg-dark-default rounded-full"
-            />
-          )}
-        </Fragment>
+      {visibleItems.map((item) => (
+        <IntentLink
+          key={item.link}
+          className={classNameObject({
+            "text-sm font-semibold duration-300 hover:opacity-75 mt-0 px-2 py-0.5 rounded-2xl": true,
+            "text-gunmetal dark:text-white": !pathname?.includes(item.link),
+            "bg-blue-duck-egg text-blue-dark-sky dark:bg-dark-default": pathname?.includes(
+              item.link
+            )
+          })}
+          href={item.link}
+          aria-current={pathname?.includes(item.link) ? "page" : undefined}
+        >
+          {item.label}
+        </IntentLink>
       ))}
     </div>
   );

@@ -82,9 +82,6 @@
     --feed-muted: #a8adb6;
     --border-color: #30343b;
 
-    .ecency-navbar-desktop {
-      background: #15171b;
-    }
     .entry-list-body:not(.grid-view) .entry-list-item {
       border-bottom-color: #292d33;
     }
@@ -365,52 +362,6 @@
       .entry-actions {
         column-gap: 8px;
       }
-    }
-  }
-}
-
-.feed-navbar {
-  .ecency-navbar-desktop {
-    gap: 12px;
-  }
-  .navbar-search-slot {
-    max-width: 320px;
-    min-width: 120px;
-    flex: 1;
-  }
-  .navbar-actions {
-    gap: 8px;
-    margin-left: 0;
-    flex-shrink: 0;
-  }
-  .text-menu {
-    gap: 8px;
-    flex-shrink: 0;
-  }
-  .text-menu a {
-    border-radius: 0;
-    padding: 12px 8px;
-  }
-  .text-menu a[aria-current="page"] {
-    background: transparent;
-    border-bottom: 2px solid #357ce6;
-  }
-  .feed-write-button {
-    white-space: nowrap;
-  }
-
-  a:focus-visible,
-  button:focus-visible {
-    outline: 2px solid #357ce6 !important;
-    outline-offset: 3px;
-  }
-
-  @media (max-width: 1279px) {
-    .ecency-navbar-desktop {
-      gap: 8px;
-    }
-    .navbar-actions {
-      gap: 4px;
     }
   }
 }

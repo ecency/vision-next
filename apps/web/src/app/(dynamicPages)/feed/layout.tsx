@@ -18,7 +18,7 @@ export default function FeedLayout({ children }: PropsWithChildren) {
       <ScrollToTop />
       <Theme />
       <Feedback />
-      <Navbar readingLayout />
+      <Navbar />
       <div className="app-content entry-index-page feed-reading-layout reading-list-layout">
         <div className="tags-side">
           <MyFavoritesWidget />

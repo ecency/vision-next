@@ -33,7 +33,7 @@ export default async function CommunityPageLayout({ children, params }: PropsWit
       <ScrollToTop />
       <Theme />
       <Feedback />
-      <Navbar readingLayout />
+      <Navbar />
       <div className="app-content community-page reading-list-layout">
         <div className="profile-side">
           {account && communityData && (

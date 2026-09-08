@@ -8,7 +8,6 @@ import { NavbarMobile } from "./navbar-mobile";
 import { NavbarDesktop } from "./navbar-desktop";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Theme } from "@/enums";
-import { classNameObject } from "@ui/util";
 import { useClientTheme } from "@/api/queries";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
@@ -24,17 +23,9 @@ interface Props {
   step?: number;
   setStepOne?: () => void;
   setStepTwo?: () => void;
-  experimental?: boolean; // Use this flag for testing something
-  readingLayout?: boolean;
 }
 
-export function Navbar({
-  setStepOne,
-  setStepTwo,
-  step,
-  experimental = false,
-  readingLayout = false
-}: Props) {
+export function Navbar({ setStepOne, setStepTwo, step }: Props) {
   const { activeUser } = useActiveAccount();
   const [theme, toggleTheme] = useClientTheme();
 
@@ -109,11 +100,7 @@ export function Navbar({
 
   return (
     <div
-      className={classNameObject({
-        "fixed z-20 top-[unset] bottom-0 md:top-0 md:bottom-[unset] left-0 right-0 flex flex-col justify-start": true,
-        "md:p-2": experimental,
-        "feed-navbar": readingLayout
-      })}
+      className="ecency-navbar fixed z-20 top-[unset] bottom-0 md:top-0 md:bottom-[unset] left-0 right-0 flex flex-col justify-start"
       id="sticky-container"
     >
       <NavbarMobile
@@ -130,8 +117,6 @@ export function Navbar({
         step={step}
         setStepOne={setStepOne}
         setSmVisible={setSmVisible}
-        experimental={experimental}
-        readingLayout={readingLayout}
       />
       <Suspense fallback={null}>
         <LoginDialog />

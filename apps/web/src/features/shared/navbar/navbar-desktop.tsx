@@ -27,8 +27,6 @@ interface Props {
   setSmVisible: (v: boolean) => void;
   mainBarExpanded: boolean;
   setMainBarExpanded: (v: boolean) => void;
-  experimental?: boolean; // Use this flag for testing something
-  readingLayout?: boolean;
 }
 
 export function NavbarDesktop({
@@ -36,9 +34,7 @@ export function NavbarDesktop({
   transparentVerify,
   setStepOne,
   mainBarExpanded,
-  setMainBarExpanded,
-  experimental = false,
-  readingLayout = false
+  setMainBarExpanded
 }: Props) {
   const { activeUser } = useActiveAccount();
   const hydrated = useHydrated();
@@ -62,22 +58,19 @@ export function NavbarDesktop({
 
   return (
     <div
-      className={`hidden md:flex w-full select-none relative ${
+      className={`navbar-desktop-shell hidden md:flex w-full select-none relative ${
         !transparentVerify && step === 1 ? "transparent" : ""
       } `}
     >
       <div
         className={classNameObject({
           "ecency-navbar-desktop max-w-[1600px] w-full mx-auto flex items-center justify-between px-4 py-3": true,
-          "bg-white dark:bg-dark-700 border-b border-[--border-color]": !experimental,
-          "ecency-navbar-desktop-experemental glass-box rounded-2xl bg-white/80 dark:bg-dark-200/80 backdrop-blur-sm dark:backdrop-blur-md":
-            experimental,
           transparent: !transparentVerify && step === 1
         })}
       >
         <NavbarMainSidebarToggle onClick={() => setMainBarExpanded(true)} />
         <div className="flex-1" />
-        <NavbarTextMenu readingLayout={readingLayout} />
+        <NavbarTextMenu />
         <div className="flex-spacer" />
         <Tooltip content="FAQ and documetation">
           <Button
@@ -100,7 +93,7 @@ export function NavbarDesktop({
           </div>
         )}
         <div className="navbar-actions flex items-center ml-3 gap-3">
-          <NavbarPerksButton subdued={readingLayout} />
+          <NavbarPerksButton subdued />
           <Tooltip content={i18next.t("chat.title")}>
             <div key={`desktop-chat-${activeUser?.username || "anon"}`} className="relative">
               <Button
@@ -118,15 +111,13 @@ export function NavbarDesktop({
           <Tooltip content={i18next.t("navbar.post")}>
             <Button
               href="/publish"
-              appearance={readingLayout && activeUser ? "primary" : "gray-link"}
-              className={readingLayout ? "feed-write-button" : undefined}
+              appearance={activeUser ? "primary" : "gray-link"}
+              className="navbar-write-button"
               iconPlacement="left"
               icon={<UilEditAlt />}
-              aria-label={i18next.t(readingLayout ? "navbar.write" : "navbar.post")}
+              aria-label={i18next.t("navbar.write")}
             >
-              {readingLayout && (
-                <span className="hidden xl:inline">{i18next.t("navbar.write")}</span>
-              )}
+              <span className="hidden xl:inline">{i18next.t("navbar.write")}</span>
             </Button>
           </Tooltip>
           {hydrated && activeUser && (

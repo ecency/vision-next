@@ -26,7 +26,7 @@ export default async function ProfileLayout({ children, params }: Props) {
       <ScrollToTop />
       <Theme />
       <Feedback />
-      <Navbar readingLayout />
+      <Navbar />
       <div className="pb-20 md:pb-0 profile-page reading-list-layout max-w-[1600px] sm:px-2 md:px-2 mx-auto flex flex-col lg:flex-row gap-0 sm:gap-4 min-h-[100vh] items-start w-full">
         <div className="bg-white/80 dark:bg-dark-200/90 glass-box rounded-none sm:rounded-xl lg:min-w-[280px] lg:max-w-[280px] w-full overflow-hidden">
           {account ? <ProfileCard account={account} /> : <ProfileCardLoading />}
