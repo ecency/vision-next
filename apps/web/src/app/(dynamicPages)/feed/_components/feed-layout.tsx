@@ -155,7 +155,14 @@ export function FeedLayout(props: PropsWithChildren<Props>) {
       }
       if (cancelled || !resp || resp.length === 0) return;
 
-      // Update existing entries with latest stats
+      // Update existing entries with latest stats.
+      //
+      // Written with the LIST's own fetch time, not now: a stats merge refreshes
+      // what the rows say, never which rows they are. Letting it stamp the entry
+      // as freshly fetched would tell everything downstream that reads staleness
+      // — refetchOnMount, and the persisted copy's max age — that an hour-old
+      // list is a minute old.
+      const fetchedAt = queryClient.getQueryState(queryKey)?.dataUpdatedAt;
       queryClient.setQueryData<InfiniteData<Entry[] | SearchResponse, unknown>>(queryKey, (old) => {
         if (!old) return old;
         const map = new Map(resp.map((e) => [`${e.author}-${e.permlink}`, e]));
@@ -171,7 +178,7 @@ export function FeedLayout(props: PropsWithChildren<Props>) {
             return page; // SearchResponse: leave as-is
           }),
         };
-      });
+      }, fetchedAt ? { updatedAt: fetchedAt } : undefined);
 
       // Update any “extra” entries we’re showing above the list
       setExtra((p) =>

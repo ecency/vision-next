@@ -6,6 +6,7 @@ import { QueryClient } from "@tanstack/react-query";
 import { getQueryClient } from "@/core/react-query";
 import { renderWithQueryClient } from "@/specs/test-utils";
 import type { Entry } from "@/entities";
+import { QueryKeys as QUERY_KEYS } from "@ecency/sdk";
 
 const fetchSpy = vi.hoisted(() => vi.fn(async () => [] as Entry[]));
 const accountFetchSpy = vi.hoisted(() => vi.fn(async () => [] as Entry[]));
@@ -197,6 +198,31 @@ describe("feed poll", () => {
     });
 
     expect(fetchSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not age the list forward when it merges stats", async () => {
+    // A tab left open all afternoon merges stats every 30s. If that counted as
+    // a fetch, the list would read as fresh to refetchOnMount and to the
+    // persisted copy's max age while being hours behind.
+    const client = getQueryClient();
+    const feedKey = QUERY_KEYS.posts.postsRanked("trending", "", 20, "ecency");
+    client.setQueryData(feedKey, {
+      pages: [[{ author: "alice", permlink: "one", stats: { total_votes: 1 } }]],
+      pageParams: [null]
+    });
+    const fetchedAt = client.getQueryState(feedKey)?.dataUpdatedAt as number;
+    fetchSpy.mockResolvedValueOnce([
+      { author: "alice", permlink: "one", stats: { total_votes: 9 } } as unknown as Entry
+    ]);
+
+    renderFeed();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(31_000);
+    });
+
+    const page = (client.getQueryData(feedKey) as { pages: Entry[][] }).pages[0];
+    expect(page[0].stats?.total_votes).toBe(9);
+    expect(client.getQueryState(feedKey)?.dataUpdatedAt).toBe(fetchedAt);
   });
 
   it("polls the reader's own feed through account posts", async () => {
