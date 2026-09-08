@@ -1,7 +1,8 @@
 import { vi } from "vitest";
 import React from "react";
 import i18next from "i18next";
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
+import english from "@/features/i18n/locales/en-US.json";
 import "@testing-library/jest-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
@@ -99,17 +100,21 @@ describe("NavbarPerksButton", () => {
     const { container } = renderWith({ current: 6, best: 6, at_risk: false });
     expect(dot(container)).toBeNull();
   });
-  test("the subdued feed variant preserves the streak, destination, and at-risk signal", () => {
+  test("the subdued feed variant preserves the streak, destination, and at-risk signal", async () => {
     markPerksSeen();
-    const { container } = renderWith({ current: 150, best: 200, at_risk: true }, true);
-    expect(control(container)).toHaveAttribute("href", "/perks");
-    expect(control(container)).toHaveAttribute("aria-label", "navbar.perks-streak");
-    expect(i18next.t).toHaveBeenCalledWith("navbar.perks-streak", {
-      label: "user-nav.perks",
-      streak: "perks.quests.streak"
-    });
-    expect(container.textContent).toContain("99+");
-    expect(control(container).className).toContain("text-orange-500");
-    expect(dot(container)).not.toBeNull();
+    const { createInstance } = await vi.importActual<typeof import("i18next")>("i18next");
+    const translations = createInstance();
+    await translations.init({ lng: "en-US", resources: { "en-US": { translation: english } } });
+    const translate = vi.spyOn(i18next, "t").mockImplementation(translations.t);
+    try {
+      const { container } = renderWith({ current: 150, best: 200, at_risk: true }, true);
+      const link = screen.getByRole("link", { name: "Perks: 150-day streak", exact: true });
+      expect(link).toHaveAttribute("href", "/perks");
+      expect(link).toHaveTextContent("99+");
+      expect(link).toHaveClass("text-orange-500");
+      expect(dot(container)).not.toBeNull();
+    } finally {
+      translate.mockRestore();
+    }
   });
 });

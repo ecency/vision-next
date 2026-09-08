@@ -1,4 +1,4 @@
-import { screen, fireEvent, waitFor } from "@testing-library/react";
+import { screen, fireEvent, waitFor, within } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithQueryClient } from "@/specs/test-utils";
@@ -63,7 +63,7 @@ vi.mock("@ecency/sdk", async () => {
 
 // Topic links are separate from their follow and dismiss actions.
 const chipTexts = () =>
-  Array.from(document.querySelectorAll(".feed-topic-list a")).map((a) =>
+  within(screen.getByRole("list")).queryAllByRole("link").map((a) =>
     (a.textContent ?? "").replace(/^#/, "").trim()
   );
 
