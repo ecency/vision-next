@@ -467,6 +467,7 @@ export function startQueryCachePersistence(
 
   let disposed = false;
   let timer: ReturnType<typeof setTimeout> | null = null;
+  let idleHandle: number | null = null;
 
   const write = () =>
     enqueue(async () => {
@@ -478,10 +479,7 @@ export function startQueryCachePersistence(
     });
 
   const flush = () => {
-    if (timer) {
-      clearTimeout(timer);
-      timer = null;
-    }
+    cancelPending();
     if (disposed) {
       return;
     }
@@ -493,27 +491,62 @@ export function startQueryCachePersistence(
    * enough to be felt if it lands in a frame the reader is scrolling. The
    * debounce says when it is worth writing; this says to wait for a moment when
    * nobody is watching, with a bound so a busy tab still gets written.
+   *
+   * Returns the handle to cancel with, or null where the callback ran inline
+   * because the browser has no idle API (Safari, today).
    */
-  const whenIdle = (run: () => void) => {
+  const runWhenIdle = (run: () => void): number | null => {
     const idle =
       typeof window !== "undefined"
-        ? (window as unknown as { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number })
-            .requestIdleCallback
+        ? (window as unknown as {
+            requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+          }).requestIdleCallback
         : undefined;
     if (typeof idle === "function") {
-      idle(run, { timeout: IDLE_WRITE_TIMEOUT_MS });
-      return;
+      return idle(run, { timeout: IDLE_WRITE_TIMEOUT_MS });
     }
     run();
+    return null;
+  };
+
+  const cancelIdle = (handle: number) => {
+    const cancel =
+      typeof window !== "undefined"
+        ? (window as unknown as { cancelIdleCallback?: (handle: number) => void })
+            .cancelIdleCallback
+        : undefined;
+    cancel?.(handle);
+  };
+
+  /**
+   * Everything a pending write could be waiting on. A page-hide flush writes
+   * immediately, so an idle callback left registered behind it would serialise
+   * the very same record a second time, at the one moment the main thread is
+   * least free.
+   */
+  const cancelPending = () => {
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
+    }
+    if (idleHandle !== null) {
+      cancelIdle(idleHandle);
+      idleHandle = null;
+    }
   };
 
   const schedule = () => {
-    if (disposed || timer) {
+    // A write already on its way picks up this event too: `dehydrate` reads the
+    // cache when it runs, not when it was scheduled.
+    if (disposed || timer || idleHandle !== null) {
       return;
     }
     timer = setTimeout(() => {
       timer = null;
-      whenIdle(flush);
+      idleHandle = runWhenIdle(() => {
+        idleHandle = null;
+        flush();
+      });
     }, WRITE_DEBOUNCE_MS);
   };
 
@@ -558,10 +591,7 @@ export function startQueryCachePersistence(
   return () => {
     // Ordered, not raced: this write is queued before the next instance's
     // prune, so the record it leaves behind is the one that prune removes.
-    if (timer) {
-      clearTimeout(timer);
-      timer = null;
-    }
+    cancelPending();
     disposed = true;
     void write();
     unsubscribe();
