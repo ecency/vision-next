@@ -36,6 +36,16 @@ const STORE_NAME = "state";
 const RECORD_PREFIX = "queries:";
 const WRITE_DEBOUNCE_MS = 2000;
 /**
+ * How long to wait for the database to open before treating storage as
+ * unavailable. Safari has a long-standing failure mode where `open()` neither
+ * succeeds nor errors (after a crash, and in some standalone/PWA contexts), and
+ * every read and write here queues behind that one promise: without a bound,
+ * one hung open silently stops persistence for the whole page load.
+ */
+const OPEN_TIMEOUT_MS = 3000;
+/** Upper bound on how long a write may wait for an idle moment. */
+const IDLE_WRITE_TIMEOUT_MS = 1000;
+/**
  * Ceiling on one record. Feed pages are slimmed (bodies blanked) and a page is
  * ~60KB of JSON, so this holds the working set with room to spare while keeping
  * a pathological cache out of the reader's storage quota.
@@ -253,14 +263,35 @@ export function createIdbStorage(): PersistStorage | null {
     if (!dbPromise) {
       dbPromise = new Promise<IDBDatabase>((resolve, reject) => {
         const request = indexedDB.open(DB_NAME, 1);
+        let settled = false;
+        const timer = setTimeout(() => {
+          settled = true;
+          reject(new Error("indexeddb open timed out"));
+        }, OPEN_TIMEOUT_MS);
+
         request.onupgradeneeded = () => {
           if (!request.result.objectStoreNames.contains(STORE_NAME)) {
             request.result.createObjectStore(STORE_NAME);
           }
         };
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-        request.onblocked = () => reject(new Error("indexeddb blocked"));
+        request.onsuccess = () => {
+          if (settled) {
+            // Answered after we gave up: close it rather than leave a handle
+            // open that nothing will ever use.
+            request.result.close();
+            return;
+          }
+          clearTimeout(timer);
+          resolve(request.result);
+        };
+        request.onerror = () => {
+          clearTimeout(timer);
+          if (!settled) reject(request.error);
+        };
+        request.onblocked = () => {
+          clearTimeout(timer);
+          if (!settled) reject(new Error("indexeddb blocked"));
+        };
       }).catch((error) => {
         // A failed open must not be memoised as a pending promise forever:
         // private mode and blocked storage both land here.
@@ -436,6 +467,7 @@ export function startQueryCachePersistence(
 
   let disposed = false;
   let timer: ReturnType<typeof setTimeout> | null = null;
+  let idleHandle: number | null = null;
 
   const write = () =>
     enqueue(async () => {
@@ -447,23 +479,74 @@ export function startQueryCachePersistence(
     });
 
   const flush = () => {
-    if (timer) {
-      clearTimeout(timer);
-      timer = null;
-    }
+    cancelPending();
     if (disposed) {
       return;
     }
     void write();
   };
 
+  /**
+   * Serialising the record is main-thread work, and on a mid-range phone it is
+   * enough to be felt if it lands in a frame the reader is scrolling. The
+   * debounce says when it is worth writing; this says to wait for a moment when
+   * nobody is watching, with a bound so a busy tab still gets written.
+   *
+   * Returns the handle to cancel with, or null where the callback ran inline
+   * because the browser has no idle API (Safari, today).
+   */
+  const runWhenIdle = (run: () => void): number | null => {
+    const idle =
+      typeof window !== "undefined"
+        ? (window as unknown as {
+            requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+          }).requestIdleCallback
+        : undefined;
+    if (typeof idle === "function") {
+      return idle(run, { timeout: IDLE_WRITE_TIMEOUT_MS });
+    }
+    run();
+    return null;
+  };
+
+  const cancelIdle = (handle: number) => {
+    const cancel =
+      typeof window !== "undefined"
+        ? (window as unknown as { cancelIdleCallback?: (handle: number) => void })
+            .cancelIdleCallback
+        : undefined;
+    cancel?.(handle);
+  };
+
+  /**
+   * Everything a pending write could be waiting on. A page-hide flush writes
+   * immediately, so an idle callback left registered behind it would serialise
+   * the very same record a second time, at the one moment the main thread is
+   * least free.
+   */
+  const cancelPending = () => {
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
+    }
+    if (idleHandle !== null) {
+      cancelIdle(idleHandle);
+      idleHandle = null;
+    }
+  };
+
   const schedule = () => {
-    if (disposed || timer) {
+    // A write already on its way picks up this event too: `dehydrate` reads the
+    // cache when it runs, not when it was scheduled.
+    if (disposed || timer || idleHandle !== null) {
       return;
     }
     timer = setTimeout(() => {
       timer = null;
-      flush();
+      idleHandle = runWhenIdle(() => {
+        idleHandle = null;
+        flush();
+      });
     }, WRITE_DEBOUNCE_MS);
   };
 
@@ -508,10 +591,7 @@ export function startQueryCachePersistence(
   return () => {
     // Ordered, not raced: this write is queued before the next instance's
     // prune, so the record it leaves behind is the one that prune removes.
-    if (timer) {
-      clearTimeout(timer);
-      timer = null;
-    }
+    cancelPending();
     disposed = true;
     void write();
     unsubscribe();

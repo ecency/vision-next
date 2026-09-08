@@ -1,7 +1,8 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { QueryClient } from "@tanstack/react-query";
 import { QueryKeys } from "@ecency/sdk";
 import {
+  createIdbStorage,
   persistQueryCache,
   restoreQueryCache,
   startQueryCachePersistence,
@@ -86,6 +87,78 @@ function seedRecord(
 }
 
 describe("query cache persistence", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+    delete (globalThis as Record<string, unknown>).indexedDB;
+    delete (globalThis as Record<string, unknown>).requestIdleCallback;
+    delete (globalThis as Record<string, unknown>).cancelIdleCallback;
+  });
+
+  it("gives up on a database that never opens", async () => {
+    // Safari's open can neither succeed nor error. Every read and write queues
+    // behind that one promise, so an unbounded wait silently stops persistence
+    // for the whole page load.
+    vi.useFakeTimers();
+    (globalThis as Record<string, unknown>).indexedDB = {
+      open: () => ({ onsuccess: null, onerror: null, onblocked: null, onupgradeneeded: null })
+    };
+
+    const storage = createIdbStorage();
+    const read = storage!.read("queries:alice");
+    await vi.advanceTimersByTimeAsync(5000);
+
+    await expect(read).resolves.toBeNull();
+  });
+
+  it("waits for an idle moment before serialising the record", async () => {
+    // The write is main-thread work and a mid-range phone feels it mid-scroll.
+    const idle = vi.fn((run: () => void) => {
+      run();
+      return 1;
+    });
+    (globalThis as Record<string, unknown>).requestIdleCallback = idle;
+    vi.useFakeTimers();
+    const client = makeClient();
+    const { map, storage } = createStorage();
+    const dispose = startQueryCachePersistence(client, "alice", storage);
+
+    client.setQueryData(feedKey("alice"), { pages: [[entry("a")]], pageParams: [null] });
+    await vi.advanceTimersByTimeAsync(2500);
+
+    expect(idle).toHaveBeenCalled();
+    await vi.waitFor(() => expect(map.has("queries:alice")).toBe(true));
+    dispose();
+  });
+
+  it("does not leave a second write behind a page-hide flush", async () => {
+    // The idle callback exists to keep serialisation out of a busy frame. A
+    // flush that writes immediately and leaves it registered would serialise
+    // the same record twice, at the moment the main thread is least free.
+    const idleCallbacks: Array<() => void> = [];
+    const cancelled: number[] = [];
+    (globalThis as Record<string, unknown>).requestIdleCallback = (cb: () => void) => {
+      idleCallbacks.push(cb);
+      return 7;
+    };
+    (globalThis as Record<string, unknown>).cancelIdleCallback = (handle: number) =>
+      cancelled.push(handle);
+    vi.useFakeTimers();
+    const client = makeClient();
+    const { ops, storage } = createStorage();
+    const dispose = startQueryCachePersistence(client, "alice", storage);
+
+    client.setQueryData(feedKey("alice"), { pages: [[entry("a")]], pageParams: [null] });
+    await vi.advanceTimersByTimeAsync(2500);
+    expect(idleCallbacks).toHaveLength(1);
+
+    window.dispatchEvent(new Event("pagehide"));
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(cancelled).toContain(7);
+    expect(ops.filter((op) => op.startsWith("write:"))).toHaveLength(1);
+    dispose();
+  });
+
   it("matches the key shapes the SDK actually builds", () => {
     // The families match by literal prefix so this module stays out of the
     // SDK's spec-mocking surface (same reasoning as DEFAULT_OBSERVER). This is
