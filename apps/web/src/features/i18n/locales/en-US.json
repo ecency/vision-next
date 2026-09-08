@@ -4682,7 +4682,8 @@
     },
     "shortcuts": {
       "title": "Keyboard shortcuts",
-      "next-prev": "Next / previous post",
+      "down": "Move down the list, one post at a time",
+      "up": "Move up the list, one post at a time",
       "quick-view": "Open or close the quick view",
       "vote": "Open the vote slider",
       "comment": "Open the reply box",
@@ -4699,8 +4700,8 @@
     },
     "quick-view": {
       "aria": "Post quick view",
-      "prev": "Previous post (k)",
-      "next": "Next post (j)",
+      "prev": "Up the list (k or ↑)",
+      "next": "Down the list (j or ↓)",
       "posts_one": "{{count}} post",
       "posts_other": "{{count}} posts",
       "signals-hint": "Numbers prompt a read, they never decide.",
@@ -4826,7 +4827,7 @@
         "step-6": "Flag one card with a reason; ask a mentor to review the flag.",
         "step-7": "Vote one post; watch \"waiting for trail\" become \"not trailed: not in trail list\" (expected for trial accounts).",
         "step-8": "Do one hand-off with a mentor: read their line in the team hand-off, then pick up oldest-first from there.",
-        "step-9": "Learn the keys: j k Enter v r s z f n x ?.",
+        "step-9": "Learn the keys: j (down) k (up) Enter v r s z f n x ?.",
         "step-10": "Read the Team panel: votes today per curator, excluded list, conflicts (flagged and curated).",
         "step-11": "Do one plagiarism check end to end and write a note on the card.",
         "step-12": "After two weeks compare your reviewed-per-hour and flag precision with the team medians with your mentor."
