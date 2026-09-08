@@ -25,8 +25,8 @@ const SORT_FILTERS: EntryFilter[] = [
  * Splits the feed filter bar into two orthogonal axes:
  *  - `sources`: where posts come from — Following, Communities, Global
  *    (Following/Communities require an active user; Global is always present)
- *  - `sorts`: how Communities/Global posts are ranked — Trending, Hot, New, Top
- *  - `overflow`: niche views surfaced behind a "more" menu — Muted, Promoted
+ *  - `sorts`: how Communities/Global posts are ranked — Trending, Hot, New, Payout
+ *  - `additionalFilters`: additional feed views — Muted, Promoted
  *
  * URL scheme is unchanged: Following → /@user/feed (rewritten to the feed
  * route), Communities → /{sort}/my, Global → /{sort}.
@@ -77,7 +77,7 @@ export function useFeedMenu() {
   const isGlobal = !isFollowing && !isCommunities && !hasTag;
 
   // Sort to carry when switching between Communities and Global. Following has no
-  // sort, and overflow views (muted/promoted) aren't real sorts, so default to Hot.
+  // sort, and additional views (muted/promoted) aren't real sorts, so default to Hot.
   const currentSort = SORT_FILTERS.includes(filter as EntryFilter)
     ? (filter as EntryFilter)
     : EntryFilter.hot;
@@ -128,7 +128,16 @@ export function useFeedMenu() {
     });
 
     return items;
-  }, [activeUser, currentSort, hasTag, isCommunities, isFollowing, isGlobal, normalizedTag, router]);
+  }, [
+    activeUser,
+    currentSort,
+    hasTag,
+    isCommunities,
+    isFollowing,
+    isGlobal,
+    normalizedTag,
+    router
+  ]);
 
   const sorts: FeedMenuItem[] = useMemo(() => {
     // Preserve the current source context when changing sort:
@@ -145,9 +154,7 @@ export function useFeedMenu() {
       const href = `/${x}${tagSegment ? `/${tagSegment}` : ""}`;
       return {
         label:
-          x === EntryFilter.payout
-            ? i18next.t("entry-filter.filter-top")
-            : i18next.t(`entry-filter.filter-${x}`),
+          x === EntryFilter.payout ? i18next.t("g.payout") : i18next.t(`entry-filter.filter-${x}`),
         href,
         selected: (filter as EntryFilter) === x,
         id: x,
@@ -156,7 +163,7 @@ export function useFeedMenu() {
     });
   }, [filter, isCommunities, normalizedTag, router]);
 
-  const overflow: FeedMenuItem[] = useMemo(
+  const additionalFilters: FeedMenuItem[] = useMemo(
     () => [
       {
         label: i18next.t("entry-filter.filter-muted"),
@@ -177,7 +184,7 @@ export function useFeedMenu() {
   );
 
   return useMemo(
-    () => ({ sources, sorts, overflow, isFollowing }),
-    [isFollowing, overflow, sorts, sources]
+    () => ({ sources, sorts, additionalFilters, isFollowing }),
+    [isFollowing, additionalFilters, sorts, sources]
   );
 }

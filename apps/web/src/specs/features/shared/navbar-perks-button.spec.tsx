@@ -1,10 +1,14 @@
 import { vi } from "vitest";
 import React from "react";
-import { render } from "@testing-library/react";
+import i18next from "i18next";
+import { render, screen } from "@testing-library/react";
+import english from "@/features/i18n/locales/en-US.json";
 import "@testing-library/jest-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-const useActiveAccount = vi.fn(() => ({ activeUser: { username: "tester" } as { username: string } | null }));
+const useActiveAccount = vi.fn(() => ({
+  activeUser: { username: "tester" } as { username: string } | null
+}));
 vi.mock("@/core/hooks/use-active-account", () => ({
   useActiveAccount: () => useActiveAccount()
 }));
@@ -22,14 +26,14 @@ import { NavbarPerksButton } from "@/features/shared/navbar/navbar-perks-button"
 
 type Streak = { current: number; best: number; at_risk: boolean };
 
-function renderWith(streak?: Streak) {
+function renderWith(streak?: Streak, subdued = false) {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   if (streak) {
     queryClient.setQueryData(["quests", "status", "tester"], { streak });
   }
   return render(
     <QueryClientProvider client={queryClient}>
-      <NavbarPerksButton />
+      <NavbarPerksButton subdued={subdued} />
     </QueryClientProvider>
   );
 }
@@ -95,5 +99,22 @@ describe("NavbarPerksButton", () => {
     markPerksSeen();
     const { container } = renderWith({ current: 6, best: 6, at_risk: false });
     expect(dot(container)).toBeNull();
+  });
+  test("the subdued feed variant preserves the streak, destination, and at-risk signal", async () => {
+    markPerksSeen();
+    const { createInstance } = await vi.importActual<typeof import("i18next")>("i18next");
+    const translations = createInstance();
+    await translations.init({ lng: "en-US", resources: { "en-US": { translation: english } } });
+    const translate = vi.spyOn(i18next, "t").mockImplementation(translations.t);
+    try {
+      const { container } = renderWith({ current: 150, best: 200, at_risk: true }, true);
+      const link = screen.getByRole("link", { name: "Perks: 150-day streak", exact: true });
+      expect(link).toHaveAttribute("href", "/perks");
+      expect(link).toHaveTextContent("99+");
+      expect(link).toHaveClass("text-orange-500");
+      expect(dot(container)).not.toBeNull();
+    } finally {
+      translate.mockRestore();
+    }
   });
 });

@@ -11,7 +11,7 @@ export default function EntryPageLayout(props: PropsWithChildren) {
       <ScrollToTop />
       <Theme />
       <Feedback />
-      <Navbar experimental={true} />
+      <Navbar />
       {props.children}
     </>
   );

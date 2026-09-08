@@ -52,3 +52,60 @@ body.is-inapp-browser .profile-page {
     padding-bottom: 0;
   }
 }
+
+.ecency-navbar {
+  .navbar-desktop-shell {
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+
+    @include themify(night) {
+      background: #15171b;
+      border-bottom-color: #30343b;
+    }
+  }
+
+  .ecency-navbar-desktop {
+    gap: 12px;
+  }
+  .navbar-search-slot {
+    max-width: 320px;
+    min-width: 120px;
+    flex: 1;
+  }
+  .navbar-actions {
+    gap: 8px;
+    margin-left: 0;
+    flex-shrink: 0;
+  }
+  .text-menu {
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .text-menu a {
+    border-radius: 0;
+    padding: 11px 8px;
+    border-bottom: 2px solid transparent;
+  }
+  .text-menu a[aria-current="page"] {
+    background: transparent;
+    border-bottom: 2px solid #357ce6;
+  }
+  .navbar-write-button {
+    white-space: nowrap;
+  }
+
+  a:focus-visible,
+  button:focus-visible {
+    outline: 2px solid #357ce6 !important;
+    outline-offset: 3px;
+  }
+
+  @media (max-width: 1279px) {
+    .ecency-navbar-desktop {
+      gap: 8px;
+    }
+    .navbar-actions {
+      gap: 4px;
+    }
+  }
+}

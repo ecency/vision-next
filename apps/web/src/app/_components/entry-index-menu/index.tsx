@@ -4,7 +4,7 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 import React, { useCallback, useEffect, useMemo } from "react";
 import "./_index.scss";
-import { kebabMenuHorizontalSvg, menuDownSvg } from "@ui/svg";
+import { menuDownSvg } from "@ui/svg";
 import Link from "next/link";
 import i18next from "i18next";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "@ui/dropdown";
@@ -18,9 +18,9 @@ import {
   useFeedMenu
 } from "@/app/_components/entry-index-menu/use-feed-menu";
 
-const PILL_CLASS =
-  "text-gray-steel hover:text-blue-dark-sky rounded-full flex items-center px-3 py-1.5";
-const PILL_SELECTED_CLASS = "bg-blue-dark-sky text-white hover:text-white";
+const TAB_CLASS =
+  "feed-tab flex items-center px-3 py-3 text-sm text-gray-600 dark:text-gray-400 hover:text-blue-dark-sky";
+const TAB_SELECTED_CLASS = "feed-tab-selected";
 
 export function EntryIndexMenu() {
   const router = useRouter();
@@ -30,7 +30,7 @@ export function EntryIndexMenu() {
   const { activeUser } = useActiveAccount();
   const prevActiveUser = usePrevious(activeUser);
 
-  const { sources, sorts, overflow, isFollowing } = useFeedMenu();
+  const { sources, sorts, additionalFilters, isFollowing } = useFeedMenu();
 
   const noReblog = useMemo(() => searchParams?.get("no-reblog") === "true", [searchParams]);
 
@@ -42,16 +42,12 @@ export function EntryIndexMenu() {
     () => sources.find((s) => s.selected) ?? sources[sources.length - 1],
     [sources]
   );
-  // Include overflow (Muted/Promoted) so the mobile trigger reflects the active
-  // filter even when it isn't one of the visible sort tabs.
+  // Include Muted/Promoted so the mobile trigger reflects the active
+  // filter when the dropdown is closed.
   const selectedSort = useMemo(
-    () => [...sorts, ...overflow].find((s) => s.selected),
-    [sorts, overflow]
+    () => [...sorts, ...additionalFilters].find((s) => s.selected),
+    [sorts, additionalFilters]
   );
-
-  const reblogLabel = noReblog
-    ? i18next.t("entry-filter.filter-with-reblog")
-    : i18next.t("entry-filter.filter-no-reblog");
 
   // Logged-out users can't view a community ("/my") feed — fall back to global.
   useEffect(() => {
@@ -85,15 +81,15 @@ export function EntryIndexMenu() {
     router.push(qs ? `${pathname}?${qs}` : pathname);
   }, [noReblog, pathname, router, searchParams]);
 
-  const renderPill = (item: FeedMenuItem) => (
+  const renderTab = (item: FeedMenuItem) => (
     <li key={item.id}>
       <Link
         href={item.href}
         id={item.id}
         aria-current={item.selected ? "page" : undefined}
         className={classNameObject({
-          [PILL_CLASS]: true,
-          [PILL_SELECTED_CLASS]: item.selected,
+          [TAB_CLASS]: true,
+          [TAB_SELECTED_CLASS]: item.selected,
           [`link-${item.id}`]: true
         })}
       >
@@ -103,100 +99,71 @@ export function EntryIndexMenu() {
   );
 
   const reblogToggle = (
-    <Button size="sm" appearance="gray-link" onClick={handleFilterReblog}>
-      {reblogLabel}
-    </Button>
+    <button
+      type="button"
+      role="switch"
+      aria-checked={!noReblog}
+      onClick={handleFilterReblog}
+      className="feed-reblog-toggle"
+    >
+      <span>{i18next.t("entry-filter.show-reblogs")}</span>
+      <span className="feed-switch-track" aria-hidden="true">
+        <span className="feed-switch-thumb" />
+      </span>
+    </button>
   );
 
   return (
-    <div>
-      <div className="entry-index-menu flex items-center justify-center md:justify-between py-3.5 border-b dark:border-dark-200">
-        <div className="bg-gray-100 dark:bg-gray-900 rounded-3xl lg:px-4 p-2 text-sm flex flex-col-reverse items-center md:flex-row">
-          <div className="flex items-center">
-            {/* Desktop: Source group + Sort group (or reblog toggle for Following) */}
-            <div className="main-menu hidden lg:flex md:items-center">
-              {showSources && (
-                <ul className="flex flex-wrap mb-0" aria-label={i18next.t("entry-filter.source-label")}>
-                  {sources.map(renderPill)}
-                </ul>
-              )}
-              {showSources && (
-                <div className="border-l border-[--border-color] mx-3 dropDown-left-border-height" />
-              )}
-              {isFollowing ? (
-                reblogToggle
-              ) : (
-                <>
-                  <ul className="flex flex-wrap mb-0" aria-label={i18next.t("entry-filter.sort-label")}>
-                    {sorts.map(renderPill)}
-                  </ul>
-                  <div className="kebab-icon flex">
-                    <Dropdown>
-                      <DropdownToggle>
-                        <Button
-                          size="sm"
-                          appearance="gray-link"
-                          icon={kebabMenuHorizontalSvg}
-                          aria-label={i18next.t("entry-filter.more-filters")}
-                          aria-haspopup="menu"
-                        />
-                      </DropdownToggle>
-                      <DropdownMenu align="left">
-                        {overflow.map((item, i) => (
-                          <DropdownItem key={i} href={item.href} selected={item.selected}>
-                            {item.label}
-                          </DropdownItem>
-                        ))}
-                      </DropdownMenu>
-                    </Dropdown>
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* Mobile/tablet: Source dropdown + Sort dropdown (or reblog toggle) */}
-            <div className="main-menu flex lg:hidden md:items-center">
-              {showSources && (
-                <Dropdown>
-                  <DropdownToggle>
-                    <Button size="sm" icon={menuDownSvg} appearance="gray-link">
-                      {selectedSource?.label}
-                    </Button>
-                  </DropdownToggle>
-                  <DropdownMenu align="left">
-                    {sources.map((item, i) => (
-                      <DropdownItem key={i} selected={item.selected} onClick={item.onClick}>
-                        {item.label}
-                      </DropdownItem>
-                    ))}
-                  </DropdownMenu>
-                </Dropdown>
-              )}
-              {showSources && (
-                <div className="border-l border-[--border-color] mx-2 dropDown-left-border-height" />
-              )}
-              {isFollowing ? (
-                reblogToggle
-              ) : (
-                <Dropdown>
-                  <DropdownToggle>
-                    <Button size="sm" icon={menuDownSvg} appearance="gray-link">
-                      {selectedSort?.label ?? i18next.t("entry-filter.sort-label")}
-                    </Button>
-                  </DropdownToggle>
-                  <DropdownMenu align="left">
-                    {[...sorts, ...overflow].map((item, i) => (
-                      <DropdownItem key={i} selected={item.selected} onClick={item.onClick}>
-                        {item.label}
-                      </DropdownItem>
-                    ))}
-                  </DropdownMenu>
-                </Dropdown>
-              )}
-            </div>
+    <div className="entry-index-menu feed-navigation">
+      <div className="hidden lg:flex flex-col feed-navigation-desktop">
+        {showSources && (
+          <ul className="feed-source-tabs" aria-label={i18next.t("entry-filter.source-label")}>
+            {sources.map(renderTab)}
+          </ul>
+        )}
+        {!isFollowing && (
+          <div className="feed-sort-controls">
+            <ul className="feed-sort-tabs" aria-label={i18next.t("entry-filter.sort-label")}>
+              {[...sorts, ...additionalFilters].map(renderTab)}
+            </ul>
           </div>
-        </div>
+        )}
       </div>
+      <div className="flex lg:hidden feed-navigation-mobile">
+        {showSources && (
+          <Dropdown>
+            <DropdownToggle>
+              <Button size="sm" icon={menuDownSvg} appearance="gray-link">
+                {selectedSource?.label}
+              </Button>
+            </DropdownToggle>
+            <DropdownMenu align="left">
+              {sources.map((item) => (
+                <DropdownItem key={item.id} selected={item.selected} onClick={item.onClick}>
+                  {item.label}
+                </DropdownItem>
+              ))}
+            </DropdownMenu>
+          </Dropdown>
+        )}
+        {!isFollowing && (
+          <Dropdown>
+            <DropdownToggle>
+              <Button size="sm" icon={menuDownSvg} appearance="gray-link">
+                {selectedSort?.label ?? i18next.t("entry-filter.sort-label")}
+              </Button>
+            </DropdownToggle>
+            <DropdownMenu align="left">
+              {[...sorts, ...additionalFilters].map((item) => (
+                <DropdownItem key={item.id} selected={item.selected} onClick={item.onClick}>
+                  {item.label}
+                </DropdownItem>
+              ))}
+            </DropdownMenu>
+          </Dropdown>
+        )}
+      </div>
+      {isFollowing && reblogToggle}
     </div>
   );
 }

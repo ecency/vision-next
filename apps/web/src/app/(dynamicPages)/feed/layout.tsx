@@ -1,3 +1,4 @@
+import "@/features/shared/reading-layout/reading-layout.scss";
 import { TrendingTagsCard } from "@/app/_components/trending-tags-card";
 import { EntryIndexMenu } from "@/app/_components/entry-index-menu";
 import React, { PropsWithChildren } from "react";
@@ -9,15 +10,16 @@ import { Feedback } from "@/features/shared/feedback";
 import { Navbar } from "@/features/shared/navbar";
 import { ScrollToTop } from "@/features/shared/scroll-to-top";
 import { Theme } from "@/features/shared/theme";
+import "./feed-reading.scss";
 
 export default function FeedLayout({ children }: PropsWithChildren) {
   return (
-    <>
+    <div className="feed-page reading-page">
       <ScrollToTop />
       <Theme />
       <Feedback />
       <Navbar />
-      <div className="app-content overflow-hidden entry-index-page">
+      <div className="app-content entry-index-page feed-reading-layout reading-list-layout">
         <div className="tags-side">
           <MyFavoritesWidget />
           <TrendingTagsCard />
@@ -33,6 +35,6 @@ export default function FeedLayout({ children }: PropsWithChildren) {
           <TopCommunitiesWidget />
         </div>
       </div>
-    </>
+    </div>
   );
 }

@@ -180,6 +180,7 @@
     "view-on-x": "View on X"
   },
   "g": {
+    "dismiss": "Dismiss",
     "now": "Now",
     "all": "All",
     "add": "Add",
@@ -347,7 +348,6 @@
     "filter-community": "My Community",
     "source-label": "Feed source",
     "sort-label": "Sort by",
-    "more-filters": "More filters",
     "filter-controversial": "Controversial",
     "filter-rising": "Rising",
     "filter-global-part1": "This feed contains ",
@@ -362,12 +362,15 @@
     "filter-year": "This year",
     "filter-alltime": "All time",
     "filter-no-reblog": "Exclude reblog",
+    "show-reblogs": "Show reblogs",
     "filter-with-reblog": "Include reblog"
   },
   "navbar": {
     "discover": "Discover",
     "decks": "Decks",
     "post": "Create Post",
+    "write": "Write",
+    "perks-streak": "{{label}}: {{streak}}",
     "day-theme": "Day Theme",
     "night-theme": "Night Theme",
     "address-placeholder": "enter url or search query",
@@ -668,6 +671,7 @@
   },
   "trending-tags": {
     "title": "Topics",
+    "explore": "Explore topics",
     "view-more": "View more"
   },
   "sort-trending-tags": {
@@ -3186,6 +3190,8 @@
   },
   "top-communities": {
     "title": "Top communities",
+    "discover-title": "Discover communities",
+    "explore": "Explore communities",
     "create-button": "Create your community"
   },
   "feedback-modal": {

@@ -1,0 +1,260 @@
+@import "../../../styles/vars_mixins";
+
+// Feed-specific column widths and sidebar treatments.
+.feed-reading-layout {
+  max-width: 1440px;
+  gap: 28px;
+  padding-inline: 24px;
+
+  .tags-side {
+    display: none;
+    width: 180px;
+    margin-right: 0;
+    padding-top: 16px;
+
+    @media (min-width: 1024px) {
+      display: block;
+    }
+  }
+
+  .entry-page-content {
+    width: 100%;
+    max-width: 840px;
+    margin-inline: auto;
+  }
+
+  .side-menu {
+    width: 280px;
+    margin-left: 0;
+    padding-top: 16px;
+  }
+
+  .feed-sidebar-heading {
+    color: var(--feed-muted);
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+
+  .feed-sidebar-link {
+    @apply text-blue-dark-sky;
+
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    margin-top: 12px;
+    padding: 0;
+    font-size: 14px;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .feed-favorites a:not(.feed-sidebar-link) {
+    @apply text-gray-700 dark:text-gray-300;
+  }
+
+  .feed-topics {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .feed-topics:first-child {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .feed-topic-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .feed-topic-row {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    gap: 4px;
+
+    > a {
+      @apply text-gray-700 dark:text-gray-300;
+
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      min-height: 36px;
+      flex: 1;
+      font-size: 14px;
+
+      &:hover,
+      &[aria-current="page"] {
+        @apply text-blue-dark-sky;
+      }
+    }
+
+    > [role="button"],
+    .feed-topic-dismiss {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      width: 28px;
+      height: 32px;
+      margin: 0;
+    }
+  }
+
+  .feed-community-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+
+    > button {
+      flex-shrink: 0;
+    }
+  }
+
+  .feed-community-name {
+    @apply text-gray-800 dark:text-gray-200;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 120px;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+
+    .user-avatar {
+      flex-shrink: 0;
+    }
+    &:hover {
+      @apply text-blue-dark-sky;
+    }
+  }
+
+  .feed-community-about {
+    @apply line-clamp-2;
+
+    color: var(--feed-muted);
+    margin: 8px 0 4px;
+    font-size: 14px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+
+  .feed-community-members {
+    color: var(--feed-muted);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .feed-community-create {
+    margin-top: 16px;
+    border-top: 1px solid var(--border-color);
+  }
+
+  a:focus-visible,
+  button:focus-visible,
+  [tabindex="0"]:focus-visible {
+    outline: 2px solid #357ce6 !important;
+    outline-offset: 3px;
+  }
+
+  @media (max-width: 639px) {
+    padding-inline: 16px;
+  }
+}
+
+.feed-navigation {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  min-height: 56px;
+  padding-block: 4px;
+  border-bottom: 1px solid var(--border-color);
+
+  .feed-navigation-desktop {
+    flex: 1;
+    min-width: 0;
+  }
+  .feed-source-tabs,
+  .feed-sort-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    li {
+      min-width: 0;
+    }
+  }
+  .feed-sort-controls,
+  .feed-navigation-mobile {
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .feed-sort-controls {
+    display: flex;
+  }
+  .feed-tab {
+    border-bottom: 2px solid transparent;
+    overflow-wrap: anywhere;
+  }
+  .feed-tab-selected {
+    @apply text-blue-dark-sky dark:text-blue-dark-sky;
+
+    border-bottom-color: currentcolor;
+    font-weight: 600;
+  }
+  .feed-reblog-toggle {
+    color: var(--feed-muted);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 4px 0;
+    font-size: 13px;
+    cursor: pointer;
+    margin-left: auto;
+  }
+  .feed-switch-track {
+    @apply bg-gray-300 dark:bg-gray-600;
+
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    width: 34px;
+    height: 20px;
+    padding: 2px;
+    border-radius: 20px;
+  }
+  .feed-switch-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: white;
+  }
+  [aria-checked="true"] {
+    .feed-switch-track {
+      @apply bg-blue-dark-sky;
+    }
+    .feed-switch-thumb {
+      transform: translateX(14px);
+    }
+  }
+}

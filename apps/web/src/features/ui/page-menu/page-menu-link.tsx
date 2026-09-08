@@ -15,6 +15,7 @@ export function PageMenuLink({ isSelected, href, label }: Props) {
         "text-gray-steel py-1 px-2 text-sm items-center hover:text-blue-dark-sky flex": true,
         "bg-blue-dark-sky text-white rounded-xl hover:text-white": isSelected
       })}
+      aria-current={isSelected ? "page" : undefined}
       href={href!}
     >
       {label}

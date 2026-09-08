@@ -31,7 +31,7 @@ export function SignupLayoutClient({ children }: PropsWithChildren) {
   return (
     <div className=" bg-blue-duck-egg dark:bg-transparent pt-[63px] md:pt-[69px] min-h-[100vh] pb-16">
       <Feedback />
-      <Navbar experimental={true} />
+      <Navbar />
 
       {/* Hoisted into <head> by React. The hero <img> below must stay lazy:
           its container is display:none under md, and a lazy image with no box

@@ -158,7 +158,7 @@ export function EntryListItemComponent({
         forceShow={actionsFocused}
         placeholder={
           <div
-            className="w-full flex md:w-auto md:inline-flex items-center gap-2 md:gap-3 rounded-xl border border-[--border-color] px-2 py-1 text-sm"
+            className="entry-actions w-full flex md:w-auto md:inline-flex items-center gap-2 md:gap-3 rounded-xl border border-[--border-color] px-2 py-1 text-sm"
             aria-hidden="true"
           >
             <span className="h-4 w-8 rounded bg-gray-200 dark:bg-dark-200" />
@@ -168,7 +168,7 @@ export function EntryListItemComponent({
           </div>
         }
       >
-        <div className="w-full flex md:w-auto md:inline-flex items-center gap-2 md:gap-3 rounded-xl border border-[--border-color] px-2 py-1 text-sm">
+        <div className="entry-actions w-full flex md:w-auto md:inline-flex items-center gap-2 md:gap-3 rounded-xl border border-[--border-color] px-2 py-1 text-sm">
           <EntryVoteBtn isPostSlider={true} entry={entry} account={account} />
           <EntryPayout entry={entry} />
           <div className="border-r border-[--border-color] w-[1px] h-4" />

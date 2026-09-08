@@ -57,7 +57,7 @@ export function ProfileSearch({ username }: Props) {
   return (
     <div
       className={clsx(
-        "bg-white p-2 md:p-4",
+        "reading-profile-search bg-white p-2 md:p-4",
         listStyle === ListStyle.grid ? "sm:rounded-xl mb-4" : "sm:rounded-t-xl"
       )}
     >
