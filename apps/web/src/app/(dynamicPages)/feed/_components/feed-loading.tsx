@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useSyncExternalStore } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import type { InfiniteData } from "@tanstack/react-query";
 import { getPostsFeedQueryData } from "@/api/queries";
 // Straight from the module, not the `_helpers` barrel: that also carries the
@@ -13,6 +13,7 @@ import { useGlobalStore } from "@/core/global-store";
 import { Entry, SearchResponse } from "@/entities";
 import { ListStyle } from "@/enums";
 import { EntryListContent } from "@/features/shared/entry-list-content";
+import { useVisibleEntries } from "@/features/shared/entry-list-item/use-muted-authors";
 import { LinearProgress } from "@/features/shared/linear-progress";
 import { ReadingListLoading } from "@/features/shared/reading-layout/reading-list-loading";
 
@@ -36,6 +37,7 @@ type Page = Entry[] | SearchResponse;
  */
 export function FeedLoading() {
   const params = useParams<{ sections: string[] }>();
+  const searchParams = useSearchParams();
   const activeUsername = useGlobalStore((state) => state.activeUser?.username);
   const listStyle = useGlobalStore((state) => state.listStyle);
 
@@ -51,12 +53,21 @@ export function FeedLoading() {
     () => undefined
   );
 
+  // The same two filters the feed itself applies. A fallback is still the
+  // reader's page: a muted author or a reblog they switched off must not appear
+  // for the half second before the server render lands.
+  const noReblog = searchParams?.get("no-reblog") === "true";
   const entries = useMemo(() => {
     const firstPage = (cached as InfiniteData<Page, unknown> | undefined)?.pages?.[0];
-    return (Array.isArray(firstPage) ? firstPage : []).filter(Boolean);
-  }, [cached]);
+    const rows = (Array.isArray(firstPage) ? firstPage : []).filter(Boolean);
+    return noReblog ? rows.filter((row) => !row.reblogged_by || row.reblogged_by.length === 0) : rows;
+  }, [cached, noReblog]);
 
-  if (entries.length === 0) {
+  // Counted on what the reader can actually see: a cached page of nothing but
+  // muted authors is an empty page, and belongs in the skeleton branch.
+  const visibleEntries = useVisibleEntries(entries);
+
+  if (visibleEntries.length === 0) {
     return <ReadingListLoading showProgress />;
   }
 
@@ -67,7 +78,7 @@ export function FeedLoading() {
         <EntryListContent
           username=""
           loading={false}
-          entries={entries}
+          entries={visibleEntries}
           sectionParam={filter}
           isPromoted={false}
           showEmptyPlaceholder={false}

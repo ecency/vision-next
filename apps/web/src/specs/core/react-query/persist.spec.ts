@@ -1,11 +1,16 @@
 import { describe, expect, it, vi } from "vitest";
 import { QueryClient } from "@tanstack/react-query";
+import { QueryKeys } from "@ecency/sdk";
 import {
   persistQueryCache,
   restoreQueryCache,
   startQueryCachePersistence,
   type PersistStorage
 } from "@/core/react-query/persist";
+
+vi.mock("@ecency/sdk", async () => ({
+  ...(await vi.importActual<Record<string, unknown>>("@ecency/sdk"))
+}));
 
 const MINUTE = 60 * 1000;
 
@@ -71,6 +76,87 @@ function seedRecord(
 }
 
 describe("query cache persistence", () => {
+  it("matches the key shapes the SDK actually builds", () => {
+    // The families match by literal prefix so this module stays out of the
+    // SDK's spec-mocking surface (same reasoning as DEFAULT_OBSERVER). This is
+    // what keeps the literals honest: a renamed key fails here rather than
+    // silently switching persistence off.
+    expect(QueryKeys.posts.accountPosts("alice", "feed", 20, "alice").slice(0, 2)).toEqual([
+      "posts",
+      "account-posts"
+    ]);
+    expect(QueryKeys.posts.postsRanked("hot", "", 20, "alice").slice(0, 2)).toEqual([
+      "posts",
+      "posts-ranked"
+    ]);
+    expect(QueryKeys.posts.trendingTags()).toEqual(["posts", "trending-tags"]);
+    expect(QueryKeys.communities.list("rank", "", 50).slice(0, 2)).toEqual(["communities", "list"]);
+    // Feeds carry their observer in the segment the identity check reads.
+    expect(QueryKeys.posts.accountPosts("alice", "feed", 20, "bob")[5]).toBe("bob");
+    expect(QueryKeys.posts.postsRanked("hot", "", 20, "bob")[5]).toBe("bob");
+  });
+
+  it("leaves another account's rows out of this reader's record", async () => {
+    // One QueryClient serves the whole tab and outlives a sign-out, so the
+    // previous account's feed is still sitting in it.
+    const client = makeClient();
+    client.setQueryData(feedKey("alice"), { pages: [[entry("mine")]], pageParams: [null] });
+    client.setQueryData(
+      ["posts", "account-posts", "bob", "feed", 20, "bob"],
+      { pages: [[entry("theirs")]], pageParams: [null] }
+    );
+    const { map, storage } = createStorage();
+
+    await persistQueryCache(client, storage, "alice");
+
+    const written = JSON.parse(map.get("queries:alice") as string);
+    expect(written.state.queries).toHaveLength(1);
+    expect(written.state.queries[0].queryKey[2]).toBe("alice");
+  });
+
+  it("refuses to restore rows fetched for another reader", async () => {
+    const now = Date.now();
+    const { storage } = createStorage({
+      "queries:alice": seedRecord([
+        {
+          queryKey: ["posts", "account-posts", "bob", "feed", 20, "bob"],
+          data: { pages: [[entry("theirs")]], pageParams: [null] },
+          dataUpdatedAt: now - MINUTE
+        }
+      ])
+    });
+    const client = makeClient();
+
+    expect(await restoreQueryCache(client, storage, "alice", now)).toBe(0);
+  });
+
+  it("does not persist the never-stale tag statistics query", async () => {
+    // trendingTagsWithStats sits under the same two segments and is declared
+    // staleTime: Infinity, so a restored copy would never refresh.
+    const client = makeClient();
+    client.setQueryData(["posts", "trending-tags", "stats", 30], [{ name: "hive" }]);
+    const { map, storage } = createStorage();
+
+    await persistQueryCache(client, storage, "alice");
+
+    expect(map.has("queries:alice")).toBe(false);
+  });
+
+  it("lets the outgoing account's last write land before the next prunes it", async () => {
+    // Both instances touch the same store in the same tick on an account
+    // switch. Unordered, the write recreates the record the prune just removed.
+    const client = makeClient();
+    client.setQueryData(feedKey("alice"), { pages: [[entry("a")]], pageParams: [null] });
+    const { map, storage } = createStorage();
+
+    const disposeAlice = startQueryCachePersistence(client, "alice", storage);
+    disposeAlice();
+    const disposeBob = startQueryCachePersistence(client, "bob", storage);
+
+    await vi.waitFor(() => expect(map.has("queries:alice")).toBe(false));
+    disposeBob();
+  });
+
   it("writes only the families a first paint reads", async () => {
     const client = makeClient();
     client.setQueryData(feedKey(), { pages: [[entry("a")]], pageParams: [null] });

@@ -239,6 +239,18 @@ describe("feed poll", () => {
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
+  it("leaves an account-tagged feed that is not Following alone", async () => {
+    // The route's catch-all accepts an @account tag under any filter. Only the
+    // personal feed is the chronological list this chip speaks for.
+    renderFeed({ filter: "payout", tag: "@bob" });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(31_000);
+    });
+
+    expect(accountFetchSpy).not.toHaveBeenCalled();
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
   it("leaves feeds the chip does not watch alone", async () => {
     renderFeed({ filter: "payout" });
     await act(async () => {

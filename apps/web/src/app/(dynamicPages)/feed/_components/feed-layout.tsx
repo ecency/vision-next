@@ -59,7 +59,10 @@ function resolvePollTarget(filter: string, tag: string, observer: string) {
     ? tag.replace("@", "").replace(/%40/g, "")
     : "";
 
-  if (account) {
+  // Following only. The route's catch-all accepts an @account tag under any
+  // filter, and a section that is not the personal feed is not a chronological
+  // list this chip has anything true to say about.
+  if (account && filter === "feed") {
     return {
       feedKey: QueryKeys.posts.accountPosts(account, filter, 20, observer),
       options: withSlimPageEntries(

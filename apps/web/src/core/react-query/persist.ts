@@ -1,6 +1,7 @@
 "use client";
 
 import { dehydrate, hydrate, type DehydratedState, type Query, type QueryClient } from "@tanstack/react-query";
+import { DEFAULT_OBSERVER } from "@/consts/observer";
 
 /**
  * Cross-load persistence for the handful of queries a reader sees first.
@@ -59,6 +60,13 @@ export interface PersistFamily {
   maxAge: number;
   /** Infinite queries: keep page 1 only. Later pages are scroll state, not first paint. */
   firstPageOnly?: boolean;
+  /**
+   * Index of the key segment holding the observer this data was fetched for.
+   * The query cache is one process-wide instance that outlives a sign-out, so
+   * without this an account switch would write the previous reader's rows into
+   * the next reader's record. Absent means the family is not reader-specific.
+   */
+  observerIndex?: number;
   matches: (queryKey: readonly unknown[]) => boolean;
 }
 
@@ -69,35 +77,38 @@ export interface PersistFamily {
 export const PERSIST_FAMILIES: PersistFamily[] = [
   {
     // The reader's own feed and any profile section they were last reading.
+    // QueryKeys.posts.accountPosts(username, filter, limit, observer).
     id: "account-posts",
     maxAge: 10 * MINUTE,
     firstPageOnly: true,
+    observerIndex: 5,
     matches: (key) => key[0] === "posts" && key[1] === "account-posts"
   },
   {
     // Trending/hot/created/tag feeds.
+    // QueryKeys.posts.postsRanked(sort, tag, limit, observer).
     id: "posts-ranked",
     maxAge: 10 * MINUTE,
     firstPageOnly: true,
+    observerIndex: 5,
     matches: (key) => key[0] === "posts" && key[1] === "posts-ranked"
   },
   {
     // Sidebar topics. The query already declares a 1h staleTime; tags do not
     // turn over faster than that, so a day-old list is a fine first paint.
+    //
+    // Length-checked, not prefix-checked: `trendingTagsWithStats` sits under the
+    // same two segments and is declared `staleTime: Infinity`, so persisting it
+    // would restore a ranking that no mount ever refreshes.
     id: "trending-tags",
     maxAge: 12 * HOUR,
     firstPageOnly: true,
-    matches: (key) => key[0] === "posts" && key[1] === "trending-tags"
+    matches: (key) => key.length === 2 && key[0] === "posts" && key[1] === "trending-tags"
   },
   {
     id: "communities-list",
     maxAge: 12 * HOUR,
     matches: (key) => key[0] === "communities" && key[1] === "list"
-  },
-  {
-    id: "community-single",
-    maxAge: 12 * HOUR,
-    matches: (key) => key[0] === "community" && key[1] === "single"
   }
 ];
 
@@ -106,15 +117,14 @@ const REVALIDATED_PREFIXES: readonly (readonly unknown[])[] = [
   ["posts", "account-posts"],
   ["posts", "posts-ranked"],
   ["posts", "trending-tags"],
-  ["communities", "list"],
-  ["community", "single"]
+  ["communities", "list"]
 ];
 
 export function findPersistFamily(queryKey: readonly unknown[]): PersistFamily | undefined {
   return PERSIST_FAMILIES.find((family) => family.matches(queryKey));
 }
 
-export function shouldPersistQuery(query: Query, now = Date.now()): boolean {
+export function shouldPersistQuery(query: Query, observer: string, now = Date.now()): boolean {
   const { status, data, dataUpdatedAt } = query.state;
   if (status !== "success" || data === undefined) {
     return false;
@@ -122,6 +132,13 @@ export function shouldPersistQuery(query: Query, now = Date.now()): boolean {
 
   const family = findPersistFamily(query.queryKey);
   if (!family) {
+    return false;
+  }
+
+  // Fetched for somebody else. The signed-out reader's leftovers, or the
+  // account signed in before this one, are still in the shared cache for their
+  // gc window and must not follow them into this record.
+  if (family.observerIndex !== undefined && query.queryKey[family.observerIndex] !== observer) {
     return false;
   }
 
@@ -167,6 +184,7 @@ export function trimPersistedState(state: DehydratedState): DehydratedState {
 
 export function selectRestorableQueries(
   state: DehydratedState,
+  observer: string,
   now = Date.now()
 ): DehydratedState["queries"] {
   return state.queries.filter((entry) => {
@@ -174,9 +192,19 @@ export function selectRestorableQueries(
     if (!family) {
       return false;
     }
+    // Same identity check as the write side, so a record written before this
+    // rule existed cannot hand one reader another's rows either.
+    if (family.observerIndex !== undefined && entry.queryKey[family.observerIndex] !== observer) {
+      return false;
+    }
     const updatedAt = entry.state.dataUpdatedAt ?? 0;
     return updatedAt > 0 && now - updatedAt < family.maxAge;
   });
+}
+
+/** The observer every reader-specific read is made under. */
+function observerFor(user: string | null): string {
+  return user ?? DEFAULT_OBSERVER;
 }
 
 interface PersistRecord {
@@ -277,7 +305,8 @@ export async function restoreQueryCache(
   client: QueryClient,
   storage: PersistStorage,
   user: string | null,
-  now = Date.now()
+  now = Date.now(),
+  cancelled: () => boolean = () => false
 ): Promise<number> {
   let record: PersistRecord | null = null;
 
@@ -295,8 +324,8 @@ export async function restoreQueryCache(
     return 0;
   }
 
-  const queries = selectRestorableQueries(record.state, now);
-  if (queries.length === 0) {
+  const queries = selectRestorableQueries(record.state, observerFor(user), now);
+  if (queries.length === 0 || cancelled()) {
     return 0;
   }
 
@@ -312,7 +341,7 @@ export async function persistQueryCache(
 ): Promise<boolean> {
   const state = trimPersistedState(
     dehydrate(client, {
-      shouldDehydrateQuery: (query) => shouldPersistQuery(query, now),
+      shouldDehydrateQuery: (query) => shouldPersistQuery(query, observerFor(user), now),
       shouldDehydrateMutation: () => false
     })
   );
@@ -341,6 +370,25 @@ export async function persistQueryCache(
 
   await storage.write(key, serialised);
   return true;
+}
+
+/**
+ * Every read, write and delete this module makes, in the order it was asked for.
+ *
+ * An account switch tears one instance down and arms the next in the same tick,
+ * and both touch the same store: unordered, the outgoing reader's final write
+ * lands after the incoming reader's prune and restores the record that prune
+ * existed to remove. One queue makes "last write, then prune" mean what it says.
+ */
+let storageQueue: Promise<unknown> = Promise.resolve();
+
+function enqueue<T>(work: () => Promise<T>): Promise<T> {
+  const next = storageQueue.then(work, work);
+  storageQueue = next.then(
+    () => undefined,
+    () => undefined
+  );
+  return next;
 }
 
 async function pruneOtherRecords(storage: PersistStorage, user: string | null): Promise<void> {
@@ -382,6 +430,15 @@ export function startQueryCachePersistence(
   let disposed = false;
   let timer: ReturnType<typeof setTimeout> | null = null;
 
+  const write = () =>
+    enqueue(async () => {
+      try {
+        await persistQueryCache(client, storage, user);
+      } catch {
+        // Best effort: a reader whose storage refuses us still gets the page.
+      }
+    });
+
   const flush = () => {
     if (timer) {
       clearTimeout(timer);
@@ -390,7 +447,7 @@ export function startQueryCachePersistence(
     if (disposed) {
       return;
     }
-    void persistQueryCache(client, storage, user).catch(() => {});
+    void write();
   };
 
   const schedule = () => {
@@ -403,15 +460,21 @@ export function startQueryCachePersistence(
     }, WRITE_DEBOUNCE_MS);
   };
 
-  void (async () => {
+  void enqueue(async () => {
     try {
       await pruneOtherRecords(storage, user);
-      await restoreQueryCache(client, storage, user);
+      // Read now, hydrate only if this instance is still the current one: an
+      // account can change while IndexedDB is answering, and the answer belongs
+      // to whoever asked for it.
+      if (disposed) {
+        return;
+      }
+      await restoreQueryCache(client, storage, user, Date.now(), () => disposed);
     } catch {
       // A cache is an optimisation. A reader whose storage refuses us still
       // gets the page, one network read later.
     }
-  })();
+  });
 
   // Only what we would actually write. Without this filter every query in the
   // app — notification polls included — would re-serialise the record every
@@ -436,8 +499,14 @@ export function startQueryCachePersistence(
   }
 
   return () => {
-    flush();
+    // Ordered, not raced: this write is queued before the next instance's
+    // prune, so the record it leaves behind is the one that prune removes.
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
+    }
     disposed = true;
+    void write();
     unsubscribe();
     if (typeof document !== "undefined") {
       document.removeEventListener("visibilitychange", onHide);
