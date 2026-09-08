@@ -77,7 +77,7 @@ export function ProfileMenu({ username }: Props) {
   const allMenuItems = [...menuItems, ...kebabMenuItemsAll];
 
   return (
-    <PageMenu className="pb-4 pt-4 md:pt-0">
+    <PageMenu className="reading-page-menu pb-4 pt-4 md:pt-0">
       <PageMenuMobileDropdown
         label={
           allMenuItems.some((item) => item.id === section)
@@ -87,16 +87,12 @@ export function ProfileMenu({ username }: Props) {
         isSelected={false}
       >
         {dropDownMenuItems.map((item) => (
-            <DropdownItem
-                href={item.href}
-                key={item.id}
-                selected={item.selected}
-            >
-                {item.label}
-            </DropdownItem>
+          <DropdownItem href={item.href} key={item.id} selected={item.selected}>
+            {item.label}
+          </DropdownItem>
         ))}
       </PageMenuMobileDropdown>
-      <PageMenuItems>
+      <PageMenuItems className="reading-page-tabs">
         {menuItems.map((menuItem) => (
           <PageMenuLink
             href={menuItem.href!}
@@ -126,13 +122,9 @@ export function ProfileMenu({ username }: Props) {
           </DropdownToggle>
           <DropdownMenu align="left">
             {kebabMenuItems.map((item) => (
-                <DropdownItem
-                    href={item.href}
-                    key={item.id}
-                    selected={item.selected}
-                >
-                    {item.label}
-                </DropdownItem>
+              <DropdownItem href={item.href} key={item.id} selected={item.selected}>
+                {item.label}
+              </DropdownItem>
             ))}
           </DropdownMenu>
         </Dropdown>

@@ -33,7 +33,10 @@ export const CommunityMenu = (props: Props) => {
     if (filter === EntryFilter.trending) {
       newLabel = i18next.t("community.posts");
     } else if (menuItems.some((item) => item === filter)) {
-      newLabel = i18next.t(`entry-filter.filter-${filter}`);
+      newLabel =
+        filter === EntryFilter.payout
+          ? i18next.t("g.payout")
+          : i18next.t(`entry-filter.filter-${filter}`);
     } else if (label && !newLabel) {
       newLabel = label;
     } else {
@@ -45,22 +48,23 @@ export const CommunityMenu = (props: Props) => {
   const isFilterInItems = () => menuItems.some((item) => filter === item);
 
   return (
-    <PageMenu className="pb-4 pt-4 md:pt-0">
+    <PageMenu className="reading-page-menu pb-4 pt-4 md:pt-0">
       <PageMenuMobileDropdown isSelected={isFilterInItems()} label={label}>
         {menuItems.map((x) => (
-            <DropdownItem
-                key={x}
-                href={`/${x}/${props.community.name}`}
-                selected={filter === x}
-            >
-              {i18next.t(`entry-filter.filter-${x}`)}
-            </DropdownItem>
+          <DropdownItem key={x} href={`/${x}/${props.community.name}`} selected={filter === x}>
+            {x === EntryFilter.payout
+              ? i18next.t("g.payout")
+              : i18next.t(`entry-filter.filter-${x}`)}
+          </DropdownItem>
         ))}
       </PageMenuMobileDropdown>
-      <PageMenuItems>
+      <PageMenuItems className="reading-page-tabs">
         {menuItems
           .map((x) => ({
-            label: i18next.t(`entry-filter.filter-${x}`),
+            label:
+              x === EntryFilter.payout
+                ? i18next.t("g.payout")
+                : i18next.t(`entry-filter.filter-${x}`),
             href: `/${x}/${props.community.name}`,
             selected: filter === x
           }))

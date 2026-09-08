@@ -1,3 +1,4 @@
+import "@/features/shared/reading-layout/reading-layout.scss";
 import { TrendingTagsCard } from "@/app/_components/trending-tags-card";
 import { EntryIndexMenu } from "@/app/_components/entry-index-menu";
 import React, { PropsWithChildren } from "react";
@@ -13,12 +14,12 @@ import "./feed-reading.scss";
 
 export default function FeedLayout({ children }: PropsWithChildren) {
   return (
-    <div className="feed-page">
+    <div className="feed-page reading-page">
       <ScrollToTop />
       <Theme />
       <Feedback />
       <Navbar readingLayout />
-      <div className="app-content entry-index-page feed-reading-layout">
+      <div className="app-content entry-index-page feed-reading-layout reading-list-layout">
         <div className="tags-side">
           <MyFavoritesWidget />
           <TrendingTagsCard />

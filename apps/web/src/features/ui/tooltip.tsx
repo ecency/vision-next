@@ -1,7 +1,7 @@
 "use client";
 
 import { offset } from "@floating-ui/dom";
-import { flip, useFloating } from "@floating-ui/react-dom";
+import { flip, shift, useFloating } from "@floating-ui/react-dom";
 import { safeAutoUpdate } from "@ui/util";
 import clsx from "clsx";
 import React, { JSX, ReactNode, useEffect, useState } from "react";
@@ -49,7 +49,7 @@ export function StyledTooltip({
   const { refs, floatingStyles } = useFloating({
     whileElementsMounted: safeAutoUpdate,
     placement: "bottom",
-    middleware: [flip(), offset({ mainAxis: 4 })]
+    middleware: [flip(), offset({ mainAxis: 4 }), shift({ padding: 8 })]
   });
 
   const [portalContainer, setPortalContainer] = useState<Element | null>(null);
@@ -83,7 +83,11 @@ export function StyledTooltip({
           <div
             ref={refs.setFloating}
             className="z-[1070] absolute"
-            style={{ ...floatingStyles, visibility: show && content ? "visible" : "hidden" }}
+            style={{
+              ...floatingStyles,
+              maxWidth: "calc(100vw - 32px)",
+              visibility: show && content ? "visible" : "hidden"
+            }}
           >
             <div
               className={clsx(

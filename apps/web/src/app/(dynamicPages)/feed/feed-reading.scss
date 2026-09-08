@@ -1,26 +1,6 @@
 @import "../../../styles/vars_mixins";
 
-.feed-page {
-  min-height: 100vh;
-  display: flow-root;
-  --feed-muted: #606a74;
-
-  @include themify(night) {
-    background: #15171b;
-    --feed-muted: #a8adb6;
-    --border-color: #30343b;
-
-    .ecency-navbar-desktop {
-      background: #15171b;
-    }
-    .entry-list-body:not(.grid-view) .entry-list-item {
-      border-bottom-color: #292d33;
-    }
-  }
-}
-
-// Keep this treatment on feed routes. Profile lists, Decks, post pages and
-// the reader's grid preference continue to use their existing layouts.
+// Feed-specific column widths and sidebar treatments.
 .feed-reading-layout {
   max-width: 1440px;
   gap: 28px;
@@ -185,155 +165,6 @@
     border-top: 1px solid var(--border-color);
   }
 
-  .entry-list-body:not(.grid-view) {
-    .entry-list-item {
-      margin-top: 0;
-      padding: 20px 0;
-
-      .item-header {
-        margin-bottom: 8px;
-        flex-wrap: wrap;
-        overflow: visible;
-        gap: 4px 12px;
-      }
-
-      .item-header-main {
-        flex-shrink: 1;
-        flex-wrap: wrap;
-        min-width: 0;
-        row-gap: 4px;
-
-        .author-part .author-avatar {
-          min-width: 32px;
-          min-height: 36px;
-          margin-right: 8px;
-        }
-        .author-part .author,
-        .author-part .author-name {
-          font-weight: 500;
-        }
-        > a {
-          min-height: 32px;
-          max-width: 100%;
-        }
-        > a > div {
-          color: var(--feed-muted);
-          background: transparent;
-          border: 0;
-          padding-inline: 4px;
-          white-space: normal;
-          overflow-wrap: anywhere;
-        }
-        .date {
-          color: var(--feed-muted);
-        }
-      }
-
-      .item-header-features {
-        flex-wrap: wrap;
-        min-width: 0;
-        margin-bottom: 0;
-        .reblogged {
-          flex-shrink: 1;
-          flex-wrap: wrap;
-          opacity: 1;
-        }
-        &:empty {
-          display: none;
-        }
-      }
-
-      .item-summary {
-        min-width: 0;
-        .item-title {
-          @apply text-gray-900 dark:text-gray-100;
-
-          font-size: 22px;
-          line-height: 1.35;
-          max-height: none;
-          font-weight: 600;
-          overflow-wrap: anywhere;
-          @apply line-clamp-2;
-        }
-        .item-body {
-          @apply line-clamp-2;
-
-          color: var(--feed-muted);
-          font-size: 16px;
-          line-height: 1.55;
-          max-height: none;
-          margin: 6px 0 0;
-          overflow-wrap: anywhere;
-        }
-      }
-
-      .entry-actions {
-        width: 100%;
-        max-width: 100%;
-        flex-wrap: wrap;
-        gap: 6px 12px;
-        border: 0;
-        border-radius: 0;
-        padding: 8px 0 0;
-        min-height: 44px;
-
-        .entry-payout:not(.payout-declined):not(.payout-limit-hit),
-        .entry-votes .inner-btn,
-        .entry-reblog-btn:not(.reblogged):not(:hover) .inner-btn,
-        .entry-menu > button:not(:hover),
-        .entry-menu .dropdown-btn:not(:hover) {
-          color: var(--feed-muted);
-        }
-
-        > .border-r {
-          display: none;
-        }
-        > .text-gray-steel {
-          color: var(--feed-muted);
-        }
-        > * {
-          flex-shrink: 0;
-        }
-      }
-    }
-
-    @media (min-width: 640px) {
-      .entry-preview {
-        display: flex;
-        flex-direction: row;
-        align-items: flex-start;
-        gap: 20px;
-      }
-
-      .entry-list-item .item-body {
-        .item-image {
-          float: left;
-          flex: 0 0 150px;
-          width: 150px;
-          height: 104px;
-          margin: 0 20px 0 0;
-          border-radius: 8px;
-        }
-        .entry-preview .item-image {
-          margin: 0;
-        }
-        .entry-preview .item-image.noImage {
-          display: none;
-        }
-        .item-summary {
-          width: auto;
-          flex: 1;
-        }
-      }
-
-      .entry-list-loading-item .item-image {
-        float: left;
-        margin-left: 0;
-        margin-right: 20px;
-      }
-    }
-  }
-
   a:focus-visible,
   button:focus-visible,
   [tabindex="0"]:focus-visible {
@@ -343,15 +174,6 @@
 
   @media (max-width: 639px) {
     padding-inline: 16px;
-    .entry-list-body:not(.grid-view) .entry-list-item {
-      padding-block: 20px;
-      .item-summary .item-title {
-        font-size: 20px;
-      }
-      .entry-actions {
-        column-gap: 8px;
-      }
-    }
   }
 }
 
@@ -433,52 +255,6 @@
     }
     .feed-switch-thumb {
       transform: translateX(14px);
-    }
-  }
-}
-
-.feed-navbar {
-  .ecency-navbar-desktop {
-    gap: 12px;
-  }
-  .navbar-search-slot {
-    max-width: 320px;
-    min-width: 120px;
-    flex: 1;
-  }
-  .navbar-actions {
-    gap: 8px;
-    margin-left: 0;
-    flex-shrink: 0;
-  }
-  .text-menu {
-    gap: 8px;
-    flex-shrink: 0;
-  }
-  .text-menu a {
-    border-radius: 0;
-    padding: 12px 8px;
-  }
-  .text-menu a[aria-current="page"] {
-    background: transparent;
-    border-bottom: 2px solid #357ce6;
-  }
-  .feed-write-button {
-    white-space: nowrap;
-  }
-
-  a:focus-visible,
-  button:focus-visible {
-    outline: 2px solid #357ce6 !important;
-    outline-offset: 3px;
-  }
-
-  @media (max-width: 1279px) {
-    .ecency-navbar-desktop {
-      gap: 8px;
-    }
-    .navbar-actions {
-      gap: 4px;
     }
   }
 }

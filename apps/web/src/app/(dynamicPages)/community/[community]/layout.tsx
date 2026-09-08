@@ -1,3 +1,4 @@
+import "@/features/shared/reading-layout/reading-layout.scss";
 import { Feedback } from "@/features/shared/feedback";
 import { Navbar } from "@/features/shared/navbar";
 import { ScrollToTop } from "@/features/shared/scroll-to-top";
@@ -28,12 +29,12 @@ export default async function CommunityPageLayout({ children, params }: PropsWit
   ]);
 
   return (
-    <>
+    <div className="reading-page">
       <ScrollToTop />
       <Theme />
       <Feedback />
-      <Navbar />
-      <div className="app-content community-page">
+      <Navbar readingLayout />
+      <div className="app-content community-page reading-list-layout">
         <div className="profile-side">
           {account && communityData && (
             <CommunityCard account={account} community={communityData} />
@@ -50,10 +51,12 @@ export default async function CommunityPageLayout({ children, params }: PropsWit
         )}
         <div className="content-side">
           {communityData && <CommunityMenu community={communityData} />}
-          {communityData && account && <CommunityCover account={account} community={communityData} />}
+          {communityData && account && (
+            <CommunityCover account={account} community={communityData} />
+          )}
           {children}
         </div>
       </div>
-    </>
+    </div>
   );
 }

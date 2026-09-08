@@ -13,7 +13,6 @@
     }
 
     @media (min-width: $lg-break) {
-
     }
   }
 
@@ -31,17 +30,6 @@
     &.loading {
       .page-tools {
         border-bottom-color: transparent;
-      }
-    }
-
-    @media (min-width: $lg-break) {
-      .entry-list {
-        .entry-list-body.grid-view {
-          align-content: stretch;
-          display: flex;
-          flex-wrap: wrap;
-          justify-content: flex-start;
-        }
       }
     }
   }

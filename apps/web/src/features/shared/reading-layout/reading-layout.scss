@@ -1,0 +1,416 @@
+@import "../../../styles/vars_mixins";
+
+.reading-page {
+  .profile-page,
+  .community-page {
+    max-width: 1200px;
+    padding-inline: 24px;
+    gap: 28px;
+  }
+
+  .profile-page {
+    padding-top: 96px;
+  }
+
+  .community-page {
+    .profile-side {
+      margin-right: 0;
+    }
+    .content-side {
+      min-width: 0;
+      width: 100%;
+    }
+  }
+
+  .reading-page-menu {
+    position: relative;
+    z-index: 15;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 8px 16px;
+    padding-block: 4px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .reading-profile-search {
+    background: transparent;
+    padding: 16px 0;
+    border-radius: 0;
+  }
+
+  .reading-page-tabs {
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 0;
+    background: transparent;
+    border-radius: 0;
+
+    > a {
+      padding: 12px 8px;
+      border-bottom: 2px solid transparent;
+      border-radius: 0;
+      overflow-wrap: anywhere;
+    }
+    > a[aria-current="page"] {
+      @apply text-blue-dark-sky;
+
+      background: transparent;
+      border-bottom-color: currentcolor;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .profile-page,
+    .community-page {
+      padding-inline: 16px;
+      gap: 20px;
+    }
+    .profile-page {
+      padding-top: 72px;
+    }
+  }
+}
+
+.reading-page {
+  min-height: 100vh;
+  display: flow-root;
+  --feed-muted: #606a74;
+
+  @include themify(night) {
+    background: #15171b;
+    --feed-muted: #a8adb6;
+    --border-color: #30343b;
+
+    .ecency-navbar-desktop {
+      background: #15171b;
+    }
+    .entry-list-body:not(.grid-view) .entry-list-item {
+      border-bottom-color: #292d33;
+    }
+  }
+}
+
+// Shared post and loading layouts, using the same row/grid preference.
+.reading-page .reading-list-layout {
+  .entry-list-body.grid-view {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+
+    > .linear-progress {
+      grid-column: 1 / -1;
+    }
+
+    .entry-list-item,
+    .entry-list-loading-item {
+      width: 100%;
+      min-width: 0;
+      margin: 0;
+      padding: 16px;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+    }
+
+    .entry-list-item {
+      background: transparent;
+    }
+
+    .entry-list-item .item-image,
+    .entry-list-loading-item .item-image {
+      float: none;
+      width: 100%;
+      height: 200px;
+      min-height: 0;
+      margin: 0 0 10px;
+    }
+
+    .entry-list-loading-item {
+      .item-header,
+      .item-summary .item-title {
+        max-width: 100%;
+      }
+    }
+
+    .entry-actions {
+      flex-wrap: wrap;
+      width: 100%;
+      max-width: 100%;
+      gap: 6px 8px;
+      border: 0;
+      padding: 8px 0 0;
+    }
+
+    @media (max-width: 639px) {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  .entry-list-body:not(.grid-view) {
+    .entry-list-item {
+      background: transparent;
+      border-radius: 0;
+      margin-top: 0;
+      padding: 20px 0;
+
+      .item-header {
+        margin-bottom: 8px;
+        flex-wrap: wrap;
+        overflow: visible;
+        gap: 4px 12px;
+      }
+
+      .item-header-main {
+        flex-shrink: 1;
+        flex-wrap: wrap;
+        min-width: 0;
+        row-gap: 4px;
+
+        .author-part .author-avatar {
+          min-width: 32px;
+          min-height: 36px;
+          margin-right: 8px;
+        }
+        .author-part .author,
+        .author-part .author-name {
+          font-weight: 500;
+        }
+        > a {
+          min-height: 32px;
+          max-width: 100%;
+        }
+        > a > div {
+          color: var(--feed-muted);
+          background: transparent;
+          border: 0;
+          padding-inline: 4px;
+          white-space: normal;
+          overflow-wrap: anywhere;
+        }
+        .date {
+          color: var(--feed-muted);
+        }
+      }
+
+      .item-header-features {
+        flex-wrap: wrap;
+        min-width: 0;
+        margin-bottom: 0;
+        .reblogged {
+          flex-shrink: 1;
+          flex-wrap: wrap;
+          opacity: 1;
+        }
+        &:empty {
+          display: none;
+        }
+      }
+
+      .item-summary {
+        min-width: 0;
+        .item-title {
+          @apply text-gray-900 dark:text-gray-100;
+
+          font-size: 22px;
+          line-height: 1.35;
+          max-height: none;
+          font-weight: 600;
+          overflow-wrap: anywhere;
+          @apply line-clamp-2;
+        }
+        .item-body {
+          @apply line-clamp-2;
+
+          color: var(--feed-muted);
+          font-size: 16px;
+          line-height: 1.55;
+          max-height: none;
+          margin: 6px 0 0;
+          overflow-wrap: anywhere;
+        }
+      }
+
+      .entry-actions {
+        width: 100%;
+        max-width: 100%;
+        flex-wrap: wrap;
+        gap: 6px 12px;
+        border: 0;
+        border-radius: 0;
+        padding: 8px 0 0;
+        min-height: 44px;
+
+        .entry-payout:not(.payout-declined):not(.payout-limit-hit),
+        .entry-votes .inner-btn,
+        .entry-reblog-btn:not(.reblogged):not(:hover) .inner-btn,
+        .entry-menu > button:not(:hover),
+        .entry-menu .dropdown-btn:not(:hover) {
+          color: var(--feed-muted);
+        }
+
+        > .border-r {
+          display: none;
+        }
+        > .text-gray-steel {
+          color: var(--feed-muted);
+        }
+        > * {
+          flex-shrink: 0;
+        }
+      }
+    }
+
+    @media (min-width: 640px) {
+      .entry-preview {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 20px;
+      }
+
+      .entry-list-item .item-body {
+        .item-image {
+          float: left;
+          flex: 0 0 150px;
+          width: 150px;
+          height: 104px;
+          margin: 0 20px 0 0;
+          border-radius: 8px;
+        }
+        .entry-preview .item-image {
+          margin: 0;
+        }
+        .entry-preview .item-image.noImage {
+          display: none;
+        }
+        .item-summary {
+          width: auto;
+          flex: 1;
+        }
+      }
+    }
+
+    .entry-list-loading-item {
+      margin-top: 0;
+      padding: 20px 0;
+
+      .item-header {
+        width: min(300px, 70%);
+        height: 36px;
+        margin-bottom: 8px;
+      }
+
+      > .item-body {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+
+        > .item-image {
+          float: none;
+          width: 100%;
+          height: auto;
+          aspect-ratio: 16 / 9;
+          margin: 0 0 10px;
+          border-radius: 8px;
+        }
+
+        > .item-summary {
+          float: none;
+          width: auto;
+          min-width: 0;
+
+          .item-title {
+            width: 70%;
+            height: 27px;
+          }
+        }
+
+        > .item-controls {
+          float: none;
+          grid-column: 1 / -1;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          width: 100%;
+          min-height: 44px;
+          padding-top: 8px;
+
+          > div {
+            float: none;
+            width: min(85px, 20%);
+            margin: 0;
+          }
+        }
+      }
+
+      @media (min-width: 640px) {
+        > .item-body {
+          grid-template-columns: 150px minmax(0, 1fr);
+          column-gap: 20px;
+
+          > .item-image {
+            height: 104px;
+            margin: 0;
+          }
+        }
+      }
+    }
+  }
+
+  @media (max-width: 639px) {
+    .entry-list-body:not(.grid-view) .entry-list-item {
+      padding-block: 20px;
+      .item-summary .item-title {
+        font-size: 20px;
+      }
+      .entry-actions {
+        column-gap: 8px;
+      }
+    }
+  }
+}
+
+.feed-navbar {
+  .ecency-navbar-desktop {
+    gap: 12px;
+  }
+  .navbar-search-slot {
+    max-width: 320px;
+    min-width: 120px;
+    flex: 1;
+  }
+  .navbar-actions {
+    gap: 8px;
+    margin-left: 0;
+    flex-shrink: 0;
+  }
+  .text-menu {
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .text-menu a {
+    border-radius: 0;
+    padding: 12px 8px;
+  }
+  .text-menu a[aria-current="page"] {
+    background: transparent;
+    border-bottom: 2px solid #357ce6;
+  }
+  .feed-write-button {
+    white-space: nowrap;
+  }
+
+  a:focus-visible,
+  button:focus-visible {
+    outline: 2px solid #357ce6 !important;
+    outline-offset: 3px;
+  }
+
+  @media (max-width: 1279px) {
+    .ecency-navbar-desktop {
+      gap: 8px;
+    }
+    .navbar-actions {
+      gap: 4px;
+    }
+  }
+}
