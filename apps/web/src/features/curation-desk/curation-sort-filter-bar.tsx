@@ -1,6 +1,7 @@
 "use client";
 
 import clsx from "clsx";
+import { useEffect, useRef, useState } from "react";
 import i18next from "i18next";
 import { UilAngleDown, UilSlidersVAlt } from "@tooni/iconscout-unicons-react";
 import type { CurationApp, CurationWindow } from "@ecency/sdk";
@@ -247,39 +248,98 @@ export function CurationSortFilterBar({ filters, isRoster, communities, onChange
             <legend className="mb-3 font-semibold text-gray-600 dark:text-gray-400">
               {i18next.t("curation-desk.filters.author-reputation")}
             </legend>
-            <div className="flex flex-col gap-3 text-gray-600 dark:text-gray-400">
-              <span>
-                {i18next.t("curation-desk.filters.rep", {
-                  min: filters.repMin,
-                  max: filters.repMax
-                })}
-              </span>
-              <input
-                type="range"
-                min={0}
-                max={100}
-                value={filters.repMin}
-                aria-label={i18next.t("curation-desk.filters.rep-min")}
-                onChange={(e) =>
-                  onChange({ repMin: Math.min(Number(e.target.value), filters.repMax) })
-                }
-                className="w-full accent-blue-dark-sky"
-              />
-              <input
-                type="range"
-                min={0}
-                max={100}
-                value={filters.repMax}
-                aria-label={i18next.t("curation-desk.filters.rep-max")}
-                onChange={(e) =>
-                  onChange({ repMax: Math.max(Number(e.target.value), filters.repMin) })
-                }
-                className="w-full accent-blue-dark-sky"
-              />
-            </div>
+            <ReputationRange
+              repMin={filters.repMin}
+              repMax={filters.repMax}
+              onCommit={(range) => onChange(range)}
+            />
           </fieldset>
         </div>
       </details>
+    </div>
+  );
+}
+
+/**
+ * The two reputation sliders. They move a local copy while the pointer or the
+ * arrow key is down and hand the range over once it is let go: every step of a
+ * drag used to be a filter change, and a filter change is a new feed key, a
+ * page-one request and a saved-filters write. Thirty steps of one drag were
+ * thirty of each, with the queue re-rendering under the thumb.
+ */
+function ReputationRange({
+  repMin,
+  repMax,
+  onCommit
+}: {
+  repMin: number;
+  repMax: number;
+  onCommit: (range: { repMin: number; repMax: number }) => void;
+}) {
+  const [draft, setDraft] = useState({ repMin, repMax });
+  // Follow a change made elsewhere (Reset, a restored set). While a drag is on,
+  // the committed range does not move, so this never fights the thumb.
+  useEffect(() => {
+    setDraft({ repMin, repMax });
+  }, [repMin, repMax]);
+
+  const draftRef = useRef(draft);
+  draftRef.current = draft;
+  const committedRef = useRef({ repMin, repMax });
+  committedRef.current = { repMin, repMax };
+  const onCommitRef = useRef(onCommit);
+  onCommitRef.current = onCommit;
+
+  // The native `change` event is the release: a range input fires `input` on
+  // every step and `change` once the value is let go, on the input itself
+  // even when the pointer is released somewhere else on the page (and after
+  // each keyboard step). React's onChange is the `input` event, and a
+  // pointerup handler on the input never sees a release outside it.
+  const rootRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    const onRelease = () => {
+      const next = draftRef.current;
+      const committed = committedRef.current;
+      if (next.repMin !== committed.repMin || next.repMax !== committed.repMax) {
+        onCommitRef.current(next);
+      }
+    };
+    root.addEventListener("change", onRelease);
+    return () => root.removeEventListener("change", onRelease);
+  }, []);
+
+  return (
+    <div ref={rootRef} className="flex flex-col gap-3 text-gray-600 dark:text-gray-400">
+      <span>
+        {i18next.t("curation-desk.filters.rep", {
+          min: draft.repMin,
+          max: draft.repMax
+        })}
+      </span>
+      <input
+        type="range"
+        min={0}
+        max={100}
+        value={draft.repMin}
+        aria-label={i18next.t("curation-desk.filters.rep-min")}
+        onChange={(e) =>
+          setDraft((d) => ({ ...d, repMin: Math.min(Number(e.target.value), d.repMax) }))
+        }
+        className="w-full accent-blue-dark-sky"
+      />
+      <input
+        type="range"
+        min={0}
+        max={100}
+        value={draft.repMax}
+        aria-label={i18next.t("curation-desk.filters.rep-max")}
+        onChange={(e) =>
+          setDraft((d) => ({ ...d, repMax: Math.max(Number(e.target.value), d.repMin) }))
+        }
+        className="w-full accent-blue-dark-sky"
+      />
     </div>
   );
 }

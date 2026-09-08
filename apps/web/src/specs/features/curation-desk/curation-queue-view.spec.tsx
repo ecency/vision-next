@@ -142,6 +142,47 @@ describe("CurationQueueView", () => {
   });
 
   /**
+   * `restored` flips in the mount effect, so the first commit of a remount has
+   * the cached rows and no restore yet. The skeleton must not paint over them:
+   * a curator switching tabs saw the desk "load" a list that was already there.
+   */
+  it("never paints the skeleton over rows the cache already holds on a remount", async () => {
+    const queryClient = prodLikeClient();
+    const { unmount } = renderWithQueryClient(<CurationQueueView />, { queryClient });
+    expect(await screen.findAllByRole("article")).toHaveLength(2);
+    unmount();
+
+    // The first commit is gone by the time render() returns (act flushes the
+    // mount effect), so a sibling probes the DOM from a layout effect, which
+    // runs after the commit's DOM writes and before the mount effect.
+    const commits: { skeleton: boolean; articles: number }[] = [];
+    function Probe() {
+      React.useLayoutEffect(() => {
+        commits.push({
+          skeleton: document.querySelector("[aria-label='curation-desk.list.loading']") !== null,
+          articles: document.querySelectorAll("[role='article']").length,
+        });
+      });
+      return null;
+    }
+    renderWithQueryClient(
+      <>
+        <CurationQueueView />
+        <Probe />
+      </>,
+      { queryClient }
+    );
+    expect(screen.getAllByRole("article")).toHaveLength(2);
+    await waitFor(() => expect(screen.getByRole("feed")).toHaveAttribute("aria-busy", "false"));
+    // The probe only sees the commits that render it: the first one, before
+    // the mount effect. The virtual list fills its rows in a later commit, so
+    // that first paint is either the skeleton or the list surface waiting for
+    // its rows; the former is the flash this pins.
+    expect(commits).toEqual([{ skeleton: false, articles: 0 }]);
+    expect(screen.queryByLabelText("curation-desk.list.loading")).not.toBeInTheDocument();
+  });
+
+  /**
    * The saved refine set is read in an effect, so both feeds wait for it. The
    * public feed is the path that proves it: on a hard load the store has not
    * published the active user yet, so the viewer reads as anonymous and the
@@ -394,6 +435,35 @@ describe("CurationQueueView", () => {
     fireEvent.click(screen.getByLabelText("curation-desk.toolbar.reset"));
     expect(screen.getByLabelText("curation-desk.filters.app")).toHaveValue("all");
     expect(screen.queryByText("curation-desk.filters.active-count")).not.toBeInTheDocument();
+  });
+
+  /**
+   * A drag is many input events. Each one used to be a filter change, hence a
+   * new feed key, a page-one request and a saved-filters write; the queue
+   * re-rendered under the thumb. The range now lands when the thumb is let go.
+   */
+  it("applies the reputation range on the release, wherever it happens, not on every step", async () => {
+    renderWithQueryClient(<CurationQueueView />, { queryClient: prodLikeClient() });
+    await screen.findAllByRole("article");
+    fireEvent.click(screen.getByText("curation-desk.filters.refine").closest("summary")!);
+    const repMin = screen.getByLabelText("curation-desk.filters.rep-min");
+    const feedCalls = () => fetchRouter.callsTo(/curation-desk\/feed\?/).length;
+    const before = feedCalls();
+
+    // A drag is `input` events; the browser fires `change` once on release,
+    // on the input, even when the pointer is let go elsewhere on the page.
+    fireEvent.input(repMin, { target: { value: "10" } });
+    fireEvent.input(repMin, { target: { value: "20" } });
+    fireEvent.input(repMin, { target: { value: "30" } });
+    expect(repMin).toHaveValue("30");
+    expect(feedCalls()).toBe(before);
+    expect(fetchRouter.callsTo(/curation-desk\/feed\?/).some((call) => call.url.includes("rep_min="))).toBe(false);
+
+    fireEvent.change(repMin, { target: { value: "30" } });
+    await waitFor(() => expect(feedCalls()).toBe(before + 1));
+    const last = fetchRouter.callsTo(/curation-desk\/feed\?/).at(-1)!;
+    expect(last.url).toContain("rep_min=30");
+    expect(last.url).not.toContain("rep_min=10");
   });
 
   it("counts a min/max word range once in the refine badge, as the shared tally does", async () => {

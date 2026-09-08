@@ -25,6 +25,15 @@ vi.mock("@/utils", async () => ({
   getAccessToken: vi.fn(() => "mock-token")
 }));
 
+// The order is one seed drawn from Math.random per mount, so the spies below on
+// Math.random pick the order: a seed of 0 rotates the list by one place, any
+// other seed keeps it as served. The generator itself has its own spec.
+vi.mock("@/utils/seeded-shuffle", () => ({
+  seededShuffle: vi.fn(<T,>(items: readonly T[], seed: number) =>
+    seed === 0 ? [...items.slice(1), ...items.slice(0, 1)] : [...items]
+  )
+}));
+
 vi.mock("@/core/caches", () => ({
   getCommunityCache: (tag: string) => ({
     queryKey: ["community", tag],

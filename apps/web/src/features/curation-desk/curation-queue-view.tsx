@@ -520,7 +520,10 @@ export function CurationQueueView() {
       )}
 
       <div role="feed" aria-busy={feed.isFetching || !restored} aria-label={i18next.t("curation-desk.list.aria")} className="border-t border-[--border-color]">
-        {(!restored || feed.isLoading) && <CurationQueueSkeleton />}
+        {/* Only over an empty surface: on a remount the cached rows are already
+            here while `restored` flips in the mount effect, and a skeleton
+            painted above them reads as the desk loading again. */}
+        {(!restored || feed.isLoading) && rows.length === 0 && <CurationQueueSkeleton />}
         {feed.isError && (
           <p className="p-4 text-sm text-red-030 dark:text-red-light-020" role="alert">
             {i18next.t("curation-desk.list.error")}

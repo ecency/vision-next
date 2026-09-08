@@ -2,6 +2,12 @@ import type { CurationApp, CurationWindow } from "@ecency/sdk";
 
 export const QUEUE_PAGE_SIZE = 25;
 export const POLL_MS_CURATOR = 15_000;
+/**
+ * Tick cadence while the curator's queue is empty. The tick still runs, for
+ * the hand-off bar and the active list, but nothing on screen needs a
+ * 15 s refresh when there is no row to keep current.
+ */
+export const POLL_MS_CURATOR_EMPTY_QUEUE = 60_000;
 export const POLL_MS_PUBLIC = 60_000;
 /** One shared clock for every window badge; a countdown never re-renders a row. */
 export const TICKER_MS = 60_000;
