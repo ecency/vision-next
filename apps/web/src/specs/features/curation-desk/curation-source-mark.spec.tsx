@@ -46,18 +46,26 @@ const inByline = (els = marks()) => els.filter((m) => m.closest(".absolute") ===
 describe("Ecency source mark on a desk row", () => {
   // jsdom has no breakpoints, so the responsive half is asserted through the class the
   // row applies, not through what is painted.
-  it("puts the mark on the thumbnail and hides the byline copy from sm up", () => {
+  it("puts the mark on the thumbnail at every width and hides the byline copy", () => {
+    // A row with a cover shows the (smaller) thumbnail on phones too, so the byline
+    // copy is redundant everywhere.
     renderRow(makeRow({ post_id: 1, is_ecency: true, first_image: "https://img.example/cover.jpg" }));
     expect(onThumbnail()).toHaveLength(1);
+    expect(onThumbnail()[0].closest(".absolute")!.parentElement!.classList).not.toContain("hidden");
     expect(inByline()).toHaveLength(1);
-    expect(inByline()[0].getAttribute("class")).toContain("sm:hidden");
+    expect(inByline()[0].classList).toContain("hidden");
+    expect(inByline()[0].classList).not.toContain("sm:hidden");
   });
 
-  it("keeps the thumbnail mark on a post with no cover image", () => {
-    // The thumbnail box renders as a placeholder either way, which is what keeps this
-    // option from leaving image-less Ecency posts unmarked.
+  it("keeps the thumbnail mark on a post with no cover image, with the byline copy below sm", () => {
+    // Without a cover the placeholder box only renders from sm up, so phones read the
+    // mark from the byline instead.
     renderRow(makeRow({ post_id: 2, is_ecency: true, first_image: null }));
     expect(onThumbnail()).toHaveLength(1);
+    expect(onThumbnail()[0].closest(".absolute")!.parentElement!.classList).toContain("hidden");
+    expect(onThumbnail()[0].closest(".absolute")!.parentElement!.classList).toContain("sm:block");
+    expect(inByline()).toHaveLength(1);
+    expect(inByline()[0].getAttribute("class")).toContain("sm:hidden");
   });
 
   it("carries the mark in the byline at every width when the row is collapsed", () => {
