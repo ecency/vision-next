@@ -220,7 +220,17 @@ export function Comment({
       setInputHeight(scHeight);
     }, [setText]);
 
+    // Nothing to broadcast without a body: the chain op requires one, and the
+    // SDK builder throws `[SDK][buildCommentOp] Missing required parameters`
+    // straight into a toast if we let an empty composer through. Whitespace is
+    // just as empty here, and would otherwise post a blank reply for real.
+    const canSubmit = !!text?.trim();
+
     const submit = useCallback(async () => {
+      if (!text?.trim()) {
+        return;
+      }
+
       try {
         await onSubmit(text!);
         if (clearOnSubmit) {
@@ -369,7 +379,13 @@ export function Comment({
             </Button>
           )}
           <LoginRequired promptOnAnon>
-            <Button size="sm" onClick={submit} isLoading={inProgress} iconPlacement="left">
+            <Button
+              size="sm"
+              onClick={submit}
+              disabled={!canSubmit}
+              isLoading={inProgress}
+              iconPlacement="left"
+            >
               {submitText}
             </Button>
           </LoginRequired>

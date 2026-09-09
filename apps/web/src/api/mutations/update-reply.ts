@@ -41,6 +41,10 @@ export function useUpdateReply(
       if (!activeUser || !entry) {
         throw new Error("[Reply][Update] – no active user provided");
       }
+      // Same guard as create-reply: an empty or whitespace-only body reaches
+      // buildCommentOp and throws its "Missing required parameters" error, and
+      // whitespace alone is worse because it broadcasts a blank edit for real.
+      if (!text || !text.trim()) throw new Error("Reply body cannot be empty");
 
       const updatedEntry = {
         ...entry,

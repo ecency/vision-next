@@ -151,6 +151,23 @@ describe("Comment composer", () => {
     expect(onSubmit).not.toHaveBeenCalled();
   });
 
+  test("the submit button does NOT submit an empty composer", () => {
+    const { onSubmit, getByRole } = renderComment();
+
+    fireEvent.click(getByRole("button", { name: "Reply" }));
+
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  test("the submit button does NOT submit whitespace only", () => {
+    const { onSubmit, getByRole } = renderComment();
+
+    type(getByRole, "   \n  ");
+    fireEvent.click(getByRole("button", { name: "Reply" }));
+
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
   test("warns that a reply too short to earn points will not count", () => {
     const { getByRole } = renderComment();
 
