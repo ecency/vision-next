@@ -161,8 +161,18 @@ vi.mock("@ecency/sdk", async () => ({
       full: (username?: string) => ["get-account-full", username],
       mutedUsers: (username?: string) => ["accounts", "muted-users", username]
     },
+    // Same shape as the SDK builder: the entry page derives a key prefix from it.
+    posts: {
+      entry: (entryPath: string) => ["posts", "entry", entryPath],
+      content: (author: string, permlink?: string) => ["posts", "content", author, permlink],
+      normalize: (author: string, permlink?: string) => ["posts", "normalize", author, permlink]
+    },
     ai: aiQueryKeys
   },
+  getPostQueryOptions: vi.fn((author: string, permlink?: string) => ({
+    queryKey: ["posts", "content", author, permlink],
+    queryFn: vi.fn()
+  })),
   getSpotlightsQueryOptions: vi.fn(() => ({
     queryKey: ["notifications", "spotlights"],
     queryFn: vi.fn()

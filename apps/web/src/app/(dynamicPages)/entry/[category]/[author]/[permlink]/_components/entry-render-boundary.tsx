@@ -25,12 +25,20 @@ interface EntryRenderBoundaryProps {
 }
 
 /**
- * Wraps the entry (post / reply) content so a render-time crash in the body,
- * client content or discussion subtree degrades to an inline retry card instead
- * of bubbling to the full-page 500 (global-error) — and, crucially, reports the
- * error to Sentry WITH the React component stack so the failing component is
- * named. Lives as a client component because `fallback` is a function, which
- * can't cross the server→client (RSC) boundary from the server page.
+ * Wraps the entry (post / reply) content so a CLIENT-side render crash in the
+ * body, client content or discussion subtree degrades to an inline retry card
+ * instead of bubbling to the full-page 500 (global-error) — and, crucially,
+ * reports the error to Sentry WITH the React component stack so the failing
+ * component is named. Lives as a client component because `fallback` is a
+ * function, which can't cross the server→client (RSC) boundary from the server
+ * page.
+ *
+ * Server-side crashes are NOT contained here: React's server renderer never
+ * runs class error boundaries and only contains errors at Suspense boundaries.
+ * The entry route deliberately has none above the post body (see the comment
+ * in page.tsx), so a throw in the RSC/SSR render of this subtree is a full-page
+ * 500. While loading.tsx existed its pending boundary happened to catch those
+ * and the client retry landed here; that was incidental, not designed.
  */
 export function EntryRenderBoundary({ children }: EntryRenderBoundaryProps) {
   return (

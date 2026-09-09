@@ -109,6 +109,34 @@ export async function generateMetadata(
   return generateEntryMetadata(author.replace(/%40/g, ""), permlink);
 }
 
+// Deliberately NO loading.tsx on this route (nor on any ancestor segment).
+// A loading module wraps the page in a Suspense boundary, and because this
+// page awaits network before returning JSX that boundary streams: skeleton in
+// the shell, post body in a hidden <div id="S:n"> chunk, revealed only by the
+// $RC script near the end of the document. On a busy phone the parser reached
+// that script seconds after the bytes had arrived (measured: skeleton at
+// 1.4 s, body at 5.7-7 s on slow 4G). Without the boundary the body is plain
+// shell HTML that paints as it streams. A <Suspense> around the body would
+// not help either: Fizz outlines any completed boundary over 500 bytes once
+// the shell has passed progressiveChunkSize (12.8 KB, and the head + navbar
+// alone are ~25 KB), so the body would again ship hidden plus a swap script.
+// The Suspense around EntryRelatedFooter stays because it is BELOW the body.
+// Pinned by specs/app/entry-page-no-ssr-skeleton.spec.ts.
+//
+// Trade-offs accepted with no boundary above the body:
+//  - Fizz only contains render errors at Suspense boundaries, so a throw in
+//    the SSR render of the post subtree is a full-page 500 instead of the
+//    skeleton plus a client retry. The known throwers are guarded at the
+//    source: the markdown renderer (EntryPageStaticBody falls back to the raw
+//    body), the JSON-LD image lookup, and every json_metadata reader on this
+//    path (canonical_url, app.name, location, poll fields) type-checks its
+//    input. Treat any new reader of json_metadata here as untrusted input.
+//  - On a cold hard load (no CF/origin cached HTML, or any logged-in user)
+//    nothing flushes until the entry and account fetches below resolve; the
+//    skeleton used to flush the navbar at TTFB. If that ever shows up in the
+//    SSR duration histogram, shorten the wait rather than re-adding a boundary.
+//  - Soft navigations keep the previous page on screen until the RSC response
+//    arrives; the bprogress bar mounted in client-providers is the feedback.
 export default async function EntryPage({ params, searchParams }: Props) {
   const { author: username, permlink, category } = await params;
   const sParams = await searchParams;

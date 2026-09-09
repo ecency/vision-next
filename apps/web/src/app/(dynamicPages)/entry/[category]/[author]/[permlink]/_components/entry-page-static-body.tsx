@@ -4,6 +4,8 @@ import type { SeoContext } from "@ecency/render-helper";
 import { accountReputation } from "@/utils";
 import defaults from "@/defaults";
 import type { CSSProperties } from "react";
+import * as Sentry from "@sentry/nextjs";
+import { EntryPageRawBody } from "./entry-page-raw-body";
 
 interface Props {
   entry: Entry;
@@ -36,14 +38,34 @@ export function EntryPageStaticBody({ entry }: Props) {
       ? ({ "--cover-ar": String(coverRatio), "--cover-w": "100%" } as CSSProperties)
       : undefined;
 
+  // The entry route has no Suspense boundary above the body (page.tsx), so a
+  // throw during SSR here would be a full-page 500 rather than the inline retry
+  // card. renderPostBody recovers from malformed HTML internally, but its
+  // last-resort path runs sanitizeHtml over the same Remarkable output that
+  // just failed, so an input that breaks the sanitizer throws all the way out:
+  // one out-of-range entity (`<div title="&#1114112;">`) does it. Degrade to
+  // the escaped raw body (same presentation as ?raw) and report, instead of
+  // taking the whole route down with the navbar.
+  let html: string | null;
+  try {
+    html = renderPostBody(entry.body, false, false, "ecency.com", seoContext);
+  } catch (e) {
+    html = null;
+    Sentry.captureException(e, {
+      extra: { author: entry.author, permlink: entry.permlink, where: "EntryPageStaticBody" }
+    });
+  }
+
+  if (html === null) {
+    return <EntryPageRawBody entry={entry} />;
+  }
+
   return (
     <div
       id="post-body"
       className="entry-body markdown-view user-selectable client"
       style={coverStyle}
-      dangerouslySetInnerHTML={{
-        __html: renderPostBody(entry.body, false, false, "ecency.com", seoContext)
-      }}
+      dangerouslySetInnerHTML={{ __html: html }}
     />
   );
 }

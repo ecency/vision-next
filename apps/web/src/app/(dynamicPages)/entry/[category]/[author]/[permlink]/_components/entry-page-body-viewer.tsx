@@ -58,6 +58,12 @@ export function EntryPageBodyViewer({ entry }: Props) {
       return;
     }
 
+    // The server falls back to the escaped raw body (a <pre>) when the
+    // markdown renderer throws; there are no embeds or images to enhance.
+    if (el.tagName === "PRE") {
+      return;
+    }
+
     // Enhanced null-safe checking for iOS Safari compatibility
     const isElementSafe = (element: HTMLElement | null): boolean => {
       try {

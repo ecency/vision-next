@@ -76,7 +76,16 @@ export function buildEntryCardFields(entry: Entry): EntryCardFields {
     );
   }
 
-  const image = catchPostImage(entry, 1200, 630, "match");
+  // Same call as the JSON-LD image lookup: with no metadata or regex hit it
+  // falls through to the full markdown parser, which can throw on hostile
+  // markdown. generateMetadata's outer catch would then drop the title, cards,
+  // canonical and robots for that post; a missing image is the smaller loss.
+  let image: string | null;
+  try {
+    image = catchPostImage(entry, 1200, 630, "match");
+  } catch {
+    image = null;
+  }
 
   return { title, summary, cardSummary, image, isComment };
 }

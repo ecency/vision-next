@@ -168,7 +168,9 @@ export function canonicalTarget(
   const declared = ignoreDeclaredCanonical
     ? undefined
     : entry.json_metadata?.canonical_url;
-  if (declared) {
+  // json_metadata is untrusted: a non-string canonical_url (number, object,
+  // array) is truthy and used to throw on .replace during entry-page SSR.
+  if (typeof declared === "string" && declared) {
     return declared.replace("https://www.", "https://");
   }
 

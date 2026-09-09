@@ -133,10 +133,19 @@ export function buildArticleJsonLd({
   url: string;
   base?: string;
 }): JsonLdData {
-  const authorName = account?.profile?.name?.trim() || entry.author;
+  // posting_json_metadata is untrusted too: profile.name can be any JSON type.
+  const authorName = profileString(account?.profile?.name) || entry.author;
   // entryDisplayTitle: title-less posts get a body-summary headline instead of "".
   const headline = entryDisplayTitle(entry).slice(0, HEADLINE_MAX);
-  const image = catchPostImage(entry, 1200, 630, "match") || undefined;
+  // Without a metadata/regex hit this falls through to the full markdown
+  // parser, whose last-resort path can throw on hostile markdown. The post body
+  // guards the same call; an Article without an image beats a 500.
+  let image: string | undefined;
+  try {
+    image = catchPostImage(entry, 1200, 630, "match") || undefined;
+  } catch {
+    image = undefined;
+  }
   // json_metadata is untrusted on-chain data: guard that `tags` is actually an
   // array before filtering to non-empty strings — a truthy non-array value
   // would otherwise throw here, on the entry-page SSR path. (Matches the
@@ -158,7 +167,9 @@ export function buildArticleJsonLd({
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     headline,
-    description: entry.json_metadata?.description || postBodySummary(entry.body, 160),
+    description:
+      (typeof entry.json_metadata?.description === "string" && entry.json_metadata.description) ||
+      postBodySummary(entry.body, 160),
     image: image ? [image] : undefined,
     datePublished: toUtcIso(entry.created),
     dateModified: toUtcIso(entry.updated ?? entry.created),
@@ -185,6 +196,10 @@ export function buildArticleJsonLd({
   };
 }
 
+function profileString(value: unknown): string | undefined {
+  return typeof value === "string" ? value.trim() || undefined : undefined;
+}
+
 export function buildProfileJsonLd({
   account,
   username,
@@ -194,9 +209,10 @@ export function buildProfileJsonLd({
   username: string;
   base?: string;
 }): JsonLdData {
-  const displayName = account?.profile?.name?.trim() || username;
-  const about = account?.profile?.about?.trim();
-  const website = account?.profile?.website?.trim();
+  // posting_json_metadata is untrusted: any of these can be a non-string.
+  const displayName = profileString(account?.profile?.name) || username;
+  const about = profileString(account?.profile?.about);
+  const website = profileString(account?.profile?.website);
 
   return {
     "@context": "https://schema.org",

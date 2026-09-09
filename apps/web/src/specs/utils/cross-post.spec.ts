@@ -7,6 +7,11 @@ describe("Cross post", () => {
     expect(crossPostMessage("lorem ipsum dolor sit amet")).toMatchSnapshot();
   });
 
+  it("(1b) missing body does not throw", () => {
+    expect(crossPostMessage(undefined)).toBeNull();
+    expect(crossPostMessage(null)).toBeNull();
+  });
+
   it("(2) Valid", () => {
     expect(
       crossPostMessage(
