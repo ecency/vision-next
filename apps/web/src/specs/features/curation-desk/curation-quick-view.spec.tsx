@@ -135,7 +135,6 @@ function renderDrawer(props: Partial<React.ComponentProps<typeof CurationQuickVi
       onPrev={noop}
       onNext={noop}
       onReviewed={noop}
-      onSkip={noop}
       onSnooze={noop}
       onFlag={noop}
       onNote={noop}
@@ -409,7 +408,7 @@ describe("CurationQuickView", () => {
       active_votes: [],
     });
     renderWithQueryClient(
-      <CurationQuickView row={row} neighbour={null} viewer={member} recommendationsEnabled commentOnOpen tipOnOpen voteOnOpen onCommentHandled={onCommentHandled} onTipHandled={onTipHandled} onVoteHandled={onVoteHandled} onClose={noop} onPrev={noop} onNext={noop} onReviewed={noop} onSkip={noop} onSnooze={noop} onFlag={noop} onNote={noop} onSaveNote={noop} recommendRef={null} />,
+      <CurationQuickView row={row} neighbour={null} viewer={member} recommendationsEnabled commentOnOpen tipOnOpen voteOnOpen onCommentHandled={onCommentHandled} onTipHandled={onTipHandled} onVoteHandled={onVoteHandled} onClose={noop} onPrev={noop} onNext={noop} onReviewed={noop} onSnooze={noop} onFlag={noop} onNote={noop} onSaveNote={noop} recommendRef={null} />,
       { queryClient: client }
     );
     expect(state.entryFetch).not.toHaveBeenCalled();
@@ -443,18 +442,48 @@ describe("CurationQuickView", () => {
     });
     observer.observe(document.body, { childList: true, subtree: true });
     const { rerender } = renderWithQueryClient(
-      <CurationQuickView row={row} neighbour={null} viewer={member} recommendationsEnabled onClose={noop} onPrev={noop} onNext={noop} onReviewed={noop} onSkip={noop} onSnooze={noop} onFlag={noop} onNote={noop} onSaveNote={noop} recommendRef={null} />,
+      <CurationQuickView row={row} neighbour={null} viewer={member} recommendationsEnabled onClose={noop} onPrev={noop} onNext={noop} onReviewed={noop} onSnooze={noop} onFlag={noop} onNote={noop} onSaveNote={noop} recommendRef={null} />,
       { queryClient: client }
     );
     fireEvent.click(await screen.findByRole("button", { name: "curation-desk.actions.comment-key" }));
     expect(screen.getByTestId("comment-box")).toBeInTheDocument();
     rerender(
-      <CurationQuickView row={next} neighbour={null} viewer={member} recommendationsEnabled onClose={noop} onPrev={noop} onNext={noop} onReviewed={noop} onSkip={noop} onSnooze={noop} onFlag={noop} onNote={noop} onSaveNote={noop} recommendRef={null} />
+      <CurationQuickView row={next} neighbour={null} viewer={member} recommendationsEnabled onClose={noop} onPrev={noop} onNext={noop} onReviewed={noop} onSnooze={noop} onFlag={noop} onNote={noop} onSaveNote={noop} recommendRef={null} />
     );
     await screen.findByText("Post 2");
     expect(screen.queryByTestId("comment-box")).toBeNull();
     observer.disconnect();
     expect(boxes.filter((title) => title === "Post 2")).toEqual([]);
+  });
+
+  /**
+   * Curators reported that on a phone they could find neither control once a
+   * post was open: both were glyphs, next was a chevron next to the close
+   * button in a cramped header, and reviewed sat in a wrapped row of seven
+   * small icons. Both are worded now, and both sit in the drawer's own bar.
+   */
+  it("puts a worded Reviewed and Next in the drawer's action bar", async () => {
+    const onReviewed = vi.fn();
+    const onNext = vi.fn();
+    renderDrawer({ row, viewer: roster, onReviewed, onNext });
+
+    const reviewed = await screen.findByRole("button", { name: "curation-desk.actions.reviewed-key" });
+    const next = screen.getByRole("button", { name: "curation-desk.actions.next-key" });
+    expect(reviewed).toHaveTextContent("curation-desk.actions.reviewed");
+    expect(next).toHaveTextContent("curation-desk.actions.next");
+
+    fireEvent.click(reviewed);
+    expect(onReviewed).toHaveBeenCalledWith(row);
+    fireEvent.click(next);
+    expect(onNext).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps Next for a reader who is not on the roster, and marks nothing", async () => {
+    const onNext = vi.fn();
+    renderDrawer({ row, onNext });
+    fireEvent.click(await screen.findByRole("button", { name: "curation-desk.actions.next-key" }));
+    expect(onNext).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole("button", { name: "curation-desk.actions.reviewed-key" })).toBeNull();
   });
 
   it("closes the reply box when the drawer moves to another post", async () => {
@@ -463,7 +492,7 @@ describe("CurationQuickView", () => {
     fireEvent.click(screen.getByRole("button", { name: "curation-desk.actions.comment-key" }));
     expect(screen.getByTestId("comment-box")).toBeInTheDocument();
     rerender(
-      <CurationQuickView row={next} neighbour={null} viewer={member} recommendationsEnabled onClose={noop} onPrev={noop} onNext={noop} onReviewed={noop} onSkip={noop} onSnooze={noop} onFlag={noop} onNote={noop} onSaveNote={noop} recommendRef={null} />
+      <CurationQuickView row={next} neighbour={null} viewer={member} recommendationsEnabled onClose={noop} onPrev={noop} onNext={noop} onReviewed={noop} onSnooze={noop} onFlag={noop} onNote={noop} onSaveNote={noop} recommendRef={null} />
     );
     await screen.findByTestId("renderer");
     expect(screen.queryByTestId("comment-box")).toBeNull();

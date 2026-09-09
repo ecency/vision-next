@@ -363,6 +363,12 @@ export interface CurationRecommendationItem {
   permlink: string;
   title: string;
   created: string;
+  /**
+   * The post's cover, the same column the feed row carries. Optional because a
+   * desk older than the field answers without it; absent and null both mean no
+   * cover, and the caller proxifies before rendering.
+   */
+  first_image?: string | null;
   recommend_count: number;
   unique_recommenders: number;
   no_meta_count: number;

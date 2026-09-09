@@ -1,5 +1,6 @@
 import { Entry } from "@/entities";
-import { buildSrcSet, catchPostImage, setProxyBase } from "@ecency/render-helper";
+import { buildSrcSet, setProxyBase } from "@ecency/render-helper";
+import { catchPostImageSafely } from "@/core/entries/catch-post-image-safely";
 import { DEFAULT_IMAGE_SERVER } from "@/defaults";
 import { THUMB_SIZES } from "./thumb-lcp";
 
@@ -40,9 +41,12 @@ function resolveThumb(entryProp: Entry | undefined) {
     return null;
   }
 
-  // Same call EntryListItemThumbnail makes. A null result means the card falls
-  // back to the local /assets/noimage.png placeholder, which needs no preload.
-  const src = catchPostImage(entry, 600, 500, "match");
+  // Same call EntryListItemThumbnail makes, through the same guard: this
+  // component renders in a server layout, so an extractor throw on a crafted
+  // body would fail the whole feed route rather than lose one preload hint. A
+  // null result means the card falls back to the local /assets/noimage.png
+  // placeholder, which needs no preload.
+  const src = catchPostImageSafely(entry, 600, 500, "match");
   if (!src) {
     return null;
   }

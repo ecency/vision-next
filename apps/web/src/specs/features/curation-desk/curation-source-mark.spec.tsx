@@ -31,7 +31,7 @@ const actions = {
 function renderRow(row: DeskRow, isActive = false) {
   return renderWithQueryClient(
     <CurationQueueRow row={row} isActive={isActive} isRoster={false} isTrial={false} username="member1"
-      recommendationsEnabled section="queue" late={false} resurfaced={false} belowCursor={false}
+      recommendationsEnabled coarsePointer={false} section="queue" late={false} resurfaced={false} belowCursor={false}
       reviewedByCursor={false} chronological {...rowWindowProps(row)} {...actions} />
   );
 }

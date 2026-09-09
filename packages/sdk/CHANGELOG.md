@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.4.5
+
+### Patch Changes
+
+- Curation desk: make a post openable and markable on a phone (#1784)
+
 ## 2.4.4
 
 ### Patch Changes
