@@ -1,6 +1,6 @@
 import React from "react";
 import { render } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderPostBody } from "@ecency/render-helper";
 import * as Sentry from "@sentry/nextjs";
 import { EntryPageStaticBody } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-static-body";
@@ -25,6 +25,10 @@ vi.mock("@/utils", async () => ({
 // during its SSR render is a full-page 500 (see page.tsx). This is the only
 // containment left for hostile markdown on the server side.
 describe("EntryPageStaticBody", () => {
+  beforeEach(() => {
+    vi.mocked(Sentry.captureException).mockClear();
+  });
+
   it("renders the markdown output on the happy path", () => {
     vi.mocked(renderPostBody).mockReturnValue("<p>hello <b>world</b></p>");
     const { container } = render(
@@ -34,6 +38,20 @@ describe("EntryPageStaticBody", () => {
     expect(body?.tagName).toBe("DIV");
     expect(body?.innerHTML).toBe("<p>hello <b>world</b></p>");
     expect(Sentry.captureException).not.toHaveBeenCalled();
+  });
+
+  it("survives a real body that breaks the sanitizer (out-of-range entity)", async () => {
+    const actual = await vi.importActual<typeof import("@ecency/render-helper")>(
+      "@ecency/render-helper"
+    );
+    vi.mocked(renderPostBody).mockImplementation(actual.renderPostBody);
+    // One line any account can broadcast: RangeError: Invalid code point 1114112
+    // from the last-resort sanitizeHtml pass inside renderPostBody.
+    const body = `<div title="&#1114112;">boom</span>`;
+    expect(() => actual.renderPostBody(body, false, false, "ecency.com")).toThrow(RangeError);
+    const { container } = render(<EntryPageStaticBody entry={mockEntry({ body })} />);
+    expect(container.querySelector("#post-body")?.tagName).toBe("PRE");
+    expect(Sentry.captureException).toHaveBeenCalledTimes(1);
   });
 
   it("falls back to the escaped raw body and reports when the renderer throws", () => {

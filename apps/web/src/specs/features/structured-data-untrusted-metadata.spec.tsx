@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { renderHook } from "@testing-library/react";
 import { catchPostImage } from "@ecency/render-helper";
-import { buildArticleJsonLd } from "@/features/structured-data";
+import { buildArticleJsonLd, buildProfileJsonLd } from "@/features/structured-data";
 import { useEntryPollExtractor } from "@/features/polls/hooks/use-entry-poll-extractor";
 import { useEntryLocation } from "@/utils/use-entry-location";
 import { mockEntry, mockFullAccount } from "@/specs/test-utils";
@@ -31,6 +31,25 @@ describe("entry SSR path tolerates malformed metadata", () => {
       const data = buildArticleJsonLd({ entry, account, url }) as any;
       expect(data.author.name).toBe("alice");
     }
+  });
+
+  it("buildArticleJsonLd ignores a non-string json_metadata.description", () => {
+    vi.mocked(catchPostImage).mockReturnValue("");
+    const entry = mockEntry({ body: "summary body", json_metadata: { description: { a: 1 } } as any });
+    const data = buildArticleJsonLd({ entry, account: null, url }) as any;
+    expect(typeof data.description).toBe("string");
+    expect(data.description).not.toContain("object");
+  });
+
+  it("buildProfileJsonLd tolerates non-string profile fields", () => {
+    const account = mockFullAccount({
+      name: "alice",
+      profile: { name: 7, about: ["x"], website: { url: "y" } } as any
+    });
+    const data = buildProfileJsonLd({ account, username: "alice" }) as any;
+    expect(data.mainEntity.name).toBe("alice");
+    expect(data.mainEntity.description).toBeUndefined();
+    expect(data.mainEntity.sameAs).toBeUndefined();
   });
 
   it("buildArticleJsonLd survives a throwing image lookup", () => {

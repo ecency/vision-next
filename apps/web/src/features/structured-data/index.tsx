@@ -134,8 +134,7 @@ export function buildArticleJsonLd({
   base?: string;
 }): JsonLdData {
   // posting_json_metadata is untrusted too: profile.name can be any JSON type.
-  const profileName = account?.profile?.name;
-  const authorName = (typeof profileName === "string" && profileName.trim()) || entry.author;
+  const authorName = profileString(account?.profile?.name) || entry.author;
   // entryDisplayTitle: title-less posts get a body-summary headline instead of "".
   const headline = entryDisplayTitle(entry).slice(0, HEADLINE_MAX);
   // Without a metadata/regex hit this falls through to the full markdown
@@ -168,7 +167,9 @@ export function buildArticleJsonLd({
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     headline,
-    description: entry.json_metadata?.description || postBodySummary(entry.body, 160),
+    description:
+      (typeof entry.json_metadata?.description === "string" && entry.json_metadata.description) ||
+      postBodySummary(entry.body, 160),
     image: image ? [image] : undefined,
     datePublished: toUtcIso(entry.created),
     dateModified: toUtcIso(entry.updated ?? entry.created),
@@ -195,6 +196,10 @@ export function buildArticleJsonLd({
   };
 }
 
+function profileString(value: unknown): string | undefined {
+  return typeof value === "string" ? value.trim() || undefined : undefined;
+}
+
 export function buildProfileJsonLd({
   account,
   username,
@@ -204,9 +209,10 @@ export function buildProfileJsonLd({
   username: string;
   base?: string;
 }): JsonLdData {
-  const displayName = account?.profile?.name?.trim() || username;
-  const about = account?.profile?.about?.trim();
-  const website = account?.profile?.website?.trim();
+  // posting_json_metadata is untrusted: any of these can be a non-string.
+  const displayName = profileString(account?.profile?.name) || username;
+  const about = profileString(account?.profile?.about);
+  const website = profileString(account?.profile?.website);
 
   return {
     "@context": "https://schema.org",

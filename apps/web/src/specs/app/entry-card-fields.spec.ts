@@ -1,3 +1,7 @@
+// @vitest-environment node
+// Production SSR runs in Node: there the render-helper uses its own parser and
+// a hostile body reaches the throwing sanitizeHtml path. Under jsdom the
+// browser DOMParser swallows it, so this file must run in Node to be honest.
 import { describe, it, expect, vi } from "vitest";
 
 // The global @/utils mock only exposes random/getAccessToken; restore the real
@@ -101,5 +105,22 @@ describe("buildEntryCardFields", () => {
     const e = entry({ json_metadata: { description: { evil: true } } });
     const fields = buildEntryCardFields(e as any);
     expect(fields.summary).toBe(truncate(postBodySummary(e.body, 210), 160));
+  });
+});
+
+describe("buildEntryCardFields with a body that breaks the image lookup", () => {
+  // Real render-helper: this entity makes the last-resort sanitizeHtml pass
+  // throw RangeError, and catchPostImage reaches it once no metadata or regex
+  // image exists. Without the guard generateMetadata's outer catch drops the
+  // title, cards, canonical and robots for that post.
+  it("keeps title and summary and reports no image", () => {
+    const body = `<div title="&#1114112;">boom</span>`;
+    // catchPostImage memoizes per author/permlink/size for the process, so a
+    // permlink no earlier test has used, or the cached result masks the throw.
+    const e = entry({ body, permlink: "boom-entity" });
+    expect(() => catchPostImage(e as any, 1200, 630, "match")).toThrow(RangeError);
+    const fields = buildEntryCardFields(e as any);
+    expect(fields.title).toBe("Hello World");
+    expect(fields.image).toBeNull();
   });
 });

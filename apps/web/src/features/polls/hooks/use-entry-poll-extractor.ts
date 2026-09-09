@@ -11,8 +11,10 @@ export function useEntryPollExtractor(entry?: Entry | null) {
       (entry.json_metadata as JsonPollMetadata).content_type === "poll"
     ) {
       const pollMetadata = entry.json_metadata as JsonPollMetadata;
-      // Elements are rendered as React children; a non-string element throws
-      // "Objects are not valid as a React child" during SSR.
+      // Elements are rendered as React children and compared as choice keys;
+      // an object element throws "Objects are not valid as a React child"
+      // during SSR, so keep strings only (numbers/booleans would render but
+      // are not valid choices either).
       const choices = (Array.isArray(pollMetadata?.choices) ? pollMetadata.choices : []).filter(
         (choice): choice is string => typeof choice === "string"
       );

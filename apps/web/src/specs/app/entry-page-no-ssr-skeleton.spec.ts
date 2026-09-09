@@ -93,6 +93,19 @@ describe("entry page has no SSR skeleton boundary above the post body", () => {
     expect(checked).toBeGreaterThanOrEqual(2);
   });
 
+  // The root layout hands {children} to ClientProviders, which mounts its own
+  // lazy widgets inside Suspense. Those boundaries must never enclose the
+  // route children, or every page body would be hidden behind a swap.
+  it("client providers keep the route children outside every Suspense", () => {
+    const source = fs.readFileSync(path.join(APP, "client-providers.tsx"), "utf8");
+    expect(source).toMatch(/\{props\.children\}/);
+    const blocks = source.match(/<Suspense\b[^>]*>[\s\S]*?<\/Suspense>/g) ?? [];
+    expect(blocks.length).toBeGreaterThan(0);
+    for (const block of blocks) {
+      expect(block).not.toMatch(/\{(props\.)?children\}/);
+    }
+  });
+
   // page.tsx hands the body to EntryPageContentSSR, which reaches #post-body
   // through the files below. A <Suspense> inside any of them would hide the
   // body again without touching page.tsx, so they are pinned too.

@@ -40,11 +40,12 @@ export function EntryPageStaticBody({ entry }: Props) {
 
   // The entry route has no Suspense boundary above the body (page.tsx), so a
   // throw during SSR here would be a full-page 500 rather than the inline retry
-  // card. renderPostBody already recovers from malformed HTML internally, but
-  // its last-resort path re-runs the markdown parser on the raw input, so
-  // hostile or pathological markdown can still throw. Degrade to the escaped
-  // raw body (same presentation as ?raw) and report, instead of taking the
-  // whole route down with the navbar.
+  // card. renderPostBody recovers from malformed HTML internally, but its
+  // last-resort path runs sanitizeHtml over the same Remarkable output that
+  // just failed, so an input that breaks the sanitizer throws all the way out:
+  // one out-of-range entity (`<div title="&#1114112;">`) does it. Degrade to
+  // the escaped raw body (same presentation as ?raw) and report, instead of
+  // taking the whole route down with the navbar.
   let html: string | null;
   try {
     html = renderPostBody(entry.body, false, false, "ecency.com", seoContext);
