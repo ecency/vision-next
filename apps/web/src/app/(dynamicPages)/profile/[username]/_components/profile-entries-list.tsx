@@ -19,6 +19,7 @@ import {
   ARCHIVE_PAGE_SIZE,
   ARCHIVE_SECTIONS
 } from "@/app/(dynamicPages)/profile/[username]/_helpers/author-archive";
+import { pinnedPermlink } from "@/app/(dynamicPages)/profile/[username]/_helpers/pinned-permlink";
 import type { InfiniteData } from "@tanstack/react-query";
 
 interface Props {
@@ -28,20 +29,22 @@ interface Props {
   currentUser?: string;
 }
 
-function shouldShowPinnedEntry(account: FullAccount, section: string) {
-  return (
-    ["blog", "posts", ""].includes(section) &&
-    (((account as FullAccount)?.profile && (account as FullAccount)?.profile?.pinned) ||
-      ((account as FullAccount)?.profile && (account as FullAccount)?.profile?.pinned !== "none"))
-  );
-}
+/** Sections whose first page shows the pinned post above the feed. */
+const PINNED_SECTIONS = ["blog", "posts", ""];
 
 export async function ProfileEntriesList({ section, account, initialFeed, currentUser }: Props) {
-  const pinnedEntry = shouldShowPinnedEntry(account, section)
-    ? getQueryData<Entry | null>(
-        EcencyEntriesCacheManagement.getEntryQueryByPath(account.name, account.profile?.pinned)
-      )
-    : undefined;
+  // Untrusted on-chain JSON, not a checked string — see pinnedPermlink().
+  // getEntryQueryByPath spreads getPostQueryOptions, which trims the permlink
+  // while BUILDING the options object, so a non-string `pinned` throws on this
+  // line. This is a server component and the profile index no longer has a
+  // loading.tsx above it, so that throw would take the whole document.
+  const pinned = pinnedPermlink(account?.profile);
+  const pinnedEntry =
+    pinned && PINNED_SECTIONS.includes(section)
+      ? getQueryData<Entry | null>(
+          EcencyEntriesCacheManagement.getEntryQueryByPath(account.name, pinned)
+        )
+      : undefined;
 
   const prefetchedFeed =
     initialFeed ??
@@ -53,9 +56,7 @@ export async function ProfileEntriesList({ section, account, initialFeed, curren
   // correct even when a pinned post occupies a slot (a full 20-post page whose
   // pinned entry is filtered would otherwise drop to 19 and suppress the link).
   const rawFirstPage = (feedPages[0] as Entry[] | undefined) ?? [];
-  const initialPageEntries = rawFirstPage.filter(
-    (item: Entry) => item.permlink !== account.profile?.pinned
-  );
+  const initialPageEntries = rawFirstPage.filter((item: Entry) => item.permlink !== pinned);
   const entryList = [...initialPageEntries];
   const lastOfFirstPage = rawFirstPage[rawFirstPage.length - 1];
 

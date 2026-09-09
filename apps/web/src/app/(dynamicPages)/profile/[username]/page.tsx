@@ -9,7 +9,10 @@ import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { notFound } from "next/navigation";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata, ResolvingMetadata } from "next";
-import { generateProfileMetadata } from "@/app/(dynamicPages)/profile/[username]/_helpers";
+import {
+  generateProfileMetadata,
+  pinnedPermlink
+} from "@/app/(dynamicPages)/profile/[username]/_helpers";
 import { Entry, SearchResult } from "@/entities";
 import type { SearchResponse } from "@ecency/sdk";
 import type { InfiniteData } from "@tanstack/react-query";
@@ -52,11 +55,14 @@ export default async function Page({ params, searchParams }: Props) {
       : prefetchGetPostsFeedQuery("posts", `@${username}`)
   ]);
 
-  if (account?.profile.pinned) {
-    await prefetchQuery(EcencyEntriesCacheManagement.getEntryQueryByPath(
-      username,
-      account.profile.pinned
-    ));
+  // `profile.pinned` is untrusted on-chain JSON, not a checked string. It flows
+  // into getPostQueryOptions, which calls `permlink?.trim()` while building the
+  // options object — before the `enabled` gate and outside the queryFn — so a
+  // non-string pinned value throws here, ahead of the first flush, and now that
+  // this route has no loading.tsx above it that throw is the whole document.
+  const pinned = pinnedPermlink(account?.profile);
+  if (pinned) {
+    await prefetchQuery(EcencyEntriesCacheManagement.getEntryQueryByPath(username, pinned));
   }
 
   const firstPage = searchPages?.pages?.[0] as SearchResponse | undefined;

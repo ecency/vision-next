@@ -32,6 +32,7 @@ import { ResourceCreditsInfo } from "../rc-info";
 import "./_index.scss";
 import { ProfileCardExtraProperty } from "./profile-card-extra-property";
 import { profileWebsiteHref } from "./website-href";
+import { profileText } from "./profile-text";
 import { FinalizeCommunityBanner } from "../finalize-community-banner";
 import { useActiveAccount } from "@/core/hooks";
 import { ProBadge } from "@/features/pro";
@@ -57,6 +58,15 @@ export function ProfileCard({ account }: Props) {
     () => profileWebsiteHref(data?.profile?.website),
     [data?.profile?.website]
   );
+  // Every profile string below is untrusted on-chain JSON cast to `string` by
+  // the SDK, and an object in one of these fields throws "Objects are not valid
+  // as a React child" out of this card - which the profile LAYOUT renders, so
+  // the throw takes the document, not just the entries region. profileText()
+  // leaves real strings (including "") untouched.
+  const displayName = profileText(data?.profile?.name);
+  const about = profileText(data?.profile?.about);
+  const profileLocation = profileText(data?.profile?.location);
+  const website = profileText(data?.profile?.website);
   const { data: rcData } = useQuery(getAccountRcQueryOptions(account.name));
   const { data: relationshipBetweenAccounts } = useQuery({
     ...getRelationshipBetweenAccountsQueryOptions(account?.name, activeUsername ?? undefined),
@@ -104,14 +114,14 @@ export function ProfileCard({ account }: Props) {
 
         <div className="flex flex-col gap-1">
           <div className="font-semibold flex items-center flex-wrap gap-2">
-            {data?.profile?.name ?? account.name}
+            {displayName ?? account.name}
             <ProBadge username={account.name} />
           </div>
           <span className="text-sm text-gray-600 dark:text-gray-400 truncate flex gap-1">
             @{account.name}
             <Badge className="!px-1 !py-0">{accountReputation(data?.reputation ?? 0)}</Badge>
           </span>
-          {data?.profile?.about && <div className="text-sm">{data?.profile.about}</div>}
+          {about && <div className="text-sm">{about}</div>}
         </div>
 
         <div className="grid grid-cols-2 pb-4">
@@ -167,7 +177,7 @@ export function ProfileCard({ account }: Props) {
             <DigestSubscribeButton
               type="creator"
               target={account.name}
-              targetLabel={data?.profile?.name || `@${account.name}`}
+              targetLabel={displayName || `@${account.name}`}
               source="creator-page"
               size="sm"
             />
@@ -181,16 +191,16 @@ export function ProfileCard({ account }: Props) {
         </div>
       )}
       <div className="grid grid-cols-2 lg:grid-cols-1 w-full gap-4 py-4">
-        {data?.profile?.location && (
+        {profileLocation && (
           <ProfileCardExtraProperty
             icon={<UilLocationPoint className="size-5" />}
             label={i18next.t("profile-edit.location")}
           >
-            {data.profile.location}
+            {profileLocation}
           </ProfileCardExtraProperty>
         )}
 
-        {data?.profile?.website && (
+        {website && (
           <ProfileCardExtraProperty
             icon={<UilGlobe className="size-5" />}
             label={i18next.t("profile-edit.website")}
@@ -202,10 +212,10 @@ export function ProfileCard({ account }: Props) {
                 className="break-all"
                 href={websiteHref}
               >
-                {data?.profile?.website}
+                {website}
               </Link>
             ) : (
-              <span className="break-all">{data?.profile?.website}</span>
+              <span className="break-all">{website}</span>
             )}
           </ProfileCardExtraProperty>
         )}
