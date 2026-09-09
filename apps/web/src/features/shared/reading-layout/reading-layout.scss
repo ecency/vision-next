@@ -33,6 +33,18 @@
     border-bottom: 1px solid var(--border-color);
   }
 
+  // The list card below already draws this edge: it sits 16px under the menu
+  // with its own 1px border, so a divider here only stacks a second rule under
+  // the navbar's own. Sections that render no card (subscribers, activities,
+  // wallet, settings, follower lists) keep the line, and so does the grid list
+  // style, whose tiles are bordered individually with no wrapper to sit against.
+  .reading-list-layout:has(.entry-list-body:not(.grid-view)) {
+    .reading-page-menu,
+    .feed-navigation {
+      border-bottom-color: transparent;
+    }
+  }
+
   .reading-profile-search {
     background: transparent;
     padding: 16px 0;
