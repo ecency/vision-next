@@ -149,9 +149,9 @@ export function downVotingPower(account: FullAccount): number {
 
 /**
  * Rewards/stake coefficient, known on Hive as the KE ratio: every VEST ever paid out
- * to the account as author or curation rewards, over the VESTS it still holds and has
- * not delegated away. Both sides are VESTS, so the value is independent of the HIVE
- * price and of the global VESTS/HP rate.
+ * to the account as curation rewards or as the vested half of an author payout, over
+ * the VESTS it still holds and has not delegated away. Both sides are VESTS, so the
+ * value is independent of the HIVE price and of the global VESTS/HP rate.
  *
  * Returns null when the account carries no undelegated stake, where the ratio is
  * undefined rather than zero.
@@ -162,14 +162,15 @@ export function downVotingPower(account: FullAccount): number {
  * climbs during a power-down because the numerator is frozen history.
  */
 export function rewardsToStakeRatio(account: FullAccount): number | null {
-  // A row that carries neither counter is one this SDK version did not fill (a cache
-  // entry dehydrated by an older build, say). Absent counters are unknown, not zero,
-  // and a confident 0.00 is worse than showing nothing.
-  if (account.curation_rewards === undefined && account.posting_rewards === undefined) {
+  // Absent counters are unknown, not zero. A row that omits one (or a cache entry
+  // dehydrated by an older build, which omits both) would otherwise produce a
+  // confident but understated ratio, which is worse than showing nothing.
+  const { curation_rewards: curation, posting_rewards: posting } = account;
+  if (curation === undefined || posting === undefined) {
     return null;
   }
 
-  const rewards = (account.curation_rewards ?? 0) + (account.posting_rewards ?? 0);
+  const rewards = curation + posting;
   const ownVests =
     parseAsset(account.vesting_shares).amount -
     parseAsset(account.delegated_vesting_shares).amount;

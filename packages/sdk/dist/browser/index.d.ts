@@ -3274,8 +3274,8 @@ declare function getAccountFullQueryOptions(username: string | undefined): _tans
     vesting_withdraw_rate: string;
     to_withdraw: string;
     withdrawn: string;
-    curation_rewards: number;
-    posting_rewards: number;
+    curation_rewards: number | undefined;
+    posting_rewards: number | undefined;
     witness_votes: string[];
     proxy: string;
     recovery_account: string;
@@ -3323,8 +3323,8 @@ declare function getAccountFullQueryOptions(username: string | undefined): _tans
     vesting_withdraw_rate: string;
     to_withdraw: string;
     withdrawn: string;
-    curation_rewards: number;
-    posting_rewards: number;
+    curation_rewards: number | undefined;
+    posting_rewards: number | undefined;
     witness_votes: string[];
     proxy: string;
     recovery_account: string;
@@ -3373,8 +3373,8 @@ declare function getAccountFullQueryOptions(username: string | undefined): _tans
         vesting_withdraw_rate: string;
         to_withdraw: string;
         withdrawn: string;
-        curation_rewards: number;
-        posting_rewards: number;
+        curation_rewards: number | undefined;
+        posting_rewards: number | undefined;
         witness_votes: string[];
         proxy: string;
         recovery_account: string;
@@ -3425,8 +3425,8 @@ declare function getAccountFullQueryOptions(username: string | undefined): _tans
             vesting_withdraw_rate: string;
             to_withdraw: string;
             withdrawn: string;
-            curation_rewards: number;
-            posting_rewards: number;
+            curation_rewards: number | undefined;
+            posting_rewards: number | undefined;
             witness_votes: string[];
             proxy: string;
             recovery_account: string;
@@ -4209,9 +4209,9 @@ declare function powerRechargeTime(power: number): number;
 declare function downVotingPower(account: FullAccount): number;
 /**
  * Rewards/stake coefficient, known on Hive as the KE ratio: every VEST ever paid out
- * to the account as author or curation rewards, over the VESTS it still holds and has
- * not delegated away. Both sides are VESTS, so the value is independent of the HIVE
- * price and of the global VESTS/HP rate.
+ * to the account as curation rewards or as the vested half of an author payout, over
+ * the VESTS it still holds and has not delegated away. Both sides are VESTS, so the
+ * value is independent of the HIVE price and of the global VESTS/HP rate.
  *
  * Returns null when the account carries no undelegated stake, where the ratio is
  * undefined rather than zero.

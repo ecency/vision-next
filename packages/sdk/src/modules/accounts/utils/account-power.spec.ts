@@ -252,6 +252,13 @@ describe('account-power utilities', () => {
       expect(rewardsToStakeRatio(unknown)).toBeNull()
     })
 
+    it('returns null when only one reward counter is available', () => {
+      const partialCuration = { ...mockAccount, curation_rewards: undefined }
+      const partialPosting = { ...mockAccount, posting_rewards: undefined }
+      expect(rewardsToStakeRatio(partialCuration)).toBeNull()
+      expect(rewardsToStakeRatio(partialPosting)).toBeNull()
+    })
+
     it('returns null when the whole stake is delegated away', () => {
       const emptied = {
         ...mockAccount,
