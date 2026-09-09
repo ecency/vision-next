@@ -54,28 +54,34 @@ export function EntryPageContentSSR({ entry, isRawContent }: Props) {
             </pre>
           )}
         </EntryPageNsfwBodyWrapper>
-      </div>
-      <div className="entry-footer reading-surface border border-[--border-color] rounded-xl flex-wrap my-4 lg:mb-8">
-        {location?.coordinates && (
-          <Link
-            href={`https://maps.google.com/?q=${location.coordinates.lat},${location.coordinates.lng}`}
-            target="_external"
-            rel="nofollow noopener"
-            className="text-sm block border-b border-[--border-color] p-2 md:p-3"
-          >
-            <UilMapPinAlt className="size-4 mr-1" />
-            {location.address}
-          </Link>
-        )}
-        <div className="border-b border-[--border-color] p-2 md:p-3">
-          <EntryTags entry={entry} />
-          <EntryFooterInfo entry={entry} />
+        {/* Colophon: tags, source and the vote/payout row close the article the
+            way the masthead opens it, so they sit on its surface with hairlines
+            between them. `entry-footer` stays as the class: entry.scss scopes
+            .entry-tags and .entry-controls under it. */}
+        <div className="entry-footer border-t border-[--border-color] flex-wrap">
+          {location?.coordinates && (
+            <Link
+              href={`https://maps.google.com/?q=${location.coordinates.lat},${location.coordinates.lng}`}
+              target="_external"
+              rel="nofollow noopener"
+              className="text-sm block border-b border-[--border-color] px-3 md:px-4 py-2 md:py-3"
+            >
+              <UilMapPinAlt className="size-4 mr-1" />
+              {location.address}
+            </Link>
+          )}
+          <div className="border-b border-[--border-color] px-3 md:px-4 py-2 md:py-3">
+            <EntryTags entry={entry} />
+            <EntryFooterInfo entry={entry} />
+          </div>
+          <EntryFooterControls entry={entry} />
         </div>
-        <EntryFooterControls entry={entry} />
-        <NewsletterGate>
-          <PostSubscribePrompt entry={entry} className="m-2 md:m-3" />
-        </NewsletterGate>
       </div>
+      {/* Not part of the post: an ask about future posts. It was a bordered box
+          nested inside the footer card; it is its own card now. */}
+      <NewsletterGate>
+        <PostSubscribePrompt entry={entry} className="my-4 lg:mb-8" />
+      </NewsletterGate>
     </>
   );
 }

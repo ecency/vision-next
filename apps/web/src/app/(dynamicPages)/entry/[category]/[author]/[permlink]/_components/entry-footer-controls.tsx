@@ -62,7 +62,7 @@ export function EntryFooterControls({ entry }: Props) {
 
   return (
     <div
-      className="entry-controls p-2 md:p-3 text-sm flex-wrap gap-4 [&_.entry-tip-btn]:mr-0 [&_.entry-reblog-btn]:!mr-0"
+      className="entry-controls px-3 md:px-4 py-2 md:py-3 text-sm flex-wrap gap-4 [&_.entry-tip-btn]:mr-0 [&_.entry-reblog-btn]:!mr-0"
       ref={ref}
     >
       <div className="flex items-center gap-4">
