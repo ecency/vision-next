@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.4.6
+
+### Patch Changes
+
+- feat(profile): show rewards/stake (KE) in the account info popover (#1797)
+
+- [#1797](https://github.com/ecency/vision-web/pull/1797) [`b83f037`](https://github.com/ecency/vision-web/commit/b83f037f06161e6f222263decb825c259d34e43b) Thanks [@feruzm](https://github.com/feruzm)! - Add `rewardsToStakeRatio(account)`, the rewards/stake coefficient known on Hive as the KE ratio. `curation_rewards` and `posting_rewards` now come through the full account query, so consumers can compute it without a second RPC.
+
 ## 2.4.5
 
 ### Patch Changes
