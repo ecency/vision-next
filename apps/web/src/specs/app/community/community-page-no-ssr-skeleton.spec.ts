@@ -58,11 +58,24 @@ describe("community feed page has no SSR skeleton boundary above the cards", () 
 
   // The ancestor list above only knows the segments that exist today. A route
   // group ([community]/(feed)/loading.tsx, say) is a directory Next erases from
-  // the URL, so it would re-wrap the page while passing the scan above. Nothing
-  // under /community needs a skeleton, so the whole subtree is off limits.
-  it("has no loading module anywhere under the community route", () => {
-    const found = walk(COMMUNITY).filter((f) => LOADING_NAMES.includes(path.basename(f)));
-    expect(found.map((f) => path.relative(APP, f))).toEqual([]);
+  // the URL, so it would re-wrap the page while passing the segment scan above.
+  // Route groups are therefore erased before deciding whether a module sits on
+  // this route's chain. Sibling leaf routes under /community (subscribers,
+  // roles, activities) are NOT this PR's to pin: they never had a skeleton, but
+  // they are free to grow one, and forbidding it here would fail a change this
+  // route has no stake in.
+  it("has no loading module on the route's chain, route groups erased", () => {
+    const chain = path.relative(APP, ROUTE).split(path.sep).filter((p) => !p.startsWith("("));
+    const wrapping = walk(COMMUNITY)
+      .filter((f) => LOADING_NAMES.includes(path.basename(f)))
+      .filter((f) => {
+        const segs = path
+          .relative(APP, path.dirname(f))
+          .split(path.sep)
+          .filter((p) => !p.startsWith("("));
+        return segs.every((seg, i) => chain[i] === seg);
+      });
+    expect(wrapping.map((f) => path.relative(APP, f))).toEqual([]);
   });
 
   // The sibling that serves /community/hive-NNNNN renders the same feed and
