@@ -136,6 +136,10 @@
     }
 
     .nsfw-warning {
+      // Sits inside the article surface in place of the body, so it brings its
+      // own padding rather than inheriting the body wrapper's.
+      padding: 2rem 0.75rem;
+
       .nsfw-title {
         margin-bottom: 20px;
         text-align: center;
@@ -203,6 +207,13 @@
 
     .entry-header {
       margin-bottom: 15px;
+
+      // The header now carries only the moderation/comment banners, which most
+      // posts don't have. Without this it would still push the article surface
+      // down by its margin on every ordinary post.
+      &:empty {
+        margin-bottom: 0;
+      }
 
       .author-reputation {
         @apply text-gray-steel;

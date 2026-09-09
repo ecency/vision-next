@@ -28,26 +28,33 @@ export function EntryPageContentSSR({ entry, isRawContent }: Props) {
       <div className="entry-header">
         <EntryPageWarnings entry={entry} />
         <EntryPageIsCommentHeader entry={entry} />
-        <EntryPageMainInfo entry={entry} />
       </div>
-      {/* SSR static body - wrapped with NSFW check */}
-      <EntryPageNsfwBodyWrapper entry={entry}>
-        {!isRawContent && (
-          <div className="reading-surface border border-[--border-color] rounded-xl p-2 md:p-4">
-            <EntryTranslateInline entry={entry} />
-            <EntryPageStaticBody entry={entry} />
-            {postPoll && <PollWidget entry={entry} poll={postPoll} isReadOnly={false} />}
-          </div>
-        )}
-        {isRawContent && (
-          <pre
-            id="post-body"
-            className="entry-body markdown-view user-selectable font-mono bg-gray-100 rounded text-sm !p-4 dark:bg-gray-900 whitespace-pre-wrap break-words"
-          >
-            {entry.body}
-          </pre>
-        )}
-      </EntryPageNsfwBodyWrapper>
+      {/* Title, byline, meta strip and body share ONE surface: the article is a
+          single object, so the break between headline and first paragraph is a
+          hairline inside the card (see the meta strip's border-y in
+          entry-page-main-info), never a card gap. Separate cards are reserved
+          for what comes after the article — footer, related, comments. */}
+      <div className="entry-article reading-surface border border-[--border-color] rounded-xl mt-2 lg:mt-4 mb-4 md:mb-6 lg:mb-8">
+        <EntryPageMainInfo entry={entry} />
+        {/* SSR static body - wrapped with NSFW check */}
+        <EntryPageNsfwBodyWrapper entry={entry}>
+          {!isRawContent && (
+            <div className="px-3 md:px-4 py-3 md:py-4">
+              <EntryTranslateInline entry={entry} />
+              <EntryPageStaticBody entry={entry} />
+              {postPoll && <PollWidget entry={entry} poll={postPoll} isReadOnly={false} />}
+            </div>
+          )}
+          {isRawContent && (
+            <pre
+              id="post-body"
+              className="entry-body markdown-view user-selectable font-mono bg-gray-100 rounded text-sm !p-4 dark:bg-gray-900 whitespace-pre-wrap break-words m-3 md:m-4"
+            >
+              {entry.body}
+            </pre>
+          )}
+        </EntryPageNsfwBodyWrapper>
+      </div>
       <div className="entry-footer reading-surface border border-[--border-color] rounded-xl flex-wrap my-4 lg:mb-8">
         {location?.coordinates && (
           <Link
