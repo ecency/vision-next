@@ -46,6 +46,48 @@ export async function generateMetadata(props: Props, parent: ResolvingMetadata):
   return generateFeedMetadata(filter, tag, cursor ? cursorToken(cursor) : undefined);
 }
 
+// Deliberately NO loading.tsx on this route (nor on any ancestor segment).
+// A loading module wraps the page in a Suspense boundary, and because this page
+// awaits the feed before returning JSX that boundary streams: six skeleton rows
+// in the shell, the cards in hidden <div id="S:n"> chunks revealed only by the
+// $RC scripts near the end of the document. Measured on alpha (WebPageTest
+// MotoG Power / 4G-slow, 3 runs): LCP 9.07s, Speed Index 6.20s, Lighthouse
+// perf 47, 5 hidden segments and 4 swap scripts — the worst route of the set.
+// Without the boundary the first cards are plain shell HTML that paints as it
+// streams. A <Suspense> around the list would not help either: Fizz outlines
+// any completed boundary over 500 bytes once the shell has passed
+// progressiveChunkSize (12.8 KB, and the head + navbar alone are ~25 KB), so
+// the cards would again ship hidden plus a swap script. The route layout holds
+// no boundary either: the thumbnail preload it used to wrap only re-emitted
+// links the eager cards already hoist through next/image. Pinned by
+// specs/app/feed-page-no-ssr-skeleton.spec.ts and
+// specs/app/feed-page-ssr-stream.spec.tsx (#1786).
+//
+// Trade-offs accepted with no boundary above the cards:
+//  - The cache-first loading state went with it. FeedLoading repainted the
+//    reader's persisted rows during a client navigation; a route fallback is
+//    the only thing React renders in that window, so keeping it meant keeping
+//    the boundary. A client navigation now holds the previous page until the
+//    RSC response lands, under the app-wide @bprogress bar mounted in
+//    client-providers.tsx — so the wait is indicated, just not filled.
+//    Rebuilding the repaint outside a boundary is #1789.
+//  - Nothing flushes until this page's awaits resolve, so the navbar and
+//    sidebar now wait on the feed fetch too. That is the deliberate trade:
+//    a shell that paints early and then swaps the cards in seconds later
+//    measured worse than one that arrives complete.
+//  - Fizz only contains render errors at Suspense boundaries and there is no
+//    error.tsx on this chain, so a throw in the SSR render of a card is a
+//    full-page 500 (global-error) instead of the skeleton plus a client retry.
+//    Neither branch can throw from data: both prefetchInfiniteQuery and the
+//    archive's fetchQuery go through withSsrTimeout, which resolves undefined
+//    on a rejection, and an empty archive page redirects. What is left is card
+//    RENDER: treat every json_metadata reader on the card path (thumbnail
+//    lookup, summary, tags, location) as untrusted input. /trending and the
+//    other ranked feeds are the protected case — withSlimEntries blanks the
+//    body before a card sees it, which starves the markdown tier of the image
+//    lookup. The exposed URLs are the ones that skip slimming by design,
+//    /feed/comments/@user and /feed/replies/@user, whose cards carry full
+//    bodies; the image lookup on that path is guarded separately (#1790).
 export default async function FeedPage({ params, searchParams }: Props) {
   const [filter = "hot", rawTag = ""] = (await params).sections;
   const { tag, queryable } = normalizeFeedTag(rawTag);

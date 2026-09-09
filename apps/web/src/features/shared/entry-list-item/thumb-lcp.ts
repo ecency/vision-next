@@ -4,10 +4,10 @@
  * post-body IMAGE_SIZES (700px) — so desktop picks a small srcset candidate
  * instead of over-fetching an ~800w image for a 150px slot.
  *
- * Lives in its own module (no "use client") so the server-rendered
- * EntryListThumbPreload and the client thumbnail share one value: the
- * preload's `imageSizes` must match the `<img sizes>` exactly, or the browser
- * picks a different srcset candidate and downloads the thumbnail twice.
+ * Lives in its own module (no "use client") so a server component can read the
+ * same value the client thumbnail renders with: whatever emits a preload for a
+ * thumbnail must use the exact `<img sizes>` below, or the browser picks a
+ * different srcset candidate and downloads the thumbnail twice.
  */
 export const THUMB_SIZES = "(max-width: 768px) 100vw, 150px";
 
@@ -15,7 +15,8 @@ export const THUMB_SIZES = "(max-width: 768px) 100vw, 150px";
  * How many topmost cards render their thumbnail eagerly at high fetch priority
  * (EntryListItem passes `isThumbLcp={order < EAGER_THUMB_CARD_COUNT}`).
  *
- * EntryListThumbPreload preloads within this same window, so the two cannot
- * drift into preloading an image the markup lazy-loads, or vice versa.
+ * `next/image` hoists a preload for each of these cards (priority), so this
+ * count is also the preload window — the two cannot drift into preloading an
+ * image the markup lazy-loads, or vice versa.
  */
 export const EAGER_THUMB_CARD_COUNT = 2;

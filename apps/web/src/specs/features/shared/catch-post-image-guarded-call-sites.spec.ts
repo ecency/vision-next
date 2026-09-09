@@ -26,7 +26,6 @@ const SRC = path.resolve(__dirname, "../../..");
 const SITES: { file: string; calls: number }[] = [
   // Full-size thumbnail + the LQIP placeholder behind it.
   { file: "features/shared/entry-list-item/entry-list-item-thumbnail.tsx", calls: 2 },
-  { file: "features/shared/entry-list-item/entry-list-thumb-preload.tsx", calls: 1 },
   { file: "features/shared/search-list-item/index.tsx", calls: 1 }
 ];
 

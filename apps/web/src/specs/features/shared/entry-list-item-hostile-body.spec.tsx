@@ -35,7 +35,9 @@ vi.mock("@/core/sentry/lazy-sentry", () => ({
 
 import { sentry } from "@/core/sentry/lazy-sentry";
 import { EntryListItemThumbnail } from "@/features/shared/entry-list-item/entry-list-item-thumbnail";
-import { EntryListThumbPreload } from "@/features/shared/entry-list-item/entry-list-thumb-preload";
+// The feed thumbnail preload this spec also covered was deleted with the feed
+// route's boundary (#1786): once the cards ship in the SSR shell they hoist the
+// same preload links themselves, so the component only duplicated them.
 import { catchPostImageSafely } from "@/core/entries/catch-post-image-safely";
 
 const NO_IMG = "/assets/noimage.png";
@@ -107,38 +109,6 @@ describe("feed thumbnail with a body that breaks the image extractor", () => {
     expect(container.querySelector('img[aria-hidden="true"]')).toBeNull();
   });
 
-  it("emits no preload link for a card whose thumbnail cannot be extracted", () => {
-    throwForCraftedPosts();
-    const entry = hostileEntry();
-    expect(() => render(<EntryListThumbPreload entries={[entry]} />)).not.toThrow();
-    expect(
-      document.head.querySelector(`link[rel="preload"][href*="${entry.permlink}"]`)
-    ).toBeNull();
-  });
-
-  it("still preloads a healthy card that follows a broken one", async () => {
-    const actual = await vi.importActual<typeof import("@ecency/render-helper")>(
-      "@ecency/render-helper"
-    );
-    vi.mocked(catchPostImage).mockImplementation(((obj: any, ...rest: any[]) => {
-      if (obj?.author === "crafted") {
-        throw new RangeError("Invalid code point 1114112");
-      }
-      return (actual.catchPostImage as any)(obj, ...rest);
-    }) as any);
-
-    const healthy = {
-      ...hostileEntry(),
-      author: "healthy",
-      body: "",
-      json_metadata: { image: ["https://images.ecency.com/DQmHealthy/pic.png"] }
-    };
-    render(<EntryListThumbPreload entries={[hostileEntry(), healthy]} />);
-    expect(
-      document.head.querySelector('link[rel="preload"][as="image"][imagesrcset]')
-    ).toBeTruthy();
-  });
-
   it("reports one broken post once, however many calls and renders it takes", () => {
     throwForCraftedPosts();
     const entry = hostileEntry();
@@ -155,14 +125,16 @@ describe("feed thumbnail with a body that breaks the image extractor", () => {
     first.rerender(
       <EntryListItemThumbnail entry={entry} entryProp={entry} isCrossPost={false} noImage={NO_IMG} />
     );
-    render(<EntryListThumbPreload entries={[entry]} />);
     render(
       <EntryListItemThumbnail entry={entry} entryProp={entry} isCrossPost={false} noImage={NO_IMG} />
     );
     expect(sentry.captureException).toHaveBeenCalledTimes(1);
 
     // A different broken post is still worth an event of its own.
-    render(<EntryListThumbPreload entries={[hostileEntry()]} />);
+    const other = hostileEntry();
+    render(
+      <EntryListItemThumbnail entry={other} entryProp={other} isCrossPost={false} noImage={NO_IMG} />
+    );
     expect(sentry.captureException).toHaveBeenCalledTimes(2);
   });
 

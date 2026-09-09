@@ -109,6 +109,22 @@ vi.mock("@ecency/sdk", async () => ({
   useGenerateImage: vi.fn(() => ({ mutateAsync: vi.fn(), isPending: false })),
   useAddImage: vi.fn(() => ({ mutateAsync: vi.fn(async () => ({})) })),
   getProMembersQueryOptions: vi.fn(() => ({ queryKey: ["accounts", "pro-members"], queryFn: vi.fn() })),
+  // Inert stand-ins for two query builders a REAL post card render reaches for
+  // (see specs/app/feed-page-ssr-stream). Both are called before their `enabled`
+  // flag can decide anything — FeedList spreads getPromotedPostsQuery() into its
+  // options on every render, and the card's tag link builds community options
+  // for every tag — so leaving them undefined throws. They fetch nothing;
+  // promoted rows and community cards have their own specs.
+  getCommunityQueryOptions: vi.fn((name?: string) => ({
+    queryKey: ["communities", name],
+    queryFn: async () => null,
+    enabled: false
+  })),
+  getPromotedPostsQuery: vi.fn(() => ({
+    queryKey: ["posts", "promoted"],
+    queryFn: async () => [],
+    enabled: false
+  })),
   getPostTipsQueryOptions: vi.fn((author: string, permlink: string) => ({ queryKey: ["posts", "tips", author, permlink], queryFn: vi.fn() })),
   getTrendingTagsQueryOptions: vi.fn((limit?: number) => ({
     queryKey: ["tags", "trending", limit],
