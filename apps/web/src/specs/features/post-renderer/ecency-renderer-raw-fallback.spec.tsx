@@ -48,6 +48,26 @@ describe("EcencyRenderer", () => {
     expect(Sentry.captureException).toHaveBeenCalledTimes(1);
   });
 
+  // The renderer runs during SSR and again on hydration, and a feed row that
+  // holds a broken wave re-renders with it, so an ungated capture would send an
+  // event per render for one post that is broken once.
+  it("reports a failing body once, however often it is rendered", () => {
+    vi.mocked(renderPostBody).mockImplementation(() => {
+      throw new Error("hostile markdown");
+    });
+    const value = "body that fails on every single render";
+    const first = render(<EcencyRenderer value={value} />);
+    expect(Sentry.captureException).toHaveBeenCalledTimes(1);
+
+    first.rerender(<EcencyRenderer value={value} />);
+    render(<EcencyRenderer value={value} />);
+    expect(Sentry.captureException).toHaveBeenCalledTimes(1);
+
+    // A different broken body is still worth an event of its own.
+    render(<EcencyRenderer value={`${value} elsewhere`} />);
+    expect(Sentry.captureException).toHaveBeenCalledTimes(2);
+  });
+
   it("falls back to the escaped source text and reports when the renderer throws", () => {
     vi.mocked(renderPostBody).mockImplementation(() => {
       throw new Error("hostile markdown");
