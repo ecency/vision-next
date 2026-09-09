@@ -133,10 +133,20 @@ export function buildArticleJsonLd({
   url: string;
   base?: string;
 }): JsonLdData {
-  const authorName = account?.profile?.name?.trim() || entry.author;
+  // posting_json_metadata is untrusted too: profile.name can be any JSON type.
+  const profileName = account?.profile?.name;
+  const authorName = (typeof profileName === "string" && profileName.trim()) || entry.author;
   // entryDisplayTitle: title-less posts get a body-summary headline instead of "".
   const headline = entryDisplayTitle(entry).slice(0, HEADLINE_MAX);
-  const image = catchPostImage(entry, 1200, 630, "match") || undefined;
+  // Without a metadata/regex hit this falls through to the full markdown
+  // parser, whose last-resort path can throw on hostile markdown. The post body
+  // guards the same call; an Article without an image beats a 500.
+  let image: string | undefined;
+  try {
+    image = catchPostImage(entry, 1200, 630, "match") || undefined;
+  } catch {
+    image = undefined;
+  }
   // json_metadata is untrusted on-chain data: guard that `tags` is actually an
   // array before filtering to non-empty strings — a truthy non-array value
   // would otherwise throw here, on the entry-page SSR path. (Matches the

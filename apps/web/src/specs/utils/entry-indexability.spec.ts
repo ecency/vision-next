@@ -49,6 +49,13 @@ describe("canonicalTarget", () => {
     expect(canonicalTarget(e, BASE)).toBe("https://ecency.com/@bob/hello");
   });
 
+  it("non-string canonical_url is ignored instead of throwing (entry-page SSR)", () => {
+    for (const bad of [1, { url: "x" }, ["https://foo.bar/x"], true]) {
+      const e = makeEntry({ author: "bob", permlink: "hello", json_metadata: { canonical_url: bad } as any });
+      expect(canonicalTarget(e, BASE)).toBe("https://ecency.com/@bob/hello");
+    }
+  });
+
   it("explicit canonical_url wins and strips www", () => {
     const e = makeEntry({ json_metadata: { canonical_url: "https://www.foo.bar/x" } });
     expect(canonicalTarget(e, BASE)).toBe("https://foo.bar/x");

@@ -126,8 +126,11 @@ export async function generateMetadata(
 // Trade-offs accepted with no boundary above the body:
 //  - Fizz only contains render errors at Suspense boundaries, so a throw in
 //    the SSR render of the post subtree is a full-page 500 instead of the
-//    skeleton plus a client retry. EntryPageStaticBody guards the realistic
-//    case (the markdown renderer) by falling back to the raw body.
+//    skeleton plus a client retry. The known throwers are guarded at the
+//    source: the markdown renderer (EntryPageStaticBody falls back to the raw
+//    body), the JSON-LD image lookup, and every json_metadata reader on this
+//    path (canonical_url, app.name, location, poll fields) type-checks its
+//    input. Treat any new reader of json_metadata here as untrusted input.
 //  - On a cold hard load (no CF/origin cached HTML, or any logged-in user)
 //    nothing flushes until the entry and account fetches below resolve; the
 //    skeleton used to flush the navbar at TTFB. If that ever shows up in the

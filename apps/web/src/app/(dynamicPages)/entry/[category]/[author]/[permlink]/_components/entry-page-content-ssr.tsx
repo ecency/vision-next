@@ -9,6 +9,7 @@ import { EntryFooterControls } from "./entry-footer-controls";
 import { EntryFooterInfo } from "./entry-footer-info";
 import { EntryPageIsCommentHeader } from "./entry-page-is-comment-header";
 import { EntryPageMainInfo } from "./entry-page-main-info";
+import { EntryPageRawBody } from "./entry-page-raw-body";
 import { EntryPageStaticBody } from "./entry-page-static-body";
 import { EntryPageWarnings } from "./entry-page-warnings";
 import { EntryTags } from "./entry-tags";
@@ -45,14 +46,7 @@ export function EntryPageContentSSR({ entry, isRawContent }: Props) {
               {postPoll && <PollWidget entry={entry} poll={postPoll} isReadOnly={false} />}
             </div>
           )}
-          {isRawContent && (
-            <pre
-              id="post-body"
-              className="entry-body markdown-view user-selectable font-mono bg-gray-100 rounded text-sm !p-4 dark:bg-gray-900 whitespace-pre-wrap break-words m-3 md:m-4"
-            >
-              {entry.body}
-            </pre>
-          )}
+          {isRawContent && <EntryPageRawBody entry={entry} className="m-3 md:m-4" />}
         </EntryPageNsfwBodyWrapper>
       </div>
       <div className="entry-footer reading-surface border border-[--border-color] rounded-xl flex-wrap my-4 lg:mb-8">

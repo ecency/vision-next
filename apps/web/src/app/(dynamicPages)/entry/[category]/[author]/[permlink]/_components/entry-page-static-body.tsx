@@ -5,6 +5,7 @@ import { accountReputation } from "@/utils";
 import defaults from "@/defaults";
 import type { CSSProperties } from "react";
 import * as Sentry from "@sentry/nextjs";
+import { EntryPageRawBody } from "./entry-page-raw-body";
 
 interface Props {
   entry: Entry;
@@ -55,14 +56,7 @@ export function EntryPageStaticBody({ entry }: Props) {
   }
 
   if (html === null) {
-    return (
-      <pre
-        id="post-body"
-        className="entry-body markdown-view user-selectable font-mono bg-gray-100 rounded text-sm !p-4 dark:bg-gray-900 whitespace-pre-wrap break-words"
-      >
-        {entry.body}
-      </pre>
-    );
+    return <EntryPageRawBody entry={entry} />;
   }
 
   return (

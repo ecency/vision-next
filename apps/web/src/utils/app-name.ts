@@ -1,7 +1,7 @@
 import { stripTags } from "./strip-tags";
 
 interface ObjInput {
-  name?: string;
+  name?: unknown;
 }
 
 export function appName(input: string | null | undefined | ObjInput) {
@@ -13,7 +13,9 @@ export function appName(input: string | null | undefined | ObjInput) {
     return stripTags(input);
   }
 
-  if (typeof input === "object" && input.name !== undefined) {
+  // json_metadata.app is untrusted: {name: null} / {name: 123} reach here from
+  // buggy clients and used to throw on .replace during entry-page SSR.
+  if (typeof input === "object" && typeof input.name === "string") {
     return stripTags(input.name);
   }
 

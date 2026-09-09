@@ -79,8 +79,39 @@ describe("entry page has no SSR skeleton boundary above the post body", () => {
     expect(related).toBeGreaterThan(body);
   });
 
-  it("route layout adds no Suspense above the page", () => {
-    const source = fs.readFileSync(path.join(ROUTE, "layout.tsx"), "utf8");
-    expect(source).not.toMatch(/<Suspense/);
+  it("no route or ancestor layout adds Suspense above the page", () => {
+    let checked = 0;
+    for (const dir of SEGMENTS) {
+      for (const name of ["layout.tsx", "template.tsx"]) {
+        const file = path.join(dir, name);
+        if (!fs.existsSync(file)) continue;
+        checked += 1;
+        expect(fs.readFileSync(file, "utf8"), path.relative(APP, file)).not.toMatch(/<Suspense/);
+      }
+    }
+    // The route layout and the root layout at least.
+    expect(checked).toBeGreaterThanOrEqual(2);
+  });
+
+  // page.tsx hands the body to EntryPageContentSSR, which reaches #post-body
+  // through the files below. A <Suspense> inside any of them would hide the
+  // body again without touching page.tsx, so they are pinned too.
+  it("no component between the page and #post-body adds Suspense", () => {
+    const chain = [
+      "entry-page-content-ssr.tsx",
+      "entry-page-nsfw-body-wrapper.tsx",
+      "entry-page-nsfw-revealing.tsx",
+      "entry-page-static-body.tsx",
+      "entry-page-raw-body.tsx"
+    ].map((name) => path.join(ROUTE, "_components", name));
+    for (const file of chain) {
+      expect(fs.existsSync(file), path.relative(APP, file)).toBe(true);
+      expect(fs.readFileSync(file, "utf8"), path.relative(APP, file)).not.toMatch(/<Suspense/);
+    }
+    // The chain list is only worth something if it still ends at the body.
+    const emitters = chain.filter((file) =>
+      /id="post-body"/.test(fs.readFileSync(file, "utf8"))
+    );
+    expect(emitters.length).toBeGreaterThan(0);
   });
 });
