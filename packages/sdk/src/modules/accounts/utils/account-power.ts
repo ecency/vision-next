@@ -147,6 +147,43 @@ export function downVotingPower(account: FullAccount): number {
   return currentManaPerc;
 }
 
+/**
+ * Rewards/stake coefficient, known on Hive as the KE ratio: every VEST ever paid out
+ * to the account as curation rewards or as the vested half of an author payout, over
+ * the VESTS it still holds and has not delegated away. Both sides are VESTS, so the
+ * value is independent of the HIVE price and of the global VESTS/HP rate.
+ *
+ * Returns null when the account carries no undelegated stake, where the ratio is
+ * undefined rather than zero.
+ *
+ * Limits worth repeating wherever this is displayed: `posting_rewards` counts only the
+ * vested half of an author payout, the denominator ignores stake delegated TO the
+ * account (so an account curating with received delegation scores high), and the value
+ * climbs during a power-down because the numerator is frozen history.
+ */
+export function rewardsToStakeRatio(account: FullAccount): number | null {
+  // Absent counters are unknown, not zero. A row that omits one (or a cache entry
+  // dehydrated by an older build, which omits both) would otherwise produce a
+  // confident but understated ratio, which is worse than showing nothing.
+  const { curation_rewards: curation, posting_rewards: posting } = account;
+  if (curation === undefined || posting === undefined) {
+    return null;
+  }
+
+  const rewards = curation + posting;
+  const ownVests =
+    parseAsset(account.vesting_shares).amount -
+    parseAsset(account.delegated_vesting_shares).amount;
+
+  // The SDK's parseAsset hands back a raw parseFloat, so a malformed asset string
+  // reaches here as NaN rather than 0. Both sides need the finite check.
+  if (!Number.isFinite(rewards) || !Number.isFinite(ownVests) || ownVests <= 0) {
+    return null;
+  }
+
+  return rewards / ownVests;
+}
+
 export function rcPower(account: RCAccount): number {
   const calc = calculateRCMana(account);
   return calc.percentage / 100;

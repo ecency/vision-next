@@ -55,6 +55,8 @@ export interface FullAccount {
   vesting_withdraw_rate: string;
   to_withdraw: string;
   withdrawn: string;
+  curation_rewards?: number;
+  posting_rewards?: number;
   witness_votes: string[];
   proxy: string;
   recovery_account: string;

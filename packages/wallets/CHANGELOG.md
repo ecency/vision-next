@@ -1,5 +1,12 @@
 # @ecency/wallets
 
+## 6.0.6
+
+### Patch Changes
+
+- Updated dependencies [[`b83f037`](https://github.com/ecency/vision-web/commit/b83f037f06161e6f222263decb825c259d34e43b)]:
+  - @ecency/sdk@2.4.6
+
 ## 6.0.5
 
 ### Patch Changes

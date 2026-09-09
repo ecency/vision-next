@@ -4,7 +4,14 @@ import type { RCAccount } from "@ecency/sdk";
 import "./_index.scss";
 import { Account, FullAccount } from "@/entities";
 import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
-import { downVotingPower, powerRechargeTime, rcPower, votingPower, votingValue } from "@ecency/sdk";
+import {
+  downVotingPower,
+  powerRechargeTime,
+  rcPower,
+  rewardsToStakeRatio,
+  votingPower,
+  votingValue
+} from "@ecency/sdk";
 import { formattedNumber } from "@/utils";
 import i18next from "i18next";
 import { hiveSvg } from "@ui/svg";
@@ -46,6 +53,10 @@ function ProfileInfoContent({ account, rcAccount }: ContentProps) {
 
   // Down vote power
   const dvPower = downVotingPower(account);
+
+  // Rewards/stake coefficient (KE). The denominator matches the one other frontends
+  // divide by, so the number users see here is comparable with the one they see there.
+  const keRatio = useMemo(() => rewardsToStakeRatio(account)?.toFixed(2) ?? null, [account]);
 
   const rcInfo = useMemo(() => {
     if (!rcAccount) {
@@ -94,6 +105,11 @@ function ProfileInfoContent({ account, rcAccount }: ContentProps) {
           {rcInfo.rcpFixed !== "100.00" && (
             <small>{i18next.t("profile-info.recharge-time", { n: rcInfo.rcpRechargeDate.fromNow() })}</small>
           )}
+        </p>
+      )}
+      {keRatio !== null && (
+        <p title={i18next.t("profile-info.ke-ratio-hint")}>
+          {i18next.t("profile-info.ke-ratio", { n: keRatio })}
         </p>
       )}
     </div>

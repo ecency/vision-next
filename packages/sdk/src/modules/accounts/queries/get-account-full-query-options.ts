@@ -173,6 +173,17 @@ export function getAccountFullQueryOptions(username: string | undefined) {
         vesting_withdraw_rate: chainAccount.vesting_withdraw_rate,
         to_withdraw: chainAccount.to_withdraw,
         withdrawn: chainAccount.withdrawn,
+        // int64 counters. Condenser serves them unquoted, so normalize here in case a
+        // node quotes them, but leave an omitted counter undefined: absent is unknown,
+        // and coercing it to 0 would understate every ratio derived from it.
+        curation_rewards:
+          chainAccount.curation_rewards === undefined
+            ? undefined
+            : Number(chainAccount.curation_rewards),
+        posting_rewards:
+          chainAccount.posting_rewards === undefined
+            ? undefined
+            : Number(chainAccount.posting_rewards),
         witness_votes: chainAccount.witness_votes,
         proxy: chainAccount.proxy,
         recovery_account: chainAccount.recovery_account,
