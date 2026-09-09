@@ -17,8 +17,8 @@ interface Props extends RowActions {
   isTrial: boolean;
   username: string | undefined;
   recommendationsEnabled: boolean;
-  /** Touch device: a single tap on a row opens the quick view. */
-  tapToOpen: boolean;
+  /** Primary pointer is coarse; see CurationQueueRow's own prop doc. */
+  coarsePointer: boolean;
   chronological: boolean;
   teamCursor: CurationTeamCursor | null | undefined;
   hasNextPage: boolean;
@@ -42,7 +42,7 @@ export const CurationQueueList = forwardRef<VirtuosoHandle, Props>(function Cura
     isTrial,
     username,
     recommendationsEnabled,
-    tapToOpen,
+    coarsePointer,
     chronological,
     teamCursor,
     hasNextPage,
@@ -95,7 +95,7 @@ export const CurationQueueList = forwardRef<VirtuosoHandle, Props>(function Cura
               isTrial={isTrial}
               username={username}
               recommendationsEnabled={recommendationsEnabled}
-              tapToOpen={tapToOpen}
+              coarsePointer={coarsePointer}
               section={item.section}
               late={item.late}
               resurfaced={item.resurfaced}
@@ -179,7 +179,7 @@ export const CurationQueueList = forwardRef<VirtuosoHandle, Props>(function Cura
       isTrial,
       username,
       recommendationsEnabled,
-      tapToOpen,
+      coarsePointer,
       chronological,
       teamCursor,
       onToggleTail,

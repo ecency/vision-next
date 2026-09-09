@@ -103,7 +103,7 @@ function renderRow(isRoster: boolean) {
       isTrial={false}
       username="member1"
       recommendationsEnabled
-      tapToOpen={false}
+      coarsePointer={false}
       section="queue"
       late={false}
       resurfaced={false}

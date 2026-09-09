@@ -105,7 +105,7 @@ export function CurationQueueView() {
   );
   const { filters, params, update, reset, reshuffle, activeCount, restored, savedOwner } =
     useQueueFilters(viewer.isRoster);
-  const tapToOpen = useCoarsePointer();
+  const coarsePointer = useCoarsePointer();
   const publicParams = useMemo(() => filtersToParams(filters, false), [filters]);
 
   // Both feeds wait for the saved refine set, so the desk issues exactly one
@@ -541,7 +541,7 @@ export function CurationQueueView() {
             isTrial={viewer.isTrial}
             username={viewer.username}
             recommendationsEnabled={recommendationsEnabled}
-            tapToOpen={tapToOpen}
+            coarsePointer={coarsePointer}
             chronological={display.chronological}
             teamCursor={teamCursor}
             hasNextPage={feed.hasNextPage}

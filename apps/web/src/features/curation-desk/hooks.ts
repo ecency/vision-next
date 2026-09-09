@@ -973,12 +973,20 @@ export function countActiveFilters(
 }
 
 /**
- * True while the primary pointer is a finger. The desk opens the quick view on
- * a double click, which a touch screen never sends: on a phone the drawer was
- * reachable only through the vote button, so curators opened the post in a new
- * tab instead and lost the reviewed and next controls that live in the drawer.
- * Starts false so the server render and the first client render agree, then
- * settles in an effect and follows a device that gains a mouse.
+ * True while the PRIMARY pointer is a finger: a phone or a tablet, not a
+ * machine with a mouse. The desk opens the quick view on a double click, which
+ * a touch screen never sends, so on a phone the drawer was reachable only
+ * through the vote button and curators opened the post in a new tab instead,
+ * losing the reviewed and next controls that live in the drawer.
+ *
+ * Deliberately the primary-pointer query and not `any-pointer: coarse`. This
+ * answers a question about the DEVICE — can its owner hover a tooltip, and what
+ * should a click carrying no pointer information be read as — and a touchscreen
+ * laptop driven by a mouse must answer no to both. Which branch a real click
+ * takes is decided per interaction from the pointerdown that preceded it, in
+ * CurationQueueRow. Starts false so the server render and the first client
+ * render agree, then settles in an effect and follows a device that gains a
+ * mouse.
  */
 export function useCoarsePointer(): boolean {
   const [coarse, setCoarse] = useState(false);
