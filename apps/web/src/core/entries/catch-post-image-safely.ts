@@ -39,12 +39,18 @@ export function catchPostImageSafely(
   }
 }
 
-// One broken post is one issue. The extractor is deterministic, so a body that
-// throws throws on every render — server, hydration, and every re-render of
-// the row it sits in — and the same entry is passed to several of these call
-// sites per page. Report the first failure per post and stay quiet after that.
-// Only posts that already failed are ever keyed here, and the set is cleared
-// once it grows past a sane cap.
+// The extractor is deterministic, so a body that throws throws on every render
+// — server, hydration, and every re-render of the row it sits in — and the same
+// entry reaches several of these call sites per page. Report the first failure
+// per post and stay quiet after that. Only posts that already failed are ever
+// keyed here, and the set is cleared once it grows past a sane cap.
+//
+// Scope, precisely: this set is module state, and the server and the browser
+// run separate module graphs, so a card that fails during SSR and again during
+// hydration produces one event from each. That is the intended floor rather
+// than an oversight — the server event is the one that says a route was at
+// risk, the browser one says the reader saw it — and two events per broken post
+// is what this suppresses a stream of identical ones down to.
 const reportedFailures = new Set<string>();
 
 function failureKey(obj: Parameters<typeof catchPostImage>[0]): string {
