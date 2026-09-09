@@ -189,3 +189,24 @@ datalist {
     margin-top: 8px;
   }
 }
+
+/* Inside the curation drawer the action row is only ~416px wide at lg (a 44rem
+   drawer minus the 16rem sidebar minus its padding), so a 380px panel anchored
+   on the 18px chevron at left:-12/top:-19 lands squarely on the Comment and
+   Points buttons beside it — and on its own trigger, which is why there was no
+   visible way to shut it. On a phone it also runs past the drawer's edge.
+   Anchoring it to the ROW instead (the row carries `relative`) drops it clear
+   of every control, and `width:100%` fits the drawer at any width. */
+[data-curation-drawer] {
+  .tooltip-vote {
+    position: static;
+  }
+
+  .tooltip-vote .tooltiptext {
+    top: calc(100% + 0.5rem);
+    left: 0;
+    right: auto;
+    width: 100%;
+    max-width: 380px;
+  }
+}

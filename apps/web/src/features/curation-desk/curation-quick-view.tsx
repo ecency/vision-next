@@ -335,7 +335,10 @@ export function CurationQuickView({
                   value={entry.body}
                   images={Array.isArray(entry.json_metadata?.image) ? entry.json_metadata.image : undefined}
                 />
-                <div className="flex flex-wrap items-center gap-3 mt-4 pt-3 border-t border-[--border-color]">
+                {/* `relative`: the vote slider anchors to this row rather than to
+                    its own 18 px chevron, so it opens below every control here
+                    instead of on top of Comment and Points. */}
+                <div className="relative flex flex-wrap items-center gap-3 mt-4 pt-3 border-t border-[--border-color]">
                   <EntryVoteBtn entry={entry} isPostSlider />
                   <EntryVotes entry={entry} />
                   <EntryPayout entry={entry} />

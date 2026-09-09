@@ -341,6 +341,79 @@ describe("keyboard on the queue", () => {
     expect(document.getElementById("curation-row-title-12")?.closest("article")).toHaveAttribute("aria-current", "true");
   });
 
+  /**
+   * A reply the curator has not sent. The drawer that owns the editor is
+   * mocked in this file, so the shape the queue view looks for is mounted by
+   * hand — it is the same DOM the real drawer renders (curation-quick-view's
+   * [data-curation-drawer] around curation-reply-box's [data-curation-reply]).
+   */
+  function mountUnsentReply(text: string) {
+    const drawer = document.createElement("div");
+    drawer.setAttribute("data-curation-drawer", "");
+    const box = document.createElement("div");
+    box.setAttribute("data-curation-reply", "");
+    const area = document.createElement("textarea");
+    area.value = text;
+    box.appendChild(area);
+    drawer.appendChild(box);
+    document.body.appendChild(drawer);
+    return () => drawer.remove();
+  }
+
+  it("holds the drawer on a post that left the queue while a reply is half-written", async () => {
+    // The report: curate a post with Hide Curated on, start a comment, and a
+    // few seconds later the row leaves the feed and takes the editor with it.
+    state.username = "curator1";
+    vi.mocked(infoToast).mockClear();
+    renderWithQueryClient(<CurationQueueView />, { queryClient: client() });
+    expect(await screen.findAllByRole("article")).toHaveLength(2);
+    await act(async () => press("j"));
+    await act(async () => press("Enter"));
+    expect(screen.getByTestId("quick-view-open")).toHaveTextContent("11");
+    const unmount = mountUnsentReply("half a sent");
+
+    router.on(/curation-desk\/tick/, tickReviewing(11));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(15_000);
+    });
+    await waitFor(() => expect(document.getElementById("curation-row-title-11")).toBeNull());
+
+    // The drawer stays on the post being replied to, and says nothing.
+    expect(screen.getByTestId("quick-view-open")).toHaveTextContent("11");
+    expect(infoToast).not.toHaveBeenCalled();
+    // Nothing is selected while it is held, so a stray key cannot mark post 12.
+    expect(document.getElementById("curation-row-title-12")?.closest("article")).not.toHaveAttribute(
+      "aria-current"
+    );
+    // j releases the hold and lands on the row that took its place.
+    await act(async () => press("j"));
+    expect(document.getElementById("curation-row-title-12")?.closest("article")).toHaveAttribute(
+      "aria-current",
+      "true"
+    );
+    expect(screen.getByTestId("quick-view-open")).toHaveTextContent("12");
+    unmount();
+  });
+
+  it("closes as before when the reply box is empty, so an abandoned box pins nothing", async () => {
+    state.username = "curator1";
+    vi.mocked(infoToast).mockClear();
+    renderWithQueryClient(<CurationQueueView />, { queryClient: client() });
+    expect(await screen.findAllByRole("article")).toHaveLength(2);
+    await act(async () => press("j"));
+    await act(async () => press("Enter"));
+    const unmount = mountUnsentReply("   ");
+
+    router.on(/curation-desk\/tick/, tickReviewing(11));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(15_000);
+    });
+    await waitFor(() => expect(document.getElementById("curation-row-title-11")).toBeNull());
+    expect(screen.queryByTestId("quick-view-open")).toBeNull();
+    expect(infoToast).toHaveBeenCalledWith("curation-desk.live.left-queue");
+    unmount();
+  });
+
   it("keeps the drawer on the next post after the curator's own r, without the word", async () => {
     state.username = "curator1";
     vi.mocked(infoToast).mockClear();

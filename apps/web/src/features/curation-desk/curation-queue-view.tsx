@@ -78,6 +78,22 @@ export function CurationQueueSkeleton({ rows = 8 }: { rows?: number }) {
   );
 }
 
+/**
+ * Whether the drawer is holding a reply the curator has not sent. Read from
+ * the DOM at the instant a row leaves the feed rather than threaded up as
+ * state: the answer is wanted once, and the editor already owns the text (it
+ * persists its own draft under a per-post key, so nothing is destroyed here —
+ * but with Hide Curated on the post is out of the queue and the curator has no
+ * way back to it from the desk).
+ */
+function hasUnsentReply(): boolean {
+  if (typeof document === "undefined") return false;
+  const box = document.querySelector<HTMLTextAreaElement>(
+    "[data-curation-drawer] [data-curation-reply] textarea"
+  );
+  return !!box && box.value.trim().length > 0;
+}
+
 type Dialog =
   | { kind: "none" }
   | { kind: "snooze"; row: DeskRow }
@@ -209,6 +225,12 @@ export function CurationQueueView() {
 
   const [activeKey, setActiveKey] = useState<string | null>(null);
   const [quickView, setQuickView] = useState(false);
+  // A post the drawer keeps showing after it left the feed, because the
+  // curator was mid-reply on it. Read by the drawer's `row` and by nothing
+  // else: the selection is cleared while a row is held, so no desk key can
+  // act on the row that slid into its place. `resumeKey` is where the
+  // selection goes when the hold is released.
+  const [held, setHeld] = useState<{ row: DeskRow; resumeKey: string | null } | null>(null);
   const [voteOnOpen, setVoteOnOpen] = useState(false);
   const [recommendOnOpen, setRecommendOnOpen] = useState(false);
   // The row that asked, not a flag: j/k stay alive while the entry loads,
@@ -228,6 +250,14 @@ export function CurationQueueView() {
 
   const activeIndex = activeKey ? ordered.findIndex((r) => rowKey(r) === activeKey) : -1;
   const activeRow = activeIndex >= 0 ? ordered[activeIndex] : null;
+  const heldRef = useRef(held);
+  heldRef.current = held;
+  const releaseHeld = useCallback(() => {
+    const current = heldRef.current;
+    if (!current) return;
+    setHeld(null);
+    if (current.resumeKey) setActiveKey(current.resumeKey);
+  }, []);
 
   // Marks this desk made, so a row leaving on its own mark reads as the
   // curator moving on, while a row a colleague took leaves under their hands.
@@ -251,6 +281,7 @@ export function CurationQueueView() {
       prevKeyRef.current = queryKey;
       if (activeKey) setActiveKey(null);
       if (quickView) setQuickView(false);
+      setHeld(null);
       return;
     }
     if (!activeKey || activeIndex >= 0) return;
@@ -260,11 +291,22 @@ export function CurationQueueView() {
     const ownAt = ownMarksRef.current.get(activeKey);
     ownMarksRef.current.delete(activeKey);
     const own = ownAt != null && Date.now() - ownAt < OWN_MARK_WINDOW_MS;
+    const successor = ordered.length ? rowKey(ordered[Math.min(prevIndex, ordered.length - 1)]) : null;
     if (!own && quickView) {
+      // Mid-reply, so the drawer stays on this post instead of unmounting the
+      // editor under the curator. The usual way here is their own vote with
+      // Hide Curated on: they curate, start a comment, and the post leaves the
+      // queue a few seconds later. Nothing is selected while it is held, so a
+      // stray keystroke cannot mark the row that took its place.
+      if (hasUnsentReply()) {
+        setHeld({ row: prev[prevIndex], resumeKey: successor });
+        setActiveKey(null);
+        return;
+      }
       setQuickView(false);
       infoToast(i18next.t("curation-desk.live.left-queue"));
     }
-    setActiveKey(ordered.length ? rowKey(ordered[Math.min(prevIndex, ordered.length - 1)]) : null);
+    setActiveKey(successor);
   }, [ordered, rows, queryKey, activeKey, activeIndex, quickView]);
 
   // Every loaded row can leave live while the server still holds more: the
@@ -319,11 +361,17 @@ export function CurationQueueView() {
 
   const move = useCallback(
     (delta: number) => {
+      // Held on a departed post: the remembered successor is exactly where a
+      // step down leads, so releasing IS the move.
+      if (heldRef.current) {
+        releaseHeld();
+        return;
+      }
       if (ordered.length === 0) return;
       const next = activeIndex < 0 ? (delta > 0 ? 0 : ordered.length - 1) : Math.min(ordered.length - 1, Math.max(0, activeIndex + delta));
       scrollTo(next);
     },
-    [ordered.length, activeIndex, scrollTo]
+    [ordered.length, activeIndex, scrollTo, releaseHeld]
   );
 
   const requireRoster = useCallback(
@@ -360,19 +408,25 @@ export function CurationQueueView() {
     [mark, clearMark, params, positionOf, noteOwnMark]
   );
 
-  const onSelect = useCallback((row: DeskRow) => setActiveKey(rowKey(row)), []);
+  const onSelect = useCallback((row: DeskRow) => {
+    setHeld(null);
+    setActiveKey(rowKey(row));
+  }, []);
   const onOpen = useCallback((row: DeskRow) => {
+    setHeld(null);
     setActiveKey(rowKey(row));
     setQuickView(true);
   }, []);
   const closeQuickView = useCallback(() => {
+    releaseHeld();
     setQuickView(false);
     setVoteOnOpen(false);
     setRecommendOnOpen(false);
     setCommentFor(null);
     setTipFor(null);
-  }, []);
+  }, [releaseHeld]);
   const onVote = useCallback((row: DeskRow) => {
+    setHeld(null);
     setActiveKey(rowKey(row));
     setQuickView(true);
     // The slider lives inside the drawer and only mounts once the entry query
@@ -564,7 +618,7 @@ export function CurationQueueView() {
       </div>
 
       <CurationQuickView
-        row={quickView ? (activeRow ? rowById.get(activeRow.post_id) ?? activeRow : null) : null}
+        row={quickView ? held?.row ?? (activeRow ? rowById.get(activeRow.post_id) ?? activeRow : null) : null}
         neighbour={neighbour}
         viewer={viewer}
         recommendationsEnabled={recommendationsEnabled}
