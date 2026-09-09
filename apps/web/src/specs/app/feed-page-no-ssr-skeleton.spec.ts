@@ -150,4 +150,31 @@ describe("feed page has no SSR skeleton boundary above the cards", () => {
     const thumb = read(path.join(SHARED, "entry-list-item/entry-list-item-thumbnail.tsx"));
     expect(thumb).toMatch(/priority=\{isThumbLcp\}/);
   });
+
+  // The route children reach this page through a chain of wrappers, not just
+  // the last one: RootLayout -> Providers -> NewsletterRuntimeProvider ->
+  // ClientProviders -> {children}. A <Suspense> around {children} in ANY of
+  // them hides every page body in the app behind a swap script, and a guard
+  // that reads only client-providers.tsx leaves the first two unwatched.
+  it("no provider in the root wrapper chain puts the route children in Suspense", () => {
+    const chain = [
+      path.join(APP, "providers.tsx"),
+      path.resolve(APP, "../features/newsletter/runtime.tsx"),
+      path.join(APP, "client-providers.tsx")
+    ];
+    let sawChildren = 0;
+    for (const file of chain) {
+      expect(fs.existsSync(file), file).toBe(true);
+      const source = fs.readFileSync(file, "utf8");
+      if (/\{(props\.)?children\}/.test(source)) sawChildren += 1;
+      const blocks =
+        source.match(/<(React\.)?Suspense\b[^>]*>[\s\S]*?<\/(React\.)?Suspense>/g) ?? [];
+      for (const boundary of blocks) {
+        expect(boundary, file).not.toMatch(/\{(props\.)?children\}/);
+      }
+    }
+    // Every file in the chain must actually hand children on, or the list has
+    // drifted from the tree it claims to describe.
+    expect(sawChildren).toBe(chain.length);
+  });
 });
