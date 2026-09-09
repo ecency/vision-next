@@ -1,14 +1,8 @@
 import React from "react";
-import { render } from "@testing-library/react";
+import { render, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { EntryPageBodyViewer } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-body-viewer";
 import { mockEntry } from "@/specs/test-utils";
-
-const setupPostEnhancements = vi.fn(() => () => {});
-
-vi.mock("@/features/post-renderer/components/utils/setupPostEnhancements", () => ({
-  setupPostEnhancements: (...args: unknown[]) => setupPostEnhancements(...args)
-}));
 
 vi.mock("next/dynamic", () => ({
   default: () => () => null
@@ -25,41 +19,45 @@ vi.mock("@/utils", async () => ({
 }));
 
 // The server renders #post-body as a <pre> when the markdown renderer throws
-// (EntryPageStaticBody -> EntryPageRawBody). There is nothing to enhance in
-// escaped source text, so the effect must not run against it.
+// (EntryPageStaticBody -> EntryPageRawBody). Escaped source text has nothing to
+// enhance, so the post enhancements must leave it alone. The observable
+// enhancement used here is image zoom: it wraps every body image in a
+// .markdown-image-container.
 describe("EntryPageBodyViewer on the raw-body fallback", () => {
   let host: HTMLElement;
 
   beforeEach(() => {
-    vi.useFakeTimers();
-    setupPostEnhancements.mockClear();
     host = document.createElement("div");
     document.body.appendChild(host);
   });
 
   afterEach(() => {
-    vi.useRealTimers();
     host.remove();
   });
 
-  async function mount(tag: "div" | "pre") {
-    host.innerHTML = `<${tag} id="post-body">body</${tag}>`;
-    const utils = render(<EntryPageBodyViewer entry={mockEntry({ body: "body" })} />);
-    await vi.advanceTimersByTimeAsync(200);
-    // The enhancer chunk is imported lazily; flush the dynamic import too.
-    await vi.advanceTimersByTimeAsync(0);
-    return utils;
+  async function mountBody(tag: "div" | "pre") {
+    host.innerHTML = `<${tag} id="post-body" class="entry-body markdown-view"><img src="https://images.ecency.com/p/x.png" alt=""></${tag}>`;
+    return render(<EntryPageBodyViewer entry={mockEntry({ body: "body" })} />);
   }
 
-  it("enhances a rendered <div id=post-body>", async () => {
-    const { unmount } = await mount("div");
-    expect(setupPostEnhancements).toHaveBeenCalledTimes(1);
+  // The effect waits 100 ms, then lazy-loads the enhancer chunk and medium-zoom,
+  // so the positive case polls. It runs first, which also warms the chunk for
+  // the negative case below.
+  it("enhances the images of a rendered <div id=post-body>", async () => {
+    const { unmount } = await mountBody("div");
+    await waitFor(
+      () => expect(host.querySelector(".markdown-image-container > img")).not.toBeNull(),
+      { timeout: 5000 }
+    );
     unmount();
   });
 
-  it("skips the escaped <pre id=post-body> fallback", async () => {
-    const { unmount } = await mount("pre");
-    expect(setupPostEnhancements).not.toHaveBeenCalled();
+  it("leaves the escaped <pre id=post-body> fallback untouched", async () => {
+    const { unmount } = await mountBody("pre");
+    // Well past the 100 ms effect delay; the enhancer chunk is already loaded.
+    await new Promise((resolve) => setTimeout(resolve, 600));
+    expect(host.querySelector("img")).not.toBeNull();
+    expect(host.querySelector(".markdown-image-container")).toBeNull();
     unmount();
   });
 });
