@@ -2,6 +2,7 @@
 
 import React, { HTMLProps, useEffect, useRef } from "react";
 import { renderPostBody } from "@ecency/render-helper";
+import * as Sentry from "@sentry/nextjs";
 import type { RenderOptions, SeoContext } from "@ecency/render-helper";
 import { clsx } from "clsx";
 import "../ecency-renderer.scss";
@@ -30,6 +31,29 @@ interface Props {
    * (showing a compact stub instead of recursively rendering).
    */
   embedDepth?: number;
+}
+
+// A body that breaks the markdown pipeline breaks it every time, and this
+// renderer runs on the server AND again on hydration, and once more for every
+// re-render of the feed row it sits in. Report the first failure per body and
+// stay quiet after that, so one broken wave is one issue rather than a stream
+// of identical events. Only bodies that already failed ever land here, and the
+// set is cleared once it grows past a sane cap.
+const reportedFailures = new Set<string>();
+
+function reportRenderFailure(e: unknown, value: string) {
+  const key = `${value.length}:${value.slice(0, 200)}`;
+
+  if (reportedFailures.has(key)) {
+    return;
+  }
+
+  if (reportedFailures.size >= 100) {
+    reportedFailures.clear();
+  }
+
+  reportedFailures.add(key);
+  Sentry.captureException(e, { extra: { where: "EcencyRenderer" } });
 }
 
 export function EcencyRenderer({
@@ -82,19 +106,43 @@ export function EcencyRenderer({
     return () => window.removeEventListener("message", handleMessage);
   }, [renderOptions?.embedVideosDirectly]);
 
+  // Routes that ship their body inside the SSR shell (the entry page, the wave
+  // page) have no Suspense boundary above this renderer, so a throw here is a
+  // full-page error rather than one broken body. renderPostBody recovers from
+  // malformed HTML internally, but its last-resort path runs sanitizeHtml over
+  // the same output that just failed, so an input that breaks the sanitizer
+  // throws all the way out: one out-of-range entity (`<div title="&#1114112;">`)
+  // does it. Degrade to the escaped source text and report once, the same way
+  // EntryPageStaticBody does for the entry route.
+  let html: string | null;
+  try {
+    html = renderPostBody(value, false, false, 'ecency.com', seoContext, renderOptions);
+  } catch (e) {
+    html = null;
+    reportRenderFailure(e, value);
+  }
+
+  const className = clsx(
+    "entry-body markdown-view user-selectable",
+    pure ? "markdown-view-pure" : "",
+    other.className
+  );
+
   return (
     <>
-      <div
-        {...other}
-        ref={ref}
-        itemProp="articleBody"
-        className={clsx(
-          "entry-body markdown-view user-selectable",
-          pure ? "markdown-view-pure" : "",
-          other.className
-        )}
-        dangerouslySetInnerHTML={{ __html: renderPostBody(value, false, false, 'ecency.com', seoContext, renderOptions) }}
-      />
+      {html === null ? (
+        <div {...other} ref={ref} itemProp="articleBody" className={className}>
+          <pre className="font-mono text-sm whitespace-pre-wrap break-words">{value}</pre>
+        </div>
+      ) : (
+        <div
+          {...other}
+          ref={ref}
+          itemProp="articleBody"
+          className={className}
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+      )}
       {!pure && (
         <>
           <ImageZoomExtension containerRef={ref} />
