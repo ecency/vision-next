@@ -12,6 +12,7 @@ import {
 import { EcencyConfigManager } from "@/config";
 import { error as errorToast, info as infoToast } from "@/features/shared/feedback";
 import { formatError } from "@/api/format-error";
+import * as ls from "@/utils/local-storage";
 import { OWN_MARK_WINDOW_MS, UNDO_REVIEWED_MS } from "./consts";
 import { FlagDialog, NoteDialog, ShortcutSheet, SnoozeDialog } from "./curation-action-dialogs";
 import { curationDeskApi } from "./curation-desk-api";
@@ -79,19 +80,18 @@ export function CurationQueueSkeleton({ rows = 8 }: { rows?: number }) {
 }
 
 /**
- * Whether the drawer is holding a reply the curator has not sent. Read from
- * the DOM at the instant a row leaves the feed rather than threaded up as
- * state: the answer is wanted once, and the editor already owns the text (it
- * persists its own draft under a per-post key, so nothing is destroyed here —
- * but with Hide Curated on the post is out of the queue and the curator has no
- * way back to it from the desk).
+ * Unsent reply text for one post, read from the key the editor itself writes
+ * on every keystroke (`Comment` holds its body in local storage under
+ * `reply_text_<author>_<permlink>`, and empties it on a successful submit).
+ *
+ * ⛔ NOT read from the DOM. By the time the departure effect runs, React has
+ * already re-rendered without the row and unmounted the drawer, so the editor
+ * and its textarea are gone: a DOM read answers false exactly when it matters.
+ * The stored draft outlives the unmount, which is the whole point.
  */
-function hasUnsentReply(): boolean {
-  if (typeof document === "undefined") return false;
-  const box = document.querySelector<HTMLTextAreaElement>(
-    "[data-curation-drawer] [data-curation-reply] textarea"
-  );
-  return !!box && box.value.trim().length > 0;
+function unsentReplyFor(row: DeskRow): boolean {
+  const text = ls.get(`reply_text_${row.author}_${row.permlink}`, "");
+  return typeof text === "string" && text.trim().length > 0;
 }
 
 type Dialog =
@@ -231,6 +231,12 @@ export function CurationQueueView() {
   // act on the row that slid into its place. `resumeKey` is where the
   // selection goes when the hold is released.
   const [held, setHeld] = useState<{ row: DeskRow; resumeKey: string | null } | null>(null);
+  // Which row the drawer's reply box is open for. Lives here, not in the
+  // drawer, because the drawer is unmounted before the departure effect asks:
+  // anything it owns is gone by then. Deliberately never cleared on its
+  // unmount, and row-keyed on both sides so a stale value cannot answer for
+  // another post.
+  const replyOpenForRef = useRef<string | null>(null);
   const [voteOnOpen, setVoteOnOpen] = useState(false);
   const [recommendOnOpen, setRecommendOnOpen] = useState(false);
   // The row that asked, not a flag: j/k stay alive while the entry loads,
@@ -298,7 +304,7 @@ export function CurationQueueView() {
       // Hide Curated on: they curate, start a comment, and the post leaves the
       // queue a few seconds later. Nothing is selected while it is held, so a
       // stray keystroke cannot mark the row that took its place.
-      if (hasUnsentReply()) {
+      if (replyOpenForRef.current === activeKey && unsentReplyFor(prev[prevIndex])) {
         setHeld({ row: prev[prevIndex], resumeKey: successor });
         setActiveKey(null);
         return;
@@ -630,6 +636,7 @@ export function CurationQueueView() {
         onCommentHandled={() => setCommentFor(null)}
         tipOnOpen={tipFor != null && tipFor === activeKey}
         onTipHandled={() => setTipFor(null)}
+        replyOpenFor={replyOpenForRef}
         onClose={closeQuickView}
         onPrev={() => move(-1)}
         onNext={() => move(1)}

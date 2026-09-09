@@ -70,6 +70,11 @@ interface Props {
   onFlag: (row: DeskRow) => void;
   onNote: (row: DeskRow) => void;
   onSaveNote: (row: DeskRow, note: string) => void;
+  /**
+   * Set to the row key while this drawer's reply box is open, so the queue view
+   * can still tell that the curator was mid-reply after the drawer is gone.
+   */
+  replyOpenFor?: React.MutableRefObject<string | null>;
   recommendRef: React.Ref<CurationRecommendHandle>;
 }
 
@@ -157,6 +162,7 @@ export function CurationQuickView({
   onFlag,
   onNote,
   onSaveNote,
+  replyOpenFor,
   recommendRef,
 }: Props) {
   const queryClient = useQueryClient();
@@ -216,6 +222,16 @@ export function CurationQuickView({
     },
     [author, permlink]
   );
+  // No cleanup on unmount: the queue view reads this AFTER the drawer has gone,
+  // which is exactly the moment a cleanup would have wiped it. Clearing is
+  // row-keyed instead, so closing the box for this post cannot clear another's.
+  useEffect(() => {
+    if (!replyOpenFor) return;
+    const key = `${author}/${permlink}`;
+    if (replyOpen) replyOpenFor.current = key;
+    else if (replyOpenFor.current === key) replyOpenFor.current = null;
+  }, [replyOpen, author, permlink, replyOpenFor]);
+
   const commentRef = useRef<HTMLButtonElement | HTMLAnchorElement | null>(null);
   const findComment = useCallback(() => commentRef.current, []);
   usePressWhenMounted(open && !!commentOnOpen && !!entry, findComment, onCommentHandled);
