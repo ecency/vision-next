@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.5.33
+
+### Patch Changes
+
+- Bump @xmldom/xmldom to 0.9.12 (#1774)
+
 ## 2.5.32
 
 ### Patch Changes
