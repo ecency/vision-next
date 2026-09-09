@@ -11,12 +11,15 @@ permissions:
 jobs:
   auto-changeset:
     runs-on: ubuntu-latest
+    # A <bump>:<package> label names OUR package explicitly, so it always counts.
+    # A bare major/minor/patch label only counts on a human-opened PR: Dependabot
+    # applies labels by those exact names to describe the DEPENDENCY's semver step,
+    # not ours, and reading them as ours versioned @ecency/render-helper 2.5.32 ->
+    # 3.0.0 off a patch @xmldom/xmldom bump on #1771. To release a Dependabot PR,
+    # label it patch:<package>.
     if: |
       github.event.pull_request.head.repo.full_name == github.repository &&
-      (contains(github.event.pull_request.labels.*.name, 'patch') ||
-      contains(github.event.pull_request.labels.*.name, 'minor') ||
-      contains(github.event.pull_request.labels.*.name, 'major') ||
-      contains(github.event.pull_request.labels.*.name, 'patch:sdk') ||
+      (contains(github.event.pull_request.labels.*.name, 'patch:sdk') ||
       contains(github.event.pull_request.labels.*.name, 'patch:wallets') ||
       contains(github.event.pull_request.labels.*.name, 'patch:render-helper') ||
       contains(github.event.pull_request.labels.*.name, 'patch:ui') ||
@@ -27,7 +30,11 @@ jobs:
       contains(github.event.pull_request.labels.*.name, 'major:sdk') ||
       contains(github.event.pull_request.labels.*.name, 'major:wallets') ||
       contains(github.event.pull_request.labels.*.name, 'major:render-helper') ||
-      contains(github.event.pull_request.labels.*.name, 'major:ui'))
+      contains(github.event.pull_request.labels.*.name, 'major:ui') ||
+      (github.event.pull_request.user.login != 'dependabot[bot]' &&
+      (contains(github.event.pull_request.labels.*.name, 'patch') ||
+      contains(github.event.pull_request.labels.*.name, 'minor') ||
+      contains(github.event.pull_request.labels.*.name, 'major'))))
 
     steps:
       - uses: actions/checkout@v4
@@ -55,6 +62,7 @@ jobs:
           PR_TITLE: ${{ github.event.pull_request.title }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           PR_LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
         run: |
           set -e
 
@@ -86,27 +94,31 @@ jobs:
           }
 
           # Check package-specific labels
-          if echo "$LABELS" | grep -q "patch:sdk"; then set_bump "@ecency/sdk" "patch"; fi
-          if echo "$LABELS" | grep -q "minor:sdk"; then set_bump "@ecency/sdk" "minor"; fi
-          if echo "$LABELS" | grep -q "major:sdk"; then set_bump "@ecency/sdk" "major"; fi
+          if echo "$LABELS" | grep -qx "patch:sdk"; then set_bump "@ecency/sdk" "patch"; fi
+          if echo "$LABELS" | grep -qx "minor:sdk"; then set_bump "@ecency/sdk" "minor"; fi
+          if echo "$LABELS" | grep -qx "major:sdk"; then set_bump "@ecency/sdk" "major"; fi
 
-          if echo "$LABELS" | grep -q "patch:wallets"; then set_bump "@ecency/wallets" "patch"; fi
-          if echo "$LABELS" | grep -q "minor:wallets"; then set_bump "@ecency/wallets" "minor"; fi
-          if echo "$LABELS" | grep -q "major:wallets"; then set_bump "@ecency/wallets" "major"; fi
+          if echo "$LABELS" | grep -qx "patch:wallets"; then set_bump "@ecency/wallets" "patch"; fi
+          if echo "$LABELS" | grep -qx "minor:wallets"; then set_bump "@ecency/wallets" "minor"; fi
+          if echo "$LABELS" | grep -qx "major:wallets"; then set_bump "@ecency/wallets" "major"; fi
 
-          if echo "$LABELS" | grep -q "patch:render-helper"; then set_bump "@ecency/render-helper" "patch"; fi
-          if echo "$LABELS" | grep -q "minor:render-helper"; then set_bump "@ecency/render-helper" "minor"; fi
-          if echo "$LABELS" | grep -q "major:render-helper"; then set_bump "@ecency/render-helper" "major"; fi
+          if echo "$LABELS" | grep -qx "patch:render-helper"; then set_bump "@ecency/render-helper" "patch"; fi
+          if echo "$LABELS" | grep -qx "minor:render-helper"; then set_bump "@ecency/render-helper" "minor"; fi
+          if echo "$LABELS" | grep -qx "major:render-helper"; then set_bump "@ecency/render-helper" "major"; fi
 
-          if echo "$LABELS" | grep -q "patch:ui"; then set_bump "@ecency/ui" "patch"; fi
-          if echo "$LABELS" | grep -q "minor:ui"; then set_bump "@ecency/ui" "minor"; fi
-          if echo "$LABELS" | grep -q "major:ui"; then set_bump "@ecency/ui" "major"; fi
+          if echo "$LABELS" | grep -qx "patch:ui"; then set_bump "@ecency/ui" "patch"; fi
+          if echo "$LABELS" | grep -qx "minor:ui"; then set_bump "@ecency/ui" "minor"; fi
+          if echo "$LABELS" | grep -qx "major:ui"; then set_bump "@ecency/ui" "major"; fi
 
-          # If no package-specific labels, check generic labels and detect changed packages
-          if [ ${#PACKAGE_BUMPS[@]} -eq 0 ]; then
-            if echo "$LABELS" | grep -q "major"; then
+          # If no package-specific labels, check generic labels and detect changed packages.
+          # Dependabot labels its own PRs major/minor/patch to describe the DEPENDENCY's
+          # semver step, so those labels say nothing about how OUR package should be
+          # released and are ignored here. Mirrors the job-level `if:` above; kept in the
+          # script too so the rule survives someone loosening that condition.
+          if [ ${#PACKAGE_BUMPS[@]} -eq 0 ] && [ "$PR_AUTHOR" != "dependabot[bot]" ]; then
+            if echo "$LABELS" | grep -qx "major"; then
               DEFAULT_BUMP="major"
-            elif echo "$LABELS" | grep -q "minor"; then
+            elif echo "$LABELS" | grep -qx "minor"; then
               DEFAULT_BUMP="minor"
             fi
 

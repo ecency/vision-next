@@ -11,6 +11,12 @@ When you create a PR, add one of the following labels to automatically generate 
 - `minor` - New features, non-breaking changes (e.g., 1.0.0 → 1.1.0)
 - `major` - Breaking changes (e.g., 1.0.0 → 2.0.0)
 
+These are ignored on a Dependabot PR. Dependabot applies labels by these exact names to
+describe the **dependency's** semver step, which says nothing about how our own package
+should be released: on #1771 its `major` label turned a patch `@xmldom/xmldom` bump into
+`@ecency/render-helper` 2.5.32 -> 3.0.0. To release a Dependabot PR, use a
+package-specific label instead.
+
 ### Package-Specific Labels
 - `patch:sdk` - Patch bump for @ecency/sdk only
 - `minor:sdk` - Minor bump for @ecency/sdk only
@@ -20,6 +26,9 @@ When you create a PR, add one of the following labels to automatically generate 
 - `minor:render-helper` - Minor bump for @ecency/render-helper only
 - `patch:ui` - Patch bump for @ecency/ui only
 - `minor:ui` - Minor bump for @ecency/ui only
+
+A package-specific label names our package explicitly, so it is honoured on any PR,
+Dependabot's included.
 
 ## Examples
 
