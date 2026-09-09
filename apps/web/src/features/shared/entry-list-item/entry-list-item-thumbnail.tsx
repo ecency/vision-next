@@ -77,6 +77,17 @@ export function EntryListItemThumbnail({
                 src={blurUrl}
                 alt=""
                 aria-hidden="true"
+                // Lazy for every card the reader has not scrolled to, and the
+                // attribute is load-bearing rather than cosmetic: React hoists a
+                // <link rel=preload as=image> into <head> for each EAGER <img> it
+                // renders in the shell, and this layer has one per card. While the
+                // feed sat behind a loading.tsx boundary those links were held back
+                // with it; #1786 put the cards in the shell, which released ~21 blur
+                // preloads into <head> on a 20-card feed, all of them competing with
+                // the real LCP image on a throttled link. The two eager cards keep
+                // an eager placeholder so their paint is still instant.
+                loading={isThumbLcp ? "eager" : "lazy"}
+                decoding={isThumbLcp ? undefined : "async"}
                 className="absolute inset-0 w-full h-full object-cover"
               />
             )}

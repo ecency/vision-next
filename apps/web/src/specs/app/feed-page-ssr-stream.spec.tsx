@@ -1,6 +1,7 @@
 import React from "react";
 import { describe, expect, it, vi } from "vitest";
 import { QueryClientProvider } from "@tanstack/react-query";
+import { EAGER_THUMB_CARD_COUNT } from "@/features/shared/entry-list-item/thumb-lcp";
 
 // Streams the real feed page through React's server renderer and asserts on the
 // HTML a browser would receive: the first cards must be part of the shell,
@@ -260,5 +261,27 @@ describe("feed page streamed HTML", () => {
     // The crawlable pager is the whole point of this branch; it must be in the
     // shell too, or a crawler that does not run $RC never sees the chain.
     expectInShell(html, "archive-older");
+  });
+
+  // React hoists a <link rel="preload" as="image"> into <head> for every EAGER
+  // <img> it renders in the shell. Each card draws two images — the LQIP blur
+  // layer and the thumbnail — so a 20-card feed with an eager blur layer put
+  // ~21 preloads in <head>, every one of them competing with the real LCP image
+  // on a throttled link. While the feed sat behind loading.tsx those links were
+  // held back with the boundary, which is why it took #1786 to expose it. Bound
+  // the count to what the eager window can justify.
+  it("preloads only the eager cards' images, not every card's", { timeout: 20000 }, async () => {
+    const html = await streamPage({});
+    const preloads = html.match(/<link[^>]+rel="preload"[^>]+as="image"[^>]*>/g) ?? [];
+    const blur = preloads.filter((l) => l.includes("blur=1"));
+
+    // Two images per eager card (placeholder + thumbnail) is the ceiling.
+    expect(preloads.length).toBeLessThanOrEqual(EAGER_THUMB_CARD_COUNT * 2);
+    expect(blur.length).toBeLessThanOrEqual(EAGER_THUMB_CARD_COUNT);
+    // ...and the guard is only worth something while the page really renders
+    // more cards than that.
+    expect((html.match(/Feed card \d+ in the shell/g) ?? []).length).toBeGreaterThan(
+      EAGER_THUMB_CARD_COUNT * 2
+    );
   });
 });
