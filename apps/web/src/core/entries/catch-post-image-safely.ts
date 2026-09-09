@@ -9,10 +9,13 @@ import { sentry } from "@/core/sentry/lazy-sentry";
  * boundary, so a throw is a blank route rather than a missing image. And it
  * can throw on author-controlled input — `sanitizeHtml` decoded numeric
  * character references with a bare `String.fromCodePoint`, so a body carrying
- * `<div title="&#x110000;">` raised a RangeError from inside the extractor
- * (fixed in @ecency/render-helper, but the apps consume that package through
- * its COMMITTED dist, which is only rebuilt on a release — until then this
- * guard is the only thing standing between one crafted post and a 500).
+ * `<div title="&#x110000;">` raised a RangeError from inside the extractor.
+ * That defect is fixed at its source in @ecency/render-helper, and the web app
+ * builds the package from source (apps/web/Dockerfile, and `build:packages`
+ * ahead of the tests in CI), so this guard is not what closes it. It is here
+ * for the NEXT one: the extractor parses author markdown through a sanitiser
+ * and a DOM, on the SSR path of the busiest routes, with nothing above it to
+ * contain a throw.
  *
  * Feed rows are normally slimmed to `body: ""`, which starves the markdown
  * tier, but three paths carry a full body to these calls: `slimEntrySafely`
@@ -46,8 +49,10 @@ const reportedFailures = new Set<string>();
 
 function failureKey(obj: Parameters<typeof catchPostImage>[0]): string {
   // The search row passes a raw body string, with no author/permlink to key on.
+  // Both ends plus the length, so two different bodies that happen to share an
+  // opening paragraph still report separately.
   return typeof obj === "string"
-    ? `body:${obj.length}:${obj.slice(0, 200)}`
+    ? `body:${obj.length}:${obj.slice(0, 120)}:${obj.slice(-120)}`
     : `entry:${obj?.author}/${obj?.permlink}`;
 }
 
@@ -73,7 +78,7 @@ function reportOnce(e: unknown, obj: Parameters<typeof catchPostImage>[0]) {
     // costs a page. Load the real SDK on demand instead: the import stays out
     // of the eager client graph because this branch is unreachable there, so
     // the feed's client chunks do not gain @sentry/nextjs.
-    void import("@sentry/nextjs")
+    void import(/* webpackExports: ["captureException"] */ "@sentry/nextjs")
       .then((Sentry) => Sentry.captureException(e, context))
       .catch(() => {
         /* reporting must never be the thing that breaks the render */

@@ -4,9 +4,19 @@
 // browser DOMParser swallows it, so this file must run in Node to be honest.
 import { describe, it, expect, vi } from "vitest";
 
+// render-helper is not globally mocked, so postBodySummary/catchPostImage are
+// already real here. `catchPostImage` is wrapped in a spy that defaults to the
+// real implementation, so one test can make a single call throw without
+// changing what any other test exercises.
+vi.mock("@ecency/render-helper", async () => {
+  const actual = await vi.importActual<typeof import("@ecency/render-helper")>(
+    "@ecency/render-helper"
+  );
+  return { ...actual, catchPostImage: vi.fn(actual.catchPostImage) };
+});
+
 // The global @/utils mock only exposes random/getAccessToken; restore the real
-// module so buildEntryCardFields gets the real `truncate` (render-helper is not
-// globally mocked, so postBodySummary/catchPostImage are already real).
+// module so buildEntryCardFields gets the real `truncate`.
 vi.mock("@/utils", async () => ({
   ...(await vi.importActual<any>("@/utils")),
   random: vi.fn(),
@@ -109,16 +119,29 @@ describe("buildEntryCardFields", () => {
 });
 
 describe("buildEntryCardFields with a body that breaks the image lookup", () => {
-  // Real render-helper: this entity makes the last-resort sanitizeHtml pass
-  // throw RangeError, and catchPostImage reaches it once no metadata or regex
-  // image exists. Without the guard generateMetadata's outer catch drops the
-  // title, cards, canonical and robots for that post.
-  it("keeps title and summary and reports no image", () => {
+  // This entity used to make the last-resort sanitizeHtml pass throw
+  // RangeError, which catchPostImage reaches once no metadata or regex image
+  // exists — and generateMetadata's outer catch then dropped the title, cards,
+  // canonical and robots for that post. The sanitizer now maps out-of-range
+  // references to U+FFFD, so the lookup returns instead of throwing; the guard
+  // below it stays for the next defect of that shape, and is pinned by the
+  // mocked-throw case that follows.
+  it("keeps title and summary for the body that used to break the lookup", () => {
     const body = `<div title="&#1114112;">boom</span>`;
-    // catchPostImage memoizes per author/permlink/size for the process, so a
-    // permlink no earlier test has used, or the cached result masks the throw.
+    // catchPostImage memoizes per author/permlink/size for the process, so use
+    // a permlink no earlier test has used or the cached result masks the call.
     const e = entry({ body, permlink: "boom-entity" });
-    expect(() => catchPostImage(e as any, 1200, 630, "match")).toThrow(RangeError);
+    expect(() => catchPostImage(e as any, 1200, 630, "match")).not.toThrow();
+    const fields = buildEntryCardFields(e as any);
+    expect(fields.title).toBe("Hello World");
+    expect(fields.image).toBeNull();
+  });
+
+  it("keeps title and summary when the image lookup throws", () => {
+    const e = entry({ body: "plain body", permlink: "boom-thrower" });
+    vi.mocked(catchPostImage).mockImplementationOnce(() => {
+      throw new RangeError("Invalid code point 1114112");
+    });
     const fields = buildEntryCardFields(e as any);
     expect(fields.title).toBe("Hello World");
     expect(fields.image).toBeNull();

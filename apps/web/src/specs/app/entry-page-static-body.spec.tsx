@@ -40,18 +40,24 @@ describe("EntryPageStaticBody", () => {
     expect(Sentry.captureException).not.toHaveBeenCalled();
   });
 
-  it("survives a real body that breaks the sanitizer (out-of-range entity)", async () => {
+  // This body used to throw RangeError out of renderPostBody's last-resort
+  // sanitizeHtml pass, and this test asserted the <pre> fallback caught it.
+  // The sanitizer now maps out-of-range references to U+FFFD instead of calling
+  // String.fromCodePoint on them, so the input renders normally and the guard
+  // above is what would catch the NEXT such defect. Both halves are pinned: the
+  // renderer no longer throws on it, and the body still reaches the page.
+  it("renders the body that used to break the sanitizer (out-of-range entity)", async () => {
     const actual = await vi.importActual<typeof import("@ecency/render-helper")>(
       "@ecency/render-helper"
     );
     vi.mocked(renderPostBody).mockImplementation(actual.renderPostBody);
-    // One line any account can broadcast: RangeError: Invalid code point 1114112
-    // from the last-resort sanitizeHtml pass inside renderPostBody.
     const body = `<div title="&#1114112;">boom</span>`;
-    expect(() => actual.renderPostBody(body, false, false, "ecency.com")).toThrow(RangeError);
+    expect(() => actual.renderPostBody(body, false, false, "ecency.com")).not.toThrow();
     const { container } = render(<EntryPageStaticBody entry={mockEntry({ body })} />);
-    expect(container.querySelector("#post-body")?.tagName).toBe("PRE");
-    expect(Sentry.captureException).toHaveBeenCalledTimes(1);
+    const rendered = container.querySelector("#post-body");
+    expect(rendered?.tagName).toBe("DIV");
+    expect(rendered?.textContent).toContain("boom");
+    expect(Sentry.captureException).not.toHaveBeenCalled();
   });
 
   it("falls back to the escaped raw body and reports when the renderer throws", () => {

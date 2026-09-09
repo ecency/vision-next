@@ -34,18 +34,21 @@ describe("EcencyRenderer", () => {
     expect(Sentry.captureException).not.toHaveBeenCalled();
   });
 
-  it("survives a real body that breaks the sanitizer (out-of-range entity)", async () => {
+  // Was: this body throws RangeError out of renderPostBody, prove the fallback
+  // catches it. The sanitizer now maps out-of-range references to U+FFFD, so
+  // the same input renders normally; the mocked-throw cases below are what keep
+  // the fallback honest for the next defect of this shape.
+  it("renders the body that used to break the sanitizer (out-of-range entity)", async () => {
     const actual = await vi.importActual<typeof import("@ecency/render-helper")>(
       "@ecency/render-helper"
     );
     vi.mocked(renderPostBody).mockImplementation(actual.renderPostBody);
-    // One line any account can broadcast: RangeError: Invalid code point 1114112
-    // from the last-resort sanitizeHtml pass inside renderPostBody.
     const value = `<div title="&#1114112;">boom</span>`;
-    expect(() => actual.renderPostBody(value, false, false, "ecency.com")).toThrow(RangeError);
+    expect(() => actual.renderPostBody(value, false, false, "ecency.com")).not.toThrow();
     const { container } = render(<EcencyRenderer value={value} />);
-    expect(container.querySelector(".markdown-view pre")?.textContent).toBe(value);
-    expect(Sentry.captureException).toHaveBeenCalledTimes(1);
+    expect(container.querySelector(".markdown-view")?.textContent).toContain("boom");
+    expect(container.querySelector(".markdown-view pre")).toBeNull();
+    expect(Sentry.captureException).not.toHaveBeenCalled();
   });
 
   // The renderer runs during SSR and again on hydration, and a feed row that
