@@ -2,7 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Entry } from "@/entities";
 import { useGlobalStore } from "@/core/global-store";
 import { EntryLink } from "@/features/shared";
-import { buildSrcSet, catchPostImage, proxifyImageSrc } from "@ecency/render-helper";
+import { buildSrcSet, proxifyImageSrc } from "@ecency/render-helper";
+import { catchPostImageSafely } from "@/core/entries/catch-post-image-safely";
 import Image from "next/image";
 import { THUMB_SIZES } from "./thumb-lcp";
 
@@ -32,11 +33,15 @@ export function EntryListItemThumbnail({
   // proxified i.ecency.com URL — the same path post-body/cover images use — so
   // the old useImageDownloader blob→base64 round-trip (which gated this behind
   // JS download + hydration) is not needed.
-  const src = useMemo(() => catchPostImage(entry, 600, 500, "match") || null, [entry]);
+  // catchPostImageSafely, not catchPostImage: this runs during the SSR render
+  // of every feed row, with no boundary above it, and the extractor can throw on
+  // an author-crafted body. A throw degrades to "no thumbnail" (the noImage
+  // placeholder) instead of taking the page down.
+  const src = useMemo(() => catchPostImageSafely(entry, 600, 500, "match") || null, [entry]);
   const srcSet = useMemo(() => (src ? buildSrcSet(src) : ""), [src]);
 
   const blurUrl = useMemo(() => {
-    const url = catchPostImage(entry, 0, 0);
+    const url = catchPostImageSafely(entry, 0, 0);
     if (!url) return null;
     // Route the LQIP placeholder through the /p/ proxy so `blur=1` is honored.
     // Appending `?blur=1` to a bare upload URL hits the direct-serve route,
