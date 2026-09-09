@@ -747,7 +747,6 @@ var isSafeNavValue = (value) => {
   const isRelative = /^(\/\/|\/[^/]?|#|\?|[a-z0-9._\-]+(\/|$))/i.test(trimmed);
   return isSafeScheme || isRelative;
 };
-var decodeEntities2 = (input) => input.replace(/&#(\d+);?/g, (_, dec) => String.fromCodePoint(Number(dec))).replace(/&#x([0-9a-f]+);?/gi, (_, hex) => String.fromCodePoint(parseInt(hex, 16)));
 var isProxyPSrcset = (srcset) => {
   const base = trimTrailingSlash(getProxyBase());
   const candidates = srcset.split(",").map((c) => c.trim().split(/\s+/)[0]).filter(Boolean);
@@ -761,7 +760,7 @@ function sanitizeHtml(html) {
     css: false,
     // block style attrs entirely for safety
     onTagAttr: (tag, name, value) => {
-      const decoded = decodeEntities2(value.trim());
+      const decoded = decodeEntities(value.trim());
       const decodedLower = decoded.toLowerCase();
       if (name.startsWith("on")) return "";
       if (tag === "img" && name === "src" && !/^https?:\/\//.test(decodedLower)) return "";

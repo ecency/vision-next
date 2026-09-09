@@ -29,6 +29,7 @@ import {
   publicPageOneFetcher,
   rosterFeedQueryOptions,
   useClearMark,
+  useCoarsePointer,
   useCurationFeed,
   useCurationMark,
   useCurationRosterFeed,
@@ -104,6 +105,7 @@ export function CurationQueueView() {
   );
   const { filters, params, update, reset, reshuffle, activeCount, restored, savedOwner } =
     useQueueFilters(viewer.isRoster);
+  const coarsePointer = useCoarsePointer();
   const publicParams = useMemo(() => filtersToParams(filters, false), [filters]);
 
   // Both feeds wait for the saved refine set, so the desk issues exactly one
@@ -539,6 +541,7 @@ export function CurationQueueView() {
             isTrial={viewer.isTrial}
             username={viewer.username}
             recommendationsEnabled={recommendationsEnabled}
+            coarsePointer={coarsePointer}
             chronological={display.chronological}
             teamCursor={teamCursor}
             hasNextPage={feed.hasNextPage}
@@ -577,7 +580,6 @@ export function CurationQueueView() {
         onPrev={() => move(-1)}
         onNext={() => move(1)}
         onReviewed={onReviewed}
-        onSkip={() => move(1)}
         onSnooze={onSnooze}
         onFlag={onFlag}
         onNote={onNote}
