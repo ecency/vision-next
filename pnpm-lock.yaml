@@ -766,8 +766,8 @@ importers:
   packages/render-helper:
     dependencies:
       '@xmldom/xmldom':
-        specifier: ^0.9.10
-        version: 0.9.10
+        specifier: ^0.9.12
+        version: 0.9.12
       dom-serializer:
         specifier: ^2.0.0
         version: 2.0.0
@@ -4390,10 +4390,9 @@ packages:
       react: ^16.0.0 || ^17 || ^18
       react-dom: ^16.0.0 || ^17 || ^18
 
-  '@xmldom/xmldom@0.9.10':
-    resolution: {integrity: sha512-A9gOqLdi6cV4ibazAjcQufGj0B1y/vDqYrcuP6d/6x8P27gRS8643Dj9o1dEKtB6O7fwxb2FgBmJS2mX7gpvdw==}
+  '@xmldom/xmldom@0.9.12':
+    resolution: {integrity: sha512-5AXjrcMClTryPe9LgZrygpB1lj7s0S9E0+W+AHaVKAVyHanafK86iPSvG5xHVSp/jC+VH1UXu0TAEmY279xH7A==}
     engines: {node: '>=14.6'}
-    deprecated: this version has critical issues, please update to the latest version
 
   '@xobotyi/scrollbar-width@1.9.5':
     resolution: {integrity: sha512-N8tkAACJx2ww8vFMneJmaAgmjAG1tnVBZJRLRcx061tmsLRZHSEZSLuGWnwPtunsSLvSqXQ2wfp7Mgqg1I+2dQ==}
@@ -12545,7 +12544,7 @@ snapshots:
       react-dom: 19.2.3(react@19.2.3)
       textarea-caret: 3.0.2
 
-  '@xmldom/xmldom@0.9.10': {}
+  '@xmldom/xmldom@0.9.12': {}
 
   '@xobotyi/scrollbar-width@1.9.5': {}
 

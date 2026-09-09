@@ -37,8 +37,17 @@ import { POST } from "@/app/api/internal/seo/sitemap-generate/route";
 import { mockEntry } from "../test-utils";
 
 const HOUR = 3_600_000;
+// One pinned instant behind every timestamp here, fixture and clock alike. The route
+// derives its freshness window from Date.now() and truncates author/tag lastmods to a
+// UTC day, so a fixture built off the real clock made assertions depend on what time
+// the suite happened to run: on a run started in the last hours of a UTC day, a post
+// "an hour later" landed on the next day and moved a lastmod a test asserts is stable
+// (#1776). beforeEach starts every test from this instant, so nothing here reads the
+// real clock. The value itself is arbitrary: the suite passes pinned to midnight, to
+// 23:59:59.999 and across a year boundary. Only the pinning matters.
+const NOW = Date.UTC(2026, 0, 15, 12, 0, 0);
 // Bridge timestamps carry no zone suffix; the walk appends "Z" itself.
-const stamp = (agoMs: number) => new Date(Date.now() - agoMs).toISOString().slice(0, 19);
+const stamp = (agoMs: number) => new Date(NOW - agoMs).toISOString().slice(0, 19);
 const day = (agoMs: number) => stamp(agoMs).slice(0, 10);
 
 // Bridge rows as the walk sees them: the shared Entry factory plus the fields
@@ -80,6 +89,7 @@ describe("sitemap-generate route", () => {
     vi.useRealTimers();
   });
   beforeEach(() => {
+    vi.useFakeTimers({ toFake: ["Date"], now: NOW });
     store.clear();
     vi.mocked(callRPC).mockImplementation(async (method: string) => {
       if (method === "bridge.get_ranked_posts") return PAGE;
@@ -161,8 +171,7 @@ describe("sitemap-generate route", () => {
   });
 
   it("advances a shard's index lastmod only when its bytes change", async () => {
-    const t0 = Date.now();
-    vi.useFakeTimers({ toFake: ["Date"], now: t0 });
+    const t0 = NOW;
     await run();
     // static.xml is deliberately absent: its hub entries carry the current day,
     // so its bytes DO change at UTC midnight and its lastmod moves with them.
@@ -198,9 +207,9 @@ describe("sitemap-generate route", () => {
     // static.xml's bytes change once a day by design — an honest signal for
     // pages whose content really does turn over daily. Pinned either side of a
     // midnight so it does not depend on when the suite runs.
-    const beforeMidnight = new Date();
+    const beforeMidnight = new Date(NOW);
     beforeMidnight.setUTCHours(23, 50, 0, 0);
-    vi.useFakeTimers({ toFake: ["Date"], now: beforeMidnight.getTime() });
+    vi.setSystemTime(beforeMidnight);
     await run();
     const stable = ["posts.xml", "authors.xml", "tags.xml", "communities.xml"];
     const first = Object.fromEntries(
@@ -217,8 +226,7 @@ describe("sitemap-generate route", () => {
   });
 
   it("keeps the accepted walk's full timestamp when a later walk is rejected", async () => {
-    const t0 = Date.now();
-    vi.useFakeTimers({ toFake: ["Date"], now: t0 });
+    const t0 = NOW;
     await run();
     const accepted = indexEntry("posts.xml");
     expect(accepted).toBe(new Date(t0).toISOString());
@@ -236,8 +244,7 @@ describe("sitemap-generate route", () => {
   });
 
   it("re-stamps a changed shard after a write that failed between the record and the shard", async () => {
-    const t0 = Date.now();
-    vi.useFakeTimers({ toFake: ["Date"], now: t0 });
+    const t0 = NOW;
     await run();
     const before = indexEntry("posts.xml");
     // A new post, but Redis dies on the posts.xml write itself.

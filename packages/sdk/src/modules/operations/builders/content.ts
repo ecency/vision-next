@@ -57,9 +57,16 @@ export function buildCommentOp(
   body: string,
   jsonMetadata: Record<string, any>
 ): Operation {
-  // Validate all required parameters including body
-  if (!author || !permlink || parentPermlink === undefined || !body) {
-    throw new Error("[SDK][buildCommentOp] Missing required parameters");
+  // Every comment mutation (create, update, cross-post) goes through this
+  // builder, so it is the one place the required fields are checked. Naming the
+  // missing ones makes the report actionable instead of a bare assertion.
+  const missing: string[] = [];
+  if (!author) missing.push("author");
+  if (!permlink) missing.push("permlink");
+  if (parentPermlink === undefined) missing.push("parentPermlink");
+  if (!body) missing.push("body");
+  if (missing.length > 0) {
+    throw new Error(`[SDK][buildCommentOp] Missing required parameters: ${missing.join(", ")}`);
   }
 
   return [

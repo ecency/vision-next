@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.4.4
+
+### Patch Changes
+
+- Harden comment submission against missing required fields (#1770)
+
 ## 2.4.3
 
 ### Patch Changes

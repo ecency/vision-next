@@ -137,7 +137,7 @@ export function PostSubscribePrompt({ entry, communityTitle, className }: { entr
   return (
     <>
       {showCard && (
-        <div className={`rounded-xl border border-[--border-color] bg-light-200 dark:bg-dark-200 p-3 md:p-4 flex flex-wrap items-center gap-3 ${className ?? ""}`} role="region" aria-label={i18next.t("newsletter.post-prompt-title", { list: label })}>
+        <div className={`rounded-xl border border-[--border-color] reading-surface p-3 md:p-4 flex flex-wrap items-center gap-3 ${className ?? ""}`} role="region" aria-label={i18next.t("newsletter.post-prompt-title", { list: label })}>
           <UilEnvelope className="size-5 opacity-70" aria-hidden="true" />
           <div className="flex-1 min-w-[12rem]">
             <div className="font-semibold text-sm">{i18next.t("newsletter.post-prompt-title", { list: label })}</div>

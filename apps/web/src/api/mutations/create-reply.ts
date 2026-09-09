@@ -2,7 +2,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { formatError } from "../format-error";
 import { Entry, FullAccount, MetaData, CommentOptions } from "@/entities";
-import { tempEntry } from "@/utils";
+import { isBlankBody, tempEntry } from "@/utils";
 import { SortOrder } from "@/enums";
 import { error, success } from "@/features/shared";
 import { ErrorTypes } from "@/enums";
@@ -58,6 +58,8 @@ export function useCreateReply(
       options?: CommentOptions;
     }) => {
       if (!activeUser || !account || !entry) throw new Error("Missing active user or entry");
+      if (isBlankBody(text)) throw new Error(i18next.t("comment.empty-body"));
+      if (!entry.permlink) throw new Error("[Reply][Create] no parent permlink");
 
       const optimisticEntry = tempEntry({
         author: account,

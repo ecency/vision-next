@@ -2,6 +2,7 @@
 
 import { useMutation } from "@tanstack/react-query";
 import * as ss from "@/utils/session-storage";
+import { isBlankBody } from "@/utils";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { CommentOptions, Entry, MetaData } from "@/entities";
 import { formatError } from "@/api/format-error";
@@ -41,6 +42,10 @@ export function useUpdateReply(
       if (!activeUser || !entry) {
         throw new Error("[Reply][Update] – no active user provided");
       }
+      // Same guard as create-reply: a blank body reaches buildCommentOp and
+      // throws its "Missing required parameters" error. Text that only looks
+      // blank is worse, because it broadcasts a blank edit for real.
+      if (isBlankBody(text)) throw new Error(i18next.t("comment.empty-body"));
 
       const updatedEntry = {
         ...entry,
