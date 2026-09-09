@@ -1,7 +1,7 @@
 import xss from 'xss'
 import {ALLOWED_ATTRIBUTES, ID_WHITELIST, isAllowedEmbedSrc} from '../consts'
 import { getProxyBase } from '../proxify-image-src'
-import { trimTrailingSlash } from '../helper'
+import { decodeEntities, trimTrailingSlash } from '../helper'
 
 // data-* attributes whose value is later consumed as an <iframe> src by the
 // client video extensions (dataset.embedSrc / dataset.videoHref). They MUST be
@@ -25,11 +25,6 @@ const isSafeNavValue = (value: string): boolean => {
   return isSafeScheme || isRelative
 }
 
-const decodeEntities = (input: string): string =>
-  input
-    .replace(/&#(\d+);?/g, (_, dec) => String.fromCodePoint(Number(dec)))
-    .replace(/&#x([0-9a-f]+);?/gi, (_, hex) => String.fromCodePoint(parseInt(hex, 16)));
-
 // A <source> in a <picture> may only point at the image proxy's /p/ route. This
 // blocks a malicious on-chain <source srcset="..."> from beaconing to an
 // external host or using a non-http scheme (the <img> src/srcset already get
@@ -47,6 +42,15 @@ export function sanitizeHtml(html: string): string {
     stripIgnoreTagBody: ['style'],
     css: false, // block style attrs entirely for safety
     onTagAttr: (tag, name, value) => {
+      // Shared with helper.ts rather than decoded here: this pass runs on
+      // chain-authored HTML, and the private copy that used to live in this
+      // file called String.fromCodePoint on the raw numeric reference. One
+      // crafted attribute (`<div title="&#x110000;">`) therefore threw a
+      // RangeError straight out of sanitizeHtml — which is the last-resort
+      // pass inside renderPostBody, and runs on every catchPostImage body —
+      // taking an SSR feed render down. helper.decodeEntities maps overlong
+      // and out-of-range references to U+FFFD (what the HTML spec asks for)
+      // and never throws.
       const decoded = decodeEntities(value.trim());
       const decodedLower = decoded.toLowerCase();
 

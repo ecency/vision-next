@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
-import { catchPostImage, postBodySummary, setProxyBase } from "@ecency/render-helper";
+import { postBodySummary, setProxyBase } from "@ecency/render-helper";
+import { catchPostImageSafely } from "@/core/entries/catch-post-image-safely";
 import defaults from "@/defaults";
 import { SearchResult } from "@/entities";
 import {
@@ -33,7 +34,10 @@ export function SearchListItem({ res }: Props) {
   const dateRelative = useMemo(() => dateToRelative(res.created_at), [res]);
   const dateFormatted = useMemo(() => dateToFormatted(res.created_at), [res]);
   const reputation = useMemo(() => accountReputation(res.author_rep), [res]);
-  const img = useMemo(() => catchPostImage(res.body, 600, 500), [res.body]);
+  // Search rows carry the FULL body (nothing slims them), so the extractor
+  // runs its markdown tier here on every row. Guarded so a crafted body costs
+  // this row its thumbnail, not the results page.
+  const img = useMemo(() => catchPostImageSafely(res.body, 600, 500), [res.body]);
 
   const title = useMemo(
     () => transformMarkedContent(res.title_marked ? res.title_marked : res.title),
