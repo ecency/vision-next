@@ -208,3 +208,115 @@ describe("EntryVoteBtn — success pulse (transient class, never on load)", () =
     expect(popover).toHaveClass("origin-top-left");
   });
 });
+
+/**
+ * Dismissing the slider when it lives inside a portalled dialog. The guard that
+ * protects the transfer dialog (opened from the slider itself on a paid-out
+ * post) used to test "is this click inside #modal-dialog-container" — which is
+ * true of EVERY click once the button itself is portalled there, as it is in
+ * the curation desk's drawer. The slider could then not be dismissed at all:
+ * not by clicking away, and not by its own trigger, which the panel covers.
+ */
+describe("EntryVoteBtn — dismissing the slider from inside a portalled dialog", () => {
+  const entry = () =>
+    mockEntry({ author: "bob", permlink: "in-a-drawer", post_id: 2001, active_votes: [] });
+
+  function portalSubtree(id: string) {
+    const container =
+      document.getElementById("modal-dialog-container") ??
+      (() => {
+        const el = document.createElement("div");
+        el.id = "modal-dialog-container";
+        document.body.appendChild(el);
+        return el;
+      })();
+    const subtree = document.createElement("div");
+    subtree.dataset.subtree = id;
+    container.appendChild(subtree);
+    return subtree;
+  }
+
+  afterEach(() => {
+    document.getElementById("modal-dialog-container")?.remove();
+    vi.clearAllMocks();
+  });
+
+  it("closes on a click elsewhere in the dialog that hosts it", async () => {
+    const drawer = portalSubtree("drawer");
+    const sibling = document.createElement("button");
+    sibling.textContent = "Comment";
+    drawer.appendChild(sibling);
+    const mount = document.createElement("div");
+    drawer.appendChild(mount);
+
+    renderWithQueryClient(<EntryVoteBtn entry={entry()} isPostSlider={true} />, {
+      // Mount INSIDE the portal subtree: that is the whole point — the button
+      // itself lives in the dialog, which is what the old guard could not see.
+      renderOptions: { container: mount }
+    });
+    // By name: the hosting dialog has controls of its own in these tests.
+    fireEvent.click(screen.getByRole("button", { name: "entry-vote-btn.vote" }));
+    expect(await screen.findByTestId("vote-dialog")).toBeInTheDocument();
+
+    fireEvent.mouseDown(sibling);
+    await waitFor(() => expect(screen.queryByTestId("vote-dialog")).toBeNull());
+  });
+
+  it("closes on a click that lands on an icon glyph, which is an SVGElement", async () => {
+    const drawer = portalSubtree("drawer");
+    const glyph = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    drawer.appendChild(glyph);
+    const mount = document.createElement("div");
+    drawer.appendChild(mount);
+
+    renderWithQueryClient(<EntryVoteBtn entry={entry()} isPostSlider={true} />, {
+      // Mount INSIDE the portal subtree: that is the whole point — the button
+      // itself lives in the dialog, which is what the old guard could not see.
+      renderOptions: { container: mount }
+    });
+    // By name: the hosting dialog has controls of its own in these tests.
+    fireEvent.click(screen.getByRole("button", { name: "entry-vote-btn.vote" }));
+    expect(await screen.findByTestId("vote-dialog")).toBeInTheDocument();
+
+    // An `instanceof HTMLElement` test is false here: SVGElement extends
+    // Element, not HTMLElement, so this click used to be swallowed everywhere.
+    fireEvent.mouseDown(glyph);
+    await waitFor(() => expect(screen.queryByTestId("vote-dialog")).toBeNull());
+  });
+
+  it("survives a click in a dialog stacked on top of it", async () => {
+    const drawer = portalSubtree("drawer");
+    const mount = document.createElement("div");
+    drawer.appendChild(mount);
+
+    renderWithQueryClient(<EntryVoteBtn entry={entry()} isPostSlider={true} />, {
+      // Mount INSIDE the portal subtree: that is the whole point — the button
+      // itself lives in the dialog, which is what the old guard could not see.
+      renderOptions: { container: mount }
+    });
+    // By name: the hosting dialog has controls of its own in these tests.
+    fireEvent.click(screen.getByRole("button", { name: "entry-vote-btn.vote" }));
+    expect(await screen.findByTestId("vote-dialog")).toBeInTheDocument();
+
+    // The transfer dialog the slider opens for a paid-out post is its own
+    // portal subtree, and it unmounts with the slider — so its clicks must not
+    // close it. This is the case the original guard existed for.
+    const tip = portalSubtree("tip");
+    const amount = document.createElement("input");
+    tip.appendChild(amount);
+    fireEvent.mouseDown(amount);
+
+    await new Promise((r) => setTimeout(r, 0));
+    expect(screen.getByTestId("vote-dialog")).toBeInTheDocument();
+  });
+
+  it("still closes on an outside click when nothing is portalled, as on the post page", async () => {
+    renderWithQueryClient(<EntryVoteBtn entry={entry()} isPostSlider={true} />);
+    // By name: the hosting dialog has controls of its own in these tests.
+    fireEvent.click(screen.getByRole("button", { name: "entry-vote-btn.vote" }));
+    expect(await screen.findByTestId("vote-dialog")).toBeInTheDocument();
+
+    fireEvent.mouseDown(document.body);
+    await waitFor(() => expect(screen.queryByTestId("vote-dialog")).toBeNull());
+  });
+});

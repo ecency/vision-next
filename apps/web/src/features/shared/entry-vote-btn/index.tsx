@@ -38,6 +38,7 @@ interface Props {
 
 export function EntryVoteBtn({ entry: originalEntry, isPostSlider, account }: Props) {
   const rootRef = useRef<HTMLDivElement | null>(null);
+  const panelRef = useRef<HTMLDivElement | null>(null);
 
   const { activeUser } = useActiveAccount();
   const queryClient = useQueryClient();
@@ -71,17 +72,44 @@ export function EntryVoteBtn({ entry: originalEntry, isPostSlider, account }: Pr
   }, [activeUser, entry?.active_votes]);
 
   useClickAway(rootRef, (e) => {
-    if (!(e.target instanceof HTMLElement)) {
+    if (!dialog) {
       return;
     }
-
+    // Element, not HTMLElement: an icon glyph target is an SVGElement, which
+    // extends Element but NOT HTMLElement, so an HTMLElement check swallowed
+    // every mousedown that landed on an <svg> — on every surface, not just
+    // the ones below.
     const target = e.target;
-
-    // Ignore clicks inside the tipping modal container
-    if (target.closest("#modal-dialog-container")) {
+    if (!(target instanceof Element)) {
       return;
     }
-    if (dialog) setDialog(false);
+
+    // Which portal subtree a node sits in. Every dialog in the app portals
+    // into the ONE #modal-dialog-container, so "is this click inside that
+    // container" cannot tell a tipping modal that opened ON TOP of the slider
+    // apart from an ordinary click in a drawer that HOSTS the slider. The
+    // curation desk hosts this button inside a ModalSidebar, where the old
+    // test matched every click in the drawer and the slider could not be
+    // dismissed at all: not by clicking away, and not by the trigger either,
+    // since the panel paints over it.
+    const container = document.getElementById("modal-dialog-container");
+    const subtreeOf = (node: Element | null) => {
+      let cursor = node;
+      while (cursor && cursor.parentElement !== container) {
+        cursor = cursor.parentElement;
+      }
+      return cursor;
+    };
+    // A DIFFERENT subtree is a dialog above us — the transfer dialog this
+    // slider itself opens on a paid-out post, which unmounts together with
+    // the slider and so must survive its own clicks. Outside any portal both
+    // sides are null and every outside click closes, as on the post page.
+    const theirs = subtreeOf(target);
+    if (theirs && theirs !== subtreeOf(rootRef.current)) {
+      return;
+    }
+
+    setDialog(false);
   });
 
   const vote = useCallback(
@@ -136,6 +164,15 @@ export function EntryVoteBtn({ entry: originalEntry, isPostSlider, account }: Pr
       return null;
     }
   }, [activeUser, entry, isVoted, queryClient]);
+  // The panel can open inside a scroller that does not show it: the curation
+  // drawer's post column is its own scroll box and the action row is its last
+  // element, so a panel below that row starts off screen. "nearest" is a no-op
+  // wherever the panel is already fully visible, which is every other surface.
+  useEffect(() => {
+    // Optional call: jsdom does not implement scrollIntoView.
+    if (dialog) panelRef.current?.scrollIntoView?.({ block: "nearest" });
+  }, [dialog]);
+
   const toggleDialog = useCallback(() => setDialog((d) => !d), []);
 
   // Resolve the user's previous vote WHILE the slider is open rather than before
@@ -228,6 +265,7 @@ export function EntryVoteBtn({ entry: originalEntry, isPostSlider, account }: Pr
               </span>
               {dialog && entry && activeUser && (
                 <div
+                  ref={panelRef}
                   className="tooltiptext animate-scale-in origin-top-left"
                   onClick={(e) => e.stopPropagation()}
                 >

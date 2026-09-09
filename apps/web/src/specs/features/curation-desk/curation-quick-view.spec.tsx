@@ -486,6 +486,46 @@ describe("CurationQuickView", () => {
     expect(screen.queryByRole("button", { name: "curation-desk.actions.reviewed-key" })).toBeNull();
   });
 
+  /**
+   * The other half of the hold in curation-queue-view: the queue view cannot
+   * ask the drawer anything once the row is gone, because React unmounts the
+   * drawer in the very render that drops it. The drawer reports into this ref
+   * as it goes, and must NOT clear it on unmount.
+   */
+  it("reports which post its reply box is open for, and leaves the answer behind when it unmounts", async () => {
+    const replyOpenFor = { current: null as string | null };
+    const { rerender } = renderWithQueryClient(
+      <CurationQuickView row={row} neighbour={null} viewer={member} recommendationsEnabled replyOpenFor={replyOpenFor} onClose={noop} onPrev={noop} onNext={noop} onReviewed={noop} onSnooze={noop} onFlag={noop} onNote={noop} onSaveNote={noop} recommendRef={null} />
+    );
+    await screen.findByTestId("renderer");
+    expect(replyOpenFor.current).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "curation-desk.actions.comment-key" }));
+    expect(screen.getByTestId("comment-box")).toBeInTheDocument();
+    await waitFor(() => expect(replyOpenFor.current).toBe("alice/morning-light"));
+
+    // The row leaving the queue renders the drawer with no row at all, which is
+    // how it disappears in production. The answer has to survive that.
+    rerender(
+      <CurationQuickView row={null} neighbour={null} viewer={member} recommendationsEnabled replyOpenFor={replyOpenFor} onClose={noop} onPrev={noop} onNext={noop} onReviewed={noop} onSnooze={noop} onFlag={noop} onNote={noop} onSaveNote={noop} recommendRef={null} />
+    );
+    expect(screen.queryByTestId("comment-box")).toBeNull();
+    expect(replyOpenFor.current).toBe("alice/morning-light");
+  });
+
+  it("clears its answer when the box is closed for that same post", async () => {
+    const replyOpenFor = { current: null as string | null };
+    renderWithQueryClient(
+      <CurationQuickView row={row} neighbour={null} viewer={member} recommendationsEnabled replyOpenFor={replyOpenFor} onClose={noop} onPrev={noop} onNext={noop} onReviewed={noop} onSnooze={noop} onFlag={noop} onNote={noop} onSaveNote={noop} recommendRef={null} />
+    );
+    await screen.findByTestId("renderer");
+    const toggle = screen.getByRole("button", { name: "curation-desk.actions.comment-key" });
+    fireEvent.click(toggle);
+    await waitFor(() => expect(replyOpenFor.current).toBe("alice/morning-light"));
+    fireEvent.click(toggle);
+    await waitFor(() => expect(replyOpenFor.current).toBeNull());
+  });
+
   it("closes the reply box when the drawer moves to another post", async () => {
     const { rerender } = renderDrawer({ row });
     await screen.findByTestId("renderer");
