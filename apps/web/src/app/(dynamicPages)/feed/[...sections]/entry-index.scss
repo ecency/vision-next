@@ -26,12 +26,6 @@
     // lets it shrink to the available width.
     min-width: 0;
     min-height: 100vh;
-
-    &.loading {
-      .page-tools {
-        border-bottom-color: transparent;
-      }
-    }
   }
 
   .side-menu {
