@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import clsx from "clsx";
 import i18next from "i18next";
+import { proxifyImageSrc } from "@ecency/render-helper";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import {
   getCurationRecommendationsInfiniteQueryOptions,
@@ -33,8 +34,22 @@ function reasonsTooltip(item: CurationRecommendationItem): string {
 function RecommendationRow({ item, canDismiss, isRoster, username, recommendationsEnabled }: { item: CurationRecommendationItem; canDismiss: boolean; isRoster: boolean; username: string | undefined; recommendationsEnabled: boolean }) {
   const dismiss = useCurationDismissReco();
   const mine = item.recommenders.some((r) => r.username === username);
+  // Same cover the queue row draws, from the same column, at the same proxy
+  // width. Nothing is rendered without one: an empty grey box would only push
+  // the title over.
+  const thumb = item.first_image ? proxifyImageSrc(item.first_image, 200, 0, "match") : null;
   return (
     <li className="flex items-start gap-3 px-3 py-2 text-sm">
+      {thumb && (
+        <a
+          href={`/@${item.author}/${item.permlink}`}
+          tabIndex={-1}
+          aria-hidden
+          className="size-12 sm:size-14 shrink-0 overflow-hidden rounded-lg bg-gray-200 dark:bg-dark-default"
+        >
+          <img src={thumb} alt="" loading="lazy" decoding="async" className="size-full object-cover" />
+        </a>
+      )}
       <div className="min-w-0 flex-1">
         <a href={`/@${item.author}/${item.permlink}`} className="font-semibold hover:underline line-clamp-2">
           {item.title || i18next.t("curation-desk.row.untitled", { author: item.author })}

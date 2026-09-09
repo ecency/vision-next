@@ -971,3 +971,24 @@ export function countActiveFilters(
   }
   return n;
 }
+
+/**
+ * True while the primary pointer is a finger. The desk opens the quick view on
+ * a double click, which a touch screen never sends: on a phone the drawer was
+ * reachable only through the vote button, so curators opened the post in a new
+ * tab instead and lost the reviewed and next controls that live in the drawer.
+ * Starts false so the server render and the first client render agree, then
+ * settles in an effect and follows a device that gains a mouse.
+ */
+export function useCoarsePointer(): boolean {
+  const [coarse, setCoarse] = useState(false);
+  useEffect(() => {
+    if (typeof window.matchMedia !== "function") return;
+    const query = window.matchMedia("(pointer: coarse)");
+    setCoarse(query.matches);
+    const onChange = (event: MediaQueryListEvent) => setCoarse(event.matches);
+    query.addEventListener("change", onChange);
+    return () => query.removeEventListener("change", onChange);
+  }, []);
+  return coarse;
+}

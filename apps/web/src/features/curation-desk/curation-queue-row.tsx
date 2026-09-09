@@ -8,6 +8,7 @@ import { proxifyImageSrc } from "@ecency/render-helper";
 import { isOnAbuseList } from "@ecency/sdk";
 import {
   UilBell,
+  UilBookOpen,
   UilCheck,
   UilCommentAltNotes,
   UilExclamationTriangle,
@@ -49,6 +50,11 @@ interface Props extends RowActions {
   isTrial: boolean;
   username: string | undefined;
   recommendationsEnabled: boolean;
+  /**
+   * Touch device: the row opens the drawer on a single tap. A double click,
+   * which is what opens it with a mouse, never reaches a phone.
+   */
+  tapToOpen: boolean;
   section: RowSection;
   late: boolean;
   resurfaced: boolean;
@@ -175,6 +181,7 @@ export const CurationQueueRow = memo(function CurationQueueRow(props: Props) {
     isTrial,
     username,
     recommendationsEnabled,
+    tapToOpen,
     section,
     late,
     resurfaced,
@@ -218,7 +225,7 @@ export const CurationQueueRow = memo(function CurationQueueRow(props: Props) {
       data-post-id={row.post_id}
       data-section={section}
       tabIndex={isActive ? 0 : -1}
-      onClick={() => onSelect(row)}
+      onClick={() => (tapToOpen ? onOpen(row) : onSelect(row))}
       onDoubleClick={() => onOpen(row)}
       className={clsx(
         "group relative flex flex-wrap gap-x-3 gap-y-2 border-b border-[--border-color] px-4 py-4 sm:px-5 outline-none",
@@ -333,6 +340,22 @@ export const CurationQueueRow = memo(function CurationQueueRow(props: Props) {
         )}
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Reading the post is the job, so it is the first control and it says so
+            in words: the drawer used to be reachable only by double clicking the
+            row (nothing a phone sends) or by the vote button. */}
+        <Button
+          size="xs"
+          appearance="gray-link"
+          className="!rounded-lg"
+          aria-label={i18next.t("curation-desk.actions.read-key")}
+          title={i18next.t("curation-desk.actions.read-key")}
+          onClick={() => onOpen(row)}
+          icon={<UilBookOpen />}
+        >
+          {/* Worded on the device that needs it. Every other control here is a
+              glyph with a tooltip, which a finger cannot hover. */}
+          {tapToOpen ? i18next.t("curation-desk.actions.read") : undefined}
+        </Button>
         {!voteHidden && (
           <Button
             size="xs"

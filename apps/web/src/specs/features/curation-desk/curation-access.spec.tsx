@@ -70,6 +70,7 @@ function renderRow(row: DeskRow, isRoster = false) {
       isTrial={false}
       username={state.username}
       recommendationsEnabled
+      tapToOpen={false}
       section="queue"
       late={false}
       resurfaced={false}

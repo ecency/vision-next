@@ -26,7 +26,7 @@ const actions = { onSelect: noop, onOpen: noop, onVote: noop, onReviewed: noop, 
 
 function renderRow(row: DeskRow) {
   return renderWithQueryClient(
-    <CurationQueueRow row={row} isActive={false} isRoster={false} isTrial={false} username="member1" recommendationsEnabled section="queue" late={false} resurfaced={false} belowCursor={false} reviewedByCursor={false} chronological {...rowWindowProps(row)} {...actions} />
+    <CurationQueueRow row={row} isActive={false} isRoster={false} isTrial={false} username="member1" recommendationsEnabled tapToOpen={false} section="queue" late={false} resurfaced={false} belowCursor={false} reviewedByCursor={false} chronological {...rowWindowProps(row)} {...actions} />
   );
 }
 
