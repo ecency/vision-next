@@ -4,6 +4,7 @@ import type { SeoContext } from "@ecency/render-helper";
 import { accountReputation } from "@/utils";
 import defaults from "@/defaults";
 import type { CSSProperties } from "react";
+import * as Sentry from "@sentry/nextjs";
 
 interface Props {
   entry: Entry;
@@ -36,14 +37,40 @@ export function EntryPageStaticBody({ entry }: Props) {
       ? ({ "--cover-ar": String(coverRatio), "--cover-w": "100%" } as CSSProperties)
       : undefined;
 
+  // The entry route has no Suspense boundary above the body (page.tsx), so a
+  // throw during SSR here would be a full-page 500 rather than the inline retry
+  // card. renderPostBody already recovers from malformed HTML internally, but
+  // its last-resort path re-runs the markdown parser on the raw input, so
+  // hostile or pathological markdown can still throw. Degrade to the escaped
+  // raw body (same presentation as ?raw) and report, instead of taking the
+  // whole route down with the navbar.
+  let html: string | null;
+  try {
+    html = renderPostBody(entry.body, false, false, "ecency.com", seoContext);
+  } catch (e) {
+    html = null;
+    Sentry.captureException(e, {
+      extra: { author: entry.author, permlink: entry.permlink, where: "EntryPageStaticBody" }
+    });
+  }
+
+  if (html === null) {
+    return (
+      <pre
+        id="post-body"
+        className="entry-body markdown-view user-selectable font-mono bg-gray-100 rounded text-sm !p-4 dark:bg-gray-900 whitespace-pre-wrap break-words"
+      >
+        {entry.body}
+      </pre>
+    );
+  }
+
   return (
     <div
       id="post-body"
       className="entry-body markdown-view user-selectable client"
       style={coverStyle}
-      dangerouslySetInnerHTML={{
-        __html: renderPostBody(entry.body, false, false, "ecency.com", seoContext)
-      }}
+      dangerouslySetInnerHTML={{ __html: html }}
     />
   );
 }
