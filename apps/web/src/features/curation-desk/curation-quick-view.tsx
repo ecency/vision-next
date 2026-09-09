@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import clsx from "clsx";
 import i18next from "i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -67,7 +66,6 @@ interface Props {
   onPrev: () => void;
   onNext: () => void;
   onReviewed: (row: DeskRow) => void;
-  onSkip: () => void;
   onSnooze: (row: DeskRow) => void;
   onFlag: (row: DeskRow) => void;
   onNote: (row: DeskRow) => void;
@@ -155,7 +153,6 @@ export function CurationQuickView({
   onPrev,
   onNext,
   onReviewed,
-  onSkip,
   onSnooze,
   onFlag,
   onNote,
@@ -322,8 +319,13 @@ export function CurationQuickView({
           <Button ref={closeRef as React.Ref<HTMLButtonElement | HTMLAnchorElement>} size="xs" appearance="gray-link" className="!rounded-lg" aria-label={i18next.t("g.close")} onClick={onClose} icon={<UilTimes />} />
         </div>
 
-        <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-[1fr_16rem] overflow-hidden">
-          <div className="overflow-y-auto p-4">
+        {/* One scroller on a phone: the two panes used to be grid rows inside an
+            `overflow-hidden` box, so they split the drawer's height between them
+            and the post was read through a half-height window with the sidebar
+            clipped below it. From lg they are columns again, each scrolling on
+            its own. */}
+        <div className="flex-1 min-h-0 overflow-y-auto lg:grid lg:grid-cols-[1fr_16rem] lg:overflow-hidden">
+          <div className="p-4 lg:min-h-0 lg:overflow-y-auto">
             {isLoading && <div className="animate-pulse h-40 rounded-xl bg-gray-200 dark:bg-dark-default" />}
             {!isLoading && !entry && <p className="text-sm text-gray-500">{i18next.t("curation-desk.quick-view.not-found")}</p>}
             {entry && (
@@ -384,7 +386,7 @@ export function CurationQuickView({
             )}
           </div>
 
-          <aside className="overflow-y-auto border-t lg:border-t-0 lg:border-l border-[--border-color] p-3 text-xs flex flex-col gap-4">
+          <aside className="border-t lg:border-t-0 lg:border-l lg:min-h-0 lg:overflow-y-auto border-[--border-color] p-3 text-xs flex flex-col gap-4">
             <section>
               <h3 className="font-semibold mb-1">{i18next.t("curation-desk.quick-view.author-snapshot")}</h3>
               <ul className="flex flex-col gap-0.5 text-gray-600 dark:text-gray-400">
@@ -521,32 +523,67 @@ export function CurationQuickView({
           </aside>
         </div>
 
-        <div role="toolbar" aria-label={i18next.t("curation-desk.row.actions")} className="flex flex-wrap items-center gap-1 p-2 border-t border-[--border-color] bg-white dark:bg-dark-700">
-          {viewer.isRoster && (
-            <>
-              <Button size="sm" appearance="gray-link" className="!rounded-lg" aria-label={i18next.t("curation-desk.actions.reviewed")} title="r" onClick={() => onReviewed(row)} icon={<UilCheck />}>
+        {/* Sticky, and split into a worded primary pair and a glyph row. On a
+            phone the bar used to be one wrapped line of seven small icon
+            buttons at the bottom of a drawer whose panes were clipped, so the
+            two controls the queue actually runs on, reviewed and next, were the
+            hardest to find. `sticky` because the drawer surface is its own
+            scroller: the bar stays on screen whatever the content does. */}
+        <div
+          role="toolbar"
+          aria-label={i18next.t("curation-desk.row.actions")}
+          className="sticky bottom-0 z-10 flex flex-col gap-1.5 border-t border-[--border-color] bg-white p-2 dark:bg-dark-700 md:flex-row md:flex-wrap md:items-center md:gap-1"
+        >
+          <div className="flex items-center gap-2 md:gap-1">
+            {viewer.isRoster && (
+              <Button
+                size="sm"
+                className="flex-1 !rounded-lg md:flex-none"
+                aria-label={i18next.t("curation-desk.actions.reviewed-key")}
+                title="r"
+                onClick={() => onReviewed(row)}
+                icon={<UilCheck />}
+              >
                 {i18next.t("curation-desk.actions.reviewed")}
               </Button>
-              <Button size="sm" appearance="gray-link" className="!rounded-lg" aria-label={i18next.t("curation-desk.actions.skip")} title="s" onClick={onSkip} icon={<UilArrowRight />}>
-                {i18next.t("curation-desk.actions.skip")}
-              </Button>
-              <Button size="sm" appearance="gray-link" className="!rounded-lg" aria-label={i18next.t("curation-desk.actions.snooze")} title="z" onClick={() => onSnooze(row)} icon={<UilBell />}>
-                {i18next.t("curation-desk.actions.snooze")}
-              </Button>
-              <Button size="sm" appearance="gray-link" className="!rounded-lg" aria-label={i18next.t("curation-desk.actions.flag")} title="f" onClick={() => onFlag(row)} icon={<UilExclamationTriangle />}>
-                {i18next.t("curation-desk.actions.flag")}
-              </Button>
-              <Button size="sm" appearance="gray-link" className="!rounded-lg" aria-label={i18next.t("curation-desk.actions.note")} title="n" onClick={() => onNote(row)} icon={<UilCommentAltNotes />}>
-                {i18next.t("curation-desk.actions.note")}
-              </Button>
-            </>
-          )}
-          {recommendationsEnabled && !recommendClosed && (!isOwn || mine?.is_self) && (
-            <CurationRecommendBtn ref={recommendRef} author={row.author} permlink={row.permlink} alreadyRecommended={!!mine} />
-          )}
-          <Button size="sm" appearance="gray-link" className={clsx("!rounded-lg ml-auto after:!hidden")} href={href} target="_blank" rel="noopener" aria-label={i18next.t("curation-desk.actions.open")} title={i18next.t("curation-desk.actions.open-key")} icon={<UilExternalLinkAlt />}>
-            {i18next.t("curation-desk.actions.open")}
-          </Button>
+            )}
+            {/* Was labelled "Skip", which is the same move down the list but not
+                a phrase a curator looks for when they want the next post. */}
+            <Button
+              size="sm"
+              appearance="secondary"
+              outline
+              className="flex-1 !rounded-lg md:flex-none"
+              aria-label={i18next.t("curation-desk.actions.next-key")}
+              title="j / s"
+              onClick={onNext}
+              icon={<UilArrowRight />}
+            >
+              {i18next.t("curation-desk.actions.next")}
+            </Button>
+          </div>
+
+          <div className="flex flex-1 flex-wrap items-center gap-1">
+            {viewer.isRoster && (
+              <>
+                <Button size="sm" appearance="gray-link" className="!rounded-lg" aria-label={i18next.t("curation-desk.actions.snooze")} title="z" onClick={() => onSnooze(row)} icon={<UilBell />}>
+                  {i18next.t("curation-desk.actions.snooze")}
+                </Button>
+                <Button size="sm" appearance="gray-link" className="!rounded-lg" aria-label={i18next.t("curation-desk.actions.flag")} title="f" onClick={() => onFlag(row)} icon={<UilExclamationTriangle />}>
+                  {i18next.t("curation-desk.actions.flag")}
+                </Button>
+                <Button size="sm" appearance="gray-link" className="!rounded-lg" aria-label={i18next.t("curation-desk.actions.note")} title="n" onClick={() => onNote(row)} icon={<UilCommentAltNotes />}>
+                  {i18next.t("curation-desk.actions.note")}
+                </Button>
+              </>
+            )}
+            {recommendationsEnabled && !recommendClosed && (!isOwn || mine?.is_self) && (
+              <CurationRecommendBtn ref={recommendRef} author={row.author} permlink={row.permlink} alreadyRecommended={!!mine} />
+            )}
+            <Button size="sm" appearance="gray-link" className="!rounded-lg ml-auto after:!hidden" href={href} target="_blank" rel="noopener" aria-label={i18next.t("curation-desk.actions.open")} title={i18next.t("curation-desk.actions.open-key")} icon={<UilExternalLinkAlt />}>
+              {i18next.t("curation-desk.actions.open")}
+            </Button>
+          </div>
         </div>
       </div>
     </ModalSidebar>

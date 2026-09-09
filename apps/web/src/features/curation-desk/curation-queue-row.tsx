@@ -1,6 +1,6 @@
 "use client";
 
-import React, { memo } from "react";
+import React, { memo, useRef } from "react";
 import clsx from "clsx";
 import i18next from "i18next";
 import Link from "next/link";
@@ -8,6 +8,7 @@ import { proxifyImageSrc } from "@ecency/render-helper";
 import { isOnAbuseList } from "@ecency/sdk";
 import {
   UilBell,
+  UilBookOpen,
   UilCheck,
   UilCommentAltNotes,
   UilExclamationTriangle,
@@ -49,6 +50,15 @@ interface Props extends RowActions {
   isTrial: boolean;
   username: string | undefined;
   recommendationsEnabled: boolean;
+  /**
+   * The device's PRIMARY pointer is coarse, so this is a phone or a tablet
+   * rather than a machine with a mouse. Two uses, both device-level on purpose:
+   * it words the Read control (a finger cannot hover the tooltip every other
+   * control here relies on), and it decides a click that arrived with no
+   * pointer information at all. Which branch a real click takes is decided per
+   * interaction, not from here.
+   */
+  coarsePointer: boolean;
   section: RowSection;
   late: boolean;
   resurfaced: boolean;
@@ -175,6 +185,7 @@ export const CurationQueueRow = memo(function CurationQueueRow(props: Props) {
     isTrial,
     username,
     recommendationsEnabled,
+    coarsePointer,
     section,
     late,
     resurfaced,
@@ -207,6 +218,22 @@ export const CurationQueueRow = memo(function CurationQueueRow(props: Props) {
   const title = row.title?.trim() || i18next.t("curation-desk.row.untitled", { author: row.author });
   const href = `/@${row.author}/${row.permlink}`;
   const thumb = row.first_image ? proxifyImageSrc(row.first_image, 200, 0, "match") : null;
+  // Which device made THIS click. A media query cannot answer that: `pointer:
+  // coarse` describes the primary pointer, so on a touchscreen laptop or a
+  // tablet with a mouse attached a finger tap would be read as a mouse click
+  // and open nothing. Recorded on pointerdown rather than read off the click,
+  // because `click` only became a PointerEvent recently in Firefox and Safari
+  // while `pointerdown` has been one since Safari 13.
+  const pointerKind = useRef("");
+  const openThisClick = () => {
+    const kind = pointerKind.current;
+    pointerKind.current = "";
+    // A click from no pointer at all (a script, an old browser that sends no
+    // pointerdown) carries "", which is why this tests the two kinds it wants
+    // instead of "not a mouse".
+    if (kind === "touch" || kind === "pen") return true;
+    return kind === "" && coarsePointer;
+  };
   const collapsed = curated && !isActive;
   const entryStub = { author: row.author, permlink: row.permlink } as unknown as Entry;
 
@@ -218,7 +245,8 @@ export const CurationQueueRow = memo(function CurationQueueRow(props: Props) {
       data-post-id={row.post_id}
       data-section={section}
       tabIndex={isActive ? 0 : -1}
-      onClick={() => onSelect(row)}
+      onPointerDown={(e) => (pointerKind.current = e.pointerType ?? "")}
+      onClick={() => (openThisClick() ? onOpen(row) : onSelect(row))}
       onDoubleClick={() => onOpen(row)}
       className={clsx(
         "group relative flex flex-wrap gap-x-3 gap-y-2 border-b border-[--border-color] px-4 py-4 sm:px-5 outline-none",
@@ -333,6 +361,22 @@ export const CurationQueueRow = memo(function CurationQueueRow(props: Props) {
         )}
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Reading the post is the job, so it is the first control and it says so
+            in words: the drawer used to be reachable only by double clicking the
+            row (nothing a phone sends) or by the vote button. */}
+        <Button
+          size="xs"
+          appearance="gray-link"
+          className="!rounded-lg"
+          aria-label={i18next.t("curation-desk.actions.read-key")}
+          title={i18next.t("curation-desk.actions.read-key")}
+          onClick={() => onOpen(row)}
+          icon={<UilBookOpen />}
+        >
+          {/* Worded on the device that needs it. Every other control here is a
+              glyph with a tooltip, which a finger cannot hover. */}
+          {coarsePointer ? i18next.t("curation-desk.actions.read") : undefined}
+        </Button>
         {!voteHidden && (
           <Button
             size="xs"
