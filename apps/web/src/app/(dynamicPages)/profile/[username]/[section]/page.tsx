@@ -15,7 +15,10 @@ import { cookies } from "next/headers";
 import { ACTIVE_USER_COOKIE_NAME } from "@/consts";
 import { getAccountFullQueryOptions, getSearchApiInfiniteQueryOptions } from "@ecency/sdk";
 import { Metadata, ResolvingMetadata } from "next";
-import { generateProfileMetadata } from "@/app/(dynamicPages)/profile/[username]/_helpers";
+import {
+  generateProfileMetadata,
+  pinnedPermlink
+} from "@/app/(dynamicPages)/profile/[username]/_helpers";
 import { Entry, SearchResult } from "@/entities";
 import type { InfiniteData } from "@tanstack/react-query";
 import type { SearchResponse } from "@ecency/sdk";
@@ -91,11 +94,12 @@ export default async function Page({ params, searchParams }: Props) {
       : prefetchGetPostsFeedQuery(section, `@${username}`)
   ]);
 
-  if (account?.profile.pinned) {
-    await prefetchQuery(EcencyEntriesCacheManagement.getEntryQueryByPath(
-      username,
-      account.profile.pinned
-    ));
+  // Same untrusted read as the profile index — see pinnedPermlink(). This
+  // segment keeps its own loading.tsx, so the throw is still contained here,
+  // but the read is identical and there is no reason to leave one copy raw.
+  const pinned = pinnedPermlink(account?.profile);
+  if (pinned) {
+    await prefetchQuery(EcencyEntriesCacheManagement.getEntryQueryByPath(username, pinned));
   }
 
   const firstPage = searchPages?.pages?.[0] as SearchResponse | undefined;
