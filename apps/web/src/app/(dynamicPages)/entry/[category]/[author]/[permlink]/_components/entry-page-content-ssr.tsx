@@ -29,11 +29,12 @@ export function EntryPageContentSSR({ entry, isRawContent }: Props) {
         <EntryPageWarnings entry={entry} />
         <EntryPageIsCommentHeader entry={entry} />
       </div>
-      {/* Title, byline, meta strip and body share ONE surface: the article is a
-          single object, so the break between headline and first paragraph is a
-          hairline inside the card (see the meta strip's border-y in
-          entry-page-main-info), never a card gap. Separate cards are reserved
-          for what comes after the article — footer, related, comments. */}
+      {/* The article is ONE surface, masthead to colophon: title, byline, meta
+          strip, body, then tags, source and the vote/payout row. It is a single
+          object, so every break inside it is a hairline (see the meta strip's
+          border-y in entry-page-main-info), never a card gap, and the headline
+          is not split from the first paragraph. Separate cards are for what is
+          NOT the post: the newsletter ask, related posts and comments. */}
       <div className="entry-article reading-surface border border-[--border-color] rounded-xl mt-2 lg:mt-4 mb-4 md:mb-6 lg:mb-8">
         <EntryPageMainInfo entry={entry} />
         {/* SSR static body - wrapped with NSFW check */}
