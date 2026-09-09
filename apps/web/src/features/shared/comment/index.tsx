@@ -8,7 +8,7 @@ import { EditorToolbar, toolbarEventListener } from "@/features/shared/editor-to
 import { handleEditorShortcut } from "@/features/shared/editor-toolbar/shortcuts";
 import { TextareaAutocomplete } from "@/features/shared/textarea-autocomplete";
 import { PREFIX } from "@/utils/local-storage";
-import { createReplyPermlink, makeJsonMetaDataReply } from "@/utils";
+import { createReplyPermlink, isBlankBody, makeJsonMetaDataReply } from "@/utils";
 import appPackage from "../../../../package.json";
 import { setProxyBase } from "@ecency/render-helper";
 import { Button } from "@ui/button";
@@ -222,12 +222,13 @@ export function Comment({
 
     // Nothing to broadcast without a body: the chain op requires one, and the
     // SDK builder throws `[SDK][buildCommentOp] Missing required parameters`
-    // straight into a toast if we let an empty composer through. Whitespace is
-    // just as empty here, and would otherwise post a blank reply for real.
-    const canSubmit = !!text?.trim();
+    // straight into a toast if we let an empty composer through. `isBlankBody`
+    // is the shared rule, so this gate and the guards behind it agree on what
+    // counts as blank (whitespace and zero-width characters included).
+    const canSubmit = !isBlankBody(text);
 
     const submit = useCallback(async () => {
-      if (!text?.trim()) {
+      if (isBlankBody(text)) {
         return;
       }
 
@@ -258,7 +259,7 @@ export function Comment({
       // Submit on Cmd/Ctrl+Enter — unless the mention autocomplete dropdown is
       // open (Enter picks a suggestion) or there is nothing to submit yet.
       const autocompleteOpen = !!commentBodyRef.current?.querySelector(".rta__autocomplete");
-      if (!autocompleteOpen && !inProgress && text?.trim()) {
+      if (!autocompleteOpen && !inProgress && !isBlankBody(text)) {
         e.preventDefault();
         submit();
       }

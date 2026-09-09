@@ -14,6 +14,7 @@ import { useGlobalStore } from "@/core/global-store";
 import { PollsContext } from "@/features/polls";
 import { usePublishHandoffWriter } from "@/app/publish/_hooks";
 import { PREFIX } from "@/utils/local-storage";
+import { isBlankBody } from "@/utils";
 import i18next from "i18next";
 import { AvailableCredits, UserAvatar } from "@/features/shared";
 import { arrowLeftSvg } from "@ui/svg";
@@ -65,7 +66,7 @@ export const DeckThreadsForm = ({
   const [lastCreatedThreadItem, setLastCreatedThreadItem] = useState<Entry | undefined>(undefined);
 
   useEffect(() => {
-    setDisabled(!text || !threadHost);
+    setDisabled(isBlankBody(text) || !threadHost);
   }, [text, threadHost]);
 
   useEffect(() => {

@@ -152,16 +152,6 @@ export function useComment(
     ["posts", "comment"],
     username,
     (payload) => {
-      // Validate required fields before calling buildCommentOp
-      const missingFields: string[] = [];
-      if (!payload.author) missingFields.push("author");
-      if (!payload.permlink) missingFields.push("permlink");
-      if (!payload.parentPermlink) missingFields.push("parentPermlink");
-      if (!payload.body) missingFields.push("body");
-      if (missingFields.length > 0) {
-        throw new Error(`[useComment] Missing required payload fields: ${missingFields.join(", ")}`);
-      }
-
       const operations: Operation[] = [];
 
       // Main comment operation

@@ -47,3 +47,4 @@ export * from "./image-file-ext";
 export { default as dayjs } from "./dayjs";
 export * from "./use-synchronized-state";
 export * from "./format-apr";
+export * from "./is-blank-body";
