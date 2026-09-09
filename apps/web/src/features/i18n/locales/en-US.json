@@ -1253,7 +1253,8 @@
     "delete-error-hint": "Could not delete comment. Please try again",
     "retry-hint": "Your text is preserved below - please try again",
     "rc-error-hint": "Insufficient Resource Credits - your text is preserved below",
-    "short-reply-hint": "Replies of {{n}} characters or fewer do not earn points (links do not count)"
+    "short-reply-hint": "Replies of {{n}} characters or fewer do not earn points (links do not count)",
+    "empty-body": "Write something before posting"
   },
   "discussion": {
     "join": "Join the conversation now",

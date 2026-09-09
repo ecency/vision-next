@@ -72,7 +72,12 @@ vi.mock("@ecency/sdk", () => ({
 
 // Inline mock (no importActual) so we don't pull the real utils → consts → sdk
 // chain. Comment only uses `isCommunity` from this module.
-vi.mock("@/utils", () => ({
+vi.mock("@/utils", async () => ({
+  // The real predicate, not a stand-in: the composer's submit gate is exactly
+  // this rule, so a hand-rolled copy here could drift and the gate tests would
+  // stop meaning anything. `is-blank-body` is a leaf module, so importing it
+  // does not pull in the utils -> consts -> sdk chain this mock exists to avoid.
+  ...(await import("@/utils/is-blank-body")),
   isCommunity: (category?: string) => !!category && category.startsWith("hive-"),
   // Same shapes the real helpers produce: the RC estimate reads their length,
   // so a stub of the wrong shape would make the composer's payload meaningless.
@@ -147,6 +152,34 @@ describe("Comment composer", () => {
     const { onSubmit, container } = renderComment();
 
     fireEvent.keyDown(container.querySelector(".comment-body")!, { key: "Enter", metaKey: true });
+
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  test("the submit button does NOT submit an empty composer", () => {
+    const { onSubmit, getByRole } = renderComment();
+
+    fireEvent.click(getByRole("button", { name: "Reply" }));
+
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  test("the submit button does NOT submit whitespace only", () => {
+    const { onSubmit, getByRole } = renderComment();
+
+    type(getByRole, "   \n  ");
+    fireEvent.click(getByRole("button", { name: "Reply" }));
+
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  test("the submit button does NOT submit zero-width characters", () => {
+    // These survive String.trim(), so a trim-only gate would let them through
+    // and broadcast a comment that renders as nothing.
+    const { onSubmit, getByRole } = renderComment();
+
+    type(getByRole, "\u200b\u2060 \u200c");
+    fireEvent.click(getByRole("button", { name: "Reply" }));
 
     expect(onSubmit).not.toHaveBeenCalled();
   });

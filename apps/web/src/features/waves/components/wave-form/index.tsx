@@ -17,7 +17,7 @@ import { useWaveSubmit } from "@/features/waves";
 import axios from "axios";
 import { QUEST_MIN_CONTENT_LENGTH, uploadImage } from "@ecency/sdk";
 import { shouldShowShortContentHint } from "@/utils/short-content-hint";
-import { ensureValidToken } from "@/utils";
+import { ensureValidToken, isBlankBody } from "@/utils";
 import { error } from "@/features/shared";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useActiveAccount } from "@/core/hooks";
@@ -161,7 +161,7 @@ const WaveFormComponent = ({
   const formInteractivityDisabled = isAccountLoading || isPending;
 
   const submitDisabled = useMemo(
-    () => formInteractivityDisabled || !text || !threadHost || (isReply && exceedsCharacterLimit),
+    () => formInteractivityDisabled || isBlankBody(text) || !threadHost || (isReply && exceedsCharacterLimit),
     [exceedsCharacterLimit, formInteractivityDisabled, isReply, text, threadHost]
   );
 
