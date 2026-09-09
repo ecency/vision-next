@@ -243,8 +243,13 @@ describe('account-power utilities', () => {
     })
 
     it('returns 0 for an account that never earned rewards', () => {
-      const fresh = { ...mockAccount, curation_rewards: undefined, posting_rewards: undefined }
+      const fresh = { ...mockAccount, curation_rewards: 0, posting_rewards: 0 }
       expect(rewardsToStakeRatio(fresh)).toBe(0)
+    })
+
+    it('returns null when the row carries no reward counters at all', () => {
+      const unknown = { ...mockAccount, curation_rewards: undefined, posting_rewards: undefined }
+      expect(rewardsToStakeRatio(unknown)).toBeNull()
     })
 
     it('returns null when the whole stake is delegated away', () => {

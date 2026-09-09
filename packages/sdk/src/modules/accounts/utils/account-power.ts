@@ -162,6 +162,13 @@ export function downVotingPower(account: FullAccount): number {
  * climbs during a power-down because the numerator is frozen history.
  */
 export function rewardsToStakeRatio(account: FullAccount): number | null {
+  // A row that carries neither counter is one this SDK version did not fill (a cache
+  // entry dehydrated by an older build, say). Absent counters are unknown, not zero,
+  // and a confident 0.00 is worse than showing nothing.
+  if (account.curation_rewards === undefined && account.posting_rewards === undefined) {
+    return null;
+  }
+
   const rewards = (account.curation_rewards ?? 0) + (account.posting_rewards ?? 0);
   const ownVests =
     parseAsset(account.vesting_shares).amount -
