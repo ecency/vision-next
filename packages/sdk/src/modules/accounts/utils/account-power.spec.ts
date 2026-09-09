@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { powerRechargeTime, votingRshares, votingValue } from './account-power'
+import { powerRechargeTime, rewardsToStakeRatio, votingRshares, votingValue } from './account-power'
 import { FullAccount } from '../types'
 import { DynamicProps } from '@/modules/core/types'
 
@@ -210,6 +210,63 @@ describe('account-power utilities', () => {
       const half = votingRshares(mockAccount, stableProps, 100, 5000)
       expect(half).toBeLessThan(full)
       expect(half).toBeGreaterThan(0)
+    })
+  })
+
+  describe('rewardsToStakeRatio', () => {
+    // Shape taken from a real curation-heavy account: most of the numerator is
+    // curation earned by voting with stake other people delegated in.
+    const mockAccount: FullAccount = {
+      name: 'testuser',
+      vesting_shares: '167349556.274622 VESTS',
+      delegated_vesting_shares: '61880230.389936 VESTS',
+      received_vesting_shares: '4072866315.676890 VESTS',
+      curation_rewards: 749940999,
+      posting_rewards: 44803179
+    } as FullAccount
+
+    it('divides lifetime rewards by undelegated own stake', () => {
+      expect(rewardsToStakeRatio(mockAccount)).toBeCloseTo(7.54, 2)
+    })
+
+    it('ignores stake delegated to the account', () => {
+      const withoutIncoming = { ...mockAccount, received_vesting_shares: '0.000000 VESTS' }
+      expect(rewardsToStakeRatio(withoutIncoming)).toBe(rewardsToStakeRatio(mockAccount))
+    })
+
+    it('rises as own stake is delegated away', () => {
+      const moreDelegated = {
+        ...mockAccount,
+        delegated_vesting_shares: '120000000.000000 VESTS'
+      }
+      expect(rewardsToStakeRatio(moreDelegated)!).toBeGreaterThan(rewardsToStakeRatio(mockAccount)!)
+    })
+
+    it('returns 0 for an account that never earned rewards', () => {
+      const fresh = { ...mockAccount, curation_rewards: undefined, posting_rewards: undefined }
+      expect(rewardsToStakeRatio(fresh)).toBe(0)
+    })
+
+    it('returns null when the whole stake is delegated away', () => {
+      const emptied = {
+        ...mockAccount,
+        delegated_vesting_shares: mockAccount.vesting_shares
+      }
+      expect(rewardsToStakeRatio(emptied)).toBeNull()
+    })
+
+    it('returns null for an unparseable stake', () => {
+      const broken = {
+        ...mockAccount,
+        vesting_shares: 'not-an-asset',
+        delegated_vesting_shares: '0.000000 VESTS'
+      } as FullAccount
+      expect(rewardsToStakeRatio(broken)).toBeNull()
+    })
+
+    it('returns null when a node serves a non-numeric reward counter', () => {
+      const broken = { ...mockAccount, curation_rewards: Number.NaN }
+      expect(rewardsToStakeRatio(broken)).toBeNull()
     })
   })
 })

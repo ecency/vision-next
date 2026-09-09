@@ -34,6 +34,13 @@ export interface FullAccount {
   vesting_withdraw_rate: string;
   to_withdraw: string;
   withdrawn: string;
+  /** Cumulative VESTS ever paid out as curation rewards. Optional: not every
+   *  node/API path serving an account row carries it. */
+  curation_rewards?: number;
+  /** Cumulative VESTS ever paid out as author rewards. Only the vested half of a
+   *  payout lands here, the liquid HBD half is not represented. Optional for the
+   *  same reason as `curation_rewards`. */
+  posting_rewards?: number;
   witness_votes: string[];
   proxy: string;
   recovery_account: string;
