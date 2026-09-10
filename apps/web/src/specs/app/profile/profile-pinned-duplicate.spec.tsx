@@ -3,6 +3,7 @@ import { render } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { describe, expect, it, vi } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { cardDomId } from "@/features/shared/entry-list-item/card-dom-id";
 import type { Entry, FullAccount } from "@/entities";
 import { mockEntry, mockFullAccount } from "@/specs/test-utils";
 
@@ -160,8 +161,10 @@ async function renderedCardIds(firstPage: Entry[]) {
     <QueryClientProvider client={queryClient}>{element}</QueryClientProvider>
   );
 
+  // The card's own id, on its root. It used to be read off `.author-part`,
+  // which carried a duplicate of it until #1806 moved it to one place.
   return Array.from(container.querySelectorAll(".entry-list-item")).map((card) =>
-    card.querySelector(".author-part")?.getAttribute("id")
+    card.getAttribute("id")
   );
 }
 
@@ -172,7 +175,7 @@ describe("profile pinned post is not rendered twice", () => {
     const ids = await renderedCardIds([other("first"), pinnedCrossPost, other("second")]);
 
     // Pinned card first, then the feed WITHOUT the cross-post that renders it.
-    expect(ids).toEqual(["alice-haciendo-anillo-engastado-de-onix", "alice-first", "alice-second"]);
+    expect(ids).toEqual([cardDomId({ author: "alice", permlink: "haciendo-anillo-engastado-de-onix" }), cardDomId({ author: "alice", permlink: "first" }), cardDomId({ author: "alice", permlink: "second" })]);
   });
 
   // Anti-vacuity: the same fixture with a plain (non cross-post) row proves the
@@ -183,7 +186,7 @@ describe("profile pinned post is not rendered twice", () => {
 
     const ids = await renderedCardIds([other("first"), pinnedEntry, other("second")]);
 
-    expect(ids).toEqual(["alice-haciendo-anillo-engastado-de-onix", "alice-first", "alice-second"]);
+    expect(ids).toEqual([cardDomId({ author: "alice", permlink: "haciendo-anillo-engastado-de-onix" }), cardDomId({ author: "alice", permlink: "first" }), cardDomId({ author: "alice", permlink: "second" })]);
   });
 
   it("renders every unrelated row", async () => {
@@ -191,7 +194,7 @@ describe("profile pinned post is not rendered twice", () => {
 
     const ids = await renderedCardIds([other("first"), other("second")]);
 
-    expect(ids).toEqual(["alice-haciendo-anillo-engastado-de-onix", "alice-first", "alice-second"]);
+    expect(ids).toEqual([cardDomId({ author: "alice", permlink: "haciendo-anillo-engastado-de-onix" }), cardDomId({ author: "alice", permlink: "first" }), cardDomId({ author: "alice", permlink: "second" })]);
   });
 
   // Filtering without rendering a replacement is how a post disappears from a
@@ -201,7 +204,14 @@ describe("profile pinned post is not rendered twice", () => {
 
     const ids = await renderedCardIds([other("first"), pinnedCrossPost, other("second")]);
 
-    expect(ids).toEqual(["alice-first", "alice-haciendo-anillo-engastado-de-onix", "alice-second"]);
+    // The middle row is the CROSS-POST, so its id names the cross-post itself,
+    // not the post it wraps (#1806: one card, one id, taken from the card's own
+    // post — a feed can legitimately carry both).
+    expect(ids).toEqual([
+      cardDomId({ author: "alice", permlink: "first" }),
+      cardDomId({ author: "alice", permlink: `${PINNED_PERMLINK}-hive-148441` }),
+      cardDomId({ author: "alice", permlink: "second" })
+    ]);
   });
 });
 
