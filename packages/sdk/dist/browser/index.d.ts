@@ -10433,10 +10433,14 @@ interface CurationSignals {
 }
 interface CurationFlags {
     low_rep?: boolean;
+    /** The author's reputation has gone negative, which is not the same line as low_rep. */
+    negative_rep?: boolean;
     ignorelist?: boolean;
     abuser?: boolean;
     spaminator?: boolean;
     blocked_tag?: boolean;
+    /** The post carries Hive's own `nsfw` tag. */
+    nsfw?: boolean;
     patch_body?: boolean;
     deleted?: boolean;
     hivewatchers_downvote?: boolean;
@@ -10815,7 +10819,13 @@ interface CurationDismissRecoResponse {
  * desk displays, never a verdict and never an input to indexability.
  */
 declare function isOnAbuseList(flags: CurationFlags | null | undefined): boolean;
-/** Any flag that keeps a row out of the public queue. */
+/**
+ * Any flag that keeps a row out of the public queue. `low_rep` is deliberately
+ * absent: it is the one excluded reason every view still lists with a chip,
+ * because 25 is the reputation a brand new account has. `negative_rep` is the
+ * separate line for a reputation that has gone negative, and that one does
+ * remove the row.
+ */
 declare function isExcludedByFlags(flags: CurationFlags | null | undefined): boolean;
 
 /**

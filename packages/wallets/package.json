@@ -1,7 +1,7 @@
 {
   "name": "@ecency/wallets",
   "private": false,
-  "version": "6.0.7",
+  "version": "6.0.8",
   "description": "Ecency wallets",
   "repository": {
     "type": "git",
