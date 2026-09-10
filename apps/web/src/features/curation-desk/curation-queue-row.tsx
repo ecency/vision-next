@@ -1,12 +1,13 @@
 "use client";
 
-import React, { memo, useRef } from "react";
+import React, { memo, useRef, useState } from "react";
 import clsx from "clsx";
 import i18next from "i18next";
 import Link from "next/link";
 import { proxifyImageSrc } from "@ecency/render-helper";
 import { isOnAbuseList } from "@ecency/sdk";
-import { UilExclamationTriangle, UilGlobe } from "@tooni/iconscout-unicons-react";
+import { UilEye, UilExclamationTriangle, UilGlobe } from "@tooni/iconscout-unicons-react";
+import { useGlobalStore } from "@/core/global-store";
 import { UserAvatar } from "@/features/shared/user-avatar";
 import { ProfilePopover } from "@/features/shared/profile-popover";
 import { TimeLabel } from "@/features/shared/time-label";
@@ -18,6 +19,7 @@ import { CurationMarkBadges } from "./curation-mark-badges";
 import { CurationRowActions } from "./curation-row-actions";
 import { CurationWindowBadge } from "./curation-window-badge";
 import { useCurationTicker } from "./curation-ticker";
+import { rowNeedsNsfwCover } from "./curation-row-nsfw";
 import { parseChainDate } from "./curation-window";
 import type { DeskRow, RowSection, WindowState } from "./types";
 
@@ -207,6 +209,9 @@ export const CurationQueueRow = memo(function CurationQueueRow(props: Props) {
   const title = row.title?.trim() || i18next.t("curation-desk.row.untitled", { author: row.author });
   const href = `/@${row.author}/${row.permlink}`;
   const thumb = row.first_image ? proxifyImageSrc(row.first_image, 200, 0, "match") : null;
+  const [revealed, setRevealed] = useState(false);
+  const globalNsfw = useGlobalStore((s) => s.nsfw);
+  const covered = !revealed && !globalNsfw && rowNeedsNsfwCover(row);
   // Which device made THIS click. A media query cannot answer that: `pointer:
   // coarse` describes the primary pointer, so on a touchscreen laptop or a
   // tablet with a mouse attached a finger tap would be read as a mouse click
@@ -278,7 +283,31 @@ export const CurationQueueRow = memo(function CurationQueueRow(props: Props) {
           )}
         >
           {thumb && (
-            <img src={thumb} alt="" loading="lazy" decoding="async" className="size-full object-cover" />
+            <img
+              src={thumb}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              className={clsx("size-full object-cover", covered && "blur-md scale-125")}
+            />
+          )}
+          {/* Covering, not removing: the score is a signal and a classifier fires on figure
+              drawing, medical posts and swimwear, so a wrong call costs the curator one
+              click rather than costing the author their curation. A curator who has turned
+              NSFW on globally is not second-guessed. */}
+          {thumb && covered && (
+            <button
+              type="button"
+              aria-label={i18next.t("curation-desk.row.reveal-nsfw")}
+              title={i18next.t("curation-desk.row.reveal-nsfw")}
+              onClick={(e) => {
+                e.stopPropagation();
+                setRevealed(true);
+              }}
+              className="absolute inset-0 flex items-center justify-center bg-black/45 text-white"
+            >
+              <UilEye className="size-4" aria-hidden />
+            </button>
           )}
           {/* Source reads before the text does. From sm up the box renders even without
               a cover image, so an image-less Ecency post keeps the mark; the byline
