@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.4.9
+
+### Patch Changes
+
+- Cover a curation thumbnail the detector calls explicit (#1827)
+
 ## 2.4.8
 
 ### Patch Changes

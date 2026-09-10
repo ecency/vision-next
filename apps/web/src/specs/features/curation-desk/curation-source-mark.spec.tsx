@@ -124,3 +124,40 @@ describe("Chip blue tone", () => {
     expect(cls).not.toContain("dark:text-blue-dark-sky-active");
   });
 });
+
+describe("the source mark while a thumbnail is covered", () => {
+  // Reported by review on #1827. The mark is painted AFTER the reveal overlay, so it used
+  // to intercept taps in its own 20px corner. Those taps did not merely miss the reveal:
+  // with no handler of their own they reached the article, which OPENS the post and shows
+  // the image full size, the exact opposite of what covering it is for.
+  //
+  // jsdom does no hit testing, so no click here can reproduce the original bug. This pins
+  // the mechanism that fixes it instead, and says so rather than implying more.
+  it("stops intercepting taps, and stays visible", () => {
+    const row = makeRow({
+      post_id: 4242,
+      first_image: "https://images.ecency.com/p/cover.png",
+      tags: ["photography", "nsfw"],
+      is_ecency: true,
+    });
+    renderRow(row);
+    const mark = onThumbnail()[0];
+    expect(mark, "the thumbnail still carries its source mark").toBeTruthy();
+    const pill = mark.closest("span.absolute");
+    expect(pill).toBeTruthy();
+    expect(pill!.className).toContain("pointer-events-none");
+  });
+
+  it("keeps its taps on an ordinary row", () => {
+    const row = makeRow({
+      post_id: 4243,
+      first_image: "https://images.ecency.com/p/cover.png",
+      tags: ["photography"],
+      is_ecency: true,
+    });
+    renderRow(row);
+    const pill = onThumbnail()[0]?.closest("span.absolute");
+    expect(pill).toBeTruthy();
+    expect(pill!.className).not.toContain("pointer-events-none");
+  });
+});

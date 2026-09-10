@@ -4527,6 +4527,7 @@
       "paid-tooltip": "Paid out. Votes no longer earn curation."
     },
     "row": {
+      "reveal-nsfw": "Possibly explicit. Click to reveal",
       "untitled": "@{{author}}'s post",
       "describe": "By @{{author}}, {{words}} words, curation window {{window}}",
       "rep": "rep {{rep}}",
