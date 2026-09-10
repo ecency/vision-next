@@ -4587,8 +4587,10 @@
       "deleted": "deleted post",
       "abuser": "author on the abuse list",
       "ignorelist": "author on the ignore list",
+      "nsfw": "tagged NSFW",
       "blocked_tag": "blocked tag",
       "patch_body": "body could not be read",
+      "rep_negative": "negative reputation",
       "rep_low": "reputation below the floor"
     },
     "flag-reasons": {

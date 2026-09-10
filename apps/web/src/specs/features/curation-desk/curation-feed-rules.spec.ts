@@ -57,4 +57,17 @@ describe("rowHiddenByFeed", () => {
     expect(rowHiddenByFeed(open(), { view: "excluded" })).toBe(true);
     expect(rowHiddenByFeed(makeRow({ post_id: 3, state: 1, overlay: makeOverlay({ team_mark: "reviewed" }) }), { view: "curated" })).toBe(true);
   });
+
+  it("drops an nsfw or negative-reputation row live, the way the server stopped serving it", () => {
+    // Both are excluded reasons the desk derives itself and neither is in the
+    // public allow list, so the tick delta that carries one is what takes the
+    // row off an open desk without waiting for a refetch. rep_low is the only
+    // reason that stays, which is why this is a mirror and not a boolean.
+    for (const reason of ["nsfw", "rep_negative"]) {
+      const row = open(null, { excluded_reason: reason });
+      expect(rowHiddenByFeed(row, {})).toBe(true);
+      expect(rowHiddenByFeed(row, { view: "all" })).toBe(true);
+      expect(rowHiddenByFeed(row, { view: "excluded" })).toBe(false);
+    }
+  });
 });

@@ -157,10 +157,14 @@ export interface CurationSignals {
 
 export interface CurationFlags {
   low_rep?: boolean;
+  /** The author's reputation has gone negative, which is not the same line as low_rep. */
+  negative_rep?: boolean;
   ignorelist?: boolean;
   abuser?: boolean;
   spaminator?: boolean;
   blocked_tag?: boolean;
+  /** The post carries Hive's own `nsfw` tag. */
+  nsfw?: boolean;
   patch_body?: boolean;
   deleted?: boolean;
   hivewatchers_downvote?: boolean;
