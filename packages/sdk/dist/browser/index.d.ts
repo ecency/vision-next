@@ -10429,6 +10429,18 @@ interface CurationSignals {
         feature?: string;
         sample?: number;
     } | null;
+    /**
+     * The detector's read of the post's FIRST image, which is the one rendered as the
+     * thumbnail. `over` is the only field to act on; `score` and `classes` are for tuning.
+     * A null score means unknown (no image, or the check could not run), never "clean".
+     */
+    nsfw?: {
+        score?: number | null;
+        class?: string | null;
+        over?: boolean;
+        classes?: string[];
+        note?: string;
+    } | null;
     [key: string]: unknown;
 }
 interface CurationFlags {
