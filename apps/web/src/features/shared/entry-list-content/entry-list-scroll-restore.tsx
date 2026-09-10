@@ -24,6 +24,13 @@ const STORAGE_KEY = "ecency:entry-list-anchor";
 /** Long enough for reading a post and coming back, short enough not to surprise. */
 const MAX_AGE_MS = 30 * 60 * 1000;
 
+/**
+ * How long to keep watching for the card after the list mounts. Past this the
+ * reader has been looking at the top of the feed for long enough that yanking
+ * them somewhere else is worse than not restoring at all.
+ */
+const RESTORE_WINDOW_MS = 3000;
+
 interface Anchor {
   url: string;
   id: string;
@@ -91,11 +98,26 @@ export function EntryListScrollRestore() {
       return;
     }
 
-    // The cards ship in the SSR shell, so the element is normally there on the
-    // first pass. A client navigation that arrives before the list has painted
-    // gets one retry rather than a polling loop.
-    const retry = setTimeout(scrollToAnchor, 500);
-    return () => clearTimeout(retry);
+    // The card is normally in the SSR shell already, so the line above wins. It
+    // does not when the list arrives with hydration, or when a slow page pushes
+    // the card in later — so watch for it instead of taking one timed guess and
+    // giving up. Bounded: the observer stops at the first match or at the
+    // deadline, whichever comes first, and a card on a page the reader has not
+    // loaded yet never appears at all.
+    const observer = new MutationObserver(() => {
+      if (scrollToAnchor()) {
+        observer.disconnect();
+        clearTimeout(deadline);
+      }
+    });
+
+    const deadline = setTimeout(() => observer.disconnect(), RESTORE_WINDOW_MS);
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    return () => {
+      observer.disconnect();
+      clearTimeout(deadline);
+    };
   }, []);
 
   return null;

@@ -31,6 +31,7 @@ import { EntryListItemNsfwContent } from "@/features/shared/entry-list-item/entr
 import { EntryListItemClientInit } from "@/features/shared/entry-list-item/entry-list-item-client-init";
 import { EntryListItemPollIcon } from "@/features/shared/entry-list-item/entry-list-item-poll-icon";
 import { HydrateOnVisible } from "@/features/shared/hydrate-on-visible";
+import { cardDomId } from "@/features/shared/entry-list-item/card-dom-id";
 import { TranslateChip } from "@/features/shared/entry-translate/translate-chip";
 import { UilComment } from "@tooni/iconscout-unicons-react";
 
@@ -80,19 +81,13 @@ export function EntryListItemComponent({
         "promoted-item": promoted,
         [filter ?? ""]: !!filter
       })}
-      // The card's own post, NOT `entry` — that resolves to `original_entry` for a
-      // cross-post, so a feed carrying both a cross-post and the post it wraps
-      // would stamp the same id on two cards. `entryProp` is one card, one post.
-      // Digits intact: `(author + permlink).replace(/[0-9]/g, "")` used to strip
-      // them, which collapsed `ecency-mobile-3-5-9` and `-3-5-8` onto one id.
-      // Nothing reads this today; it is kept because author+permlink is the only
-      // stable per-card handle there is, and restoring a feed position by element
-      // is sturdier than by pixel offset once content shifts above it.
-      id={`${entryProp.author}-${entryProp.permlink}`}
+      // The card's own post, NOT `entry` — that resolves to `original_entry` for
+      // a cross-post, so a feed carrying both would stamp one id on two cards.
+      id={cardDomId(entryProp)}
       // The post a cross-post wraps, kept out of the id (which has to stay one
       // card, one value) but available to anything that needs to reason about
       // the pair — a feed can legitimately carry both.
-      data-original-entry={isCrossPost ? `${entry.author}-${entry.permlink}` : undefined}
+      data-original-entry={isCrossPost ? cardDomId(entry) : undefined}
       onFocusCapture={() => setActionsFocused(true)}
     >
       <EntryListItemClientInit />

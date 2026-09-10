@@ -1,5 +1,5 @@
 import React from "react";
-import { fireEvent, render } from "@testing-library/react";
+import { fireEvent, render, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { EntryListScrollRestore } from "@/features/shared/entry-list-content/entry-list-scroll-restore";
@@ -98,8 +98,7 @@ describe("EntryListScrollRestore", () => {
     expect(scrollIntoView).not.toHaveBeenCalled();
   });
 
-  it("retries once for a card that has not painted yet", () => {
-    vi.useFakeTimers();
+  it("keeps watching for a card that paints later, not one timed guess", async () => {
     sessionStorage.setItem(
       STORAGE_KEY,
       JSON.stringify({ url: "/trending", id: "late-card", at: Date.now() })
@@ -108,12 +107,31 @@ describe("EntryListScrollRestore", () => {
     const { container } = renderList("/trending", ["alice-one"]);
     expect(scrollIntoView).not.toHaveBeenCalled();
 
+    // Well past any fixed retry a first version of this might have used.
+    await new Promise((resolve) => setTimeout(resolve, 700));
     const late = document.createElement("div");
     late.id = "late-card";
     container.appendChild(late);
-    vi.advanceTimersByTime(500);
 
-    expect(scrollIntoView).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(scrollIntoView).toHaveBeenCalledTimes(1));
+  });
+
+  it("gives up rather than yanking the reader after the window closes", () => {
+    vi.useFakeTimers();
+    sessionStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ url: "/trending", id: "very-late", at: Date.now() })
+    );
+
+    const { container } = renderList("/trending", ["alice-one"]);
+    vi.advanceTimersByTime(3001);
+
+    const late = document.createElement("div");
+    late.id = "very-late";
+    container.appendChild(late);
+    vi.advanceTimersByTime(1000);
+
+    expect(scrollIntoView).not.toHaveBeenCalled();
   });
 
   it("survives storage being unavailable", () => {
