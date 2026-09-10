@@ -1,28 +1,93 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import clsx from "clsx";
 import i18next from "i18next";
 import { proxifyImageSrc } from "@ecency/render-helper";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import {
+  getCurationPostQueryOptions,
   getCurationRecommendationsInfiniteQueryOptions,
+  type CurationFlagReason,
+  type CurationMyMark,
   type CurationRecommendationItem,
   type CurationRecommendationsSort,
 } from "@ecency/sdk";
 import { Button } from "@ui/button";
+import { UilEyeSlash } from "@tooni/iconscout-unicons-react";
 import { EcencyConfigManager } from "@/config";
-import { error as errorToast } from "@/features/shared/feedback";
+import { error as errorToast, success as successToast } from "@/features/shared/feedback";
 import { formatError } from "@/api/format-error";
 import { useBottomPagination } from "@/core/hooks/use-bottom-pagination";
 import { DetectBottom } from "@/features/shared/detect-bottom";
 import { UserAvatar } from "@/features/shared/user-avatar";
 import { dateToRelative } from "@/utils";
 import { Chip } from "./curation-chip";
+import { FlagDialog, NoteDialog, SnoozeDialog } from "./curation-action-dialogs";
 import { RecommendBadge } from "./curation-mark-badges";
+import { CurationQuickView } from "./curation-quick-view";
 import { RecommenderChip } from "./curation-recommender";
-import { CurationRecommendBtn } from "./curation-recommend-btn";
-import { useCurationDismissReco, useViewerRole } from "./hooks";
+import { type CurationRecommendHandle } from "./curation-recommend-btn";
+import { CurationRowActions } from "./curation-row-actions";
+import { useCurationTicker } from "./curation-ticker";
+import { CurationWindowBadge } from "./curation-window-badge";
+import { computeWindow } from "./curation-window";
+import {
+  useClearMark,
+  useCoarsePointer,
+  useCurationDismissReco,
+  useCurationMark,
+  useMyMarks,
+  useViewerRole,
+} from "./hooks";
+import type { DeskRow, ViewerRole } from "./types";
+
+/** Route 4 items carry no post_id, so the pair is the identity here. */
+const keyOf = (post: { author: string; permlink: string }) => `${post.author}/${post.permlink}`;
+
+/** Everything the mark and vote actions need to address a post. */
+type PostRef = Pick<DeskRow, "author" | "permlink" | "title">;
+
+/**
+ * The drawer takes a desk row and route 4 answers a much thinner item, so it
+ * opens on this stub and route 5 fills the rest in (rep, words, community,
+ * payout) as soon as it answers. post_id is the one field with no answer at
+ * all: the recommendations route does not carry it, and nothing reached from
+ * here needs it, since a mark is addressed by author and permlink.
+ */
+function stubRow(item: CurationRecommendationItem): DeskRow {
+  return {
+    post_id: 0,
+    author: item.author,
+    permlink: item.permlink,
+    title: item.title,
+    created: item.created,
+    app: null,
+    is_ecency: false,
+    community: null,
+    community_title: null,
+    tags: [],
+    rep: null,
+    is_new_author: false,
+    author_post_count: null,
+    word_count: null,
+    image_count: 0,
+    first_image: item.first_image ?? null,
+    summary: null,
+    edited_at: null,
+    edit_count: 0,
+    votes: null,
+    pending_payout: null,
+    payout_at: null,
+    state: 0,
+    trailed_by: null,
+    voted_by: [],
+    author_trailed_at: null,
+    recommend_count: item.recommend_count,
+    unique_recommenders: item.unique_recommenders,
+    reco_no_meta_count: item.no_meta_count,
+  };
+}
 
 function reasonsTooltip(item: CurationRecommendationItem): string {
   return Object.entries(item.reasons ?? {})
@@ -31,15 +96,58 @@ function reasonsTooltip(item: CurationRecommendationItem): string {
     .join(", ");
 }
 
-function RecommendationRow({ item, canDismiss, isRoster, username, recommendationsEnabled }: { item: CurationRecommendationItem; canDismiss: boolean; isRoster: boolean; username: string | undefined; recommendationsEnabled: boolean }) {
+interface RowProps {
+  item: CurationRecommendationItem;
+  canDismiss: boolean;
+  isRoster: boolean;
+  isTrial: boolean;
+  username: string | undefined;
+  recommendationsEnabled: boolean;
+  coarsePointer: boolean;
+  /** This viewer's own mark on the post, all route 4 can know about marks. */
+  myMark: CurationMyMark | undefined;
+  onOpen: (item: CurationRecommendationItem) => void;
+  onVote: (item: CurationRecommendationItem) => void;
+  onReviewed: (post: PostRef) => void;
+  onClearMark: (post: PostRef) => void;
+  onSnooze: (post: PostRef) => void;
+  onFlag: (post: PostRef) => void;
+  onNote: (post: PostRef) => void;
+}
+
+function RecommendationRow({
+  item,
+  canDismiss,
+  isRoster,
+  isTrial,
+  username,
+  recommendationsEnabled,
+  coarsePointer,
+  myMark,
+  onOpen,
+  onVote,
+  onReviewed,
+  onClearMark,
+  onSnooze,
+  onFlag,
+  onNote,
+}: RowProps) {
   const dismiss = useCurationDismissReco();
   const mine = item.recommenders.some((r) => r.username === username);
   // Same cover the queue row draws, from the same column, at the same proxy
   // width. Nothing is rendered without one: an empty grey box would only push
   // the title over.
   const thumb = item.first_image ? proxifyImageSrc(item.first_image, 200, 0, "match") : null;
+  // Route 4 carries no payout_at, so the window is read from `created` alone:
+  // it lists open posts, whose payout is seven days after that. Subscribed
+  // here rather than in the view, the way the badge does it, so the 60 s tick
+  // re-renders one row.
+  const now = useCurationTicker();
+  const windowState = computeWindow(item.created, null, now);
+  const locked = windowState.kind === "locked";
+
   return (
-    <li className="flex items-start gap-3 px-3 py-2 text-sm">
+    <li className="flex flex-wrap items-start gap-x-3 gap-y-2 px-3 py-2 text-sm">
       {thumb && (
         <a
           href={`/@${item.author}/${item.permlink}`}
@@ -58,6 +166,9 @@ function RecommendationRow({ item, canDismiss, isRoster, username, recommendatio
           <UserAvatar username={item.author} size="xsmall" className="size-4 rounded-full" />
           <span>@{item.author}</span>
           <span>{dateToRelative(item.created)}</span>
+          {/* The list is a place to vote from now, so it says what a vote here
+              would still earn. */}
+          <CurationWindowBadge created={item.created} payoutAt={null} />
           <span title={reasonsTooltip(item)}>
             <RecommendBadge
               count={item.recommend_count}
@@ -67,6 +178,16 @@ function RecommendationRow({ item, canDismiss, isRoster, username, recommendatio
               showCollapse={isRoster}
             />
           </span>
+          {/* The team overlay is not on this route; the viewer's own mark is,
+              through their marks list, and it is the one this row can clear. */}
+          {myMark && (
+            <Chip
+              tone={myMark.state === "flagged" ? "red" : myMark.state === "snoozed" ? "amber" : "gray"}
+              title={i18next.t("curation-desk.marks.your-mark")}
+            >
+              {i18next.t(`curation-desk.mark-states.${myMark.state}`)}
+            </Chip>
+          )}
         </div>
         <ul className="flex flex-wrap gap-1 mt-1 text-[11px] text-gray-500">
           {item.recommenders.slice(0, 6).map((r) => (
@@ -78,10 +199,35 @@ function RecommendationRow({ item, canDismiss, isRoster, username, recommendatio
           ))}
         </ul>
       </div>
-      <div className="flex flex-col items-end gap-1">
-        {recommendationsEnabled && username !== item.author && (
-          <CurationRecommendBtn author={item.author} permlink={item.permlink} alreadyRecommended={mine} compact />
-        )}
+      <CurationRowActions
+        author={item.author}
+        permlink={item.permlink}
+        isRoster={isRoster}
+        isTrial={isTrial}
+        recommendationsEnabled={recommendationsEnabled}
+        coarsePointer={coarsePointer}
+        marked={!!myMark}
+        voteHidden={locked && windowState.voteHidden}
+        voteDimmed={locked}
+        voteTitle={
+          locked
+            ? i18next.t("curation-desk.window.locked-tooltip", { pct: windowState.scalePct })
+            : i18next.t("curation-desk.actions.vote-key")
+        }
+        recommendHidden={locked || username === item.author}
+        alreadyRecommended={mine}
+        href={`/@${item.author}/${item.permlink}`}
+        // Below lg the controls take their own line under the post, the way
+        // the queue row lays them out.
+        className="lg:w-auto lg:self-start"
+        onOpen={() => onOpen(item)}
+        onVote={() => onVote(item)}
+        onReviewed={() => onReviewed(item)}
+        onClearMark={() => onClearMark(item)}
+        onSnooze={() => onSnooze(item)}
+        onFlag={() => onFlag(item)}
+        onNote={() => onNote(item)}
+      >
         {canDismiss && (
           <Button
             size="xs"
@@ -89,27 +235,40 @@ function RecommendationRow({ item, canDismiss, isRoster, username, recommendatio
             className="!rounded-lg"
             disabled={dismiss.isPending}
             aria-label={i18next.t("curation-desk.reco.dismiss")}
+            title={i18next.t("curation-desk.reco.dismiss")}
             onClick={() =>
               dismiss.mutate(
                 { author: item.author, permlink: item.permlink, action: "dismiss" },
                 { onError: (e) => errorToast(...formatError(e)) }
               )
             }
+            icon={<UilEyeSlash />}
           >
-            {i18next.t("curation-desk.reco.dismiss")}
+            {coarsePointer ? i18next.t("curation-desk.reco.dismiss") : undefined}
           </Button>
         )}
-      </div>
+      </CurationRowActions>
     </li>
   );
 }
 
-/** Public list of open posts with active recommendations (route 4). */
+type Dialog =
+  | { kind: "none" }
+  | { kind: "snooze"; post: PostRef }
+  | { kind: "flag"; post: PostRef }
+  | { kind: "note"; post: PostRef };
+
+/**
+ * Public list of open posts with active recommendations (route 4), with the
+ * desk's row actions on every row: the queue is not the only place a curator
+ * reads and handles a post, and this list is where the network points them.
+ */
 export function CurationRecommendationsView() {
-  const viewer = useViewerRole();
+  const viewer: ViewerRole = useViewerRole();
   const recommendationsEnabled = EcencyConfigManager.useConfig(
     ({ visionFeatures }) => visionFeatures.curationDesk.recommendations.enabled
   );
+  const coarsePointer = useCoarsePointer();
   const [sort, setSort] = useState<CurationRecommendationsSort>("unique");
   // The public list is part of what the sub-flag turns off, so a disabled
   // build asks for nothing.
@@ -125,6 +284,112 @@ export function CurationRecommendationsView() {
     isFetching: query.isFetching,
     fetchNextPage: query.fetchNextPage,
   });
+
+  // Marks are per curator and route 4 carries no overlay, so what this tab can
+  // say is what the viewer themselves marked. The mark mutations invalidate
+  // this list, which is what moves a row's badge after an action here.
+  const myMarks = useMyMarks(undefined, viewer.isRoster);
+  const marks = useMemo(() => {
+    const byPost = new Map<string, CurationMyMark>();
+    for (const page of myMarks.data?.pages ?? []) for (const mark of page.items) byPost.set(keyOf(mark), mark);
+    return byPost;
+  }, [myMarks.data]);
+
+  const [openKey, setOpenKey] = useState<string | null>(null);
+  const [voteOnOpen, setVoteOnOpen] = useState(false);
+  const [dialog, setDialog] = useState<Dialog>({ kind: "none" });
+  const recommendRef = useRef<CurationRecommendHandle | null>(null);
+
+  // The drawer follows the loaded list: a post that leaves it (a dismissal, a
+  // reordering page) has nothing left to show, so the drawer closes with it.
+  const openIndex = openKey ? items.findIndex((item) => keyOf(item) === openKey) : -1;
+  const openItem = openIndex >= 0 ? items[openIndex] : null;
+  // The drawer reads route 5 for the recommender list under the same key, so
+  // this upgrade costs no second request.
+  const { data: post } = useQuery({
+    ...getCurationPostQueryOptions(openItem?.author ?? "", openItem?.permlink ?? ""),
+    enabled: !!openItem,
+  });
+  const drawerRow = useMemo<DeskRow | null>(() => {
+    if (!openItem) return null;
+    const stub = stubRow(openItem);
+    return post && keyOf(post) === keyOf(openItem) ? { ...stub, ...post } : stub;
+  }, [openItem, post]);
+  const neighbour = useMemo(() => {
+    const next = openIndex >= 0 ? items[openIndex + 1] : undefined;
+    return next ? stubRow(next) : null;
+  }, [items, openIndex]);
+
+  const move = useCallback(
+    (delta: number) => {
+      if (openIndex < 0) return;
+      const next = items[openIndex + delta];
+      if (next) setOpenKey(keyOf(next));
+    },
+    [items, openIndex]
+  );
+
+  const onOpen = useCallback((item: CurationRecommendationItem) => setOpenKey(keyOf(item)), []);
+  const onVote = useCallback((item: CurationRecommendationItem) => {
+    setOpenKey(keyOf(item));
+    // The slider lives inside the drawer and only mounts once the entry query
+    // resolves, so the drawer consumes this flag then.
+    setVoteOnOpen(true);
+  }, []);
+  const onClose = useCallback(() => {
+    setOpenKey(null);
+    setVoteOnOpen(false);
+  }, []);
+
+  const mark = useCurationMark();
+  const clearMark = useClearMark();
+  const doMark = useCallback(
+    async (
+      post: PostRef,
+      input: { state: "reviewed" | "snoozed" | "flagged" | "noted"; reason?: string; note?: string; snooze_until?: string },
+      message: string
+    ) => {
+      try {
+        // No lane: a mark made here was not earned in a queue, and the hand-off
+        // reads the lane off the mark to say which one it was.
+        await mark.mutateAsync({ row: post, ...input });
+        successToast(message);
+      } catch (e) {
+        errorToast(...formatError(e));
+      }
+    },
+    [mark]
+  );
+
+  const onReviewed = useCallback(
+    (post: PostRef) => {
+      if (!viewer.isRoster) return;
+      void doMark(post, { state: "reviewed" }, i18next.t("curation-desk.live.reviewed", { title: post.title }));
+    },
+    [viewer.isRoster, doMark]
+  );
+  const onSaveNote = useCallback(
+    (post: PostRef, note: string) => {
+      if (!viewer.isRoster || !note) return;
+      void doMark(post, { state: "noted", note }, i18next.t("curation-desk.live.noted"));
+    },
+    [viewer.isRoster, doMark]
+  );
+  const onClearMark = useCallback(
+    async (post: PostRef) => {
+      if (!viewer.isRoster) return;
+      try {
+        await clearMark.mutateAsync({ author: post.author, permlink: post.permlink });
+        successToast(i18next.t("curation-desk.live.cleared"));
+      } catch (e) {
+        errorToast(...formatError(e));
+      }
+    },
+    [viewer.isRoster, clearMark]
+  );
+  const onSnooze = useCallback((post: PostRef) => viewer.isRoster && setDialog({ kind: "snooze", post }), [viewer.isRoster]);
+  const onFlag = useCallback((post: PostRef) => viewer.isRoster && setDialog({ kind: "flag", post }), [viewer.isRoster]);
+  const onNote = useCallback((post: PostRef) => viewer.isRoster && setDialog({ kind: "note", post }), [viewer.isRoster]);
 
   return (
     <div className="reading-surface rounded-2xl overflow-hidden">
@@ -154,17 +419,80 @@ export function CurationRecommendationsView() {
       <ul className="divide-y divide-[--border-color]" aria-label={i18next.t("curation-desk.reco-view.title")}>
         {items.map((item) => (
           <RecommendationRow
-            key={`${item.author}/${item.permlink}`}
+            key={keyOf(item)}
             item={item}
             // The dismiss route answers a trial curator with a 403.
             canDismiss={viewer.isRoster && !viewer.isTrial}
             isRoster={viewer.isRoster}
+            isTrial={viewer.isTrial}
             username={viewer.username}
             recommendationsEnabled={recommendationsEnabled}
+            coarsePointer={coarsePointer}
+            myMark={marks.get(keyOf(item))}
+            onOpen={onOpen}
+            onVote={onVote}
+            onReviewed={onReviewed}
+            onClearMark={onClearMark}
+            onSnooze={onSnooze}
+            onFlag={onFlag}
+            onNote={onNote}
           />
         ))}
       </ul>
       {query.hasNextPage && <DetectBottom onBottom={loadMore} />}
+
+      <CurationQuickView
+        row={drawerRow}
+        neighbour={neighbour}
+        viewer={viewer}
+        recommendationsEnabled={recommendationsEnabled}
+        voteOnOpen={voteOnOpen}
+        onVoteHandled={() => setVoteOnOpen(false)}
+        onClose={onClose}
+        onPrev={() => move(-1)}
+        onNext={() => move(1)}
+        onReviewed={onReviewed}
+        onSnooze={onSnooze}
+        onFlag={onFlag}
+        onNote={onNote}
+        onSaveNote={onSaveNote}
+        recommendRef={recommendRef}
+      />
+
+      {dialog.kind === "snooze" && (
+        <SnoozeDialog
+          title={dialog.post.title}
+          onHide={() => setDialog({ kind: "none" })}
+          onPick={(until, preset) => {
+            setDialog({ kind: "none" });
+            void doMark(
+              dialog.post,
+              { state: "snoozed", snooze_until: until },
+              i18next.t("curation-desk.live.snoozed", { preset: i18next.t(`curation-desk.snooze.preset-${preset}`) })
+            );
+          }}
+        />
+      )}
+      {dialog.kind === "flag" && (
+        <FlagDialog
+          title={dialog.post.title}
+          onHide={() => setDialog({ kind: "none" })}
+          onPick={(reason: CurationFlagReason, note) => {
+            setDialog({ kind: "none" });
+            void doMark(dialog.post, { state: "flagged", reason, note: note || undefined }, i18next.t("curation-desk.live.flagged"));
+          }}
+        />
+      )}
+      {dialog.kind === "note" && (
+        <NoteDialog
+          title={dialog.post.title}
+          onHide={() => setDialog({ kind: "none" })}
+          onSave={(note) => {
+            setDialog({ kind: "none" });
+            onSaveNote(dialog.post, note);
+          }}
+        />
+      )}
     </div>
   );
 }

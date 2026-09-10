@@ -116,7 +116,13 @@ export type QueueDisplayItem =
   | { type: "older-reviewed"; key: string; count: number; expanded: boolean };
 
 export interface MarkActionInput {
-  row: DeskRow;
+  /**
+   * Only the author and the permlink are sent, and the response carries the
+   * row every loaded feed applies, so a caller holding no full desk row (the
+   * recommended list, whose route answers a much thinner item) marks a post
+   * the same way the queue does.
+   */
+  row: Pick<DeskRow, "author" | "permlink">;
   state: CurationMarkState;
   reason?: CurationFlagReason | string;
   note?: string;
