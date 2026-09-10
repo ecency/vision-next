@@ -58,9 +58,16 @@ const ACCOUNT_TAG_PREFIX = /^(?:@|%40)/i;
 
 const NOINDEX = "noindex, follow";
 
-/** The account an account-feed tag names, or "" when the tag is a topic tag. */
+/**
+ * The account an account-feed tag names, or "" when the tag is a topic tag.
+ *
+ * Lowercased, like normalizeFeedTag does before a tag reaches the data layer.
+ * Hive account names are lowercase, but a link can arrive spelled any way, and
+ * this value goes into a canonical URL — the one place a case variant would
+ * announce a second address for the same page instead of collapsing onto it.
+ */
 export function accountFeedUsername(tag: string): string {
-  return ACCOUNT_TAG_PREFIX.test(tag) ? tag.replace(ACCOUNT_TAG_PREFIX, "") : "";
+  return ACCOUNT_TAG_PREFIX.test(tag) ? tag.replace(ACCOUNT_TAG_PREFIX, "").toLowerCase() : "";
 }
 
 /**

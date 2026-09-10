@@ -120,4 +120,14 @@ describe("feed canonical", () => {
       }
     }
   });
+
+  // A canonical is where case variants are supposed to collapse onto one
+  // address, not where a new one gets minted. normalizeFeedTag already
+  // lowercases every tag before the data layer sees it.
+  it("lowercases a mixed-case account before putting it in the canonical", () => {
+    const mixed = feedIndexing("feed", "%40SomeUser");
+    const lower = feedIndexing("feed", "%40someuser");
+    expect(mixed.path).toBe(lower.path);
+    expect(mixed.path).not.toMatch(/SomeUser/);
+  });
 });
