@@ -55,7 +55,10 @@ function draftFrom(entry: CurationRosterAdminEntry): DraftState {
     curator: entry.username,
     role: entry.role,
     note: entry.note ?? "",
-    trail: entry.trail ?? defaultTrail(entry.role),
+    // The resolved flag first, then the stored override, then the role default. Skipping
+    // the middle step would let an older backend that omits `trail` turn an explicit
+    // rules.trail = false back into the role default the moment someone saved the row.
+    trail: entry.trail ?? rules.trail ?? defaultTrail(entry.role),
     min_weight: rules.min_weight ? String(rules.min_weight) : "",
     max_weight: rules.max_weight ? String(rules.max_weight) : "",
     waves_only_below: rules.waves_only_below ? String(rules.waves_only_below) : "",
@@ -79,15 +82,32 @@ function rulesFrom(draft: DraftState): CurationRosterRules | undefined {
   return Object.keys(rules).length ? rules : undefined;
 }
 
+/**
+ * Hive account names: dot-separated labels, each at least 3 characters, starting with a
+ * letter, ending alphanumeric, hyphens only inside. The flat class this used to carry
+ * accepted `1abc`, `abc.`, `-abc` and `abc.-def`, which the gateway then refused with a
+ * bare 400, so the admin saw a server error rather than which character was wrong.
+ */
+const HIVE_LABEL = /^[a-z][a-z0-9-]{1,}[a-z0-9]$/;
+
+function isHiveName(name: string) {
+  if (name.length < 3 || name.length > 16) return false;
+  return name.split(".").every((label) => label.length >= 3 && HIVE_LABEL.test(label));
+}
+
 function validate(draft: DraftState): string | null {
-  if (!/^[a-z0-9.-]{3,16}$/.test(draft.curator.trim())) {
+  if (!isHiveName(draft.curator.trim())) {
     return i18next.t("curation-desk.roster.invalid-name");
   }
   for (const key of WEIGHT_RULES) {
     const raw = draft[key].trim();
     if (!raw) continue;
     const value = Number(raw);
-    if (!Number.isInteger(value) || value < 0 || value > 10000) {
+    // Blank means "no rule", so 0 has no separate meaning to carry: as a min or a waves
+    // threshold it is what absent already says, and as a max it is a second spelling of
+    // untrailed, which the trail switch owns. Refusing it here is what keeps the form,
+    // the summary and the serializer from disagreeing about a value one of them drops.
+    if (!Number.isInteger(value) || value < 1 || value > 10000) {
       return i18next.t("curation-desk.roster.invalid-weight");
     }
   }
@@ -109,21 +129,29 @@ function RuleSummary({ entry }: { entry: CurationRosterAdminEntry }) {
   return <span className="text-xs text-gray-600 dark:text-gray-400">{parts.join(" · ")}</span>;
 }
 
+/**
+ * add: a new curator, name editable. edit: an existing row. restore: a retired row coming
+ * back. The last two MUST keep the name they were opened with, or the write lands on a
+ * different account and leaves the one the admin picked exactly as it was.
+ */
+type FormMode = "add" | "edit" | "restore";
+
 function CuratorForm({
   draft,
   setDraft,
   onSubmit,
   onCancel,
   busy,
-  isNew,
+  mode,
 }: {
   draft: DraftState;
   setDraft: (next: DraftState) => void;
   onSubmit: () => void;
   onCancel: () => void;
   busy: boolean;
-  isNew: boolean;
+  mode: FormMode;
 }) {
+  const isNew = mode === "add";
   return (
     <form
       className="mt-3 grid gap-3 rounded-lg border border-[--border-color] p-4 sm:grid-cols-2"
@@ -139,9 +167,13 @@ function CuratorForm({
           value={draft.curator}
           disabled={!isNew}
           autoFocus={isNew}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setDraft({ ...draft, curator: e.target.value.trim().toLowerCase() })
-          }
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            // The guard is here, not only on the disabled attribute: edit and restore
+            // write to the name they were opened with, and a name that could still change
+            // would send the write to a different account.
+            if (!isNew) return;
+            setDraft({ ...draft, curator: e.target.value.trim().toLowerCase() });
+          }}
         />
       </label>
       <label className="flex flex-col gap-1 text-sm">
@@ -207,7 +239,11 @@ function CuratorForm({
 
       <div className="flex items-center gap-2 sm:col-span-2">
         <Button type="submit" size="sm" disabled={busy}>
-          {isNew ? i18next.t("curation-desk.roster.add") : i18next.t("curation-desk.roster.save")}
+          {mode === "add"
+            ? i18next.t("curation-desk.roster.add")
+            : mode === "restore"
+              ? i18next.t("curation-desk.roster.bring-back")
+              : i18next.t("curation-desk.roster.save")}
         </Button>
         <Button type="button" size="sm" appearance="gray-link" onClick={onCancel} disabled={busy}>
           {i18next.t("g.cancel")}
@@ -223,7 +259,11 @@ export function CurationRosterView() {
   const { data, isLoading, isError } = useCurationRosterAdmin(isAdmin);
   const setCurator = useCurationRosterSet();
   const retireCurator = useCurationRosterRetire();
+  // `editing` names the row whose inline form is open; `topForm` is the one at the top,
+  // which is either a new curator or a retired one coming back. Two pieces of state
+  // rather than a sentinel in `editing`, because "new" is a legal Hive account name.
   const [editing, setEditing] = useState<string | null>(null);
+  const [topForm, setTopForm] = useState<FormMode | null>(null);
   const [draft, setDraft] = useState<DraftState>(EMPTY_DRAFT);
   const [confirming, setConfirming] = useState<string | null>(null);
 
@@ -254,6 +294,7 @@ export function CurationRosterView() {
         onSuccess: () => {
           successToast(i18next.t("curation-desk.roster.saved", { name: draft.curator.trim() }));
           setEditing(null);
+          setTopForm(null);
           setDraft(EMPTY_DRAFT);
         },
         onError: (e) => errorToast(...formatError(e)),
@@ -281,17 +322,17 @@ export function CurationRosterView() {
     <div className="p-2">
       <p className="text-sm text-gray-600 dark:text-gray-400">{i18next.t("curation-desk.roster.intro")}</p>
 
-      {editing === "" ? (
+      {topForm ? (
         <CuratorForm
           draft={draft}
           setDraft={setDraft}
           onSubmit={submit}
           onCancel={() => {
-            setEditing(null);
+            setTopForm(null);
             setDraft(EMPTY_DRAFT);
           }}
           busy={busy}
-          isNew={true}
+          mode={topForm}
         />
       ) : (
         <Button
@@ -300,7 +341,7 @@ export function CurationRosterView() {
           disabled={busy}
           onClick={() => {
             setDraft(EMPTY_DRAFT);
-            setEditing("");
+            setTopForm("add");
           }}
         >
           {i18next.t("curation-desk.roster.add")}
@@ -375,7 +416,7 @@ export function CurationRosterView() {
                 onSubmit={submit}
                 onCancel={() => setEditing(null)}
                 busy={busy}
-                isNew={false}
+                mode="edit"
               />
             )}
           </li>
@@ -403,7 +444,7 @@ export function CurationRosterView() {
                   disabled={busy}
                   onClick={() => {
                     setDraft(draftFrom(entry));
-                    setEditing("");
+                    setTopForm("restore");
                   }}
                 >
                   {i18next.t("curation-desk.roster.bring-back")}

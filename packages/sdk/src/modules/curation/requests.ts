@@ -371,7 +371,10 @@ export function curationRosterListRequest(
   code: string | undefined,
   signal?: AbortSignal
 ): Promise<CurationRosterAdminList> {
-  return postJson<CurationRosterAdminList>("/roster-list", code, {}, "list roster", signal);
+  // Same shape check as the public roster: a 200 carrying an error envelope, or any
+  // body without `curators`, must reach the query's error path. Without it the panel
+  // renders `data?.curators ?? []` and an outage looks like an empty roster.
+  return postJson<CurationRosterAdminList>("/roster-list", code, {}, "list roster", signal, hasCurators);
 }
 
 export function curationRosterSetRequest(

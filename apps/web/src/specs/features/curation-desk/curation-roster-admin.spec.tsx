@@ -174,6 +174,89 @@ describe("CurationRosterView", () => {
     await waitFor(() => expect(writes).toHaveLength(0));
   });
 
+  it("bringing a retired curator back cannot land on a different account", async () => {
+    // The restore form used to open in add mode, where the name is editable: changing it
+    // would have created someone else and left the retired row exactly as it was.
+    const writes: Record<string, unknown>[] = [];
+    router.on(/curation-desk\/roster-set$/, (_url: string, init: RequestInit) => {
+      writes.push(JSON.parse(String(init.body)));
+      return jsonResponse({ curator: adminRow("dunsky") });
+    });
+    renderWithQueryClient(<CurationRosterView />);
+    await waitFor(() => expect(screen.getByText("@dunsky")).toBeInTheDocument());
+
+    fireEvent.click(screen.getByText("curation-desk.roster.bring-back"));
+    const name = screen.getByLabelText("curation-desk.roster.username") as HTMLInputElement;
+    expect(name.value).toBe("dunsky");
+    expect(name.disabled).toBe(true);
+    fireEvent.change(name, { target: { value: "someone-else" } });
+    expect(name.value).toBe("dunsky");
+
+    fireEvent.click(screen.getAllByText("curation-desk.roster.bring-back")[0]);
+    await waitFor(() => expect(writes).toHaveLength(1));
+    expect(writes[0].curator).toBe("dunsky");
+  });
+
+  it("keeps an explicit trail override when the resolved flag is missing", async () => {
+    // An older backend omits `trail`. Falling straight to the role default would turn a
+    // stored rules.trail = false back into "trailed" the moment someone saved the row.
+    const writes: Record<string, unknown>[] = [];
+    router.on(/curation-desk\/roster-list$/, () =>
+      jsonResponse({
+        curators: [
+          { username: "incublus", role: "mod", active: true, rules: { trail: false },
+            added_by: null, added_at: null, removed_at: null, note: null },
+        ],
+      })
+    );
+    router.on(/curation-desk\/roster-set$/, (_url: string, init: RequestInit) => {
+      writes.push(JSON.parse(String(init.body)));
+      return jsonResponse({ curator: adminRow("incublus") });
+    });
+    renderWithQueryClient(<CurationRosterView />);
+    await waitFor(() => expect(screen.getByText("@incublus")).toBeInTheDocument());
+    fireEvent.click(screen.getByText("g.edit"));
+    fireEvent.click(screen.getByText("curation-desk.roster.save"));
+    await waitFor(() => expect(writes).toHaveLength(1));
+    expect(writes[0].rules).toEqual({ trail: false });
+  });
+
+  it("refuses a weight of zero and a malformed Hive name", async () => {
+    const writes: unknown[] = [];
+    router.on(/curation-desk\/roster-set$/, (_url: string, init: RequestInit) => {
+      writes.push(JSON.parse(String(init.body)));
+      return jsonResponse({ curator: adminRow("x") });
+    });
+    renderWithQueryClient(<CurationRosterView />);
+    await waitFor(() => expect(screen.getByText("@untilwelearn")).toBeInTheDocument());
+    fireEvent.click(screen.getByText("curation-desk.roster.add"));
+    const name = screen.getByLabelText("curation-desk.roster.username");
+
+    // names the gateway would refuse with a bare 400
+    for (const bad of ["1abc", "abc.", "-abc", "abc.-def", "ab", "a.bcd"]) {
+      fireEvent.change(name, { target: { value: bad } });
+      fireEvent.click(screen.getByText("curation-desk.roster.add"));
+    }
+    await waitFor(() => expect(writes).toHaveLength(0));
+
+    // zero is not a weight: blank already says "no rule", and a max of zero is what the
+    // trail switch says. Accepting it would serialize a value the summary then hides.
+    fireEvent.change(name, { target: { value: "good-name" } });
+    fireEvent.change(screen.getByLabelText("curation-desk.roster.label-min-weight"), {
+      target: { value: "0" },
+    });
+    fireEvent.click(screen.getByText("curation-desk.roster.add"));
+    await waitFor(() => expect(writes).toHaveLength(0));
+
+    // and a name with dotted labels is fine
+    fireEvent.change(screen.getByLabelText("curation-desk.roster.label-min-weight"), {
+      target: { value: "1090" },
+    });
+    fireEvent.change(name, { target: { value: "good.name" } });
+    fireEvent.click(screen.getByText("curation-desk.roster.add"));
+    await waitFor(() => expect(writes).toHaveLength(1));
+  });
+
   it("is closed to anyone who is not an admin", async () => {
     state.username = "mod1";
     router.on(/curation-desk\/roster$/, () => jsonResponse(makeRoster(["mod1"])));

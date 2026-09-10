@@ -1691,8 +1691,13 @@ declare const QueryKeys: {
         readonly rosterFeed: (username: string | undefined, params?: Record<string, string>) => (string | Record<string, string> | undefined)[];
         readonly status: () => string[];
         readonly roster: () => string[];
-        /** The admin view of the roster: private, per viewer, never shared with the public key. */
+        /**
+         * The admin view of the roster: private, per viewer, never shared with the public key.
+         * `rosterAdminPrefix` covers every viewer's copy, because the roster it describes is
+         * shared: a write by one admin makes the cached copy of any other one stale.
+         */
         readonly rosterAdmin: (username: string | undefined) => (string | undefined)[];
+        readonly rosterAdminPrefix: () => string[];
         readonly recommendations: (params?: Record<string, string>) => (string | Record<string, string>)[];
         readonly _recommendationsPrefix: readonly ["curation", "recommendations"];
         readonly post: (author: string, permlink: string) => string[];

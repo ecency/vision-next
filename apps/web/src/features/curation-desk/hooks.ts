@@ -1021,9 +1021,14 @@ export function useCurationRosterAdmin(enabled = true) {
   });
 }
 
-/** Both roster caches after a write: the admin list and the public one every desk reads. */
-function invalidateRoster(queryClient: ReturnType<typeof useQueryClient>, username: string | undefined) {
-  queryClient.invalidateQueries({ queryKey: QueryKeys.curation.rosterAdmin(username) });
+/**
+ * Both roster caches after a write: the admin list and the public one every desk reads.
+ * The admin list goes by PREFIX, not by this viewer's key. The roster is shared state, so
+ * a write here makes another signed-in admin's cached copy wrong too, and switching
+ * account would show it for as long as its staleTime lasts.
+ */
+function invalidateRoster(queryClient: ReturnType<typeof useQueryClient>) {
+  queryClient.invalidateQueries({ queryKey: QueryKeys.curation.rosterAdminPrefix() });
   queryClient.invalidateQueries({ queryKey: QueryKeys.curation.roster() });
 }
 
@@ -1033,7 +1038,7 @@ export function useCurationRosterSet() {
   return useMutation({
     mutationKey: [...QueryKeys.curation._prefix, "roster-set", username],
     mutationFn: (input: CurationRosterSetInput) => curationDeskApi.rosterSet(username, input),
-    onSuccess: () => invalidateRoster(queryClient, username),
+    onSuccess: () => invalidateRoster(queryClient),
   });
 }
 
@@ -1043,6 +1048,6 @@ export function useCurationRosterRetire() {
   return useMutation({
     mutationKey: [...QueryKeys.curation._prefix, "roster-retire", username],
     mutationFn: (curator: string) => curationDeskApi.rosterRetire(username, curator),
-    onSuccess: () => invalidateRoster(queryClient, username),
+    onSuccess: () => invalidateRoster(queryClient),
   });
 }

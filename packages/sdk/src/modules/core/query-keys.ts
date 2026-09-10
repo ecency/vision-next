@@ -655,8 +655,13 @@ export const QueryKeys = {
     ],
     status: () => ["curation", "status"],
     roster: () => ["curation", "roster"],
-    /** The admin view of the roster: private, per viewer, never shared with the public key. */
+    /**
+     * The admin view of the roster: private, per viewer, never shared with the public key.
+     * `rosterAdminPrefix` covers every viewer's copy, because the roster it describes is
+     * shared: a write by one admin makes the cached copy of any other one stale.
+     */
     rosterAdmin: (username: string | undefined) => ["curation", "roster-admin", username],
+    rosterAdminPrefix: () => ["curation", "roster-admin"],
     recommendations: (params: Record<string, string> = {}) => [
       "curation",
       "recommendations",
