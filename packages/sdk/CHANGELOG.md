@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.4.8
+
+### Patch Changes
+
+- Name the nsfw and negative-reputation exclusions, and reword rep_low for its new line (#1823)
+
 ## 2.4.7
 
 ### Patch Changes
