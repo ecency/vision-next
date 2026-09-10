@@ -75,6 +75,26 @@ describe("slimEntry keeps only the json_metadata a card reads", () => {
 
   // The nsfw gate is `json_metadata.tags.includes("nsfw")` in two card
   // components. A card whose tags went missing would silently un-blur.
+  // These two are read by the ENTRY page and the discussion list, not by a card,
+  // and the entries cache is shared with both — a feed row seeds the same key an
+  // entry page later reads. Dropping them blanks the AI-tools chip and the
+  // pinned-reply marker until that page's own fetch resolves, which is exactly
+  // the reason the poll keys below are kept too.
+  it("keeps the keys a shared-cache consumer reads, even though no card reads them", () => {
+    const entry = mockEntry({
+      body: "x".repeat(200),
+      json_metadata: {
+        ai_tools: [{ name: "midjourney" }],
+        pinned_reply: "alice/some-reply",
+        junk: "dropped"
+      }
+    } as never);
+    const slim = slimEntry(entry as never) as never as { json_metadata: Record<string, unknown> };
+    expect(slim.json_metadata.ai_tools).toEqual([{ name: "midjourney" }]);
+    expect(slim.json_metadata.pinned_reply).toBe("alice/some-reply");
+    expect(slim.json_metadata.junk).toBeUndefined();
+  });
+
   it("keeps the tags the nsfw gate reads", () => {
     const slimmed = slimEntry(entry({ json_metadata: { tags: ["photography", "nsfw"] } }));
     const tags = slimmed.json_metadata?.tags;

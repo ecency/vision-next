@@ -133,6 +133,14 @@ export const CARD_METADATA_KEYS = [
   // Author-written, read by the card.
   "app", // EcencySourceBadge
   "tags", // the `tags.includes("nsfw")` gate in the nsfw/muted card content
+  // Not read by a CARD, but kept for the same reason as the poll keys below:
+  // this cache is shared with the entry page and the discussion list, which do
+  // read them (entry-info/index.tsx passes ai_tools to the AI-tools chip,
+  // discussion-item.tsx compares pinned_reply against author/permlink). A feed
+  // row seeds those keys, so dropping them here would blank the chip until the
+  // page's own fetch resolved. Both are small and absent on most posts.
+  "ai_tools",
+  "pinned_reply",
   // A poll's card shows only an icon (content_type), but the entries cache is
   // shared with the entry page and the edit prefill, which rebuild the whole
   // poll from these. They exist only on poll posts, so they cost other rows
