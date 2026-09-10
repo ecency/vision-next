@@ -257,4 +257,26 @@ describe("the unmocked renderer on a body that is not a string", () => {
     vi.mocked(postBodySummary).mockImplementation(actual.postBodySummary as any);
     expect(entrySummary(entry)).toBe("");
   });
+
+  // Two different bodies of the SAME length that share their opening and closing
+  // paragraphs: the shape a key built from length + both ends collides on, which
+  // would silently drop the second post's report.
+  it("reports two same-length bodies that differ only in the middle", () => {
+    vi.mocked(postBodySummary).mockImplementation(() => {
+      throw new RangeError("Invalid code point 1114112");
+    });
+    const head = "The same opening paragraph, repeated verbatim. ".repeat(4);
+    const tail = " And the same closing line, verbatim.".repeat(4);
+    const a = `${head}AAAAAAAAAA${tail}`;
+    const b = `${head}BBBBBBBBBB${tail}`;
+    expect(a.length).toBe(b.length);
+
+    entrySummary(a as never, 200);
+    entrySummary(b as never, 200);
+
+    // Two bodies x the two guarded passes entrySummary makes, each keyed by its
+    // own call site. A key that read only the ends would see one body here and
+    // report 2.
+    expect(sentry.captureException).toHaveBeenCalledTimes(4);
+  });
 });

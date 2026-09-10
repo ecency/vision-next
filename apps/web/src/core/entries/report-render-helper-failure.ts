@@ -31,15 +31,32 @@ export type RenderHelperSubject =
 const reportedFailures = new Set<string>();
 
 /**
+ * A cheap, whole-string digest (FNV-1a, 32-bit).
+ *
+ * Not a security hash and not trying to be: it exists so the dedupe key reads
+ * EVERY byte of a body. Sampling the ends plus the length, which is what this
+ * did first, collides for two search results of equal length that share an
+ * opening and closing paragraph and differ in the middle — plausible for
+ * templated posts — and a collision silently drops the second post's report.
+ */
+function digest(value: string): string {
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < value.length; i++) {
+    hash ^= value.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193) >>> 0;
+  }
+  return hash.toString(36);
+}
+
+/**
  * The identity of the post (or the raw body) a failure belongs to.
  *
- * The search row passes a raw body string, with no author/permlink to key on.
- * Both ends plus the length, so two different bodies that happen to share an
- * opening paragraph still report separately.
+ * The search row passes a raw body string, with no author/permlink to key on,
+ * so that one is keyed by its length and a digest of the whole string.
  */
 function subjectKey(subject: RenderHelperSubject): string {
   return typeof subject === "string"
-    ? `body:${subject.length}:${subject.slice(0, 120)}:${subject.slice(-120)}`
+    ? `body:${subject.length}:${digest(subject)}`
     : `entry:${subject?.author}/${subject?.permlink}`;
 }
 
