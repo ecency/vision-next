@@ -62,6 +62,22 @@ function pageSource() {
   return read(path.join(ROUTE, "page.tsx"));
 }
 
+/**
+ * A boundary can also arrive under an alias — `import { Suspense as Gate }` and
+ * then `<Gate>` — which no amount of matching on `<Suspense` will see. Rejecting
+ * the aliased IMPORT is what closes that, and it is the one form the streamed
+ * spec next door cannot be relied on to catch for files it does not render.
+ */
+function assertNoSuspense(source: string, label: string) {
+  expect(source, label).not.toMatch(/<(React\.)?Suspense/);
+  expect(source, `${label}: aliased Suspense import`).not.toMatch(
+    /import\s*\{[^}]*\bSuspense\s+as\s+\w+/
+  );
+  expect(source, `${label}: aliased React.Suspense binding`).not.toMatch(
+    /=\s*React\.Suspense\b/
+  );
+}
+
 describe("profile section page has no SSR skeleton boundary above the cards", () => {
   it("route directory exists", () => {
     expect(fs.existsSync(path.join(ROUTE, "page.tsx"))).toBe(true);
@@ -125,7 +141,7 @@ describe("profile section page has no SSR skeleton boundary above the cards", ()
     expect(source.indexOf("<ProfileSearchContent", fn)).toBeGreaterThan(fn);
     expect(source.indexOf("<ProfileEntriesList", fn)).toBeGreaterThan(fn);
 
-    expect(source).not.toMatch(/<(React\.)?Suspense/);
+    assertNoSuspense(source, "source");
     expect(source).not.toMatch(/\bSuspense\b[^\n]*from "react"/);
   });
 
@@ -173,7 +189,7 @@ describe("profile section page has no SSR skeleton boundary above the cards", ()
     for (const file of chain) {
       expect(fs.existsSync(file), file).toBe(true);
       const source = read(file);
-      expect(source, file).not.toMatch(/<(React\.)?Suspense/);
+      assertNoSuspense(source, file);
       expect(source, file).not.toMatch(/ssr:\s*false/);
     }
     // The chain list is only worth something if it still ends at a card and at
