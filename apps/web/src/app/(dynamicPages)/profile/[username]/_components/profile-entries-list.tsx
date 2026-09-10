@@ -19,7 +19,11 @@ import {
   ARCHIVE_PAGE_SIZE,
   ARCHIVE_SECTIONS
 } from "@/app/(dynamicPages)/profile/[username]/_helpers/author-archive";
-import { pinnedPermlink } from "@/app/(dynamicPages)/profile/[username]/_helpers/pinned-permlink";
+import {
+  isPinnedDuplicate,
+  pinnedIdentityKeys,
+  pinnedPermlink
+} from "@/app/(dynamicPages)/profile/[username]/_helpers/pinned-permlink";
 import type { InfiniteData } from "@tanstack/react-query";
 
 interface Props {
@@ -56,7 +60,16 @@ export async function ProfileEntriesList({ section, account, initialFeed, curren
   // correct even when a pinned post occupies a slot (a full 20-post page whose
   // pinned entry is filtered would otherwise drop to 19 and suppress the link).
   const rawFirstPage = (feedPages[0] as Entry[] | undefined) ?? [];
-  const initialPageEntries = rawFirstPage.filter((item: Entry) => item.permlink !== pinned);
+  // What the pinned card is actually showing, not what the profile metadata
+  // asked for. A cross-post row renders the post it wraps (same author, same
+  // permlink, same element id), so a permlink-only comparison left the pinned
+  // post on screen twice — once as the card, once as the feed's cross-post of
+  // it (#1807). Empty when no pinned card is rendered, so nothing is ever
+  // filtered out without a replacement above it.
+  const pinnedKeys = pinnedIdentityKeys(account?.name, pinned, pinnedEntry);
+  const initialPageEntries = rawFirstPage.filter(
+    (item: Entry) => !isPinnedDuplicate(item, pinnedKeys)
+  );
   const entryList = [...initialPageEntries];
   const lastOfFirstPage = rawFirstPage[rawFirstPage.length - 1];
 
@@ -111,6 +124,7 @@ export async function ProfileEntriesList({ section, account, initialFeed, curren
           account={account}
           initialEntryAuthors={initialEntryAuthors}
           initialPageEntriesCount={initialPageEntriesCount}
+          pinnedKeys={pinnedKeys}
           initialDataLoaded={initialDataLoaded}
         />
       </ProfileEntriesLayout>
