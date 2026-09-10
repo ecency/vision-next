@@ -1,7 +1,7 @@
 import Link from "next/link";
 import i18next from "i18next";
 import { getPostsRankedQueryOptions } from "@ecency/sdk";
-import { catchPostImage } from "@ecency/render-helper";
+import { catchPostImageSafely } from "@/core/entries/catch-post-image-safely";
 import { prefetchQuery } from "@/core/react-query";
 import { withCardOnlyPageEntries } from "@/core/entries/slim-entry";
 import { isNsfwEntry } from "@/utils/nsfw-detection";
@@ -65,7 +65,7 @@ export async function LandingTrending() {
 
   const cards = entries.map((entry) => ({
     entry,
-    thumb: catchPostImage(entry, 320, 180, "match")
+    thumb: catchPostImageSafely(entry, 320, 180, "match")
   }));
   // The LCP candidate is the first card that actually renders a thumbnail: a
   // text-only post at the top would otherwise take the hint while the next

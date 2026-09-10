@@ -1,4 +1,5 @@
-import {catchPostImage, renderPostBody, setProxyBase} from "@ecency/render-helper";
+import { renderPostBody, setProxyBase } from "@ecency/render-helper";
+import { catchPostImageSafely } from "@/core/entries/catch-post-image-safely";
 import React from "react";
 import { Feedback } from "@/features/shared/feedback";
 import { Navbar } from "@/features/shared/navbar";
@@ -60,7 +61,14 @@ export default async function ProposalDetailsPage({ params }: Props) {
   const renderedBody = { __html: renderPostBody(entry?.body ?? "", false, false) };
   // catchPostImage returns null for a body with no usable image; skip the tag
   // entirely in that case instead of emitting a contentless og:image.
-  const ogImage = entry ? catchPostImage(entry.body, 600, 500, "match") : null;
+  //
+  // Through the guard: this page never slims, so the extractor's last tier
+  // (markdown2Html + a DOM parse over the proposal's own body) always runs when
+  // the body carries no metadata or regex-findable image — and this is a plain
+  // server component with no Suspense above it, so a throw is a 500 on
+  // /proposals/[id]. The app has one global-error.tsx and no segment boundary,
+  // so "contained" here means "the whole page is replaced".
+  const ogImage = entry ? catchPostImageSafely(entry.body, 600, 500, "match") : null;
 
   return (
     <div className="reading-background">

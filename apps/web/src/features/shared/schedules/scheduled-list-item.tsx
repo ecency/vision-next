@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
-import { catchPostImage, postBodySummary } from "@ecency/render-helper";
+import { postBodySummary } from "@ecency/render-helper";
+import { catchPostImageSafely } from "@/core/entries/catch-post-image-safely";
 import { PopoverConfirm } from "@ui/popover-confirm";
 import { Badge } from "@ui/badge";
 import { Button } from "@ui/button";
@@ -24,7 +25,7 @@ export function ScheduledListItem({ post }: Props) {
   const reputation = account?.reputation;
 
   const tag = post.tags_arr[0] || "";
-  const img = catchPostImage(post.body, 600, 500);
+  const img = catchPostImageSafely(post.body, 600, 500);
   const summary = postBodySummary(post.body, 200);
 
   const dateRelative = useMemo(() => dateToFullRelative(post.schedule), [post]);
