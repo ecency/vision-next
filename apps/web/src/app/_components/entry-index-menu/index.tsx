@@ -52,11 +52,7 @@ export function EntryIndexMenu() {
   // the same moment.
   const pushTarget = useRef<FeedNavigationTarget | null>(null);
 
-  const pushToFeed = useCallback((target: FeedNavigationTarget, push: () => void) => {
-    pushTarget.current = target;
-    setFeedNavigationTarget(target);
-    push();
-  }, []);
+
 
   // Keyed on the query STRING rather than on the object `useSearchParams()`
   // returns. Next memoises that object per navigation, so keying on it would
@@ -77,6 +73,27 @@ export function EntryIndexMenu() {
   }, [pathname, searchKey]);
 
   const noReblog = useMemo(() => searchParams?.get("no-reblog") === "true", [searchParams]);
+
+  const pushToFeed = useCallback(
+    (target: FeedNavigationTarget, push: () => void) => {
+      // Clicking the feed you are already on is a no-op navigation: the URL does
+      // not change, so the effect that clears this target never runs and the
+      // repaint would sit on top of the real feed until the next navigation.
+      // The mobile dropdown keeps its current item clickable, so this is one tap
+      // away, not a corner case. Announce nothing and let the click close the
+      // menu.
+      const isCurrentFeed =
+        target.filter === filter && target.tag === tag && target.noReblog === noReblog;
+
+      if (!isCurrentFeed) {
+        pushTarget.current = target;
+        setFeedNavigationTarget(target);
+      }
+
+      push();
+    },
+    [filter, noReblog, tag]
+  );
 
   // Show the source group whenever there's a real choice: logged-in users get
   // Following/Communities/Global, and anyone browsing a #hashtag gets the tag

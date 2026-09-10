@@ -178,6 +178,27 @@ describe("feed navigation announcements", () => {
     expect(clear).toHaveBeenCalledWith({ filter: "feed", tag: "@alice", noReblog: true });
   });
 
+  // The mobile dropdown leaves the CURRENT item clickable, and tapping it pushes
+  // the same URL. Next does not re-run the route for that, so the effect that
+  // clears the target never fires — announcing here would leave the repaint on
+  // top of the real feed until the reader navigated somewhere else.
+  it("announces nothing when the tapped item is the feed already open", () => {
+    setLoggedIn(true);
+    mockSections = ["trending"];
+
+    const { container } = render(<EntryIndexMenu />);
+    const mobile = container.querySelector(".feed-navigation-mobile")!;
+    const toggles = mobile.querySelectorAll<HTMLElement>(".ecency-dropdown-toggle");
+    fireEvent.click(toggles[toggles.length - 1]);
+
+    // The item for the feed we are already on. The toggle button carries the same
+    // label as the selected item, so take the one inside the open menu.
+    const matches = within(mobile as HTMLElement).getAllByText("entry-filter.filter-trending");
+    fireEvent.click(matches[matches.length - 1]);
+
+    expect(announce).not.toHaveBeenCalled();
+  });
+
   it("announces the reblog filter coming back off", () => {
     setLoggedIn(true);
     mockSections = ["feed", "@alice"];
