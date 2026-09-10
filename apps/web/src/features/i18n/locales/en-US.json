@@ -4558,6 +4558,7 @@
       "unvoted": "unvoted after hivewatchers downvote",
       "reviewed-by": "reviewed by @{{curator}} {{when}}",
       "reviewed-by-cursor": "reviewed by cursor",
+      "your-mark": "Your own mark on this post",
       "snoozed-until": "snoozed by @{{curator}} until {{until}} UTC",
       "flagged": "flagged",
       "abuse-list": "on the abuse list",
