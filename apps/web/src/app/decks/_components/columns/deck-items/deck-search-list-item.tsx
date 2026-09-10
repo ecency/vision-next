@@ -1,5 +1,6 @@
 import React, { Fragment, JSX, useEffect, useRef, useState } from "react";
-import { catchPostImage, postBodySummary, proxifyImageSrc } from "@ecency/render-helper";
+import { postBodySummary, proxifyImageSrc } from "@ecency/render-helper";
+import { catchPostImageSafely } from "@/core/entries/catch-post-image-safely";
 import { useInViewport } from "react-in-viewport";
 import { voteSvg } from "../../icons";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
@@ -75,7 +76,7 @@ export const SearchListItem = ({
     entry.body_marked ? transformMarkedContent(entry.body_marked) : postBodySummary(entry.body, 200)
   );
   const [image, setImage] = useState(
-    catchPostImage(entry.body, 600, 500)
+    catchPostImageSafely(entry.body, 600, 500)
   );
 
   useEffect(() => {

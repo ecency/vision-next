@@ -1,7 +1,8 @@
 import { RssHandler } from "@/features/rss/rss-handler";
 import { Entry } from "@/entities";
 import RSS from "rss";
-import { catchPostImage, postBodySummary } from "@ecency/render-helper";
+import { postBodySummary } from "@ecency/render-helper";
+import { catchPostImageSafely } from "@/core/entries/catch-post-image-safely";
 import { makeEntryPath } from "@/utils";
 
 export abstract class EntriesRssHandler extends RssHandler<Entry> {
@@ -16,7 +17,7 @@ export abstract class EntriesRssHandler extends RssHandler<Entry> {
       categories: [entry.category],
       author: entry.author,
       date: entry.created,
-      enclosure: { url: catchPostImage(entry.body) || "" }
+      enclosure: { url: catchPostImageSafely(entry.body) || "" }
     };
   }
 }

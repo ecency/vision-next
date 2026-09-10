@@ -9,6 +9,9 @@ import {
   curationMyMarksRequest,
   curationRecommendMetaRequest,
   curationRosterFeedRequest,
+  curationRosterListRequest,
+  curationRosterRetireRequest,
+  curationRosterSetRequest,
   curationTickRequest,
   fetchCurationFeedPage,
   fetchCurationPost,
@@ -52,13 +55,48 @@ describe("curation desk requests", () => {
     ["marks", () => curationMyMarksRequest("tok", { state: "snoozed" })],
     ["cursor", () => curationCursorRequest("tok", { post_id: 5, action: "advance" })],
     ["recommend-meta", () => curationRecommendMetaRequest("tok", { author: "a", permlink: "p", ua_class: "web" })],
-    ["recommendation-dismiss", () => curationDismissRecoRequest("tok", { author: "a", permlink: "p", action: "dismiss" })]
+    ["recommendation-dismiss", () => curationDismissRecoRequest("tok", { author: "a", permlink: "p", action: "dismiss" })],
+    ["roster-list", () => curationRosterListRequest("tok")],
+    ["roster-set", () => curationRosterSetRequest("tok", { curator: "a", role: "curator" })],
+    ["roster-retire", () => curationRosterRetireRequest("tok", "a")]
   ])("POST %s carries the code in the body", async (route, run) => {
     await run();
     const { url, init, body } = lastCall();
     expect(url).toBe(`https://ecency.com/private-api/curation-desk/${route}`);
     expect(init.method).toBe("POST");
     expect(body.code).toBe("tok");
+  });
+
+  it("sends the roster rules whole, and leaves them out when there are none", async () => {
+    await curationRosterSetRequest("tok", {
+      curator: "incublus",
+      role: "mod",
+      rules: { trail: false, min_weight: 1090 },
+      note: "mod only"
+    });
+    let { body } = lastCall();
+    // The backend replaces the stored rules with what arrives, so a partial object
+    // would silently drop whatever was left out.
+    expect(body.rules).toEqual({ trail: false, min_weight: 1090 });
+    expect(body.note).toBe("mod only");
+    expect(body.curator).toBe("incublus");
+    expect(body.role).toBe("mod");
+
+    await curationRosterSetRequest("tok", { curator: "plain", role: "curator" });
+    ({ body } = lastCall());
+    expect("rules" in body).toBe(false);
+    expect("note" in body).toBe(false);
+  });
+
+  it("an empty note is sent, because clearing one is a real edit", async () => {
+    await curationRosterSetRequest("tok", { curator: "a", role: "curator", note: "" });
+    expect(lastCall().body.note).toBe("");
+  });
+
+  it("refuses a roster write with nothing to write", async () => {
+    expect(() => curationRosterSetRequest("tok", { curator: "", role: "curator" })).toThrow(/curator and a role/);
+    expect(() => curationRosterRetireRequest("tok", "")).toThrow(/needs a curator/);
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it("refuses to send an authed request without a code", async () => {

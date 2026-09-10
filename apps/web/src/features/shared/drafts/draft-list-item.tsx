@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
-import { catchPostImage, postBodySummary } from "@ecency/render-helper";
+import { postBodySummary } from "@ecency/render-helper";
+import { catchPostImageSafely } from "@/core/entries/catch-post-image-safely";
 import { PopoverConfirm } from "@ui/popover-confirm";
 import { Badge } from "@ui/badge";
 import { Button } from "@ui/button";
@@ -22,7 +23,7 @@ interface Props {
 export function DraftListItem({ draft, editFn, deleteFn, cloneFn }: Props) {
   const tags = draft.tags ? draft.tags.split(/[ ,]+/) : [];
   const tag = tags[0] || "";
-  const img = catchPostImage(draft.body, 600, 500);
+  const img = catchPostImageSafely(draft.body, 600, 500);
   const summary = postBodySummary(draft.body, 200);
 
   const { data: community } = useQuery(getCommunityCache(tag));

@@ -27,6 +27,7 @@ import {
   type CurationMyMarksResponse,
   type CurationRosterFeedPage,
   type CurationRosterFeedParams,
+  type CurationRosterSetInput,
   type CurationSort,
   type CurationStatus,
   type CurationTeamCursor,
@@ -999,4 +1000,54 @@ export function useCoarsePointer(): boolean {
     return () => query.removeEventListener("change", onChange);
   }, []);
   return coarse;
+}
+
+// ---------------------------------------------------------------------------
+// Roster admin
+// ---------------------------------------------------------------------------
+
+/**
+ * The admin view of the roster. Separate from useViewerRole's public roster
+ * query on purpose: this one carries notes, added_by and the retired rows, it
+ * is per viewer, and it must never share a cache entry with the public one.
+ */
+export function useCurationRosterAdmin(enabled = true) {
+  const username = useActiveUsername();
+  return useQuery({
+    queryKey: QueryKeys.curation.rosterAdmin(username),
+    queryFn: ({ signal }) => curationDeskApi.rosterList(username, signal),
+    enabled: enabled && !!username,
+    staleTime: 60_000,
+  });
+}
+
+/**
+ * Both roster caches after a write: the admin list and the public one every desk reads.
+ * The admin list goes by PREFIX, not by this viewer's key. The roster is shared state, so
+ * a write here makes another signed-in admin's cached copy wrong too, and switching
+ * account would show it for as long as its staleTime lasts.
+ */
+function invalidateRoster(queryClient: ReturnType<typeof useQueryClient>) {
+  queryClient.invalidateQueries({ queryKey: QueryKeys.curation.rosterAdminPrefix() });
+  queryClient.invalidateQueries({ queryKey: QueryKeys.curation.roster() });
+}
+
+export function useCurationRosterSet() {
+  const username = useActiveUsername();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: [...QueryKeys.curation._prefix, "roster-set", username],
+    mutationFn: (input: CurationRosterSetInput) => curationDeskApi.rosterSet(username, input),
+    onSuccess: () => invalidateRoster(queryClient),
+  });
+}
+
+export function useCurationRosterRetire() {
+  const username = useActiveUsername();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: [...QueryKeys.curation._prefix, "roster-retire", username],
+    mutationFn: (curator: string) => curationDeskApi.rosterRetire(username, curator),
+    onSuccess: () => invalidateRoster(queryClient),
+  });
 }

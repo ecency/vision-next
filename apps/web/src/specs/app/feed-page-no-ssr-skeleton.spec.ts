@@ -106,6 +106,29 @@ describe("feed page has no SSR skeleton boundary above the cards", () => {
     expect(source).toContain("{children}");
   });
 
+  // #1789 put a client wrapper around `{children}` in the feed layout — the
+  // cached repaint. It is the one component in this tree allowed to decide what
+  // renders in place of the page, so it is the one most likely to grow a
+  // boundary or a client-only import. Both would put the cards back behind a
+  // swap script for every URL this route serves.
+  it("keeps the feed layout's repaint wrapper free of Suspense and client-only imports", () => {
+    const file = path.join(FEED, "_components/feed-cached-repaint.tsx");
+    expect(fs.existsSync(file), file).toBe(true);
+    const source = read(file);
+
+    expect(source).not.toMatch(/<(React\.)?Suspense/);
+    expect(source).not.toMatch(/\bSuspense\b[^\n]*from "react"/);
+    expect(source).not.toMatch(/ssr:\s*false/);
+    // Anti-vacuity: it still has children to pass through, and still returns
+    // them untouched on the path the server render takes.
+    expect(source).toContain("{children}");
+
+    // ...and the layout really does route the page through it, or the checks
+    // above are about a file nothing renders.
+    const layout = read(path.join(FEED, "layout.tsx"));
+    expect(layout).toMatch(/<FeedCachedRepaint>\s*\{children\}\s*<\/FeedCachedRepaint>/);
+  });
+
   it("no other layout on the chain adds Suspense above the page", () => {
     let checked = 0;
     for (const dir of SEGMENTS) {

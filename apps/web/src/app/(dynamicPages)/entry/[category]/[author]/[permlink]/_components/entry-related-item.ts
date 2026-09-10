@@ -1,5 +1,5 @@
 import { Entry } from "@/entities";
-import { catchPostImage } from "@ecency/render-helper";
+import { catchPostImageSafely } from "@/core/entries/catch-post-image-safely";
 
 /** Minimal shape a related-post row needs, normalized across sources. */
 export interface RelatedItem {
@@ -22,12 +22,19 @@ export function relatedItemFromEntry(e: Entry): RelatedItem {
     permlink: e.permlink,
     title: e.title,
     category: e.category,
-    image: catchPostImage(e, THUMB_PX, THUMB_PX) || undefined,
+    image: catchPostImageSafely(e, THUMB_PX, THUMB_PX) || undefined,
     created: e.created
   };
 }
 
-/** The narrow row shape the SDK's similar-entries query returns. */
+/**
+ * The narrow row shape the SDK's similar-entries query returns.
+ *
+ * `img_url` is a URL our own search index produced, not author markdown, so it
+ * cannot carry the hostile constructs the guard exists for. It takes the guard
+ * anyway because this file already imports it, which keeps the rule here simple
+ * ("nothing in this file calls the raw export") instead of a per-line exception.
+ */
 export interface SimilarRow {
   author?: string;
   permlink?: string;
@@ -46,7 +53,7 @@ export function relatedItemFromSimilar(r: SimilarRow): RelatedItem | null {
     permlink: r.permlink,
     title: r.title ?? "",
     category: r.category ?? "",
-    image: r.img_url ? catchPostImage(r.img_url, THUMB_PX, THUMB_PX) || undefined : undefined,
+    image: r.img_url ? catchPostImageSafely(r.img_url, THUMB_PX, THUMB_PX) || undefined : undefined,
     created: r.created_at ?? ""
   };
 }

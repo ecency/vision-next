@@ -139,6 +139,17 @@ vi.mock("@/features/shared/entry-list-item/use-muted-authors", () => ({
   useVisibleEntries: (entries: unknown[]) => entries
 }));
 
+// The outer feed layout's sidebar furniture. None of it is on the card path,
+// all of it reaches SDK query builders the global mock does not stand in for,
+// and none of it is touched by the change this file guards. The tab bar is
+// NOT mocked: it hosts the per-Link pending probe, which has to prove it
+// renders nothing on the server.
+vi.mock("@/app/_components/my-favorites-widget", () => ({ MyFavoritesWidget: () => null }));
+vi.mock("@/app/_components/trending-tags-card", () => ({ TrendingTagsCard: () => null }));
+vi.mock("@/app/_components/top-communities-widget", () => ({ TopCommunitiesWidget: () => null }));
+vi.mock("@/features/shared/navbar", () => ({ Navbar: () => null }));
+vi.mock("@/features/shared/feedback", () => ({ Feedback: () => null }));
+
 vi.mock("@/features/seo/ranked-archive", async () => ({
   ...(await vi.importActual<Record<string, unknown>>("@/features/seo/ranked-archive")),
   fetchRankedCursorPage: async () => ({
@@ -252,6 +263,38 @@ describe("feed page streamed HTML", () => {
     const preload = html.match(/<link[^>]+rel="preload"[^>]+card-0[^>]*>/);
     expect(preload, "no hoisted preload for the eager card").toBeTruthy();
     expect(html.indexOf(preload![0])).toBeLessThan(html.indexOf("Feed card 0 in the shell"));
+  });
+
+  // The OUTER feed layout, streamed with the route layout and the page beneath
+  // it. That layout gained a client wrapper around `{children}` in #1789 — the
+  // cached repaint, which paints the reader's own rows for the feed a soft
+  // navigation is heading to. It has no server render at all (its stores return
+  // nothing through getServerSnapshot), and this is the test that says so: a
+  // wrapper that started emitting an element, or a boundary, would put the
+  // cards behind a $RC swap script again exactly as loading.tsx did.
+  it("ships the cards in the shell through the whole layout chain", { timeout: 20000 }, async () => {
+    const { default: FeedPage } = await import("@/app/(dynamicPages)/feed/[...sections]/page");
+    const { default: FeedSectionsLayout } = await import(
+      "@/app/(dynamicPages)/feed/[...sections]/layout"
+    );
+    const { default: FeedSegmentLayout } = await import("@/app/(dynamicPages)/feed/layout");
+    const params = Promise.resolve({ sections: ["hot", "photography"] });
+    const page = await FeedPage({ params, searchParams: Promise.resolve({}) });
+    const html = await streamElement(
+      FeedSegmentLayout({
+        children: FeedSectionsLayout({ params, children: page as React.ReactNode })
+      }) as React.ReactElement
+    );
+
+    expectInShell(html, "Feed card 0 in the shell");
+    expectInShell(html, "Feed card 1 in the shell");
+    expect(html).not.toContain("<div hidden id=");
+    expect(html).not.toContain("<template id=");
+    // The repaint marks its own surface; on the server it must not exist.
+    expect(html).not.toContain("data-feed-repaint");
+    // Anti-vacuity: the chain really did render the layout around the page.
+    expect(html).toContain("entry-page-content");
+    expect(html).toContain("entry-index-menu");
   });
 
   it("ships the ?before= archive cards in the shell", { timeout: 20000 }, async () => {

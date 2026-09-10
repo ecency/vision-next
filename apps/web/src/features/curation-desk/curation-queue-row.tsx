@@ -6,18 +6,7 @@ import i18next from "i18next";
 import Link from "next/link";
 import { proxifyImageSrc } from "@ecency/render-helper";
 import { isOnAbuseList } from "@ecency/sdk";
-import {
-  UilBell,
-  UilBookOpen,
-  UilCheck,
-  UilCommentAltNotes,
-  UilExclamationTriangle,
-  UilGlobe,
-  UilExternalLinkAlt,
-  UilThumbsUp,
-  UilTimes,
-} from "@tooni/iconscout-unicons-react";
-import { Button } from "@ui/button";
+import { UilExclamationTriangle, UilGlobe } from "@tooni/iconscout-unicons-react";
 import { UserAvatar } from "@/features/shared/user-avatar";
 import { ProfilePopover } from "@/features/shared/profile-popover";
 import { TimeLabel } from "@/features/shared/time-label";
@@ -26,7 +15,7 @@ import type { Entry } from "@/entities";
 import { Chip } from "./curation-chip";
 import { appLabel } from "./curation-queue-display";
 import { CurationMarkBadges } from "./curation-mark-badges";
-import { CurationRecommendBtn } from "./curation-recommend-btn";
+import { CurationRowActions } from "./curation-row-actions";
 import { CurationWindowBadge } from "./curation-window-badge";
 import { useCurationTicker } from "./curation-ticker";
 import { parseChainDate } from "./curation-window";
@@ -352,117 +341,34 @@ export const CurationQueueRow = memo(function CurationQueueRow(props: Props) {
         )}
       </div>
 
-      <div
-        role="toolbar"
-        aria-label={i18next.t("curation-desk.row.actions")}
-        className={clsx(
-          "flex w-full flex-wrap items-center justify-end gap-1",
-          "lg:w-auto lg:pl-0 lg:self-start"
-        )}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Reading the post is the job, so it is the first control and it says so
-            in words: the drawer used to be reachable only by double clicking the
-            row (nothing a phone sends) or by the vote button. */}
-        <Button
-          size="xs"
-          appearance="gray-link"
-          className="!rounded-lg"
-          aria-label={i18next.t("curation-desk.actions.read-key")}
-          title={i18next.t("curation-desk.actions.read-key")}
-          onClick={() => onOpen(row)}
-          icon={<UilBookOpen />}
-        >
-          {/* Worded on the device that needs it. Every other control here is a
-              glyph with a tooltip, which a finger cannot hover. */}
-          {coarsePointer ? i18next.t("curation-desk.actions.read") : undefined}
-        </Button>
-        {!voteHidden && (
-          <Button
-            size="xs"
-            appearance="gray-link"
-            className={clsx("!rounded-lg", voteDimmed && "opacity-50")}
-            aria-label={i18next.t("curation-desk.actions.vote")}
-            title={
-              locked
-                ? i18next.t("curation-desk.window.locked-tooltip", { pct: scalePct })
-                : row.is_declined
-                  ? i18next.t("curation-desk.marks.declined")
-                  : i18next.t("curation-desk.actions.vote-key")
-            }
-            onClick={() => onVote(row)}
-            icon={<UilThumbsUp />}
-          />
-        )}
-        {isRoster && (
-          <>
-            {teamMark ? (
-              <Button
-                size="xs"
-                appearance="gray-link"
-                className="!rounded-lg"
-                aria-label={i18next.t("curation-desk.actions.clear-mark")}
-                title={i18next.t("curation-desk.actions.clear-mark")}
-                onClick={() => onClearMark(row)}
-                icon={<UilTimes />}
-              />
-            ) : (
-              <Button
-                size="xs"
-                appearance="gray-link"
-                className="!rounded-lg"
-                aria-label={i18next.t("curation-desk.actions.reviewed")}
-                title={i18next.t("curation-desk.actions.reviewed-key")}
-                onClick={() => onReviewed(row)}
-                icon={<UilCheck />}
-              />
-            )}
-            <Button
-              size="xs"
-              appearance="gray-link"
-              className="!rounded-lg"
-              aria-label={i18next.t("curation-desk.actions.snooze")}
-              title={i18next.t("curation-desk.actions.snooze-key")}
-              onClick={() => onSnooze(row)}
-              icon={<UilBell />}
-            />
-            <Button
-              size="xs"
-              appearance="gray-link"
-              className="!rounded-lg"
-              aria-label={i18next.t("curation-desk.actions.flag")}
-              title={i18next.t("curation-desk.actions.flag-key")}
-              onClick={() => onFlag(row)}
-              icon={<UilExclamationTriangle />}
-            />
-            <Button
-              size="xs"
-              appearance="gray-link"
-              className="!rounded-lg"
-              aria-label={i18next.t("curation-desk.actions.note")}
-              title={i18next.t(isTrial ? "curation-desk.actions.note-trial" : "curation-desk.actions.note-key")}
-              onClick={() => onNote(row)}
-              icon={<UilCommentAltNotes />}
-            />
-          </>
-        )}
-        {recommendationsEnabled && !locked && !isOwnPost && (
-          <CurationRecommendBtn author={row.author} permlink={row.permlink} compact />
-        )}
-        {/* after:!hidden: _base.scss appends its own external-link glyph to
-            every a[target="_blank"], and this button already draws one. */}
-        <Button
-          size="xs"
-          appearance="gray-link"
-          className="!rounded-lg after:!hidden"
-          href={href}
-          target="_blank"
-          rel="noopener"
-          aria-label={i18next.t("curation-desk.actions.open")}
-          title={i18next.t("curation-desk.actions.open-key")}
-          icon={<UilExternalLinkAlt />}
-        />
-      </div>
+      <CurationRowActions
+        author={row.author}
+        permlink={row.permlink}
+        isRoster={isRoster}
+        isTrial={isTrial}
+        recommendationsEnabled={recommendationsEnabled}
+        coarsePointer={coarsePointer}
+        marked={!!teamMark}
+        voteHidden={voteHidden}
+        voteDimmed={voteDimmed}
+        voteTitle={
+          locked
+            ? i18next.t("curation-desk.window.locked-tooltip", { pct: scalePct })
+            : row.is_declined
+              ? i18next.t("curation-desk.marks.declined")
+              : i18next.t("curation-desk.actions.vote-key")
+        }
+        recommendHidden={locked || isOwnPost}
+        href={href}
+        className="lg:w-auto lg:pl-0 lg:self-start"
+        onOpen={() => onOpen(row)}
+        onVote={() => onVote(row)}
+        onReviewed={() => onReviewed(row)}
+        onClearMark={() => onClearMark(row)}
+        onSnooze={() => onSnooze(row)}
+        onFlag={() => onFlag(row)}
+        onNote={() => onNote(row)}
+      />
     </article>
   );
 });

@@ -23,6 +23,18 @@ import { Entry, SearchResult } from "@/entities";
 import type { InfiniteData } from "@tanstack/react-query";
 import type { SearchResponse } from "@ecency/sdk";
 
+// NO loading.tsx in this directory, on purpose (#1805). This segment serves
+// /@user/{posts,blog,comments,replies}: the page awaits the account and the
+// first feed page before it returns any JSX, so a loading module here is
+// emitted PENDING — the skeleton goes in the shell and the cards land in a
+// hidden <div id="S:n"> chunk that a $RC swap script reveals only once the
+// parser reaches it. Measured on production with the module still in place,
+// the first card sat at 69.2% of the document on /@ecency/comments (1 pending
+// boundary, 2 hidden segments, 1 swap script), 68.2% on /replies and 62.0% on
+// /blog; the already-fixed /@ecency index puts its first card at 15.2% with
+// none of the three. profile-section-page-no-ssr-skeleton.spec.ts pins the
+// absence here and on every ancestor segment.
+
 interface Props {
   params: Promise<{ username: string; section: string }>;
   searchParams: Promise<Record<string, string | undefined>>;
@@ -94,9 +106,12 @@ export default async function Page({ params, searchParams }: Props) {
       : prefetchGetPostsFeedQuery(section, `@${username}`)
   ]);
 
-  // Same untrusted read as the profile index — see pinnedPermlink(). This
-  // segment keeps its own loading.tsx, so the throw is still contained here,
-  // but the read is identical and there is no reason to leave one copy raw.
+  // Same untrusted read as the profile index — see pinnedPermlink(). This was
+  // belt-and-braces while the segment had a loading.tsx above it, because the
+  // throw was contained to the entries region. With that module gone the guard
+  // is load-bearing: getPostQueryOptions trims the permlink while BUILDING the
+  // options object, so a non-string `pinned` throws before the first flush and
+  // would take the whole document.
   const pinned = pinnedPermlink(account?.profile);
   if (pinned) {
     await prefetchQuery(EcencyEntriesCacheManagement.getEntryQueryByPath(username, pinned));
