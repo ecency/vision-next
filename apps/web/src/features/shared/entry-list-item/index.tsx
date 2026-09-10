@@ -89,6 +89,10 @@ export function EntryListItemComponent({
       // stable per-card handle there is, and restoring a feed position by element
       // is sturdier than by pixel offset once content shifts above it.
       id={`${entryProp.author}-${entryProp.permlink}`}
+      // The post a cross-post wraps, kept out of the id (which has to stay one
+      // card, one value) but available to anything that needs to reason about
+      // the pair — a feed can legitimately carry both.
+      data-original-entry={isCrossPost ? `${entry.author}-${entry.permlink}` : undefined}
       onFocusCapture={() => setActionsFocused(true)}
     >
       <EntryListItemClientInit />
