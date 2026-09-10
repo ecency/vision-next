@@ -314,7 +314,16 @@ export const CurationQueueRow = memo(function CurationQueueRow(props: Props) {
               carries it instead wherever this box is not rendered (image-less rows below
               sm, and collapsed rows). Inset rather than overhanging: the parent clips
               to round the image. */}
-          <span className="absolute bottom-0.5 right-0.5 flex size-5 items-center justify-center rounded-full bg-white/90 dark:bg-dark-200/90">
+          {/* Painted after the reveal overlay, so while covered it would otherwise intercept
+              taps in its own 20px corner. Those taps do not merely miss the reveal: they
+              reach the article handler, which OPENS the post and shows the image full size,
+              the exact opposite of what covering it is for. Kept visible, made inert. */}
+          <span
+            className={clsx(
+              "absolute bottom-0.5 right-0.5 flex size-5 items-center justify-center rounded-full bg-white/90 dark:bg-dark-200/90",
+              covered && "pointer-events-none"
+            )}
+          >
             <RowSourceMark row={row} />
           </span>
         </div>
