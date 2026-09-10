@@ -30,6 +30,9 @@ vi.mock("@ecency/render-helper", () => ({
     () => "https://i.ecency.com/p/HASH?width=320 320w, https://i.ecency.com/p/HASH?width=600 600w"
   ),
   proxifyImageSrc: vi.fn(() => "https://i.ecency.com/p/HASH?blur=1"),
+  // The raw (pre-proxy) source URL, which is the only place the original file
+  // extension survives — the proxied /p/<base58> URL hides it.
+  getEntryImageRawUrl: vi.fn((entry: any) => entry?.__raw ?? "https://img.host/photo.png"),
   IMAGE_SIZES: "(max-width: 768px) 100vw, 700px"
 }));
 
@@ -149,5 +152,37 @@ describe("EntryListItemThumbnail — SSR-discoverable LCP image", () => {
       />
     );
     expect(container.querySelector("img")).toBeNull();
+  });
+
+  // The image host does not transform animated GIFs: width, height, blur and
+  // format are all ignored and the original file comes back every time. So a
+  // srcset is decorative and the LQIP placeholder is a second full download of
+  // the same file — a card with a GIF cover pulled the asset twice (#1802).
+  describe("a source the image host will not transform (animated GIF)", () => {
+    const gif: any = { ...entry, permlink: "post-gif", __raw: "https://img.host/animation.gif" };
+
+    it("asks for the image once: no placeholder layer and no srcset", () => {
+      const { container } = render(
+        <EntryListItemThumbnail entry={gif} entryProp={gif} isCrossPost={false} noImage={NO_IMG} isThumbLcp={true} />
+      );
+      const imgs = Array.from(container.querySelectorAll("img"));
+      expect(imgs).toHaveLength(1);
+      expect(imgs[0].getAttribute("srcset")).toBeNull();
+      expect(container.querySelector('img[aria-hidden="true"]')).toBeNull();
+      // ...and it is still the eager LCP image, just a single copy of it.
+      expect(imgs[0].getAttribute("fetchpriority")).toBe("high");
+    });
+
+    it("keeps the placeholder and srcset for a source that DOES transform", () => {
+      const png: any = { ...entry, permlink: "post-png", __raw: "https://img.host/photo.png" };
+      const { container } = render(
+        <EntryListItemThumbnail entry={png} entryProp={png} isCrossPost={false} noImage={NO_IMG} isThumbLcp={true} />
+      );
+      expect(container.querySelector('img[aria-hidden="true"]')).toBeTruthy();
+      const real = Array.from(container.querySelectorAll("img")).find(
+        (i) => !i.hasAttribute("aria-hidden")
+      );
+      expect(real?.getAttribute("srcset")).toBeTruthy();
+    });
   });
 });

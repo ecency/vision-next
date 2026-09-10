@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Entry } from "@/entities";
 import { useGlobalStore } from "@/core/global-store";
 import { EntryLink } from "@/features/shared";
-import { buildSrcSet, proxifyImageSrc } from "@ecency/render-helper";
+import { buildSrcSet, getEntryImageRawUrl, proxifyImageSrc } from "@ecency/render-helper";
 import { catchPostImageSafely } from "@/core/entries/catch-post-image-safely";
 import Image from "next/image";
 import { THUMB_SIZES } from "./thumb-lcp";
@@ -38,16 +38,34 @@ export function EntryListItemThumbnail({
   // an author-crafted body. A throw degrades to "no thumbnail" (the noImage
   // placeholder) instead of taking the page down.
   const src = useMemo(() => catchPostImageSafely(entry, 600, 500, "match") || null, [entry]);
-  const srcSet = useMemo(() => (src ? buildSrcSet(src) : ""), [src]);
+
+  // The image host does not transform animated GIFs: width, height, blur and
+  // even format are ignored and the original file comes back for every variant
+  // (verified against a 1.5 MB feed GIF — ?width=320, ?width=600&height=500,
+  // ?blur=1 and ?format=webp all returned the same 1,572,008 bytes). For those
+  // sources a srcset is decorative and the LQIP placeholder is a SECOND full
+  // download of the same file, so a card with a GIF cover pulled 3.1 MB for a
+  // 150px slot. Ask for one copy and nothing else until the host can resize
+  // them (#1802).
+  const isUntransformable = useMemo(() => {
+    const raw = getEntryImageRawUrl(entry);
+    return !!raw && /\.gif(?:[?#]|$)/i.test(raw);
+  }, [entry]);
+
+  const srcSet = useMemo(
+    () => (src && !isUntransformable ? buildSrcSet(src) : ""),
+    [src, isUntransformable]
+  );
 
   const blurUrl = useMemo(() => {
+    if (isUntransformable) return null;
     const url = catchPostImageSafely(entry, 0, 0);
     if (!url) return null;
     // Route the LQIP placeholder through the /p/ proxy so `blur=1` is honored.
     // Appending `?blur=1` to a bare upload URL hits the direct-serve route,
     // which ignores the param and returns the full-resolution image.
     return proxifyImageSrc(url, 0, 0, "match", { blur: true }) || null;
-  }, [entry]);
+  }, [entry, isUntransformable]);
 
   // Loop-safe one-shot fallback to the noImage placeholder. This preserves what
   // the old query's try/catch did (swap to noImage on a failed load) without the
