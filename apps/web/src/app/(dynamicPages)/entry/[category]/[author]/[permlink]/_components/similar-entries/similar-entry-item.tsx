@@ -10,6 +10,16 @@ interface Props {
 }
 
 export function SimilarEntryItem({ entry, i }: Props) {
+  // Raw catchPostImage on purpose (see specs/features/shared/
+  // catch-post-image-guarded-call-sites.spec.ts). `img_url` is a URL our own
+  // search index produced, not author markdown, so the hostile-body class the
+  // guard exists for cannot reach it; and this component renders only inside
+  // the deleted-post screen. Worth knowing: for a bare URL the extractor's
+  // regex tier declines (it only takes bare URLs when asked to) and the call
+  // falls through to markdown2Html + a DOM parse, ~0.47ms per row against
+  // ~0.002ms for the proxifyImageSrc this ends up equivalent to. Not swapped
+  // here because they disagree on a URL with no image extension: catchPostImage
+  // answers null (placeholder), proxifyImageSrc proxies it.
   const postImage = useMemo(
     () => catchPostImage(entry.img_url, 600, 500),
     [entry.img_url]
