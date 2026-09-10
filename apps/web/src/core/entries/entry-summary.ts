@@ -1,5 +1,5 @@
-import { postBodySummary } from "@ecency/render-helper";
 import type { Entry } from "@/entities";
+import { postBodySummarySafely } from "./post-body-summary-safely";
 
 /** Length every feed card passes to postBodySummary. */
 export const ENTRY_SUMMARY_LENGTH = 200;
@@ -13,11 +13,11 @@ export const ENTRY_SUMMARY_LENGTH = 200;
  * so such a description still yields a bounded excerpt.
  */
 export function summarizeText(text: string, length: number = ENTRY_SUMMARY_LENGTH): string {
-  const summary = postBodySummary(text, length)?.trim();
+  const summary = postBodySummarySafely(text, length).trim();
   if (summary) {
     return summary;
   }
-  const plain = postBodySummary(text, 0)?.trim();
+  const plain = postBodySummarySafely(text, 0).trim();
   return plain ? Array.from(plain).slice(0, length).join("") : "";
 }
 
@@ -39,6 +39,13 @@ export function summarizeText(text: string, length: number = ENTRY_SUMMARY_LENGT
  * emphasis, `&lt;div&gt;` becomes a tag to strip), and the row's blank body
  * would make the fallback depend on whether render-helper's cache still holds
  * the full entry's summary, a hydration mismatch waiting to happen.
+ *
+ * Both markdown passes go through post-body-summary-safely, because this runs
+ * during the SSR render of routes that no longer have a boundary above their
+ * cards. A description that breaks the renderer costs the card nothing: the
+ * empty result falls through to the body below, which is a different input and
+ * usually renders fine. A body that breaks it too leaves the card with a title
+ * and no summary line, leaving the slimmer to fall back to the title.
  */
 export function entrySummary(entry: Entry, length: number = ENTRY_SUMMARY_LENGTH): string {
   const declared = entry.json_metadata?.description;
@@ -51,5 +58,5 @@ export function entrySummary(entry: Entry, length: number = ENTRY_SUMMARY_LENGTH
       return summary;
     }
   }
-  return postBodySummary(entry, length)?.trim() ?? "";
+  return postBodySummarySafely(entry, length).trim();
 }

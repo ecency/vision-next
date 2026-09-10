@@ -50,6 +50,9 @@ describe("feed and search thumbnails go through the catchPostImage guard", () =>
   it("the guard swallows the throw and reports rather than rethrowing", () => {
     const source = read("core/entries/catch-post-image-safely.ts");
     expect(source).toMatch(/catch\s*\([\s\S]*?\)\s*{[\s\S]*?return null;/);
-    expect(source).toContain("reportedFailures");
+    // The report-once bookkeeping moved into report-render-helper-failure.ts,
+    // shared with the summary guard; the guard must still call it.
+    expect(source).toMatch(/reportRenderHelperFailureOnce\(\s*"catchPostImage"/);
+    expect(read("core/entries/report-render-helper-failure.ts")).toContain("reportedFailures");
   });
 });
