@@ -6,22 +6,26 @@ import { describe, expect, it } from "vitest";
  * A key whose English value carries a `{{placeholder}}` must be called with the
  * values that fill it. `i18next.t("profile-info.joined")` with no second
  * argument does not throw and does not fall back: it renders the placeholder
- * verbatim, so the UI shows a literal "Joined: {{n}}".
+ * verbatim, so the UI showed a literal "Joined: {{n}}".
  *
- * That is how the profile hover card shipped it. `profile-info.joined` is the
- * full sentence the profile page renders ("Joined: 3 years ago", built with
- * `{ n: created }`), but the popover reused it as the *title* of a cell that
- * prints the date underneath, so the label read "JOINED: {{N}}" while the real
- * date sat one line below. Fixed by giving the popover a bare
- * `profile-info.joined-label`.
+ * `profile-info.joined` had two consumers pulling it in opposite directions:
+ * the account info tooltip wants the sentence "Joined: 3 years ago", the
+ * username hover card wants a bare cell title with the date printed
+ * underneath. The source string flipped between the two forms three times
+ * (385596ab67 sentence, fc8a0550e3 label, b83f037f06 back to sentence), and
+ * each flip fixed one consumer by breaking the other.
  *
- * No unit test would have caught it: specs/setup-any-spec.ts mocks i18next so
- * `t()` returns the key verbatim, which means a render assertion sees
- * "profile-info.joined" and never the interpolated value. The check has to run
- * against the source and the real locale table instead.
+ * Every non-English locale holds the LABEL form, because that is what the
+ * string was when Crowdin last translated it, and a source edit does not
+ * invalidate an existing translation. So the split keeps `joined` as the label
+ * the 18 translations already match, and gives the sentence its own `joined-n`
+ * key. Anything else would have made the hover card fall back to English in
+ * every locale.
  *
- * en-US.json is the only locale edited by hand here (Crowdin syncs the rest),
- * so it is the one table worth checking.
+ * No unit test would have caught the original bug: specs/setup-any-spec.ts
+ * mocks i18next so `t()` returns the key verbatim, which means a render
+ * assertion sees "profile-info.joined" and never the interpolated value. The
+ * check has to run against the source and the real locale table instead.
  */
 const SRC = path.resolve(__dirname, "../../..");
 const LOCALE = path.join(SRC, "features/i18n/locales/en-US.json");
@@ -83,16 +87,36 @@ describe("i18n keys that interpolate are called with values", () => {
     expect(found).toEqual(KNOWN_BROKEN);
   });
 
-  it("keeps a bare label for the hover card's joined cell", () => {
-    // The popover title must not be the interpolated sentence, and the plain
-    // label has to exist for it to point at.
-    expect(lookup(locale, "profile-info.joined-label")).toBe("Joined");
-    expect(lookup(locale, "profile-info.joined")).toContain("{{n}}");
+  it("keeps the hover card on the label form and the tooltip on the sentence", () => {
+    // The label is what every non-English locale already holds, so the hover
+    // card must stay on `joined` or it falls back to English everywhere.
+    expect(lookup(locale, "profile-info.joined")).toBe("Joined");
+    expect(lookup(locale, "profile-info.joined-n")).toContain("{{n}}");
 
     const preview = fs.readFileSync(
       path.join(SRC, "features/shared/profile-popover/profile-preview/index.tsx"),
       "utf-8"
     );
-    expect(preview).toContain('i18next.t("profile-info.joined-label")');
+    expect(preview).toContain('i18next.t("profile-info.joined")');
+    expect(preview).not.toContain("profile-info.joined-n");
+
+    const tooltip = fs.readFileSync(
+      path.join(SRC, "app/(dynamicPages)/profile/[username]/_components/profile-info/index.tsx"),
+      "utf-8"
+    );
+    expect(tooltip).toContain('i18next.t("profile-info.joined-n", { n: created })');
+  });
+
+  it("keeps every locale's joined label in the non-interpolating form", () => {
+    // A future Crowdin sync that reintroduces a placeholder here would silently
+    // put "{{n}}" back into the hover card title for that language.
+    const dir = path.join(SRC, "features/i18n/locales");
+    for (const file of fs.readdirSync(dir).filter((f) => f.endsWith(".json"))) {
+      const table = JSON.parse(fs.readFileSync(path.join(dir, file), "utf-8"));
+      const value = lookup(table, "profile-info.joined");
+      if (value !== undefined) {
+        expect(`${file}: ${value}`).not.toContain("{{");
+      }
+    }
   });
 });
