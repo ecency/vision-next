@@ -104,6 +104,80 @@ function pickDescription(entry: Entry): string {
 }
 
 /**
+ * The json_metadata keys a feed CARD reads. Everything else is dropped.
+ *
+ * json_metadata is author-written and unbounded: publishing clients park
+ * whatever they like in it and it all rides the SSR payload. Measured over 80
+ * live rows (four feeds: a community `created`, `trending`, a tag `hot` and a
+ * photo community), 53% of a slim entry's json_metadata was keys nothing in
+ * this app reads — `links` alone was 12 KB, then Liketu's `flow`/`images`/
+ * `image_focus`, Actifit's `detailedActivity`/`step_count`/`fitbitUserId`,
+ * inLeo's `hivepro`, Waivio's `wobj`, and so on. A tag feed's worst case was
+ * 66%. The `image_ratios`/`canonical_url`/`ai_tools`/`pinned_reply`/`speak`
+ * keys DO have readers, but all of them are entry-page or sitemap paths, which
+ * read the post's own (never-slimmed) query.
+ *
+ * A whitelist rather than a blocklist on purpose: the set of keys a card reads
+ * is knowable and small, the set an author can invent is not, so the next
+ * frontend to publish a novel metadata blob costs this page nothing.
+ *
+ * Kept here, in the queryFn, so server and client produce identical entries —
+ * the same reason the body goes here. The derived keys (`description`, `image`,
+ * `location`) are written below and so are listed too.
+ */
+export const CARD_METADATA_KEYS = [
+  // Written by the slim step itself, read by the card.
+  "description", // entry-summary.ts -> the card's summary line
+  "image", // catchPostImage / getEntryCardImageRawUrl -> the card thumbnail
+  "location", // use-entry-location.ts -> the location chip
+  // Author-written, read by the card.
+  "app", // EcencySourceBadge
+  "tags", // the `tags.includes("nsfw")` gate in the nsfw/muted card content
+  // A poll's card shows only an icon (content_type), but the entries cache is
+  // shared with the entry page and the edit prefill, which rebuild the whole
+  // poll from these. They exist only on poll posts, so they cost other rows
+  // nothing.
+  "content_type",
+  "version",
+  "question",
+  "choices",
+  "preferred_interpretation",
+  "token",
+  "vote_change",
+  "hide_votes",
+  "filters",
+  "end_time",
+  "max_choices_voted"
+] as const;
+
+/**
+ * `meta` reduced to the keys above, then the derived values layered on top.
+ *
+ * Order matters and mirrors what the spread it replaced did: `description` is
+ * always the derived one, while `image` and `location` fall back to the
+ * author's own value when the slim step could not derive one.
+ */
+function pickCardMetadata(
+  meta: Record<string, unknown>,
+  derived: { description: string; thumbnail?: string; location?: unknown }
+): Record<string, unknown> {
+  const next: Record<string, unknown> = {};
+  for (const key of CARD_METADATA_KEYS) {
+    if (meta[key] !== undefined) {
+      next[key] = meta[key];
+    }
+  }
+  next.description = derived.description;
+  if (derived.thumbnail) {
+    next.image = [derived.thumbnail];
+  }
+  if (derived.location) {
+    next.location = derived.location;
+  }
+  return next;
+}
+
+/**
  * One entry with its body dropped and everything a card reads derived first.
  * Entries that already have no body (search results, waves, an entry slimmed
  * twice) pass through untouched.
@@ -113,19 +187,26 @@ export function slimEntry<T extends Entry>(entry: T): T {
     return entry;
   }
 
-  const meta = entry.json_metadata ?? {};
+  // json_metadata is untrusted: a node can hand back the raw string, and a
+  // publisher can write a scalar. Only a real object has keys worth reading —
+  // and every derived value below was computed from the ORIGINAL entry, where
+  // catchPostImage does its own parsing of a string metadata field.
+  const rawMeta = entry.json_metadata;
+  const meta: Record<string, unknown> =
+    rawMeta && typeof rawMeta === "object" && !Array.isArray(rawMeta)
+      ? (rawMeta as Record<string, unknown>)
+      : {};
   const thumbnail = pickThumbnail(entry);
   const location = meta.location ?? parseEntryLocationFromBody(entry.body);
 
   const slimmed = {
     ...entry,
     body: "",
-    json_metadata: {
-      ...meta,
+    json_metadata: pickCardMetadata(meta, {
       description: pickDescription(entry),
-      ...(thumbnail ? { image: [thumbnail] } : {}),
-      ...(location ? { location } : {})
-    },
+      thumbnail,
+      location
+    }),
     // The SDK's low-trust rule looks for an outbound link in the body. Recording
     // the answer here keeps that rule (and its precedence) in the SDK rather than
     // forking it into the web app — see core/entries/entry-moderation.ts.
