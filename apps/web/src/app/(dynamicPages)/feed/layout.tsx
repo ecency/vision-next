@@ -10,6 +10,10 @@ import { Feedback } from "@/features/shared/feedback";
 import { Navbar } from "@/features/shared/navbar";
 import { ScrollToTop } from "@/features/shared/scroll-to-top";
 import { Theme } from "@/features/shared/theme";
+// Direct module import, not the `_components` barrel: the barrel star-exports
+// client modules, and a server component reaching a "use client" boundary
+// through one gets `undefined` back at render time.
+import { FeedCachedRepaint } from "./_components/feed-cached-repaint";
 import "./feed-reading.scss";
 
 export default function FeedLayout({ children }: PropsWithChildren) {
@@ -30,7 +34,12 @@ export default function FeedLayout({ children }: PropsWithChildren) {
           <div className="page-tools">
             <EntryIndexMenu />
           </div>
-          {children}
+          {/* Pass-through in the server render — it emits `{children}` and
+              nothing else, adding no element and no Suspense boundary above
+              the cards (#1786). On a client navigation it paints the reader's
+              cached rows for the feed they are heading to, for as long as that
+              navigation is in flight (#1789). */}
+          <FeedCachedRepaint>{children}</FeedCachedRepaint>
         </div>
         <div className="side-menu">
           <FeatureSpotlightWidget />

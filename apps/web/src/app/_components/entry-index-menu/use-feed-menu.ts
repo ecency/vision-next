@@ -10,6 +10,19 @@ export interface FeedMenuItem {
   selected: boolean;
   id: string;
   onClick: () => void;
+  /**
+   * The feed `href` resolves to, as the catch-all route's own two segments.
+   *
+   * Carried alongside the href rather than parsed back out of it: the URLs here
+   * are the PUBLIC ones and next.config rewrites them (`/@user/feed` ->
+   * `/feed/feed/@user`, `/tags/x` -> `/feed/created/x`), so a consumer that
+   * needs the feed's identity — the cached repaint, which looks up the query
+   * key of the feed a navigation is heading to — would otherwise have to keep
+   * its own copy of that rewrite table in step with next.config. The tag is the
+   * raw URL segment; normalising it is `normalizeFeedTag`'s job, and the page
+   * does exactly that with the same input.
+   */
+  feed: { filter: string; tag: string };
 }
 
 // Sort filters that apply to the Communities and Global sources.
@@ -94,7 +107,8 @@ export function useFeedMenu() {
         href: tagHref,
         selected: true,
         id: "tag",
-        onClick: () => router.push(tagHref)
+        onClick: () => router.push(tagHref),
+        feed: { filter: currentSort, tag: normalizedTag }
       });
     }
 
@@ -105,7 +119,9 @@ export function useFeedMenu() {
         href: followingHref,
         selected: isFollowing,
         id: "following",
-        onClick: () => router.push(followingHref)
+        onClick: () => router.push(followingHref),
+        // The rewrite sends /@user/feed to the catch-all as `feed/@user`.
+        feed: { filter: "feed", tag: `@${activeUser.username}` }
       });
 
       const communitiesHref = `/${currentSort}/my`;
@@ -114,7 +130,8 @@ export function useFeedMenu() {
         href: communitiesHref,
         selected: !!isCommunities,
         id: "communities",
-        onClick: () => router.push(communitiesHref)
+        onClick: () => router.push(communitiesHref),
+        feed: { filter: currentSort, tag: "my" }
       });
     }
 
@@ -124,7 +141,8 @@ export function useFeedMenu() {
       href: globalHref,
       selected: isGlobal,
       id: "global",
-      onClick: () => router.push(globalHref)
+      onClick: () => router.push(globalHref),
+      feed: { filter: currentSort, tag: "" }
     });
 
     return items;
@@ -158,7 +176,8 @@ export function useFeedMenu() {
         href,
         selected: (filter as EntryFilter) === x,
         id: x,
-        onClick: () => router.push(href)
+        onClick: () => router.push(href),
+        feed: { filter: x, tag: tagSegment }
       };
     });
   }, [filter, isCommunities, normalizedTag, router]);
@@ -170,21 +189,23 @@ export function useFeedMenu() {
         href: "/muted",
         selected: filter === "muted",
         id: "muted",
-        onClick: () => router.push("/muted")
+        onClick: () => router.push("/muted"),
+        feed: { filter: "muted", tag: "" }
       },
       {
         label: i18next.t("entry-filter.filter-promoted"),
         href: "/promoted",
         selected: filter === "promoted",
         id: "promoted",
-        onClick: () => router.push("/promoted")
+        onClick: () => router.push("/promoted"),
+        feed: { filter: "promoted", tag: "" }
       }
     ],
     [filter, router]
   );
 
   return useMemo(
-    () => ({ sources, sorts, additionalFilters, isFollowing }),
-    [isFollowing, additionalFilters, sorts, sources]
+    () => ({ sources, sorts, additionalFilters, isFollowing, filter, tag: normalizedTag }),
+    [isFollowing, additionalFilters, sorts, sources, filter, normalizedTag]
   );
 }
