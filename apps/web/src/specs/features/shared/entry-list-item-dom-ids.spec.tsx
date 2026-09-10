@@ -118,26 +118,43 @@ describe("EntryListItem DOM ids (#1806)", () => {
     expect(ids).toEqual([...new Set(ids)]);
   });
 
-  it("derives no id from the author or the permlink", () => {
+  it("keeps the digits, so two releases do not collapse onto one id", () => {
     const { container } = renderCards(RELEASE_POSTS);
 
     const ids = idsOf(container);
-    for (const id of ids) {
-      expect(id).not.toContain("ecency");
-      expect(id).not.toContain("mobile");
-    }
+    expect(ids).toContain("ecency-ecency-mobile-3-5-9");
+    expect(ids).toContain("ecency-ecency-mobile-3-5-8");
   });
 
-  it("leaves the card root and the author block without an id attribute", () => {
+  it("puts exactly one id on a card, on its root", () => {
     const { container } = renderCards([RELEASE_POSTS[0]]);
 
-    const root = container.querySelector(".entry-list-item");
-    expect(root).not.toBeNull();
-    expect(root!.hasAttribute("id")).toBe(false);
-
-    const authorPart = container.querySelector(".author-part");
-    expect(authorPart).not.toBeNull();
-    expect(authorPart!.hasAttribute("id")).toBe(false);
-    expect(authorPart!.querySelectorAll("[id]")).toHaveLength(0);
+    const root = container.querySelector(".entry-list-item")!;
+    expect(root.getAttribute("id")).toBe("ecency-ecency-mobile-3-5-9");
+    // The author block used to carry the same id on two nested divs.
+    expect(container.querySelector(".author-part")!.querySelectorAll("[id]")).toHaveLength(0);
+    expect(container.querySelector(".author-part")!.hasAttribute("id")).toBe(false);
   });
+
+  // A cross-post card renders the post it WRAPS, so an id taken from the
+  // rendered entry names the original — and a feed carrying both the cross-post
+  // and that original would stamp one id on two cards. The id comes from the
+  // card's own post instead.
+  it("gives a cross-post its own id, not the id of the post it wraps", () => {
+    const original = mockEntry({ author: "alice", permlink: "the-original" });
+    const crossPost = mockEntry({
+      author: "bob",
+      permlink: "the-original-hive-125125",
+      original_entry: original
+    } as never);
+
+    const { container } = renderCards([original, crossPost] as never);
+
+    expect(container.querySelectorAll(".entry-list-item")).toHaveLength(2);
+    const ids = idsOf(container);
+    expect(ids).toEqual([...new Set(ids)]);
+    expect(ids).toContain("alice-the-original");
+    expect(ids).toContain("bob-the-original-hive-125125");
+  });
+
 });

@@ -80,20 +80,21 @@ export function EntryListItemComponent({
         "promoted-item": promoted,
         [filter ?? ""]: !!filter
       })}
+      // The card's own post, NOT `entry` — that resolves to `original_entry` for a
+      // cross-post, so a feed carrying both a cross-post and the post it wraps
+      // would stamp the same id on two cards. `entryProp` is one card, one post.
+      // Digits intact: `(author + permlink).replace(/[0-9]/g, "")` used to strip
+      // them, which collapsed `ecency-mobile-3-5-9` and `-3-5-8` onto one id.
+      // Nothing reads this today; it is kept because author+permlink is the only
+      // stable per-card handle there is, and restoring a feed position by element
+      // is sturdier than by pixel offset once content shifts above it.
+      id={`${entryProp.author}-${entryProp.permlink}`}
       onFocusCapture={() => setActionsFocused(true)}
     >
       <EntryListItemClientInit />
       <EntryListItemCrossPost entry={entryProp} />
       <div className="item-header">
         <div className="item-header-main">
-          {/* Deliberately no DOM ids on this pair. Both of these nested divs
-              used to carry id={`${author}-${permlink}`}, a duplicate id on
-              every single card, and the card root carried the same pair with
-              every digit stripped, so `post-3-5-9` and `post-3-5-8` collapsed
-              onto one id. Nothing in the app, the specs or the SCSS ever read
-              either one (the tree is reached by class: `.entry-list-item`,
-              `.author-part`), so they are removed rather than made unique.
-              Guarded by specs/features/shared/entry-list-item-dom-ids. #1806 */}
           <div className="author-part">
             <div className="flex items-center">
               <ProfileLink username={entry.author}>
