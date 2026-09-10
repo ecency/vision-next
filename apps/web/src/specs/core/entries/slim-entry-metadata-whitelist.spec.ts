@@ -30,8 +30,6 @@ const AUTHOR_JUNK = {
   links: ["https://a.example/1", "https://a.example/2"],
   links_meta: { "https://a.example/1": { title: "t" } },
   format: "markdown+html",
-  canonical_url: "https://inleo.io/@a/p",
-  image_ratios: ["1.7778"],
   hivepro: { destination: "inleo", enforcedRules: ["primary-tag:leofinance"] },
   flow: { pictures: [{ id: 1 }] },
   images: ["https://a.example/x.png"],
@@ -86,12 +84,20 @@ describe("slimEntry keeps only the json_metadata a card reads", () => {
       json_metadata: {
         ai_tools: [{ name: "midjourney" }],
         pinned_reply: "alice/some-reply",
+        canonical_url: "https://inleo.io/@a/p",
+        image_ratios: ["1.7778"],
+        speak: { firstUpload: false },
         junk: "dropped"
       }
     } as never);
     const slim = slimEntry(entry as never) as never as { json_metadata: Record<string, unknown> };
     expect(slim.json_metadata.ai_tools).toEqual([{ name: "midjourney" }]);
     expect(slim.json_metadata.pinned_reply).toBe("alice/some-reply");
+    // The entry page reserves the cover's box from image_ratios and renders the
+    // 3Speak embed from speak; the agent/JSON envelope reads canonical_url.
+    expect(slim.json_metadata.canonical_url).toBe("https://inleo.io/@a/p");
+    expect(slim.json_metadata.image_ratios).toEqual(["1.7778"]);
+    expect(slim.json_metadata.speak).toEqual({ firstUpload: false });
     expect(slim.json_metadata.junk).toBeUndefined();
   });
 
@@ -186,15 +192,14 @@ const READERS = [
   "utils/use-entry-location.ts"
 ];
 
-function sourceFiles(rel: string): string[] {
+function walk(rel: string): string[] {
   const target = path.join(SRC, rel);
   if (fs.statSync(target).isFile()) {
     return [target];
   }
   return fs
-    .readdirSync(target, { withFileTypes: true, recursive: true } as never)
-    .filter((e: fs.Dirent) => e.isFile() && /\.(ts|tsx)$/.test(e.name))
-    .map((e: fs.Dirent) => path.join((e as unknown as { parentPath: string }).parentPath, e.name));
+    .readdirSync(target, { withFileTypes: true })
+    .flatMap((e) => (e.isDirectory() ? walk(path.join(target, e.name)) : [path.join(target, e.name)]));
 }
 
 /** Source with comments removed — prose about a key is not a read of it. */
@@ -213,7 +218,7 @@ describe("the whitelist covers what the card actually reads", () => {
   it("finds the reads it is meant to be checking", () => {
     const keys = new Set<string>();
     for (const rel of READERS) {
-      for (const file of sourceFiles(rel)) {
+      for (const file of walk(rel)) {
         for (const m of read(file).matchAll(READ_RE)) {
           keys.add(m[1]);
         }
@@ -227,7 +232,7 @@ describe("the whitelist covers what the card actually reads", () => {
   it("reads no json_metadata key the slim step drops", () => {
     const allowed = new Set<string>(CARD_METADATA_KEYS);
     for (const rel of READERS) {
-      for (const file of sourceFiles(rel)) {
+      for (const file of walk(rel)) {
         for (const m of read(file).matchAll(READ_RE)) {
           expect(allowed.has(m[1]), `${path.relative(SRC, file)} reads json_metadata.${m[1]}`).toBe(
             true

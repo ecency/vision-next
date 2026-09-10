@@ -141,6 +141,9 @@ export const CARD_METADATA_KEYS = [
   // page's own fetch resolved. Both are small and absent on most posts.
   "ai_tools",
   "pinned_reply",
+  "canonical_url", // entry-agent-format / the JSON envelope
+  "image_ratios", // EntryPageStaticBody reserves the cover's box from this
+  "speak", // the 3Speak video embed on the entry page
   // A poll's card shows only an icon (content_type), but the entries cache is
   // shared with the entry page and the edit prefill, which rebuild the whole
   // poll from these. They exist only on poll posts, so they cost other rows
