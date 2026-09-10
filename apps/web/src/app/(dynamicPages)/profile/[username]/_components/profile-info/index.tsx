@@ -76,7 +76,7 @@ function ProfileInfoContent({ account, rcAccount }: ContentProps) {
 
   return (
     <div className="profile-info-tooltip-content [&>p]:mb-0 text-sm">
-      <p>{i18next.t("profile-info.joined", { n: created })}</p>
+      <p>{i18next.t("profile-info.joined-n", { n: created })}</p>
       <p>
         {i18next.t("profile-info.post-count", {
           n: formattedNumber(account.post_count!, { fractionDigits: 0 })
