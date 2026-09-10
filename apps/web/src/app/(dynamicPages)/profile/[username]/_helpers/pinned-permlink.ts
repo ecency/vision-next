@@ -45,3 +45,90 @@ export function pinnedPermlink(profile: AccountProfile | undefined | null): stri
   // saves a pointless SSR round-trip.
   return pinned.trim() === "" ? undefined : pinned;
 }
+
+/**
+ * Every identity under which a card can render this entry.
+ *
+ * A cross-post is a separate on-chain post (`<original-permlink>-hive-NNNNNN`)
+ * whose body is a wrapper, and `EntryListItemComponent` renders the post it
+ * wraps, not the wrapper:
+ *
+ *   const entry = entryProp.original_entry || entryProp;
+ *   ... id={`${entry.author}-${entry.permlink}`}
+ *
+ * So `@alice/x-hive-1` and `@alice/x` are ONE card on screen, with one id and
+ * one title. Comparing raw permlinks therefore misses the case the pinned
+ * dedupe exists for: on /@m16uellop the pinned post `haciendo-anillo-...`
+ * rendered as the pinned card AND again from the feed's cross-post
+ * `haciendo-anillo-...-hive-148441`, whose card carries the pinned post's own
+ * id (#1807).
+ *
+ * The SDK attaches `original_entry` in `resolvePost()` (bridge/requests.ts) for
+ * anything tagged `cross-post` with `original_author`/`original_permlink`, so
+ * feed entries carry it. `getPostQueryOptions` — the pinned entry's own fetch —
+ * does NOT resolve, which is why the pinned side contributes its raw identity
+ * too and both sides are compared as SETS rather than single values.
+ *
+ * Names and permlinks are lowercase by protocol, but the pinned permlink is
+ * user-written JSON: normalising costs nothing and no two distinct Hive posts
+ * differ only by case.
+ */
+type IdentifiableEntry = {
+  author?: unknown;
+  permlink?: unknown;
+  original_entry?: { author?: unknown; permlink?: unknown } | null;
+};
+
+export function entryIdentityKeys(entry: IdentifiableEntry | null | undefined): string[] {
+  const keys: string[] = [];
+  const add = (author: unknown, permlink: unknown) => {
+    if (typeof author !== "string" || typeof permlink !== "string") return;
+    const a = author.trim().toLowerCase();
+    const p = permlink.trim().toLowerCase();
+    if (!a || !p) return;
+    const key = `${a}/${p}`;
+    if (!keys.includes(key)) keys.push(key);
+  };
+
+  add(entry?.author, entry?.permlink);
+  add(entry?.original_entry?.author, entry?.original_entry?.permlink);
+
+  return keys;
+}
+
+/**
+ * The identity set of the post the pinned card is showing, or [] when no pinned
+ * card is being rendered.
+ *
+ * `pinnedEntry` is the gate on purpose. The old filter dropped the pinned
+ * permlink from the feed whether or not the pinned card existed, so a profile
+ * whose pinned entry failed to prefetch lost that post from the list entirely:
+ * no pinned card, no feed row. Nothing is filtered unless something is shown in
+ * its place.
+ */
+export function pinnedIdentityKeys(
+  accountName: string | undefined,
+  pinned: string | undefined,
+  pinnedEntry: IdentifiableEntry | null | undefined
+): string[] {
+  if (!pinnedEntry) return [];
+
+  const keys = entryIdentityKeys(pinnedEntry);
+  // The permlink as the profile metadata spells it, under the profile's own
+  // account: the fetched entry answers for itself, this answers for what was
+  // asked for.
+  for (const key of entryIdentityKeys({ author: accountName, permlink: pinned })) {
+    if (!keys.includes(key)) keys.push(key);
+  }
+
+  return keys;
+}
+
+/** True when this feed entry is the same post the pinned card already shows. */
+export function isPinnedDuplicate(
+  entry: IdentifiableEntry | null | undefined,
+  pinnedKeys: readonly string[]
+): boolean {
+  if (pinnedKeys.length === 0) return false;
+  return entryIdentityKeys(entry).some((key) => pinnedKeys.includes(key));
+}

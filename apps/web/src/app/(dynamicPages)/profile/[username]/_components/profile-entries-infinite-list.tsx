@@ -10,6 +10,9 @@ import React, { useMemo } from "react";
 import { usePostsFeedQuery } from "@/api/queries";
 import { useVisibleEntries } from "@/features/shared/entry-list-item/use-muted-authors";
 import { Entry, FullAccount } from "@/entities";
+// Direct module import, not the `_helpers` barrel: that barrel also re-exports
+// generate-profile-metadata, which is server-only.
+import { isPinnedDuplicate } from "@/app/(dynamicPages)/profile/[username]/_helpers/pinned-permlink";
 
 interface Props {
   account: FullAccount;
@@ -21,6 +24,13 @@ interface Props {
    */
   initialEntryAuthors: string[];
   initialPageEntriesCount: number;
+  /**
+   * Identity keys ("author/permlink") of the post the server's pinned card is
+   * showing, computed there because only the server holds the pinned entry.
+   * Empty when no pinned card was rendered, and then nothing is filtered: the
+   * pinned post keeps its normal feed position instead of disappearing.
+   */
+  pinnedKeys: string[];
   initialDataLoaded: boolean;
 }
 
@@ -29,6 +39,7 @@ export function ProfileEntriesInfiniteList({
   account,
   initialEntryAuthors,
   initialPageEntriesCount,
+  pinnedKeys,
   initialDataLoaded
 }: Props) {
   // No observer argument on purpose, so this resolves to DEFAULT_OBSERVER and
@@ -50,9 +61,13 @@ export function ProfileEntriesInfiniteList({
     return (
       relevantPages
         ?.reduce<Entry[]>((acc: Entry[], page: Entry[]) => [...acc, ...page], [])
-        ?.filter((item: Entry) => item.permlink !== account.profile?.pinned) ?? []
+        // Same comparison the server used on page 1: a raw
+        // `permlink !== profile.pinned` misses the cross-post wrapper, whose
+        // card renders the pinned post itself (#1807), and it read the
+        // unvalidated metadata string rather than the entry that was shown.
+        ?.filter((item: Entry) => !isPinnedDuplicate(item, pinnedKeys)) ?? []
     );
-  }, [account.profile?.pinned, data?.pages, dropFirstPage]);
+  }, [data?.pages, dropFirstPage, pinnedKeys]);
 
   // Count what the viewer can see, across the server-rendered page and ours: a
   // profile whose every post the viewer muted must show its empty state rather

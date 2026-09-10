@@ -32,12 +32,14 @@ vi.mock("@/api/queries", async () => ({
 }));
 
 // Cards and the scroll sentinel are covered elsewhere; this spec is about which
-// empty state the composed list settles on.
+// empty state the composed list settles on, and which entries survive the
+// pinned filter. The card ids the entries would render under are pinned by
+// profile-pinned-duplicate.spec.tsx, which renders the real card chain.
 vi.mock("@/features/shared", async () => ({
   ...(await vi.importActual<Record<string, unknown>>("@/features/shared")),
   DetectBottom: () => null,
   EntryListContent: ({ entries }: { entries: Entry[] }) => (
-    <div data-testid="list">{entries.length}</div>
+    <div data-testid="list">{entries.map((e) => e.permlink).join(",") || entries.length}</div>
   ),
   EntryListContentLoading: () => null,
   EntryListContentNoData: () => <div data-testid="no-data">No posts</div>
@@ -46,12 +48,18 @@ vi.mock("@/features/shared", async () => ({
 import { ProfileEntriesInfiniteList } from "@/app/(dynamicPages)/profile/[username]/_components/profile-entries-infinite-list";
 
 const account = { name: "alice", profile: {} } as FullAccount;
+// A profile that DOES carry `pinned`, for the cases about the pinned filter.
+const pinningAccount = { name: "alice", profile: { pinned: "pinned-post" } } as FullAccount;
+
+const pinned = mockEntry({ author: "alice", permlink: "pinned-post" });
 
 function renderList(
   initialEntryAuthors: string[],
   pageTwo: Entry[],
   mutedAuthors: string[],
-  hasNextPage = false
+  hasNextPage = false,
+  pinnedKeys: string[] = [],
+  forAccount: FullAccount = account
 ) {
   usePostsFeedQuery.mockReturnValue({
     // Page 1 is the server-rendered slice this component drops.
@@ -69,10 +77,11 @@ function renderList(
   return render(
     <QueryClientProvider client={queryClient}>
       <ProfileEntriesInfiniteList
-        account={account}
+        account={forAccount}
         section="posts"
         initialEntryAuthors={initialEntryAuthors}
         initialPageEntriesCount={initialEntryAuthors.length}
+        pinnedKeys={pinnedKeys}
         initialDataLoaded={true}
       />
     </QueryClientProvider>
@@ -116,5 +125,41 @@ describe("ProfileEntriesInfiniteList", () => {
     renderList(["spammer"], [mockEntry({ author: "spammer", permlink: "p2" })], ["spammer"], true);
 
     expect(screen.queryByTestId("no-data")).not.toBeInTheDocument();
+  });
+
+  // Later pages get the same treatment page 1 got on the server: the pinned
+  // post reaches this list as its cross-post wrapper, whose card renders the
+  // pinned post itself (#1807). Comparing raw permlinks let it through.
+  it("drops a later page's cross-post of the pinned post", () => {
+    renderList(
+      ["alice"],
+      [
+        mockEntry({ author: "alice", permlink: "pinned-post-hive-1", original_entry: pinned }),
+        mockEntry({ author: "alice", permlink: "p2" })
+      ],
+      [],
+      false,
+      ["alice/pinned-post"],
+      pinningAccount
+    );
+
+    expect(screen.getByTestId("list")).toHaveTextContent("p2");
+    expect(screen.getByTestId("list")).not.toHaveTextContent("pinned-post-hive-1");
+  });
+
+  // Nothing is filtered without a pinned card above to show it instead.
+  it("keeps the pinned post when the server rendered no pinned card", () => {
+    renderList(
+      ["alice"],
+      [pinned, mockEntry({ author: "alice", permlink: "p2" })],
+      [],
+      false,
+      // No pinned card was rendered, even though the profile names one: the
+      // post keeps its normal feed position instead of vanishing.
+      [],
+      pinningAccount
+    );
+
+    expect(screen.getByTestId("list")).toHaveTextContent("pinned-post,p2");
   });
 });
