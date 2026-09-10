@@ -32,11 +32,22 @@ vi.mock("@ecency/render-helper", () => ({
   proxifyImageSrc: vi.fn(() => "https://i.ecency.com/p/HASH?blur=1"),
   // The raw (pre-proxy) source URL, which is the only place the original file
   // extension survives — the proxied /p/<base58> URL hides it.
-  getEntryImageRawUrl: vi.fn((entry: any) => entry?.__raw ?? "https://img.host/photo.png"),
+  // Card precedence: json_metadata.thumbnails first, then image, then body —
+  // which is what the component must classify, not the body-image URL.
+  getEntryCardImageRawUrl: vi.fn((entry: TestEntry) =>
+    entry?.__thumb ?? entry?.__raw ?? "https://img.host/photo.png"
+  ),
   IMAGE_SIZES: "(max-width: 768px) 100vw, 700px"
 }));
 
 import { EntryListItemThumbnail } from "@/features/shared/entry-list-item/entry-list-item-thumbnail";
+
+/** The card's inputs plus the two test-only hooks the render-helper mock reads. */
+type TestEntry = Record<string, unknown> & {
+  __raw?: string;
+  __thumb?: string;
+  __noimg?: boolean;
+};
 
 const NO_IMG = "/assets/noimage.png";
 const entry: any = {
@@ -154,35 +165,61 @@ describe("EntryListItemThumbnail — SSR-discoverable LCP image", () => {
     expect(container.querySelector("img")).toBeNull();
   });
 
-  // The image host does not transform animated GIFs: width, height, blur and
-  // format are all ignored and the original file comes back every time. So a
-  // srcset is decorative and the LQIP placeholder is a second full download of
-  // the same file — a card with a GIF cover pulled the asset twice (#1802).
-  describe("a source the image host will not transform (animated GIF)", () => {
-    const gif: any = { ...entry, permlink: "post-gif", __raw: "https://img.host/animation.gif" };
+  // The image host passes ANIMATED gifs through untransformed, so the LQIP
+  // placeholder becomes a second request for a file it will not shrink (#1802).
+  describe("a source the image host passes through (gif)", () => {
+    const gif: TestEntry = { ...entry, permlink: "post-gif", __raw: "https://img.host/animation.gif" };
 
-    it("asks for the image once: no placeholder layer and no srcset", () => {
+    it("drops the placeholder so the file is requested once", () => {
       const { container } = render(
-        <EntryListItemThumbnail entry={gif} entryProp={gif} isCrossPost={false} noImage={NO_IMG} isThumbLcp={true} />
+        <EntryListItemThumbnail entry={gif as never} entryProp={gif as never} isCrossPost={false} noImage={NO_IMG} isThumbLcp={true} />
       );
+      expect(container.querySelector('img[aria-hidden="true"]')).toBeNull();
       const imgs = Array.from(container.querySelectorAll("img"));
       expect(imgs).toHaveLength(1);
-      expect(imgs[0].getAttribute("srcset")).toBeNull();
-      expect(container.querySelector('img[aria-hidden="true"]')).toBeNull();
-      // ...and it is still the eager LCP image, just a single copy of it.
       expect(imgs[0].getAttribute("fetchpriority")).toBe("high");
     });
 
-    it("keeps the placeholder and srcset for a source that DOES transform", () => {
-      const png: any = { ...entry, permlink: "post-png", __raw: "https://img.host/photo.png" };
+    // srcSet stays: the browser picks exactly one candidate either way, and a
+    // STATIC gif does get resized by the host, so removing it would cost those
+    // cards their responsive variants for nothing.
+    it("keeps srcset, which a static gif still benefits from", () => {
       const { container } = render(
-        <EntryListItemThumbnail entry={png} entryProp={png} isCrossPost={false} noImage={NO_IMG} isThumbLcp={true} />
+        <EntryListItemThumbnail entry={gif as never} entryProp={gif as never} isCrossPost={false} noImage={NO_IMG} isThumbLcp={true} />
+      );
+      expect(container.querySelector("img")?.getAttribute("srcset")).toBeTruthy();
+    });
+
+    it("keeps the placeholder for a source that does transform", () => {
+      const png: TestEntry = { ...entry, permlink: "post-png", __raw: "https://img.host/photo.png" };
+      const { container } = render(
+        <EntryListItemThumbnail entry={png as never} entryProp={png as never} isCrossPost={false} noImage={NO_IMG} isThumbLcp={true} />
       );
       expect(container.querySelector('img[aria-hidden="true"]')).toBeTruthy();
-      const real = Array.from(container.querySelectorAll("img")).find(
-        (i) => !i.hasAttribute("aria-hidden")
+    });
+
+    // The classification must follow the CARD's source. json_metadata.thumbnails
+    // wins over the body image in catchPostImage, so an entry whose thumbnail is
+    // a gif and whose body image is a png (and the reverse) is where a guard
+    // built on the wrong selector gets it backwards.
+    it("classifies the thumbnail the card renders, not the body image", () => {
+      const gifThumb: TestEntry = {
+        ...entry, permlink: "post-mixed-1",
+        __thumb: "https://img.host/animation.gif", __raw: "https://img.host/photo.png"
+      };
+      const { container: a } = render(
+        <EntryListItemThumbnail entry={gifThumb as never} entryProp={gifThumb as never} isCrossPost={false} noImage={NO_IMG} />
       );
-      expect(real?.getAttribute("srcset")).toBeTruthy();
+      expect(a.querySelector('img[aria-hidden="true"]')).toBeNull();
+
+      const pngThumb: TestEntry = {
+        ...entry, permlink: "post-mixed-2",
+        __thumb: "https://img.host/photo.png", __raw: "https://img.host/animation.gif"
+      };
+      const { container: b } = render(
+        <EntryListItemThumbnail entry={pngThumb as never} entryProp={pngThumb as never} isCrossPost={false} noImage={NO_IMG} />
+      );
+      expect(b.querySelector('img[aria-hidden="true"]')).toBeTruthy();
     });
   });
 });
