@@ -2,7 +2,7 @@
 
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import "./_index.scss";
 import { menuDownSvg } from "@ui/svg";
 import Link from "next/link";
@@ -17,6 +17,12 @@ import {
   globalFeedFallbackPath,
   useFeedMenu
 } from "@/app/_components/entry-index-menu/use-feed-menu";
+import { FeedLinkPendingProbe } from "@/app/(dynamicPages)/feed/_components/feed-link-pending-probe";
+import {
+  clearFeedNavigationTarget,
+  setFeedNavigationTarget,
+  type FeedNavigationTarget
+} from "@/app/(dynamicPages)/feed/_components/feed-navigation-intent";
 
 const TAB_CLASS =
   "feed-tab flex items-center px-3 py-3 text-sm text-gray-600 dark:text-gray-400 hover:text-blue-dark-sky";
@@ -30,9 +36,64 @@ export function EntryIndexMenu() {
   const { activeUser } = useActiveAccount();
   const prevActiveUser = usePrevious(activeUser);
 
-  const { sources, sorts, additionalFilters, isFollowing } = useFeedMenu();
+  const { sources, sorts, additionalFilters, isFollowing, filter, tag } = useFeedMenu();
+
+  // The `router.push` half of this bar: the mobile dropdown items and the
+  // reblog toggle. `useLinkStatus` cannot see a push — it only works inside a
+  // <Link> — so these announce their destination themselves, and the URL
+  // changing is what says the navigation landed.
+  //
+  // Deliberately NOT a useTransition around the push. That would be the obvious
+  // way to time it, but it makes the repaint's whole push path depend on
+  // `router.push` inside `startTransition` staying pending for the entire RSC
+  // round trip; if it ever resolves earlier, the target is cleared before it can
+  // paint and the feature silently does nothing here, in production only. The
+  // URL is an unambiguous signal that needs no such assumption, and it clears at
+  // the same moment.
+  const pushTarget = useRef<FeedNavigationTarget | null>(null);
+
+
+
+  // Keyed on the query STRING rather than on the object `useSearchParams()`
+  // returns. Next memoises that object per navigation, so keying on it would
+  // work today; the string needs no such guarantee, and the cost of being wrong
+  // is an effect that fires on an unrelated re-render and withdraws the target
+  // in the tick it was set. Not covered by a spec — this component does not
+  // re-render in the window between the click and the arrival, so the two forms
+  // are indistinguishable from a test.
+  const searchKey = searchParams?.toString() ?? "";
+  useEffect(() => {
+    if (!pushTarget.current) {
+      return;
+    }
+    // Identity-checked inside the store, so this cannot clear a target a tab
+    // link announced after ours landed.
+    clearFeedNavigationTarget(pushTarget.current);
+    pushTarget.current = null;
+  }, [pathname, searchKey]);
 
   const noReblog = useMemo(() => searchParams?.get("no-reblog") === "true", [searchParams]);
+
+  const pushToFeed = useCallback(
+    (target: FeedNavigationTarget, push: () => void) => {
+      // Clicking the feed you are already on is a no-op navigation: the URL does
+      // not change, so the effect that clears this target never runs and the
+      // repaint would sit on top of the real feed until the next navigation.
+      // The mobile dropdown keeps its current item clickable, so this is one tap
+      // away, not a corner case. Announce nothing and let the click close the
+      // menu.
+      const isCurrentFeed =
+        target.filter === filter && target.tag === tag && target.noReblog === noReblog;
+
+      if (!isCurrentFeed) {
+        pushTarget.current = target;
+        setFeedNavigationTarget(target);
+      }
+
+      push();
+    },
+    [filter, noReblog, tag]
+  );
 
   // Show the source group whenever there's a real choice: logged-in users get
   // Following/Communities/Global, and anyone browsing a #hashtag gets the tag
@@ -78,8 +139,14 @@ export function EntryIndexMenu() {
       params.set("no-reblog", "true");
     }
     const qs = params.toString();
-    router.push(qs ? `${pathname}?${qs}` : pathname);
-  }, [noReblog, pathname, router, searchParams]);
+    // Same feed, different client-side filter — so the cache already holds
+    // exactly what the destination will paint, and the repaint can show it
+    // with the new filter applied instead of leaving the unfiltered list up
+    // for the length of a round trip.
+    pushToFeed({ filter, tag, noReblog: !noReblog }, () =>
+      router.push(qs ? `${pathname}?${qs}` : pathname)
+    );
+  }, [filter, noReblog, pathname, pushToFeed, router, searchParams, tag]);
 
   const renderTab = (item: FeedMenuItem) => (
     <li key={item.id}>
@@ -94,6 +161,10 @@ export function EntryIndexMenu() {
         })}
       >
         {item.label}
+        {/* Renders nothing; reports this tab's pending state and destination
+            to the repaint under `{children}`. Must stay INSIDE the Link —
+            `useLinkStatus` has no other way to find it. */}
+        <FeedLinkPendingProbe target={{ ...item.feed, noReblog: false }} />
       </Link>
     </li>
   );
@@ -139,7 +210,11 @@ export function EntryIndexMenu() {
             </DropdownToggle>
             <DropdownMenu align="left">
               {sources.map((item) => (
-                <DropdownItem key={item.id} selected={item.selected} onClick={item.onClick}>
+                <DropdownItem
+                  key={item.id}
+                  selected={item.selected}
+                  onClick={() => pushToFeed({ ...item.feed, noReblog: false }, item.onClick)}
+                >
                   {item.label}
                 </DropdownItem>
               ))}
@@ -155,7 +230,11 @@ export function EntryIndexMenu() {
             </DropdownToggle>
             <DropdownMenu align="left">
               {[...sorts, ...additionalFilters].map((item) => (
-                <DropdownItem key={item.id} selected={item.selected} onClick={item.onClick}>
+                <DropdownItem
+                  key={item.id}
+                  selected={item.selected}
+                  onClick={() => pushToFeed({ ...item.feed, noReblog: false }, item.onClick)}
+                >
                   {item.label}
                 </DropdownItem>
               ))}
