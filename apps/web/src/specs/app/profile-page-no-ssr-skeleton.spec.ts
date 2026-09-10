@@ -26,7 +26,8 @@ import { describe, expect, it } from "vitest";
 // nested under it, which is why profile/[username]/loading.tsx had to go rather
 // than move: it covered the profile index and, with it, every profile tab.
 // Each tab that relied on it got its own leaf module instead (below), so no tab
-// lost its pending UI — except wallet/, which is deliberately left with none.
+// lost its pending UI — except wallet/ and [section]/, which are deliberately
+// left with none.
 const APP = path.resolve(__dirname, "../../app");
 const PROFILE = path.join(APP, "(dynamicPages)/profile");
 const ROUTE = path.join(PROFILE, "[username]");
@@ -34,10 +35,8 @@ const SEGMENTS = [ROUTE, PROFILE, path.join(APP, "(dynamicPages)"), APP];
 const LOADING_NAMES = ["loading.tsx", "loading.ts", "loading.jsx", "loading.js"];
 
 // The tabs that inherited profile/[username]/loading.tsx and therefore had to
-// be handed their own. [section] serves /@user/{posts,blog,comments,replies}
-// and already had one before this change.
+// be handed their own.
 const TABS_WITH_LEAF_LOADING = [
-  "[section]",
   "communities",
   "followers",
   "following",
@@ -48,12 +47,20 @@ const TABS_WITH_LEAF_LOADING = [
   "trail"
 ];
 
-// The one tab that must NOT get one. A loading module at wallet/ would apply to
-// every segment nested under it, and wallet/(token)/[token] renders post bodies
-// through EcencyRenderer (hive-engine-token-history.tsx). A boundary there sits
-// above a markdown renderer and recreates precisely the defect this change
-// removes, so wallet keeps no pending UI on purpose.
+// The tabs that must NOT have one, for two different reasons.
+//
+// wallet/: a loading module there would apply to every segment nested under it,
+// and wallet/(token)/[token] renders post bodies through EcencyRenderer
+// (hive-engine-token-history.tsx). A boundary above a markdown renderer
+// recreates precisely the defect this change removes.
+//
+// [section]/: serves /@user/{posts,blog,comments,replies} and had its own
+// module until #1805 measured what it cost — the first card at 69.2% of the
+// document on /@ecency/comments against 15.2% on the fixed index. It is the
+// same defect as the index's, one segment down, and it is pinned in detail by
+// profile-section-page-no-ssr-skeleton.spec.ts.
 const TAB_WITHOUT_LOADING = "wallet";
+const TABS_WITHOUT_LOADING = ["[section]", TAB_WITHOUT_LOADING];
 
 function hasLoadingModule(dir: string) {
   return LOADING_NAMES.some((name) => fs.existsSync(path.join(dir, name)));
@@ -96,6 +103,15 @@ describe("profile page has no SSR skeleton boundary above the feed cards", () =>
       expect(fs.existsSync(path.join(dir, "page.tsx")), `${tab}/page.tsx`).toBe(true);
       expect(hasLoadingModule(dir), `${tab}/loading.tsx`).toBe(true);
     }
+  });
+
+  // The [section] tab is pinned in full next door; this route's own guard only
+  // has to know that the tab is NOT relying on a module here, because a module
+  // at [section]/ is invisible to the index's checks above.
+  it("leaves the [section] tab without a loading module", () => {
+    const dir = path.join(ROUTE, "[section]");
+    expect(fs.existsSync(path.join(dir, "page.tsx")), "[section]/page.tsx").toBe(true);
+    expect(hasLoadingModule(dir), "[section]/loading.tsx").toBe(false);
   });
 
   it("leaves wallet without a loading module, on its own segment and below it", () => {
@@ -150,7 +166,7 @@ describe("profile page has no SSR skeleton boundary above the feed cards", () =>
   // how the tabs would quietly lose their pending UI.
   it("accounts for every tab segment under the route", () => {
     expect(tabSegments()).toEqual(
-      [...TABS_WITH_LEAF_LOADING, TAB_WITHOUT_LOADING].sort()
+      [...TABS_WITH_LEAF_LOADING, ...TABS_WITHOUT_LOADING].sort()
     );
   });
 
