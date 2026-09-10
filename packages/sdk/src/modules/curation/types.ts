@@ -310,16 +310,52 @@ export interface CurationStatus {
   worker_tick_age_seconds: number | null;
 }
 
+/**
+ * The per-curator conditions erobot applies before trailing a vote. The three
+ * weights are Hive vote weights (100 = 1%); `trail` overrides the per-role
+ * default, and is what `config.followAccounts` used to be.
+ */
+export interface CurationRosterRules {
+  min_weight?: number;
+  max_weight?: number;
+  waves_only_below?: number;
+  trail?: boolean;
+}
+
 export interface CurationRosterEntry {
   username: string;
   role: CurationRole;
   active: boolean;
-  rules?: Record<string, unknown> | null;
+  rules?: CurationRosterRules | null;
+  /** Resolved by the backend, so no client re-implements the per-role default. */
+  trail?: boolean;
+}
+
+/**
+ * The admin view of a row. These fields are private, so they arrive from the
+ * roster-list POST and never from the edge-cached roster GET.
+ */
+export interface CurationRosterAdminEntry extends CurationRosterEntry {
+  added_by: string | null;
+  added_at: string | null;
+  removed_at: string | null;
+  note: string | null;
 }
 
 export interface CurationRoster {
   curators: CurationRosterEntry[];
   updated_at: string;
+}
+
+export interface CurationRosterAdminList {
+  curators: CurationRosterAdminEntry[];
+}
+
+export interface CurationRosterSetInput {
+  curator: string;
+  role: CurationRole;
+  rules?: CurationRosterRules;
+  note?: string;
 }
 
 export interface CurationRecommender {

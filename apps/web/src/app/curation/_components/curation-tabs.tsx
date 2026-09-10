@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getCurationStatusQueryOptions } from "@ecency/sdk";
 import { EcencyConfigManager } from "@/config";
+import { useViewerRole } from "@/features/curation-desk/hooks";
 
 const TABS = [
   { href: "/curation", key: "queue" },
@@ -14,6 +15,9 @@ const TABS = [
   { href: "/curation/recommendations", key: "recommendations" },
   { href: "/curation/guide", key: "guide" }
 ] as const;
+
+/** The roster tab is admin-only, and the page refuses anyone else besides. */
+const ROSTER_TAB = { href: "/curation/roster", key: "roster" } as const;
 
 /** Queue / Marks / Recommendations / Guide, with counts from the status query. */
 export function CurationTabs() {
@@ -25,7 +29,9 @@ export function CurationTabs() {
   const recommendationsEnabled = EcencyConfigManager.useConfig(
     ({ visionFeatures }) => visionFeatures.curationDesk.recommendations.enabled
   );
-  const tabs = recommendationsEnabled ? TABS : TABS.filter((tab) => tab.key !== "recommendations");
+  const base = recommendationsEnabled ? TABS : TABS.filter((tab) => tab.key !== "recommendations");
+  const { role } = useViewerRole();
+  const tabs = role === "admin" ? [...base, ROSTER_TAB] : base;
 
   const counts: Record<string, number | undefined> = {
     queue: status?.counts?.unreviewed,

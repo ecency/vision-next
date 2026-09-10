@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.4.7
+
+### Patch Changes
+
+- feat(curation desk): add the roster admin panel (#1810)
+
 ## 2.4.6
 
 ### Patch Changes
