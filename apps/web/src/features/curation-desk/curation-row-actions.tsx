@@ -29,6 +29,12 @@ interface Props {
   coarsePointer: boolean;
   /** A mark this desk can clear sits on the post, so the control clears it. */
   marked: boolean;
+  /**
+   * Whether a mark is on the post is not known yet, so the control that would
+   * write over one waits. The queue always knows, from the row's overlay; a
+   * list reading the viewer's marks separately does not, until they arrive.
+   */
+  markStateUnknown?: boolean;
   voteHidden: boolean;
   voteDimmed: boolean;
   /** Why the vote is dimmed, or the plain vote tooltip when it is not. */
@@ -63,6 +69,7 @@ export function CurationRowActions({
   recommendationsEnabled,
   coarsePointer,
   marked,
+  markStateUnknown,
   voteHidden,
   voteDimmed,
   voteTitle,
@@ -131,6 +138,7 @@ export function CurationRowActions({
               size="xs"
               appearance="gray-link"
               className="!rounded-lg"
+              disabled={markStateUnknown}
               aria-label={i18next.t("curation-desk.actions.reviewed")}
               title={i18next.t("curation-desk.actions.reviewed-key")}
               onClick={onReviewed}

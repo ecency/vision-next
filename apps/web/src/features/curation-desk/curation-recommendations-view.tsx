@@ -1,10 +1,10 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import clsx from "clsx";
 import i18next from "i18next";
 import { proxifyImageSrc } from "@ecency/render-helper";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getCurationPostQueryOptions,
   getCurationRecommendationsInfiniteQueryOptions,
@@ -23,6 +23,7 @@ import { DetectBottom } from "@/features/shared/detect-bottom";
 import { UserAvatar } from "@/features/shared/user-avatar";
 import { dateToRelative } from "@/utils";
 import { Chip } from "./curation-chip";
+import { DAY_MS } from "./consts";
 import { FlagDialog, NoteDialog, SnoozeDialog } from "./curation-action-dialogs";
 import { RecommendBadge } from "./curation-mark-badges";
 import { CurationQuickView } from "./curation-quick-view";
@@ -31,8 +32,9 @@ import { type CurationRecommendHandle } from "./curation-recommend-btn";
 import { CurationRowActions } from "./curation-row-actions";
 import { useCurationTicker } from "./curation-ticker";
 import { CurationWindowBadge } from "./curation-window-badge";
-import { computeWindow } from "./curation-window";
+import { computeWindow, parseChainDate } from "./curation-window";
 import {
+  rosterFeedPrefix,
   useClearMark,
   useCoarsePointer,
   useCurationDismissReco,
@@ -41,6 +43,9 @@ import {
   useViewerRole,
 } from "./hooks";
 import type { DeskRow, ViewerRole } from "./types";
+
+/** How long a post stays open, and so how far back the marks index must reach. */
+const OPEN_POST_MS = 7 * DAY_MS;
 
 /** Route 4 items carry no post_id, so the pair is the identity here. */
 const keyOf = (post: { author: string; permlink: string }) => `${post.author}/${post.permlink}`;
@@ -106,6 +111,8 @@ interface RowProps {
   coarsePointer: boolean;
   /** This viewer's own mark on the post, all route 4 can know about marks. */
   myMark: CurationMyMark | undefined;
+  /** The marks index has not answered yet, so `myMark` proves nothing. */
+  markStateUnknown: boolean;
   onOpen: (item: CurationRecommendationItem) => void;
   onVote: (item: CurationRecommendationItem) => void;
   onReviewed: (post: PostRef) => void;
@@ -124,6 +131,7 @@ function RecommendationRow({
   recommendationsEnabled,
   coarsePointer,
   myMark,
+  markStateUnknown,
   onOpen,
   onVote,
   onReviewed,
@@ -145,6 +153,11 @@ function RecommendationRow({
   const now = useCurationTicker();
   const windowState = computeWindow(item.created, null, now);
   const locked = windowState.kind === "locked";
+  // The other end of the same story: the route serves open posts, but the
+  // shared clock carries a row across its payout while the tab sits open, and
+  // past that point a vote earns nothing and a recommendation points curators
+  // at a post they cannot earn on either.
+  const paid = windowState.kind === "paid";
 
   return (
     <li className="flex flex-wrap items-start gap-x-3 gap-y-2 px-3 py-2 text-sm">
@@ -207,14 +220,15 @@ function RecommendationRow({
         recommendationsEnabled={recommendationsEnabled}
         coarsePointer={coarsePointer}
         marked={!!myMark}
-        voteHidden={locked && windowState.voteHidden}
+        markStateUnknown={markStateUnknown}
+        voteHidden={paid || (locked && windowState.voteHidden)}
         voteDimmed={locked}
         voteTitle={
           locked
             ? i18next.t("curation-desk.window.locked-tooltip", { pct: windowState.scalePct })
             : i18next.t("curation-desk.actions.vote-key")
         }
-        recommendHidden={locked || username === item.author}
+        recommendHidden={locked || paid || username === item.author}
         alreadyRecommended={mine}
         href={`/@${item.author}/${item.permlink}`}
         // Below lg the controls take their own line under the post, the way
@@ -294,9 +308,32 @@ export function CurationRecommendationsView() {
     for (const page of myMarks.data?.pages ?? []) for (const mark of page.items) byPost.set(keyOf(mark), mark);
     return byPost;
   }, [myMarks.data]);
+  // A page holds the 50 most recent marks, and a missing entry is read as "not
+  // marked", so one page is not an answer for a curator who marks more than
+  // that in a week. It is bounded all the same: this route serves open posts,
+  // so a mark on one of them was made inside the payout window, and the index
+  // is complete as soon as the oldest loaded mark predates it. Never walks a
+  // curator's whole history, and stops on a timestamp it cannot read rather
+  // than paging forever.
+  const marksFetchNextPage = myMarks.fetchNextPage;
+  const marksPages = myMarks.data?.pages;
+  useEffect(() => {
+    if (!myMarks.hasNextPage || myMarks.isFetchingNextPage || myMarks.isError) return;
+    const items = marksPages?.[marksPages.length - 1]?.items ?? [];
+    const oldest = parseChainDate(items[items.length - 1]?.updated_at);
+    if (oldest != null && oldest > Date.now() - OPEN_POST_MS) void marksFetchNextPage();
+  }, [marksPages, myMarks.hasNextPage, myMarks.isFetchingNextPage, myMarks.isError, marksFetchNextPage]);
+  // Until the index has answered, a row cannot tell an unmarked post from one
+  // this curator already handled, so the control that would write over a mark
+  // waits rather than guessing. Every other mark replaces the curator's own by
+  // design, exactly as it does in the queue.
+  const markStateUnknown = viewer.isRoster && (!myMarks.isSuccess || myMarks.isFetchingNextPage);
 
   const [openKey, setOpenKey] = useState<string | null>(null);
-  const [voteOnOpen, setVoteOnOpen] = useState(false);
+  // The post whose Vote control asked for the slider, not a bare flag: the
+  // drawer only presses it once that post's entry resolves, and a curator who
+  // steps to the next post meanwhile must not have their vote land there.
+  const [voteFor, setVoteFor] = useState<string | null>(null);
   const [dialog, setDialog] = useState<Dialog>({ kind: "none" });
   const recommendRef = useRef<CurationRecommendHandle | null>(null);
 
@@ -324,23 +361,30 @@ export function CurationRecommendationsView() {
     (delta: number) => {
       if (openIndex < 0) return;
       const next = items[openIndex + delta];
-      if (next) setOpenKey(keyOf(next));
+      if (!next) return;
+      setVoteFor(null);
+      setOpenKey(keyOf(next));
     },
     [items, openIndex]
   );
 
-  const onOpen = useCallback((item: CurationRecommendationItem) => setOpenKey(keyOf(item)), []);
-  const onVote = useCallback((item: CurationRecommendationItem) => {
+  const onOpen = useCallback((item: CurationRecommendationItem) => {
+    setVoteFor(null);
     setOpenKey(keyOf(item));
+  }, []);
+  const onVote = useCallback((item: CurationRecommendationItem) => {
+    const key = keyOf(item);
+    setOpenKey(key);
     // The slider lives inside the drawer and only mounts once the entry query
-    // resolves, so the drawer consumes this flag then.
-    setVoteOnOpen(true);
+    // resolves, so the drawer consumes this then.
+    setVoteFor(key);
   }, []);
   const onClose = useCallback(() => {
     setOpenKey(null);
-    setVoteOnOpen(false);
+    setVoteFor(null);
   }, []);
 
+  const queryClient = useQueryClient();
   const mark = useCurationMark();
   const clearMark = useClearMark();
   const doMark = useCallback(
@@ -380,12 +424,18 @@ export function CurationRecommendationsView() {
       if (!viewer.isRoster) return;
       try {
         await clearMark.mutateAsync({ author: post.author, permlink: post.permlink });
+        // A mark took the row out of the filtered queues, and this tab holds no
+        // position to put it back at: the cache updater only reinserts against
+        // a `restoreAt` the queue captured before its own mark. So the loaded
+        // queues are marked stale instead and fetch an authoritative order,
+        // rather than staying without a row that belongs in them again.
+        queryClient.invalidateQueries({ queryKey: rosterFeedPrefix(viewer.username) });
         successToast(i18next.t("curation-desk.live.cleared"));
       } catch (e) {
         errorToast(...formatError(e));
       }
     },
-    [viewer.isRoster, clearMark]
+    [viewer.isRoster, viewer.username, clearMark, queryClient]
   );
   const onSnooze = useCallback((post: PostRef) => viewer.isRoster && setDialog({ kind: "snooze", post }), [viewer.isRoster]);
   const onFlag = useCallback((post: PostRef) => viewer.isRoster && setDialog({ kind: "flag", post }), [viewer.isRoster]);
@@ -429,6 +479,7 @@ export function CurationRecommendationsView() {
             recommendationsEnabled={recommendationsEnabled}
             coarsePointer={coarsePointer}
             myMark={marks.get(keyOf(item))}
+            markStateUnknown={markStateUnknown}
             onOpen={onOpen}
             onVote={onVote}
             onReviewed={onReviewed}
@@ -446,8 +497,8 @@ export function CurationRecommendationsView() {
         neighbour={neighbour}
         viewer={viewer}
         recommendationsEnabled={recommendationsEnabled}
-        voteOnOpen={voteOnOpen}
-        onVoteHandled={() => setVoteOnOpen(false)}
+        voteOnOpen={!!openKey && voteFor === openKey}
+        onVoteHandled={() => setVoteFor(null)}
         onClose={onClose}
         onPrev={() => move(-1)}
         onNext={() => move(1)}

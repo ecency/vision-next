@@ -253,6 +253,75 @@ describe("recommended list row actions", () => {
     expect(listRow.getByText("curation-desk.mark-states.reviewed")).toBeInTheDocument();
   });
 
+  it("keeps a pending vote with the post that asked for it", async () => {
+    // Two rows, and the first post's entry never resolves: the drawer presses
+    // the slider only once an entry is there, so a curator who moves on before
+    // that must not have their vote land on the post they moved to.
+    router.on(/curation-desk\/recommendations/, () => ({
+      items: [item(), item({ author: "bob", permlink: "second", title: "Second" })],
+      next_cursor: null,
+    }));
+    state.entryFetch.mockImplementation(async (author: string, permlink: string) => {
+      if (author === "alice") return new Promise(() => {});
+      return { author, permlink, body: "body", json_metadata: {}, active_votes: [] };
+    });
+
+    renderWithQueryClient(<CurationRecommendationsView />);
+    await waitFor(() => expect(screen.getAllByRole("toolbar")).toHaveLength(2));
+    const [first, second] = screen.getAllByRole("toolbar").map((el) => within(el));
+    fireEvent.click(first.getByLabelText("curation-desk.actions.vote"));
+    fireEvent.click(second.getByLabelText("curation-desk.actions.read-key"));
+
+    await waitFor(() => expect(screen.getByTestId("renderer")).toBeInTheDocument());
+    await waitFor(() => expect(state.entryFetch).toHaveBeenCalledWith("bob", "second"));
+    expect(state.voteClicks).toEqual([]);
+  });
+
+  it("reads past the first page of marks, and stops at the payout window", async () => {
+    // A page holds the 50 most recent marks. A curator who marks more than
+    // that in a week would otherwise be told their own handled post is
+    // untouched, and the Reviewed control would write over the mark.
+    const recent = (n: number) => ({
+      post_id: n,
+      author: `other${n}`,
+      permlink: `p${n}`,
+      title: `Post ${n}`,
+      created: new Date(Date.now() - HOUR).toISOString(),
+      curator: "curator1",
+      state: "reviewed",
+      updated_at: new Date(Date.now() - HOUR).toISOString(),
+    });
+    router.on(/curation-desk\/marks$/, (_url, init) => {
+      const body = JSON.parse(String(init?.body ?? "{}"));
+      if (!body.cursor) {
+        return { items: Array.from({ length: 50 }, (_, i) => recent(i)), next_cursor: "page-2" };
+      }
+      return {
+        items: [
+          { ...recent(99), author: "alice", permlink: "morning-light", state: "flagged" },
+          // Older than any open post, so the index is complete here even
+          // though the route still offers another page.
+          { ...recent(100), updated_at: new Date(Date.now() - 8 * DAY).toISOString() },
+        ],
+        next_cursor: "page-3",
+      };
+    });
+
+    const listRow = await row();
+    await waitFor(() => expect(listRow.getByLabelText("curation-desk.actions.clear-mark")).toBeInTheDocument());
+    expect(listRow.getByText("curation-desk.mark-states.flagged")).toBeInTheDocument();
+    expect(router.callsTo(/curation-desk\/marks$/)).toHaveLength(2);
+  });
+
+  it("holds the Reviewed control while the marks index has not answered", async () => {
+    router.on(/curation-desk\/marks$/, () => new Promise(() => {}));
+    const listRow = await row();
+    await waitFor(() => expect(listRow.getByLabelText("curation-desk.actions.snooze")).toBeInTheDocument());
+    // Snooze, flag and note replace the curator's own mark by design, exactly
+    // as they do in the queue; only this one would silently write over one.
+    expect(listRow.getByLabelText("curation-desk.actions.reviewed")).toBeDisabled();
+  });
+
   it("drops the vote and the recommendation once the window has scaled them away", async () => {
     // Two hours before payout: a vote keeps a sixth of its rshares and a
     // recommendation would point curators at a post they cannot earn on.
@@ -266,5 +335,16 @@ describe("recommended list row actions", () => {
     expect(listRow.queryByLabelText("curation-desk.recommend.aria")).toBeNull();
     // Reading it is still on offer: the desk never hides the post itself.
     expect(listRow.getByLabelText("curation-desk.actions.read-key")).toBeInTheDocument();
+  });
+
+  it("drops them for a paid post too, which the shared clock can reach with the tab open", async () => {
+    router.on(/curation-desk\/recommendations/, () => ({
+      items: [item({ created: new Date(Date.now() - 8 * DAY).toISOString() })],
+      next_cursor: null,
+    }));
+    const listRow = await row();
+    await waitFor(() => expect(listRow.getByLabelText("curation-desk.actions.reviewed")).toBeInTheDocument());
+    expect(listRow.queryByLabelText("curation-desk.actions.vote")).toBeNull();
+    expect(listRow.queryByLabelText("curation-desk.recommend.aria")).toBeNull();
   });
 });
