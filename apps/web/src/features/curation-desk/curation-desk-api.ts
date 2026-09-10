@@ -6,12 +6,16 @@ import {
   curationMyMarksRequest,
   curationRecommendMetaRequest,
   curationRosterFeedRequest,
+  curationRosterListRequest,
+  curationRosterRetireRequest,
+  curationRosterSetRequest,
   curationTickRequest,
   type CurationDismissRecoInput,
   type CurationMarkInput,
   type CurationMyMarksParams,
   type CurationRecommendMetaInput,
   type CurationRosterFeedParams,
+  type CurationRosterSetInput,
   type CurationTickRequest,
 } from "@ecency/sdk";
 
@@ -68,5 +72,17 @@ export const curationDeskApi = {
 
   async dismissReco(username: string | undefined, input: CurationDismissRecoInput) {
     return curationDismissRecoRequest(await code(username), input);
+  },
+
+  async rosterList(username: string | undefined, signal?: AbortSignal) {
+    return curationRosterListRequest(await code(username), signal);
+  },
+
+  async rosterSet(username: string | undefined, input: CurationRosterSetInput) {
+    return curationRosterSetRequest(await code(username), input);
+  },
+
+  async rosterRetire(username: string | undefined, curator: string) {
+    return curationRosterRetireRequest(await code(username), curator);
   },
 };

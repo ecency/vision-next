@@ -17,8 +17,11 @@ import type {
   CurationRecommendationsParams,
   CurationRecommenderStats,
   CurationRoster,
+  CurationRosterAdminEntry,
+  CurationRosterAdminList,
   CurationRosterFeedPage,
   CurationRosterFeedParams,
+  CurationRosterSetInput,
   CurationStatus,
   CurationTickRequest,
   CurationTickResponse,
@@ -356,6 +359,49 @@ export function curationTickRequest(
     },
     "tick",
     signal
+  );
+}
+
+/**
+ * The roster admin routes. All three are admin-only upstream, and all three are
+ * POSTs: the private view carries notes and retired rows, which must never enter
+ * the edge-cached roster GET.
+ */
+export function curationRosterListRequest(
+  code: string | undefined,
+  signal?: AbortSignal
+): Promise<CurationRosterAdminList> {
+  return postJson<CurationRosterAdminList>("/roster-list", code, {}, "list roster", signal);
+}
+
+export function curationRosterSetRequest(
+  code: string | undefined,
+  input: CurationRosterSetInput
+): Promise<{ curator: CurationRosterAdminEntry }> {
+  const { curator, role, rules, note } = input;
+  if (!curator || !role) {
+    throw new Error("[SDK][Curation] roster set needs a curator and a role");
+  }
+  const body: Record<string, unknown> = { curator, role };
+  // Sent whole or not at all: the backend replaces the stored rules with what
+  // arrives, so a partial object would silently drop the rules left out.
+  if (rules) body.rules = rules;
+  if (note !== undefined) body.note = note;
+  return postJson<{ curator: CurationRosterAdminEntry }>("/roster-set", code, body, "set curator");
+}
+
+export function curationRosterRetireRequest(
+  code: string | undefined,
+  curator: string
+): Promise<{ ok: boolean; curator: string }> {
+  if (!curator) {
+    throw new Error("[SDK][Curation] roster retire needs a curator");
+  }
+  return postJson<{ ok: boolean; curator: string }>(
+    "/roster-retire",
+    code,
+    { curator },
+    "retire curator"
   );
 }
 

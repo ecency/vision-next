@@ -655,6 +655,8 @@ export const QueryKeys = {
     ],
     status: () => ["curation", "status"],
     roster: () => ["curation", "roster"],
+    /** The admin view of the roster: private, per viewer, never shared with the public key. */
+    rosterAdmin: (username: string | undefined) => ["curation", "roster-admin", username],
     recommendations: (params: Record<string, string> = {}) => [
       "curation",
       "recommendations",
