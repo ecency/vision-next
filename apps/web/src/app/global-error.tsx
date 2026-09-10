@@ -1,5 +1,46 @@
 "use client"; // Error boundaries must be Client Components
 
+/**
+ * This is the app's ONLY error module. #1808 asked whether the entry, wave,
+ * feed, profile and community routes should get an `error.tsx` of their own now
+ * that their loading modules are gone. The answer is no. The reason is worth
+ * recording so the next reader does not re-derive it.
+ *
+ * A route-level `error.tsx` would not catch what those routes now risk. Next
+ * compiles it into a `'use client'` class boundary
+ * (next/dist/client/components/error-boundary.js, getDerivedStateFromError),
+ * and React's SERVER renderer does not run error boundaries at all: a throw
+ * during SSR is recovered only AT a Suspense boundary, which client-renders
+ * that segment instead. Measured on react-dom 19's own server renderer: with a
+ * Suspense boundary around a throwing component the shell survives and the
+ * boundary is emitted as `<!--$!-->` ("Switched to client rendering"); with a
+ * class error boundary and NO Suspense, renderToPipeableStream calls
+ * onShellError and the whole document is lost. Those routes deliberately have
+ * no Suspense boundary above their content - that is what removed the hidden
+ * segment and the late $RC swap, what moved /trending's LCP from 11.08s to
+ * 8.70s - so an `error.tsx` there would be a client chunk on the hot path that
+ * changes nothing about the failure it was added for.
+ *
+ * Nor would it catch the failures these routes actually see. Data fetches go
+ * through withSsrTimeout (core/react-query/query-helpers.ts), which resolves
+ * `undefined` rather than throwing. The pages already render an empty feed or
+ * call notFound() for that.
+ *
+ * What is left for an error module to catch is a CLIENT render throw:
+ * hydration, or a re-render after interaction. On these routes that is the same
+ * deterministic throw that already took the SSR render down, so the reader
+ * never reaches it - and where it is reachable, the fix is a guard at the call,
+ * not a boundary around the page: a guard keeps the page and loses one line of
+ * text, a boundary keeps the chrome and loses the page. See
+ * core/entries/catch-post-image-safely.ts and
+ * core/entries/post-body-summary-safely.ts for the two calls on that path.
+ *
+ * Revisit if a route grows a render that can fail on its own (a client-only
+ * widget with real logic, a third-party embed), or if a Suspense boundary comes
+ * back for an unrelated reason - with one in place, an `error.tsx` below it
+ * would start earning its chunk.
+ */
+
 import { Feedback } from "@/features/shared/feedback";
 import Image from "next/image";
 import i18next from "i18next";

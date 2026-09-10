@@ -1,5 +1,5 @@
 import { catchPostImage } from "@ecency/render-helper";
-import { sentry } from "@/core/sentry/lazy-sentry";
+import { reportRenderHelperFailureOnce } from "./report-render-helper-failure";
 
 /**
  * `catchPostImage`, degraded to "this post has no thumbnail" when it throws.
@@ -27,70 +27,15 @@ import { sentry } from "@/core/sentry/lazy-sentry";
  * Returning null is exactly what these components already handle: the
  * thumbnail falls back to the noimage placeholder (or hides itself for a
  * comment), the preload emits no <link>, the search row shows its placeholder.
+ *
+ * The report-once bookkeeping lives in ./report-render-helper-failure, shared
+ * with the summary guard next to it.
  */
-export function catchPostImageSafely(
-  ...args: Parameters<typeof catchPostImage>
-): string | null {
+export function catchPostImageSafely(...args: Parameters<typeof catchPostImage>): string | null {
   try {
     return catchPostImage(...args);
   } catch (e) {
-    reportOnce(e, args[0]);
+    reportRenderHelperFailureOnce("catchPostImage", args[0], e);
     return null;
   }
-}
-
-// The extractor is deterministic, so a body that throws throws on every render
-// — server, hydration, and every re-render of the row it sits in — and the same
-// entry reaches several of these call sites per page. Report the first failure
-// per post and stay quiet after that. Only posts that already failed are ever
-// keyed here, and the set is cleared once it grows past a sane cap.
-//
-// Scope, precisely: this set is module state, and the server and the browser
-// run separate module graphs, so a card that fails during SSR and again during
-// hydration produces one event from each. That is the intended floor rather
-// than an oversight — the server event is the one that says a route was at
-// risk, the browser one says the reader saw it — and two events per broken post
-// is what this suppresses a stream of identical ones down to.
-const reportedFailures = new Set<string>();
-
-function failureKey(obj: Parameters<typeof catchPostImage>[0]): string {
-  // The search row passes a raw body string, with no author/permlink to key on.
-  // Both ends plus the length, so two different bodies that happen to share an
-  // opening paragraph still report separately.
-  return typeof obj === "string"
-    ? `body:${obj.length}:${obj.slice(0, 120)}:${obj.slice(-120)}`
-    : `entry:${obj?.author}/${obj?.permlink}`;
-}
-
-function reportOnce(e: unknown, obj: Parameters<typeof catchPostImage>[0]) {
-  const key = failureKey(obj);
-
-  if (reportedFailures.has(key)) {
-    return;
-  }
-
-  if (reportedFailures.size >= 100) {
-    reportedFailures.clear();
-  }
-
-  reportedFailures.add(key);
-
-  const context = { extra: { where: "catchPostImage", entry: key } };
-
-  if (typeof window === "undefined") {
-    // Server render. The lazy facade is only ever configured in the browser
-    // (sentry.client.config.ts), so a capture through it here would be
-    // buffered and never sent — and the server is where this failure actually
-    // costs a page. Load the real SDK on demand instead: the import stays out
-    // of the eager client graph because this branch is unreachable there, so
-    // the feed's client chunks do not gain @sentry/nextjs.
-    void import(/* webpackExports: ["captureException"] */ "@sentry/nextjs")
-      .then((Sentry) => Sentry.captureException(e, context))
-      .catch(() => {
-        /* reporting must never be the thing that breaks the render */
-      });
-    return;
-  }
-
-  sentry.captureException(e, context);
 }

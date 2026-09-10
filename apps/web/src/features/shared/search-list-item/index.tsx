@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
-import { postBodySummary, setProxyBase } from "@ecency/render-helper";
+import { setProxyBase } from "@ecency/render-helper";
 import { catchPostImageSafely } from "@/core/entries/catch-post-image-safely";
+import { postBodySummarySafely } from "@/core/entries/post-body-summary-safely";
 import defaults from "@/defaults";
 import { SearchResult } from "@/entities";
 import {
@@ -34,9 +35,12 @@ export function SearchListItem({ res }: Props) {
   const dateRelative = useMemo(() => dateToRelative(res.created_at), [res]);
   const dateFormatted = useMemo(() => dateToFormatted(res.created_at), [res]);
   const reputation = useMemo(() => accountReputation(res.author_rep), [res]);
-  // Search rows carry the FULL body (nothing slims them), so the extractor
-  // runs its markdown tier here on every row. Guarded so a crafted body costs
-  // this row its thumbnail, not the results page.
+  // Search rows carry the FULL body (nothing slims them), so both the image
+  // extractor and the summary renderer run their markdown tier here on every
+  // row. Guarded so a crafted body costs this row its thumbnail and its
+  // excerpt, not the results page: this list renders inside the client tree,
+  // where an uncaught throw is caught by no route error.tsx and swaps the whole
+  // app for global-error.
   const img = useMemo(() => catchPostImageSafely(res.body, 600, 500), [res.body]);
 
   const title = useMemo(
@@ -44,7 +48,10 @@ export function SearchListItem({ res }: Props) {
     [res]
   );
   const summary = useMemo(
-    () => transformMarkedContent(res.body_marked ? res.body_marked : postBodySummary(res.body, 200)),
+    () =>
+      transformMarkedContent(
+        res.body_marked ? res.body_marked : postBodySummarySafely(res.body, 200)
+      ),
     [res]
   );
 

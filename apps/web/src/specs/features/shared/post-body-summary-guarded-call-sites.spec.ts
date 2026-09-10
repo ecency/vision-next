@@ -1,0 +1,77 @@
+import fs from "fs";
+import path from "path";
+import { describe, expect, it } from "vitest";
+
+/**
+ * The call sites that run `postBodySummary` on a body the app did not slim.
+ *
+ * The twin of catch-post-image-guarded-call-sites, for the other
+ * author-controlled string a card renders. Feed rows normally arrive with
+ * `body: ""` (slimEntry), which starves the markdown renderer, but four paths
+ * carry a FULL body here:
+ *   - slimEntrySafely returns the un-slimmed entry when slimming throws
+ *     (core/entries/slim-entry.ts),
+ *   - BODY_BACKED_SECTIONS skips slimming for the comments/replies profile
+ *     feeds (api/queries/get-account-posts-feed-query.ts, reachable as
+ *     /feed/comments/@user and /feed/replies/@user),
+ *   - the profile's pinned entry is fetched through the post cache, unslimmed,
+ *   - search rows are never slimmed at all.
+ * The slimmer itself is a fifth: it calls entrySummary on the full body of
+ * every row of every ranked feed to derive `description`, inside the queryFn.
+ *
+ * A throw at the card reader is a blank route, not a missing excerpt: it runs
+ * during the SSR render of the feed, profile and community routes, which have
+ * no Suspense boundary above their cards any more (#1786 and siblings) and no
+ * route error.tsx (see app/global-error.tsx for why neither is coming back).
+ */
+const SRC = path.resolve(__dirname, "../../..");
+
+const SITES: { file: string; calls: number }[] = [
+  // The card reader: two passes in summarizeText (capped, then untruncated)
+  // plus the body fallback in entrySummary.
+  { file: "core/entries/entry-summary.ts", calls: 3 },
+  { file: "features/shared/search-list-item/index.tsx", calls: 1 }
+];
+
+const read = (file: string) => fs.readFileSync(path.join(SRC, file), "utf8");
+
+describe("card and search summaries go through the postBodySummary guard", () => {
+  it.each(SITES)("$file imports the guard, not the raw export", ({ file }) => {
+    const source = read(file);
+    expect(source).toMatch(
+      /import\s*{\s*postBodySummarySafely\s*}\s*from\s*"[^"]*post-body-summary-safely"/
+    );
+    // Only the guard module may import postBodySummary from the package here.
+    expect(source).not.toMatch(
+      /import\s*{[^}]*\bpostBodySummary\b[^}]*}\s*from\s*"@ecency\/render-helper"/
+    );
+  });
+
+  it.each(SITES)("$file makes all $calls of its calls through the guard", ({ file, calls }) => {
+    const source = read(file);
+    expect(source.match(/postBodySummarySafely\(/g)?.length ?? 0).toBe(calls);
+    expect(source.match(/(?<!Safely)\bpostBodySummary\(/g)).toBeNull();
+  });
+
+  // The card component reaches the reader through this module, so the pin above
+  // is only worth something while that import is still the one it uses.
+  it("the muted-content card still reads its summary through entrySummary", () => {
+    const source = read("features/shared/entry-list-item/entry-list-item-muted-content.tsx");
+    expect(source).toContain('from "@/core/entries/entry-summary"');
+    expect(source).toMatch(/entrySummary\(entry\)/);
+  });
+
+  it("the guard swallows the throw and reports rather than rethrowing", () => {
+    const source = read("core/entries/post-body-summary-safely.ts");
+    expect(source).toMatch(/catch\s*\([\s\S]*?\)\s*{[\s\S]*?return "";/);
+    expect(source).toMatch(/reportRenderHelperFailureOnce\(\s*"postBodySummary"/);
+  });
+
+  // The two guards share one dedupe set, so the call site has to be part of the
+  // key: a body that breaks both extractors has two defects. Reporting only
+  // whichever ran first would hide one of them.
+  it("the shared reporter keys on the call site as well as the post", () => {
+    const source = read("core/entries/report-render-helper-failure.ts");
+    expect(source).toMatch(/`\$\{where\}\|\$\{entry\}`/);
+  });
+});
