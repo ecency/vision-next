@@ -1,5 +1,21 @@
 # @ecency/render-helper
 
+## 2.5.35
+
+### Patch Changes
+
+- [#1803](https://github.com/ecency/vision-web/pull/1803) [`876c3b8`](https://github.com/ecency/vision-web/commit/876c3b89beb2b5df955eadc944cfb81d6ebda20b) Thanks [@feruzm](https://github.com/feruzm)! - Add `getEntryCardImageRawUrl`, the raw (pre-proxify) URL of the image a CARD
+  renders.
+
+  `getEntryImageRawUrl` answers a body/LCP-preload question and deliberately skips
+  `json_metadata.thumbnails`, while `catchPostImage` reads thumbnails first. A
+  caller that needs to reason about the file a card will actually request — its
+  extension, for instance — was therefore able to inspect one asset while the card
+  rendered another. The new export mirrors catchPostImage's precedence:
+  thumbnails, then image, then the first body image.
+
+- Ask for a feed GIF once, not three times (#1803)
+
 ## 2.5.34
 
 ### Patch Changes
