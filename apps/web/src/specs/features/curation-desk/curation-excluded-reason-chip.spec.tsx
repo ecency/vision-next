@@ -24,6 +24,7 @@ const REASONS = [
   "deleted",
   "abuser",
   "ignorelist",
+  "blocked_app",
   "nsfw",
   "blocked_tag",
   "patch_body",

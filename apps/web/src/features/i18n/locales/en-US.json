@@ -4588,6 +4588,7 @@
       "deleted": "deleted post",
       "abuser": "author on the abuse list",
       "ignorelist": "author on the ignore list",
+      "blocked_app": "posted by a blocked app",
       "nsfw": "tagged NSFW",
       "blocked_tag": "blocked tag",
       "patch_body": "body could not be read",
