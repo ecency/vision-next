@@ -2785,6 +2785,26 @@ function getImage(entry, width = 0, height = 0, format = "match", fastMode = fal
   }
   return null;
 }
+function getEntryCardImageRawUrl(obj) {
+  if (typeof obj === "string") {
+    return getEntryImageRawUrl(obj);
+  }
+  let meta;
+  if (typeof obj.json_metadata === "object") {
+    meta = obj.json_metadata;
+  } else {
+    try {
+      meta = JSON.parse(obj.json_metadata);
+    } catch (e) {
+      meta = null;
+    }
+  }
+  const thumbnail = firstMetaUrl(meta?.thumbnails);
+  if (thumbnail) {
+    return decodeImageSrc(thumbnail);
+  }
+  return getEntryImageRawUrl(obj);
+}
 function getEntryImageRawUrl(obj) {
   if (typeof obj === "string") {
     const src = findFirstImageUrl(obj, true);
@@ -2934,6 +2954,6 @@ function getPostBodySummary(obj, length, platform) {
   return res;
 }
 
-export { IMAGE_SIZES, SECTION_LIST, buildPictureSources, buildSrcSet, buildSrcSetForFormat, catchPostImage, getEntryImageRawUrl, isAllowedEmbedSrc, isLegacySizedProxyUrl, isPictureEligibleRawUrl, isValidPermlink, getPostBodySummary as postBodySummary, proxifyImageSrc, markdown2Html as renderPostBody, setCacheSize, setProxyBase, setSlowRenderThresholdMs, simpleMarkdownToHTML };
+export { IMAGE_SIZES, SECTION_LIST, buildPictureSources, buildSrcSet, buildSrcSetForFormat, catchPostImage, getEntryCardImageRawUrl, getEntryImageRawUrl, isAllowedEmbedSrc, isLegacySizedProxyUrl, isPictureEligibleRawUrl, isValidPermlink, getPostBodySummary as postBodySummary, proxifyImageSrc, markdown2Html as renderPostBody, setCacheSize, setProxyBase, setSlowRenderThresholdMs, simpleMarkdownToHTML };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

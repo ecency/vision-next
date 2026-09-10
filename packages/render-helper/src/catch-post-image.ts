@@ -913,6 +913,40 @@ function getImage(entry: Entry, width = 0, height = 0, format = 'match', fastMod
  * URL). Returns null when the fast path finds no unambiguous image (the caller
  * can fall back to catchPostImage).
  */
+/**
+ * The RAW (pre-proxify) URL of the image a CARD renders.
+ *
+ * Mirrors catchPostImage's precedence — `json_metadata.thumbnails` first, then
+ * `json_metadata.image`, then the first body image — which is NOT the order
+ * getEntryImageRawUrl uses: that one answers a body/LCP-preload question and
+ * deliberately skips thumbnails. Use this when a caller has to reason about the
+ * file the card will actually request (its extension, say), or it can end up
+ * inspecting one asset while the card renders another.
+ */
+export function getEntryCardImageRawUrl(obj: Entry | string): string | null {
+  if (typeof obj === 'string') {
+    return getEntryImageRawUrl(obj)
+  }
+
+  let meta: Entry['json_metadata'] | null
+  if (typeof obj.json_metadata === 'object') {
+    meta = obj.json_metadata
+  } else {
+    try {
+      meta = JSON.parse(obj.json_metadata as string)
+    } catch (e) {
+      meta = null
+    }
+  }
+
+  const thumbnail = firstMetaUrl(meta?.thumbnails)
+  if (thumbnail) {
+    return decodeImageSrc(thumbnail)
+  }
+
+  return getEntryImageRawUrl(obj)
+}
+
 export function getEntryImageRawUrl(obj: Entry | string): string | null {
   // Decode with the SAME pipeline the renderer applies to the in-body <img>
   // (decodeImageSrc: entities then percent-encoding), so the LCP preload's

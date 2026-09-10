@@ -10857,6 +10857,26 @@ function getImage(entry, width = 0, height = 0, format = "match", fastMode = fal
   }
   return null;
 }
+function getEntryCardImageRawUrl(obj) {
+  if (typeof obj === "string") {
+    return getEntryImageRawUrl(obj);
+  }
+  let meta;
+  if (typeof obj.json_metadata === "object") {
+    meta = obj.json_metadata;
+  } else {
+    try {
+      meta = JSON.parse(obj.json_metadata);
+    } catch (e) {
+      meta = null;
+    }
+  }
+  const thumbnail = firstMetaUrl(meta?.thumbnails);
+  if (thumbnail) {
+    return decodeImageSrc(thumbnail);
+  }
+  return getEntryImageRawUrl(obj);
+}
 function getEntryImageRawUrl(obj) {
   if (typeof obj === "string") {
     const src = findFirstImageUrl(obj, true);
@@ -11014,6 +11034,7 @@ exports.buildPictureSources = buildPictureSources;
 exports.buildSrcSet = buildSrcSet;
 exports.buildSrcSetForFormat = buildSrcSetForFormat;
 exports.catchPostImage = catchPostImage;
+exports.getEntryCardImageRawUrl = getEntryCardImageRawUrl;
 exports.getEntryImageRawUrl = getEntryImageRawUrl;
 exports.isAllowedEmbedSrc = isAllowedEmbedSrc;
 exports.isLegacySizedProxyUrl = isLegacySizedProxyUrl;

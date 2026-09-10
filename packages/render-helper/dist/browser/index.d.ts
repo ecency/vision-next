@@ -75,6 +75,17 @@ declare function markdown2Html(obj: Entry | string, forApp?: boolean, _webp?: bo
  * URL). Returns null when the fast path finds no unambiguous image (the caller
  * can fall back to catchPostImage).
  */
+/**
+ * The RAW (pre-proxify) URL of the image a CARD renders.
+ *
+ * Mirrors catchPostImage's precedence — `json_metadata.thumbnails` first, then
+ * `json_metadata.image`, then the first body image — which is NOT the order
+ * getEntryImageRawUrl uses: that one answers a body/LCP-preload question and
+ * deliberately skips thumbnails. Use this when a caller has to reason about the
+ * file the card will actually request (its extension, say), or it can end up
+ * inspecting one asset while the card renders another.
+ */
+declare function getEntryCardImageRawUrl(obj: Entry | string): string | null;
 declare function getEntryImageRawUrl(obj: Entry | string): string | null;
 interface CatchPostImageOptions {
     /**
@@ -200,4 +211,4 @@ declare function isValidPermlink(permlink: string): boolean;
  */
 declare function simpleMarkdownToHTML(input: string): string;
 
-export { type Entry, IMAGE_SIZES, type ProxifyOptions, type RenderOptions, SECTION_LIST, type SeoContext, buildPictureSources, buildSrcSet, buildSrcSetForFormat, catchPostImage, getEntryImageRawUrl, isAllowedEmbedSrc, isLegacySizedProxyUrl, isPictureEligibleRawUrl, isValidPermlink, getPostBodySummary as postBodySummary, proxifyImageSrc, markdown2Html as renderPostBody, setCacheSize, setProxyBase, setSlowRenderThresholdMs, simpleMarkdownToHTML };
+export { type Entry, IMAGE_SIZES, type ProxifyOptions, type RenderOptions, SECTION_LIST, type SeoContext, buildPictureSources, buildSrcSet, buildSrcSetForFormat, catchPostImage, getEntryCardImageRawUrl, getEntryImageRawUrl, isAllowedEmbedSrc, isLegacySizedProxyUrl, isPictureEligibleRawUrl, isValidPermlink, getPostBodySummary as postBodySummary, proxifyImageSrc, markdown2Html as renderPostBody, setCacheSize, setProxyBase, setSlowRenderThresholdMs, simpleMarkdownToHTML };
