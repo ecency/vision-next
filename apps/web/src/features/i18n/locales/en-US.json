@@ -1446,6 +1446,7 @@
   },
   "profile-info": {
     "joined": "Joined: {{n}}",
+    "joined-label": "Joined",
     "last-active": "Last active: {{n}}",
     "vote-value": "Vote value: {{n}}",
     "vote-value-max": "(out of max {{n}})",

@@ -50,7 +50,7 @@ export const ProfilePreview = ({ username }: Props) => {
         <div className="w-full">
           <ProfilePreviewPropertiesRowLayout>
             <ProfilePreviewCellLayout
-              title={i18next.t("profile-info.joined")}
+              title={i18next.t("profile-info.joined-label")}
               isLoading={isProfileLoading}
             >
               {profile && dateToFullRelative(profile.created)}
