@@ -36,8 +36,9 @@ export async function ProfileEntriesList({ section, account, initialFeed, curren
   // Untrusted on-chain JSON, not a checked string — see pinnedPermlink().
   // getEntryQueryByPath spreads getPostQueryOptions, which trims the permlink
   // while BUILDING the options object, so a non-string `pinned` throws on this
-  // line. This is a server component and the profile index no longer has a
-  // loading.tsx above it, so that throw would take the whole document.
+  // line. This is a server component and neither the profile index (#1787) nor
+  // its [section] tabs (#1805) have a loading.tsx above them any more, so that
+  // throw would take the whole document.
   const pinned = pinnedPermlink(account?.profile);
   const pinnedEntry =
     pinned && PINNED_SECTIONS.includes(section)
