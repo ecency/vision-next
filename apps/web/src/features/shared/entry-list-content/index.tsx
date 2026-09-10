@@ -5,6 +5,7 @@ import { Account, Community, Entry } from "@/entities";
 import { EntryListItem } from "@/features/shared";
 import { useVisibleEntries } from "@/features/shared/entry-list-item/use-muted-authors";
 import { EntryListContentNoData } from "./entry-list-content-no-data";
+import { EntryListScrollRestore } from "./entry-list-scroll-restore";
 
 interface Props {
   loading: boolean;
@@ -36,6 +37,10 @@ export function EntryListContent({
 
   return (
     <>
+      {/* Puts the reader back on the card they left through, by element rather
+          than by pixel offset — a remounted list is shorter than the one they
+          scrolled, so a remembered offset lands nowhere near. */}
+      <EntryListScrollRestore />
       {/* `showEmptyPlaceholder` means "this component owns the list's empty
           state", so the decision is made on what the viewer can actually see: a
           list of nothing but muted authors is empty to them. Anything rendering
