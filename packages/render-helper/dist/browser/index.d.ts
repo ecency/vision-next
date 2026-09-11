@@ -156,10 +156,10 @@ declare function buildSrcSetForFormat(url?: string, format?: 'avif' | 'webp' | '
  * Whether a RAW (pre-proxify) image URL is safe to offer avif/webp `<source>`
  * renditions for. Requires an http(s) URL whose PATHNAME ends in a static-raster
  * extension and that is NOT already proxified — already-proxified routes (`/p/`
- * base58 hash, `/u/` avatars, `WxH` sized) have the original extension stripped,
- * so we can't prove the underlying bytes aren't an animated gif and must fall
- * back to a bare img. URL parsing (not string regex on the host) keeps the host
- * comparison exact and avoids an interpolated-hostname regex.
+ * base58 hash, `/u/` avatars) have the original extension stripped, so we can't
+ * prove the underlying bytes aren't an animated gif and must fall back to a bare
+ * img. URL parsing (not string regex on the host) keeps the host comparison
+ * exact and avoids an interpolated-hostname regex.
  */
 declare function isPictureEligibleRawUrl(rawUrl?: string): boolean;
 /**

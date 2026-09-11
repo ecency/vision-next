@@ -400,26 +400,41 @@ export function buildSrcSetForFormat(
 }
 
 // Static raster formats the imagehoster reliably transcodes to avif/webp.
-// Animated (gif/apng), vector (svg) and exotic (heic/ico/tiff/arw) are excluded:
-// the origin returns the ORIGINAL bytes for ?format=avif on an animated source,
-// which a <source type="image/avif"> would mislabel (the browser commits to that
-// source and never reaches the <img> fallback). Checked against the URL PATHNAME
-// only — a static-looking extension in the query/fragment (e.g. `?file=a.png`,
-// `x.svg#thumb.png`) does not prove the fetched resource is a static raster.
+// Animated (gif/apng), vector (svg) and exotic (heic/ico/tiff/arw) are excluded,
+// because ?format=avif on any of them answers with something that is not AVIF
+// and a <source type="image/avif"> would mislabel it (the browser commits to
+// that source and never reaches the <img> fallback). What it answers with has
+// changed and no longer matters to this rule: an animated source used to come
+// back as the ORIGINAL bytes, and since ecency/imagehoster#47 it is re-rendered
+// as animated WebP, or still passed through when its output is over the host's
+// budget. Neither is AVIF. Checked against the URL PATHNAME only: a static-
+// looking extension in the query/fragment (e.g. `?file=a.png`, `x.svg#thumb.png`)
+// does not prove the fetched resource is a static raster.
 const STATIC_RASTER_PATH_EXT = /\.(?:jpe?g|png|webp)$/i;
-// Image-proxy sized route, e.g. /600x500/<url> — already-proxified, extension lost.
+// Image-proxy sized route on OUR host, e.g. /600x500/<url>: already-proxified and
+// the extension is gone. Distinct from the legacy sized-proxy hosts, whose nested
+// source is still readable. See isPictureEligible.
 const SIZED_PROXY_PATH = /^\/\d+x\d+\//;
 
 /**
  * Whether a RAW (pre-proxify) image URL is safe to offer avif/webp `<source>`
  * renditions for. Requires an http(s) URL whose PATHNAME ends in a static-raster
  * extension and that is NOT already proxified — already-proxified routes (`/p/`
- * base58 hash, `/u/` avatars, `WxH` sized) have the original extension stripped,
- * so we can't prove the underlying bytes aren't an animated gif and must fall
- * back to a bare img. URL parsing (not string regex on the host) keeps the host
- * comparison exact and avoids an interpolated-hostname regex.
+ * base58 hash, `/u/` avatars) have the original extension stripped, so we can't
+ * prove the underlying bytes aren't an animated gif and must fall back to a bare
+ * img. URL parsing (not string regex on the host) keeps the host comparison
+ * exact and avoids an interpolated-hostname regex.
  */
 export function isPictureEligibleRawUrl(rawUrl?: string): boolean {
+  return isPictureEligible(rawUrl, true);
+}
+
+/**
+ * `mayUnwrapLegacy` bounds the legacy unwrap below to a single level. A post
+ * body is user-authored, so a URL nesting these hosts inside each other must not
+ * drive unbounded recursion during SSR.
+ */
+function isPictureEligible(rawUrl: string | undefined, mayUnwrapLegacy: boolean): boolean {
   if (!rawUrl || typeof rawUrl !== 'string') return false;
   let u: URL;
   try {
@@ -429,16 +444,31 @@ export function isPictureEligibleRawUrl(rawUrl?: string): boolean {
   }
   if (u.protocol !== 'http:' && u.protocol !== 'https:') return false;
 
-  // Legacy sized-proxy URLs now reach the /p/ route (see proxifyForFormat), so a
-  // format CAN be pinned for them. Their path hides the original extension, but
-  // that no longer decides anything: an animated source is returned untouched
-  // whatever format is requested (verified on a live 44-frame gif — match, avif
-  // and webp all return the same 1,001,718 bytes), and an SVG is already
-  // rasterised by the /p/ route under format=match (verified: match and avif
-  // return byte-identical output). So a pinned <source> cannot change what the
-  // reader sees. These are ~5% of in-body images overall but cluster in
-  // photo-heavy posts, where a big image is usually the LCP element.
-  if (isLegacySizedProxyUrl(rawUrl)) return true;
+  // A legacy sized-proxy URL does NOT hide its original extension: the nested
+  // source is right there after the `<WxH>/` segment, and the same extractor the
+  // /p/ hash is built from hands it over. So judge these on the file they
+  // actually wrap, by the same rules as any other raw URL.
+  //
+  // They used to be waved through on the grounds that a pinned format could not
+  // change what the reader sees, because the origin returned the ORIGINAL bytes
+  // for any format on an animated source. That stopped being true when
+  // ecency/imagehoster#47 shipped (in production 2026-09-10): animated sources
+  // are re-rendered now, and since libvips cannot write an animated AVIF, an
+  // explicit `?format=avif` resolves to WebP. Verified against production on a
+  // 1080x1350 x150 gif behind one of these URLs, cache-busted off the stale key:
+  //
+  //   ?format=avif&mode=fit&width=323 -> 200 image/webp    156,658
+  //   ?format=avif&mode=fit&width=601 -> 200 image/gif   1,572,008  (over budget)
+  //
+  // Either way `<source type="image/avif">` describes bytes that are not AVIF,
+  // and the browser commits to that source without ever reaching the `<img>`
+  // fallback. Measured over 804 live posts (7,197 image URLs), 94.6% of these
+  // URLs wrap a static raster and keep their `<picture>`; the 5.4% that do not
+  // are a gif and four with no extension to read.
+  if (mayUnwrapLegacy && isLegacySizedProxyUrl(rawUrl)) {
+    const nested = extractLegacySizedSource(rawUrl);
+    return nested !== null && isPictureEligible(nested, false);
+  }
 
   const host = `${u.protocol}//${u.host}`;
   const isProxyHost = host === proxyBase || host === 'https://images.ecency.com';
