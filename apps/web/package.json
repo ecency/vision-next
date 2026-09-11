@@ -184,7 +184,7 @@
     "@types/webscopeio__react-textarea-autocomplete": "^4.7.5",
     "@types/ws": "^8.18.1",
     "@vitejs/plugin-react": "^5.2.0",
-    "@vitest/ui": "^4.1.8",
+    "@vitest/ui": "^4.1.11",
     "autoprefixer": "^10.0.1",
     "baseline-browser-mapping": "^2.11.0",
     "eslint": "^8",
@@ -196,6 +196,6 @@
     "ts-node": "^10.9.2",
     "typescript": "^5",
     "vite": "^8.0.16",
-    "vitest": "^4.1.8"
+    "vitest": "^4.1.11"
   }
 }

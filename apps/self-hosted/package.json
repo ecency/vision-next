@@ -69,6 +69,6 @@
     "jsdom": "^26.1.0",
     "tailwindcss": "^4.1.13",
     "typescript": "^5.9.3",
-    "vitest": "^4.1.8"
+    "vitest": "^4.1.11"
   }
 }
