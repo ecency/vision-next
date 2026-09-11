@@ -50,11 +50,16 @@ export function AuthUpgradeDialog() {
     resolveAuthUpgrade(false);
   }, []);
 
-  const handleKeySign = useCallback((privateKey: PrivateKey) => {
-    setRequest(null);
-    // Convert PrivateKey to WIF string for the adapter's getActiveKey
-    resolveAuthUpgrade("key", privateKey.toString());
-  }, []);
+  const handleKeySign = useCallback(
+    (privateKey: PrivateKey) => {
+      setRequest(null);
+      // Convert PrivateKey to WIF string for the adapter's getActiveKey. The
+      // username is the one KeyInput derived a master password or seed against,
+      // so the key is filed under the account it actually belongs to.
+      resolveAuthUpgrade("key", privateKey.toString(), activeUser?.username);
+    },
+    [activeUser?.username]
+  );
 
   const handleHiveSigner = useCallback(() => {
     setRequest(null);
@@ -155,6 +160,13 @@ export function AuthUpgradeDialog() {
               ) : (
                 <>
                   <KeyInput onSign={handleKeySign} keyType={authority} />
+                  {authority === "active" && (
+                    // Only the active key is kept, only for this tab. Say so
+                    // here, where the user decides whether to type it.
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {i18next.t("trx-common.key-kept-for-tab")}
+                    </p>
+                  )}
                   <div className="flex items-center gap-2 my-1">
                     <hr className="flex-1" />
                     <span className="text-xs text-gray-400">
