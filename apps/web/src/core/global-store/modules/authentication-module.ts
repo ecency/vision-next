@@ -52,13 +52,11 @@ export const createAuthenticationActions = (
       // reused under the newly activated account. Login sets the key AFTER
       // activating the user, so this does not wipe a fresh login's key.
       set({ activeUser: nextActiveUser, signingKey: null });
-      // Only a move between two known accounts invalidates the tab's active key.
-      // The store always starts empty, so every page load restores the persisted
-      // username through here; clearing unconditionally would throw away the key
-      // that just survived the reload.
-      if (currentUsername) {
-        clearSessionActiveKey();
-      }
+      // Unconditional on purpose. A held key cannot predate this document, so a
+      // page load restoring the persisted username has nothing to lose here.
+      // Making a security-relevant clear depend on store state would turn into a
+      // cross-account leak the day the key gains any persistent backing.
+      clearSessionActiveKey();
 
       sentry.setUser({
         username: name

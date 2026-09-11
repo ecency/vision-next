@@ -77,6 +77,19 @@ describe("auth upgrade key ownership", () => {
     ls.set("active_user", "alice");
   });
 
+  it("files the key under the account it was derived for, over the one the dialog opened for", async () => {
+    const pending = requestAuthUpgrade("active", "transfer");
+
+    // KeyInput derives a master password or seed against the active user at
+    // submit time. If that changed while the dialog was open, the derived key
+    // belongs to the new account, and the dialog is what knows it.
+    resolveAuthUpgrade("key", ACTIVE_KEY, "bob");
+    await pending;
+
+    ls.set("active_user", "bob");
+    expect(getTempActiveKey("bob")).toBe(ACTIVE_KEY);
+  });
+
   it("stores the key under the account the dialog opened for", async () => {
     const pending = requestAuthUpgrade("active", "transfer");
 

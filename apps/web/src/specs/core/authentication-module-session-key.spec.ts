@@ -12,8 +12,7 @@ const KEY = "5J" + "activekey".repeat(5) + "abcd";
 
 /**
  * The store always starts with `activeUser: null`, so ClientInit restoring the
- * persisted username on every page load goes through `setActiveUser` too. Only a
- * genuine switch may drop the tab's active key.
+ * persisted username on every page load goes through `setActiveUser` too.
  */
 function actionsFor(currentUsername: string | null) {
   const state = { activeUser: currentUsername ? ({ username: currentUsername } as any) : null };
@@ -29,14 +28,17 @@ describe("active user changes and the session active key", () => {
     window.localStorage.clear();
   });
 
-  it("keeps the key when a page load restores the same account", () => {
+  it("clears on every active-user change, restore included", () => {
     ls.set("active_user", "alice");
     ls.set("user_alice", "x");
     setSessionActiveKey(KEY, "alice");
 
+    // A page load restores the persisted username through here with an empty
+    // store. A key held in module memory cannot predate the document, so there
+    // is nothing to protect and the clear stays unconditional.
     actionsFor(null).setActiveUser("alice");
 
-    expect(getSessionActiveKey("alice")).toBe(KEY);
+    expect(getSessionActiveKey("alice")).toBeNull();
   });
 
   it("drops the key when switching to another account", () => {

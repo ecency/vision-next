@@ -63,11 +63,22 @@ export function requestAuthUpgrade(
 /**
  * Called by the dialog when the user makes a choice (or cancels).
  */
-export function resolveAuthUpgrade(method: AuthMethod, key?: string) {
+export function resolveAuthUpgrade(
+  method: AuthMethod,
+  key?: string,
+  /**
+   * The account the key was derived for. The dialog derives a master password or
+   * seed against the store's active user at submit time, which an account switch
+   * made while it was open would have changed, so the dialog is the only place
+   * that knows whose key this is. Falls back to the account the dialog opened
+   * for, which is the same thing unless such a switch happened.
+   */
+  derivedFor?: string
+) {
   if (key && pendingAuthority === "active") {
     // Held for the rest of the page, so a run of active-authority operations
     // (tipping a feed's worth of posts) asks for the key once.
-    setSessionActiveKey(key, pendingUsername ?? undefined);
+    setSessionActiveKey(key, derivedFor ?? pendingUsername ?? undefined);
   }
   pendingResolve?.(method);
   pendingResolve = null;

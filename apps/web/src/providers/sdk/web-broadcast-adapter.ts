@@ -338,6 +338,13 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
       // Use existing helper - it handles localStorage access and decoding
       const loginType = getLoginType(username);
       if (!loginType) {
+        // A record with no loginType (written before that field existed) would
+        // otherwise send every active operation straight to the auth upgrade
+        // dialog: the SDK skips getActiveKey entirely when this returns null.
+        // The held key can sign, so say so and let it be tried first.
+        if (authority === 'active' && getTempActiveKey(username)) {
+          return 'key';
+        }
         return null;
       }
 
@@ -515,13 +522,11 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
         return;
       }
 
-      // A key already held for this page signs without a prompt. Opening the
-      // dialog regardless would also clear that key, which is the opposite of
-      // what the store is for.
-      const heldKey = getTempActiveKey(username);
-      const method = heldKey
-        ? 'key'
-        : await requestAuthUpgrade('active', 'Grant posting authority');
+      // Granting posting authority is an account_update, so it always asks: the
+      // dialog is where the user can decline an authority change. That costs the
+      // held key, which the dialog clears on open, but a silent on-chain
+      // authority change would be the worse trade.
+      const method = await requestAuthUpgrade('active', 'Grant posting authority');
       if (method === false) {
         // User cancelled - granting is optional, return silently
         return;
@@ -542,7 +547,7 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
       const self = getWebBroadcastAdapter();
       switch (method) {
         case 'key': {
-          const activeKey = heldKey ?? getTempActiveKey(username);
+          const activeKey = getTempActiveKey(username);
           if (!activeKey) {
             throw new Error('Active key not provided');
           }

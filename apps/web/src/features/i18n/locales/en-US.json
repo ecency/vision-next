@@ -472,7 +472,7 @@
     "write-username": "Enter username and select login option",
     "username-placeholder": "Username",
     "key-placeholder": "password / private key / seed",
-    "active-key-kept-for-tab": "A master password, seed or active key is kept in memory so transfers and tips stop asking for it, until you close or reload this tab, or leave it unused for two hours.",
+    "active-key-kept-for-tab": "If you sign in with a master password, seed or active key, it is kept in memory so transfers and tips stop asking for it, until you close or reload this tab, or leave it unused for two hours. A posting key is not kept.",
     "login-info-1": "We don't store your private keys.",
     "login-info-2": "More info",
     "error-fields-required": "Please enter username and private key",

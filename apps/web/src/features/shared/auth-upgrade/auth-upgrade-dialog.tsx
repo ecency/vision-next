@@ -50,11 +50,16 @@ export function AuthUpgradeDialog() {
     resolveAuthUpgrade(false);
   }, []);
 
-  const handleKeySign = useCallback((privateKey: PrivateKey) => {
-    setRequest(null);
-    // Convert PrivateKey to WIF string for the adapter's getActiveKey
-    resolveAuthUpgrade("key", privateKey.toString());
-  }, []);
+  const handleKeySign = useCallback(
+    (privateKey: PrivateKey) => {
+      setRequest(null);
+      // Convert PrivateKey to WIF string for the adapter's getActiveKey. The
+      // username is the one KeyInput derived a master password or seed against,
+      // so the key is filed under the account it actually belongs to.
+      resolveAuthUpgrade("key", privateKey.toString(), activeUser?.username);
+    },
+    [activeUser?.username]
+  );
 
   const handleHiveSigner = useCallback(() => {
     setRequest(null);
