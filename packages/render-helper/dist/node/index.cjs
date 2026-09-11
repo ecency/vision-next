@@ -741,6 +741,9 @@ function buildSrcSetForFormat(url, format = "match") {
 var STATIC_RASTER_PATH_EXT = /\.(?:jpe?g|png|webp)$/i;
 var SIZED_PROXY_PATH = /^\/\d+x\d+\//;
 function isPictureEligibleRawUrl(rawUrl) {
+  return isPictureEligible(rawUrl, true);
+}
+function isPictureEligible(rawUrl, mayUnwrapLegacy) {
   if (!rawUrl || typeof rawUrl !== "string") return false;
   let u;
   try {
@@ -749,7 +752,10 @@ function isPictureEligibleRawUrl(rawUrl) {
     return false;
   }
   if (u.protocol !== "http:" && u.protocol !== "https:") return false;
-  if (isLegacySizedProxyUrl(rawUrl)) return true;
+  if (mayUnwrapLegacy && isLegacySizedProxyUrl(rawUrl)) {
+    const nested = extractLegacySizedSource(rawUrl);
+    return nested !== null && isPictureEligible(nested, false);
+  }
   const host = `${u.protocol}//${u.host}`;
   const isProxyHost = host === proxyBase || host === "https://images.ecency.com";
   if (isProxyHost && (u.pathname.startsWith("/p/") || u.pathname.startsWith("/u/") || SIZED_PROXY_PATH.test(u.pathname))) {
