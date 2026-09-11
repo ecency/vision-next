@@ -10,6 +10,7 @@ import { formatError } from "@/api/format-error";
 import { makeHsCode } from "@/utils";
 import { useLoginInApp } from "./use-login-in-app";
 import { useGlobalStore } from "@/core/global-store";
+import { setSessionActiveKey } from "@/utils/session-active-key";
 import { useRef } from "react";
 
 async function signer(message: string, privateKey: PrivateKey) {
@@ -223,6 +224,16 @@ export function useLoginByKey(
       await loginInApp(code, postingKey ? postingKey.toString() : null, account, "privateKey");
 
       setSigningKey(privateKey.toString());
+
+      // Logging in with a master password, seed or active key already hands the
+      // app an active-authority key (`withPostingKey` is false only after it was
+      // matched against the account's active authority above). Hold it in memory
+      // so tips, transfers and power ups don't open the auth upgrade dialog for a
+      // key the user has already typed. Must run after loginInApp: activating the
+      // user clears the previous account's key.
+      if (!withPostingKey) {
+        setSessionActiveKey(privateKey.toString(), account.name);
+      }
     },
     onError: (e) => error(...formatError(e))
   });

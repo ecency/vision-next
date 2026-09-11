@@ -137,6 +137,14 @@ export function LoginUserByKey({ username }: Props) {
         </>
       )}
 
+      {/* The active key a master password, seed or active-key login derives is
+          kept in memory so transfers stop re-prompting. Say so where the
+          credential is typed, since that flow never opens the sign dialog that
+          carries the same notice. */}
+      <div className="pl-2 pt-2 text-xs text-gray-600 dark:text-gray-400">
+        {i18next.t("login.active-key-kept-for-tab")}
+      </div>
+
       <div className="google-recaptcha">
         <ReCAPTCHA
           sitekey="6LdEi_4iAAAAAO_PD6H4SubH5Jd2JjgbIq8VGwKR"

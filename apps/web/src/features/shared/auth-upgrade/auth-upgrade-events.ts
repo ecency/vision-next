@@ -1,3 +1,10 @@
+import {
+  clearSessionActiveKey,
+  getSessionActiveKey,
+  setSessionActiveKey
+} from "@/utils/session-active-key";
+import * as ls from "@/utils/local-storage";
+
 /**
  * Imperative API for the auth upgrade dialog.
  *
@@ -11,8 +18,14 @@
 type AuthMethod = "hivesigner" | "keychain" | "key" | false;
 
 let pendingResolve: ((method: AuthMethod) => void) | null = null;
-let tempActiveKey: string | null = null;
-let tempKeyTimeout: ReturnType<typeof setTimeout> | null = null;
+/** Authority the open dialog is collecting for. Only an active-authority key is
+ * worth keeping: it is the one the adapter reads back for later broadcasts, so
+ * a posting key stored under it would fail every active operation in the tab. */
+let pendingAuthority: string | null = null;
+/** Account the open dialog was raised for. The dialog can outlive an account
+ * switch, so the key it collects belongs to this account, not to whoever
+ * happens to be active by the time the user submits it. */
+let pendingUsername: string | null = null;
 
 /**
  * Called by the broadcast adapter's showAuthUpgradeUI to show the dialog and wait for user choice.
@@ -26,9 +39,16 @@ export function requestAuthUpgrade(
     pendingResolve(false);
     pendingResolve = null;
   }
+  pendingAuthority = authority;
+  pendingUsername = (ls.get("active_user") as string | null) ?? null;
 
-  // Clear any stale temp key from a previous flow
-  clearTempActiveKey();
+  // An active-authority dialog only opens when no key was stored or the stored
+  // one was rejected, so whatever is held is of no use. Dropping it keeps a
+  // wrong key from failing every later broadcast in the tab. A posting-authority
+  // upgrade says nothing about the active key, so that one leaves it alone.
+  if (authority === "active") {
+    clearTempActiveKey();
+  }
 
   return new Promise((resolve) => {
     pendingResolve = resolve;
@@ -43,35 +63,44 @@ export function requestAuthUpgrade(
 /**
  * Called by the dialog when the user makes a choice (or cancels).
  */
-export function resolveAuthUpgrade(method: AuthMethod, key?: string) {
-  if (key) {
-    tempActiveKey = key;
-    // Safety: clear the key after 60s to prevent stale keys lingering in memory
-    if (tempKeyTimeout) clearTimeout(tempKeyTimeout);
-    tempKeyTimeout = setTimeout(clearTempActiveKey, 60_000);
+export function resolveAuthUpgrade(
+  method: AuthMethod,
+  key?: string,
+  /**
+   * The account the key was derived for. The dialog derives a master password or
+   * seed against the store's active user at submit time, which an account switch
+   * made while it was open would have changed, so the dialog is the only place
+   * that knows whose key this is. Falls back to the account the dialog opened
+   * for, which is the same thing unless such a switch happened.
+   */
+  derivedFor?: string
+) {
+  if (key && pendingAuthority === "active") {
+    // Held for the rest of the page, so a run of active-authority operations
+    // (tipping a feed's worth of posts) asks for the key once.
+    setSessionActiveKey(key, derivedFor ?? pendingUsername ?? undefined);
   }
   pendingResolve?.(method);
   pendingResolve = null;
+  pendingAuthority = null;
+  pendingUsername = null;
 }
 
 /**
  * Called by adapter.getActiveKey() to retrieve the key entered in the dialog.
- * Non-destructive read — key persists for retries within the same auth flow.
+ * Non-destructive read. The key is returned only to the account that entered
+ * it and lasts as long as the page.
  */
-export function getTempActiveKey(): string | null {
-  return tempActiveKey;
+export function getTempActiveKey(username?: string): string | null {
+  return getSessionActiveKey(username);
 }
 
 /**
- * Clears the temp active key. Called after successful broadcast or when a new
- * auth upgrade flow starts.
+ * Clears the stored active key. Called when a new auth upgrade flow starts,
+ * and on logout or account switch.
  */
 export function clearTempActiveKey() {
-  tempActiveKey = null;
-  if (tempKeyTimeout) {
-    clearTimeout(tempKeyTimeout);
-    tempKeyTimeout = null;
-  }
+  clearSessionActiveKey();
 }
 
 /** @deprecated Use getTempActiveKey() instead — non-destructive read */

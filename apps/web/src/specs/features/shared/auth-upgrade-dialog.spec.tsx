@@ -13,7 +13,8 @@ const h = vi.hoisted(() => ({
   kcMobile: false,
   username: "testuser",
   setPreferredExtensionId: vi.fn(),
-  resolveAuthUpgrade: vi.fn()
+  resolveAuthUpgrade: vi.fn(),
+  wif: "5J" + "activekey".repeat(5) + "abcd"
 }));
 
 // The dialog only renders for a signed-in user; the global mock returns a null
@@ -44,6 +45,17 @@ vi.mock("@/features/shared/auth-upgrade/auth-upgrade-events", () => ({
   resolveAuthUpgrade: (...args: unknown[]) => h.resolveAuthUpgrade(...args)
 }));
 
+// The real KeyInput derives through @ecency/sdk and @ecency/wallets, both
+// globally mocked in this suite. What is under test here is which username the
+// dialog hands to resolveAuthUpgrade, so a stub that signs is enough.
+vi.mock("@ui/input", () => ({
+  KeyInput: ({ onSign }: { onSign?: (key: unknown) => void }) => (
+    <button type="button" onClick={() => onSign?.({ toString: () => h.wif })}>
+      stub-sign
+    </button>
+  )
+}));
+
 import { AuthUpgradeDialog } from "@/features/shared/auth-upgrade";
 
 function openDialog() {
@@ -64,6 +76,26 @@ const ORIGINAL_UA = navigator.userAgent;
 function setUserAgent(ua: string) {
   Object.defineProperty(window.navigator, "userAgent", { value: ua, configurable: true });
 }
+
+describe("AuthUpgradeDialog key ownership", () => {
+  beforeEach(() => {
+    h.username = "testuser";
+    h.resolveAuthUpgrade.mockClear();
+  });
+  afterEach(() => cleanup());
+
+  it("names the account the key was derived for", async () => {
+    openDialog();
+
+    fireEvent.click(screen.getByRole("button", { name: "stub-sign" }));
+
+    // KeyInput derives a master password or seed against the active user at
+    // submit time, so the dialog is the only place that knows whose key this is.
+    await vi.waitFor(() =>
+      expect(h.resolveAuthUpgrade).toHaveBeenCalledWith("key", expect.any(String), "testuser")
+    );
+  });
+});
 
 describe("AuthUpgradeDialog extension picker", () => {
   beforeEach(() => {
