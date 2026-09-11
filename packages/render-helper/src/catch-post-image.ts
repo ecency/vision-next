@@ -4,11 +4,15 @@ import { createDoc, makeEntryCacheKey, decodeImageSrc, decodeEntities, stripHtml
 import { cacheGet, cacheSet } from './cache'
 import { Entry } from './types'
 
-const gifLinkRegex = /\.(gif)$/i;
-
-function isGifLink(link: string) {
-  return gifLinkRegex.test(link);
-}
+// No gif branch below, deliberately. Every proxify here used to ask for the
+// ORIGINAL dimensions when the source was a .gif, because the image host handed
+// animated sources back untransformed at any size, so a sized URL only minted a
+// second cache key holding the same bytes. ecency/imagehoster#47 re-renders them
+// at the requested box, keeping every frame or passing through untouched, so a
+// size is now worth asking for: on the source behind #1802 the feed's 600x500 box
+// is 195,318 bytes of animated WebP against 1,572,008 of GIF, 40 frames and the
+// same 5000ms running time. Re-adding the branch would put a full-size animation
+// back into a 150px slot.
 
 // Strip code regions so that ![alt](url) inside a code block is not mistaken
 // for a real image. The full markdown renderer turns these into <pre><code>
@@ -804,11 +808,7 @@ function firstMetaUrl(value: unknown): string | undefined {
 }
 
 function proxifyFound(src: string, width: number, height: number, format: string): string {
-  const decoded = decodeEntities(src)
-  if (isGifLink(decoded)) {
-    return proxifyImageSrc(decoded, 0, 0, format)
-  }
-  return proxifyImageSrc(decoded, width, height, format)
+  return proxifyImageSrc(decodeEntities(src), width, height, format)
 }
 
 function getImage(entry: Entry, width = 0, height = 0, format = 'match', fastMode = false): string | null {
@@ -834,10 +834,7 @@ function getImage(entry: Entry, width = 0, height = 0, format = 'match', fastMod
   // not suppress a valid cover below, so only a non-empty result is returned.
   const thumbnail = firstMetaUrl(meta?.thumbnails)
   if (thumbnail) {
-    const decodedThumbnail = decodeEntities(thumbnail)
-    const proxied = isGifLink(decodedThumbnail)
-      ? proxifyImageSrc(decodedThumbnail, 0, 0, format)
-      : proxifyImageSrc(decodedThumbnail, width, height, format)
+    const proxied = proxifyImageSrc(decodeEntities(thumbnail), width, height, format)
     if (proxied) {
       return proxied
     }
@@ -845,27 +842,16 @@ function getImage(entry: Entry, width = 0, height = 0, format = 'match', fastMod
 
   if (meta && typeof meta.image === 'string' && meta.image.length > 0) {
     // Decode HTML entities (e.g., &amp; -> &) before proxifying
-    const decodedImage = decodeEntities(meta.image)
-    if (isGifLink(decodedImage)) {
-      return proxifyImageSrc(decodedImage, 0, 0, format)
-    }
-    return proxifyImageSrc(decodedImage, width, height, format)
+    return proxifyImageSrc(decodeEntities(meta.image), width, height, format)
   }
 
   if (meta && meta.image && !!meta.image.length && meta.image[0]) {
     // Only decode if it's a string, otherwise pass through to proxifyImageSrc which will return ''
     if (typeof meta.image[0] === 'string') {
       // Decode HTML entities (e.g., &amp; -> &) before proxifying
-      const decodedImage = decodeEntities(meta.image[0])
-      if (isGifLink(decodedImage)) {
-        return proxifyImageSrc(decodedImage, 0, 0, format)
-      }
-      return proxifyImageSrc(decodedImage, width, height, format)
+      return proxifyImageSrc(decodeEntities(meta.image[0]), width, height, format)
     }
     // For non-string types, let proxifyImageSrc handle it (returns '')
-    if (isGifLink(meta.image[0])) {
-      return proxifyImageSrc(meta.image[0], 0, 0, format)
-    }
     return proxifyImageSrc(meta.image[0], width, height, format)
   }
 
