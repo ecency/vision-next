@@ -1,0 +1,2 @@
+function b(n,t){let e=AbortSignal.timeout(n);if(!t)return e;if(typeof AbortSignal.any=="function")return AbortSignal.any([t,e]);let o=new AbortController,r=()=>{let a=t.aborted?t.reason:e.reason;o.abort(a),t.removeEventListener("abort",r),e.removeEventListener("abort",r);};return t.aborted?o.abort(t.reason):e.aborted?o.abort(e.reason):(t.addEventListener("abort",r,{once:true}),e.addEventListener("abort",r,{once:true})),o.signal}export{b as a};//# sourceMappingURL=chunk-JDGZ4DHM.js.map
+//# sourceMappingURL=chunk-JDGZ4DHM.js.map

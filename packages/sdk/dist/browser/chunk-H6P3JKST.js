@@ -1,0 +1,2 @@
+function a(r,e=void 0){let t={fractionDigits:3,prefix:"",suffix:""};e&&(t={...t,...e});let{fractionDigits:s,prefix:f,suffix:o}=t,i="";f&&(i+=f+" ");let n=Math.abs(parseFloat(r.toString()))<1e-4?0:r,u=typeof n=="string"?parseFloat(n):n;return i+=u.toLocaleString("en-US",{minimumFractionDigits:s,maximumFractionDigits:s,useGrouping:true}),o&&(i+=" "+o),i}export{a};//# sourceMappingURL=chunk-H6P3JKST.js.map
+//# sourceMappingURL=chunk-H6P3JKST.js.map

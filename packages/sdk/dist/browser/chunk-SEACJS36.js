@@ -1,0 +1,2 @@
+var e;function t(){if(!e){if(typeof globalThis.fetch!="function")throw new Error("[Ecency][SDK] - global fetch is not available");e=globalThis.fetch.bind(globalThis);}return e}export{t as a};//# sourceMappingURL=chunk-SEACJS36.js.map
+//# sourceMappingURL=chunk-SEACJS36.js.map

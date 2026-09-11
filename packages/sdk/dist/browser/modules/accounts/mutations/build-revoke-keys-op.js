@@ -1,0 +1,2 @@
+export{b as buildRevokeKeysOp,a as canRevokeFromAuthority}from'../../../chunk-NT4ZVSWI.js';import'../../../chunk-OS3FCYZY.js';//# sourceMappingURL=build-revoke-keys-op.js.map
+//# sourceMappingURL=build-revoke-keys-op.js.map

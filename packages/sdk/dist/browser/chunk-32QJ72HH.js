@@ -1,0 +1,2 @@
+var r=(e=>(e.HIVE="HIVE",e.HBD="HBD",e.VESTS="VESTS",e))(r||{}),s=(t=>(t["@@000000021"]="HIVE",t["@@000000013"]="HBD",t["@@000000037"]="VESTS",t))(s||{});function n(t){if(typeof t=="string"){let o=t.split(" ");return {amount:parseFloat(o[0]),symbol:r[o[1]]}}else return {amount:parseFloat(t.amount.toString())/Math.pow(10,t.precision),symbol:s[t.nai]}}export{r as a,s as b,n as c};//# sourceMappingURL=chunk-32QJ72HH.js.map
+//# sourceMappingURL=chunk-32QJ72HH.js.map

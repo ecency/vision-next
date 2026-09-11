@@ -1,0 +1,2 @@
+var r="threespeakfund",a=1100;function o(e){return /https?:\/\/([a-z0-9-]+\.)*3speak\.tv\/embed[?/]/i.test(e)}function i(e,E){if(!o(E))return e;let n=e.find(t=>t.account===r);return n&&n.weight===1100?e:n?e.map(t=>t.account===r?{...t,weight:1100}:t):[...e,{account:r,weight:1100}]}function T(e){return e===r}export{r as a,a as b,o as c,i as d,T as e};//# sourceMappingURL=chunk-J2RSYJY7.js.map
+//# sourceMappingURL=chunk-J2RSYJY7.js.map

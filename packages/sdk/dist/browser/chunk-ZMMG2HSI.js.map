@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../src/modules/core/utils/vests-to-hp.ts"],"names":["vestsToHp","vests","hivePerMVests"],"mappings":"AAAO,SAASA,EAAUC,CAAAA,CAAeC,CAAAA,CAA+B,CACtE,OAAQD,CAAAA,CAAQ,IAAOC,CACzB","file":"chunk-ZMMG2HSI.js","sourcesContent":["export function vestsToHp(vests: number, hivePerMVests: number): number {\n  return (vests / 1e6) * hivePerMVests;\n}\n"]}

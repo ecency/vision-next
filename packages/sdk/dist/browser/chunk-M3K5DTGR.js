@@ -1,0 +1,3 @@
+import {a}from'./chunk-SEACJS36.js';import {queryOptions}from'@tanstack/react-query';function g(r,a$1,e,o){return queryOptions({queryKey:["market","data",r,a$1,e,o],queryFn:async({signal:i})=>{let s=a(),c=`https://api.coingecko.com/api/v3/coins/${r}/market_chart/range?vs_currency=${a$1}&from=${e}&to=${o}`,t=await s(c,{signal:i});if(!t.ok)throw new Error(`Failed to fetch market data: ${t.status}`);return t.json()}})}
+export{g as a};//# sourceMappingURL=chunk-M3K5DTGR.js.map
+//# sourceMappingURL=chunk-M3K5DTGR.js.map

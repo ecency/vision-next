@@ -1,0 +1,2 @@
+function r(e,t,n){return {...e,...t??{},title:n.title,body:n.body}}function i(e,t){return {...e??{},title:t.title,body:t.body}}export{r as a,i as b};//# sourceMappingURL=chunk-MJDVSN4Y.js.map
+//# sourceMappingURL=chunk-MJDVSN4Y.js.map

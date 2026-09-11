@@ -1,0 +1,2 @@
+function i(n){if(typeof TextEncoder<"u")return new TextEncoder().encode(n).length;let e=0;for(let t=0;t<n.length;t++){let r=n.charCodeAt(t);r<128?e+=1:r<2048?e+=2:r>=55296&&r<=56319&&t+1<n.length?(t++,e+=4):e+=3;}return e}function o(n){let e=0,t=n;do e++,t>>>=7;while(t>0);return e}export{i as a,o as b};//# sourceMappingURL=chunk-JKLDB3J3.js.map
+//# sourceMappingURL=chunk-JKLDB3J3.js.map

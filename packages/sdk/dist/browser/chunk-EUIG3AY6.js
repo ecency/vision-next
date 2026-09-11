@@ -1,0 +1,2 @@
+import {useMutation}from'@tanstack/react-query';function a(t,i,n="active"){return useMutation({mutationKey:["operations","sign-keychain",t],mutationFn:({operation:o})=>{if(!t)throw new Error("[SDK][Keychain] \u2013\xA0cannot sign operation with anon user");if(!i?.adapter?.broadcastWithKeychain)throw new Error("[SDK][Keychain] \u2013 missing keychain broadcaster");return i.adapter.broadcastWithKeychain(t,[o],n)}})}export{a};//# sourceMappingURL=chunk-EUIG3AY6.js.map
+//# sourceMappingURL=chunk-EUIG3AY6.js.map

@@ -1,0 +1,2 @@
+function e(n){return new TextEncoder().encode(n).length}function t(n){return n?e(n)<=16:false}export{e as a,t as b};//# sourceMappingURL=chunk-HU5GXRZC.js.map
+//# sourceMappingURL=chunk-HU5GXRZC.js.map

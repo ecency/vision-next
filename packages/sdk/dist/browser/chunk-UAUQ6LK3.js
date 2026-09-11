@@ -1,0 +1,2 @@
+var e=/^[a-z0-9-]{1,32}$/,r=/^hive-\d+$/;function i(n){if(typeof n!="string")return null;let t=n.trim().toLowerCase();return t.startsWith("#")&&(t=t.slice(1)),!e.test(t)||r.test(t)?null:t}export{i as a};//# sourceMappingURL=chunk-UAUQ6LK3.js.map
+//# sourceMappingURL=chunk-UAUQ6LK3.js.map

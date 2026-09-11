@@ -1,0 +1,2 @@
+import {a as a$1}from'./chunk-UNI2VKFW.js';import {a}from'./chunk-L76TLK2I.js';function _(m,i,e){let g=Number(e.regen),c=0,s=[];return a.forEach((r,t)=>{let o=i.resource_params[r],b=Number(e.pool[t]??0),a=Number(e.share[t]??0);if(!o||a<=0)return;let n=m[r]*Number(o.resource_dynamics_params.resource_unit??1),d=Number(BigInt(g)*BigInt(a)/10000n),u=a$1(o.price_curve_params,b,n,d);c+=u,s.push({resource:r,usage:n,cost:u});}),{cost:c,breakdown:s}}export{_ as a};//# sourceMappingURL=chunk-KMM5LEOT.js.map
+//# sourceMappingURL=chunk-KMM5LEOT.js.map
