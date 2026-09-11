@@ -76,6 +76,13 @@ afterAll(() => {
   if (out) rmSync(out, { recursive: true, force: true });
 });
 
+/**
+ * Every emitted JavaScript file under `dir`, recursively.
+ *
+ * Deliberately all three extensions: the browser build emits `.js` and the node
+ * build `.mjs` plus `.cjs`, and both are inspected here, so a helper that only
+ * knew about `.js` would silently report the node output as empty.
+ */
 function jsFiles(dir: string): string[] {
   const found: string[] = [];
   const walk = (d: string) => {
