@@ -2210,10 +2210,6 @@ function markdown2Html(obj, forApp = true, _webp = false, parentDomain = "ecency
 }
 
 // src/catch-post-image.ts
-var gifLinkRegex = /\.(gif)$/i;
-function isGifLink(link) {
-  return gifLinkRegex.test(link);
-}
 var BACKTICK_FENCE_RE = /```[\s\S]*?```/g;
 var TILDE_FENCE_RE = /~~~[\s\S]*?~~~/g;
 var INLINE_CODE_RE = /`[^`\n]*`/g;
@@ -2718,11 +2714,7 @@ function firstMetaUrl(value) {
   return void 0;
 }
 function proxifyFound(src, width, height, format) {
-  const decoded = decodeEntities(src);
-  if (isGifLink(decoded)) {
-    return proxifyImageSrc(decoded, 0, 0, format);
-  }
-  return proxifyImageSrc(decoded, width, height, format);
+  return proxifyImageSrc(decodeEntities(src), width, height, format);
 }
 function getImage(entry, width = 0, height = 0, format = "match", fastMode = false) {
   let meta;
@@ -2737,29 +2729,17 @@ function getImage(entry, width = 0, height = 0, format = "match", fastMode = fal
   }
   const thumbnail = firstMetaUrl(meta?.thumbnails);
   if (thumbnail) {
-    const decodedThumbnail = decodeEntities(thumbnail);
-    const proxied = isGifLink(decodedThumbnail) ? proxifyImageSrc(decodedThumbnail, 0, 0, format) : proxifyImageSrc(decodedThumbnail, width, height, format);
+    const proxied = proxifyImageSrc(decodeEntities(thumbnail), width, height, format);
     if (proxied) {
       return proxied;
     }
   }
   if (meta && typeof meta.image === "string" && meta.image.length > 0) {
-    const decodedImage = decodeEntities(meta.image);
-    if (isGifLink(decodedImage)) {
-      return proxifyImageSrc(decodedImage, 0, 0, format);
-    }
-    return proxifyImageSrc(decodedImage, width, height, format);
+    return proxifyImageSrc(decodeEntities(meta.image), width, height, format);
   }
   if (meta && meta.image && !!meta.image.length && meta.image[0]) {
     if (typeof meta.image[0] === "string") {
-      const decodedImage = decodeEntities(meta.image[0]);
-      if (isGifLink(decodedImage)) {
-        return proxifyImageSrc(decodedImage, 0, 0, format);
-      }
-      return proxifyImageSrc(decodedImage, width, height, format);
-    }
-    if (isGifLink(meta.image[0])) {
-      return proxifyImageSrc(meta.image[0], 0, 0, format);
+      return proxifyImageSrc(decodeEntities(meta.image[0]), width, height, format);
     }
     return proxifyImageSrc(meta.image[0], width, height, format);
   }

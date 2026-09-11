@@ -1,6 +1,6 @@
 import { catchPostImage, getEntryImageRawUrl } from './catch-post-image'
 import { markdown2Html } from './markdown-2-html'
-import { buildPictureSources } from './proxify-image-src'
+import { buildPictureSources, proxifyImageSrc } from './proxify-image-src'
 
 // The feature's central invariant: the LCP <link rel="preload"> the entry page
 // builds from getEntryImageRawUrl + buildPictureSources must byte-match the avif
@@ -58,6 +58,67 @@ describe('LCP preload avif URL matches the in-body <picture> avif source', () =>
     const b = bodyAvif(entry)
     expect(b).not.toBeNull()
     expect(preloadAvif(entry)).toBe(b)
+  })
+})
+
+// #1802. Every proxify in getImage used to fall back to the ORIGINAL dimensions
+// when the source was a .gif, so a feed card asking for a 600x500 thumbnail was
+// handed the full file: 1.5 MB into a 150px slot, and the largest LCP cost on
+// /trending. The image host resizes animated sources now (ecency/imagehoster#47),
+// so the size is asked for like any other. These pin that it stays asked for.
+describe('a gif cover is sized like any other cover', () => {
+  const sized = (url: string, mdKey: string) =>
+    catchPostImage({
+      author: 'a', permlink: `gif-${mdKey}`, last_update: '2019-05-10T09:15:21',
+      body: 'x', json_metadata: JSON.stringify({ image: [url] })
+    } as any, 600, 500, 'match')
+
+  it('carries the requested box for a gif in json_metadata.image', () => {
+    const out = sized('https://files.peakd.com/x/animation.gif', 'meta')
+    expect(out).toContain('width=600')
+    expect(out).toContain('height=500')
+  })
+
+  it('carries it for a gif named by json_metadata.thumbnails, which wins over image', () => {
+    const out = catchPostImage({
+      author: 'a', permlink: 'gif-thumb', last_update: '2019-05-10T09:15:21',
+      body: 'x',
+      json_metadata: JSON.stringify({
+        thumbnails: ['https://files.peakd.com/x/thumb.gif'],
+        image: ['https://files.peakd.com/x/cover.png']
+      })
+    } as any, 600, 500, 'match')
+    // The /p/ hash is the only thing naming the chosen source, so compare
+    // against the URL the thumbnail would build on its own.
+    expect(out).toBe(proxifyImageSrc('https://files.peakd.com/x/thumb.gif', 600, 500, 'match'))
+    expect(out).toContain('width=600')
+    expect(out).toContain('height=500')
+  })
+
+  it('carries it for a gif found in the body', () => {
+    const out = catchPostImage({
+      author: 'a', permlink: 'gif-body', last_update: '2019-05-10T09:15:21',
+      body: 'intro ![x](https://files.peakd.com/x/body.gif) more', json_metadata: '{}'
+    } as any, 600, 500, 'match')
+    expect(out).toContain('width=600')
+    expect(out).toContain('height=500')
+  })
+
+  it('builds the same URL it would for the same source as a png', () => {
+    const gif = sized('https://files.peakd.com/x/same.gif', 'same-gif')
+    const png = sized('https://files.peakd.com/x/same.png', 'same-png')
+    const strip = (u: string | null) => (u || '').replace(/\/p\/[^?]+/, '/p/<hash>')
+    expect(strip(gif)).toBe(strip(png))
+  })
+
+  it('still honours an explicit 0x0 request', () => {
+    const out = sized('https://files.peakd.com/x/unsized.gif', 'unsized')
+    expect(out).toContain('width=600')
+    const zero = catchPostImage({
+      author: 'a', permlink: 'gif-zero', last_update: '2019-05-10T09:15:21',
+      body: 'x', json_metadata: JSON.stringify({ image: ['https://files.peakd.com/x/unsized.gif'] })
+    } as any, 0, 0, 'match')
+    expect(zero).not.toContain('width=')
   })
 })
 

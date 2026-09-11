@@ -165,37 +165,49 @@ describe("EntryListItemThumbnail — SSR-discoverable LCP image", () => {
     expect(container.querySelector("img")).toBeNull();
   });
 
-  // The image host passes ANIMATED gifs through untransformed, so the LQIP
-  // placeholder becomes a second request for a file it will not shrink (#1802).
-  describe("a source the image host passes through (gif)", () => {
+  // The gif carve-out is GONE (#1821). It existed because the image host handed
+  // animated gifs back untransformed, which turned the LQIP layer into a second
+  // download of the original (#1802/#1803). ecency/imagehoster#47 renders the
+  // blur from the first frame, so a gif card is an ordinary card again. These
+  // tests exist to stop the carve-out coming back.
+  describe("a gif source", () => {
     const gif: TestEntry = { ...entry, permlink: "post-gif", __raw: "https://img.host/animation.gif" };
 
-    it("drops the placeholder so the file is requested once", () => {
+    it("gets the placeholder, like any other source", () => {
       const { container } = render(
         <EntryListItemThumbnail entry={gif as never} entryProp={gif as never} isCrossPost={false} noImage={NO_IMG} isThumbLcp={true} />
       );
-      expect(container.querySelector('img[aria-hidden="true"]')).toBeNull();
+      expect(container.querySelector('img[aria-hidden="true"]')).toBeTruthy();
       const imgs = Array.from(container.querySelectorAll("img"));
-      expect(imgs).toHaveLength(1);
-      expect(imgs[0].getAttribute("fetchpriority")).toBe("high");
+      expect(imgs).toHaveLength(2);
+      expect(imgs[1].getAttribute("fetchpriority")).toBe("high");
     });
 
-    // srcSet stays: the browser picks exactly one candidate either way, and a
-    // STATIC gif does get resized by the host, so removing it would cost those
-    // cards their responsive variants for nothing.
-    it("keeps srcset, which a static gif still benefits from", () => {
+    // The reverse of the blur guard, and the reason both live in one block.
+    // buildSrcSet emits width-ONLY URLs, and an animated render costs
+    // frames x width x height, so a width with no height cap is unbounded in the
+    // axis that matters: measured live, every srcset candidate at 600w and above
+    // came back as the untouched 1,572,008-byte original while the both-axes src
+    // box rendered to 196,832. With `sizes` at 100vw on mobile the browser picks
+    // exactly the candidates that do not render, so offering them is worse than
+    // offering none.
+    it("drops srcset, so the browser fetches the both-axes src that actually renders", () => {
       const { container } = render(
         <EntryListItemThumbnail entry={gif as never} entryProp={gif as never} isCrossPost={false} noImage={NO_IMG} isThumbLcp={true} />
       );
-      expect(container.querySelector("img")?.getAttribute("srcset")).toBeTruthy();
+      const real = Array.from(container.querySelectorAll("img")).find((i) => !i.getAttribute("aria-hidden"));
+      expect(real?.getAttribute("srcset")).toBeNull();
+      expect(real?.getAttribute("sizes")).toBeNull();
+      expect(real?.getAttribute("src")).toBeTruthy();
     });
 
-    it("keeps the placeholder for a source that does transform", () => {
-      const png: TestEntry = { ...entry, permlink: "post-png", __raw: "https://img.host/photo.png" };
+    it("keeps srcset for a non-gif source", () => {
+      const png: TestEntry = { ...entry, permlink: "post-png-srcset", __raw: "https://img.host/photo.png" };
       const { container } = render(
         <EntryListItemThumbnail entry={png as never} entryProp={png as never} isCrossPost={false} noImage={NO_IMG} isThumbLcp={true} />
       );
-      expect(container.querySelector('img[aria-hidden="true"]')).toBeTruthy();
+      const real = Array.from(container.querySelectorAll("img")).find((i) => !i.getAttribute("aria-hidden"));
+      expect(real?.getAttribute("srcset")).toBeTruthy();
     });
 
     // The classification must follow the CARD's source. json_metadata.thumbnails
@@ -210,7 +222,7 @@ describe("EntryListItemThumbnail — SSR-discoverable LCP image", () => {
       const { container: a } = render(
         <EntryListItemThumbnail entry={gifThumb as never} entryProp={gifThumb as never} isCrossPost={false} noImage={NO_IMG} />
       );
-      expect(a.querySelector('img[aria-hidden="true"]')).toBeNull();
+      expect(a.querySelector("img:not([aria-hidden])")?.getAttribute("srcset")).toBeNull();
 
       const pngThumb: TestEntry = {
         ...entry, permlink: "post-mixed-2",
@@ -219,7 +231,26 @@ describe("EntryListItemThumbnail — SSR-discoverable LCP image", () => {
       const { container: b } = render(
         <EntryListItemThumbnail entry={pngThumb as never} entryProp={pngThumb as never} isCrossPost={false} noImage={NO_IMG} />
       );
-      expect(b.querySelector('img[aria-hidden="true"]')).toBeTruthy();
+      expect(b.querySelector("img:not([aria-hidden])")?.getAttribute("srcset")).toBeTruthy();
+    });
+
+    // The placeholder is one request, not one per candidate: it is a single
+    // <img src> with no srcset of its own, which is what kept #1803 fixed.
+    it("requests the placeholder once, with no srcset of its own", () => {
+      const { container } = render(
+        <EntryListItemThumbnail entry={gif as never} entryProp={gif as never} isCrossPost={false} noImage={NO_IMG} isThumbLcp={true} />
+      );
+      const ph = container.querySelector('img[aria-hidden="true"]');
+      expect(ph?.getAttribute("srcset")).toBeNull();
+      expect(ph?.getAttribute("src")).toBeTruthy();
+    });
+
+    it("treats a non-gif source no differently", () => {
+      const png: TestEntry = { ...entry, permlink: "post-png", __raw: "https://img.host/photo.png" };
+      const { container } = render(
+        <EntryListItemThumbnail entry={png as never} entryProp={png as never} isCrossPost={false} noImage={NO_IMG} isThumbLcp={true} />
+      );
+      expect(container.querySelector('img[aria-hidden="true"]')).toBeTruthy();
     });
   });
 });
