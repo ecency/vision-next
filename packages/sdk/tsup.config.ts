@@ -1,4 +1,53 @@
+import { readdirSync } from "node:fs";
+import { join } from "node:path";
 import { defineConfig } from "tsup";
+
+/**
+ * Every buildable source file, in a STABLE order.
+ *
+ * The browser build below takes an entry per file, and the obvious spelling,
+ * `entry: ["src/**\/*.ts", ...]`, leaves that list in glob order, which is not
+ * stable across runs. Measured: two consecutive builds of identical sources
+ * disagreed on 67 chunk NAMES and 335 files by content, because entry order
+ * feeds esbuild's chunk composition and its content hashes. `dist` is committed,
+ * so that turned every release into an arbitrary ~1,100-file diff.
+ *
+ * Sorting fixes the NAMING completely: over four builds the file-name set
+ * matched on all six pairings, so a release diff now carries only files that
+ * actually changed. It does not make the build byte-reproducible. esbuild's own
+ * emission still varies, in 0 to 23 files of 1,110 across those same builds,
+ * which is why `test/build-shape.spec.ts` pins the name set rather than the
+ * bytes.
+ */
+function sourceEntries(dir = "src"): string[] {
+    const found: string[] = [];
+    const entries = readdirSync(dir, { withFileTypes: true }).sort((a, b) =>
+        a.name < b.name ? -1 : a.name > b.name ? 1 : 0
+    );
+    for (const entry of entries) {
+        const path = join(dir, entry.name);
+        if (entry.isDirectory()) {
+            found.push(...sourceEntries(path));
+        } else if (/\.ts$/.test(entry.name) && !/\.(spec|test|d)\.ts$/.test(entry.name)) {
+            found.push(path);
+        }
+    }
+    return found;
+}
+
+/**
+ * Where the two builds are written. `dist` in normal use; the build-shape guard
+ * in `test/build-shape.spec.ts` points it at a throwaway directory so it can
+ * assert the emitted SHAPE of both builds without touching the committed
+ * `dist`, which the auto-changeset bot owns and which is legitimately stale on
+ * any branch that edits this file.
+ *
+ * It has to be a root rather than a per-build override: `tsup --out-dir` would
+ * apply to BOTH configs in this array, pointing them at one directory, and the
+ * browser config below sets `clean: true`. Keeping a subdirectory each is what
+ * the normal build already does, so the guard exercises the real layout.
+ */
+const DIST_ROOT = process.env.SDK_DIST_ROOT ?? "dist";
 
 const shared = {
     entry: ["src/index.ts", "src/hive.ts"],
@@ -73,13 +122,13 @@ export default defineConfig([
         // consumers: `apps/web` never imports `@ecency/sdk/hive` on the client,
         // and `apps/self-hosted`, which imports both entries, never configures
         // hive-tx in the browser.
-        entry: ["src/**/*.ts", "!src/**/*.spec.ts", "!src/**/*.test.ts"],
+        entry: sourceEntries(),
         splitting: true,
         dts: { entry: ["src/index.ts", "src/hive.ts"] },
         format: ["esm"],
         platform: "browser",
         target: "es2020",
-        outDir: "dist/browser",
+        outDir: `${DIST_ROOT}/browser`,
         clean: true,
         minify: true,
         outExtension() {
@@ -97,7 +146,7 @@ export default defineConfig([
         format: ["esm", "cjs"],
         platform: "node",
         target: "node18",
-        outDir: "dist/node",
+        outDir: `${DIST_ROOT}/node`,
         clean: false,
         minify: true,
         outExtension({ format }) {
