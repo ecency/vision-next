@@ -39,25 +39,38 @@ export function EntryListItemThumbnail({
   // placeholder) instead of taking the page down.
   const src = useMemo(() => catchPostImageSafely(entry, 600, 500, "match") || null, [entry]);
 
-  // The image host passes ANIMATED gifs through untransformed — it decides from
-  // the decoded frame count (`metadata.pages > 1`) and skips the resize, because
-  // sharp can strip frames even in animated mode. Width, height, blur and format
-  // are all ignored for those, so every variant is the original file: verified
-  // against the 1.5 MB GIF that is the current LCP element on /trending, where
-  // ?width=320, ?width=600&height=500, ?blur=1 and ?format=webp each returned
-  // the same 1,572,008 bytes.
+  // The gif carve-out that used to live here moves rather than disappearing, and
+  // the two halves point in OPPOSITE directions, so read both before touching it.
   //
-  // The cost that matters is the LQIP placeholder: it is a SECOND request for a
-  // file the host will not shrink, so a card with an animated GIF cover pulled
-  // 3.1 MB for a 150px slot. Skip it. `srcSet` stays, because it costs nothing
-  // either way — the browser picks exactly one candidate, and for a STATIC gif
-  // (which the host does resize) those candidates are real.
+  // It was BLUR that needed guarding: the host handed animated gifs back
+  // untransformed at every size, so `?blur=1` returned the original file and the
+  // LQIP layer became a second download of it (1.5 MB for a 150px slot,
+  // #1802/#1803). ecency/imagehoster#47 renders the blur from the FIRST FRAME,
+  // which is what this layer always wanted, so that guard is gone. Verified on
+  // production against 16 real animated sources: every `?blur=1` came back as
+  // 279-899 bytes of image/jpeg, at the source's own single-frame aspect (a
+  // 1080x1350 x150 gif gives 20x25, a 720x540 x408 gives 20x15).
   //
-  // The extension is all we have client-side; animation is only knowable after
-  // decoding. So a static gif loses its blur preview, which is cosmetic, while
-  // an animated one stops double-downloading, which is 1.5 MB. See #1802 for
-  // the host-side half.
-  const isPassthroughSource = useMemo(() => {
+  // It is SRCSET that needs guarding now, which is the reverse of what #1803
+  // assumed when it kept srcset on the grounds that "for a static gif those
+  // candidates are real". For an ANIMATED one they are not, at any width worth
+  // picking. buildSrcSet emits width-ONLY URLs, and an animated render costs
+  // frames x width x height, so a width with no height cap is unbounded in the
+  // axis that matters: on a 1080x1350 x150 source, ?width=600 is 67 MP and
+  // ?width=800 is 120 MP, both over the host's output budget, so both come back
+  // as the untouched 1.5 MB original. `sizes` here is 100vw on mobile, so the
+  // browser picks exactly those. Measured live on the two /trending cards that
+  // have a gif cover:
+  //
+  //   srcset ?width=600/800/1024/1280  ->  1,572,008 B  image/gif  (passthrough)
+  //   src    ?width=600&height=500     ->    196,832 B  image/webp
+  //
+  // The src box is capped on BOTH axes, so its output is bounded (30 MP here) and
+  // the host renders it. Dropping srcset therefore makes the browser fetch the
+  // one variant that is real. A static gif loses its responsive variants and
+  // fetches the 600x500 src into a 150px desktop slot, which is a few KB more on
+  // a rare card; an animated one stops pulling the full file, which is 1.4 MB.
+  const isAnimationCandidate = useMemo(() => {
     // Card precedence, NOT getEntryImageRawUrl: that one skips
     // json_metadata.thumbnails on purpose, so it can name a different file than
     // the one this card renders.
@@ -65,17 +78,19 @@ export function EntryListItemThumbnail({
     return !!raw && /\.gif(?:[?#]|$)/i.test(raw);
   }, [entry]);
 
-  const srcSet = useMemo(() => (src ? buildSrcSet(src) : ""), [src]);
+  const srcSet = useMemo(
+    () => (src && !isAnimationCandidate ? buildSrcSet(src) : ""),
+    [src, isAnimationCandidate]
+  );
 
   const blurUrl = useMemo(() => {
-    if (isPassthroughSource) return null;
     const url = catchPostImageSafely(entry, 0, 0);
     if (!url) return null;
     // Route the LQIP placeholder through the /p/ proxy so `blur=1` is honored.
     // Appending `?blur=1` to a bare upload URL hits the direct-serve route,
     // which ignores the param and returns the full-resolution image.
     return proxifyImageSrc(url, 0, 0, "match", { blur: true }) || null;
-  }, [entry, isPassthroughSource]);
+  }, [entry]);
 
   // Loop-safe one-shot fallback to the noImage placeholder. This preserves what
   // the old query's try/catch did (swap to noImage on a failed load) without the
