@@ -1,0 +1,2 @@
+import {queryOptions}from'@tanstack/react-query';import i from'hivesigner';function d(n,r,e){return queryOptions({queryKey:["integrations","hivesigner","decode-memo",n],queryFn:async()=>{if(e)return new i.Client({accessToken:e}).decode(r)}})}export{d as a};//# sourceMappingURL=chunk-RNLKBK7U.js.map
+//# sourceMappingURL=chunk-RNLKBK7U.js.map

@@ -1,0 +1,2 @@
+var E=(s=>(s.VOTES="rvotes",s.MENTIONS="mentions",s.FAVORITES="nfavorites",s.BOOKMARKS="nbookmarks",s.FOLLOWS="follows",s.REPLIES="replies",s.REBLOGS="reblogs",s.TRANSFERS="transfers",s.DELEGATIONS="delegations",s.PAYOUTS="payouts",s.SCHEDULED_PUBLISHED="scheduled_published",s.ACCOUNT_UPDATES="account_updates",s.WEEKLY_EARNINGS="weekly_earnings",s.TAGS="tags",s))(E||{});export{E as a};//# sourceMappingURL=chunk-FN4YAGAN.js.map
+//# sourceMappingURL=chunk-FN4YAGAN.js.map

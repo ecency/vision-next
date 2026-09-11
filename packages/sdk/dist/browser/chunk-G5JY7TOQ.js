@@ -1,0 +1,2 @@
+var o=e=>Math.abs(e)>0&&Math.abs(e)<=100;function t(e){if(typeof e=="number"&&o(e)||typeof e=="string"&&(e=Number(e),o(e)))return Math.floor(e);if(e===0)return 25;let a=false;e<0&&(a=true);let r=Math.log10(Math.abs(e));return r=Math.max(r-9,0),r<0&&(r=0),a&&(r*=-1),r=r*9+25,Math.floor(r)}export{t as a};//# sourceMappingURL=chunk-G5JY7TOQ.js.map
+//# sourceMappingURL=chunk-G5JY7TOQ.js.map

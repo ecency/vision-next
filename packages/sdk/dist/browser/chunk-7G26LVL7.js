@@ -1,0 +1,2 @@
+import {b}from'./chunk-OS3FCYZY.js';var s=class extends Error{constructor(r,t,u){super(r);b(this,"status",t);b(this,"data",u);}},c=class extends s{constructor(r,t,u,e,i){super(r,t,i);b(this,"code",u);b(this,"taken",e);}};export{s as a,c as b};//# sourceMappingURL=chunk-7G26LVL7.js.map
+//# sourceMappingURL=chunk-7G26LVL7.js.map

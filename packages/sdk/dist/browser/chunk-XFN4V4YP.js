@@ -1,0 +1,3 @@
+import {a}from'./chunk-SEACJS36.js';import {queryOptions}from'@tanstack/react-query';function p(r){return queryOptions({queryKey:["integrations","hiveposh","links",r],retry:false,queryFn:async()=>{try{let e=await a()(`https://hiveposh.com/api/v0/linked-accounts/${r}`,{headers:{"Content-Type":"application/json"}});if(e.status===400&&(await e.json().catch(()=>({})))?.message==="User Not Connected"||!e.ok)return null;let t=await e.json();return {twitter:{username:t.twitter_username,profile:t.twitter_profile},reddit:{username:t.reddit_username,profile:t.reddit_profile}}}catch{return null}}})}
+export{p as a};//# sourceMappingURL=chunk-XFN4V4YP.js.map
+//# sourceMappingURL=chunk-XFN4V4YP.js.map

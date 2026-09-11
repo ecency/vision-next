@@ -1,0 +1,2 @@
+var n=1.1,i=(e=>(e.NUMBER_OF_VOTES="number_of_votes",e.TOKENS="tokens",e))(i||{});function r(t){return t?t.map((o,e)=>({choice_num:e+1,choice_text:o,votes:{total_votes:0,hive_hp:0,hive_proxied_hp:0,hive_hp_incl_proxied:0}})):[]}export{n as a,i as b,r as c};//# sourceMappingURL=chunk-NYCPGSYO.js.map
+//# sourceMappingURL=chunk-NYCPGSYO.js.map

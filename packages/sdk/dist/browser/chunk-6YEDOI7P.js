@@ -1,0 +1,2 @@
+function r(n){if(!n)return null;try{return Object.values(n).join("")}catch{return null}}function e(n){return typeof n=="object"&&n!==null&&"message"in n&&"name"in n}export{r as a,e as b};//# sourceMappingURL=chunk-6YEDOI7P.js.map
+//# sourceMappingURL=chunk-6YEDOI7P.js.map

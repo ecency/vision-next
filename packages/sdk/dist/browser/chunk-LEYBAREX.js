@@ -1,0 +1,2 @@
+import {isServer}from'@tanstack/react-query';var n=isServer?0:3;function u(e,o){let{status:r}=o,s=r===408||r===429;return r!==void 0&&r>=400&&r<500&&!s?false:e<n}export{u as a};//# sourceMappingURL=chunk-LEYBAREX.js.map
+//# sourceMappingURL=chunk-LEYBAREX.js.map

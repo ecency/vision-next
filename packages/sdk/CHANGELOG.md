@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.4.10
+
+### Patch Changes
+
+- Let a consumer's bundler drop the SDK it does not use (#1834)
+
 ## 2.4.9
 
 ### Patch Changes

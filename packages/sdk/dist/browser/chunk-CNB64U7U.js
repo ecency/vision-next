@@ -1,0 +1,2 @@
+var o=4e3;function r(e,i,t){if(e?.invalidateQueries){if(i==="sync")return e.invalidateQueries(t);setTimeout(()=>e.invalidateQueries?.(t),4e3);}}export{o as a,r as b};//# sourceMappingURL=chunk-CNB64U7U.js.map
+//# sourceMappingURL=chunk-CNB64U7U.js.map

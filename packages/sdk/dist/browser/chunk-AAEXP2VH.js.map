@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../src/modules/integrations/hivesigner/index.ts"],"names":["HiveSignerIntegration","queries_exports"],"mappings":"oCAEA,IAAMA,CAAAA,CAAwB,CAC5B,OAAA,CAAAC,CACF","file":"chunk-AAEXP2VH.js","sourcesContent":["import * as queries from \"./queries\";\n\nconst HiveSignerIntegration = {\n  queries,\n};\n\nexport { HiveSignerIntegration };\n"]}

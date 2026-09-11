@@ -1,0 +1,2 @@
+import {b}from'./chunk-OS3FCYZY.js';import {hexToBytes,bytesToHex}from'@noble/hashes/utils.js';var e=class t{constructor(r){b(this,"buffer");this.buffer=r;}static from(r){return r instanceof t?r:r instanceof Uint8Array?new t(r):typeof r=="string"?new t(hexToBytes(r)):new t(new Uint8Array(r))}toString(){return bytesToHex(this.buffer)}toJSON(){return this.toString()}};export{e as a};//# sourceMappingURL=chunk-SZZYFGT3.js.map
+//# sourceMappingURL=chunk-SZZYFGT3.js.map

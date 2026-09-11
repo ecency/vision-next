@@ -1,0 +1,2 @@
+function n(e){return !!e?.spaminator||!!e?.abuser}function t(e){return !!e?.ignorelist||!!e?.abuser||!!e?.blocked_tag||!!e?.nsfw||!!e?.patch_body||!!e?.negative_rep||!!e?.deleted}export{n as a,t as b};//# sourceMappingURL=chunk-DM7XOACW.js.map
+//# sourceMappingURL=chunk-DM7XOACW.js.map

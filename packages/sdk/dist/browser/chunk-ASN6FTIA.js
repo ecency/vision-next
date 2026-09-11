@@ -1,0 +1,2 @@
+function t(a){return a&&typeof a=="object"&&"data"in a&&"pagination"in a&&Array.isArray(a.data)}function i(a,r){return t(a)?a:{data:Array.isArray(a)?a:[],pagination:{total:Array.isArray(a)?a.length:0,limit:r,offset:0,has_next:false}}}export{t as a,i as b};//# sourceMappingURL=chunk-ASN6FTIA.js.map
+//# sourceMappingURL=chunk-ASN6FTIA.js.map

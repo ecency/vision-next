@@ -1,0 +1,2 @@
+import {useMutation}from'@tanstack/react-query';import i from'hivesigner';function p(t="/"){return useMutation({mutationKey:["operations","sign-hivesigner",t],mutationFn:async({operation:n})=>i.sendOperation(n,{callback:t},()=>{})})}export{p as a};//# sourceMappingURL=chunk-3GI45IZI.js.map
+//# sourceMappingURL=chunk-3GI45IZI.js.map

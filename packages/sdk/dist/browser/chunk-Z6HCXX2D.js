@@ -1,0 +1,2 @@
+function r(i){let e=(String(i).replace(/\D/g,"")||"0").padStart(7,"0");return `${e.slice(0,-6).replace(/^0+(?=\d)/,"")}.${e.slice(-6)} VESTS`}function s(i,n){return (n?.incoming_delegations??[]).map(e=>({delegator:e.delegator,raw:BigInt(String(e.amount).replace(/\D/g,"")||"0")})).sort((e,t)=>e.raw===t.raw?0:e.raw>t.raw?-1:1).map(({delegator:e,raw:t})=>({delegatee:i,delegator:e,vesting_shares:r(t)}))}export{r as a,s as b};//# sourceMappingURL=chunk-Z6HCXX2D.js.map
+//# sourceMappingURL=chunk-Z6HCXX2D.js.map

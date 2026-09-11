@@ -1,0 +1,2 @@
+function u(n,t){return n.startsWith("hive-3")||t===3?"Council":n.startsWith("hive-2")||t===2?"Journal":"Topic"}function s({communityType:n,userRole:t,subscribed:i}){let r=t==="muted"?false:n==="Topic"?true:["owner","admin","mod","member"].includes(t),e=(()=>{if(t==="muted")return  false;switch(n){case "Topic":return  true;case "Journal":return t!=="guest"||i;case "Council":return r}})(),o=["owner","admin","mod"].includes(t);return {canPost:r,canComment:e,isModerator:o}}export{u as a,s as b};//# sourceMappingURL=chunk-WRFKAMQC.js.map
+//# sourceMappingURL=chunk-WRFKAMQC.js.map
