@@ -12,27 +12,33 @@ import { defineConfig } from "tsup";
  * feeds esbuild's chunk composition and its content hashes. `dist` is committed,
  * so that turned every release into an arbitrary ~1,100-file diff.
  *
- * Sorting fixes the NAMING completely: over four builds the file-name set
- * matched on all six pairings, so a release diff now carries only files that
- * actually changed. It does not make the build byte-reproducible. esbuild's own
- * emission still varies, in 0 to 23 files of 1,110 across those same builds,
- * which is why `test/build-shape.spec.ts` pins the name set rather than the
- * bytes.
+ * Sorting removes that churn, so a release diff carries close to only the files
+ * that actually changed. It does NOT make the build byte-reproducible: esbuild's
+ * own emission still varies in 0 to 23 files of 1,110 between runs, and a chunk
+ * name follows its content hash, so an occasional name moves too (seen once on a
+ * CI runner). `test/build-shape.spec.ts` therefore asserts THIS ORDERING, which
+ * is ours to control, instead of diffing two builds, which is not.
  */
-function sourceEntries(dir = "src"): string[] {
-    const found: string[] = [];
-    const entries = readdirSync(dir, { withFileTypes: true }).sort((a, b) =>
-        a.name < b.name ? -1 : a.name > b.name ? 1 : 0
-    );
-    for (const entry of entries) {
-        const path = join(dir, entry.name);
-        if (entry.isDirectory()) {
-            found.push(...sourceEntries(path));
-        } else if (/\.ts$/.test(entry.name) && !/\.(spec|test|d)\.ts$/.test(entry.name)) {
-            found.push(path);
+export function sourceEntries(dir = "src"): string[] {
+    const walk = (from: string): string[] => {
+        const found: string[] = [];
+        for (const entry of readdirSync(from, { withFileTypes: true })) {
+            const path = join(from, entry.name);
+            if (entry.isDirectory()) {
+                found.push(...walk(path));
+            } else if (/\.ts$/.test(entry.name) && !/\.(spec|test|d)\.ts$/.test(entry.name)) {
+                found.push(path);
+            }
         }
-    }
-    return found;
+        return found;
+    };
+    // Sorted once over the whole list, not per directory. A depth-first walk with
+    // each directory sorted is still deterministic, but it interleaves by nesting
+    // ("modules/core/queries/..." lands before "modules/core/queries-manager.ts"),
+    // which is not an order anyone can predict or assert against. One flat sort is
+    // both stable and obvious. Plain comparison, never localeCompare, so the order
+    // cannot depend on the builder's locale.
+    return walk(dir).sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
 }
 
 /**

@@ -5,6 +5,8 @@ import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
+import { sourceEntries } from "../tsup.config";
+
 /**
  * The SHAPE of the two builds is load-bearing, and in opposite directions.
  *
@@ -53,8 +55,6 @@ const CHILD_MS = 30_000;
 const CASE_MS = CHILD_MS * 3;
 
 let out: string;
-/** A second build of the same sources, for the reproducibility check. */
-let out2: string;
 const browser = () => join(out, "browser");
 const node = () => join(out, "node");
 
@@ -65,20 +65,15 @@ beforeAll(async () => {
   // package tree. Building to the OS temp dir fails with ERR_MODULE_NOT_FOUND
   // on the first external.
   out = mkdtempSync(join(PKG, "node_modules", ".sdk-build-shape-"));
-  out2 = mkdtempSync(join(PKG, "node_modules", ".sdk-build-shape-"));
-  for (const root of [out, out2]) {
-    await exec(join(PKG, "node_modules/.bin/tsup"), [], {
-      cwd: PKG,
-      timeout: BUILD_MS,
-      env: { ...process.env, SDK_DIST_ROOT: root }
-    });
-  }
+  await exec(join(PKG, "node_modules/.bin/tsup"), [], {
+    cwd: PKG,
+    timeout: BUILD_MS,
+    env: { ...process.env, SDK_DIST_ROOT: out }
+  });
 }, BUILD_MS);
 
 afterAll(() => {
-  for (const root of [out, out2]) {
-    if (root) rmSync(root, { recursive: true, force: true });
-  }
+  if (out) rmSync(out, { recursive: true, force: true });
 });
 
 function jsFiles(dir: string): string[] {
@@ -248,23 +243,49 @@ describe("both builds load in plain Node and agree on their surface", () => {
   );
 });
 
-describe("the build emits a stable file set", () => {
-  it("names the same files for two runs of the same sources", () => {
-    // `dist` is committed, so chunk names that churn on every build turn each
-    // release into an arbitrary ~1,100-file diff that cannot be reviewed or
-    // reproduced. That is what happened first: entry order came from a glob,
-    // glob order is not stable across runs, and two builds of identical sources
-    // disagreed on 67 chunk NAMES and 335 files by content. `sourceEntries()`
-    // in tsup.config.ts sorts the list, which fixes the naming completely.
+describe("the browser entry list stays ordered", () => {
+  it("lists real files in sorted order, not a glob", async () => {
+    // Why this is asserted on the CONFIG and not by diffing two builds.
     //
-    // Deliberately the NAME set and not the bytes. esbuild's own emission still
-    // varies slightly run to run: measured over four builds, file names matched
-    // every time across all six pairings while 0 to 23 files of 1,110 differed
-    // in content. Asserting byte equality here would be a flaky gate for a
-    // property we do not control; the naming is the part that matters for the
-    // committed diff, and it is the part sorting actually fixes.
-    const names = (root: string) => jsFiles(root).map((f) => relative(root, f)).sort();
-    expect(names(out2)).toEqual(names(out));
+    // Entry order feeds esbuild's chunk composition and its content hashes, and
+    // `entry: ["src/**\/*.ts", ...]` leaves that order to the glob, which is not
+    // stable across runs. Two builds of identical sources disagreed on 67 chunk
+    // NAMES and 335 files by content, which would make every release of the
+    // committed `dist` an arbitrary ~1,100-file diff.
+    //
+    // The first version of this guard built twice and compared. That was wrong:
+    // esbuild's emission is not byte-reproducible even with the entries sorted
+    // (0 to 23 files of 1,110 differ locally), and one chunk name drifted with
+    // it on a CI runner, so the check failed for a reason the author could not
+    // act on. A flaky gate teaches everyone to merge past it. This pins the one
+    // thing actually under our control, with no build and no flake.
+    const configs = (await import("../tsup.config")).default as Array<Record<string, unknown>>;
+    const browserConfig = configs.find((c) => c.platform === "browser");
+    expect(browserConfig).toBeDefined();
+    const entry = browserConfig!.entry as string[];
+    expect(Array.isArray(entry)).toBe(true);
+    // A glob would reintroduce the churn even though `sourceEntries` still exists.
+    expect(entry.every((e) => !e.includes("*"))).toBe(true);
+    expect(entry.length).toBeGreaterThan(100);
+    expect([...entry]).toEqual([...entry].sort());
+  });
+
+  it("excludes specs and declarations, and keeps both public entries", () => {
+    const entries = sourceEntries();
+    expect(entries.filter((e) => /\.(spec|test)\.ts$/.test(e))).toEqual([]);
+    expect(entries.filter((e) => e.endsWith(".d.ts"))).toEqual([]);
+    expect(entries).toContain(join("src", "index.ts"));
+    expect(entries).toContain(join("src", "hive.ts"));
+  });
+
+  it("keeps the node build on the two public entries only", async () => {
+    // The other half of the shape, at config level: the node build must not
+    // grow an entry per file, because that is what would split it.
+    const configs = (await import("../tsup.config")).default as Array<Record<string, unknown>>;
+    const nodeConfig = configs.find((c) => c.platform === "node");
+    expect(nodeConfig).toBeDefined();
+    expect(nodeConfig!.entry).toEqual(["src/index.ts", "src/hive.ts"]);
+    expect(nodeConfig!.splitting).toBeFalsy();
   });
 });
 
