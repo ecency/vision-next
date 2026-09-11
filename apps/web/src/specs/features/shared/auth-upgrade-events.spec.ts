@@ -7,8 +7,9 @@ import {
 } from "@/features/shared/auth-upgrade/auth-upgrade-events";
 import * as ls from "@/utils/local-storage";
 
-const ACTIVE_KEY = "5JActiveKeyForAlice";
-const POSTING_KEY = "5JPostingKeyForAlice";
+// Shaped like WIFs (base58, 51 chars) so the store's format guard accepts them.
+const ACTIVE_KEY = "5J" + "activekey".repeat(5) + "abcd";
+const POSTING_KEY = "5J" + "postingke".repeat(5) + "abcd";
 
 describe("auth upgrade key retention", () => {
   beforeEach(() => {
@@ -65,5 +66,33 @@ describe("auth upgrade key retention", () => {
     await pending;
 
     expect(getTempActiveKey("alice")).toBeNull();
+  });
+});
+
+describe("auth upgrade key ownership", () => {
+  beforeEach(() => {
+    window.sessionStorage.clear();
+    window.localStorage.clear();
+    clearTempActiveKey();
+    ls.set("active_user", "alice");
+  });
+
+  it("stores the key under the account the dialog opened for", async () => {
+    const pending = requestAuthUpgrade("active", "transfer");
+
+    // The dialog outlives an account switch made elsewhere in the app.
+    ls.set("active_user", "bob");
+    resolveAuthUpgrade("key", ACTIVE_KEY);
+    await pending;
+
+    // The record names alice, who the dialog was raised for, not bob, who was
+    // active when the key was submitted.
+    const raw = window.sessionStorage.getItem("ecency_active-key-session");
+    expect(JSON.parse(atob(raw!)).username).toBe("alice");
+
+    // bob still cannot sign with it: a read while he is the active user finds
+    // the mismatch and drops the record.
+    expect(getTempActiveKey("bob")).toBeNull();
+    expect(window.sessionStorage.length).toBe(0);
   });
 });

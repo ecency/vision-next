@@ -6,7 +6,8 @@ import {
 } from "@/utils/session-active-key";
 import * as ls from "@/utils/local-storage";
 
-const KEY = "5JKeyForAlice";
+// Shaped like a WIF (base58, 51 chars) so the store's format guard accepts it.
+const KEY = "5J" + "activekey".repeat(5) + "abcd";
 
 describe("session active key", () => {
   beforeEach(() => {
@@ -48,9 +49,26 @@ describe("session active key", () => {
     expect(getSessionActiveKey("alice")).toBeNull();
   });
 
-  it("never hands the key to another account and drops it on mismatch", () => {
+  it("never hands the key to a broadcast for another account", () => {
     setSessionActiveKey(KEY, "alice");
+    // A read for someone else gets nothing, but alice is still logged in here,
+    // so her own record survives the question.
     expect(getSessionActiveKey("bob")).toBeNull();
+    expect(getSessionActiveKey("alice")).toBe(KEY);
+  });
+
+  it("drops the record once that account is no longer logged in", () => {
+    setSessionActiveKey(KEY, "alice");
+    // A logout in any tab removes the shared active_user entry, which is what
+    // invalidates a copy a duplicated tab inherited.
+    ls.remove("active_user");
+    expect(getSessionActiveKey("alice")).toBeNull();
+    expect(window.sessionStorage.length).toBe(0);
+  });
+
+  it("drops the record when another tab switched accounts", () => {
+    setSessionActiveKey(KEY, "alice");
+    ls.set("active_user", "bob");
     expect(getSessionActiveKey("alice")).toBeNull();
     expect(window.sessionStorage.length).toBe(0);
   });
@@ -61,6 +79,16 @@ describe("session active key", () => {
 
     ls.set("active_user", "bob");
     expect(getSessionActiveKey()).toBeNull();
+  });
+
+  it("refuses a record whose key is not key-shaped (tampered storage)", () => {
+    // Left as-is, an unparseable key fails the broadcast with an error the SDK
+    // does not read as an auth problem, so no dialog would open to replace it.
+    window.sessionStorage.setItem(
+      "ecency_active-key-session",
+      btoa(JSON.stringify({ username: "alice", key: "not-a-key" }))
+    );
+    expect(getSessionActiveKey("alice")).toBeNull();
   });
 
   it("clears both the memory copy and storage", () => {

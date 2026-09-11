@@ -3,6 +3,7 @@ import {
   getSessionActiveKey,
   setSessionActiveKey
 } from "@/utils/session-active-key";
+import * as ls from "@/utils/local-storage";
 
 /**
  * Imperative API for the auth upgrade dialog.
@@ -21,6 +22,10 @@ let pendingResolve: ((method: AuthMethod) => void) | null = null;
  * worth keeping: it is the one the adapter reads back for later broadcasts, so
  * a posting key stored under it would fail every active operation in the tab. */
 let pendingAuthority: string | null = null;
+/** Account the open dialog was raised for. The dialog can outlive an account
+ * switch, so the key it collects belongs to this account, not to whoever
+ * happens to be active by the time the user submits it. */
+let pendingUsername: string | null = null;
 
 /**
  * Called by the broadcast adapter's showAuthUpgradeUI to show the dialog and wait for user choice.
@@ -35,6 +40,7 @@ export function requestAuthUpgrade(
     pendingResolve = null;
   }
   pendingAuthority = authority;
+  pendingUsername = (ls.get("active_user") as string | null) ?? null;
 
   // An active-authority dialog only opens when no key was stored or the stored
   // one was rejected, so whatever is held is of no use. Dropping it keeps a
@@ -61,11 +67,12 @@ export function resolveAuthUpgrade(method: AuthMethod, key?: string) {
   if (key && pendingAuthority === "active") {
     // Held for the rest of the browser tab session, so a run of active-authority
     // operations (tipping a feed's worth of posts) asks for the key once.
-    setSessionActiveKey(key);
+    setSessionActiveKey(key, pendingUsername ?? undefined);
   }
   pendingResolve?.(method);
   pendingResolve = null;
   pendingAuthority = null;
+  pendingUsername = null;
 }
 
 /**
