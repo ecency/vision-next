@@ -307,6 +307,32 @@ describe('picture / per-format helpers (cache-safe content negotiation)', () => 
       expect(isPictureEligibleRawUrl('https://x.com/no-extension')).toBe(false)
       expect(isPictureEligibleRawUrl(undefined)).toBe(false)
     })
+    // A legacy sized-proxy URL carries its nested source in the path, so the
+    // original extension is readable and decides the answer, exactly as it would
+    // for that source on its own.
+    it('judges a legacy sized-proxy URL by the file it wraps', () => {
+      const sized = (nested: string) => `https://images.hive.blog/1536x0/${nested}`
+      expect(isPictureEligibleRawUrl(sized('https://x.com/a.jpg'))).toBe(true)
+      expect(isPictureEligibleRawUrl(sized('https://x.com/a.PNG?cb=1'))).toBe(true)
+      expect(isPictureEligibleRawUrl(sized('https://x.com/a.gif'))).toBe(false)
+      expect(isPictureEligibleRawUrl(sized('https://x.com/a.svg'))).toBe(false)
+      expect(isPictureEligibleRawUrl(sized('https://x.com/no-extension'))).toBe(false)
+      // steemitimages is the same shape
+      expect(isPictureEligibleRawUrl('https://steemitimages.com/640x0/https://x.com/a.gif')).toBe(false)
+      expect(isPictureEligibleRawUrl('https://steemitimages.com/640x0/https://x.com/a.jpeg')).toBe(true)
+    })
+    it('unwraps a legacy sized-proxy URL once, and one unwrap is enough', () => {
+      // Post bodies are user-authored, so nesting these hosts must not drive
+      // unbounded recursion on the SSR path. One unwrap still reads the right
+      // answer: the nested value's own pathname ends in the real file's
+      // extension, whatever is wrapped around it.
+      const nest = (n: number, file: string) =>
+        Array.from({ length: n }, (_, i) => `https://images.hive.blog/${100 + i}x0/`).join('') + file
+      expect(isPictureEligibleRawUrl(nest(2, 'https://x.com/a.jpg'))).toBe(true)
+      expect(isPictureEligibleRawUrl(nest(2, 'https://x.com/a.gif'))).toBe(false)
+      expect(isPictureEligibleRawUrl(nest(50, 'https://x.com/a.gif'))).toBe(false)
+      expect(isPictureEligibleRawUrl(nest(50, 'https://x.com/a.jpg'))).toBe(true)
+    })
     it('only honors the extension on the PATHNAME, not the query or fragment', () => {
       // raster extension lives in the query/fragment but the real resource is not
       // proven raster — must be ineligible (would otherwise emit a mislabeled <source>)
@@ -355,14 +381,22 @@ describe('picture / per-format helpers (cache-safe content negotiation)', () => 
       expect(buildPictureSources('https://i.ecency.com/p/abc?format=match')).toBeNull()
       expect(buildPictureSources('https://x.com/no-ext')).toBeNull()
     })
-    it('builds pinned sources for a legacy sized-proxy URL (nested source unwrapped)', () => {
-      const r = buildPictureSources('https://images.hive.blog/1536x0/https://files.peakd.com/file/x/abc')
+    it('builds pinned sources for a legacy sized-proxy URL wrapping a static raster', () => {
+      const r = buildPictureSources('https://images.hive.blog/1536x0/https://files.peakd.com/file/x/abc.jpg')
       expect(r).not.toBeNull()
       expect(r!.avif).toContain('/p/')
       expect(r!.avif).toContain('format=avif')
       expect(r!.webp).toContain('format=webp')
       // the /D upload form is NOT a nested proxy URL and keeps its old handling
       expect(buildPictureSources('https://images.hive.blog/DQmabc/photo.png')).not.toBeNull()
+    })
+    it('returns null for a legacy sized-proxy URL wrapping something that is not one', () => {
+      // ?format=avif on these answers with WebP (or the untouched source when the
+      // render is over the host's budget), never AVIF, so a pinned <source> would
+      // mislabel bytes the browser has already committed to.
+      expect(buildPictureSources('https://images.hive.blog/1536x0/https://x.com/a.gif')).toBeNull()
+      expect(buildPictureSources('https://images.hive.blog/1536x0/https://x.com/a.svg')).toBeNull()
+      expect(buildPictureSources('https://images.hive.blog/1536x0/https://x.com/no-ext')).toBeNull()
     })
     it('refuses absurdly long URLs instead of base58-encoding them', () => {
       // base58 encoding is quadratic: a 60KB URL from a post body cost ~12.6s of
