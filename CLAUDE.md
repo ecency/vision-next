@@ -523,9 +523,15 @@ When an operation requires active authority but the user logged in with posting 
 1. SDK detects auth failure → calls `adapter.showAuthUpgradeUI()`
 2. Web adapter dispatches `ecency-auth-upgrade` CustomEvent
 3. Auth upgrade dialog appears, user selects method (enter active key, use Keychain, etc.)
-4. Dialog resolves the promise with chosen method + optional temp key
+4. Dialog resolves the promise with chosen method + optional active key
 5. SDK retries broadcast with the chosen method
-6. Temp active key auto-clears after 60s or on next auth flow
+6. An active key entered here is held for the browser tab session
+   (`apps/web/src/utils/session-active-key.ts`: sessionStorage, scoped to the
+   username that entered it), so a run of active-authority operations asks for it
+   once. It is dropped on logout, on account switch and whenever a new
+   active-authority dialog opens, at which point the stored key has already
+   failed to sign. A master-password / seed / active-key login seeds the same
+   store, so those users never see the dialog for an active op.
 
 ## Testing
 

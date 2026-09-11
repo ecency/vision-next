@@ -14,7 +14,7 @@ import hs from 'hivesigner';
 import { encodeOps as encodeHiveUriOps } from 'hive-uri';
 import { getUser, getAccessToken, getPostingKey, getLoginType } from '@/utils/user-token';
 import * as ls from '@/utils/local-storage';
-import { requestAuthUpgrade, getTempActiveKey, clearTempActiveKey } from '@/features/shared/auth-upgrade';
+import { requestAuthUpgrade, getTempActiveKey } from '@/features/shared/auth-upgrade';
 import { error, success } from '@/features/shared/feedback/feedback-events';
 import { broadcastWithExtension, hasAnyHiveExtension } from '@/utils/hive-extensions';
 
@@ -284,8 +284,10 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
     },
 
     async getActiveKey(username: string) {
-      // Check temp storage first (key entered via auth upgrade dialog)
-      const tempKey = getTempActiveKey();
+      // Check the tab-session store first (key entered via auth upgrade dialog,
+      // or captured from an active-key login). Scoped to this username, so a key
+      // left by a previous account is never handed over.
+      const tempKey = getTempActiveKey(username);
       if (tempKey) return tempKey;
 
       // Return null for non-key auth methods (they handle active operations via their own methods)
@@ -535,13 +537,14 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
       const self = getWebBroadcastAdapter();
       switch (method) {
         case 'key': {
-          const activeKey = getTempActiveKey();
+          const activeKey = getTempActiveKey(username);
           if (!activeKey) {
             throw new Error('Active key not provided');
           }
           const privateKey = PrivateKey.fromString(activeKey);
           await broadcastOperations([op], privateKey);
-          clearTempActiveKey();
+          // The key is deliberately kept: it lives for this browser tab session
+          // so the next active-authority operation doesn't re-prompt.
           break;
         }
         case 'keychain': {

@@ -1817,7 +1817,8 @@
     "sign-title": "Sign transaction",
     "sign-sub-title": "Sign your transaction",
     "success-title": "Success",
-    "success-sub-title": "Transaction successful"
+    "success-sub-title": "Transaction successful",
+    "key-kept-for-tab": "Kept in this browser tab until you close it, so you only enter it once."
   },
   "transactions": {
     "title": "History",

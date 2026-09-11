@@ -1,3 +1,9 @@
+import {
+  clearSessionActiveKey,
+  getSessionActiveKey,
+  setSessionActiveKey
+} from "@/utils/session-active-key";
+
 /**
  * Imperative API for the auth upgrade dialog.
  *
@@ -11,8 +17,10 @@
 type AuthMethod = "hivesigner" | "keychain" | "key" | false;
 
 let pendingResolve: ((method: AuthMethod) => void) | null = null;
-let tempActiveKey: string | null = null;
-let tempKeyTimeout: ReturnType<typeof setTimeout> | null = null;
+/** Authority the open dialog is collecting for. Only an active-authority key is
+ * worth keeping: it is the one the adapter reads back for later broadcasts, so
+ * a posting key stored under it would fail every active operation in the tab. */
+let pendingAuthority: string | null = null;
 
 /**
  * Called by the broadcast adapter's showAuthUpgradeUI to show the dialog and wait for user choice.
@@ -26,9 +34,15 @@ export function requestAuthUpgrade(
     pendingResolve(false);
     pendingResolve = null;
   }
+  pendingAuthority = authority;
 
-  // Clear any stale temp key from a previous flow
-  clearTempActiveKey();
+  // An active-authority dialog only opens when no key was stored or the stored
+  // one was rejected, so whatever is held is of no use. Dropping it keeps a
+  // wrong key from failing every later broadcast in the tab. A posting-authority
+  // upgrade says nothing about the active key, so that one leaves it alone.
+  if (authority === "active") {
+    clearTempActiveKey();
+  }
 
   return new Promise((resolve) => {
     pendingResolve = resolve;
@@ -44,34 +58,31 @@ export function requestAuthUpgrade(
  * Called by the dialog when the user makes a choice (or cancels).
  */
 export function resolveAuthUpgrade(method: AuthMethod, key?: string) {
-  if (key) {
-    tempActiveKey = key;
-    // Safety: clear the key after 60s to prevent stale keys lingering in memory
-    if (tempKeyTimeout) clearTimeout(tempKeyTimeout);
-    tempKeyTimeout = setTimeout(clearTempActiveKey, 60_000);
+  if (key && pendingAuthority === "active") {
+    // Held for the rest of the browser tab session, so a run of active-authority
+    // operations (tipping a feed's worth of posts) asks for the key once.
+    setSessionActiveKey(key);
   }
   pendingResolve?.(method);
   pendingResolve = null;
+  pendingAuthority = null;
 }
 
 /**
  * Called by adapter.getActiveKey() to retrieve the key entered in the dialog.
- * Non-destructive read — key persists for retries within the same auth flow.
+ * Non-destructive read. The key is returned only to the account that entered
+ * it and lasts until the tab is closed.
  */
-export function getTempActiveKey(): string | null {
-  return tempActiveKey;
+export function getTempActiveKey(username?: string): string | null {
+  return getSessionActiveKey(username);
 }
 
 /**
- * Clears the temp active key. Called after successful broadcast or when a new
- * auth upgrade flow starts.
+ * Clears the stored active key. Called when a new auth upgrade flow starts,
+ * and on logout or account switch.
  */
 export function clearTempActiveKey() {
-  tempActiveKey = null;
-  if (tempKeyTimeout) {
-    clearTimeout(tempKeyTimeout);
-    tempKeyTimeout = null;
-  }
+  clearSessionActiveKey();
 }
 
 /** @deprecated Use getTempActiveKey() instead — non-destructive read */

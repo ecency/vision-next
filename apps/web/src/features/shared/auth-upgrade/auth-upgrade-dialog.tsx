@@ -155,6 +155,13 @@ export function AuthUpgradeDialog() {
               ) : (
                 <>
                   <KeyInput onSign={handleKeySign} keyType={authority} />
+                  {authority === "active" && (
+                    // Only the active key is kept, only for this tab. Say so
+                    // here, where the user decides whether to type it.
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {i18next.t("trx-common.key-kept-for-tab")}
+                    </p>
+                  )}
                   <div className="flex items-center gap-2 my-1">
                     <hr className="flex-1" />
                     <span className="text-xs text-gray-400">

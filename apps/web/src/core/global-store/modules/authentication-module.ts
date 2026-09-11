@@ -3,6 +3,7 @@ import * as ls from "@/utils/local-storage";
 import Cookies from "js-cookie";
 import { ACTIVE_USER_COOKIE_NAME } from "@/consts";
 import { sentry } from "@/core/sentry/lazy-sentry";
+import { clearSessionActiveKey } from "@/utils/session-active-key";
 
 const makeActiveUser = (username: string): ActiveUser => ({
   username,
@@ -51,6 +52,7 @@ export const createAuthenticationActions = (
       // reused under the newly activated account. Login sets the key AFTER
       // activating the user, so this does not wipe a fresh login's key.
       set({ activeUser: nextActiveUser, signingKey: null });
+      clearSessionActiveKey();
 
       sentry.setUser({
         username: name
@@ -60,6 +62,7 @@ export const createAuthenticationActions = (
       Cookies.remove(ACTIVE_USER_COOKIE_NAME);
       // Logout: drop the in-memory signing key alongside the active user.
       set({ activeUser: nextActiveUser, signingKey: null });
+      clearSessionActiveKey();
       sentry.setUser(null);
     }
   }
