@@ -65,8 +65,8 @@ export function requestAuthUpgrade(
  */
 export function resolveAuthUpgrade(method: AuthMethod, key?: string) {
   if (key && pendingAuthority === "active") {
-    // Held for the rest of the browser tab session, so a run of active-authority
-    // operations (tipping a feed's worth of posts) asks for the key once.
+    // Held for the rest of the page, so a run of active-authority operations
+    // (tipping a feed's worth of posts) asks for the key once.
     setSessionActiveKey(key, pendingUsername ?? undefined);
   }
   pendingResolve?.(method);
@@ -78,7 +78,7 @@ export function resolveAuthUpgrade(method: AuthMethod, key?: string) {
 /**
  * Called by adapter.getActiveKey() to retrieve the key entered in the dialog.
  * Non-destructive read. The key is returned only to the account that entered
- * it and lasts until the tab is closed.
+ * it and lasts as long as the page.
  */
 export function getTempActiveKey(username?: string): string | null {
   return getSessionActiveKey(username);

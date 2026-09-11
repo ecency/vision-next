@@ -47,7 +47,7 @@ describe("active user changes and the session active key", () => {
 
     actionsFor("alice").setActiveUser("bob");
 
-    expect(window.sessionStorage.length).toBe(0);
+    expect(getSessionActiveKey("alice")).toBeNull();
   });
 
   it("drops the key on logout", () => {
@@ -57,6 +57,6 @@ describe("active user changes and the session active key", () => {
 
     actionsFor("alice").setActiveUser(null);
 
-    expect(window.sessionStorage.length).toBe(0);
+    expect(getSessionActiveKey("alice")).toBeNull();
   });
 });

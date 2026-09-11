@@ -525,21 +525,24 @@ When an operation requires active authority but the user logged in with posting 
 3. Auth upgrade dialog appears, user selects method (enter active key, use Keychain, etc.)
 4. Dialog resolves the promise with chosen method + optional active key
 5. SDK retries broadcast with the chosen method
-6. An active key entered here is held for the browser tab session
-   (`apps/web/src/utils/session-active-key.ts`), so a run of active-authority
-   operations asks for it once. A master password, seed or active-key login
-   seeds the same store, so those users never see the dialog for an active op.
+6. An active key entered here is held in memory
+   (`apps/web/src/utils/session-active-key.ts`) for as long as the page is open,
+   on a sliding two hour idle window that every use pushes out. So a run of
+   active-authority operations asks for it once, however long the run lasts,
+   while an unattended tab drops it. A master password, seed or active-key login
+   holds the same key, so those users never see the dialog for an active op.
 
-   The store does not trust `sessionStorage` alone for "one tab": closing a tab
-   does not destroy it (Chrome keeps it for "reopen closed tab" and session
-   restore) and a duplicated tab starts with a copy. So a stored record is picked
-   up by a new document only if the previous document in that tab stamped it on
-   `pagehide` within the last minute. The stamp is stripped on pickup, so a
-   reload keeps the key while a reopened or duplicated tab asks again. The record
-   is also scoped to the username that entered it and checked against the shared
-   `active_user` entry on every read. It is dropped on logout, on account switch
-   and whenever a new active-authority dialog opens, at which point the stored
-   key has already failed to sign.
+   Deliberately not `sessionStorage`, which is not the tab-scoped secret it looks
+   like: closing a tab does not destroy it (Chrome keeps it for "reopen closed
+   tab" and for session restore) and a duplicated tab starts with a copy. A
+   module variable dies with the document, never reaches disk and cannot be read
+   from another tab. The cost is one prompt after a reload; client-side
+   navigation keeps the key. The idle window is gated on a timestamp rather than
+   only on the timer, since a background tab's timers are throttled and a
+   suspended machine runs none. The record is scoped to the username that entered
+   it and checked against the shared `active_user` entry on every read. It is
+   dropped on logout, on account switch and whenever a new active-authority
+   dialog opens, at which point the held key has already failed to sign.
 
 ## Testing
 

@@ -227,10 +227,10 @@ export function useLoginByKey(
 
       // Logging in with a master password, seed or active key already hands the
       // app an active-authority key (`withPostingKey` is false only after it was
-      // matched against the account's active authority above). Keep it for the
-      // tab session so tips, transfers and power ups don't open the auth upgrade
-      // dialog for a key the user has already typed. Must run after loginInApp:
-      // activating the user clears the previous account's key.
+      // matched against the account's active authority above). Hold it in memory
+      // so tips, transfers and power ups don't open the auth upgrade dialog for a
+      // key the user has already typed. Must run after loginInApp: activating the
+      // user clears the previous account's key.
       if (!withPostingKey) {
         setSessionActiveKey(privateKey.toString(), account.name);
       }

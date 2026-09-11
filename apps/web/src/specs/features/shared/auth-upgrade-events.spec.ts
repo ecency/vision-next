@@ -85,14 +85,13 @@ describe("auth upgrade key ownership", () => {
     resolveAuthUpgrade("key", ACTIVE_KEY);
     await pending;
 
-    // The record names alice, who the dialog was raised for, not bob, who was
-    // active when the key was submitted.
-    const raw = window.sessionStorage.getItem("ecency_active-key-session");
-    expect(JSON.parse(atob(raw!)).username).toBe("alice");
+    // Filed under alice, who the dialog was raised for, not under bob, who was
+    // active when the key was submitted. A key filed under bob would have been
+    // dropped by the mismatch check on this read instead of coming back.
+    ls.set("active_user", "alice");
+    expect(getTempActiveKey("alice")).toBe(ACTIVE_KEY);
 
-    // bob still cannot sign with it: a read while he is the active user finds
-    // the mismatch and drops the record.
+    // A broadcast for bob still never gets it.
     expect(getTempActiveKey("bob")).toBeNull();
-    expect(window.sessionStorage.length).toBe(0);
   });
 });

@@ -284,7 +284,7 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
     },
 
     async getActiveKey(username: string) {
-      // Check the tab-session store first (key entered via auth upgrade dialog,
+      // Check the in-memory store first (key entered via auth upgrade dialog,
       // or captured from an active-key login). Scoped to this username, so a key
       // left by a previous account is never handed over.
       const tempKey = getTempActiveKey(username);
@@ -515,9 +515,9 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
         return;
       }
 
-      // A key already held for this tab signs without a prompt. Opening the
+      // A key already held for this page signs without a prompt. Opening the
       // dialog regardless would also clear that key, which is the opposite of
-      // what the tab-session store is for.
+      // what the store is for.
       const heldKey = getTempActiveKey(username);
       const method = heldKey
         ? 'key'
@@ -548,8 +548,8 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
           }
           const privateKey = PrivateKey.fromString(activeKey);
           await broadcastOperations([op], privateKey);
-          // The key is deliberately kept: it lives for this browser tab session
-          // so the next active-authority operation doesn't re-prompt.
+          // The key is deliberately kept: it lives as long as the page, so the
+          // next active-authority operation doesn't re-prompt.
           break;
         }
         case 'keychain': {

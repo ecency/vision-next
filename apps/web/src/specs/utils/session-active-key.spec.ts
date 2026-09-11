@@ -22,28 +22,67 @@ describe("session active key", () => {
     expect(getSessionActiveKey("alice")).toBe(KEY);
   });
 
-  it("keeps the key across reads, no expiry inside the tab session", () => {
+  it("keeps the key through a long run of tips", () => {
     vi.useFakeTimers();
     try {
       setSessionActiveKey(KEY, "alice");
-      // The old behaviour dropped the key 60s after it was entered, which is what
-      // made every tip re-prompt.
-      vi.advanceTimersByTime(60_000 * 60);
-      expect(getSessionActiveKey("alice")).toBe(KEY);
+
+      // The old behaviour armed a 60s timer when the key was typed and never
+      // refreshed it on use, so the second tip of a session asked again. Using
+      // the key now pushes the window out: tipping for hours never re-prompts.
+      for (let hour = 0; hour < 6; hour++) {
+        vi.advanceTimersByTime(90 * 60 * 1000);
+        expect(getSessionActiveKey("alice")).toBe(KEY);
+      }
     } finally {
       vi.useRealTimers();
     }
   });
 
+  it("drops the key after two idle hours", () => {
+    vi.useFakeTimers();
+    try {
+      setSessionActiveKey(KEY, "alice");
+      vi.advanceTimersByTime(2 * 60 * 60 * 1000 + 1000);
+
+      expect(getSessionActiveKey("alice")).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("gates the idle window on the clock, not only on a timer that may not run", () => {
+    vi.useFakeTimers();
+    try {
+      setSessionActiveKey(KEY, "alice");
+      // A background tab's timers are throttled and a suspended machine runs
+      // none, so the read must not depend on the timer having fired.
+      vi.setSystemTime(Date.now() + 3 * 60 * 60 * 1000);
+
+      expect(getSessionActiveKey("alice")).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("never writes the key to browser storage", () => {
+    setSessionActiveKey(KEY, "alice");
+
+    // The whole point of holding it in a module variable: nothing to restore
+    // with a reopened tab, nothing on disk, nothing another tab can read.
+    expect(window.sessionStorage.length).toBe(0);
+    expect(JSON.stringify(window.localStorage)).not.toContain(KEY);
+  });
+
   it("never hands the key to a broadcast for another account", () => {
     setSessionActiveKey(KEY, "alice");
     // A read for someone else gets nothing, but alice is still logged in here,
-    // so her own record survives the question.
+    // so her own key survives the question.
     expect(getSessionActiveKey("bob")).toBeNull();
     expect(getSessionActiveKey("alice")).toBe(KEY);
   });
 
-  it("withholds the key when no active user can be read, without destroying it", () => {
+  it("withholds the key when no active user can be read, without dropping it", () => {
     setSessionActiveKey(KEY, "alice");
     // ls.get returns null for a blocked or failing read as well as for a real
     // logout. A real logout already clears the store through setActiveUser, so
@@ -55,11 +94,14 @@ describe("session active key", () => {
     expect(getSessionActiveKey("alice")).toBe(KEY);
   });
 
-  it("drops the record when another tab switched accounts", () => {
+  it("drops the key when another tab switched accounts", () => {
     setSessionActiveKey(KEY, "alice");
     ls.set("active_user", "bob");
     expect(getSessionActiveKey("alice")).toBeNull();
-    expect(window.sessionStorage.length).toBe(0);
+
+    // Gone for good, not merely withheld while bob is active.
+    ls.set("active_user", "alice");
+    expect(getSessionActiveKey("alice")).toBeNull();
   });
 
   it("defaults to the active user when no username is passed", () => {
@@ -70,20 +112,9 @@ describe("session active key", () => {
     expect(getSessionActiveKey()).toBeNull();
   });
 
-  it("refuses a record whose key is not key-shaped (tampered storage)", () => {
-    // Left as-is, an unparseable key fails the broadcast with an error the SDK
-    // does not read as an auth problem, so no dialog would open to replace it.
-    window.sessionStorage.setItem(
-      "ecency_active-key-session",
-      btoa(JSON.stringify({ username: "alice", key: "not-a-key" }))
-    );
-    expect(getSessionActiveKey("alice")).toBeNull();
-  });
-
-  it("refuses to store a value that is not key-shaped", () => {
+  it("refuses to hold a value that is not key-shaped", () => {
     setSessionActiveKey("not-a-key", "alice");
     expect(getSessionActiveKey("alice")).toBeNull();
-    expect(window.sessionStorage.length).toBe(0);
   });
 
   it("treats an empty caller username as a mismatch, not as no scoping", () => {
@@ -91,41 +122,12 @@ describe("session active key", () => {
     expect(getSessionActiveKey("")).toBeNull();
   });
 
-  it("clears both the memory copy and storage", () => {
+  it("clears on demand", () => {
     setSessionActiveKey(KEY, "alice");
     clearSessionActiveKey();
     expect(getSessionActiveKey("alice")).toBeNull();
-    expect(window.sessionStorage.length).toBe(0);
-  });
-
-  it("still signs this page when sessionStorage is unavailable", () => {
-    const setItem = vi
-      .spyOn(Storage.prototype, "setItem")
-      .mockImplementation(() => {
-        throw new Error("quota");
-      });
-    try {
-      setSessionActiveKey(KEY, "alice");
-      expect(getSessionActiveKey("alice")).toBe(KEY);
-    } finally {
-      setItem.mockRestore();
-    }
   });
 });
-
-/**
- * A fresh document in the same tab: module state goes, sessionStorage stays.
- * That is the difference between a reload and a page that never went away. It
- * is where the handoff stamp decides whether the key may be picked up.
- */
-async function nextDocument() {
-  vi.resetModules();
-  return import("@/utils/session-active-key");
-}
-
-function closeDocument() {
-  window.dispatchEvent(new Event("pagehide"));
-}
 
 describe("session active key across documents", () => {
   beforeEach(() => {
@@ -135,58 +137,14 @@ describe("session active key across documents", () => {
     ls.set("active_user", "alice");
   });
 
-  it("survives a reload of the same tab", async () => {
+  it("does not survive a reload, a reopened tab or a duplicated tab", async () => {
     setSessionActiveKey(KEY, "alice");
-    closeDocument();
 
-    const reloaded = await nextDocument();
-    expect(reloaded.getSessionActiveKey("alice")).toBe(KEY);
-  });
+    // A fresh document is what a reload, a restored tab and a duplicated tab all
+    // start with. The key lives in module state, so none of them inherit it.
+    vi.resetModules();
+    const nextDocument = await import("@/utils/session-active-key");
 
-  it("is refused by a tab reopened later, which browsers restore storage into", async () => {
-    vi.useFakeTimers();
-    try {
-      setSessionActiveKey(KEY, "alice");
-      closeDocument();
-      // Chrome keeps session storage on disk for "reopen closed tab", so the
-      // record is still here. Only the stale stamp says the tab went away.
-      vi.advanceTimersByTime(60_000 * 5);
-
-      const reopened = await nextDocument();
-      expect(reopened.getSessionActiveKey("alice")).toBeNull();
-      expect(window.sessionStorage.length).toBe(0);
-    } finally {
-      vi.useRealTimers();
-    }
-  });
-
-  it("is refused by a duplicated tab, which copies the record while it is held", async () => {
-    setSessionActiveKey(KEY, "alice");
-    // No pagehide: the source tab is still open, so its record carries no stamp.
-
-    const duplicate = await nextDocument();
-    expect(duplicate.getSessionActiveKey("alice")).toBeNull();
-  });
-
-  it("does not let a reopened tab extend the window by reopening again", async () => {
-    setSessionActiveKey(KEY, "alice");
-    closeDocument();
-
-    const reloaded = await nextDocument();
-    expect(reloaded.getSessionActiveKey("alice")).toBe(KEY);
-
-    // The stamp is stripped on pickup, so a document that never says goodbye
-    // hands nothing to the next one.
-    const third = await nextDocument();
-    expect(third.getSessionActiveKey("alice")).toBeNull();
-  });
-
-  it("is gone once sessionStorage is gone", async () => {
-    setSessionActiveKey(KEY, "alice");
-    closeDocument();
-    window.sessionStorage.clear();
-
-    const reloaded = await nextDocument();
-    expect(reloaded.getSessionActiveKey("alice")).toBeNull();
+    expect(nextDocument.getSessionActiveKey("alice")).toBeNull();
   });
 });

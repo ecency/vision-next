@@ -138,7 +138,7 @@ export function LoginUserByKey({ username }: Props) {
       )}
 
       {/* The active key a master password, seed or active-key login derives is
-          kept for the tab so transfers stop re-prompting. Say so where the
+          kept in memory so transfers stop re-prompting. Say so where the
           credential is typed, since that flow never opens the sign dialog that
           carries the same notice. */}
       <div className="pl-2 pt-2 text-xs text-gray-600 dark:text-gray-400">

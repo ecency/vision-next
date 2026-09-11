@@ -472,7 +472,7 @@
     "write-username": "Enter username and select login option",
     "username-placeholder": "Username",
     "key-placeholder": "password / private key / seed",
-    "active-key-kept-for-tab": "A master password, seed or active key stays in this tab until you close it, so transfers and tips stop asking for it.",
+    "active-key-kept-for-tab": "A master password, seed or active key is kept in memory so transfers and tips stop asking for it, until you close or reload this tab, or leave it unused for two hours.",
     "login-info-1": "We don't store your private keys.",
     "login-info-2": "More info",
     "error-fields-required": "Please enter username and private key",
@@ -1819,7 +1819,7 @@
     "sign-sub-title": "Sign your transaction",
     "success-title": "Success",
     "success-sub-title": "Transaction successful",
-    "key-kept-for-tab": "Kept in this browser tab until you close it, so you only enter it once."
+    "key-kept-for-tab": "You only enter it once: it is kept in memory until you close or reload this tab, or leave it unused for two hours."
   },
   "transactions": {
     "title": "History",
