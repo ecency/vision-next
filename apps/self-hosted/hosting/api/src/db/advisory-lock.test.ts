@@ -56,7 +56,15 @@ describe('withAdvisoryLock client handling', () => {
   });
 
   it('does not try to release when the connection itself failed', async () => {
-    mocks.connect.mockRejectedValue(new Error('pool exhausted'));
+    // `Once`, not a persistent rejection. withAdvisoryLock calls connect exactly
+    // once, and vitest 4 fails a test that leaves a rejecting implementation
+    // standing after the body returns: it tracks the mock's result, and the
+    // extra rejected promise that produces is never awaited by anyone. Verified
+    // on 4.1.11 — `mockRejectedValue` and a persistent `mockImplementation`
+    // that throws both fail here while the code under test resolves 'ok' with
+    // exactly one call; the `Once` forms pass. Scoping it to one call is also
+    // what this test actually means.
+    mocks.connect.mockRejectedValueOnce(new Error('pool exhausted'));
 
     await expect(withAdvisoryLock(1, 2, async () => 'ok')).resolves.toBe('ok');
   });
