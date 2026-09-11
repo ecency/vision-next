@@ -45,7 +45,19 @@ describe('catchPostImage thumbnails tier', () => {
     )
   })
 
-  it('proxies a gif thumbnail unsized, like a gif cover', () => {
+  // #1802: a gif thumbnail used to be proxied at 0x0, handing a 320x180 slot the
+  // whole file. It is sized like anything else now. Note the source host matters:
+  // images.hive.blog/<file> is host-swapped without routing through /p/, so it
+  // ignores dimensions either way and cannot show the difference.
+  it('proxies a gif thumbnail at the requested size, like any other thumbnail', () => {
+    const e = entry('text', { thumbnails: ['https://files.peakd.com/x/anim.gif'] })
+    expect(catchPostImage(e, 320, 180, 'match')).toBe(
+      proxifyImageSrc('https://files.peakd.com/x/anim.gif', 320, 180, 'match')
+    )
+    expect(catchPostImage(e, 320, 180, 'match')).toContain('width=320')
+  })
+
+  it('host-swapped legacy sources still ignore the size, gif or not', () => {
     const e = entry('text', { thumbnails: ['https://images.hive.blog/anim.gif'] })
     expect(catchPostImage(e, 320, 180, 'match')).toBe(
       proxifyImageSrc('https://images.hive.blog/anim.gif', 0, 0, 'match')
