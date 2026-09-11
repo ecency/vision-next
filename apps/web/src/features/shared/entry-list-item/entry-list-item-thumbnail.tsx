@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Entry } from "@/entities";
 import { useGlobalStore } from "@/core/global-store";
 import { EntryLink } from "@/features/shared";
-import { buildSrcSet, proxifyImageSrc } from "@ecency/render-helper";
+import { buildSrcSet, getEntryCardImageRawUrl, proxifyImageSrc } from "@ecency/render-helper";
 import { catchPostImageSafely } from "@/core/entries/catch-post-image-safely";
 import Image from "next/image";
 import { THUMB_SIZES } from "./thumb-lcp";
@@ -39,16 +39,49 @@ export function EntryListItemThumbnail({
   // placeholder) instead of taking the page down.
   const src = useMemo(() => catchPostImageSafely(entry, 600, 500, "match") || null, [entry]);
 
-  // No gif special-case here any more, and re-adding one would be a regression.
-  // The image host used to hand animated gifs back untransformed at every size,
-  // so `?blur=1` returned the original file and the LQIP layer became a second
-  // download of it (1.5 MB for a 150px slot, #1802/#1803). ecency/imagehoster#47
-  // renders the blur from the FIRST FRAME instead, which is what this layer
-  // always wanted. Verified against production on 16 real animated sources:
-  // every `?blur=1` came back as 279-899 bytes of image/jpeg, at the source's own
-  // single-frame aspect (a 1080x1350 x150 gif gives 20x25, a 720x540 x408 gives
-  // 20x15), so it is a first frame and not a filmstrip.
-  const srcSet = useMemo(() => (src ? buildSrcSet(src) : ""), [src]);
+  // The gif carve-out that used to live here moves rather than disappearing, and
+  // the two halves point in OPPOSITE directions, so read both before touching it.
+  //
+  // It was BLUR that needed guarding: the host handed animated gifs back
+  // untransformed at every size, so `?blur=1` returned the original file and the
+  // LQIP layer became a second download of it (1.5 MB for a 150px slot,
+  // #1802/#1803). ecency/imagehoster#47 renders the blur from the FIRST FRAME,
+  // which is what this layer always wanted, so that guard is gone. Verified on
+  // production against 16 real animated sources: every `?blur=1` came back as
+  // 279-899 bytes of image/jpeg, at the source's own single-frame aspect (a
+  // 1080x1350 x150 gif gives 20x25, a 720x540 x408 gives 20x15).
+  //
+  // It is SRCSET that needs guarding now, which is the reverse of what #1803
+  // assumed when it kept srcset on the grounds that "for a static gif those
+  // candidates are real". For an ANIMATED one they are not, at any width worth
+  // picking. buildSrcSet emits width-ONLY URLs, and an animated render costs
+  // frames x width x height, so a width with no height cap is unbounded in the
+  // axis that matters: on a 1080x1350 x150 source, ?width=600 is 67 MP and
+  // ?width=800 is 120 MP, both over the host's output budget, so both come back
+  // as the untouched 1.5 MB original. `sizes` here is 100vw on mobile, so the
+  // browser picks exactly those. Measured live on the two /trending cards that
+  // have a gif cover:
+  //
+  //   srcset ?width=600/800/1024/1280  ->  1,572,008 B  image/gif  (passthrough)
+  //   src    ?width=600&height=500     ->    196,832 B  image/webp
+  //
+  // The src box is capped on BOTH axes, so its output is bounded (30 MP here) and
+  // the host renders it. Dropping srcset therefore makes the browser fetch the
+  // one variant that is real. A static gif loses its responsive variants and
+  // fetches the 600x500 src into a 150px desktop slot, which is a few KB more on
+  // a rare card; an animated one stops pulling the full file, which is 1.4 MB.
+  const isAnimationCandidate = useMemo(() => {
+    // Card precedence, NOT getEntryImageRawUrl: that one skips
+    // json_metadata.thumbnails on purpose, so it can name a different file than
+    // the one this card renders.
+    const raw = getEntryCardImageRawUrl(entry);
+    return !!raw && /\.gif(?:[?#]|$)/i.test(raw);
+  }, [entry]);
+
+  const srcSet = useMemo(
+    () => (src && !isAnimationCandidate ? buildSrcSet(src) : ""),
+    [src, isAnimationCandidate]
+  );
 
   const blurUrl = useMemo(() => {
     const url = catchPostImageSafely(entry, 0, 0);

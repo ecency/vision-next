@@ -183,12 +183,55 @@ describe("EntryListItemThumbnail — SSR-discoverable LCP image", () => {
       expect(imgs[1].getAttribute("fetchpriority")).toBe("high");
     });
 
-    it("keeps srcset", () => {
+    // The reverse of the blur guard, and the reason both live in one block.
+    // buildSrcSet emits width-ONLY URLs, and an animated render costs
+    // frames x width x height, so a width with no height cap is unbounded in the
+    // axis that matters: measured live, every srcset candidate at 600w and above
+    // came back as the untouched 1,572,008-byte original while the both-axes src
+    // box rendered to 196,832. With `sizes` at 100vw on mobile the browser picks
+    // exactly the candidates that do not render, so offering them is worse than
+    // offering none.
+    it("drops srcset, so the browser fetches the both-axes src that actually renders", () => {
       const { container } = render(
         <EntryListItemThumbnail entry={gif as never} entryProp={gif as never} isCrossPost={false} noImage={NO_IMG} isThumbLcp={true} />
       );
       const real = Array.from(container.querySelectorAll("img")).find((i) => !i.getAttribute("aria-hidden"));
+      expect(real?.getAttribute("srcset")).toBeNull();
+      expect(real?.getAttribute("sizes")).toBeNull();
+      expect(real?.getAttribute("src")).toBeTruthy();
+    });
+
+    it("keeps srcset for a non-gif source", () => {
+      const png: TestEntry = { ...entry, permlink: "post-png-srcset", __raw: "https://img.host/photo.png" };
+      const { container } = render(
+        <EntryListItemThumbnail entry={png as never} entryProp={png as never} isCrossPost={false} noImage={NO_IMG} isThumbLcp={true} />
+      );
+      const real = Array.from(container.querySelectorAll("img")).find((i) => !i.getAttribute("aria-hidden"));
       expect(real?.getAttribute("srcset")).toBeTruthy();
+    });
+
+    // The classification must follow the CARD's source. json_metadata.thumbnails
+    // wins over the body image in catchPostImage, so an entry whose thumbnail is
+    // a gif and whose body image is a png (and the reverse) is where a guard
+    // built on the wrong selector gets it backwards.
+    it("classifies the thumbnail the card renders, not the body image", () => {
+      const gifThumb: TestEntry = {
+        ...entry, permlink: "post-mixed-1",
+        __thumb: "https://img.host/animation.gif", __raw: "https://img.host/photo.png"
+      };
+      const { container: a } = render(
+        <EntryListItemThumbnail entry={gifThumb as never} entryProp={gifThumb as never} isCrossPost={false} noImage={NO_IMG} />
+      );
+      expect(a.querySelector("img:not([aria-hidden])")?.getAttribute("srcset")).toBeNull();
+
+      const pngThumb: TestEntry = {
+        ...entry, permlink: "post-mixed-2",
+        __thumb: "https://img.host/photo.png", __raw: "https://img.host/animation.gif"
+      };
+      const { container: b } = render(
+        <EntryListItemThumbnail entry={pngThumb as never} entryProp={pngThumb as never} isCrossPost={false} noImage={NO_IMG} />
+      );
+      expect(b.querySelector("img:not([aria-hidden])")?.getAttribute("srcset")).toBeTruthy();
     });
 
     // The placeholder is one request, not one per candidate: it is a single
