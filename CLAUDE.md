@@ -526,12 +526,20 @@ When an operation requires active authority but the user logged in with posting 
 4. Dialog resolves the promise with chosen method + optional active key
 5. SDK retries broadcast with the chosen method
 6. An active key entered here is held for the browser tab session
-   (`apps/web/src/utils/session-active-key.ts`: sessionStorage, scoped to the
-   username that entered it), so a run of active-authority operations asks for it
-   once. It is dropped on logout, on account switch and whenever a new
-   active-authority dialog opens, at which point the stored key has already
-   failed to sign. A master-password / seed / active-key login seeds the same
-   store, so those users never see the dialog for an active op.
+   (`apps/web/src/utils/session-active-key.ts`), so a run of active-authority
+   operations asks for it once. A master password, seed or active-key login
+   seeds the same store, so those users never see the dialog for an active op.
+
+   The store does not trust `sessionStorage` alone for "one tab": closing a tab
+   does not destroy it (Chrome keeps it for "reopen closed tab" and session
+   restore) and a duplicated tab starts with a copy. So a stored record is picked
+   up by a new document only if the previous document in that tab stamped it on
+   `pagehide` within the last minute. The stamp is stripped on pickup, so a
+   reload keeps the key while a reopened or duplicated tab asks again. The record
+   is also scoped to the username that entered it and checked against the shared
+   `active_user` entry on every read. It is dropped on logout, on account switch
+   and whenever a new active-authority dialog opens, at which point the stored
+   key has already failed to sign.
 
 ## Testing
 

@@ -515,8 +515,13 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
         return;
       }
 
-      // Show auth upgrade dialog to get active authority
-      const method = await requestAuthUpgrade('active', 'Grant posting authority');
+      // A key already held for this tab signs without a prompt. Opening the
+      // dialog regardless would also clear that key, which is the opposite of
+      // what the tab-session store is for.
+      const heldKey = getTempActiveKey(username);
+      const method = heldKey
+        ? 'key'
+        : await requestAuthUpgrade('active', 'Grant posting authority');
       if (method === false) {
         // User cancelled - granting is optional, return silently
         return;
@@ -537,7 +542,7 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
       const self = getWebBroadcastAdapter();
       switch (method) {
         case 'key': {
-          const activeKey = getTempActiveKey(username);
+          const activeKey = heldKey ?? getTempActiveKey(username);
           if (!activeKey) {
             throw new Error('Active key not provided');
           }

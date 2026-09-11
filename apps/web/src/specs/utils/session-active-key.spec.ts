@@ -35,20 +35,6 @@ describe("session active key", () => {
     }
   });
 
-  it("survives a page reload in the same tab", () => {
-    setSessionActiveKey(KEY, "alice");
-    // A reload drops module state but keeps sessionStorage.
-    clearMemoryOnly();
-    expect(getSessionActiveKey("alice")).toBe(KEY);
-  });
-
-  it("is gone once sessionStorage is gone (tab closed)", () => {
-    setSessionActiveKey(KEY, "alice");
-    window.sessionStorage.clear();
-    clearMemoryOnly();
-    expect(getSessionActiveKey("alice")).toBeNull();
-  });
-
   it("never hands the key to a broadcast for another account", () => {
     setSessionActiveKey(KEY, "alice");
     // A read for someone else gets nothing, but alice is still logged in here,
@@ -57,13 +43,16 @@ describe("session active key", () => {
     expect(getSessionActiveKey("alice")).toBe(KEY);
   });
 
-  it("drops the record once that account is no longer logged in", () => {
+  it("withholds the key when no active user can be read, without destroying it", () => {
     setSessionActiveKey(KEY, "alice");
-    // A logout in any tab removes the shared active_user entry, which is what
-    // invalidates a copy a duplicated tab inherited.
+    // ls.get returns null for a blocked or failing read as well as for a real
+    // logout. A real logout already clears the store through setActiveUser, so
+    // this case withholds rather than destroys.
     ls.remove("active_user");
     expect(getSessionActiveKey("alice")).toBeNull();
-    expect(window.sessionStorage.length).toBe(0);
+
+    ls.set("active_user", "alice");
+    expect(getSessionActiveKey("alice")).toBe(KEY);
   });
 
   it("drops the record when another tab switched accounts", () => {
@@ -91,6 +80,17 @@ describe("session active key", () => {
     expect(getSessionActiveKey("alice")).toBeNull();
   });
 
+  it("refuses to store a value that is not key-shaped", () => {
+    setSessionActiveKey("not-a-key", "alice");
+    expect(getSessionActiveKey("alice")).toBeNull();
+    expect(window.sessionStorage.length).toBe(0);
+  });
+
+  it("treats an empty caller username as a mismatch, not as no scoping", () => {
+    setSessionActiveKey(KEY, "alice");
+    expect(getSessionActiveKey("")).toBeNull();
+  });
+
   it("clears both the memory copy and storage", () => {
     setSessionActiveKey(KEY, "alice");
     clearSessionActiveKey();
@@ -114,14 +114,79 @@ describe("session active key", () => {
 });
 
 /**
- * Simulates a reload: the module's in-memory mirror goes away, sessionStorage
- * does not. `clearSessionActiveKey` would wipe both, so drop the mirror by
- * reading through a storage round trip instead.
+ * A fresh document in the same tab: module state goes, sessionStorage stays.
+ * That is the difference between a reload and a page that never went away. It
+ * is where the handoff stamp decides whether the key may be picked up.
  */
-function clearMemoryOnly() {
-  const raw = window.sessionStorage.getItem("ecency_active-key-session");
-  clearSessionActiveKey();
-  if (raw !== null) {
-    window.sessionStorage.setItem("ecency_active-key-session", raw);
-  }
+async function nextDocument() {
+  vi.resetModules();
+  return import("@/utils/session-active-key");
 }
+
+function closeDocument() {
+  window.dispatchEvent(new Event("pagehide"));
+}
+
+describe("session active key across documents", () => {
+  beforeEach(() => {
+    window.sessionStorage.clear();
+    window.localStorage.clear();
+    clearSessionActiveKey();
+    ls.set("active_user", "alice");
+  });
+
+  it("survives a reload of the same tab", async () => {
+    setSessionActiveKey(KEY, "alice");
+    closeDocument();
+
+    const reloaded = await nextDocument();
+    expect(reloaded.getSessionActiveKey("alice")).toBe(KEY);
+  });
+
+  it("is refused by a tab reopened later, which browsers restore storage into", async () => {
+    vi.useFakeTimers();
+    try {
+      setSessionActiveKey(KEY, "alice");
+      closeDocument();
+      // Chrome keeps session storage on disk for "reopen closed tab", so the
+      // record is still here. Only the stale stamp says the tab went away.
+      vi.advanceTimersByTime(60_000 * 5);
+
+      const reopened = await nextDocument();
+      expect(reopened.getSessionActiveKey("alice")).toBeNull();
+      expect(window.sessionStorage.length).toBe(0);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("is refused by a duplicated tab, which copies the record while it is held", async () => {
+    setSessionActiveKey(KEY, "alice");
+    // No pagehide: the source tab is still open, so its record carries no stamp.
+
+    const duplicate = await nextDocument();
+    expect(duplicate.getSessionActiveKey("alice")).toBeNull();
+  });
+
+  it("does not let a reopened tab extend the window by reopening again", async () => {
+    setSessionActiveKey(KEY, "alice");
+    closeDocument();
+
+    const reloaded = await nextDocument();
+    expect(reloaded.getSessionActiveKey("alice")).toBe(KEY);
+
+    // The stamp is stripped on pickup, so a document that never says goodbye
+    // hands nothing to the next one.
+    const third = await nextDocument();
+    expect(third.getSessionActiveKey("alice")).toBeNull();
+  });
+
+  it("is gone once sessionStorage is gone", async () => {
+    setSessionActiveKey(KEY, "alice");
+    closeDocument();
+    window.sessionStorage.clear();
+
+    const reloaded = await nextDocument();
+    expect(reloaded.getSessionActiveKey("alice")).toBeNull();
+  });
+});
